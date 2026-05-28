@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 CNS Pathology Master Command Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05070f;
+            --surface: #0b0e1a;
+            --surface-card: #12162b;
+            --border: rgba(99, 140, 255, 0.15);
+            --accent: #38bdf8;
+            --accent2: #818cf8;
+            --accent3: #f43f5e;
+            --accent4: #10b981;
+            --text: #e2eaf8;
+            --text-muted: #64748b;
+            --radius: 14px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+        .orb {
+            position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.12;
+            animation: drift 22s ease-in-out infinite alternate;
+        }
+        .orb:nth-child(1) { width: 600px; height: 600px; background: #3b82f6; top: -100px; left: -100px; }
+        .orb:nth-child(2) { width: 500px; height: 500px; background: #ec4899; bottom: -150px; right: -100px; animation-delay: -6s; }
+        @keyframes drift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(40px,30px) scale(1.06); } }
+
+        .wrapper { position: relative; z-index: 1; max-width: 1300px; margin: 0 auto; padding: 40px 20px 80px; }
+
+        header { text-align: center; margin-bottom: 40px; }
+        .badge {
+            display: inline-block; background: rgba(99, 140, 255, 0.1); border: 1px solid rgba(99, 140, 255, 0.25);
+            color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 11px;
+            letter-spacing: 2px; padding: 6px 16px; border-radius: 100px; margin-bottom: 16px; text-transform: uppercase;
+        }
+        header h1 {
+            font-family: 'Syne', sans-serif; font-size: clamp(26px, 4.5vw, 44px); font-weight: 800; line-height: 1.1;
+            background: linear-gradient(135deg, #fff 20%, var(--accent) 60%, var(--accent2) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        header p { color: var(--text-muted); margin-top: 8px; font-size: 15px; }
+
+        .stats-bar { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
+        .stat-pill {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 100px;
+            padding: 10px 22px; font-size: 13px; display: flex; align-items: center; gap: 8px;
+        }
+        .stat-pill .num { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--accent); font-size: 16px; }
+        .stat-pill .lbl { color: var(--text-muted); }
+
+        .search-wrap { position: relative; max-width: 500px; margin: 0 auto 30px; }
+        .search-input {
+            width: 100%; padding: 14px 20px 14px 45px; background: var(--surface);
+            border: 1px solid var(--border); border-radius: 100px; color: var(--text);
+            font-size: 14px; outline: none; transition: all 0.2s;
+        }
+        .search-input:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(56, 189, 248, 0.2); }
+        .search-wrap::before { content: '🔍'; position: absolute; left: 18px; top: 50%; transform: translateY(-50%); font-size: 14px; opacity: 0.5; }
+
+        .tab-nav {
+            display: flex; gap: 8px; background: var(--surface); border: 1px solid var(--border);
+            padding: 6px; border-radius: 100px; max-width: fit-content; margin: 0 auto 40px;
+            overflow-x: auto; scrollbar-width: none;
+        }
+        .tab-btn {
+            padding: 10px 24px; border-radius: 100px; border: none; background: transparent;
+            color: var(--text-muted); font-size: 13px; font-weight: 700; cursor: pointer;
+            transition: all 0.2s; white-space: nowrap; font-family: 'DM Sans', sans-serif;
+        }
+        .tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+        .tab-btn.active {
+            background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(129,140,248,0.15));
+            color: var(--accent); border: 1px solid rgba(56,189,248,0.3);
+            box-shadow: 0 0 15px rgba(56,189,248,0.1);
+        }
+
+        .panel { display: none; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .panel.active { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+        .lecture-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 20px; }
+
+        .card {
+            background: var(--surface-card); border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 24px; transition: all 0.25s ease; display: flex; flex-direction: column;
+            text-decoration: none; color: inherit; position: relative; overflow: hidden;
+        }
+        .card::after {
+            content: ''; position: absolute; inset: 0; border-radius: var(--radius);
+            border: 2px solid var(--accent); opacity: 0; transition: opacity 0.25s; pointer-events: none;
+        }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.4); border-color: transparent; }
+        .card:hover::after { opacity: 0.3; }
+        
+        .card-num {
+            font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent);
+            font-weight: 600; text-transform: uppercase; margin-bottom: 12px; display: inline-block;
+            background: rgba(167, 139, 250, 0.08); padding: 2px 8px; border-radius: 4px; width: max-content;
+        }
+        .card-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 8px; line-height: 1.4; color: #fff; }
+        .card-desc { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; flex: 1; }
+        
+        .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 14px; font-size: 12px; }
+        .card-tag { font-family: 'JetBrains Mono', monospace; color: var(--accent4); font-weight: 600; }
+        .launch-icon { color: var(--accent); font-weight: bold; }
+        .no-results { grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="bg-canvas"><div class="orb"></div><div class="orb"></div></div>
+
+    <div class="wrapper">
+        <header>
+            <div class="badge">Faculty of Medicine · Systemic Pathology</div>
+            <h1>CNS Pathology Command Hub</h1>
+            <p>Unified local tracking dashboard across systemic pathology frameworks</p>
+        </header>
+
+        <div class="stats-bar">
+            <div class="stat-pill"><span class="lbl">Syllabus Range:</span><span class="num">Lectures 01 – 05</span></div>
+            <div class="stat-pill"><span class="lbl">Active Directory:</span><span class="num" style="color:var(--accent4)">Direct Local Link Mode</span></div>
+        </div>
+
+        <div class="search-wrap">
+            <input type="text" class="search-input" id="globalSearch" placeholder="Type to filter anomalies, inclusions, stains, or tumors instantly...">
+        </div>
+
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('block1', this)">Structural &amp; Infectious Tracks</button>
+            <button class="tab-btn" onclick="switchTab('block2', this)">Vascular, Degenerative &amp; Tumors</button>
+        </div>
+
+        <div id="block1" class="panel active">
+            <div class="lecture-grid">
+                <a href="Patho L1 cns_anomalies_study.html" class="card">
+                    <span class="card-num">Lecture 01</span>
+                    <h3 class="card-title">Congenital Anomalies &amp; Hydrocephalus</h3>
+                    <p class="card-desc">Neural tube closures, holoprosencephaly cyclopia tracks, posterior fossa malformations (Chiari vs. Dandy-Walker), and intracranial CSF fluid dynamics.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Workspace</span><span class="launch-icon">Deploy ↗</span></div>
+                </a>
+
+                <a href="Patho L2.html" class="card">
+                    <span class="card-num">Lecture 02</span>
+                    <h3 class="card-title">Central Nervous System Infections</h3>
+                    <p class="card-desc">Age-specific bacterial meningitis sorting matrices, brain abscess morphological staging zones, neurotropic viral inclusions (Negri bodies), and prion diseases.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Workspace</span><span class="launch-icon">Deploy ↗</span></div>
+                </a>
+            </div>
+        </div>
+
+        <div id="block2" class="panel">
+            <div class="lecture-grid">
+                <a href="Patho L3 cerebrovascular_study_platform.html" class="card">
+                    <span class="card-num">Lecture 03</span>
+                    <h3 class="card-title">Cerebrovascular Disorders &amp; Neurotrauma</h3>
+                    <p class="card-desc">Extradural middle meningeal arterial taints, subdural bridging vein tears, berry aneurysm subarachnoid events, and hypoxic global red neuron schemas.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Workspace</span><span class="launch-icon">Deploy ↗</span></div>
+                </a>
+
+                <a href="Patho L4.html" class="card">
+                    <span class="card-num">Lecture 04</span>
+                    <h3 class="card-title">Neurodegenerative Diseases</h3>
+                    <p class="card-desc">Alzheimer cortical shrinkage dynamics (Aβ plaques and Tau tangles), Parkinson substantia nigra pallor, and Huntington CAG repeat GABA depletions.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Workspace</span><span class="launch-icon">Deploy ↗</span></div>
+                </a>
+
+                <a href="Patho L5 cns_tumors_study_platform.html" class="card">
+                    <span class="card-num">Lecture 05</span>
+                    <h3 class="card-title">Central Nervous System Tumors</h3>
+                    <p class="card-desc">Glioma grading tracks (Pilocytic to GBM), pediatric 4th ventricle medulloblastomas, dura-based whorled meningiomas, and peripheral nerve profiling.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Workspace</span><span class="launch-icon">Deploy ↗</span></div>
+                </a>
+                
+                <div class="no-results" id="emptyState">No custom pathology components matching that diagnostic query located.</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            element.classList.add('active');
+            
+            executeFilter();
+        }
+
+        const searchField = document.getElementById('globalSearch');
+        searchField.addEventListener('input', executeFilter);
+
+        function executeFilter() {
+            const query = searchField.value.trim().toLowerCase();
+            const activePanel = document.querySelector('.panel.active');
+            const cards = activePanel.querySelectorAll('.card');
+            const emptyNotice = activePanel.querySelector('.no-results') || document.getElementById('emptyState');
+            
+            let visibleCounter = 0;
+
+            cards.forEach(card => {
+                const titleText = card.querySelector('.card-title').textContent.toLowerCase();
+                const descText = card.querySelector('.card-desc').textContent.toLowerCase();
+                const moduleTag = card.querySelector('.card-num').textContent.toLowerCase();
+
+                if (titleText.includes(query) || descText.includes(query) || moduleTag.includes(query)) {
+                    card.style.display = 'flex';
+                    visibleCounter++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            if (visibleCounter === 0) {
+                emptyNotice.style.display = 'block';
+                if(!activePanel.querySelector('.no-results')) {
+                    activePanel.querySelector('.lecture-grid').appendChild(emptyNotice);
+                }
+            } else {
+                emptyNotice.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

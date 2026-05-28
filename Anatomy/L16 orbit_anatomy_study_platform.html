@@ -1,0 +1,1890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔬 Orbital Anatomy — Elite Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --surface3: #1f2d42;
+    --border: rgba(99,179,237,0.15);
+    --accent: #63b3ed;
+    --accent2: #90cdf4;
+    --accent3: #4299e1;
+    --gold: #f6c90e;
+    --emerald: #48bb78;
+    --rose: #fc8181;
+    --violet: #b794f4;
+    --text: #e2e8f0;
+    --text-muted: #718096;
+    --text-dim: #4a5568;
+    --success: #68d391;
+    --danger: #fc8181;
+    --warning: #f6ad55;
+    --radius: 14px;
+    --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 20%, rgba(99,179,237,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 80% 80%, rgba(183,148,244,0.05) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 30% at 50% 50%, rgba(72,187,120,0.03) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Header */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,14,26,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+  }
+
+  .header-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    height: 68px;
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--accent2);
+    white-space: nowrap;
+    letter-spacing: -0.02em;
+  }
+
+  .logo span { color: var(--gold); }
+
+  .search-bar {
+    flex: 1;
+    max-width: 340px;
+    position: relative;
+  }
+
+  .search-bar input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px 8px 36px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-bar input:focus { border-color: var(--accent); }
+  .search-bar::before { content: '🔍'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.75rem; }
+
+  .stats-bar {
+    display: flex;
+    gap: 16px;
+    margin-left: auto;
+    align-items: center;
+  }
+
+  .stat-pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .stat-pill strong { color: var(--accent); }
+
+  /* Nav Tabs */
+  .nav-tabs {
+    background: rgba(10,14,26,0.95);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .nav-tabs::-webkit-scrollbar { display: none; }
+
+  .nav-tabs-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    gap: 4px;
+  }
+
+  .tab-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    padding: 14px 18px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .tab-btn:hover { color: var(--text); border-bottom-color: var(--border); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* Main Content */
+  .main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 28px 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .tab-panel { display: none; animation: fadeIn 0.3s ease; }
+  .tab-panel.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .card:hover { border-color: rgba(99,179,237,0.3); }
+
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+  @media (max-width: 900px) {
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  }
+
+  /* Section headers */
+  .section-header {
+    margin-bottom: 24px;
+  }
+
+  .section-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.03em;
+  }
+
+  .section-header p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 6px;
+  }
+
+  /* Tags */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .tag-exam { background: rgba(246,201,14,0.15); color: var(--gold); border: 1px solid rgba(246,201,14,0.3); }
+  .tag-clinical { background: rgba(72,187,120,0.12); color: var(--emerald); border: 1px solid rgba(72,187,120,0.3); }
+  .tag-danger { background: rgba(252,129,129,0.12); color: var(--rose); border: 1px solid rgba(252,129,129,0.3); }
+  .tag-nerve { background: rgba(183,148,244,0.12); color: var(--violet); border: 1px solid rgba(183,148,244,0.3); }
+
+  /* ==================== OVERVIEW TAB ==================== */
+
+  .overview-hero {
+    background: linear-gradient(135deg, rgba(99,179,237,0.08) 0%, rgba(183,148,244,0.06) 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 36px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .overview-hero::before {
+    content: '👁';
+    position: absolute;
+    right: 36px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 5rem;
+    opacity: 0.12;
+  }
+
+  .overview-hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, var(--accent2), var(--violet));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+
+  .wall-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    transition: all 0.2s;
+  }
+
+  .wall-card:hover {
+    border-color: var(--accent3);
+    background: var(--surface3);
+    transform: translateY(-2px);
+  }
+
+  .wall-card h4 {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--accent);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .wall-card ul { list-style: none; }
+  .wall-card ul li {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .wall-card ul li::before { content: '→'; color: var(--accent3); font-size: 0.7rem; }
+
+  .muscle-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  .muscle-table th {
+    background: var(--surface3);
+    color: var(--accent);
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .muscle-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: var(--text-muted);
+  }
+
+  .muscle-table tr:hover td { background: rgba(99,179,237,0.04); color: var(--text); }
+
+  .nerve-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .cn3 { background: rgba(72,187,120,0.15); color: var(--emerald); }
+  .cn4 { background: rgba(183,148,244,0.15); color: var(--violet); }
+  .cn6 { background: rgba(246,201,14,0.15); color: var(--gold); }
+
+  /* Flowchart */
+  .flow-chart {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    padding: 8px 0;
+    scrollbar-width: none;
+    flex-wrap: wrap;
+  }
+
+  .flow-node {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 0.78rem;
+    color: var(--text);
+    white-space: nowrap;
+    position: relative;
+    transition: all 0.2s;
+  }
+
+  .flow-node.danger { border-color: rgba(252,129,129,0.4); background: rgba(252,129,129,0.06); }
+  .flow-node.highlight { border-color: rgba(246,201,14,0.4); background: rgba(246,201,14,0.06); }
+
+  .flow-arrow {
+    color: var(--accent3);
+    font-size: 1rem;
+    padding: 0 4px;
+    flex-shrink: 0;
+  }
+
+  /* ==================== QUIZ TAB ==================== */
+
+  .quiz-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .progress-bar-container {
+    flex: 1;
+    min-width: 200px;
+    background: var(--surface2);
+    border-radius: 100px;
+    height: 8px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent3), var(--violet));
+    border-radius: 100px;
+    transition: width 0.5s ease;
+  }
+
+  .score-display {
+    display: flex;
+    gap: 16px;
+  }
+
+  .score-item {
+    text-align: center;
+  }
+
+  .score-item .val {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .score-item .lbl {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 16px;
+  }
+
+  .q-number {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .q-text {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .options-grid {
+    display: grid;
+    gap: 10px;
+  }
+
+  .option-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--text);
+    background: var(--surface3);
+  }
+
+  .option-btn.correct {
+    border-color: var(--success);
+    background: rgba(104,211,145,0.1);
+    color: var(--success);
+    animation: pulse-green 0.4s ease;
+  }
+
+  .option-btn.wrong {
+    border-color: var(--danger);
+    background: rgba(252,129,129,0.1);
+    color: var(--danger);
+    animation: shake 0.4s ease;
+  }
+
+  .option-btn .opt-letter {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
+  }
+
+  @keyframes pulse-green {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.01); box-shadow: 0 0 16px rgba(104,211,145,0.3); }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+
+  .explanation-box {
+    margin-top: 14px;
+    padding: 14px 18px;
+    background: rgba(99,179,237,0.06);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: none;
+  }
+
+  .explanation-box.show { display: block; animation: fadeIn 0.3s ease; }
+
+  .quiz-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+  }
+
+  .btn {
+    padding: 10px 24px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent3), var(--accent));
+    color: white;
+  }
+
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+  .btn-ghost {
+    background: var(--surface2);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+
+  .btn-ghost:hover { color: var(--text); border-color: var(--accent); }
+
+  .btn-success {
+    background: linear-gradient(135deg, #38a169, var(--emerald));
+    color: white;
+  }
+
+  /* ==================== FLASHCARDS TAB ==================== */
+
+  .flashcard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .flashcard {
+    height: 200px;
+    perspective: 1000px;
+    cursor: pointer;
+  }
+
+  .flashcard-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+
+  .flashcard-front,
+  .flashcard-back {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: var(--radius);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .flashcard-front {
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .flashcard-back {
+    background: linear-gradient(135deg, rgba(99,179,237,0.1), rgba(183,148,244,0.1));
+    border: 1px solid rgba(99,179,237,0.3);
+    transform: rotateY(180deg);
+  }
+
+  .flashcard-front .q-icon {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+  }
+
+  .flashcard-front p {
+    font-size: 0.88rem;
+    color: var(--text);
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .flashcard-back p {
+    font-size: 0.84rem;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .flashcard-back .answer-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .fc-hint {
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    margin-top: auto;
+    padding-top: 10px;
+  }
+
+  /* ==================== CLINICAL CASES TAB ==================== */
+
+  .case-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .case-header {
+    padding: 20px 24px;
+    background: linear-gradient(135deg, rgba(99,179,237,0.06), transparent);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .case-number {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--accent3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .case-vignette {
+    font-size: 0.9rem;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  .case-body { padding: 20px 24px; }
+
+  .case-question {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+  }
+
+  .case-question p {
+    font-size: 0.875rem;
+    color: var(--text);
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+
+  .reveal-btn {
+    background: none;
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    padding: 8px 14px;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .reveal-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .answer-reveal {
+    margin-top: 10px;
+    padding: 12px 16px;
+    background: rgba(72,187,120,0.06);
+    border-left: 3px solid var(--emerald);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.83rem;
+    color: var(--text);
+    line-height: 1.6;
+    display: none;
+  }
+
+  .answer-reveal.show { display: block; animation: fadeIn 0.3s ease; }
+
+  /* ==================== ANATOMY TAB ==================== */
+
+  .structure-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .structure-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .structure-item:hover {
+    border-color: var(--accent);
+    background: var(--surface3);
+    transform: translateY(-2px);
+  }
+
+  .structure-item.active { border-color: var(--accent); background: var(--surface3); }
+
+  .structure-item .s-icon { font-size: 1.5rem; margin-bottom: 8px; }
+  .structure-item .s-title { font-weight: 600; font-size: 0.88rem; color: var(--text); margin-bottom: 4px; }
+  .structure-item .s-sub { font-size: 0.75rem; color: var(--text-muted); }
+
+  .structure-detail {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
+    display: none;
+  }
+
+  .structure-detail.show { display: block; animation: fadeIn 0.3s ease; }
+
+  .structure-detail h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    margin-bottom: 14px;
+    color: var(--accent2);
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  .detail-item {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 12px;
+  }
+
+  .detail-item .d-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .detail-item .d-value {
+    font-size: 0.82rem;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  /* ==================== MNEMONICS TAB ==================== */
+
+  .mnemonic-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+    transition: border-color 0.2s;
+  }
+
+  .mnemonic-card:hover { border-color: rgba(183,148,244,0.4); }
+
+  .mnemonic-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--violet);
+    margin-bottom: 6px;
+  }
+
+  .mnemonic-subtitle {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+  }
+
+  .mnemonic-letters {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mnemonic-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 8px 12px;
+    background: var(--surface2);
+    border-radius: 8px;
+  }
+
+  .mnemonic-letter {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--violet), var(--accent3));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .mnemonic-row .word { font-weight: 600; color: var(--text); font-size: 0.88rem; min-width: 100px; }
+  .mnemonic-row .meaning { font-size: 0.82rem; color: var(--text-muted); }
+
+  /* ==================== VIVA TAB ==================== */
+
+  .viva-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+
+  .viva-q {
+    padding: 18px 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.2s;
+  }
+
+  .viva-q:hover { background: var(--surface2); }
+
+  .viva-q-text {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+  }
+
+  .viva-q-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+
+  .viva-chevron {
+    color: var(--text-dim);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+    margin-left: 12px;
+  }
+
+  .viva-card.open .viva-chevron { transform: rotate(180deg); }
+
+  .viva-answer {
+    padding: 0 20px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.2s;
+  }
+
+  .viva-card.open .viva-answer {
+    padding: 4px 20px 20px;
+    max-height: 300px;
+  }
+
+  .viva-answer-inner {
+    background: rgba(99,179,237,0.05);
+    border-left: 3px solid var(--accent);
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  .exam-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(246,201,14,0.15);
+    color: var(--gold);
+    border: 1px solid rgba(246,201,14,0.3);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  /* Comparison Tables */
+  .compare-table-wrap { overflow-x: auto; border-radius: var(--radius); }
+
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  .compare-table th {
+    background: var(--surface3);
+    color: var(--accent);
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .compare-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--text-muted);
+    vertical-align: top;
+  }
+
+  .compare-table tr:hover td { background: rgba(99,179,237,0.03); }
+
+  /* Results Modal */
+  .results-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    display: none;
+  }
+
+  .results-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
+
+  .results-modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    max-width: 440px;
+    width: 90%;
+  }
+
+  .results-modal .emoji { font-size: 3.5rem; margin-bottom: 16px; }
+  .results-modal h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 8px; }
+  .results-modal .score-big { font-size: 3rem; font-weight: 700; color: var(--accent); font-family: 'Playfair Display', serif; margin: 16px 0; }
+  .results-modal p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent3); }
+
+  /* Search highlight */
+  .search-hidden { display: none !important; }
+  mark { background: rgba(246,201,14,0.25); color: var(--gold); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">Orbit<span>Rx</span></div>
+    <div class="search-bar">
+      <input type="text" id="globalSearch" placeholder="Search anything..." oninput="handleSearch(this.value)">
+    </div>
+    <div class="stats-bar">
+      <div class="stat-pill">🔥 Streak: <strong id="streakCount">0</strong></div>
+      <div class="stat-pill">✅ <strong id="correctCount">0</strong>/<span id="totalAnswered">0</span></div>
+      <div class="stat-pill">📊 <strong id="progressPct">0</strong>%</div>
+    </div>
+  </div>
+</header>
+
+<!-- Nav Tabs -->
+<nav class="nav-tabs">
+  <div class="nav-tabs-inner">
+    <button class="tab-btn active" onclick="switchTab('overview', this)">🏠 Overview</button>
+    <button class="tab-btn" onclick="switchTab('quiz', this)">🧠 Quiz (25 Qs)</button>
+    <button class="tab-btn" onclick="switchTab('flashcards', this)">🃏 Flashcards</button>
+    <button class="tab-btn" onclick="switchTab('cases', this)">🩺 Clinical Cases</button>
+    <button class="tab-btn" onclick="switchTab('anatomy', this)">🔬 Anatomy</button>
+    <button class="tab-btn" onclick="switchTab('mnemonics', this)">💡 Mnemonics</button>
+    <button class="tab-btn" onclick="switchTab('viva', this)">🗣️ Viva Prep</button>
+    <button class="tab-btn" onclick="switchTab('tables', this)">📊 Compare</button>
+  </div>
+</nav>
+
+<main class="main">
+
+  <!-- ==================== OVERVIEW ==================== -->
+  <section id="tab-overview" class="tab-panel active">
+    <div class="overview-hero">
+      <h1>Anatomy of the Orbit & Ocular Innervation</h1>
+      <p style="color:var(--text-muted);font-size:0.9rem;max-width:600px;margin-top:8px;">Complete guide covering orbital bones, extraocular muscles, blood supply, venous drainage, and all nerve supplies. High-yield exam material.</p>
+      <div class="hero-tags">
+        <span class="tag tag-exam">⚠️ Walls always in exam</span>
+        <span class="tag tag-exam">⚠️ LR6 SO4 Rule</span>
+        <span class="tag tag-clinical">🩺 Cavernous Sinus Danger</span>
+        <span class="tag tag-nerve">🧠 Nasociliary Branches</span>
+        <span class="tag tag-danger">⚡ Ophthalmic Artery = End Artery</span>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <h2>🏗️ Orbital Walls</h2>
+      <p>Four walls — every single wall is exam material.</p>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:28px;">
+      <div class="wall-card">
+        <h4>🔼 Roof</h4>
+        <ul>
+          <li>Orbital plate of Frontal bone</li>
+          <li>Lesser wing of Sphenoid</li>
+        </ul>
+      </div>
+      <div class="wall-card">
+        <h4>🔽 Floor</h4>
+        <ul>
+          <li>Orbital plate of Maxilla <em>(main)</em></li>
+          <li>Zygomatic bone</li>
+          <li>Orbital process of Palatine</li>
+        </ul>
+      </div>
+      <div class="wall-card">
+        <h4>◀️ Medial Wall</h4>
+        <ul>
+          <li>Frontal process of Maxilla</li>
+          <li>Lacrimal bone</li>
+          <li>Orbital plate of Ethmoid</li>
+          <li>Body of Sphenoid</li>
+        </ul>
+      </div>
+      <div class="wall-card">
+        <h4>▶️ Lateral Wall</h4>
+        <ul>
+          <li>Zygomatic bone</li>
+          <li>Greater wing of Sphenoid</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <h2>💪 Extraocular Muscles — Nerve Supply & Actions</h2>
+      <p>LR6 SO4 — the most important mnemonic in orbital anatomy.</p>
+    </div>
+
+    <div class="card" style="margin-bottom:28px;padding:0;overflow:hidden;">
+      <div class="compare-table-wrap">
+        <table class="muscle-table">
+          <thead>
+            <tr>
+              <th>Muscle</th>
+              <th>Origin</th>
+              <th>Nerve</th>
+              <th>Primary Action</th>
+              <th>Full Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Superior Rectus</td><td>Annulus of Zinn</td><td><span class="nerve-badge cn3">CN III</span></td><td>Elevation</td><td>Elevation, Adduction, Intorsion</td></tr>
+            <tr><td>Inferior Rectus</td><td>Annulus of Zinn</td><td><span class="nerve-badge cn3">CN III</span></td><td>Depression</td><td>Depression, Adduction, Extorsion</td></tr>
+            <tr><td>Medial Rectus</td><td>Annulus of Zinn</td><td><span class="nerve-badge cn3">CN III</span></td><td>Adduction</td><td>Adduction only</td></tr>
+            <tr><td><strong>Lateral Rectus</strong></td><td>Annulus of Zinn</td><td><span class="nerve-badge cn6">CN VI</span></td><td><strong>Abduction</strong></td><td>Abduction only</td></tr>
+            <tr><td><strong>Superior Oblique</strong></td><td>Body of Sphenoid</td><td><span class="nerve-badge cn4">CN IV</span></td><td>Depression</td><td>Depression, Abduction, Intorsion</td></tr>
+            <tr><td>Inferior Oblique</td><td>Floor of Orbit</td><td><span class="nerve-badge cn3">CN III</span></td><td>Elevation</td><td>Elevation, Abduction, Extorsion</td></tr>
+            <tr><td>Levator Palpebrae</td><td>Lesser wing Sphenoid</td><td><span class="nerve-badge cn3">CN III</span></td><td>Eyelid elevation</td><td>Elevates upper eyelid → tarsal plate</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <h2>🩸 Vascular Pathways</h2>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:28px;">
+      <div class="card">
+        <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--accent);margin-bottom:14px;">Ophthalmic Artery Pathway</h3>
+        <div class="flow-chart">
+          <div class="flow-node highlight">Internal Carotid A.</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node">Optic Canal</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node">Orbital Cavity</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node">Multiple Branches</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node highlight">Terminal: Supratrochlear + Dorsal Nasal</div>
+        </div>
+        <div style="margin-top:14px;padding:10px;background:rgba(252,129,129,0.07);border-radius:8px;border-left:3px solid var(--rose);">
+          <span style="font-size:0.78rem;color:var(--rose);">⚡ <strong>END ARTERY</strong> — Occlusion = Irreversible Blindness</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--rose);margin-bottom:14px;">⚠️ Infection Danger Pathway</h3>
+        <div class="flow-chart">
+          <div class="flow-node danger">Facial Boil / Pimple</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node">Facial Vein</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node">Sup. Ophthalmic Vein</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node danger">Cavernous Sinus</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node danger">💀 FATAL Thrombosis</div>
+        </div>
+        <div style="margin-top:14px;padding:10px;background:rgba(252,129,129,0.07);border-radius:8px;border-left:3px solid var(--rose);">
+          <span style="font-size:0.78rem;color:var(--rose);">Veins have <strong>NO VALVES</strong> → retrograde spread possible</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--violet);margin-bottom:14px;">🧠 Branches of Nasociliary Nerve <span class="tag tag-exam" style="vertical-align:middle;margin-left:8px;">⚠️ EXAM</span></h3>
+      <div class="grid-3" style="gap:10px;">
+        <div style="background:var(--surface2);padding:12px;border-radius:8px;font-size:0.82rem;color:var(--text);">1️⃣ Sensory root → Ciliary Ganglion</div>
+        <div style="background:var(--surface2);padding:12px;border-radius:8px;font-size:0.82rem;color:var(--text);">2️⃣ Long ciliary nerves</div>
+        <div style="background:var(--surface2);padding:12px;border-radius:8px;font-size:0.82rem;color:var(--text);">3️⃣ Posterior ethmoidal nerve</div>
+        <div style="background:var(--surface2);padding:12px;border-radius:8px;font-size:0.82rem;color:var(--text);">4️⃣ Infratrochlear nerve</div>
+        <div style="background:var(--surface2);padding:12px;border-radius:8px;font-size:0.82rem;color:var(--text);">5️⃣ Anterior ethmoidal nerve</div>
+        <div style="background:rgba(246,201,14,0.06);padding:12px;border-radius:8px;font-size:0.82rem;color:var(--gold);border:1px dashed rgba(246,201,14,0.3);">⚠️ NOT Supratrochlear (that's Frontal N.)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== QUIZ ==================== -->
+  <section id="tab-quiz" class="tab-panel">
+    <div class="quiz-header">
+      <div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:1.5rem;">🧠 Quiz Mode</h2>
+        <p style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;" id="q-counter">Question <span id="currentQ">1</span> of <span id="totalQ">25</span></p>
+      </div>
+      <div style="flex:1;padding:0 24px;">
+        <div class="progress-bar-container"><div class="progress-bar-fill" id="quizProgress" style="width:0%"></div></div>
+      </div>
+      <div class="score-display">
+        <div class="score-item"><div class="val" id="scoreCorrect">0</div><div class="lbl">Correct</div></div>
+        <div class="score-item"><div class="val" id="scoreWrong">0</div><div class="lbl">Wrong</div></div>
+        <div class="score-item"><div class="val" id="scoreStreak">0</div><div class="lbl">Streak 🔥</div></div>
+      </div>
+    </div>
+
+    <div id="questionContainer"></div>
+
+    <div class="quiz-nav">
+      <button class="btn btn-ghost" onclick="skipQuestion()">⏭ Skip</button>
+      <button class="btn btn-primary" onclick="nextQuestion()" id="nextBtn" disabled>Next Question →</button>
+    </div>
+  </section>
+
+  <!-- ==================== FLASHCARDS ==================== -->
+  <section id="tab-flashcards" class="tab-panel">
+    <div class="section-header">
+      <h2>🃏 Flashcards</h2>
+      <p>Click any card to flip and reveal the answer. Test yourself!</p>
+    </div>
+    <div class="flashcard-grid" id="flashcardGrid"></div>
+  </section>
+
+  <!-- ==================== CLINICAL CASES ==================== -->
+  <section id="tab-cases" class="tab-panel">
+    <div class="section-header">
+      <h2>🩺 Clinical Cases</h2>
+      <p>Exam-style vignettes with structured answers. Think before revealing!</p>
+    </div>
+    <div id="casesContainer"></div>
+  </section>
+
+  <!-- ==================== ANATOMY ==================== -->
+  <section id="tab-anatomy" class="tab-panel">
+    <div class="section-header">
+      <h2>🔬 Interactive Anatomy Explorer</h2>
+      <p>Click any structure to explore in detail.</p>
+    </div>
+    <div class="structure-grid" id="structureGrid"></div>
+    <div id="structureDetail" class="structure-detail"></div>
+
+    <div class="section-header" style="margin-top:8px;">
+      <h2>🧠 Intrinsic vs Extrinsic Muscles</h2>
+    </div>
+    <div class="card compare-table-wrap" style="padding:0;overflow:hidden;">
+      <table class="compare-table">
+        <thead>
+          <tr><th>Feature</th><th>Intrinsic Muscles</th><th>Extrinsic Muscles</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Type</td><td>Smooth, involuntary</td><td>Skeletal, voluntary</td></tr>
+          <tr><td>Location</td><td>Inside eyeball</td><td>Outside eyeball</td></tr>
+          <tr><td>Components</td><td>Ciliary, Sphincter pupillae, Dilator pupillae</td><td>4 Recti, 2 Obliques, Levator palpebrae</td></tr>
+          <tr><td>Nerve control</td><td>Sympathetic (Dilator) / Parasympathetic (Sphincter, Ciliary)</td><td>CN III, CN IV, CN VI</td></tr>
+          <tr><td>Function</td><td>Accommodation, pupil size regulation</td><td>Eye movement, eyelid elevation</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ==================== MNEMONICS ==================== -->
+  <section id="tab-mnemonics" class="tab-panel">
+    <div class="section-header">
+      <h2>💡 Memory Aids & Mnemonics</h2>
+      <p>Custom mnemonics crafted from the lecture content.</p>
+    </div>
+    <div id="mnemonicsContainer"></div>
+  </section>
+
+  <!-- ==================== VIVA ==================== -->
+  <section id="tab-viva" class="tab-panel">
+    <div class="section-header">
+      <h2>🗣️ Viva Voce Preparation</h2>
+      <p>12 high-yield viva questions. Click to expand model answers.</p>
+    </div>
+    <div id="vivaContainer"></div>
+  </section>
+
+  <!-- ==================== TABLES ==================== -->
+  <section id="tab-tables" class="tab-panel">
+    <div class="section-header">
+      <h2>📊 Comparison Tables & Quick Reference</h2>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--accent);margin-bottom:16px;">Recti vs Oblique Muscles</h3>
+      <div class="compare-table-wrap">
+        <table class="compare-table">
+          <thead><tr><th>Feature</th><th>Recti Muscles</th><th>Oblique Muscles</th></tr></thead>
+          <tbody>
+            <tr><td>Count</td><td>4 (Sup, Inf, Med, Lat)</td><td>2 (Superior, Inferior)</td></tr>
+            <tr><td>Origin</td><td>Annulus of Zinn (common tendinous ring)</td><td>Roof (Sup) / Floor (Inf) of orbit</td></tr>
+            <tr><td>Primary function</td><td>Cardinal gaze directions</td><td>Rotational stability (torsion)</td></tr>
+            <tr><td>Nerve supply</td><td>CN III (except Lateral Rectus = CN VI)</td><td>CN IV (Sup Oblique), CN III (Inf Oblique)</td></tr>
+            <tr><td>Insertion</td><td>Anterior sclera</td><td>Posterior/lateral sclera</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--accent);margin-bottom:16px;">Orbital Openings & Their Contents</h3>
+      <div class="compare-table-wrap">
+        <table class="compare-table">
+          <thead><tr><th>Opening</th><th>Location</th><th>Contents</th></tr></thead>
+          <tbody>
+            <tr><td>Optic Canal</td><td>Lesser wing of Sphenoid</td><td>Optic nerve (CN II) + Ophthalmic artery</td></tr>
+            <tr><td>Superior Orbital Fissure</td><td>Between greater & lesser wings of Sphenoid</td><td>CN III, CN IV, CN VI, Ophthalmic V1, Superior ophthalmic vein</td></tr>
+            <tr><td>Inferior Orbital Fissure</td><td>Between maxilla, palatine & greater wing of sphenoid</td><td>Infra-orbital nerve & vessels, inferior ophthalmic vein → pterygoid plexus</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--accent);margin-bottom:16px;">Depressor Muscles Comparison</h3>
+      <div class="compare-table-wrap">
+        <table class="compare-table">
+          <thead><tr><th></th><th>Inferior Rectus</th><th>Superior Oblique</th></tr></thead>
+          <tbody>
+            <tr><td>Nerve</td><td><span class="nerve-badge cn3">CN III</span></td><td><span class="nerve-badge cn4">CN IV</span></td></tr>
+            <tr><td>Actions</td><td>Depression + Adduction + Extorsion</td><td>Depression + Abduction + Intorsion</td></tr>
+            <tr><td>Origin</td><td>Annulus of Zinn</td><td>Body of Sphenoid (runs through Trochlea)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--accent);margin-bottom:16px;">Branches of Ophthalmic Artery — Summary</h3>
+      <div class="grid-3" style="gap:10px;">
+        <div style="background:var(--surface2);padding:12px;border-radius:8px;font-size:0.82rem;">
+          <div style="color:var(--accent);font-weight:600;margin-bottom:6px;">Main Branch</div>
+          <div style="color:var(--text-muted);">Central artery of retina</div>
+        </div>
+        <div style="background:var(--surface2);padding:12px;border-radius:8px;font-size:0.82rem;">
+          <div style="color:var(--accent);font-weight:600;margin-bottom:6px;">Ciliary Branches</div>
+          <div style="color:var(--text-muted);">Long & short posterior ciliary arteries</div>
+        </div>
+        <div style="background:var(--surface2);padding:12px;border-radius:8px;font-size:0.82rem;">
+          <div style="color:var(--accent);font-weight:600;margin-bottom:6px;">Lacrimal</div>
+          <div style="color:var(--text-muted);">Lacrimal artery → lacrimal gland</div>
+        </div>
+        <div style="background:var(--surface2);padding:12px;border-radius:8px;font-size:0.82rem;">
+          <div style="color:var(--accent);font-weight:600;margin-bottom:6px;">Ethmoidal</div>
+          <div style="color:var(--text-muted);">Anterior & Posterior ethmoidal</div>
+        </div>
+        <div style="background:var(--surface2);padding:12px;border-radius:8px;font-size:0.82rem;">
+          <div style="color:var(--accent);font-weight:600;margin-bottom:6px;">Palpebral</div>
+          <div style="color:var(--text-muted);">Medial palpebral arteries</div>
+        </div>
+        <div style="background:rgba(246,201,14,0.06);padding:12px;border-radius:8px;font-size:0.82rem;border:1px dashed rgba(246,201,14,0.3);">
+          <div style="color:var(--gold);font-weight:600;margin-bottom:6px;">⭐ Terminal Branches</div>
+          <div style="color:var(--gold);">Supratrochlear + Dorsal nasal</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Results Modal -->
+<div class="results-overlay" id="resultsOverlay">
+  <div class="results-modal">
+    <div class="emoji" id="resultsEmoji">🎉</div>
+    <h2>Quiz Complete!</h2>
+    <div class="score-big" id="finalScore">0/25</div>
+    <p id="resultsMsg">Keep practicing to master orbital anatomy!</p>
+    <button class="btn btn-primary" onclick="restartQuiz()" style="width:100%;margin-bottom:10px;">🔄 Restart Quiz</button>
+    <button class="btn btn-ghost" onclick="document.getElementById('resultsOverlay').classList.remove('show');switchTab('flashcards',document.querySelector('.tab-btn:nth-child(3)'))" style="width:100%;">📚 Review Flashcards</button>
+  </div>
+</div>
+
+<script>
+// ==================== DATA ====================
+
+const quizData = [
+  { q: "Which structure passes through the optic canal alongside the optic nerve?", opts: ["Oculomotor nerve", "Ophthalmic artery", "Ophthalmic vein", "Trochlear nerve", "Abducent nerve"], ans: 1, exp: "The ophthalmic artery enters the orbit through the optic canal along with the optic nerve. All other nerves listed pass through the superior orbital fissure." },
+  { q: "The roof of the orbit is formed by the orbital plate of the frontal bone and which other structure?", opts: ["Greater wing of sphenoid", "Lesser wing of sphenoid", "Maxilla", "Zygomatic bone", "Ethmoid"], ans: 1, exp: "Roof = Frontal bone + Lesser wing of Sphenoid. Greater wing forms lateral wall; Maxilla/Zygomatic form floor; Ethmoid forms medial wall." },
+  { q: "Which muscle is responsible ONLY for abduction of the eyeball?", opts: ["Superior oblique", "Inferior oblique", "Lateral rectus", "Medial rectus", "Superior rectus"], ans: 2, exp: "The lateral rectus has only ONE action: abduction (moving the pupil laterally). It is innervated by CN VI (Abducent)." },
+  { q: "Which nerve supplies the superior oblique muscle? (LR6 SO4 rule)", opts: ["Optic", "Oculomotor", "Trochlear", "Trigeminal", "Abducent"], ans: 2, exp: "SO4 = Superior Oblique → CN IV (Trochlear). LR6 = Lateral Rectus → CN VI (Abducent). All others → CN III." },
+  { q: "Which bone does NOT contribute to the medial wall of the orbit?", opts: ["Maxilla", "Lacrimal", "Ethmoid", "Zygomatic", "Sphenoid"], ans: 3, exp: "Zygomatic bone forms the lateral wall and floor, NOT the medial wall. The medial wall (ant→post): Frontal process of maxilla, Lacrimal bone, Orbital plate of Ethmoid, Body of Sphenoid." },
+  { q: "What are the FULL actions of the inferior oblique muscle?", opts: ["Depression and intorsion", "Elevation, abduction, and extorsion", "Adduction only", "Depression, abduction, and intorsion", "Elevation and adduction"], ans: 1, exp: "Inferior oblique originates from the floor and inserts laterally, causing elevation, abduction, AND extorsion (lateral rotation)." },
+  { q: "The ophthalmic artery is a direct branch of which artery?", opts: ["External carotid", "Internal carotid", "Middle meningeal", "Facial", "Maxillary"], ans: 1, exp: "The ophthalmic artery originates from the INTERNAL carotid artery after it emerges from the cavernous sinus. It does NOT arise from the external carotid or its branches." },
+  { q: "Which of the following is an INTRINSIC muscle of the eyeball?", opts: ["Superior rectus", "Levator palpebrae superioris", "Ciliary muscle", "Inferior oblique", "Lateral rectus"], ans: 2, exp: "Intrinsic (smooth, involuntary) = Ciliary muscle, Sphincter pupillae, Dilator pupillae. All others are extrinsic skeletal muscles." },
+  { q: "The superior ophthalmic vein drains directly into the:", opts: ["Internal jugular vein", "Facial vein", "Cavernous sinus", "Pterygoid plexus", "Superior sagittal sinus"], ans: 2, exp: "The superior ophthalmic vein passes BACKWARD through the superior orbital fissure to drain into the CAVERNOUS SINUS. It communicates anteriorly with the facial vein but drains posteriorly." },
+  { q: "Which nerve provides GENERAL sensation to the eye and orbit?", opts: ["Optic", "Ophthalmic (V1)", "Oculomotor", "Trochlear", "Facial"], ans: 1, exp: "Ophthalmic nerve (V1) = general sensation. Optic nerve = special sensation (vision). Oculomotor and Trochlear are motor nerves." },
+  { q: "Which of the following is NOT a branch of the nasociliary nerve?", opts: ["Long ciliary nerve", "Posterior ethmoidal nerve", "Infratrochlear nerve", "Supratrochlear nerve", "Anterior ethmoidal nerve"], ans: 3, exp: "Supratrochlear is a branch of the FRONTAL nerve, not nasociliary. Nasociliary branches: sensory root to ciliary ganglion, long ciliary nerves, posterior & anterior ethmoidal, infratrochlear." },
+  { q: "Which muscle originates from the lesser wing of the sphenoid and inserts into the tarsal plate?", opts: ["Superior oblique", "Superior rectus", "Levator palpebrae superioris", "Inferior oblique", "Medial rectus"], ans: 2, exp: "Levator palpebrae superioris: Origin = lesser wing of Sphenoid. Insertion = anterior surface of tarsal plate (also skin and conjunctiva). Recti muscles originate from the common tendinous ring." },
+  { q: "The floor of the orbit is primarily composed of which bone?", opts: ["Frontal", "Maxilla", "Ethmoid", "Sphenoid", "Lacrimal"], ans: 1, exp: "The orbital plate of the MAXILLA forms the large central area of the orbital floor. Zygomatic (anterolateral) and palatine (small posterior portion) also contribute." },
+  { q: "The sympathetic nervous system supplies which muscle in the eye?", opts: ["Sphincter pupillae", "Dilator pupillae", "Ciliary muscle", "Superior rectus", "Levator palpebrae"], ans: 1, exp: "Dilator pupillae = SYMPATHETIC (dilates pupil in dark/stress). Sphincter pupillae and Ciliary muscle = PARASYMPATHETIC." },
+  { q: "The central artery of the retina is a branch of the:", opts: ["Internal carotid", "Facial", "Ophthalmic", "Maxillary", "Middle meningeal"], ans: 2, exp: "Central artery of the retina is a critical branch of the OPHTHALMIC artery. The ophthalmic artery itself comes from the internal carotid." },
+  { q: "Which extraocular muscle causes depression, ADDUCTION, and extorsion?", opts: ["Inferior rectus", "Superior oblique", "Inferior oblique", "Superior rectus", "Lateral rectus"], ans: 0, exp: "Inferior RECTUS: Depresses + ADDUCTS + extorts. Compare with Superior OBLIQUE which also depresses but ABDUCTS + intorts." },
+  { q: "The annulus of Zinn (common tendinous ring) is the origin for which muscles?", opts: ["Oblique muscles", "Recti muscles", "Intrinsic muscles", "Levator palpebrae superioris", "Sphincter pupillae"], ans: 1, exp: "All four recti muscles (superior, inferior, medial, lateral) originate from the common tendinous ring (annulus of Zinn) at the orbital apex." },
+  { q: "Which branch of the ophthalmic artery supplies the lacrimal gland?", opts: ["Supra-orbital artery", "Ethmoidal artery", "Lacrimal artery", "Dorsal nasal artery", "Supratrochlear artery"], ans: 2, exp: "The LACRIMAL artery is a specific branch of the ophthalmic artery that travels to the lacrimal gland and lateral orbital structures." },
+  { q: "Numbness over the top of the nose typically implicates which nerve?", opts: ["Maxillary (V2)", "Ophthalmic (V1)", "Mandibular (V3)", "Facial", "Optic"], ans: 1, exp: "Ophthalmic nerve (V1) provides general sensory innervation to the upper face and top of the nose via the external nasal branch." },
+  { q: "The inferior ophthalmic vein connects with which venous structure through the inferior orbital fissure?", opts: ["Cavernous sinus", "Facial vein", "Pterygoid venous plexus", "Jugular vein", "Superior sagittal sinus"], ans: 2, exp: "Inferior ophthalmic vein communicates through the inferior orbital fissure with the PTERYGOID VENOUS PLEXUS. It also drains into the cavernous sinus posteriorly." },
+  { q: "The superior oblique muscle moves the pupil:", opts: ["Superiorly and laterally", "Superiorly and medially", "Inferiorly and laterally", "Inferiorly and medially", "Medially only"], ans: 2, exp: "Superior oblique: DEPRESSES (inferior) and ABDUCTS (lateral) the eyeball, plus intorsion. Remember SO4 for its nerve (CN IV)." },
+  { q: "Which bone contains the optic canal?", opts: ["Frontal", "Maxilla", "Ethmoid", "Sphenoid", "Zygomatic"], ans: 3, exp: "The optic canal is located in the LESSER WING of the SPHENOID bone at the orbital apex. It transmits the optic nerve and ophthalmic artery." },
+  { q: "A complete CN III lesion would SPARE which movement?", opts: ["Elevation", "Adduction", "Abduction", "Intorsion by superior rectus", "Extorsion by inferior oblique"], ans: 2, exp: "ABDUCTION is performed by the LATERAL RECTUS supplied by CN VI (Abducent) — not CN III. All other movements rely on CN III-supplied muscles." },
+  { q: "The terminal branches of the ophthalmic artery are the:", opts: ["Central retinal and lacrimal", "Supratrochlear and dorsal nasal", "Anterior and posterior ethmoidal", "Supra-orbital and muscular", "Medial palpebral and long ciliary"], ans: 1, exp: "Terminal branches = SUPRATROCHLEAR artery and DORSAL NASAL artery. These are the final branches as the ophthalmic artery ends on the face." },
+  { q: "Which muscles do NOT originate from the common tendinous ring?", opts: ["Superior and Inferior Recti", "Medial and Lateral Recti", "Superior Oblique, Inferior Oblique, and Levator Palpebrae", "All Recti and Oblique muscles", "Only Lateral Rectus"], ans: 2, exp: "Superior oblique (originates from body of Sphenoid), Inferior oblique (floor of orbit), and Levator palpebrae (lesser wing of Sphenoid) all have DIFFERENT origins from the common tendinous ring." }
+];
+
+const flashcardData = [
+  { icon: "🏗️", q: "What forms the ROOF of the orbit?", a: "Orbital plate of Frontal bone + Lesser wing of Sphenoid bone." },
+  { icon: "🔽", q: "What forms the FLOOR of the orbit?", a: "Orbital plate of Maxilla (main) + Zygomatic bone + Orbital process of Palatine bone." },
+  { icon: "◀️", q: "Medial wall — 4 bones, anterior to posterior?", a: "1. Frontal process of Maxilla\n2. Lacrimal bone\n3. Orbital plate of Ethmoid\n4. Body of Sphenoid" },
+  { icon: "▶️", q: "What forms the LATERAL wall of the orbit?", a: "Zygomatic bone + Greater wing of Sphenoid." },
+  { icon: "🎯", q: "LR6 SO4 — what does it mean?", a: "Lateral Rectus → CN VI (Abducent)\nSuperior Oblique → CN IV (Trochlear)\nAll other EOMs → CN III (Oculomotor)" },
+  { icon: "💉", q: "From where does the ophthalmic artery originate?", a: "From the INTERNAL CAROTID artery, after it exits the cavernous sinus. Enters orbit via the optic canal." },
+  { icon: "⚡", q: "Why is ophthalmic artery occlusion so dangerous?", a: "It is an END ARTERY — no sufficient anastomoses. Occlusion → ischemia → IRREVERSIBLE BLINDNESS." },
+  { icon: "🩸", q: "What are the terminal branches of the ophthalmic artery?", a: "Supratrochlear artery and Dorsal nasal artery." },
+  { icon: "☠️", q: "How can a facial boil cause death?", a: "Bacteria travel: Facial vein → Superior ophthalmic vein → Cavernous sinus. Veins have NO VALVES → retrograde spread → Cavernous sinus thrombosis → FATAL." },
+  { icon: "🧠", q: "5 branches of the nasociliary nerve?", a: "1. Sensory root to ciliary ganglion\n2. Long ciliary nerves\n3. Posterior ethmoidal nerve\n4. Infratrochlear nerve\n5. Anterior ethmoidal nerve" },
+  { icon: "😴", q: "What causes ptosis and its nerve supply?", a: "Ptosis = drooping eyelid. Caused by paralysis of Levator Palpebrae Superioris (supplied by CN III) or Müller's muscle (sympathetic)." },
+  { icon: "💪", q: "What are actions of Superior Oblique?", a: "DEpression + ABduction + INtorsion\nMemory: SO DABI (Depression, Abduction, Intorsion)\nNerve: CN IV (Trochlear)" },
+  { icon: "👁️", q: "What passes through the optic canal?", a: "1. Optic nerve (CN II)\n2. Ophthalmic artery\n(NOT the ophthalmic veins — those go through superior orbital fissure)" },
+  { icon: "🌀", q: "Which muscles cause INTORSION?", a: "Superior Rectus + Superior Oblique both cause intorsion (medial rotation of the top of the eye)." },
+  { icon: "🔵", q: "Dilator vs Sphincter pupillae — nerve supply?", a: "Dilator pupillae → SYMPATHETIC (dilates in dark)\nSphincte pupillae → PARASYMPATHETIC (constricts in light)\nCiliary muscle → also parasympathetic (accommodation)" },
+  { icon: "📍", q: "Where does Levator Palpebrae Superioris originate?", a: "Lesser wing of the Sphenoid bone. Inserts into the anterior surface of the tarsal plate (+ skin and conjunctiva)." },
+  { icon: "🔗", q: "What is the common tendinous ring (Annulus of Zinn)?", a: "A fibrous ring at the orbital apex — origin of ALL FOUR RECTI muscles (superior, inferior, medial, lateral rectus)." },
+  { icon: "🩺", q: "Which muscles can DEPRESS the eyeball?", a: "1. Inferior Rectus (CN III) — depresses, adducts, extorts\n2. Superior Oblique (CN IV) — depresses, abducts, intorts" },
+  { icon: "🔺", q: "What is the 'danger area' of the face anatomically?", a: "The region around the nose/upper lip where veins communicate with the superior ophthalmic vein, and retrograde flow can reach the cavernous sinus." },
+  { icon: "🌐", q: "Inferior ophthalmic vein connects to what through the inferior orbital fissure?", a: "The Pterygoid venous plexus (through inferior orbital fissure). Both ophthalmic veins ultimately drain into the cavernous sinus." }
+];
+
+const casesData = [
+  {
+    n: "01", emoji: "🦠",
+    vignette: "A 28-year-old male presents with a swollen, red right eye, inability to move the eye in any direction, fever, and a dilated fixed pupil. He had a painful boil on the side of his nose 1 week ago that he squeezed.",
+    questions: [
+      { q: "1. What is the most likely diagnosis?", a: "Cavernous sinus thrombosis (septic). The constellation of total ophthalmoplegia (all directions), proptosis, and fixed dilated pupil following facial infection is classic." },
+      { q: "2. Trace the anatomical pathway of infection.", a: "Facial boil → Angular/facial vein → Superior ophthalmic vein (NO VALVES = retrograde flow) → Superior orbital fissure → Cavernous sinus → Septic thrombosis compressing CN III, IV, VI." },
+      { q: "3. Why is the pupil fixed and dilated?", a: "Cavernous sinus inflammation compresses the oculomotor nerve (CN III), which carries parasympathetic fibers controlling the sphincter pupillae. Loss of parasympathetic input → unopposed sympathetic → DILATED pupil." },
+      { q: "4. What imaging should be ordered?", a: "MRI/MRV (magnetic resonance venography) to visualize the cavernous sinus and orbital veins, demonstrating the thrombus and any extension." }
+    ]
+  },
+  {
+    n: "02", emoji: "👁️",
+    vignette: "A 65-year-old woman with atrial fibrillation presents with sudden, painless, complete monocular vision loss in her right eye. There was no trauma. Vision loss occurred within seconds.",
+    questions: [
+      { q: "1. What is the most likely vascular event?", a: "Occlusion of the CENTRAL ARTERY OF THE RETINA (a branch of the ophthalmic artery). Sudden, painless, complete monocular blindness is the classic presentation." },
+      { q: "2. Why is this irreversible?", a: "The ophthalmic artery is an END ARTERY — it has no sufficient anastomoses with other arteries. Occlusion causes rapid ischemia to the retina with no collateral blood supply. Retinal neurons are highly sensitive to ischemia." },
+      { q: "3. What is the source of the ophthalmic artery?", a: "Internal carotid artery. The embolus from her AF likely traveled: Heart → Aorta → Internal carotid artery → Ophthalmic artery → Central retinal artery." }
+    ]
+  },
+  {
+    n: "03", emoji: "😵",
+    vignette: "A 45-year-old man presents to the ED unable to open his right eye fully (ptosis). On examination, the right eye is deviated down and out, and he has double vision. His pupil on the right is dilated.",
+    questions: [
+      { q: "1. Which nerve is damaged?", a: "CN III (Oculomotor nerve) — complete palsy. Signs: ptosis (levator palpebrae), eye deviated DOWN and OUT (unopposed CN IV and VI), dilated fixed pupil (loss of parasympathetic sphincter pupillae), and restricted adduction/elevation." },
+      { q: "2. Why is the eye 'down and out'?", a: "CN III normally supplies SR, IR, MR, IO. Without CN III: Lateral rectus (CN VI) pulls the eye OUTWARD (laterally) while Superior oblique (CN IV) pulls it DOWNWARD and inward rotation. Net result = down and out position." },
+      { q: "3. Why does CN III palsy cause a dilated pupil?", a: "CN III carries PARASYMPATHETIC fibers to the sphincter pupillae. Damage removes parasympathetic tone → unopposed SYMPATHETIC → DILATION. This is called a 'surgical CN III palsy' and suggests extrinsic compression (e.g., aneurysm)." }
+    ]
+  },
+  {
+    n: "04", emoji: "🔬",
+    vignette: "A 30-year-old medical student asks about the medial wall of the orbit during an anatomy practical exam. The examiner points to the orbital cavity and asks them to enumerate the bones of the medial wall from front to back.",
+    questions: [
+      { q: "State the 4 bones of the medial wall, anterior to posterior.", a: "1. Frontal process of MAXILLA\n2. LACRIMAL bone\n3. Orbital plate of ETHMOID bone\n4. Body of SPHENOID bone\n\nMemory aid: MALES (Maxilla, And, Lacrimal, Ethmoid, Sphenoid)" },
+      { q: "Which wall is the thinnest and why is this clinically important?", a: "The MEDIAL WALL is the thinnest, particularly the orbital plate of the ethmoid (lamina papyracea). Blunt trauma or ethmoid sinusitis can breach this wall → orbital cellulitis or emphysema." }
+    ]
+  },
+  {
+    n: "05", emoji: "🧊",
+    vignette: "A 50-year-old woman presents with numbness over the tip and dorsum of her nose. She has no history of trauma. She also reports occasional tingling above the eye on the same side.",
+    questions: [
+      { q: "Which nerve is involved and what is its parent nerve?", a: "The OPHTHALMIC nerve (V1) — the first division of the trigeminal nerve — provides general sensation to the upper face, nose tip/dorsum, and skin above the eye. The external nasal branch of the anterior ethmoidal nerve (from nasociliary) supplies the nose tip." },
+      { q: "What is the clinical significance of this distribution?", a: "The ophthalmic nerve distribution does NOT overlap with mandibular or maxillary distributions. Isolated V1 numbness suggests a lesion at the cavernous sinus (where V1 runs along the wall) or the superior orbital fissure. A classic example is Herpes Zoster Ophthalmicus." }
+    ]
+  },
+  {
+    n: "06", emoji: "🎯",
+    vignette: "During an OSCE, you are shown a diagram of the right orbit viewed from the front. The examiner asks you to identify all muscles that rotate the eyeball and classify their torsional actions.",
+    questions: [
+      { q: "Which muscles cause INTORSION (medial rotation)?", a: "1. SUPERIOR RECTUS (CN III) — elevation + adduction + INTORSION\n2. SUPERIOR OBLIQUE (CN IV) — depression + abduction + INTORSION\nBoth SUPERIOR muscles intort the eye." },
+      { q: "Which muscles cause EXTORSION (lateral rotation)?", a: "1. INFERIOR RECTUS (CN III) — depression + adduction + EXTORSION\n2. INFERIOR OBLIQUE (CN III) — elevation + abduction + EXTORSION\nBoth INFERIOR muscles extort the eye." }
+    ]
+  }
+];
+
+const structureData = [
+  { icon: "🔵", title: "Optic Canal", sub: "Sphenoid bone aperture",
+    detail: { origin: "Lesser wing of Sphenoid bone", contents: "Optic nerve (CN II) + Ophthalmic artery", note: "Key exam: both optic nerve AND ophthalmic artery pass here. Ophthalmic vein does NOT." } },
+  { icon: "🔷", title: "Superior Orbital Fissure", sub: "Main orbital opening",
+    detail: { origin: "Between greater & lesser wings of Sphenoid", contents: "CN III, CN IV, CN VI, V1 (ophthalmic), Superior ophthalmic vein", note: "Remember: all cranial nerves to EOMs except optic nerve pass through here." } },
+  { icon: "🔶", title: "Inferior Orbital Fissure", sub: "Inferior communication",
+    detail: { origin: "Between maxilla, palatine & greater wing of Sphenoid", contents: "Infra-orbital nerve & vessels, inferior ophthalmic vein → pterygoid plexus", note: "The inferior ophthalmic vein connects to pterygoid plexus through here." } },
+  { icon: "💙", title: "Cavernous Sinus", sub: "Intracranial venous sinus",
+    detail: { origin: "Located in the middle cranial fossa, either side of sella turcica", contents: "Receives: Superior ophthalmic vein, Inferior ophthalmic vein. Contains: CN III, IV, VI, V1, V2, Internal carotid artery", note: "DANGER: Valveless veins allow retrograde spread of facial infection → septic thrombosis." } },
+  { icon: "🩸", title: "Ophthalmic Artery", sub: "Primary orbital blood supply",
+    detail: { origin: "Internal carotid artery (after leaving cavernous sinus)", contents: "Terminal branches: Supratrochlear + Dorsal nasal arteries", note: "END ARTERY — occlusion causes irreversible blindness. Enters orbit via optic canal." } },
+  { icon: "🎯", title: "Ciliary Ganglion", sub: "Parasympathetic relay station",
+    detail: { origin: "Located in posterior orbit, lateral to optic nerve", contents: "Receives: Parasympathetic (from CN III), sympathetic (from superior cervical ganglion), sensory (from nasociliary nerve)", note: "Postganglionic parasympathetics travel via short ciliary nerves to sphincter pupillae and ciliary muscle." } },
+  { icon: "🔑", title: "Annulus of Zinn", sub: "Common tendinous ring",
+    detail: { origin: "Fibrous ring at the orbital apex, surrounding optic canal", contents: "Origin of all 4 Recti muscles (superior, inferior, medial, lateral rectus)", note: "Superior and inferior divisions of CN III, CN VI, nasociliary nerve pass THROUGH the ring. CN IV, frontal & lacrimal nerves pass OUTSIDE the ring." } },
+  { icon: "👀", title: "Levator Palpebrae Superioris", sub: "Eyelid elevator",
+    detail: { origin: "Lesser wing of Sphenoid (above Superior Rectus)", contents: "Insertion: Anterior surface of tarsal plate (+ skin and conjunctiva)", note: "Nerve: CN III. Paralysis → PTOSIS. Accessory smooth muscle: Müller's muscle (sympathetic) — damage in Horner's causes partial ptosis." } }
+];
+
+const mnemonicsData = [
+  {
+    title: "LR6 SO4 — The Golden Rule",
+    subtitle: "Nerve supply of extraocular muscles",
+    items: [
+      { letter: "LR", word: "Lateral Rectus", meaning: "Cranial Nerve VI (Abducent)" },
+      { letter: "SO", word: "Superior Oblique", meaning: "Cranial Nerve IV (Trochlear)" },
+      { letter: "4", word: "ALL others", meaning: "Cranial Nerve III (Oculomotor)" }
+    ]
+  },
+  {
+    title: "MALES — Medial Wall",
+    subtitle: "Bones of medial wall, anterior to posterior",
+    items: [
+      { letter: "M", word: "Maxilla", meaning: "Frontal process of Maxilla (most anterior)" },
+      { letter: "A", word: "And", meaning: "(connector)" },
+      { letter: "L", word: "Lacrimal", meaning: "Lacrimal bone" },
+      { letter: "E", word: "Ethmoid", meaning: "Orbital plate of Ethmoid" },
+      { letter: "S", word: "Sphenoid", meaning: "Body of Sphenoid (most posterior)" }
+    ]
+  },
+  {
+    title: "DABI — Superior Oblique Actions",
+    subtitle: "What the superior oblique does (CN IV)",
+    items: [
+      { letter: "D", word: "Depression", meaning: "Moves pupil downward (primary function in adducted eye)" },
+      { letter: "A", word: "Abduction", meaning: "Moves pupil laterally (outward)" },
+      { letter: "B", word: "Both", meaning: "(connector)" },
+      { letter: "I", word: "Intorsion", meaning: "Medial rotation of top of eye" }
+    ]
+  },
+  {
+    title: "FLEE — Floor of Orbit",
+    subtitle: "3 bones forming the orbital floor",
+    items: [
+      { letter: "F", word: "Floor", meaning: "(self-referential)" },
+      { letter: "L", word: "Large part = Maxilla", meaning: "Orbital plate of Maxilla (majority)" },
+      { letter: "E", word: "Edge = Zygomatic", meaning: "Zygomatic bone (anterolateral portion)" },
+      { letter: "E", word: "End = Palatine", meaning: "Orbital process of Palatine (small posterior part)" }
+    ]
+  },
+  {
+    title: "SPLAP — Nasociliary Branches",
+    subtitle: "5 branches of the nasociliary nerve",
+    items: [
+      { letter: "S", word: "Sensory root", meaning: "→ to the ciliary ganglion" },
+      { letter: "P", word: "Posterior ethmoidal", meaning: "Posterior ethmoidal nerve" },
+      { letter: "L", word: "Long ciliary", meaning: "Long ciliary nerves (2-3)" },
+      { letter: "A", word: "Anterior ethmoidal", meaning: "Anterior ethmoidal nerve" },
+      { letter: "P", word: "P for infratrochlear", meaning: "Infratrochlear nerve (passes below trochlea)" }
+    ]
+  },
+  {
+    title: "SIN — Superior = Intorsion",
+    subtitle: "Quick torsion memory aid",
+    items: [
+      { letter: "S", word: "Superior muscles", meaning: "= Superior Rectus + Superior Oblique" },
+      { letter: "I", word: "Intort", meaning: "Both superior muscles INTORT the eye" },
+      { letter: "N", word: "Not inferior", meaning: "Inferior muscles EXTORT (opposite)" }
+    ]
+  }
+];
+
+const vivaData = [
+  { q: "What are the boundaries of the orbital roof?", exam: true, a: "The orbital roof is formed predominantly by the orbital plate of the frontal bone anteriorly and the lesser wing of the sphenoid bone posteriorly." },
+  { q: "What passes through the optic canal?", exam: true, a: "The optic nerve (CN II) and the ophthalmic artery pass through the optic canal. The ophthalmic veins do NOT pass here — they exit through the superior orbital fissure." },
+  { q: "Explain the venous drainage of the orbit and its clinical danger.", exam: true, a: "Superior and inferior ophthalmic veins drain backward through the superior orbital fissure into the cavernous sinus. Because they communicate anteriorly with the facial vein, and because these veins have NO VALVES, infections from the danger area of the face can spread retrogradely to the cavernous sinus, causing fatal cavernous sinus thrombosis." },
+  { q: "Which extraocular muscles do NOT originate from the common tendinous ring?", exam: false, a: "Three muscles do NOT originate from the annulus of Zinn: (1) Superior oblique — from the body of the sphenoid, (2) Inferior oblique — from the floor of the orbit (maxilla), and (3) Levator palpebrae superioris — from the lesser wing of the sphenoid." },
+  { q: "State the rule for nerve supply of extraocular muscles.", exam: true, a: "The formula is LR6 SO4: Lateral Rectus → CN VI (Abducent), Superior Oblique → CN IV (Trochlear). ALL remaining extrinsic muscles including Superior Rectus, Inferior Rectus, Medial Rectus, Inferior Oblique, and Levator Palpebrae Superioris → CN III (Oculomotor)." },
+  { q: "What are the terminal branches of the ophthalmic artery?", exam: false, a: "The terminal branches are the SUPRATROCHLEAR artery (supplies the forehead medially) and the DORSAL NASAL artery (supplies the dorsum of the nose). These are the last branches before the ophthalmic artery ends." },
+  { q: "What muscles are responsible for intorsion of the eye?", exam: false, a: "Two muscles cause intorsion (medial rotation of the top of the eyeball): the SUPERIOR RECTUS and the SUPERIOR OBLIQUE. A memory aid: both SUPERIOR muscles intort." },
+  { q: "Describe the action of the lateral rectus.", exam: false, a: "The lateral rectus has ONE action only: ABDUCTION of the eyeball (moving the pupil laterally/outward). It is located on the lateral side and is innervated by the Abducent nerve (CN VI). This is the simplest of all EOMs." },
+  { q: "Name the branches of the nasociliary nerve.", exam: true, a: "Five branches: (1) Sensory root to the ciliary ganglion, (2) Long ciliary nerves (2-3 branches), (3) Posterior ethmoidal nerve, (4) Infratrochlear nerve, (5) Anterior ethmoidal nerve. Note: supratrochlear is NOT a branch of nasociliary — it belongs to the frontal nerve." },
+  { q: "What forms the medial wall of the orbit from anterior to posterior?", exam: true, a: "From anterior to posterior: (1) Frontal process of the Maxilla, (2) Lacrimal bone, (3) Orbital plate of the Ethmoid bone, (4) Body of the Sphenoid bone. Mnemonic: MALES (Maxilla, And, Lacrimal, Ethmoid, Sphenoid)." },
+  { q: "What is the clinical implication of the ophthalmic artery being an end artery?", exam: true, a: "Because the ophthalmic artery lacks sufficient anastomoses with other arteries, any occlusion (e.g., from embolism in atrial fibrillation) leads directly to ischemia of the retina. This results in sudden, painless, irreversible blindness. There is no collateral circulation to rescue the retina." },
+  { q: "Which intrinsic muscles control the size of the pupil and their nerve supplies?", exam: false, a: "Dilator pupillae (controlled by SYMPATHETIC nervous system) dilates the pupil. Sphincter pupillae (controlled by PARASYMPATHETIC via CN III through ciliary ganglion) constricts the pupil. Loss of sympathetic → miosis (Horner's syndrome). Loss of parasympathetic (CN III lesion) → mydriasis (dilated pupil)." }
+];
+
+// ==================== STATE ====================
+let currentQuestion = 0;
+let score = 0;
+let wrongCount = 0;
+let streak = 0;
+let answered = false;
+let quizOrder = [];
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', () => {
+  loadState();
+  buildFlashcards();
+  buildCases();
+  buildStructures();
+  buildMnemonics();
+  buildViva();
+  shuffleQuiz();
+  renderQuestion();
+});
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('orbitStudy');
+    if (s) {
+      const d = JSON.parse(s);
+      score = d.score || 0;
+      streak = d.streak || 0;
+      updateStats();
+    }
+  } catch(e) {}
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('orbitStudy', JSON.stringify({ score, streak, ts: Date.now() }));
+  } catch(e) {}
+}
+
+// ==================== TABS ====================
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  try { localStorage.setItem('lastTab', id); } catch(e) {}
+}
+
+// ==================== QUIZ ====================
+function shuffleQuiz() {
+  quizOrder = [...Array(quizData.length).keys()].sort(() => Math.random() - 0.5);
+  currentQuestion = 0;
+  score = 0;
+  wrongCount = 0;
+  streak = 0;
+  answered = false;
+  updateStats();
+}
+
+function renderQuestion() {
+  if (currentQuestion >= quizOrder.length) {
+    showResults();
+    return;
+  }
+  const qi = quizOrder[currentQuestion];
+  const q = quizData[qi];
+
+  const letters = ['A','B','C','D','E'];
+  const pct = Math.round((currentQuestion / quizData.length) * 100);
+  document.getElementById('quizProgress').style.width = pct + '%';
+  document.getElementById('currentQ').textContent = currentQuestion + 1;
+  document.getElementById('totalQ').textContent = quizData.length;
+  document.getElementById('nextBtn').disabled = true;
+  answered = false;
+
+  let optsHtml = q.opts.map((opt, i) =>
+    `<button class="option-btn" onclick="selectAnswer(${i}, ${q.ans})" id="opt-${i}">
+      <span class="opt-letter">${letters[i]}</span>${opt}
+    </button>`
+  ).join('');
+
+  document.getElementById('questionContainer').innerHTML = `
+    <div class="question-card">
+      <div class="q-number">
+        <span>Q${currentQuestion + 1}</span>
+        <span style="background:rgba(99,179,237,0.1);padding:2px 8px;border-radius:4px;color:var(--accent)">Orbital Anatomy</span>
+      </div>
+      <div class="q-text">${q.q}</div>
+      <div class="options-grid">${optsHtml}</div>
+      <div class="explanation-box" id="expBox">
+        <strong style="color:var(--accent)">💡 Explanation:</strong> ${q.exp}
+      </div>
+    </div>`;
+}
+
+function selectAnswer(selected, correct) {
+  if (answered) return;
+  answered = true;
+
+  const opts = document.querySelectorAll('.option-btn');
+  opts.forEach(o => o.disabled = true);
+
+  if (selected === correct) {
+    opts[selected].classList.add('correct');
+    score++;
+    streak++;
+    document.getElementById('scoreCorrect').textContent = score;
+  } else {
+    opts[selected].classList.add('wrong');
+    opts[correct].classList.add('correct');
+    wrongCount++;
+    streak = 0;
+    document.getElementById('scoreWrong').textContent = wrongCount;
+  }
+
+  document.getElementById('scoreStreak').textContent = streak + (streak >= 3 ? '🔥' : '');
+  document.getElementById('expBox').classList.add('show');
+  document.getElementById('nextBtn').disabled = false;
+  updateStats();
+  saveState();
+}
+
+function nextQuestion() {
+  currentQuestion++;
+  renderQuestion();
+}
+
+function skipQuestion() {
+  currentQuestion++;
+  renderQuestion();
+}
+
+function showResults() {
+  const total = quizData.length;
+  const pct = Math.round((score / total) * 100);
+  const emoji = pct >= 90 ? '🏆' : pct >= 70 ? '🎉' : pct >= 50 ? '📚' : '💪';
+  const msg = pct >= 90 ? 'Outstanding! You have mastered orbital anatomy!' : pct >= 70 ? 'Great job! Review the ones you missed.' : pct >= 50 ? 'Good effort — keep practicing those tricky nerves!' : 'Keep going — every attempt builds knowledge!';
+
+  document.getElementById('resultsEmoji').textContent = emoji;
+  document.getElementById('finalScore').textContent = `${score}/${total} (${pct}%)`;
+  document.getElementById('resultsMsg').textContent = msg;
+  document.getElementById('resultsOverlay').classList.add('show');
+}
+
+function restartQuiz() {
+  document.getElementById('resultsOverlay').classList.remove('show');
+  shuffleQuiz();
+  renderQuestion();
+}
+
+function updateStats() {
+  document.getElementById('streakCount').textContent = streak;
+  document.getElementById('correctCount').textContent = score;
+  document.getElementById('totalAnswered').textContent = currentQuestion;
+  const pct = quizOrder.length > 0 ? Math.round((currentQuestion / quizOrder.length) * 100) : 0;
+  document.getElementById('progressPct').textContent = pct;
+}
+
+// ==================== FLASHCARDS ====================
+function buildFlashcards() {
+  const grid = document.getElementById('flashcardGrid');
+  grid.innerHTML = flashcardData.map((fc, i) => `
+    <div class="flashcard" onclick="this.classList.toggle('flipped')" id="fc-${i}">
+      <div class="flashcard-inner">
+        <div class="flashcard-front">
+          <div class="q-icon">${fc.icon}</div>
+          <p>${fc.q}</p>
+          <div class="fc-hint">👆 Click to reveal</div>
+        </div>
+        <div class="flashcard-back">
+          <div class="answer-label">✅ Answer</div>
+          <p>${fc.a.replace(/\n/g, '<br>')}</p>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ==================== CASES ====================
+function buildCases() {
+  const c = document.getElementById('casesContainer');
+  c.innerHTML = casesData.map(cas => `
+    <div class="case-card">
+      <div class="case-header">
+        <div class="case-number">${cas.emoji}</div>
+        <div>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-bottom:6px;">CASE ${cas.n}</div>
+          <div class="case-vignette">${cas.vignette}</div>
+        </div>
+      </div>
+      <div class="case-body">
+        ${cas.questions.map((qq, qi) => `
+          <div class="case-question">
+            <p>${qq.q}</p>
+            <button class="reveal-btn" onclick="revealAnswer(this)">👁 Reveal Answer</button>
+            <div class="answer-reveal">${qq.a.replace(/\n/g, '<br>')}</div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function revealAnswer(btn) {
+  const box = btn.nextElementSibling;
+  box.classList.toggle('show');
+  btn.textContent = box.classList.contains('show') ? '🙈 Hide Answer' : '👁 Reveal Answer';
+}
+
+// ==================== ANATOMY ====================
+function buildStructures() {
+  const grid = document.getElementById('structureGrid');
+  grid.innerHTML = structureData.map((s, i) => `
+    <div class="structure-item" onclick="showStructureDetail(${i})" id="si-${i}">
+      <div class="s-icon">${s.icon}</div>
+      <div class="s-title">${s.title}</div>
+      <div class="s-sub">${s.sub}</div>
+    </div>`).join('');
+}
+
+function showStructureDetail(i) {
+  const s = structureData[i];
+  document.querySelectorAll('.structure-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('si-' + i).classList.add('active');
+
+  const detail = document.getElementById('structureDetail');
+  detail.innerHTML = `
+    <h3>${s.icon} ${s.title}</h3>
+    <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:14px;">${s.sub}</p>
+    <div class="detail-grid">
+      <div class="detail-item"><div class="d-label">📍 Location / Origin</div><div class="d-value">${s.detail.origin}</div></div>
+      <div class="detail-item"><div class="d-label">📦 Contents / Insertion</div><div class="d-value">${s.detail.contents}</div></div>
+      <div class="detail-item" style="grid-column:1/-1;background:rgba(246,201,14,0.05);border:1px solid rgba(246,201,14,0.15);"><div class="d-label">⭐ Clinical Note</div><div class="d-value" style="color:var(--gold)">${s.detail.note}</div></div>
+    </div>`;
+  detail.classList.add('show');
+  detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ==================== MNEMONICS ====================
+function buildMnemonics() {
+  const c = document.getElementById('mnemonicsContainer');
+  c.innerHTML = mnemonicsData.map(m => `
+    <div class="mnemonic-card">
+      <div class="mnemonic-title">💡 ${m.title}</div>
+      <div class="mnemonic-subtitle">${m.subtitle}</div>
+      <div class="mnemonic-letters">
+        ${m.items.map(item => `
+          <div class="mnemonic-row">
+            <div class="mnemonic-letter">${item.letter}</div>
+            <span class="word">${item.word}</span>
+            <span class="meaning">${item.meaning}</span>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+// ==================== VIVA ====================
+function buildViva() {
+  const c = document.getElementById('vivaContainer');
+  c.innerHTML = vivaData.map((v, i) => `
+    <div class="viva-card" id="viva-${i}">
+      <div class="viva-q" onclick="toggleViva(${i})">
+        <div class="viva-q-text">
+          <span class="viva-q-num">V${String(i+1).padStart(2,'0')}</span>
+          ${v.q}
+          ${v.exam ? '<span class="exam-badge">⚠️ EXAM</span>' : ''}
+        </div>
+        <span class="viva-chevron">▾</span>
+      </div>
+      <div class="viva-answer">
+        <div class="viva-answer-inner">${v.a}</div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleViva(i) {
+  document.getElementById('viva-' + i).classList.toggle('open');
+}
+
+// ==================== SEARCH ====================
+function handleSearch(val) {
+  val = val.toLowerCase().trim();
+  if (!val) {
+    document.querySelectorAll('.wall-card, .mnemonic-card, .viva-card, .flashcard, .case-card').forEach(el => {
+      el.classList.remove('search-hidden');
+    });
+    return;
+  }
+  document.querySelectorAll('.viva-card').forEach(el => {
+    const text = el.textContent.toLowerCase();
+    el.classList.toggle('search-hidden', !text.includes(val));
+  });
+  document.querySelectorAll('.mnemonic-card').forEach(el => {
+    const text = el.textContent.toLowerCase();
+    el.classList.toggle('search-hidden', !text.includes(val));
+  });
+}
+</script>
+</body>
+</html>

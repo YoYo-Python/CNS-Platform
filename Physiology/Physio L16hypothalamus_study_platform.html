@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hypothalamus & Limbic System — Interactive Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e1a;
+  --surface: #111827;
+  --surface2: #1a2332;
+  --border: #1e2d42;
+  --accent: #00c9a7;
+  --accent2: #7c6af7;
+  --accent3: #f97316;
+  --accent4: #ec4899;
+  --text: #e2e8f0;
+  --text-muted: #64748b;
+  --text-dim: #94a3b8;
+  --correct: #10b981;
+  --wrong: #ef4444;
+  --warn: #f59e0b;
+  --card-radius: 16px;
+  --transition: 0.25s cubic-bezier(.4,0,.2,1);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Animated background */
+.bg-canvas {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  overflow: hidden;
+}
+.orb {
+  position: absolute; border-radius: 50%;
+  filter: blur(80px); opacity: 0.12;
+  animation: drift 20s ease-in-out infinite alternate;
+}
+.orb1 { width:600px;height:600px; background:#00c9a7; top:-200px; left:-200px; animation-duration:22s; }
+.orb2 { width:500px;height:500px; background:#7c6af7; bottom:-150px; right:-150px; animation-duration:28s; animation-delay:-8s; }
+.orb3 { width:350px;height:350px; background:#f97316; top:40%; left:40%; animation-duration:18s; animation-delay:-5s; }
+
+@keyframes drift {
+  0% { transform: translate(0,0) scale(1); }
+  100% { transform: translate(60px,40px) scale(1.1); }
+}
+
+/* Layout */
+.app { position:relative; z-index:1; }
+
+/* Header */
+header {
+  padding: 28px 32px 0;
+  display: flex; align-items: center; gap: 20px;
+  flex-wrap: wrap;
+}
+.logo-badge {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #000; font-weight:700; font-size:11px; letter-spacing:2px;
+  padding: 6px 14px; border-radius:40px; text-transform:uppercase;
+}
+.header-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(22px, 4vw, 36px);
+  font-weight: 900;
+  background: linear-gradient(135deg, #fff 0%, var(--accent) 60%, var(--accent2) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  line-height: 1.1;
+}
+.header-sub { color: var(--text-muted); font-size:13px; margin-top:4px; }
+
+.stats-bar {
+  margin-left: auto; display:flex; gap:20px; align-items:center;
+  flex-wrap:wrap;
+}
+.stat-pill {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 40px; padding: 8px 18px;
+  font-size: 13px; color: var(--text-dim);
+  display: flex; align-items:center; gap:8px;
+}
+.stat-pill .val { color: var(--accent); font-weight:700; font-family:'DM Mono',monospace; }
+
+/* Nav Tabs */
+nav {
+  display: flex; gap: 6px; padding: 24px 32px 0;
+  overflow-x: auto; scrollbar-width: none;
+}
+nav::-webkit-scrollbar { display:none; }
+.tab-btn {
+  flex-shrink: 0;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text-muted); padding: 10px 20px;
+  border-radius: 40px; font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--text); border-color: var(--accent); }
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #000; border-color: transparent; font-weight:700;
+}
+
+/* Main content */
+main { padding: 28px 32px 60px; }
+.tab-panel { display:none; animation: fadeUp 0.4s ease; }
+.tab-panel.active { display:block; }
+
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(16px); }
+  to { opacity:1; transform: translateY(0); }
+}
+
+/* Section title */
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(20px, 3vw, 28px);
+  font-weight: 700; margin-bottom: 20px;
+  display: flex; align-items:center; gap:12px;
+}
+.section-title .icon {
+  width:40px;height:40px; border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+}
+
+/* Cards grid */
+.cards-grid { display:grid; gap:16px; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); }
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--card-radius); padding: 20px;
+  transition: var(--transition); position:relative; overflow:hidden;
+}
+.card::before {
+  content:''; position:absolute; inset:0;
+  background: linear-gradient(135deg, var(--accent-color, var(--accent)) 0%, transparent 60%);
+  opacity: 0; transition: var(--transition);
+}
+.card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.card:hover::before { opacity: 0.05; }
+.card-label {
+  font-size: 10px; letter-spacing:2px; text-transform:uppercase;
+  color: var(--accent-color, var(--accent)); font-weight:600; margin-bottom:8px;
+}
+.card h3 { font-size:15px; font-weight:600; margin-bottom:8px; }
+.card p { font-size:13px; color: var(--text-dim); line-height:1.6; }
+.badge {
+  display:inline-block; padding:3px 10px; border-radius:20px;
+  font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+  margin: 4px 3px 0 0;
+}
+.badge-exam { background:#f97316; color:#000; }
+.badge-yield { background:#00c9a7; color:#000; }
+.badge-pearl { background:#7c6af7; color:#fff; }
+
+/* Overview highlight boxes */
+.highlight-row { display:grid; gap:12px; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); margin-bottom:24px; }
+.hl-box {
+  border-radius: 14px; padding:18px; border:1px solid transparent;
+  background: var(--surface2);
+}
+.hl-box.green  { border-color:#00c9a720; background: #00c9a710; }
+.hl-box.purple { border-color:#7c6af720; background: #7c6af710; }
+.hl-box.orange { border-color:#f9731620; background: #f9731610; }
+.hl-box.pink   { border-color:#ec489920; background: #ec489910; }
+.hl-box .hl-icon { font-size:24px; margin-bottom:8px; }
+.hl-box .hl-label { font-size:11px; color:var(--text-muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+.hl-box .hl-val { font-size:22px; font-weight:700; font-family:'Playfair Display',serif; }
+.hl-box .hl-sub { font-size:12px; color:var(--text-dim); margin-top:4px; }
+
+/* --- QUIZ --- */
+.quiz-container { max-width:800px; }
+.quiz-progress-wrap {
+  background: var(--surface); border-radius:40px; height:8px;
+  margin-bottom: 24px; overflow:hidden;
+}
+.quiz-progress-bar {
+  height:100%; border-radius:40px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  transition: width 0.5s ease;
+}
+.quiz-meta {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:20px; flex-wrap:wrap; gap:10px;
+}
+.quiz-counter { font-size:13px; color:var(--text-muted); }
+.quiz-score-display {
+  background: var(--surface); border:1px solid var(--border);
+  border-radius:40px; padding:6px 16px; font-size:13px;
+  display:flex; gap:16px;
+}
+.score-item { display:flex; align-items:center; gap:6px; }
+.dot { width:8px;height:8px; border-radius:50%; }
+.dot-correct { background:var(--correct); }
+.dot-wrong { background:var(--wrong); }
+
+.question-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--card-radius); padding: 28px;
+  margin-bottom:20px;
+}
+.question-num { font-size:11px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:12px; }
+.question-text { font-size:17px; font-weight:500; line-height:1.6; margin-bottom:24px; }
+.options-list { display:grid; gap:10px; }
+.option-btn {
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: 12px; padding: 14px 18px;
+  color: var(--text); font-family:'DM Sans',sans-serif;
+  font-size:14px; cursor:pointer; text-align:left;
+  transition: var(--transition); display:flex; align-items:center; gap:12px;
+}
+.option-letter {
+  min-width:28px; height:28px; border-radius:8px;
+  background: var(--border); display:flex; align-items:center;
+  justify-content:center; font-weight:700; font-size:12px; font-family:'DM Mono',monospace;
+}
+.option-btn:hover:not(:disabled) { border-color:var(--accent); background:var(--surface); }
+.option-btn.correct { border-color:var(--correct); background:#10b98115; }
+.option-btn.correct .option-letter { background:var(--correct); color:#000; }
+.option-btn.wrong { border-color:var(--wrong); background:#ef444415; }
+.option-btn.wrong .option-letter { background:var(--wrong); color:#fff; }
+.option-btn:disabled { cursor:default; }
+
+@keyframes pulse-correct { 0%,100%{box-shadow:none} 50%{box-shadow:0 0 0 8px #10b98130} }
+@keyframes shake-wrong { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+.anim-correct { animation: pulse-correct 0.5s ease; }
+.anim-wrong { animation: shake-wrong 0.4s ease; }
+
+.explanation-box {
+  background: var(--surface2); border-left:3px solid var(--accent);
+  border-radius:0 12px 12px 0; padding:16px 20px; margin-top:16px;
+  font-size:13px; line-height:1.7; color:var(--text-dim);
+  display:none;
+}
+.explanation-box.show { display:block; animation: fadeUp 0.3s ease; }
+.explanation-box strong { color:var(--text); }
+
+.quiz-nav { display:flex; gap:12px; justify-content:flex-end; }
+.btn {
+  padding:12px 24px; border-radius:40px; border:none;
+  font-family:'DM Sans',sans-serif; font-weight:600;
+  font-size:14px; cursor:pointer; transition:var(--transition);
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color:#000;
+}
+.btn-primary:hover { transform:translateY(-1px); box-shadow:0 8px 24px #00c9a740; }
+.btn-secondary {
+  background:var(--surface2); color:var(--text);
+  border:1px solid var(--border);
+}
+.btn-secondary:hover { border-color:var(--accent); }
+
+.quiz-complete {
+  text-align:center; padding:60px 20px;
+}
+.quiz-complete .big-score {
+  font-family:'Playfair Display',serif;
+  font-size:80px; font-weight:900;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.quiz-complete p { color:var(--text-muted); margin:12px 0 32px; font-size:16px; }
+
+/* --- FLASHCARDS --- */
+.fc-grid { display:grid; gap:20px; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); }
+.fc-wrapper { perspective:1000px; height:200px; cursor:pointer; }
+.fc-inner {
+  position:relative; width:100%; height:100%;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+}
+.fc-wrapper.flipped .fc-inner { transform: rotateY(180deg); }
+.fc-front, .fc-back {
+  position:absolute; inset:0;
+  backface-visibility:hidden; -webkit-backface-visibility:hidden;
+  border-radius: var(--card-radius); padding:24px;
+  display:flex; flex-direction:column; justify-content:center;
+  border: 1px solid var(--border);
+}
+.fc-front {
+  background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+}
+.fc-back {
+  background: linear-gradient(135deg, #00c9a710, #7c6af710);
+  border-color: var(--accent2);
+  transform: rotateY(180deg);
+}
+.fc-tag { font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:10px; }
+.fc-q { font-size:15px; font-weight:600; line-height:1.5; }
+.fc-a { font-size:14px; line-height:1.6; color:var(--text-dim); }
+.fc-hint { font-size:11px; color:var(--text-muted); margin-top:auto; text-align:right; }
+
+/* --- CLINICAL CASES --- */
+.case-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--card-radius); overflow:hidden; margin-bottom:20px;
+}
+.case-header {
+  padding: 20px 24px; background:var(--surface2);
+  border-bottom:1px solid var(--border);
+  display:flex; gap:16px; align-items:center;
+}
+.case-num {
+  min-width:48px; height:48px; border-radius:12px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display:flex; align-items:center; justify-content:center;
+  font-weight:900; font-size:18px; color:#000;
+  font-family:'Playfair Display',serif;
+}
+.case-header h3 { font-size:16px; font-weight:600; }
+.case-header p { font-size:13px; color:var(--text-muted); margin-top:3px; }
+.case-body { padding:24px; }
+.case-vignette {
+  background: var(--surface2); border-radius:12px; padding:18px;
+  font-size:14px; line-height:1.8; color:var(--text-dim);
+  border-left:3px solid var(--accent3); margin-bottom:20px;
+}
+.case-questions { display:grid; gap:12px; }
+.case-q { font-size:14px; font-weight:500; color:var(--text); padding:12px 0; border-bottom:1px solid var(--border); }
+.case-q:last-child { border-bottom:none; }
+.reveal-btn {
+  background: transparent; border:1px solid var(--accent);
+  color:var(--accent); border-radius:40px; padding:8px 20px;
+  font-size:12px; font-weight:600; cursor:pointer;
+  transition:var(--transition); margin-top:8px;
+}
+.reveal-btn:hover { background:var(--accent); color:#000; }
+.case-answer {
+  background:#00c9a710; border:1px solid #00c9a730;
+  border-radius:12px; padding:14px 18px;
+  font-size:13px; line-height:1.7; color:var(--text-dim);
+  margin-top:10px; display:none;
+}
+.case-answer.show { display:block; animation:fadeUp 0.3s ease; }
+.case-answer strong { color:var(--accent); }
+
+/* --- ANATOMY TAB (Structure Explorer) --- */
+.structure-grid { display:grid; gap:12px; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); margin-bottom:32px; }
+.struct-item {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:14px; padding:18px; cursor:pointer;
+  transition:var(--transition);
+}
+.struct-item:hover, .struct-item.selected { border-color:var(--accent2); background:var(--surface2); }
+.struct-icon { font-size:24px; margin-bottom:10px; }
+.struct-name { font-size:14px; font-weight:600; }
+.struct-role { font-size:12px; color:var(--text-muted); margin-top:4px; }
+.struct-detail {
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:var(--card-radius); padding:24px;
+  margin-bottom:24px; display:none;
+}
+.struct-detail.show { display:block; animation:fadeUp 0.3s ease; }
+.struct-detail h3 { font-size:18px; font-weight:700; margin-bottom:12px; display:flex; gap:10px; align-items:center; }
+.struct-detail ul { padding-left:20px; }
+.struct-detail li { font-size:14px; color:var(--text-dim); line-height:1.8; margin-bottom:4px; }
+
+/* Flowchart */
+.flowchart { display:flex; flex-direction:column; align-items:center; gap:0; }
+.flow-node {
+  background:var(--surface); border:1.5px solid var(--border);
+  border-radius:14px; padding:14px 24px; text-align:center;
+  font-size:13px; min-width:220px; max-width:360px;
+  position:relative; transition:var(--transition);
+}
+.flow-node:hover { border-color:var(--accent); }
+.flow-node.primary { border-color:var(--accent); background:#00c9a710; }
+.flow-node.secondary { border-color:var(--accent2); background:#7c6af710; }
+.flow-node.tertiary { border-color:var(--accent3); background:#f9731610; }
+.flow-arrow {
+  width:2px; height:32px; background: linear-gradient(to bottom, var(--accent), var(--accent2));
+  position:relative;
+}
+.flow-arrow::after {
+  content:''; position:absolute; bottom:-6px; left:50%; transform:translateX(-50%);
+  border:6px solid transparent; border-top-color:var(--accent2);
+}
+.flow-row { display:flex; gap:16px; align-items:center; }
+.flow-h-arrow {
+  width:40px; height:2px;
+  background: linear-gradient(to right, var(--accent), var(--accent2));
+  position:relative;
+}
+
+/* --- MNEMONICS --- */
+.mnemonic-grid { display:grid; gap:20px; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); }
+.mnemonic-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--card-radius); overflow:hidden;
+}
+.mnemonic-header {
+  padding:18px 20px; background: linear-gradient(135deg, var(--accent2)30, transparent);
+  border-bottom:1px solid var(--border);
+}
+.mnemonic-header h3 { font-size:16px; font-weight:700; }
+.mnemonic-header .acronym {
+  font-family:'DM Mono',monospace; font-size:28px; font-weight:700;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  margin-bottom:4px;
+}
+.mnemonic-body { padding:18px 20px; }
+.mnemonic-item {
+  display:flex; gap:12px; align-items:flex-start;
+  padding:8px 0; border-bottom:1px solid var(--border);
+}
+.mnemonic-item:last-child { border-bottom:none; }
+.mnemonic-letter {
+  min-width:32px; height:32px; border-radius:8px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display:flex; align-items:center; justify-content:center;
+  font-weight:900; color:#000; font-size:14px; font-family:'DM Mono',monospace;
+}
+.mnemonic-meaning { font-size:13px; }
+.mnemonic-meaning strong { color:var(--text); display:block; }
+.mnemonic-meaning span { color:var(--text-muted); font-size:12px; }
+
+/* --- SEARCH --- */
+.search-wrap { position:relative; margin-bottom:28px; max-width:500px; }
+.search-input {
+  width:100%; background:var(--surface); border:1.5px solid var(--border);
+  border-radius:40px; padding:12px 20px 12px 48px;
+  color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px;
+  outline:none; transition:var(--transition);
+}
+.search-input:focus { border-color:var(--accent); }
+.search-icon { position:absolute; left:18px; top:50%; transform:translateY(-50%); font-size:16px; }
+
+/* Summary table */
+.summary-table { width:100%; border-collapse:collapse; font-size:14px; margin-top:16px; }
+.summary-table th {
+  background:var(--surface2); padding:12px 16px; text-align:left;
+  font-size:11px; text-transform:uppercase; letter-spacing:1px;
+  color:var(--text-muted); border-bottom:1px solid var(--border);
+}
+.summary-table td { padding:12px 16px; border-bottom:1px solid var(--border); color:var(--text-dim); }
+.summary-table tr:hover td { background:var(--surface2); color:var(--text); }
+.summary-table .nucleus { font-weight:600; color:var(--text); }
+
+/* Responsive */
+@media(max-width:600px){
+  header, nav, main { padding-left:16px; padding-right:16px; }
+  .fc-grid { grid-template-columns:1fr; }
+  .stat-pill { display:none; }
+}
+</style>
+</head>
+<body>
+<div class="bg-canvas">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<div class="app">
+<header>
+  <div>
+    <div class="logo-badge">📚 Physiology CNS</div>
+    <div class="header-title">Hypothalamus &<br>Limbic System</div>
+    <div class="header-sub">Interactive Study Platform · Medical Physiology</div>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-pill">🔥 Streak <span class="val" id="streakVal">0</span></div>
+    <div class="stat-pill">✅ Quiz Score <span class="val" id="scoreVal">—</span></div>
+    <div class="stat-pill">📖 Progress <span class="val" id="progressVal">0%</span></div>
+  </div>
+</header>
+
+<nav>
+  <button class="tab-btn active" onclick="switchTab('overview')">🧠 Overview</button>
+  <button class="tab-btn" onclick="switchTab('quiz')">🎯 Quiz (25 MCQs)</button>
+  <button class="tab-btn" onclick="switchTab('flashcards')">🃏 Flashcards</button>
+  <button class="tab-btn" onclick="switchTab('cases')">🩺 Clinical Cases</button>
+  <button class="tab-btn" onclick="switchTab('anatomy')">🗺️ Structure Map</button>
+  <button class="tab-btn" onclick="switchTab('mnemonics')">💡 Mnemonics</button>
+  <button class="tab-btn" onclick="switchTab('essays')">📝 Essay Answers</button>
+</nav>
+
+<main>
+
+<!-- ===== OVERVIEW ===== -->
+<div class="tab-panel active" id="panel-overview">
+  <div class="highlight-row">
+    <div class="hl-box green"><div class="hl-icon">🏗️</div><div class="hl-label">Nuclei Groups</div><div class="hl-val">4</div><div class="hl-sub">Anterior · Posterior · Lateral · Medial</div></div>
+    <div class="hl-box purple"><div class="hl-icon">⚙️</div><div class="hl-label">Functions</div><div class="hl-val">7+</div><div class="hl-sub">ANS · Thermo · Endo · Thirst · Emotion…</div></div>
+    <div class="hl-box orange"><div class="hl-icon">⚠️</div><div class="hl-label">Exam Hotspots</div><div class="hl-val">12</div><div class="hl-sub">High-yield facts flagged in notes</div></div>
+    <div class="hl-box pink"><div class="hl-icon">🧬</div><div class="hl-label">Limbic Structures</div><div class="hl-val">8+</div><div class="hl-sub">Amygdala · Hippo · Cingulate…</div></div>
+  </div>
+
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" type="text" id="overviewSearch" placeholder="Search concepts, nuclei, functions…" oninput="filterCards()">
+  </div>
+
+  <div class="section-title"><div class="icon" style="background:#00c9a720">🗺️</div>Nucleus Quick-Reference Table</div>
+  <div class="card" style="margin-bottom:24px; overflow-x:auto;">
+    <table class="summary-table">
+      <thead><tr><th>Nucleus / Region</th><th>Primary Function</th><th>Lesion Effect</th><th>Flag</th></tr></thead>
+      <tbody>
+        <tr><td class="nucleus">Lateral Nuclei</td><td>Feeding center — initiates eating (Appestate)</td><td>Aphagia, weight loss</td><td><span class="badge badge-exam">⚠️ EXAM</span></td></tr>
+        <tr><td class="nucleus">Ventromedial Nuclei</td><td>Satiety center — stops eating; also Reward center</td><td>Hyperphagia, obesity</td><td><span class="badge badge-exam">⚠️ EXAM</span></td></tr>
+        <tr><td class="nucleus">Posterior Nuclei</td><td>Sympathetic control; Heat GAIN center</td><td>Hypothermia, no stress response</td><td><span class="badge badge-exam">⚠️ EXAM</span></td></tr>
+        <tr><td class="nucleus">Anterior Nuclei</td><td>Parasympathetic control; Heat LOSS center</td><td>Hyperthermia</td><td><span class="badge badge-exam">⚠️ EXAM</span></td></tr>
+        <tr><td class="nucleus">Supraoptic (S.O)</td><td>Synthesizes & secretes ADH → water reabsorption</td><td>Diabetes insipidus</td><td><span class="badge badge-yield">High Yield</span></td></tr>
+        <tr><td class="nucleus">Paraventricular (P.V)</td><td>Synthesizes & secretes Oxytocin</td><td>Impaired labor/lactation</td><td><span class="badge badge-yield">High Yield</span></td></tr>
+        <tr><td class="nucleus">Suprachiasmatic (SCN)</td><td>Biological master clock — circadian rhythms</td><td>Disrupted sleep-wake cycle</td><td><span class="badge badge-exam">⚠️ EXAM</span></td></tr>
+        <tr><td class="nucleus">Preoptic Area</td><td>Thermostat neurons; detect blood temp</td><td>Thermoregulation failure</td><td><span class="badge badge-pearl">Pearl</span></td></tr>
+        <tr><td class="nucleus">Periventricular Nucleus</td><td>Punishment / aversion center (Limbic)</td><td>Loss of aversion behavior</td><td><span class="badge badge-pearl">Pearl</span></td></tr>
+        <tr><td class="nucleus">Amygdala</td><td>Fear & rage reactions (Limbic)</td><td>Blunted emotional response</td><td><span class="badge badge-exam">⚠️ EXAM</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title"><div class="icon" style="background:#7c6af720">🔗</div>Connections Overview</div>
+  <div class="cards-grid" id="overviewCards">
+    <div class="card search-card" data-tags="afferent input cortex limbic thalamus basal ganglia reticular sensory">
+      <div class="card-label">Afferent (Inputs)</div>
+      <h3>What feeds INTO the hypothalamus</h3>
+      <p>Cerebral cortex, Limbic system, Thalamus, Basal ganglia, Brain stem reticular formation, Ascending sensory pathways</p>
+      <span class="badge badge-yield">High Yield</span>
+    </div>
+    <div class="card search-card" data-tags="efferent output thalamus limbic reticular autonomic respiratory vasomotor pituitary">
+      <div class="card-label">Efferent (Outputs)</div>
+      <h3>What the hypothalamus controls</h3>
+      <p>Thalamus → Cortex, Limbic system, Brain stem reticular, Autonomic centers, Respiratory/vasomotor centers, Posterior pituitary</p>
+      <span class="badge badge-yield">High Yield</span>
+    </div>
+    <div class="card search-card" data-tags="ANS autonomic sympathetic parasympathetic posterior anterior HR ABP pupil catecholamine">
+      <div class="card-label" style="--accent-color:#f97316">ANS Regulation ⚠️</div>
+      <h3>Autonomic Control</h3>
+      <p><strong>Posterior →</strong> Sympathetic: ↑HR, ↑ABP, pupil dilate, ↑catecholamines<br><strong>Anterior →</strong> Parasympathetic: ↓HR, ↓ABP, pupil constrict, ↑peristalsis/salivation</p>
+      <span class="badge badge-exam">⚠️ EXAM MCQ</span>
+    </div>
+    <div class="card search-card" data-tags="temperature thermoregulation heat loss gain preoptic anterior posterior sweating shivering vasodilation">
+      <div class="card-label" style="--accent-color:#ec4899">Temperature</div>
+      <h3>Thermoregulation</h3>
+      <p><strong>Preoptic area:</strong> Thermostat neurons<br><strong>Posterior nuclei:</strong> Heat GAIN (shivering, vasoconstriction, ↑T3/T4)<br><strong>Anterior nuclei:</strong> Heat LOSS (sweating, vasodilation)</p>
+      <span class="badge badge-exam">⚠️ EXAM</span>
+    </div>
+    <div class="card search-card" data-tags="endocrine pituitary ADH oxytocin releasing inhibiting portal supraoptic paraventricular">
+      <div class="card-label" style="--accent-color:#7c6af7">Endocrine Control</div>
+      <h3>Pituitary Regulation</h3>
+      <p><strong>Anterior pituitary:</strong> via portal blood (releasing/inhibiting factors)<br><strong>Posterior pituitary:</strong> via nerve tracts — ADH (S.O nucleus) + Oxytocin (P.V nucleus)</p>
+      <span class="badge badge-exam">⚠️ EXAM MCQ</span>
+    </div>
+    <div class="card search-card" data-tags="circadian rhythm SCN suprachiasmatic biological clock sleep wake retina light darkness">
+      <div class="card-label" style="--accent-color:#00c9a7">Circadian Rhythm</div>
+      <h3>Biological Master Clock</h3>
+      <p>SCN receives light/dark info DIRECTLY from the retina. Controls sleep-wake, body temp, hormone secretion over 24h diurnal cycle.</p>
+      <span class="badge badge-exam">⚠️ EXAM Written Q</span>
+    </div>
+    <div class="card search-card" data-tags="limbic system amygdala hippocampus cingulate emotion fear rage reward punishment papez">
+      <div class="card-label" style="--accent-color:#f97316">Limbic System</div>
+      <h3>Emotion & Behavior</h3>
+      <p>Cortical: cingulate gyrus, parahippocampal gyrus<br>Subcortical: amygdala, hippocampus, hypothalamus<br>Papez circuit = emotional memory loop</p>
+      <span class="badge badge-exam">⚠️ EXAM Written Q</span>
+    </div>
+    <div class="card search-card" data-tags="hypoglycemia glucose adrenaline cortisol GH glycogenolysis counter regulatory">
+      <div class="card-label" style="--accent-color:#ec4899">Hypoglycemia Response</div>
+      <h3>Counter-regulatory Mechanism</h3>
+      <p>Glucoreceptors detect low glucose → ↑ Adrenaline + GH + Cortisol → Glycogenolysis + Gluconeogenesis to restore blood glucose</p>
+      <span class="badge badge-pearl">Clinical Pearl</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== QUIZ ===== -->
+<div class="tab-panel" id="panel-quiz">
+  <div id="quizArea">
+    <div class="quiz-meta">
+      <div>
+        <div class="section-title" style="margin-bottom:4px"><div class="icon" style="background:#f9731620">🎯</div>MCQ Quiz</div>
+        <div class="quiz-counter" id="quizCounter">Question 1 of 25</div>
+      </div>
+      <div class="quiz-score-display">
+        <div class="score-item"><div class="dot dot-correct"></div><span id="correctCount">0</span> correct</div>
+        <div class="score-item"><div class="dot dot-wrong"></div><span id="wrongCount">0</span> wrong</div>
+        <div class="score-item">🔥 <span id="streakCount">0</span></div>
+      </div>
+    </div>
+    <div class="quiz-progress-wrap"><div class="quiz-progress-bar" id="quizBar" style="width:4%"></div></div>
+    <div class="question-card" id="questionCard">
+      <div class="question-num" id="qNum"></div>
+      <div class="question-text" id="qText"></div>
+      <div class="options-list" id="optionsList"></div>
+      <div class="explanation-box" id="explanationBox"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="btn btn-secondary" onclick="resetQuiz()">↺ Restart</button>
+      <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" style="display:none">Next Question →</button>
+    </div>
+  </div>
+  <div id="quizComplete" style="display:none">
+    <div class="quiz-complete">
+      <div class="big-score" id="finalScore"></div>
+      <p id="finalMsg"></p>
+      <button class="btn btn-primary" onclick="resetQuiz()">↺ Try Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FLASHCARDS ===== -->
+<div class="tab-panel" id="panel-flashcards">
+  <div class="section-title"><div class="icon" style="background:#ec489920">🃏</div>Flashcards <span style="font-family:'DM Mono';font-size:16px;color:var(--text-muted)">— click to flip</span></div>
+  <div class="fc-grid" id="fcGrid"></div>
+</div>
+
+<!-- ===== CLINICAL CASES ===== -->
+<div class="tab-panel" id="panel-cases">
+  <div class="section-title"><div class="icon" style="background:#00c9a720">🩺</div>Clinical Cases</div>
+  <div id="casesContainer"></div>
+</div>
+
+<!-- ===== ANATOMY / STRUCTURE MAP ===== -->
+<div class="tab-panel" id="panel-anatomy">
+  <div class="section-title"><div class="icon" style="background:#7c6af720">🗺️</div>Interactive Structure Explorer</div>
+  <div class="structure-grid" id="structureGrid"></div>
+  <div class="struct-detail" id="structDetail">
+    <h3 id="detailName"></h3>
+    <ul id="detailList"></ul>
+  </div>
+  <div class="section-title" style="margin-top:36px"><div class="icon" style="background:#f9731620">⚡</div>Stress Response Flowchart</div>
+  <div class="flowchart" id="flowchart"></div>
+</div>
+
+<!-- ===== MNEMONICS ===== -->
+<div class="tab-panel" id="panel-mnemonics">
+  <div class="section-title"><div class="icon" style="background:#ec489920">💡</div>Memory Mnemonics</div>
+  <div class="mnemonic-grid" id="mnemonicGrid"></div>
+</div>
+
+<!-- ===== ESSAYS ===== -->
+<div class="tab-panel" id="panel-essays">
+  <div class="section-title"><div class="icon" style="background:#00c9a720">📝</div>Model Essay Answers</div>
+  <div id="essayContainer"></div>
+</div>
+
+</main>
+</div>
+
+<script>
+// ============================
+// DATA
+// ============================
+const QUIZ_DATA = [
+  {q:"Which hypothalamic nuclei group is responsible for initiating sympathetic effects such as increased heart rate and blood pressure?",opts:["Lateral nuclei","Anterior nuclei","Posterior nuclei","Medial nuclei","Ventromedial nuclei"],ans:2,exp:"The <strong>posterior hypothalamic area</strong> stimulation causes sympathetic effects: ↑HR, ↑ABP, pupillary dilatation, ↑catecholamines. Remember: Posterior = Power/Sympathetic."},
+  {q:"What is the effect of stimulating the anterior hypothalamic area?",opts:["Pupillary dilatation","Decreased peristalsis","Increased heart rate","Parasympathetic effects including increased salivation","Increased catecholamine secretion"],ans:3,exp:"Anterior area stimulation yields <strong>parasympathetic effects</strong>: ↓HR, ↓ABP, pupillary constriction, ↑peristalsis and salivation. A, C, E are sympathetic (posterior). B is opposite of para effect."},
+  {q:"A lesion in the lateral hypothalamic area will most likely result in:",opts:["Hyperphagia","Obesity","Aphagia and loss of body weight","Increased desire for food","Excessive sweating"],ans:2,exp:"Lateral nuclei = <strong>Feeding center</strong>. Lesion destroys feeding center → Aphagia (no desire to eat) → weight loss. Hyperphagia/obesity occur with ventromedial lesions."},
+  {q:"Which structure represents the 'Satiety center' in the hypothalamus?",opts:["Supraoptic nucleus","Paraventricular nucleus","Lateral nuclei","Ventromedial nuclei","Suprachiasmatic nucleus"],ans:3,exp:"<strong>Ventromedial nuclei</strong> = Satiety center. When stimulated, they stop eating. Lesion → hyperphagia and obesity. Lateral nuclei are the feeding center."},
+  {q:"How does the hypothalamus respond to hypoglycemia?",opts:["Decreases growth hormone","Decreases cortisol","Stimulates the ventromedial nuclei","Increases secretion of adrenaline, GH, and cortisol to promote glycogenolysis","Inhibits the lateral area"],ans:3,exp:"Glucoreceptors detect low glucose → counter-regulatory response: ↑<strong>Adrenaline</strong>, ↑<strong>GH</strong>, ↑<strong>Cortisol</strong> → glycogenolysis & gluconeogenesis. This also activates the lateral (hunger) center."},
+  {q:"The receptors responsible for detecting cold weather are located in the skin and the:",opts:["Posterior pituitary","Preoptic hypothalamic neurons","Suprachiasmatic nucleus","Amygdala","Thalamus"],ans:1,exp:"<strong>Preoptic area neurons</strong> act as internal thermostats, detecting blood temperature changes. They work alongside skin cold receptors to detect environmental cold."},
+  {q:"Which of the following is a thermogenic (heat-GAIN) effect initiated by the posterior nuclei?",opts:["Cutaneous vasodilation","Sweating","Decreased appetite","Increased muscle tone and shivering","Decreased T3 and T4"],ans:3,exp:"<strong>Shivering</strong> and increased muscle tone generate heat (thermogenic). Cutaneous vasodilation, sweating, and ↓T3/T4 are thermolytic (heat LOSS) effects controlled by anterior nuclei."},
+  {q:"Failure of the anterior nuclei to function properly during exposure to hot weather results in:",opts:["Hypothermia","Excessive sweating","Hyperthermia","Vasodilation","Shivering"],ans:2,exp:"Anterior = <strong>Heat LOSS center</strong>. Failure → cannot vasodilate or sweat → heat builds up → <strong>Hyperthermia</strong>. Hypothermia would occur if the heat GAIN center (posterior) fails."},
+  {q:"The hypothalamus regulates body osmolality by controlling thirst and the secretion of:",opts:["Oxytocin","ACTH","TSH","ADH","Prolactin"],ans:3,exp:"<strong>ADH</strong> (Antidiuretic Hormone) from the Supraoptic nucleus → posterior pituitary → kidney water reabsorption. Loss → Diabetes Insipidus (dilute polyuria)."},
+  {q:"The thirst center is located in which region of the hypothalamus?",opts:["Suprachiasmatic nuclei","Ventromedial nuclei","Lateral hypothalamic nuclei","Anterior nuclei","Paraventricular nuclei"],ans:2,exp:"<strong>Lateral hypothalamic nuclei</strong> contain BOTH the feeding center AND the thirst center. High osmolality triggers both hunger and thirst via the same lateral region."},
+  {q:"During a stress response, the hypothalamus stimulates the adrenal medulla to secrete:",opts:["Cortisol","ACTH","CRH","Adrenaline and noradrenaline","Somatostatin"],ans:3,exp:"Hypothalamus → medulla oblongata → <strong>adrenal medulla</strong> (direct neural) → secretes <strong>Adrenaline & Noradrenaline</strong>. Cortisol is from the adrenal cortex. ACTH is from the anterior pituitary. CRH is hypothalamic."},
+  {q:"How does the hypothalamus control the anterior pituitary gland?",opts:["Through direct neural tracts","Through the hypothalamo-hypophyseal portal circulation","By secreting ADH","Via the Papez circuit","Through spinal nerves"],ans:1,exp:"<strong>Hypothalamo-hypophyseal portal circulation</strong> carries releasing and inhibiting factors to the anterior pituitary. Direct neural tracts apply to the POSTERIOR pituitary."},
+  {q:"Prolactin Inhibiting Factor (PIF) is now known to be:",opts:["Somatostatin","Dopamine","Adrenaline","Cortisol","Oxytocin"],ans:1,exp:"PIF = <strong>Dopamine</strong>. This is why dopamine antagonists (like antipsychotics) cause galactorrhea — they block the inhibition of prolactin."},
+  {q:"The hypothalamo-hypophyseal tract originates from the Paraventricular (P.V) and which other nucleus?",opts:["Supraoptic (S.O)","Ventromedial","Suprachiasmatic","Preoptic","Amygdaloid"],ans:0,exp:"<strong>S.O (Supraoptic)</strong> → synthesizes ADH. <strong>P.V (Paraventricular)</strong> → synthesizes Oxytocin. Both axons travel to the posterior pituitary for storage and release."},
+  {q:"The 'biological clock' coordinating circadian rhythms is the:",opts:["Supraoptic nucleus","Paraventricular nucleus","Suprachiasmatic nucleus","Amygdala","Thalamus"],ans:2,exp:"<strong>SCN (Suprachiasmatic Nucleus)</strong> is the master clock. It receives direct retinal input and coordinates 24-hour cycles of sleep-wake, temperature, and hormone release."},
+  {q:"The suprachiasmatic nucleus receives information about light and darkness directly from the:",opts:["Optic chiasm","Retina of the eye","Visual cortex","Thalamus","Pineal gland"],ans:1,exp:"Light info travels via the <strong>retinohypothalamic tract</strong> directly from the <strong>retina</strong> to the SCN — bypassing the visual cortex. This is why blind people can still have light-entrained rhythms through non-visual photoreceptors."},
+  {q:"Which of the following is considered a subcortical structure of the limbic system?",opts:["Cingulate gyrus","Subcallosal gyrus","Orbitofrontal cortex","Parahippocampal gyrus","Amygdala"],ans:4,exp:"<strong>Amygdala</strong> is a subcortical nucleus. All gyri (cingulate, subcallosal, parahippocampal) and orbitofrontal cortex are the CORTICAL component of the limbic system."},
+  {q:"The limbic system receives processed sensory information primarily from the:",opts:["Thalamus directly","Brain stem reticular formation","Cortical association areas","Spinal cord","Retina"],ans:2,exp:"<strong>Cortical association areas</strong> process sensory data and pass it to the limbic system to generate appropriate emotional/behavioral responses. The reticular formation and thalamus relay but association areas provide processed context."},
+  {q:"The Papez circuit connects which structures in a closed loop?",opts:["Cortex, cerebellum, brainstem","Thalamus, hypothalamus, and limbic system","Basal ganglia, thalamus, cortex","Amygdala, hippocampus, reticular formation","Spinal cord, brainstem, cerebellum"],ans:1,exp:"<strong>Papez Circuit</strong> = Thalamus ↔ Hypothalamus ↔ Limbic system (hippocampus, cingulate). It primarily functions in the storage and memory of emotions."},
+  {q:"Which limbic structure is primarily responsible for fear and rage reactions?",opts:["Hippocampus","Cingulate gyrus","Amygdala","Periventricular nucleus","Supraoptic nucleus"],ans:2,exp:"The <strong>Amygdala</strong> (amygdaloid nuclei) evokes protective emotional reactions including fear and rage. Bilateral amygdala lesions → Klüver-Bucy syndrome (emotional blunting, hypersexuality)."},
+  {q:"Stimulation of which limbic area produces pleasure and satisfaction (reward effect)?",opts:["Periventricular nucleus","Amygdala","Hippocampus","Ventromedial nuclei of the hypothalamus","Cingulate gyrus"],ans:3,exp:"<strong>Ventromedial nuclei of the hypothalamus</strong> = Reward center. Animal self-stimulation experiments showed continuous self-activation of this area for pleasure. The periventricular nucleus = punishment center."},
+  {q:"A patient with a supraoptic nucleus lesion would most likely develop:",opts:["Hyperphagia","Hyperthermia","Diabetes insipidus","Emotional instability","Obesity"],ans:2,exp:"Supraoptic nucleus → <strong>ADH</strong>. Lesion → no ADH → no kidney water reabsorption → <strong>Diabetes Insipidus</strong> (profuse dilute urine + dehydration)."},
+  {q:"The main output pathway of the limbic system to control visceral and somatic responses is via:",opts:["Direct spinal cord projections","The corpus callosum","The hypothalamus and amygdala to the reticular formation","The thalamus to the cerebellum","The basal ganglia"],ans:2,exp:"Limbic outputs flow heavily via the <strong>hypothalamus and amygdala → reticular formation → brainstem ANS centers</strong>. This translates emotional states into visceral responses (heart racing with fear, etc.)."},
+  {q:"Which anterior pituitary hormone is released in response to hypothalamic CRH during stress?",opts:["TSH","GH","FSH","ACTH","Prolactin"],ans:3,exp:"CRH (Corticotropin-Releasing Hormone) from hypothalamus → <strong>ACTH</strong> from anterior pituitary → Cortisol from adrenal cortex. This is the HPA axis stress response."},
+  {q:"What would be the consequence of a bilateral posterior hypothalamic lesion?",opts:["Hyperthermia and obesity","Hyperphagia and polydipsia","Hypothermia and failure of the sympathetic stress response","Hypersexuality and emotional blunting","Diabetes insipidus and polyuria"],ans:2,exp:"Posterior hypothalamus = Heat GAIN center + Sympathetic control. Bilateral lesion → <strong>Hypothermia</strong> (no shivering) + <strong>No sympathetic stress response</strong>. This is catastrophic in a cold or threatening environment."}
+];
+
+const FLASHCARD_DATA = [
+  {tag:"Feeding Control",q:"What is the 'Appestate' and which nuclei comprise it?",a:"The Appestate regulates food intake. Lateral nuclei = Feeding center (initiates eating). Ventromedial nuclei = Satiety center (stops eating). Lesion of lateral → aphagia. Lesion of ventromedial → hyperphagia/obesity."},
+  {tag:"ANS Control ⚠️",q:"Posterior vs Anterior hypothalamus — which controls sympathetic vs parasympathetic?",a:"POSTERIOR = Sympathetic (↑HR, ↑ABP, mydriasis, ↑catecholamines). ANTERIOR = Parasympathetic (↓HR, ↓ABP, miosis, ↑peristalsis, ↑salivation). Memory: Posterior = Power/Fight."},
+  {tag:"Temperature ⚠️",q:"Which hypothalamic area is the heat GAIN center vs heat LOSS center?",a:"POSTERIOR nuclei = Heat GAIN (shivering, piloerection, vasoconstriction, ↑T3/T4, ↑appetite). ANTERIOR nuclei = Heat LOSS (sweating, cutaneous vasodilation). Preoptic area = Thermostat neurons."},
+  {tag:"Posterior Pituitary",q:"Which nuclei produce ADH and Oxytocin, and how do they reach the pituitary?",a:"Supraoptic (S.O) nucleus → ADH. Paraventricular (P.V) nucleus → Oxytocin. Both travel via the Hypothalamo-Hypophyseal TRACT (neural) to the posterior pituitary for storage and release."},
+  {tag:"Anterior Pituitary",q:"How does the hypothalamus control the anterior pituitary?",a:"Via the hypothalamo-hypophyseal PORTAL CIRCULATION (vascular control). Releasing factors (e.g., CRH, TRH, GHRH) and inhibiting factors (e.g., Dopamine/PIF, Somatostatin/GIF) are released into portal blood."},
+  {tag:"Circadian Rhythm ⚠️",q:"What is the biological master clock and what is its direct input?",a:"SCN (Suprachiasmatic Nucleus) = Master biological clock. Receives DIRECT input from the RETINA via the retinohypothalamic tract. Regulates 24-hr sleep-wake cycle, body temperature, and hormone secretion."},
+  {tag:"Limbic System",q:"Distinguish the cortical vs subcortical components of the limbic system.",a:"CORTICAL: Cingulate gyrus, Subcallosal gyrus, Parahippocampal gyrus, Orbitofrontal cortex. SUBCORTICAL (nuclei): Amygdala, Hippocampus, Hypothalamus, Anterior thalamic nuclei, Septal nuclei."},
+  {tag:"Papez Circuit",q:"What is the Papez circuit and what is its function?",a:"A closed internal loop: Hippocampus → Fornix → Mammillary bodies → Anterior thalamic nucleus → Cingulate cortex → Entorhinal cortex → Hippocampus. Function: Storage and memory of EMOTIONS."},
+  {tag:"Emotion Centers ⚠️",q:"Where are the Fear/Rage, Reward, and Punishment centers?",a:"FEAR & RAGE: Amygdala. REWARD (pleasure/satisfaction): Ventromedial nuclei of hypothalamus. PUNISHMENT (aversion): Periventricular nucleus. Amygdala stimulation → fight-or-flight protective reactions."},
+  {tag:"ADH / Water",q:"How does the hypothalamus regulate water balance?",a:"Osmoreceptors detect ↑osmolality → Supraoptic nucleus secretes ADH → Posterior pituitary releases it → Kidney collecting ducts reabsorb water → ↓osmolality. Also triggers thirst via lateral nuclei."},
+  {tag:"Stress Response",q:"Describe the dual pathway of the hypothalamic stress response.",a:"NEURAL: Hypothalamus → Medulla oblongata → Adrenal MEDULLA → Adrenaline & Noradrenaline (fast). ENDOCRINE: Hypothalamus (CRH) → Anterior pituitary (ACTH) → Adrenal CORTEX → Cortisol (slow but sustained)."},
+  {tag:"Hypoglycemia",q:"What counter-regulatory hormones does the hypothalamus trigger in hypoglycemia?",a:"Glucoreceptors detect low glucose → ↑Adrenaline (from adrenal medulla), ↑Growth Hormone (GH), ↑Cortisol → Promote glycogenolysis + gluconeogenesis. Also activates lateral (hunger) center → hunger sensation."},
+  {tag:"PIF",q:"What is Prolactin Inhibiting Factor (PIF) and its clinical significance?",a:"PIF = DOPAMINE. Released by hypothalamus → portal blood → inhibits prolactin secretion. Clinical: Dopamine antagonists (antipsychotics like haloperidol) block PIF → ↑Prolactin → galactorrhea."},
+  {tag:"Limbic Connections",q:"What are the main input and output pathways of the limbic system?",a:"INPUT: From cortical association areas (processed sensory info). OUTPUT: Via hypothalamus and amygdala → reticular formation → brainstem ANS centers. Also via hypothalamus to endocrine system."},
+  {tag:"Location",q:"Where exactly is the hypothalamus located and what borders it?",a:"At the BASE of the brain. ABOVE: Pituitary gland. BELOW: Thalamus. SIDES: 3rd ventricle (on either side). Divided into 4 nuclear groups: Anterior, Posterior, Lateral, Medial."},
+  {tag:"Oxytocin Functions",q:"What are the two main functions of oxytocin from the Paraventricular nucleus?",a:"1. UTERINE CONTRACTION during labor (Ferguson reflex — positive feedback). 2. MILK EJECTION during breastfeeding (let-down reflex triggered by infant suckling). Both are positive feedback loops."},
+  {tag:"Clinical Pearl",q:"What syndrome results from bilateral amygdala lesions?",a:"Klüver-Bucy Syndrome: Loss of fear and rage reactions, emotional blunting (placidity), hypersexuality, hyperorality, visual agnosia. The amygdala normally drives protective fear/rage responses."},
+  {tag:"Thirst Center",q:"Where is the thirst center and what triggers it?",a:"Thirst center is in the LATERAL HYPOTHALAMIC NUCLEI (same region as feeding center). Triggered by: ↑plasma osmolality, ↓blood volume, ↑angiotensin II. Behavioral response to rehydrate."},
+  {tag:"Somatostatin",q:"What is somatostatin's role in hypothalamic endocrine control?",a:"Somatostatin = Growth Hormone Inhibiting Factor (GIF/GHIH). Released by hypothalamus into portal blood → inhibits GH release from anterior pituitary. Also inhibits TSH. Key counterpart to GHRH."},
+  {tag:"Integration",q:"Why is the hypothalamus called the 'head ganglion of the ANS'?",a:"It integrates ALL visceral, emotional, and somatic inputs to coordinate homeostatic responses: regulates ANS tone, endocrine output, behavior (eating/thirst/sleep), temperature — acting as the master integrator for the entire internal environment."}
+];
+
+const CASES_DATA = [
+  {
+    title:"The Insatiable Appetite",
+    system:"Feeding Regulation",
+    vignette:"A 28-year-old woman presents with 25 kg weight gain over 6 months. She reports eating constantly despite feeling 'full' — she cannot stop eating. MRI reveals a lesion involving the mediobasal hypothalamus. No psychiatric history.",
+    questions:[
+      {q:"1. Which specific hypothalamic nucleus is most likely lesioned?",a:"<strong>Ventromedial nuclei (Satiety center)</strong>. This region normally stops eating when activated. Its destruction eliminates the 'stop eating' signal, causing constant food-seeking behavior (hyperphagia)."},
+      {q:"2. What is the mechanism of weight gain?",a:"The ventromedial nuclei normally exert an anorexic effect. Lesion → loss of satiety signaling → <strong>hyperphagia</strong> (excessive eating) → caloric surplus → <strong>obesity</strong>. The feeding center (lateral nuclei) remains intact and continuously drives eating."},
+      {q:"3. What would happen if the lateral nuclei were instead lesioned?",a:"Lateral nuclei = Feeding center. Lesion → <strong>aphagia</strong> (complete loss of desire to eat) → progressive <strong>weight loss</strong> and potentially death from starvation if not artificially fed."},
+      {q:"4. What is the clinical term for this hypothalamic obesity syndrome?",a:"<strong>Hypothalamic obesity</strong> (also called 'Froehlich syndrome' when involving the entire hypothalamus). Distinguished from simple obesity by: rapid onset, inability to feel satisfied, and association with other hypothalamic signs (hormonal disruption)."}
+    ]
+  },
+  {
+    title:"The Dehydrated Soldier",
+    system:"ADH / Water Balance",
+    vignette:"A 22-year-old soldier sustains a head injury in combat. He is brought in 4 hours later, confused and severely dehydrated. His urine output is 8 liters/day of very dilute urine (osmolality 50 mOsm/kg). Serum osmolality is 315 mOsm/kg. CT shows damage to the supraoptic region.",
+    questions:[
+      {q:"1. What is the diagnosis and underlying mechanism?",a:"<strong>Cranial Diabetes Insipidus</strong>. The Supraoptic (S.O) nucleus synthesizes ADH. Trauma → S.O nucleus damage → <strong>no ADH production</strong> → posterior pituitary cannot release ADH → kidney cannot reabsorb water → <strong>dilute polyuria</strong> and dehydration."},
+      {q:"2. Why is serum osmolality elevated?",a:"Without ADH, water pours out in the urine (hypotonic) → blood becomes <strong>hypertonic</strong> (concentrated). Normal serum osmolality = 285-295 mOsm/kg. This patient at 315 mOsm/kg reflects significant free water loss."},
+      {q:"3. How is this different from Syndrome of Inappropriate ADH (SIADH)?",a:"DI: <strong>↓ADH</strong> → dilute urine + concentrated serum. SIADH: <strong>↑ADH</strong> → concentrated urine + dilute serum (hyponatremia). They are opposite disorders of the same ADH axis."},
+      {q:"4. Treatment approach?",a:"<strong>Desmopressin (synthetic ADH analog)</strong> — administered intranasally or IV. Also fluid replacement to correct hypovolemia. Monitor serum and urine osmolality to titrate therapy."}
+    ]
+  },
+  {
+    title:"The Heat Stroke Patient",
+    system:"Thermoregulation",
+    vignette:"A 55-year-old laborer collapses on a 45°C day. On examination: temperature 42.5°C, no sweating, flushed dry skin, HR 130/min, BP 80/50 mmHg. He is unconscious. Brain imaging later shows prior encephalitis damage to the anterior hypothalamic region.",
+    questions:[
+      {q:"1. What hypothalamic mechanism has failed?",a:"The <strong>anterior hypothalamic nuclei</strong> (heat LOSS center) have failed. Normally they activate: cutaneous vasodilation (↑heat radiation) and sweating (evaporative cooling). Without these → no heat dissipation → core temperature spirals upward."},
+      {q:"2. What is the role of the preoptic area?",a:"The <strong>preoptic area neurons</strong> act as the thermostat — they detect blood temperature rising above set point (37°C) and signal the anterior nuclei to activate heat loss mechanisms. Prior damage = no alarm, no response."},
+      {q:"3. Why does he have tachycardia and hypotension?",a:"Hyperthermia drives massive vasodilation + sweat loss (paradoxically, the small amount of residual sweating contributes to dehydration). Result: <strong>relative hypovolemia → ↓preload → compensatory ↑HR</strong>. High temp also directly increases metabolic rate and HR."},
+      {q:"4. What mechanisms remain intact?",a:"The <strong>posterior nuclei</strong> (heat gain center) are intact. In a cold environment, this patient could still shiver and vasoconstrict. The problem is specifically the inability to LOSE heat in response to heat exposure."}
+    ]
+  },
+  {
+    title:"The Insomniac Professor",
+    system:"Circadian Rhythm",
+    vignette:"A 48-year-old professor reports complete loss of normal sleep-wake cycle after recovering from viral encephalitis 3 months ago. He sleeps and wakes at random times, his melatonin levels show no diurnal variation, and his cortisol peak has shifted unpredictably. Brain MRI shows bilateral SCN involvement.",
+    questions:[
+      {q:"1. Explain why viral encephalitis caused this specific syndrome.",a:"The <strong>Suprachiasmatic Nucleus (SCN)</strong> = master biological clock. Viral inflammation destroyed both SCN bilaterally → loss of the 24-hour oscillator → all circadian outputs (sleep, temperature rhythm, cortisol peak, melatonin) become free-running and chaotic."},
+      {q:"2. What is the normal light-dark input pathway to the SCN?",a:"Retinal ganglion cells → <strong>Retinohypothalamic tract</strong> → directly to SCN. This bypasses the visual cortex. The pathway entrains the SCN to the environmental light-dark cycle (zeitgeber). Without SCN, even normal light exposure cannot organize rhythms."},
+      {q:"3. Why is melatonin secretion abnormal?",a:"SCN → (via neural pathway) → Pineal gland → <strong>Melatonin</strong>. Normally melatonin rises at darkness and suppresses in light. SCN damage uncouples this → melatonin is secreted at random, explaining why darkness no longer induces sleep."},
+      {q:"4. What other biological parameters would be disrupted?",a:"Body temperature rhythm (normally lowest at 3–4 AM), cortisol peak (normally morning), GH pulse (normally during deep sleep), immune function cycles, appetite cycles, and blood pressure dipping pattern — all are SCN-coordinated."}
+    ]
+  },
+  {
+    title:"The Fearless Subject",
+    system:"Limbic System — Amygdala",
+    vignette:"A 35-year-old patient undergoes bilateral temporal lobe resection for intractable epilepsy. Post-operatively, family notices dramatic personality changes: she no longer shows fear or anger, approaches strangers without caution, cannot recognize fearful faces, and shows inappropriate sexual behavior.",
+    questions:[
+      {q:"1. Name this syndrome and its core mechanism.",a:"<strong>Klüver-Bucy Syndrome</strong>. Bilateral amygdala removal → loss of all <strong>amygdala-mediated emotional responses</strong>: no fear, no rage, emotional blunting (placidity). The amygdala normally evaluates stimuli for threat and generates protective fear/rage reactions."},
+      {q:"2. What is the amygdala's normal role in the limbic system?",a:"The amygdala: (1) Generates <strong>fear and rage</strong> protective responses. (2) Evaluates emotional significance of stimuli from association cortex. (3) Projects to hypothalamus → autonomic fear response (↑HR, ↑cortisol). (4) Participates in emotional memory formation via Papez circuit."},
+      {q:"3. How does this relate to reward vs punishment centers?",a:"Amygdala (fear/rage) ≠ Reward/Punishment centers. <strong>Reward = Ventromedial hypothalamic nuclei</strong> (pleasure). <strong>Punishment = Periventricular nucleus</strong> (aversion). The amygdala mediates protective aggression, separate from these hedonic centers."},
+      {q:"4. Why does she approach strangers without caution?",a:"Approach behavior to novel stimuli requires threat evaluation. Normally: novel stimulus → amygdala → fear response → avoidance. Without amygdala → no threat signal → no fear → <strong>inappropriate approach behavior</strong> (hyperorality, hypersexuality, visual agnosia also occur)."}
+    ]
+  }
+];
+
+const STRUCTURES_DATA = [
+  {icon:"🔵",name:"Suprachiasmatic Nucleus (SCN)",role:"Biological master clock",details:["Receives direct light/dark input from retina (retinohypothalamic tract)","Controls 24-hour sleep-wake cycles, body temperature rhythm, hormone pulsatility","Bilateral SCN lesion → complete loss of circadian rhythms","Entrains all peripheral clocks via neural and hormonal signals","PIF (Dopamine) is regulated with circadian pattern"]},
+  {icon:"💧",name:"Supraoptic Nucleus (S.O)",role:"ADH synthesis → water homeostasis",details:["Synthesizes Antidiuretic Hormone (ADH/Vasopressin)","Axons form hypothalamo-hypophyseal TRACT to posterior pituitary","ADH acts on kidney collecting ducts to increase water reabsorption","Lesion → Cranial Diabetes Insipidus (dilute polyuria, hypernatremia)","Osmoreceptors nearby detect plasma tonicity"]},
+  {icon:"🤱",name:"Paraventricular Nucleus (P.V)",role:"Oxytocin synthesis",details:["Synthesizes Oxytocin","Paired with S.O in forming the hypothalamo-hypophyseal tract","Oxytocin → uterine contractions during labor (positive feedback)","Oxytocin → milk ejection (let-down reflex) during breastfeeding","Also synthesizes some CRH for stress response"]},
+  {icon:"❄️",name:"Posterior Nuclei",role:"Sympathetic control + Heat GAIN",details:["Stimulation → Sympathetic effects: ↑HR, ↑ABP, mydriasis, ↑catecholamines","Acts as Heat GAIN center: shivering, vasoconstriction, piloerection, ↑T3/T4, ↑appetite","Bilateral lesion → hypothermia + failure of sympathetic stress response","Key in fight-or-flight coordination","Receives input from cortex via limbic system during perceived threats"]},
+  {icon:"🌡️",name:"Anterior Nuclei",role:"Parasympathetic control + Heat LOSS",details:["Stimulation → Parasympathetic effects: ↓HR, ↓ABP, miosis, ↑peristalsis, ↑salivation","Acts as Heat LOSS center: sweating, cutaneous vasodilation","Lesion in hot weather → Hyperthermia (failure to dissipate heat)","Preoptic area within anterior region = thermostat neurons","Works with skin thermoreceptors to detect ambient temperature"]},
+  {icon:"🍽️",name:"Lateral Nuclei",role:"Feeding center + Thirst center",details:["Feeding center: initiates eating behavior (Appestate)","Also contains thirst center (triggered by ↑osmolality, ↓volume, ↑angiotensin II)","Lesion → Aphagia (no desire to eat) + weight loss","Glucoreceptors here detect hypoglycemia and trigger hunger","Part of the larger 'Appestate' regulatory system"]},
+  {icon:"🛑",name:"Ventromedial Nuclei",role:"Satiety center + Reward center",details:["Satiety center: stops eating behavior when activated (anorexic effect)","Also serves as limbic REWARD center (pleasure/satisfaction)","Lesion → Hyperphagia + Obesity (no satiety signal)","Animal self-stimulation experiments: animals preferred stimulating this region over eating","Part of both feeding regulation and limbic emotional circuits"]},
+  {icon:"😱",name:"Amygdala",role:"Fear, rage, emotional evaluation",details:["Subcortical limbic nucleus in the temporal lobe","Evokes protective emotional reactions: fear and rage","Projects to hypothalamus → autonomic fear response (↑HR, ↑cortisol)","Evaluates emotional significance of stimuli from association cortex","Bilateral lesion → Klüver-Bucy syndrome (no fear, hyperorality, hypersexuality)"]},
+  {icon:"💾",name:"Hippocampus",role:"Emotional memory formation",details:["Converts short-term emotional memories to long-term","Key node in the Papez circuit","Damage → anterograde amnesia (cannot form new memories)","Projects to hypothalamus via fornix","HM (famous patient): bilateral hippocampectomy → complete anterograde amnesia"]},
+  {icon:"🔄",name:"Papez Circuit",role:"Emotional memory loop",details:["Hippocampus → Fornix → Mammillary bodies → Anterior thalamic nucleus → Cingulate cortex → Entorhinal cortex → Hippocampus","Function: storage and memory of emotions","Key connection between thalamus, hypothalamus, and limbic cortex","Damage → emotional memory deficits (Wernicke-Korsakoff involvement)"]}
+];
+
+const MNEMONICS_DATA = [
+  {
+    title:"Hypothalamic Nuclei Functions",
+    acronym:"PASTA-SL",
+    sentence:"'Every Physiology Student PASTA-SL Study'",
+    items:[
+      {l:"P",m:"Posterior = Sympathetic",s:"↑HR, ↑BP, mydriasis, catecholamines"},
+      {l:"A",m:"Anterior = Autonomic Para",s:"↓HR, ↓BP, miosis, peristalsis"},
+      {l:"S",m:"Supraoptic = ADH (water)",s:"Diabetes insipidus if lesioned"},
+      {l:"T",m:"Thermostat = Preoptic area",s:"Detects blood temperature"},
+      {l:"A",m:"Anterior = heat Abolition (LOSS)",s:"Sweating and vasodilation"},
+      {l:"S",m:"Suprachiasmatic = Sleep clock",s:"Master circadian oscillator"},
+      {l:"L",m:"Lateral = Lunch (feeding)",s:"Also thirst center"}
+    ]
+  },
+  {
+    title:"Posterior vs Anterior Hypothalamus",
+    acronym:"PASH vs APPL",
+    sentence:"'POSTman SHivers in the cold (PASH) vs ANT is always Parasympathetic and cool (APPL)'",
+    items:[
+      {l:"P",m:"Posterior → Power (Sympathetic)",s:""},
+      {l:"A",m:"↑ABP, ↑HR",s:""},
+      {l:"S",m:"Shivering (Heat GAIN)",s:""},
+      {l:"H",m:"Heat gain (posterior = cold response)",s:"vs Anterior = ↓HR, Parasympathetic, Heat Loss"}
+    ]
+  },
+  {
+    title:"Limbic Emotion Centers",
+    acronym:"FRP",
+    sentence:"'FRightened People' — Fear=Rage=Punishment",
+    items:[
+      {l:"F",m:"Fear + Rage = Amygdala",s:"Bilateral lesion → Klüver-Bucy"},
+      {l:"R",m:"Reward = Ventromedial nuclei",s:"Self-stimulation experiments"},
+      {l:"P",m:"Punishment = Periventricular nucleus",s:"Aversion center"}
+    ]
+  },
+  {
+    title:"Posterior Pituitary Hormones",
+    acronym:"SO-ADH / PV-OT",
+    sentence:"'Soak (S.O) with ADH, Pour Very (PV) Oxygenated Tea (OT=Oxytocin)'",
+    items:[
+      {l:"SO",m:"Supraoptic → ADH",s:"Water reabsorption by kidney"},
+      {l:"ADH",m:"Anti-Diuretic Hormone = Vasopressin",s:"Diabetes Insipidus if absent"},
+      {l:"PV",m:"Paraventricular → Oxytocin",s:"Labor + Let-down reflex"},
+      {l:"OT",m:"Oxytocin = Positive feedback loops",s:"Ferguson reflex (labor), Let-down (nursing)"}
+    ]
+  },
+  {
+    title:"Stress Response Cascade",
+    acronym:"SCAMP ACE",
+    sentence:"'In stress, SCAnMPs ACE the response'",
+    items:[
+      {l:"S",m:"Stressor detected by cortex/limbic",s:"Amygdala raises the alarm"},
+      {l:"C",m:"CRH from Hypothalamus",s:"Corticotropin-Releasing Hormone"},
+      {l:"A",m:"ACTH from Anterior Pituitary",s:"Adrenocorticotropic Hormone"},
+      {l:"M",m:"Medulla (adrenal) → Adrenaline",s:"Fast neural pathway via medulla oblongata"},
+      {l:"P",m:"Posterior pituitary (ADH ↑)",s:"Water retention during stress"},
+      {l:"ACE",m:"Adrenal Cortex → Cortisol",s:"Sustained metabolic effects"}
+    ]
+  }
+];
+
+const ESSAY_DATA = [
+  {
+    q:"Q1: Describe the afferent and efferent neural connections of the hypothalamus and how they serve its role as a central integrator.",
+    answer:`<strong>Introduction:</strong> The hypothalamus is the master integrator of homeostasis, occupying a strategic position at the base of the brain. Its extensive bidirectional connections allow it to monitor the internal and external environment and coordinate appropriate responses.
+
+<strong>Afferent Connections (INPUTS to the hypothalamus):</strong>
+The hypothalamus receives input from multiple sources:
+• <em>Cerebral cortex</em>: Voluntary and cognitive influences on autonomic and endocrine function (e.g., anxiety triggering sympathetic responses)
+• <em>Limbic system</em>: Emotional state (via amygdala and hippocampus) influences feeding, temperature, and hormonal outputs
+• <em>Thalamus</em>: Sensory relay, particularly pain and temperature
+• <em>Basal ganglia</em>: Motor state information
+• <em>Brain stem reticular formation</em>: Arousal state (sleep-wake modulation)
+• <em>Ascending sensory pathways</em>: Visceral afferents (blood pressure, osmolality, glucose levels) from the periphery
+
+<strong>Efferent Connections (OUTPUTS from the hypothalamus):</strong>
+• <em>To thalamus → cerebral cortex</em>: Influences conscious awareness of visceral states (thirst, hunger)
+• <em>To limbic system</em>: Coordinates emotional behavior
+• <em>To brain stem reticular formation</em>: Modulates arousal and autonomic tone
+• <em>To autonomic centers</em>: Directly controls ANS (posterior → sympathetic; anterior → parasympathetic)
+• <em>To respiratory and vasomotor centers</em>: Integrates breathing and blood pressure
+• <em>To posterior pituitary</em>: Via hypothalamo-hypophyseal tract (ADH, Oxytocin)
+• <em>To anterior pituitary</em>: Via portal blood (releasing/inhibiting factors)
+
+<strong>Conclusion:</strong> These connections make the hypothalamus the central integrator — receiving information about the internal milieu and coordinating neural, behavioral, and endocrine responses to maintain homeostasis.`
+  },
+  {
+    q:"Q4: Detail the role of the hypothalamus in the body's response to stressful conditions, integrating both neural and endocrinal pathways.",
+    answer:`<strong>Introduction:</strong> The stress response requires rapid mobilization of energy and protective mechanisms. The hypothalamus orchestrates this through parallel neural and endocrine pathways.
+
+<strong>Step 1 — Threat Detection:</strong>
+Cortical association areas process the threatening stimulus and project to the <em>limbic system (amygdala)</em>, which raises the emotional alarm and sends signals to the hypothalamus.
+
+<strong>Step 2 — Neural (Fast) Pathway:</strong>
+Hypothalamus → Medulla oblongata → Spinal cord → Adrenal MEDULLA → Secretes <strong>Adrenaline (epinephrine) and Noradrenaline (norepinephrine)</strong>
+Effects (seconds): ↑HR, ↑ABP, bronchodilation, ↑glucose (glycogenolysis), ↑alertness, redistribution of blood to muscles
+
+<strong>Step 3 — Endocrine (Sustained) Pathway (HPA Axis):</strong>
+Hypothalamus → <strong>CRH</strong> (Corticotropin-Releasing Hormone) → Portal blood → Anterior pituitary → <strong>ACTH</strong> → Blood → Adrenal CORTEX → <strong>Cortisol</strong>
+Effects (hours-days): ↑gluconeogenesis, anti-inflammatory, immunosuppression, protein catabolism, fat mobilization
+
+<strong>Step 4 — Additional Hypothalamic Actions:</strong>
+• <em>ADH ↑</em>: Water retention (expand volume)
+• <em>GH ↑</em>: Metabolic mobilization
+• <em>↓Reproductive hormones</em>: Chronic stress suppresses GnRH → ↓LH/FSH (non-essential during acute threat)
+• <em>Sympathetic activation</em>: Via posterior hypothalamus → full fight-or-flight response
+
+<strong>Conclusion:</strong> The hypothalamus perfectly coordinates the fast neural catecholamine response with the sustained HPA axis cortisol response to restore homeostasis under stress.`
+  },
+  {
+    q:"Q5: Discuss the role of the limbic system in punishment and reward responses, specifying the exact anatomical structures involved.",
+    answer:`<strong>Introduction:</strong> The limbic system contains discrete circuits that evaluate experiences as rewarding or aversive, driving behavioral repetition or avoidance respectively.
+
+<strong>Reward System:</strong>
+• <em>Primary structure</em>: <strong>Ventromedial nuclei of the hypothalamus</strong>
+• Evidence: Olds & Milner self-stimulation experiments — rats with electrodes here pressed levers thousands of times/hour to stimulate this area, preferring it over food, water, and sex
+• Mechanism: Stimulation produces pleasure and satisfaction → positive reinforcement → behavior repetition
+• This is also the satiety center — pleasure of eating is processed here
+
+<strong>Punishment/Aversion System:</strong>
+• <em>Primary structure</em>: <strong>Periventricular nucleus</strong> of the hypothalamus
+• Stimulation produces discomfort and aversion → negative reinforcement → behavior avoidance
+• Animals will work to stop stimulation of this area
+• Also involved: certain amygdala circuits
+
+<strong>Fear and Rage (Protective emotions):</strong>
+• <em>Primary structure</em>: <strong>Amygdala (amygdaloid nuclei)</strong>
+• Stimulation → fear, rage, defensive aggression
+• Bilateral amygdalectomy → Klüver-Bucy syndrome (emotional blunting, no fear/rage)
+• Projects to hypothalamus → autonomic expression of emotion (sweating, ↑HR during fear)
+
+<strong>The Papez Circuit — Emotional Memory:</strong>
+Hippocampus → Fornix → Mammillary bodies → Anterior thalamus → Cingulate cortex → Back to hippocampus
+• Ensures emotional experiences are remembered and influence future behavior
+
+<strong>Conclusion:</strong> The limbic system's reward and punishment circuits form the neurological basis of motivation, addiction, and behavioral conditioning.`
+  }
+];
+
+// ============================
+// QUIZ ENGINE
+// ============================
+let currentQ = 0, correct = 0, wrong = 0, streak = 0, answered = false;
+
+function loadQuestion(){
+  if(currentQ >= QUIZ_DATA.length){ showComplete(); return; }
+  const d = QUIZ_DATA[currentQ];
+  document.getElementById('qNum').textContent = `Question ${currentQ+1} of ${QUIZ_DATA.length}`;
+  document.getElementById('qText').textContent = d.q;
+  document.getElementById('nextBtn').style.display = 'none';
+  document.getElementById('explanationBox').className = 'explanation-box';
+  answered = false;
+
+  const bar = document.getElementById('quizBar');
+  bar.style.width = ((currentQ / QUIZ_DATA.length)*100 + 4) + '%';
+  document.getElementById('quizCounter').textContent = `Question ${currentQ+1} of ${QUIZ_DATA.length}`;
+
+  const list = document.getElementById('optionsList');
+  list.innerHTML = '';
+  const letters = ['A','B','C','D','E'];
+  d.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span>${opt}`;
+    btn.onclick = () => selectAnswer(i, btn);
+    list.appendChild(btn);
+  });
+}
+
+function selectAnswer(idx, btn){
+  if(answered) return;
+  answered = true;
+  const d = QUIZ_DATA[currentQ];
+  const allBtns = document.querySelectorAll('.option-btn');
+  allBtns.forEach(b => b.disabled = true);
+  allBtns[d.ans].classList.add('correct', 'anim-correct');
+
+  if(idx === d.ans){
+    correct++; streak++;
+    updateStats();
+  } else {
+    wrong++; streak = 0;
+    btn.classList.add('wrong', 'anim-wrong');
+    updateStats();
+  }
+  document.getElementById('correctCount').textContent = correct;
+  document.getElementById('wrongCount').textContent = wrong;
+  document.getElementById('streakCount').textContent = streak;
+
+  const exp = document.getElementById('explanationBox');
+  exp.innerHTML = `<strong>Explanation:</strong> ${d.exp}`;
+  exp.className = 'explanation-box show';
+  document.getElementById('nextBtn').style.display = 'inline-flex';
+}
+
+function nextQuestion(){
+  currentQ++;
+  loadQuestion();
+}
+
+function resetQuiz(){
+  currentQ = 0; correct = 0; wrong = 0; streak = 0; answered = false;
+  document.getElementById('quizArea').style.display = 'block';
+  document.getElementById('quizComplete').style.display = 'none';
+  document.getElementById('correctCount').textContent = 0;
+  document.getElementById('wrongCount').textContent = 0;
+  document.getElementById('streakCount').textContent = 0;
+  document.getElementById('quizBar').style.width = '4%';
+  updateStats();
+  loadQuestion();
+}
+
+function showComplete(){
+  document.getElementById('quizArea').style.display = 'none';
+  document.getElementById('quizComplete').style.display = 'block';
+  const pct = Math.round((correct/QUIZ_DATA.length)*100);
+  document.getElementById('finalScore').textContent = pct + '%';
+  const msgs = {90:"🏆 Outstanding! You're exam-ready!",70:"💪 Great work! Review the missed ones.",50:"📖 Good effort. Focus on highlighted ⚠️ topics.",0:"🔄 Keep studying — review the overview and retry!"};
+  const key = Object.keys(msgs).reverse().find(k => pct >= k);
+  document.getElementById('finalMsg').textContent = msgs[key];
+  document.getElementById('scoreVal').textContent = pct + '%';
+  updateStats();
+}
+
+function updateStats(){
+  const pct = QUIZ_DATA.length > 0 ? Math.round((currentQ/QUIZ_DATA.length)*100) : 0;
+  document.getElementById('progressVal').textContent = pct + '%';
+  document.getElementById('streakVal').textContent = streak;
+}
+
+// ============================
+// FLASHCARDS
+// ============================
+function buildFlashcards(){
+  const grid = document.getElementById('fcGrid');
+  FLASHCARD_DATA.forEach((fc, i) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'fc-wrapper';
+    wrapper.innerHTML = `
+      <div class="fc-inner">
+        <div class="fc-front">
+          <div class="fc-tag">${fc.tag}</div>
+          <div class="fc-q">${fc.q}</div>
+          <div class="fc-hint">Tap to flip →</div>
+        </div>
+        <div class="fc-back">
+          <div class="fc-tag">Answer</div>
+          <div class="fc-a">${fc.a}</div>
+        </div>
+      </div>`;
+    wrapper.onclick = () => wrapper.classList.toggle('flipped');
+    grid.appendChild(wrapper);
+  });
+}
+
+// ============================
+// CASES
+// ============================
+function buildCases(){
+  const container = document.getElementById('casesContainer');
+  CASES_DATA.forEach((c, ci) => {
+    const card = document.createElement('div');
+    card.className = 'case-card';
+    const qs = c.questions.map((q, qi) => `
+      <div class="case-q">
+        <div>${q.q}</div>
+        <button class="reveal-btn" onclick="revealAnswer(${ci},${qi})">Reveal Answer</button>
+        <div class="case-answer" id="ans-${ci}-${qi}"><strong>Model Answer:</strong><br>${q.a}</div>
+      </div>`).join('');
+    card.innerHTML = `
+      <div class="case-header">
+        <div class="case-num">${ci+1}</div>
+        <div><h3>${c.title}</h3><p>📍 ${c.system}</p></div>
+      </div>
+      <div class="case-body">
+        <div class="case-vignette">🩺 <strong>Vignette:</strong> ${c.vignette}</div>
+        <div class="case-questions">${qs}</div>
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
+function revealAnswer(ci, qi){
+  const el = document.getElementById(`ans-${ci}-${qi}`);
+  el.classList.toggle('show');
+}
+
+// ============================
+// ANATOMY / STRUCTURES
+// ============================
+function buildStructures(){
+  const grid = document.getElementById('structureGrid');
+  STRUCTURES_DATA.forEach((s, i) => {
+    const item = document.createElement('div');
+    item.className = 'struct-item';
+    item.innerHTML = `<div class="struct-icon">${s.icon}</div><div class="struct-name">${s.name}</div><div class="struct-role">${s.role}</div>`;
+    item.onclick = () => showStructDetail(s, i, item);
+    grid.appendChild(item);
+  });
+
+  // Build flowchart
+  const fc = document.getElementById('flowchart');
+  const nodes = [
+    {text:"⚡ STRESSOR DETECTED<br><small>Cortical association areas process threat</small>",cls:"primary"},
+    null,
+    {text:"😱 Amygdala (Limbic)<br><small>Raises fear/rage alarm → hypothalamus</small>",cls:"secondary"},
+    null,
+    {text:"🧠 HYPOTHALAMUS (Central Integrator)",cls:"primary"},
+    null,
+    {text:"<div style='display:flex;gap:32px;align-items:flex-start'><div style='text-align:center'><div style='background:#00c9a730;border:1px solid var(--accent);border-radius:12px;padding:12px 20px;font-size:13px'><strong>NEURAL PATH (Fast)</strong><br>↓<br>Medulla oblongata<br>↓<br>Adrenal MEDULLA<br>↓<br><strong>Adrenaline + Noradrenaline</strong><br><small>Seconds</small></div></div><div style='text-align:center'><div style='background:#7c6af730;border:1px solid var(--accent2);border-radius:12px;padding:12px 20px;font-size:13px'><strong>ENDOCRINE PATH (Slow)</strong><br>CRH ↓<br>Anterior Pituitary<br>ACTH ↓<br>Adrenal CORTEX<br>↓<br><strong>Cortisol</strong><br><small>Hours</small></div></div></div>",cls:""},
+    null,
+    {text:"✅ HOMEOSTASIS RESTORED<br><small>Negative feedback via cortisol on hypothalamus</small>",cls:"tertiary"}
+  ];
+  nodes.forEach(n => {
+    if(n === null){ const a = document.createElement('div'); a.className='flow-arrow'; fc.appendChild(a); return; }
+    const node = document.createElement('div');
+    node.className = `flow-node ${n.cls}`;
+    node.innerHTML = n.text;
+    fc.appendChild(node);
+  });
+}
+
+function showStructDetail(s, i, el){
+  document.querySelectorAll('.struct-item').forEach(x => x.classList.remove('selected'));
+  el.classList.add('selected');
+  const detail = document.getElementById('structDetail');
+  document.getElementById('detailName').innerHTML = `${s.icon} ${s.name}`;
+  const list = document.getElementById('detailList');
+  list.innerHTML = s.details.map(d => `<li>${d}</li>`).join('');
+  detail.className = 'struct-detail show';
+}
+
+// ============================
+// MNEMONICS
+// ============================
+function buildMnemonics(){
+  const grid = document.getElementById('mnemonicGrid');
+  MNEMONICS_DATA.forEach(m => {
+    const card = document.createElement('div');
+    card.className = 'mnemonic-card';
+    const items = m.items.map(it => `
+      <div class="mnemonic-item">
+        <div class="mnemonic-letter">${it.l}</div>
+        <div class="mnemonic-meaning"><strong>${it.m}</strong><span>${it.s}</span></div>
+      </div>`).join('');
+    card.innerHTML = `
+      <div class="mnemonic-header">
+        <div class="acronym">${m.acronym}</div>
+        <h3>${m.title}</h3>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;font-style:italic">${m.sentence}</div>
+      </div>
+      <div class="mnemonic-body">${items}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ============================
+// ESSAYS
+// ============================
+function buildEssays(){
+  const container = document.getElementById('essayContainer');
+  ESSAY_DATA.forEach((e, i) => {
+    const card = document.createElement('div');
+    card.className = 'case-card';
+    card.innerHTML = `
+      <div class="case-header">
+        <div class="case-num" style="font-size:14px">📝</div>
+        <div><h3>${e.q}</h3></div>
+      </div>
+      <div class="case-body">
+        <div style="font-size:14px;line-height:1.9;color:var(--text-dim);white-space:pre-wrap">${e.answer}</div>
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
+// ============================
+// SEARCH
+// ============================
+function filterCards(){
+  const q = document.getElementById('overviewSearch').value.toLowerCase();
+  document.querySelectorAll('.search-card').forEach(card => {
+    const tags = card.dataset.tags || '';
+    const text = card.textContent.toLowerCase();
+    card.style.display = (tags.includes(q) || text.includes(q)) ? '' : 'none';
+  });
+}
+
+// ============================
+// TAB SWITCHING
+// ============================
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById(`panel-${tab}`).classList.add('active');
+  localStorage.setItem('lastTab', tab);
+}
+
+// ============================
+// INIT
+// ============================
+document.addEventListener('DOMContentLoaded', () => {
+  buildFlashcards();
+  buildCases();
+  buildStructures();
+  buildMnemonics();
+  buildEssays();
+  loadQuestion();
+
+  // Restore last tab
+  const last = localStorage.getItem('lastTab');
+  if(last){
+    const btns = document.querySelectorAll('.tab-btn');
+    btns.forEach(b => { if(b.getAttribute('onclick').includes(last)) b.click(); });
+  }
+});
+</script>
+</body>
+</html>

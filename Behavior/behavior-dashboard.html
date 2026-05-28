@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 Behavioral Sciences Command Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #060814;
+            --surface: #0c0f22;
+            --surface-card: #121630;
+            --border: rgba(140, 122, 255, 0.15);
+            --accent: #a78bfa;
+            --accent2: #6c63ff;
+            --accent3: #4ecdc4;
+            --text: #e2eaf8;
+            --text-muted: #6b7c96;
+            --radius: 14px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+        .orb {
+            position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.12;
+            animation: drift 25s ease-in-out infinite alternate;
+        }
+        .orb:nth-child(1) { width: 600px; height: 600px; background: #6c63ff; top: -100px; left: -100px; }
+        .orb:nth-child(2) { width: 500px; height: 500px; background: #ff6b6b; bottom: -150px; right: -100px; animation-delay: -5s; }
+        @keyframes drift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(50px,40px) scale(1.1); } }
+
+        .wrapper { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 40px 20px 80px; }
+
+        header { text-align: center; margin-bottom: 40px; }
+        .badge {
+            display: inline-block; background: rgba(108, 99, 255, 0.1); border: 1px solid rgba(108, 99, 255, 0.3);
+            color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 11px;
+            letter-spacing: 2px; padding: 6px 16px; border-radius: 100px; margin-bottom: 16px; text-transform: uppercase;
+        }
+        header h1 {
+            font-family: 'Syne', sans-serif; font-size: clamp(28px, 4.5vw, 44px); font-weight: 800; line-height: 1.1;
+            background: linear-gradient(135deg, #fff 20%, var(--accent) 60%, var(--accent2) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        header p { color: var(--text-muted); margin-top: 10px; font-size: 15px; }
+
+        .stats-bar { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
+        .stat-pill {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 100px;
+            padding: 10px 24px; font-size: 13px; display: flex; align-items: center; gap: 10px;
+        }
+        .stat-pill .num { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--accent); font-size: 16px; }
+        .stat-pill .lbl { color: var(--text-muted); }
+
+        .search-wrap { position: relative; max-width: 500px; margin: 0 auto 40px; }
+        .search-input {
+            width: 100%; padding: 14px 20px 14px 45px; background: var(--surface);
+            border: 1px solid var(--border); border-radius: 100px; color: var(--text);
+            font-size: 14px; outline: none; transition: all 0.2s;
+        }
+        .search-input:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(108, 99, 255, 0.25); }
+        .search-wrap::before { content: '🔍'; position: absolute; left: 18px; top: 50%; transform: translateY(-50%); font-size: 14px; opacity: 0.6; }
+
+        .lecture-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+
+        .card {
+            background: var(--surface-card); border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 24px; transition: all 0.25s ease; display: flex; flex-direction: column;
+            text-decoration: none; color: inherit; position: relative; overflow: hidden;
+        }
+        .card::after {
+            content: ''; position: absolute; inset: 0; border-radius: var(--radius);
+            border: 2px solid var(--accent); opacity: 0; transition: opacity 0.25s; pointer-events: none;
+        }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.5); border-color: transparent; }
+        .card:hover::after { opacity: 0.4; }
+        
+        .card-num {
+            font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent);
+            font-weight: 600; text-transform: uppercase; margin-bottom: 12px; display: inline-block;
+            background: rgba(167, 139, 250, 0.08); padding: 2px 10px; border-radius: 4px; width: max-content;
+        }
+        .card-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; margin-bottom: 10px; line-height: 1.4; color: #fff; }
+        .card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; flex: 1; }
+        
+        .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 14px; font-size: 12px; }
+        .card-tag { font-family: 'JetBrains Mono', monospace; color: var(--accent3); font-weight: 600; }
+        .launch-icon { color: var(--accent); font-weight: bold; }
+        .no-results { grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="bg-canvas"><div class="orb"></div><div class="orb"></div></div>
+
+    <div class="wrapper">
+        <header>
+            <div class="badge">Medical Psychiatry & Behavioral Tracks</div>
+            <h1>Behavioral Sciences Platform</h1>
+            <p>Unified local hub connecting your custom analytical study modules</p>
+        </header>
+
+        <div class="stats-bar">
+            <div class="stat-pill"><span class="lbl">Total Course Modules:</span><span class="num">5 Modules</span></div>
+            <div class="stat-pill"><span class="lbl">System Configuration:</span><span class="num" style="color:var(--accent3)">Direct Local Linking</span></div>
+        </div>
+
+        <div class="search-wrap">
+            <input type="text" class="search-input" id="globalSearch" placeholder="Type to filter matching traits, concepts, or disorders...">
+        </div>
+
+        <div class="lecture-grid">
+            <a href="Behavior L1.html" class="card">
+                <span class="card-num">Module 01</span>
+                <h3 class="card-title">Intelligence &amp; Creativity</h3>
+                <p class="card-desc">Cognitive profiling parameters, intelligence quotient metrics, mental age variables, and neuro-functional divergent creative thinking paradigms.</p>
+                <div class="card-footer"><span class="card-tag">Interactive Workspace</span><span class="launch-icon">Deploy ↗</span></div>
+            </a>
+
+            <a href="behavior L2 motivation_study_platform.html" class="card">
+                <span class="card-num">Module 02</span>
+                <h3 class="card-title">Motivation &amp; Biological Drives</h3>
+                <p class="card-desc">Primary versus secondary somatic drives, regulatory homeostatic feedback pathways, and behavioral motivational architectures.</p>
+                <div class="card-footer"><span class="card-tag">Interactive Workspace</span><span class="launch-icon">Deploy ↗</span></div>
+            </a>
+
+            <a href="Behavior L3 .HTML" class="card">
+                <span class="card-num">Module 03</span>
+                <h3 class="card-title">Psychology of Emotions</h3>
+                <p class="card-desc">Limbic neurochemical emotional gating mechanisms, cognitive evaluation matrices, physiological expressions, and visceral response mappings.</p>
+                <div class="card-footer"><span class="card-tag">Interactive Workspace</span><span class="launch-icon">Deploy ↗</span></div>
+            </a>
+
+            <a href="behavior L4 stress-coping-study-platform-1.html" class="card">
+                <span class="card-num">Module 04</span>
+                <h3 class="card-title">Stress, Coping &amp; Wellbeing</h3>
+                <p class="card-desc">Sympathomedullary and HPA axis tracking structures, psychophysiological defense grids, and maladaptive coping indicators.</p>
+                <div class="card-footer"><span class="card-tag">Interactive Workspace</span><span class="launch-icon">Deploy ↗</span></div>
+            </a>
+
+            <a href="Behavior L5 .HTML" class="card">
+                <span class="card-num">Module 05</span>
+                <h3 class="card-title">Personality Psychology</h3>
+                <p class="card-desc">Ego psychoanalytic trait parsing systems, modern Big Five structural profiling frameworks, and individual behavioral variations.</p>
+                <div class="card-footer"><span class="card-tag">Interactive Workspace</span><span class="launch-icon">Deploy ↗</span></div>
+            </a>
+
+            <div class="no-results" id="emptyState">No specific behavioral modules matching your query located.</div>
+        </div>
+    </div>
+
+    <script>
+        const searchField = document.getElementById('globalSearch');
+        searchField.addEventListener('input', () => {
+            const query = searchField.value.trim().toLowerCase();
+            const cards = document.querySelectorAll('.card');
+            const emptyNotice = document.getElementById('emptyState');
+            let visibleCounter = 0;
+
+            cards.forEach(card => {
+                const titleText = card.querySelector('.card-title').textContent.toLowerCase();
+                const descText = card.querySelector('.card-desc').textContent.toLowerCase();
+                const moduleTag = card.querySelector('.card-num').textContent.toLowerCase();
+
+                if (titleText.includes(query) || descText.includes(query) || moduleTag.includes(query)) {
+                    card.style.display = 'flex';
+                    visibleCounter++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            if (visibleCounter === 0) {
+                emptyNotice.style.display = 'block';
+            } else {
+                emptyNotice.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

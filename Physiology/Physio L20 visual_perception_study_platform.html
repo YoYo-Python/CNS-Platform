@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>👁️ Visual Perception — Interactive Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060b18;
+  --bg2: #0c1428;
+  --bg3: #111d36;
+  --surface: #0f1a2e;
+  --surface2: #162236;
+  --border: rgba(0,200,255,0.12);
+  --cyan: #00c8ff;
+  --cyan-dim: rgba(0,200,255,0.15);
+  --magenta: #ff3d9a;
+  --magenta-dim: rgba(255,61,154,0.15);
+  --green: #00ffb3;
+  --green-dim: rgba(0,255,179,0.12);
+  --yellow: #ffd166;
+  --yellow-dim: rgba(255,209,102,0.12);
+  --orange: #ff9f43;
+  --text: #e8f4ff;
+  --text-muted: #7a9ab8;
+  --text-dim: #3d5a7a;
+  --correct: #00ffb3;
+  --wrong: #ff3d9a;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── BACKGROUND ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 10%, rgba(0,200,255,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 80%, rgba(255,61,154,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 60% 30%, rgba(0,255,179,0.03) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* ── GRID OVERLAY ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(0,200,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,200,255,0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+.page-wrap { position: relative; z-index: 1; }
+
+/* ── HEADER ── */
+header {
+  padding: 28px 32px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.logo {
+  display: flex; align-items: center; gap: 12px;
+}
+
+.logo-icon {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, var(--cyan), var(--magenta));
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 0 20px rgba(0,200,255,0.3);
+}
+
+.logo-text h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px; font-weight: 800;
+  letter-spacing: -0.3px;
+  background: linear-gradient(90deg, var(--cyan), #a78bfa);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+.logo-text p {
+  font-size: 11px; color: var(--text-muted);
+  letter-spacing: 0.5px; text-transform: uppercase;
+}
+
+.stats-bar {
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+}
+
+.stat-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 6px 14px;
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex; align-items: center; gap: 6px;
+}
+
+.stat-chip span { color: var(--cyan); font-weight: 600; font-family: 'DM Mono', monospace; }
+
+/* ── SEARCH ── */
+.search-wrap {
+  padding: 20px 32px;
+}
+
+.search-box {
+  max-width: 480px;
+  position: relative;
+}
+
+.search-box input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 16px 10px 42px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-box input:focus { border-color: var(--cyan); }
+.search-box input::placeholder { color: var(--text-dim); }
+
+.search-icon {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  color: var(--text-dim); font-size: 15px;
+}
+
+/* ── TABS ── */
+.tabs-wrap {
+  padding: 0 32px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs-wrap::-webkit-scrollbar { display: none; }
+
+.tabs {
+  display: flex; gap: 4px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+  min-width: max-content;
+}
+
+.tab-btn {
+  background: none; border: none; cursor: pointer;
+  padding: 10px 18px;
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 500;
+  display: flex; align-items: center; gap: 6px;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.2s;
+  white-space: nowrap;
+  border-radius: 8px 8px 0 0;
+}
+
+.tab-btn:hover { color: var(--text); background: var(--cyan-dim); }
+.tab-btn.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+.tab-badge {
+  background: var(--cyan-dim);
+  color: var(--cyan);
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-size: 10px; font-weight: 600;
+}
+
+/* ── CONTENT ── */
+.content { padding: 28px 32px; }
+.tab-panel { display: none; animation: fadeIn 0.3s ease; }
+.tab-panel.active { display: block; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── SECTION TITLE ── */
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px; font-weight: 800;
+  margin-bottom: 6px;
+  letter-spacing: -0.3px;
+}
+
+.section-sub {
+  color: var(--text-muted); font-size: 13px; margin-bottom: 24px;
+}
+
+/* ── CARD GRID ── */
+.card-grid { display: grid; gap: 16px; }
+.card-grid-2 { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.card-grid-3 { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+
+/* ── CARD ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  border-color: rgba(0,200,255,0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+}
+
+.card-icon { font-size: 24px; margin-bottom: 10px; }
+.card-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 4px; }
+.card-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.card-body { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+/* ── TAGS ── */
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.tag {
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.4px;
+}
+.tag-cyan { background: var(--cyan-dim); color: var(--cyan); border: 1px solid rgba(0,200,255,0.2); }
+.tag-magenta { background: var(--magenta-dim); color: var(--magenta); border: 1px solid rgba(255,61,154,0.2); }
+.tag-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(0,255,179,0.2); }
+.tag-yellow { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(255,209,102,0.2); }
+.tag-orange { background: rgba(255,159,67,0.12); color: var(--orange); border: 1px solid rgba(255,159,67,0.2); }
+
+/* ── PROGRESS BAR ── */
+.progress-track {
+  background: var(--bg3);
+  border-radius: 4px; height: 6px;
+  overflow: hidden; margin: 10px 0;
+}
+.progress-fill {
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg, var(--cyan), var(--magenta));
+  transition: width 0.5s ease;
+}
+
+/* ── FLOW CHART ── */
+.flow {
+  display: flex; flex-direction: column;
+  align-items: flex-start; gap: 0;
+  max-width: 600px;
+}
+
+.flow-node {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 18px;
+  font-size: 13px; font-weight: 500;
+  position: relative;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+.flow-node:hover { border-color: var(--cyan); }
+
+.flow-node .node-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-dim); margin-bottom: 2px;
+}
+
+.flow-arrow {
+  width: 2px; height: 24px;
+  background: linear-gradient(to bottom, var(--cyan), var(--magenta));
+  margin: 0 0 0 40px;
+  position: relative;
+}
+.flow-arrow::after {
+  content: '▼';
+  position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
+  color: var(--magenta); font-size: 8px;
+}
+
+/* ── TABLE ── */
+.comp-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 13px;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.comp-table th {
+  background: var(--bg3);
+  padding: 12px 16px;
+  text-align: left;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--cyan);
+  border-bottom: 1px solid var(--border);
+}
+
+.comp-table td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  vertical-align: top;
+  line-height: 1.5;
+}
+
+.comp-table tr:last-child td { border-bottom: none; }
+.comp-table tr:hover td { background: var(--cyan-dim); color: var(--text); }
+.comp-table td:first-child { color: var(--text); font-weight: 500; }
+
+/* ── QUIZ ── */
+.quiz-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+}
+
+.quiz-info { display: flex; gap: 16px; align-items: center; }
+
+.quiz-stat {
+  font-size: 12px; color: var(--text-muted);
+}
+.quiz-stat strong { color: var(--text); }
+
+.quiz-q {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.q-num {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--cyan); margin-bottom: 10px; font-weight: 600;
+}
+
+.q-text {
+  font-size: 15px; font-weight: 500; line-height: 1.6;
+  margin-bottom: 18px;
+}
+
+.q-options { display: flex; flex-direction: column; gap: 8px; }
+
+.q-opt {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex; align-items: center; gap: 10px;
+  transition: all 0.15s;
+  text-align: left;
+}
+
+.q-opt:hover { border-color: rgba(0,200,255,0.4); background: var(--cyan-dim); }
+.q-opt.correct { border-color: var(--correct); background: rgba(0,255,179,0.1); color: var(--correct); animation: pulse 0.4s ease; }
+.q-opt.wrong { border-color: var(--wrong); background: rgba(255,61,154,0.1); color: var(--wrong); animation: shake 0.4s ease; }
+.q-opt.reveal-correct { border-color: var(--correct); background: rgba(0,255,179,0.07); color: var(--correct); }
+.q-opt:disabled, .q-opt[disabled] { pointer-events: none; }
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.01); box-shadow: 0 0 16px rgba(0,255,179,0.3); }
+  100% { transform: scale(1); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+.q-letter {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; flex-shrink: 0;
+  font-family: 'DM Mono', monospace;
+}
+
+.q-explanation {
+  background: var(--bg3);
+  border-left: 3px solid var(--cyan);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 14px 16px;
+  font-size: 13px; line-height: 1.6;
+  margin-top: 12px;
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+.q-explanation.show { display: block; }
+.q-explanation .correct-label { color: var(--correct); font-weight: 600; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; }
+
+.quiz-nav {
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+  margin-top: 16px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--cyan), #7c6bff);
+  color: #000;
+}
+.btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+.btn-ghost {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.btn-ghost:hover { border-color: var(--cyan); color: var(--cyan); }
+
+.btn-danger {
+  background: var(--magenta-dim);
+  border: 1px solid rgba(255,61,154,0.3);
+  color: var(--magenta);
+}
+.btn-danger:hover { background: var(--magenta); color: #fff; }
+
+/* ── FLASHCARDS ── */
+.fc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.flashcard {
+  height: 180px;
+  perspective: 1000px;
+  cursor: pointer;
+}
+
+.fc-inner {
+  position: relative; width: 100%; height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.4,0,0.2,1);
+}
+
+.flashcard.flipped .fc-inner { transform: rotateY(180deg); }
+
+.fc-front, .fc-back {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  border-radius: var(--radius);
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.fc-front {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.fc-back {
+  background: var(--bg3);
+  border: 1px solid rgba(0,200,255,0.25);
+  transform: rotateY(180deg);
+}
+
+.fc-type {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-dim); margin-bottom: 10px; font-weight: 600;
+}
+
+.fc-q { font-size: 14px; font-weight: 600; line-height: 1.5; color: var(--text); }
+.fc-a { font-size: 13px; line-height: 1.6; color: var(--green); }
+
+.fc-hint {
+  position: absolute; bottom: 12px; right: 14px;
+  font-size: 10px; color: var(--text-dim);
+}
+
+/* ── CLINICAL CASES ── */
+.case-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.case-header {
+  padding: 18px 22px;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+}
+
+.case-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; color: var(--magenta);
+  text-transform: uppercase; letter-spacing: 1px;
+}
+
+.case-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px; font-weight: 700;
+}
+
+.case-body { padding: 20px 22px; }
+
+.vignette {
+  background: var(--bg3);
+  border-left: 3px solid var(--magenta);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 14px 16px;
+  font-size: 13px; line-height: 1.7;
+  margin-bottom: 18px;
+  color: var(--text-muted);
+}
+
+.case-q { margin-bottom: 14px; }
+.case-q-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--cyan); margin-bottom: 6px; font-weight: 600;
+}
+.case-q-text { font-size: 14px; font-weight: 500; margin-bottom: 10px; }
+
+.reveal-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  padding: 8px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; gap: 6px;
+}
+.reveal-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+
+.case-answer {
+  background: rgba(0,255,179,0.05);
+  border: 1px solid rgba(0,255,179,0.2);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  font-size: 13px; line-height: 1.7;
+  margin-top: 10px;
+  display: none;
+  animation: fadeIn 0.3s ease;
+  color: var(--text-muted);
+}
+.case-answer.show { display: block; }
+.case-answer .ans-label {
+  color: var(--green); font-weight: 700; margin-bottom: 6px;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px;
+}
+.case-answer p strong { color: var(--text); }
+
+/* ── PATHWAY TAB ── */
+.pathway-flow {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  margin-bottom: 28px;
+}
+
+.pf-node {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.pf-node:hover, .pf-node.active { border-color: var(--cyan); background: var(--cyan-dim); color: var(--cyan); }
+
+.pf-node .order {
+  font-size: 9px; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 2px;
+}
+
+.pf-arrow { color: var(--text-dim); font-size: 12px; flex-shrink: 0; }
+
+.pf-detail {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 24px;
+  animation: fadeIn 0.3s ease;
+  display: none;
+}
+.pf-detail.show { display: block; }
+.pf-detail h4 { font-family: 'Syne', sans-serif; font-size: 15px; margin-bottom: 10px; color: var(--cyan); }
+.pf-detail p { font-size: 13px; line-height: 1.7; color: var(--text-muted); }
+.pf-detail ul { margin-top: 8px; padding-left: 18px; }
+.pf-detail li { font-size: 13px; line-height: 1.7; color: var(--text-muted); margin-bottom: 4px; }
+
+/* ── MNEMONICS ── */
+.mnemonic-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 16px;
+  transition: border-color 0.2s;
+}
+.mnemonic-card:hover { border-color: rgba(0,200,255,0.3); }
+
+.m-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--magenta-dim); border: 1px solid rgba(255,61,154,0.2);
+  border-radius: 20px; padding: 4px 12px;
+  font-size: 10px; font-weight: 700; color: var(--magenta);
+  text-transform: uppercase; letter-spacing: 0.8px;
+  margin-bottom: 12px;
+}
+
+.m-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px; font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--cyan); margin-bottom: 6px;
+}
+
+.m-subtitle { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+
+.m-list { display: flex; flex-direction: column; gap: 8px; }
+
+.m-item {
+  display: flex; align-items: flex-start; gap: 12px;
+}
+
+.m-letter {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px; font-weight: 800;
+  color: var(--magenta); line-height: 1;
+  flex-shrink: 0; width: 28px;
+}
+
+.m-meaning {
+  font-size: 13px; line-height: 1.5;
+}
+.m-meaning strong { color: var(--text); }
+.m-meaning span { color: var(--text-muted); }
+
+/* ── SCORE PANEL ── */
+.score-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  text-align: center;
+  display: none;
+  animation: fadeIn 0.4s ease;
+}
+.score-panel.show { display: block; }
+.score-big {
+  font-family: 'Syne', sans-serif;
+  font-size: 56px; font-weight: 800;
+  background: linear-gradient(135deg, var(--cyan), var(--magenta));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.score-label { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+.score-msg { font-size: 18px; margin-top: 16px; font-weight: 600; }
+
+/* ── EXAM ALERT ── */
+.exam-alert {
+  background: rgba(255,209,102,0.07);
+  border: 1px solid rgba(255,209,102,0.25);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 13px;
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 12px;
+}
+.exam-alert-icon { color: var(--yellow); font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.exam-alert-text { line-height: 1.5; color: var(--text-muted); }
+.exam-alert-text strong { color: var(--yellow); }
+
+/* ── DIVIDER ── */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 24px 0;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  header, .search-wrap, .tabs-wrap, .content { padding-left: 16px; padding-right: 16px; }
+  .card-grid-2, .card-grid-3 { grid-template-columns: 1fr; }
+  .fc-grid { grid-template-columns: 1fr; }
+  .score-big { font-size: 40px; }
+}
+
+/* ── HIGHLIGHT ── */
+.hl { background: rgba(255,209,102,0.2); border-radius: 3px; padding: 0 3px; }
+mark { background: rgba(0,200,255,0.2); color: var(--cyan); border-radius: 3px; padding: 0 3px; }
+
+/* ── OVERVIEW TIMELINE ── */
+.timeline { position: relative; padding-left: 28px; }
+.timeline::before {
+  content: ''; position: absolute; left: 8px; top: 0; bottom: 0;
+  width: 2px; background: linear-gradient(to bottom, var(--cyan), var(--magenta));
+}
+.tl-item { position: relative; margin-bottom: 20px; }
+.tl-dot {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--cyan);
+  border: 2px solid var(--bg);
+  position: absolute; left: -24px; top: 4px;
+  box-shadow: 0 0 8px rgba(0,200,255,0.5);
+}
+.tl-content { font-size: 13px; line-height: 1.6; color: var(--text-muted); }
+.tl-content strong { color: var(--text); display: block; font-size: 14px; margin-bottom: 3px; }
+
+.viva-q {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  transition: border-color 0.2s;
+  cursor: pointer;
+}
+.viva-q:hover { border-color: rgba(0,200,255,0.3); }
+.viva-q-text { font-size: 14px; font-weight: 500; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.viva-q-text .vq-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--magenta); flex-shrink: 0; }
+.viva-answer {
+  font-size: 13px; line-height: 1.6; color: var(--text-muted);
+  display: none; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.viva-answer.show { display: block; }
+.viva-toggle { color: var(--text-dim); flex-shrink: 0; font-size: 12px; }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">👁️</div>
+    <div class="logo-text">
+      <h1>Visual Perception & Pathways</h1>
+      <p>Physiology · Interactive Study Platform</p>
+    </div>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-chip">🎯 Quiz Score <span id="hdr-score">0/0</span></div>
+    <div class="stat-chip">🔥 Streak <span id="hdr-streak">0</span></div>
+    <div class="stat-chip">📊 Progress <span id="hdr-progress">0%</span></div>
+  </div>
+</header>
+
+<!-- SEARCH -->
+<div class="search-wrap">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search-input" placeholder="Search any concept… (rods, agnosia, LGB…)">
+  </div>
+</div>
+
+<!-- SEARCH RESULTS -->
+<div id="search-results" style="padding: 0 32px; display:none;">
+  <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Search results:</div>
+  <div id="search-list" class="card-grid card-grid-2"></div>
+  <div class="divider"></div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('overview',this)">📋 Overview</button>
+    <button class="tab-btn" onclick="switchTab('quiz',this)">🧠 Quiz <span class="tab-badge">25 Qs</span></button>
+    <button class="tab-btn" onclick="switchTab('flashcards',this)">🃏 Flashcards <span class="tab-badge">22</span></button>
+    <button class="tab-btn" onclick="switchTab('cases',this)">🏥 Cases <span class="tab-badge">5</span></button>
+    <button class="tab-btn" onclick="switchTab('pathway',this)">🔬 Pathway</button>
+    <button class="tab-btn" onclick="switchTab('compare',this)">📊 Compare</button>
+    <button class="tab-btn" onclick="switchTab('mnemonics',this)">💡 Mnemonics</button>
+    <button class="tab-btn" onclick="switchTab('viva',this)">🗣️ Viva <span class="tab-badge">12</span></button>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ════════════════ OVERVIEW ════════════════ -->
+<div id="tab-overview" class="tab-panel active">
+  <div class="section-title">Visual Perception — Core Concepts</div>
+  <div class="section-sub">High-yield summary of the physiology of visual perception and neural pathways</div>
+
+  <div class="exam-alert">
+    <span class="exam-alert-icon">⚠️</span>
+    <div class="exam-alert-text"><strong>Exam Favourite:</strong> Young-Helmholtz theory is the most accepted MCQ answer for color vision. Lesion in Area 18 → Visual Agnosia. Nasal fibers cross at chiasm; temporal stay ipsilateral.</div>
+  </div>
+
+  <!-- Topic cards -->
+  <div class="card-grid card-grid-2" style="margin-bottom:28px;">
+    <div class="card">
+      <div class="card-icon">🔦</div>
+      <div class="card-label">Topic 1</div>
+      <div class="card-title">Duplicity Theory</div>
+      <div class="card-body">Retinal function depends on two photoreceptors — rods (scotopic) and cones (photopic) — each working maximally under different illumination conditions.</div>
+      <div class="tags">
+        <span class="tag tag-cyan">High-Yield</span>
+        <span class="tag tag-green">Photopic</span>
+        <span class="tag tag-magenta">Scotopic</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🌈</div>
+      <div class="card-label">Topic 2</div>
+      <div class="card-title">Color Vision & Theories</div>
+      <div class="card-body">Young-Helmholtz (retinal, 3 cone types) is the most accepted. Herring opponent theory acts at neural pathway level. Yellow = 83% Red + 83% Green + 0% Blue.</div>
+      <div class="tags">
+        <span class="tag tag-yellow">⚠️ Exam MCQ</span>
+        <span class="tag tag-cyan">Young-Helmholtz</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🧬</div>
+      <div class="card-label">Topic 3</div>
+      <div class="card-title">Visual Pathway</div>
+      <div class="card-body">Photoreceptors → Bipolar (1°) → Ganglion (2°) → Optic nerve → Chiasm → Optic tract → LGB (3°) → Optic radiation → Visual cortex (Area 17).</div>
+      <div class="tags">
+        <span class="tag tag-magenta">3 Orders</span>
+        <span class="tag tag-green">LGB</span>
+        <span class="tag tag-cyan">Decussation</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🧠</div>
+      <div class="card-label">Topic 3</div>
+      <div class="card-title">Cortical Areas</div>
+      <div class="card-body">Area 17 (lines/borders/fusion) → Area 18 (interpretation/recognition — lesion = Visual Agnosia) → Area 19 (occipital eye field — eyeball movement).</div>
+      <div class="tags">
+        <span class="tag tag-yellow">⚠️ Area 18 Lesion</span>
+        <span class="tag tag-orange">Clinical Pearl</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Photopic vs Scotopic quick grid -->
+  <div class="section-title" style="font-size:17px; margin-bottom:16px;">⚡ Photopic vs Scotopic — Quick View</div>
+  <div class="card-grid card-grid-3" style="margin-bottom:28px;">
+    <div class="card" style="border-color:rgba(0,200,255,0.2);">
+      <div class="card-label" style="color:var(--cyan);">Photopic Vision</div>
+      <div class="card-title">☀️ Cones</div>
+      <div class="card-body">Central retina · High threshold · Low sensitivity · High accuracy · Color vision · <strong style="color:var(--green);">Rapid adaptation</strong></div>
+    </div>
+    <div class="card" style="border-color:rgba(255,61,154,0.2);">
+      <div class="card-label" style="color:var(--magenta);">Scotopic Vision</div>
+      <div class="card-title">🌑 Rods</div>
+      <div class="card-body">Peripheral retina · Low threshold · High sensitivity · Low accuracy · No color · <strong style="color:var(--magenta);">Slow adaptation</strong></div>
+    </div>
+    <div class="card" style="border-color:rgba(255,209,102,0.2);">
+      <div class="card-label" style="color:var(--yellow);">Key Difference</div>
+      <div class="card-title">🔑 Remember</div>
+      <div class="card-body">Rods = Sensitive but SLOW (pigment regeneration takes time). Cones = Less sensitive but FAST. Night blindness → Rod dysfunction.</div>
+    </div>
+  </div>
+
+  <!-- Timeline / pathway overview -->
+  <div class="section-title" style="font-size:17px; margin-bottom:16px;">📍 Visual Pathway — Step by Step</div>
+  <div class="timeline" style="margin-bottom:28px;">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-content"><strong>① Photoreceptors (Rods & Cones)</strong>Light transduction occurs. Rods for scotopic, cones for photopic and color vision. Cones contain L (red), M (green), S (blue) pigments.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--magenta);"></div>
+      <div class="tl-content"><strong>② Bipolar Cells — 1st Order Neuron</strong>ON (depolarizing) and OFF (hyperpolarizing) bipolar cells create positive and negative images. Lateral inhibition via Horizontal & Amacrine cells sharpens contrast.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--yellow);"></div>
+      <div class="tl-content"><strong>③ Ganglion Cells — 2nd Order Neuron</strong>Their axons form the Optic Nerve. Functions: 2-point discrimination, contrast detection, motion, color analysis.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--green);"></div>
+      <div class="tl-content"><strong>④ Optic Chiasma</strong>Nasal fibers CROSS (decussate) → contralateral side. Temporal fibers STAY → ipsilateral side. This enables binocular visual field representation.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--orange);"></div>
+      <div class="tl-content"><strong>⑤ Lateral Geniculate Body (LGB) — 3rd Order</strong>In the thalamus. Fuses retinal images; stereoscopic vision. Contains Magnocellular (B&W + motion) and Parvocellular (color + spatial detail) neurons.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:#a78bfa;"></div>
+      <div class="tl-content"><strong>⑥ Visual Cortex (Areas 17, 18, 19)</strong>Area 17: calcarine fissure, detects lines/borders. Area 18 (visuo-psychic): interprets/recognizes objects. Area 19 (occipital eye field): controls eye movements.</div>
+    </div>
+  </div>
+
+  <!-- High-yield alerts -->
+  <div class="section-title" style="font-size:17px; margin-bottom:12px;">🎯 High-Yield Exam Points</div>
+  <div class="exam-alert"><span class="exam-alert-icon">⚠️</span><div class="exam-alert-text"><strong>MCQ:</strong> Most accepted theory of color vision = Young-Helmholtz (trichromatic theory at receptor level).</div></div>
+  <div class="exam-alert"><span class="exam-alert-icon">⚠️</span><div class="exam-alert-text"><strong>MCQ:</strong> Visual Agnosia = lesion in Area 18. Patient SEES but cannot RECOGNIZE/INTERPRET.</div></div>
+  <div class="exam-alert"><span class="exam-alert-icon">⚠️</span><div class="exam-alert-text"><strong>MCQ:</strong> Yellow = L-cone 83% + M-cone 83% + S-cone 0%.</div></div>
+  <div class="exam-alert"><span class="exam-alert-icon">⚠️</span><div class="exam-alert-text"><strong>MCQ:</strong> Magnocellular LGB neurons → black/white + motion. Parvocellular → color + spatial detail.</div></div>
+</div>
+
+<!-- ════════════════ QUIZ ════════════════ -->
+<div id="tab-quiz" class="tab-panel">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
+    <div>
+      <div class="section-title">Quiz Mode</div>
+      <div class="section-sub">25 MCQs covering all lecture topics — immediate feedback + explanations</div>
+    </div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button class="btn btn-ghost" onclick="shuffleQuiz()">🔀 Shuffle</button>
+      <button class="btn btn-danger" onclick="resetQuiz()">🔄 Reset</button>
+    </div>
+  </div>
+
+  <div class="progress-track" style="margin-bottom:8px;">
+    <div class="progress-fill" id="quiz-progress" style="width:0%"></div>
+  </div>
+  <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted); margin-bottom:20px;">
+    <span id="quiz-count">Question 0 of 25</span>
+    <span>✅ <span id="quiz-correct">0</span> correct &nbsp;❌ <span id="quiz-wrong">0</span> wrong</span>
+  </div>
+
+  <div id="quiz-container"></div>
+
+  <div id="score-panel" class="score-panel">
+    <div class="score-big" id="final-score">0%</div>
+    <div class="score-label">Final Score</div>
+    <div class="score-msg" id="score-msg">Keep studying! 💪</div>
+    <div style="margin-top:20px;">
+      <button class="btn btn-primary" onclick="resetQuiz()">🔄 Try Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ FLASHCARDS ════════════════ -->
+<div id="tab-flashcards" class="tab-panel">
+  <div class="section-title">Flashcards</div>
+  <div class="section-sub">Click any card to flip and reveal the answer — 22 key concepts</div>
+
+  <div class="fc-grid" id="fc-grid"></div>
+</div>
+
+<!-- ════════════════ CASES ════════════════ -->
+<div id="tab-cases" class="tab-panel">
+  <div class="section-title">Clinical Cases</div>
+  <div class="section-sub">Exam-style vignettes — tap "Reveal Answer" to check your reasoning</div>
+  <div id="cases-container"></div>
+</div>
+
+<!-- ════════════════ PATHWAY ════════════════ -->
+<div id="tab-pathway" class="tab-panel">
+  <div class="section-title">Visual Pathway Explorer</div>
+  <div class="section-sub">Click each node to reveal detailed information about that structure</div>
+
+  <div class="pathway-flow" id="pathway-flow"></div>
+  <div id="pf-detail" class="pf-detail"></div>
+
+  <div class="divider"></div>
+
+  <div class="section-title" style="font-size:17px; margin-bottom:16px;">🧱 Retinal Cell Architecture</div>
+  <div class="card-grid card-grid-2">
+    <div class="card">
+      <div class="card-title">📡 Direct Pathway</div>
+      <div class="card-body" style="margin-top:8px;">
+        <div class="flow">
+          <div class="flow-node"><span class="node-label">Light source</span>Photoreceptors (Rods & Cones)</div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node"><span class="node-label">1st order neuron</span>ON / OFF Bipolar Cells</div>
+          <div class="flow-arrow"></div>
+          <div class="flow-node"><span class="node-label">2nd order neuron</span>Ganglion Cells → Optic Nerve</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">↔️ Lateral Inhibitory Pathway</div>
+      <div class="card-body" style="margin-top:8px;">
+        <div class="flow">
+          <div class="flow-node"><span class="node-label">Outer retina</span>Horizontal Cells (between photoreceptors & bipolars)</div>
+          <div class="flow-arrow" style="background:linear-gradient(to bottom, var(--magenta), var(--orange));"></div>
+          <div class="flow-node"><span class="node-label">Inner retina</span>Amacrine Cells (between bipolars & ganglion)</div>
+          <div class="flow-arrow" style="background:linear-gradient(to bottom, var(--orange), var(--yellow));"></div>
+          <div class="flow-node" style="border-color:var(--yellow);">→ Enhanced contrast & edge detection</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-title" style="font-size:17px; margin-bottom:16px;">🧠 Cortical Visual Areas</div>
+  <div class="card-grid card-grid-3">
+    <div class="card" style="border-color:rgba(0,200,255,0.25);">
+      <div class="card-label" style="color:var(--cyan);">Area 17</div>
+      <div class="card-title">Primary Visual Cortex</div>
+      <div class="card-body">Surrounds calcarine fissure, occipital lobe. Detects lines, borders, orientation, basic colors. Fuses images from both eyes. <br><br>Upper retina → Above fissure<br>Lower retina → Below fissure</div>
+    </div>
+    <div class="card" style="border-color:rgba(255,61,154,0.25);">
+      <div class="card-label" style="color:var(--magenta);">Area 18</div>
+      <div class="card-title">Visuo-psychic Area ⚠️</div>
+      <div class="card-body">Interprets visual sensations. Recognizes objects, correlates colors, depth perception.<br><br><strong style="color:var(--magenta);">Lesion → Visual Agnosia</strong><br>Patient sees but cannot recognize what they see.</div>
+    </div>
+    <div class="card" style="border-color:rgba(255,209,102,0.25);">
+      <div class="card-label" style="color:var(--yellow);">Area 19</div>
+      <div class="card-title">Occipital Eye Field</div>
+      <div class="card-body">Controls different types of eyeball movements. Surrounds Area 18. Shares some visual association functions with Area 18.<br><br>Lesion → Impaired tracking of moving objects.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ COMPARE ════════════════ -->
+<div id="tab-compare" class="tab-panel">
+  <div class="section-title">Comparison Tables</div>
+  <div class="section-sub">Side-by-side comparisons of key concepts</div>
+
+  <div style="margin-bottom:28px;">
+    <div style="font-family:'Syne',sans-serif; font-size:16px; font-weight:700; margin-bottom:14px; color:var(--cyan);">☀️🌑 Photopic vs Scotopic Vision</div>
+    <div style="overflow-x:auto;">
+    <table class="comp-table">
+      <thead><tr><th>Feature</th><th>Photopic Vision</th><th>Scotopic Vision</th></tr></thead>
+      <tbody>
+        <tr><td>Receptor</td><td>Cones</td><td>Rods</td></tr>
+        <tr><td>Location</td><td>Central retina (fovea)</td><td>Peripheral retina</td></tr>
+        <tr><td>Condition</td><td>Bright light</td><td>Dim/dark light</td></tr>
+        <tr><td>Threshold</td><td>High (needs more light)</td><td>Low (activates with little light)</td></tr>
+        <tr><td>Sensitivity</td><td>Low</td><td>High</td></tr>
+        <tr><td>Accuracy / Detail</td><td>High — fine details</td><td>Low — blurry</td></tr>
+        <tr><td>Color Vision</td><td>✅ Yes</td><td>❌ No</td></tr>
+        <tr><td>Adaptation Speed</td><td>Rapid (seconds)</td><td>Slow (5–30 minutes)</td></tr>
+        <tr><td>Disorder if lost</td><td>Color blindness</td><td>Night blindness (Nyctalopia)</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div style="margin-bottom:28px;">
+    <div style="font-family:'Syne',sans-serif; font-size:16px; font-weight:700; margin-bottom:14px; color:var(--magenta);">🔮 Magnocellular vs Parvocellular (LGB)</div>
+    <div style="overflow-x:auto;">
+    <table class="comp-table">
+      <thead><tr><th>Feature</th><th>Magnocellular</th><th>Parvocellular</th></tr></thead>
+      <tbody>
+        <tr><td>Location</td><td>Lateral Geniculate Body</td><td>Lateral Geniculate Body</td></tr>
+        <tr><td>Color</td><td>❌ Black and White only</td><td>✅ Color vision</td></tr>
+        <tr><td>Motion</td><td>✅ Detects motion</td><td>❌ Limited</td></tr>
+        <tr><td>Shape</td><td>✅ Basic shapes</td><td>✅ Fine spatial detail</td></tr>
+        <tr><td>Spatial resolution</td><td>Low</td><td>High (point-to-point)</td></tr>
+        <tr><td>Input from</td><td>Ganglion cells (M-type)</td><td>Ganglion cells (P-type)</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div style="margin-bottom:28px;">
+    <div style="font-family:'Syne',sans-serif; font-size:16px; font-weight:700; margin-bottom:14px; color:var(--green);">🧠 Cortical Visual Areas (17, 18, 19)</div>
+    <div style="overflow-x:auto;">
+    <table class="comp-table">
+      <thead><tr><th>Feature</th><th>Area 17</th><th>Area 18</th><th>Area 19</th></tr></thead>
+      <tbody>
+        <tr><td>Name</td><td>Primary Visual Cortex</td><td>Visuo-psychic Area</td><td>Occipital Eye Field</td></tr>
+        <tr><td>Location</td><td>Around calcarine fissure</td><td>Surrounds Area 17</td><td>Surrounds Area 18</td></tr>
+        <tr><td>Main Function</td><td>Lines, borders, basic color, image fusion</td><td>Object recognition & interpretation</td><td>Controls eye movements</td></tr>
+        <tr><td>Lesion Effect</td><td>Loss of basic visual perception (cortical blindness)</td><td>Visual Agnosia ⚠️</td><td>Impaired eye tracking</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div>
+    <div style="font-family:'Syne',sans-serif; font-size:16px; font-weight:700; margin-bottom:14px; color:var(--yellow);">🌈 Young-Helmholtz — Color Stimulation Percentages</div>
+    <div style="overflow-x:auto;">
+    <table class="comp-table">
+      <thead><tr><th>Color Perceived</th><th>L-cone (Red)</th><th>M-cone (Green)</th><th>S-cone (Blue)</th></tr></thead>
+      <tbody>
+        <tr><td>White</td><td>Equal</td><td>Equal</td><td>Equal</td></tr>
+        <tr><td>Yellow ⚠️</td><td>83%</td><td>83%</td><td>0%</td></tr>
+        <tr><td>Red</td><td>99%</td><td>~40%</td><td>0%</td></tr>
+        <tr><td>Green</td><td>~0%</td><td>97%</td><td>~0%</td></tr>
+        <tr><td>Blue</td><td>0%</td><td>0%</td><td>97%</td></tr>
+        <tr><td>Black</td><td>0%</td><td>0%</td><td>0%</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ MNEMONICS ════════════════ -->
+<div id="tab-mnemonics" class="tab-panel">
+  <div class="section-title">Mnemonics</div>
+  <div class="section-sub">Custom memory aids crafted from your lecture content</div>
+  <div id="mnemonics-container"></div>
+</div>
+
+<!-- ════════════════ VIVA ════════════════ -->
+<div id="tab-viva" class="tab-panel">
+  <div class="section-title">Viva Questions</div>
+  <div class="section-sub">12 viva-style questions — click to reveal model answers</div>
+  <div id="viva-container"></div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /page-wrap -->
+
+<script>
+// ═══════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════
+
+const QUIZ_DATA = [
+  {q:"Which of the following best defines the Duplicity Theory of retinal function?",opts:["The retina has two layers of blood vessels","Retinal function depends on two photoreceptors working under different illumination","The optic nerve has two types of fibers","Vision is processed in two different brain hemispheres","Images are seen twice before fusion"],ans:1,exp:"The theory states retinal function is double in nature depending on rods (scotopic) and cones (photopic) working maximally in different illumination conditions."},
+  {q:"Which photoreceptors are responsible for scotopic vision?",opts:["S-cones","M-cones","L-cones","Rods","Bipolar cells"],ans:3,exp:"Scotopic (night/dim) vision is mediated by rods located in the peripheral retina. They have low threshold and high sensitivity."},
+  {q:"What is the expected threshold and sensitivity for photopic vision?",opts:["Low threshold, high sensitivity","High threshold, low sensitivity","High threshold, high sensitivity","Low threshold, low sensitivity","Zero threshold, high sensitivity"],ans:1,exp:"Cones (photopic) have a high threshold — they need more light to fire — and therefore low sensitivity to light. The opposite applies to rods."},
+  {q:"How does the adaptation speed of cones compare to rods?",opts:["Cones adapt slower than rods","Cones and rods adapt at the same speed","Cones adapt rapidly, rods adapt slowly","Cones do not adapt","Rods adapt rapidly, cones adapt slowly"],ans:2,exp:"Photopic (cone) adaptation is rapid. Scotopic (rod) adaptation is slow because rods need time to regenerate their photosensitive pigment."},
+  {q:"According to the Young-Helmholtz theory, which 3 cone types exist?",opts:["Red, Yellow, Blue","Red, Green, Blue","Cyan, Magenta, Yellow","Black, White, Gray","Red, Green, Yellow"],ans:1,exp:"The trichromatic theory postulates 3 cones: L-cone (red/long wavelength), M-cone (green/medium), and S-cone (blue/short wavelength)."},
+  {q:"Based on the Young-Helmholtz theory, what happens when the 3 cone systems are stimulated equally?",opts:["Sensation of black","Sensation of yellow","Sensation of white","Visual agnosia","Hyperpolarization of all cells"],ans:2,exp:"Equal stimulation of all three cone types (L, M, S) produces the sensation of white color."},
+  {q:"If L-cones are stimulated at 83%, M-cones at 83%, and S-cones at 0%, what color is perceived?",opts:["Red","Green","Blue","Yellow","Magenta"],ans:3,exp:"This specific combination — high red + high green + no blue stimulation — produces the perception of yellow according to Young-Helmholtz."},
+  {q:"Which theory of color vision acts at the level of the neural pathway rather than the retina?",opts:["Young-Helmholtz Theory","Duplicity Theory","Herring (Opponent) Theory","On/Off Bipolar Theory","Lateral Inhibition Theory"],ans:2,exp:"Herring's opponent color theory operates at the neural/pathway level, unlike Young-Helmholtz which acts at the receptor level in the retina."},
+  {q:"In the visual pathway, which cells constitute the 1st order neuron?",opts:["Photoreceptors","Bipolar cells","Ganglion cells","Lateral Geniculate Body cells","Amacrine cells"],ans:1,exp:"Photoreceptors synapse onto bipolar cells, making bipolar cells the 1st order neurons in the visual pathway. Photoreceptors themselves are the sensory receptors."},
+  {q:"The axons of which retinal cells form the optic nerve?",opts:["Photoreceptors","Bipolar cells","Ganglion cells","Horizontal cells","Thalamic cells"],ans:2,exp:"Ganglion cells are the 2nd order neurons. Their axons converge at the optic disc and bundle together to form the optic nerve."},
+  {q:"At the optic chiasma, how do nerve fibers decussate?",opts:["All fibers cross to the opposite side","Temporal fibers cross, nasal fibers stay ipsilateral","Nasal fibers cross, temporal fibers stay ipsilateral","No fibers cross","Fibers cross only in photopic vision"],ans:2,exp:"At the optic chiasma, nasal (medial) fibers decussate (cross) to the contralateral side. Temporal (lateral) fibers continue ipsilaterally."},
+  {q:"The Lateral Geniculate Body (LGB) contains the cell bodies of which order neuron?",opts:["1st order","2nd order","3rd order","4th order","Interneurons"],ans:2,exp:"The LGB in the thalamus contains the 3rd order neurons. Bipolar = 1st, Ganglion = 2nd, LGB = 3rd."},
+  {q:"Which retinal cells form the direct pathway between photoreceptors and ganglion cells?",opts:["Horizontal cells","Amacrine cells","Bipolar cells","Müller cells","Pigment epithelial cells"],ans:2,exp:"Bipolar cells constitute the direct vertical pathway: Photoreceptors → Bipolar cells → Ganglion cells. Horizontal and Amacrine cells are lateral pathways."},
+  {q:"Which cells create the positive and negative 'double image' versions in the retina?",opts:["Horizontal cells","ON and OFF Bipolar cells","Magnocellular neurons","Parvocellular neurons","L and M cones"],ans:1,exp:"Depolarizing (ON) bipolar cells produce a positive version and hyperpolarizing (OFF) bipolar cells produce a negative version of the visual image."},
+  {q:"Which retinal cells provide lateral inhibition responsible for contrast detection?",opts:["Horizontal and Amacrine cells","Rods and Cones","ON and OFF Bipolar cells","Ganglion cells","Parvocellular neurons"],ans:0,exp:"Horizontal cells (outer retina) and Amacrine cells (inner retina) provide lateral inhibition, suppressing less stimulated neighbors to enhance visual contrast."},
+  {q:"Which of the following is a recognized function of retinal Ganglion cells?",opts:["Regeneration of visual pigment","Perception of luminosity only","Detection of 2-point discrimination","Secretion of aqueous humor","Depth perception"],ans:2,exp:"Ganglion cell functions include 2-point discrimination, contrast detection, movement detection, and color analysis before signals reach the cortex."},
+  {q:"A function of the Lateral Geniculate Body (LGB) is:",opts:["Controlling eyeball movement","Fusion of retinal images from both eyes","Detecting lines and borders","Analysis of visual signals before leaving the retina","Recognizing the nature of objects"],ans:1,exp:"The LGB fuses retinal images from both eyes and contributes to stereoscopic (3D/depth) vision. Eyeball movement = Area 19; Object recognition = Area 18; Lines = Area 17."},
+  {q:"Magnocellular neurons in the LGB are primarily concerned with:",opts:["Color vision","Point-to-point spatial information","White and black shape and motion","Stereoscopic vision","Interpretation of visual sensations"],ans:2,exp:"Magnocellular neurons handle black-and-white shape perception and motion detection. Parvocellular neurons handle color and fine spatial detail."},
+  {q:"Parvocellular neurons in the LGB are primarily concerned with:",opts:["Black and white vision","Motion detection","Fusion of retinal images","Color vision and accurate point-to-point spatial information","Eyeball movement"],ans:3,exp:"Parvocellular neurons are responsible for color vision and precise point-to-point spatial resolution — the 'what' pathway."},
+  {q:"Where is the primary visual cortex (Area 17) located?",opts:["Around the central sulcus","Around the calcarine fissure in the occipital lobe","In the temporal lobe","In the prefrontal cortex","In the parietal lobe"],ans:1,exp:"Area 17 (primary visual cortex) surrounds the calcarine fissure on the medial surface of the occipital lobe."},
+  {q:"The upper half of the retina is represented in which part of Area 17?",opts:["Below the calcarine fissure","Above the calcarine fissure","In the anterior part","In the posterior part","In Area 18"],ans:1,exp:"Upper retina (which receives light from lower visual field) is represented above the calcarine fissure. Lower retina maps below the fissure."},
+  {q:"Which cortical area is responsible for detecting the orientation of lines and borders?",opts:["Area 17","Area 18","Area 19","V-4","Pretectal region"],ans:0,exp:"Area 17 (primary visual cortex) functions include detection of lines, borders, and their specific orientations — it's the first cortical processor of visual input."},
+  {q:"Area 18 is also known as the:",opts:["Occipital eye field","Visuo-psychic area","Primary visual area","Pretectal nucleus","Magnocellular pathway"],ans:1,exp:"Area 18 is the visuo-psychic area — it interprets and recognizes objects. Area 19 is the occipital eye field."},
+  {q:"A patient presenting with Visual Agnosia likely has a lesion in:",opts:["Optic chiasma","Lateral Geniculate Body","Area 17","Area 18","Area 19"],ans:3,exp:"A lesion in Area 18 causes Visual Agnosia — the patient can perceive the object (via intact Area 17) but cannot interpret/recognize what it is."},
+  {q:"Which area controls the different types of eyeball movements?",opts:["Area 17","Area 18","Area 19","Lateral Geniculate Body","Optic chiasm"],ans:2,exp:"Area 19 is the occipital eye field. It controls smooth pursuit, saccadic, and other types of eyeball movements to track visual targets."}
+];
+
+const FLASHCARD_DATA = [
+  {q:"What is the Duplicity Theory?",a:"Retinal function is double in nature, depending on two photoreceptors: rods (scotopic, dim light) and cones (photopic, bright light), each working maximally under different illumination."},
+  {q:"What are the defining features of photopic vision?",a:"Mediated by cones (central retina). High threshold, low light sensitivity, high accuracy for fine details, color perception, RAPID adaptation."},
+  {q:"What are the defining features of scotopic vision?",a:"Mediated by rods (peripheral retina). Low threshold, high light sensitivity, low accuracy, NO color perception, SLOW adaptation (pigment regeneration)."},
+  {q:"Why is scotopic adaptation slow?",a:"Rods must regenerate their photosensitive pigment (rhodopsin) after bleaching by bright light. This regeneration takes 5–30 minutes."},
+  {q:"What is the Young-Helmholtz theory?",a:"Trichromatic theory at the retinal level. Three cone types: L-cone (red), M-cone (green), S-cone (blue). Equal stimulation = white. Unequal = other colors."},
+  {q:"What color do L-cone 83% + M-cone 83% + S-cone 0% produce?",a:"YELLOW. This is the classic exam example of unequal cone stimulation producing a non-primary color."},
+  {q:"What is the Herring (Opponent) Theory?",a:"Operates at the neural pathway level (NOT retina). An opponent/complementary theory of color. Less tested at this level — focus on Young-Helmholtz for MCQs."},
+  {q:"Name the 3 orders of neurons in the visual pathway.",a:"1st order: Bipolar cells. 2nd order: Ganglion cells (form optic nerve). 3rd order: Lateral Geniculate Body (LGB) neurons."},
+  {q:"What happens to fibers at the optic chiasma?",a:"NASAL fibers CROSS (decussate) to the contralateral side. TEMPORAL fibers stay IPSILATERAL. This enables each hemisphere to receive visual info from the contralateral visual field."},
+  {q:"What are the two functions of ON and OFF bipolar cells?",a:"ON (depolarizing) bipolars → positive image version. OFF (hyperpolarizing) bipolars → negative image version. Together they provide two copies of the visual scene."},
+  {q:"What do Horizontal and Amacrine cells do?",a:"They form the LATERAL INHIBITORY pathway in the retina. They inhibit neighboring less-stimulated neurons, enhancing contrast and sharpening boundaries between objects."},
+  {q:"Name two key functions of the LGB.",a:"(1) Fuses retinal images from both eyes enabling stereoscopic vision. (2) Contains Magnocellular (B&W + motion) and Parvocellular (color + spatial detail) neuron populations."},
+  {q:"Magnocellular vs Parvocellular neurons?",a:"Magnocellular: perceives black & white shape and MOTION (fast, transient). Parvocellular: perceives COLOR and fine spatial detail (slow, sustained)."},
+  {q:"What does Area 17 do and where is it?",a:"Primary visual cortex — surrounds the calcarine fissure, occipital lobe. Detects lines, borders, orientation, basic colors. Fuses images from both eyes."},
+  {q:"What is Area 18 and what happens if it's damaged?",a:"Visuo-psychic area (secondary visual cortex). Interprets and recognizes objects. LESION → VISUAL AGNOSIA: patient can see but cannot recognize/interpret what they see."},
+  {q:"What is Visual Agnosia?",a:"Inability to recognize or interpret visual objects despite having intact basic visual perception. Caused by lesion in Area 18 (visuo-psychic area). The patient sees but doesn't understand."},
+  {q:"What is Area 19's primary function?",a:"Occipital eye field — controls different types of eyeball movements (pursuit, saccade). Surrounds Area 18 in the occipital lobe."},
+  {q:"What are complementary colors?",a:"Pairs of colors that mix to produce white. Examples: deep blue + yellow; red + cyan. Different from primary colors (red, green, blue) which also mix to form white in equal proportions."},
+  {q:"What are the three primary colors in vision?",a:"Red, Green, and Blue. These are the colors of the three cone types (L, M, S). Mixed in equal proportions they produce white; in varying proportions they produce all other perceived colors."},
+  {q:"Which retinal cells form the optic nerve?",a:"Ganglion cells (2nd order neurons). Their axons exit the eye at the optic disc (blind spot) and travel as the optic nerve to the optic chiasma."},
+  {q:"What causes night blindness (Nyctalopia)?",a:"Dysfunction or loss of ROD photoreceptors, preventing dark adaptation. The rods cannot regenerate rhodopsin adequately, leaving the person unable to see in dim light."},
+  {q:"Trace: Bright light enters eye → color perception in cortex",a:"Light → Cones (L/M/S) → ON/OFF Bipolar cells (1°) → Ganglion cells (2°) → Optic nerve → Chiasm → Optic tract → LGB Parvocellular (3°) → Optic radiation → Area 17 → Area 18 (color recognition)"}
+];
+
+const CASES_DATA = [
+  {
+    id:1, title:"The Dark Cinema",
+    badge:"Dark Adaptation",
+    vignette:"A 22-year-old student walks from a bright sunny street into a dark cinema. Initially, he cannot see any seats. After approximately 20 minutes, his vision gradually improves and he can navigate the aisles.",
+    questions:[
+      {q:"What physiological mechanism is responsible for the gradual improvement in vision?",
+       a:"<p class='ans-label'>Answer</p><p>This is <strong>dark adaptation (scotopic adaptation)</strong>, mediated by <strong>rods</strong> in the peripheral retina. When exposed to bright light, rhodopsin (the rod photopigment) is bleached. In the dark, rods must regenerate rhodopsin, a slow process taking 5–30 minutes.</p>"},
+      {q:"Why does cone adaptation (photopic) happen much faster?",
+       a:"<p class='ans-label'>Answer</p><p>Cone photopigments (iodopsin types) have a much faster regeneration rate compared to rhodopsin. This is why moving from dark to bright light causes only momentary discomfort (seconds), while moving to darkness requires prolonged adaptation.</p>"},
+      {q:"What disorder would result from permanently impaired rod adaptation?",
+       a:"<p class='ans-label'>Answer</p><p><strong>Nyctalopia (Night Blindness)</strong> — the patient loses the ability to adapt to dark environments entirely. Causes include Vitamin A deficiency (rhodopsin requires Vitamin A/retinol), rod degeneration (retinitis pigmentosa), or severe liver disease.</p>"}
+    ]
+  },
+  {
+    id:2, title:"The Color Experiment",
+    badge:"Young-Helmholtz",
+    vignette:"In a visual physiology laboratory, a researcher stimulates a volunteer's retina with a carefully calibrated light that activates L-cones at 83%, M-cones at 83%, and S-cones at 0%.",
+    questions:[
+      {q:"What color will the volunteer perceive? Explain the mechanism.",
+       a:"<p class='ans-label'>Answer</p><p>The volunteer will perceive <strong>yellow</strong>. According to the <strong>Young-Helmholtz trichromatic theory</strong>, unequal stimulation of cone types produces non-primary color sensations. Yellow specifically results from high red (83%) + high green (83%) + zero blue stimulation."},
+      {q:"What would happen if all three cone types were equally stimulated?",
+       a:"<p class='ans-label'>Answer</p><p>Equal stimulation of L, M, and S cones in equal proportions produces the perception of <strong>white light</strong>. This is the basis of white light being a mixture of all wavelengths.</p>"},
+      {q:"At which anatomical level does the Young-Helmholtz theory operate?",
+       a:"<p class='ans-label'>Answer</p><p>At the <strong>retinal (receptor) level</strong> — specifically the cone photoreceptors. Compare this to Herring's opponent theory, which operates at the neural pathway level. Young-Helmholtz is the most accepted theory in MCQ format.</p>"}
+    ]
+  },
+  {
+    id:3, title:"The Mysterious Patient",
+    badge:"Visual Agnosia",
+    vignette:"A 45-year-old teacher suffered a stroke. Her visual acuity is perfect — she can read fine print and detect small movements. She correctly traces the outline of a set of keys, notes their metallic silver color, and sees the serrated edges. However, she has no idea what the object is or what it is used for. When she touches it, she immediately identifies it as her house key.",
+    questions:[
+      {q:"What is the diagnosis and what area is damaged?",
+       a:"<p class='ans-label'>Answer</p><p>This is <strong>Visual Agnosia</strong>, caused by a lesion in <strong>Area 18 (visuo-psychic area)</strong> of the occipital lobe. The patient can perceive all basic visual attributes (Area 17 is intact) but cannot interpret or recognize the object's meaning or identity.</p>"},
+      {q:"Why is her basic vision (acuity, color, edge detection) preserved?",
+       a:"<p class='ans-label'>Answer</p><p><strong>Area 17 (primary visual cortex)</strong> is intact. It continues to receive signals from the LGB via optic radiation and successfully processes lines, borders, color, and image fusion — the building blocks of vision. The failure is in the <em>interpretation</em> step (Area 18).</p>"},
+      {q:"Why could she identify the key when she touched it?",
+       a:"<p class='ans-label'>Answer</p><p>Object recognition can occur via other sensory modalities. <strong>Tactile/somatosensory pathways</strong> (processed in the parietal lobe) are intact. This confirms the defect is purely in <em>visual</em> interpretation/association, not in memory, language, or general cognition.</p>"}
+    ]
+  },
+  {
+    id:4, title:"The Sharp Contrast",
+    badge:"Lateral Inhibition",
+    vignette:"A radiologist examines an X-ray with a white opacity against a dark lung field. She notices the boundary between the lesion and the normal lung appears particularly sharp and well-defined — sharper than a photograph would suggest.",
+    questions:[
+      {q:"What retinal mechanism enhances this sharp boundary perception?",
+       a:"<p class='ans-label'>Answer</p><p><strong>Lateral inhibition</strong> — mediated by <strong>Horizontal cells</strong> (outer retina, between photoreceptors and bipolar cells) and <strong>Amacrine cells</strong> (inner retina, between bipolar and ganglion cells). Neurons in the highly stimulated area inhibit their less-stimulated neighbors, creating an exaggerated contrast at the boundary.</p>"},
+      {q:"What would happen to vision if lateral inhibition were eliminated?",
+       a:"<p class='ans-label'>Answer</p><p>Without lateral inhibition, the visual system would lose its ability to define sharp edges and boundaries. Images would appear blurred and low-contrast, making fine discrimination impossible. This mechanism is fundamental to reading and detecting subtle lesions.</p>"}
+    ]
+  },
+  {
+    id:5, title:"The Moving Target",
+    badge:"LGB Pathways",
+    vignette:"A neuroscientist isolates specific neurons in the Lateral Geniculate Body that fire robustly when a fast-moving black silhouette passes across a white screen, but remain silent when a stationary colorful pattern is presented.",
+    questions:[
+      {q:"Which cell type in the LGB is being recorded from?",
+       a:"<p class='ans-label'>Answer</p><p><strong>Magnocellular neurons</strong> in the LGB. These neurons specialize in detecting black and white shapes and motion. They are transient responders — activated by moving stimuli and less responsive to sustained color or fine detail.</p>"},
+      {q:"Which cell type would respond to the stationary colorful pattern?",
+       a:"<p class='ans-label'>Answer</p><p><strong>Parvocellular neurons</strong> in the LGB. These handle color vision and accurate point-to-point spatial information. They are sustained responders — ideal for processing stationary, detailed, colorful stimuli.</p>"},
+      {q:"Where do these signals ultimately project?",
+       a:"<p class='ans-label'>Answer</p><p>Both pathways project via the <strong>optic radiation</strong> to <strong>Area 17</strong> (primary visual cortex). Parvocellular signals then predominantly feed into the 'what' pathway (ventral stream → Area 18 for object recognition), while Magnocellular signals feed the 'where/how' pathway (dorsal stream → motion and spatial awareness).</p>"}
+    ]
+  }
+];
+
+const MNEMONICS_DATA = [
+  {
+    word:"RODS", title:"RODS",
+    subtitle:"Remember everything about scotopic (rod) vision",
+    items:[
+      {l:"R", bold:"Responsive to dim light", rest:"— low threshold, high sensitivity"},
+      {l:"O", bold:"Outer (peripheral) retina", rest:"— where rods are located"},
+      {l:"D", bold:"Dark adaptation is SLOW", rest:"— takes 5–30 min (pigment regeneration)"},
+      {l:"S", bold:"Scotopic only — no color", rest:"— cannot distinguish wavelengths"}
+    ]
+  },
+  {
+    word:"CONES", title:"CONES",
+    subtitle:"Everything about photopic (cone) vision",
+    items:[
+      {l:"C", bold:"Central retina (fovea)", rest:"— where cones concentrate"},
+      {l:"O", bold:"Only in bright light", rest:"— high threshold needed"},
+      {l:"N", bold:"nuanced detail & color", rest:"— high accuracy and 3 cone types"},
+      {l:"E", bold:"Extremely rapid adaptation", rest:"— seconds only"},
+      {l:"S", bold:"Sensitive to specific wavelengths", rest:"— L (red), M (green), S (blue)"}
+    ]
+  },
+  {
+    word:"BGA", title:"B → G → A",
+    subtitle:"Visual pathway neuron order",
+    items:[
+      {l:"B", bold:"Bipolar cells", rest:"— 1st order neuron"},
+      {l:"G", bold:"Ganglion cells", rest:"— 2nd order (form optic nerve)"},
+      {l:"A", bold:"Area 17 via LGB", rest:"— LGB = 3rd order, then cortex"}
+    ]
+  },
+  {
+    word:"NT Cross", title:"Nasal crosses, Temporal stays",
+    subtitle:"Remembering optic chiasma decussation",
+    items:[
+      {l:"N", bold:"Nasal fibers cross", rest:"— they DECUSSATE at the chiasma"},
+      {l:"T", bold:"Temporal fibers stay", rest:"— they remain IPSILATERAL"}
+    ]
+  },
+  {
+    word:"17-18-19", title:"Areas 17 → 18 → 19",
+    subtitle:"Visual cortex function sequence",
+    items:[
+      {l:"17", bold:"See it", rest:"— detects lines, borders, basic color (Primary Visual)"},
+      {l:"18", bold:"Know it", rest:"— recognizes & interprets (Visuo-psychic). Lesion → Agnosia"},
+      {l:"19", bold:"Track it", rest:"— controls eyeball movements (Occipital Eye Field)"}
+    ]
+  },
+  {
+    word:"MP Color", title:"M-agno = Motion, P-arvo = Pigment",
+    subtitle:"LGB neuron type memory trick",
+    items:[
+      {l:"M", bold:"Magnocellular = Motion", rest:"— black & white shapes and movement detection"},
+      {l:"P", bold:"Parvocellular = Paint/Pigment", rest:"— color vision and fine spatial detail"}
+    ]
+  }
+];
+
+const PATHWAY_NODES = [
+  {label:"Photoreceptors", order:"", detail:{title:"Photoreceptors (Rods & Cones)", body:"The first step in phototransduction. Rods (peripheral, ~120M): scotopic vision, high sensitivity, no color. Cones (central/foveal, ~6M): photopic vision, color detection via L/M/S types. Light causes conformational change in photopigments (rhodopsin in rods), generating graded potentials.", list:["Rods = rhodopsin; Cones = iodopsin variants","L-cones respond to long wavelength (red)","M-cones respond to medium wavelength (green)","S-cones respond to short wavelength (blue)"]}},
+  {label:"Bipolar Cells", order:"1st Neuron", detail:{title:"Bipolar Cells — 1st Order Neuron", body:"The first true synaptic neuron in the direct visual pathway. Two types create two parallel streams of information:", list:["ON bipolar cells: DEPOLARIZE in response to light (positive image version)","OFF bipolar cells: HYPERPOLARIZE in response to light (negative image version)","These two streams travel in parallel to ganglion cells","Lateral cells (horizontal, amacrine) modulate this signal"]}},
+  {label:"Ganglion Cells", order:"2nd Neuron", detail:{title:"Ganglion Cells — 2nd Order Neuron", body:"Action potential-generating neurons. Their axons form the optic nerve (CN II). Functions include 2-point discrimination, contrast detection, movement detection, and color analysis.", list:["M-type ganglion cells → Magnocellular LGB neurons","P-type ganglion cells → Parvocellular LGB neurons","Converge at optic disc to exit the eye","~1.2 million fibers in each optic nerve"]}},
+  {label:"Optic Nerve", order:"CN II", detail:{title:"Optic Nerve (Cranial Nerve II)", body:"Bundle of ~1.2 million ganglion cell axons. Travels from the eye to the optic chiasma. Surrounded by meninges and CSF, making it vulnerable to raised intracranial pressure (papilloedema).", list:["Lesion → monocular blindness","Exits eye at optic disc (blind spot)","Covered by myelin (CNS myelin, from oligodendrocytes)"]}},
+  {label:"Optic Chiasma", order:"Decussation", detail:{title:"Optic Chiasma", body:"The crossing point of visual fibers. Key rule: NASAL (medial) fibers cross; TEMPORAL (lateral) fibers stay ipsilateral. This ensures each cerebral hemisphere receives visual information from the contralateral visual field of BOTH eyes.", list:["Nasal fibers → cross to contralateral optic tract","Temporal fibers → continue in ipsilateral optic tract","Lesion at chiasm → bitemporal hemianopia (tunnel vision)","Located above the pituitary gland (pituitary tumors compress it)"]}},
+  {label:"Optic Tract", order:"Post-chiasm", detail:{title:"Optic Tract", body:"Runs from the optic chiasma to the LGB. Each optic tract carries fibers from both eyes representing the contralateral visual field.", list:["Right optic tract → right LGB → right visual cortex → left visual field","Lesion → contralateral homonymous hemianopia"]}},
+  {label:"LGB (Thalamus)", order:"3rd Neuron", detail:{title:"Lateral Geniculate Body — 3rd Order Neuron", body:"Located in the thalamus. Contains 6 layers. Key functions: fuses retinal images from both eyes, contributes to stereoscopic (depth) vision, contains two distinct neuron populations.", list:["Magnocellular neurons (layers 1,2): B&W shapes + motion","Parvocellular neurons (layers 3-6): color + fine spatial detail","Also sends signals to superior colliculus (pupillary reflex, saccades)"]}},
+  {label:"Optic Radiation", order:"Geniculocalcarine", detail:{title:"Optic Radiation (Geniculocalcarine Tract)", body:"Fibers from LGB to primary visual cortex (Area 17). Two divisions:", list:["Upper radiation: upper visual field → above calcarine fissure","Lower radiation (Meyer's loop): lower visual field → below calcarine fissure","Lesion of Meyer's loop → superior quadrantanopia ('pie in the sky')"]}},
+  {label:"Area 17 (V1)", order:"Visual Cortex", detail:{title:"Primary Visual Cortex — Area 17", body:"Located around the calcarine fissure, medial occipital lobe. First cortical processor of visual information. Detects basic attributes: lines, borders, orientation, luminance, basic color. Fuses images from both eyes.", list:["Upper retina → above calcarine fissure","Lower retina → below calcarine fissure","Lesion → cortical blindness in corresponding visual field","Sends to Areas 18 and 19 for further processing"]}},
+  {label:"Area 18/19", order:"Association", detail:{title:"Secondary Visual Cortex — Areas 18 & 19", body:"Area 18 (Visuo-psychic): interprets and recognizes visual objects. Lesion → Visual Agnosia. Area 19 (Occipital Eye Field): controls eyeball movements, visual tracking.", list:["Area 18 lesion → Visual Agnosia (sees but cannot recognize)","Area 19 lesion → impaired smooth pursuit and saccades","Both areas are part of the ventral 'what' and dorsal 'where/how' streams"]}}
+];
+
+const VIVA_DATA = [
+  {q:"What dictates the 'double nature' in the Duplicity Theory of retinal function?",a:"The presence of two distinct photoreceptors: cones (mediate photopic/day/color vision — central retina) and rods (mediate scotopic/night/dim vision — peripheral retina). Each functions maximally under different illumination conditions."},
+  {q:"Which photoreceptor has a lower threshold for light stimulation?",a:"Rods have a lower threshold and correspondingly higher sensitivity to light, allowing them to function effectively in dim light conditions, unlike cones which require more photons to activate."},
+  {q:"Name the primary colors in vision and explain what happens when they are mixed equally.",a:"The primary colors are red, green, and blue (corresponding to L, M, and S cone types). When mixed in equal proportions, they produce the sensation of white color."},
+  {q:"According to the Young-Helmholtz theory, what causes the perception of yellow?",a:"Yellow is perceived when the L-cone (red) is stimulated at 83%, the M-cone (green) at 83%, and the S-cone (blue) at 0%. This specific unequal combination of cone stimulation produces yellow."},
+  {q:"What is the main structural difference between nasal and temporal retinal fiber pathways?",a:"At the optic chiasma, nasal (medial) fibers decussate (cross) to the contralateral side, while temporal (lateral) fibers continue ipsilaterally without crossing. This ensures each hemisphere processes the contralateral visual field from both eyes."},
+  {q:"What is the function of ON and OFF bipolar cells?",a:"ON (depolarizing) bipolar cells respond to light by depolarizing, creating a positive version of the visual image. OFF (hyperpolarizing) bipolar cells hyperpolarize in response to light, creating a negative version. Together they form the direct pathway to ganglion cells."},
+  {q:"How do horizontal and amacrine cells contribute to visual perception?",a:"They form the lateral inhibitory pathway in the retina. Horizontal cells operate in the outer retina (between photoreceptors and bipolar cells) and amacrine cells in the inner retina (between bipolar and ganglion cells). By inhibiting less-stimulated adjacent neurons, they enhance visual contrast and sharpen object boundaries."},
+  {q:"Differentiate between Magnocellular and Parvocellular neurons in the LGB.",a:"Magnocellular neurons: perceive black-and-white shapes and motion (transient, fast). Parvocellular neurons: process color vision and accurate point-to-point spatial information (sustained, fine detail). Both are located in the LGB and receive input from ganglion cells."},
+  {q:"Where is the Primary Visual Area (Area 17) located and what does it process?",a:"Area 17 is located surrounding the calcarine fissure on the medial surface of the occipital lobe. It processes basic visual attributes: lines, borders, orientation, basic color, luminance, and fuses the images from both eyes."},
+  {q:"What is the primary function of Area 17?",a:"It receives basic visual inputs and enables detection of lines, borders, and their orientation; basic color analysis; luminance perception; and fusion of images from both eyes to create a unified perception."},
+  {q:"What is Visual Agnosia and what causes it?",a:"Visual Agnosia is the inability to recognize or interpret visual objects despite having intact basic visual perception. The patient can see the object (shape, color, borders via Area 17) but cannot identify what it is. It is caused by a lesion in Area 18 (the visuo-psychic area) of the occipital lobe."},
+  {q:"Which cortical area acts as the 'occipital eye field' and what is its function?",a:"Area 19. It shares some visual association functions with Area 18, but specifically controls different types of eyeball movements (smooth pursuit, saccades) to track moving visual objects. It surrounds Area 18 in the occipital lobe."}
+];
+
+// ═══════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════
+let quizOrder = [...Array(QUIZ_DATA.length).keys()];
+let quizAnswered = new Array(QUIZ_DATA.length).fill(null);
+let quizCorrect = 0, quizWrong = 0;
+let streak = 0;
+
+// ═══════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  localStorage.setItem('lastTab', id);
+}
+
+// ═══════════════════════════════════════
+//  QUIZ
+// ═══════════════════════════════════════
+function buildQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  quizOrder.forEach((qi, idx) => {
+    const q = QUIZ_DATA[qi];
+    const div = document.createElement('div');
+    div.className = 'quiz-q';
+    div.id = 'qq-' + idx;
+    const letters = ['A','B','C','D','E'];
+    div.innerHTML = `
+      <div class="q-num">Question ${idx+1} of ${QUIZ_DATA.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="q-options">
+        ${q.opts.map((o,i) => `
+          <button class="q-opt" onclick="answerQ(${idx},${qi},${i})" id="opt-${idx}-${i}">
+            <span class="q-letter">${letters[i]}</span> ${o}
+          </button>`).join('')}
+      </div>
+      <div class="q-explanation" id="exp-${idx}">
+        <div class="correct-label">✅ Correct Answer: ${letters[q.ans]}</div>
+        ${q.exp}
+      </div>`;
+    container.appendChild(div);
+    if (quizAnswered[idx] !== null) restoreAnswer(idx, qi, quizAnswered[idx]);
+  });
+  updateQuizStats();
+}
+
+function answerQ(idx, qi, chosen) {
+  if (quizAnswered[idx] !== null) return;
+  const q = QUIZ_DATA[qi];
+  quizAnswered[idx] = chosen;
+  const opts = document.querySelectorAll(`#qq-${idx} .q-opt`);
+  opts.forEach(o => o.disabled = true);
+  const chosenBtn = document.getElementById(`opt-${idx}-${chosen}`);
+  if (chosen === q.ans) {
+    chosenBtn.classList.add('correct');
+    quizCorrect++;
+    streak++;
+  } else {
+    chosenBtn.classList.add('wrong');
+    document.getElementById(`opt-${idx}-${q.ans}`).classList.add('reveal-correct');
+    quizWrong++;
+    streak = 0;
+  }
+  document.getElementById(`exp-${idx}`).classList.add('show');
+  updateQuizStats();
+  saveProgress();
+}
+
+function restoreAnswer(idx, qi, chosen) {
+  const q = QUIZ_DATA[qi];
+  const opts = document.querySelectorAll(`#qq-${idx} .q-opt`);
+  opts.forEach(o => o.disabled = true);
+  const chosenBtn = document.getElementById(`opt-${idx}-${chosen}`);
+  if (chosen === q.ans) chosenBtn.classList.add('correct');
+  else { chosenBtn.classList.add('wrong'); document.getElementById(`opt-${idx}-${q.ans}`).classList.add('reveal-correct'); }
+  document.getElementById(`exp-${idx}`).classList.add('show');
+}
+
+function updateQuizStats() {
+  const answered = quizAnswered.filter(a => a !== null).length;
+  const total = QUIZ_DATA.length;
+  const pct = total ? Math.round(answered/total*100) : 0;
+  document.getElementById('quiz-progress').style.width = pct + '%';
+  document.getElementById('quiz-count').textContent = `Question ${answered} of ${total}`;
+  document.getElementById('quiz-correct').textContent = quizCorrect;
+  document.getElementById('quiz-wrong').textContent = quizWrong;
+  document.getElementById('hdr-score').textContent = `${quizCorrect}/${answered}`;
+  document.getElementById('hdr-streak').textContent = streak;
+  document.getElementById('hdr-progress').textContent = pct + '%';
+
+  if (answered === total) showFinalScore();
+}
+
+function showFinalScore() {
+  const pct = Math.round(quizCorrect/QUIZ_DATA.length*100);
+  document.getElementById('final-score').textContent = pct + '%';
+  let msg = pct >= 90 ? '🏆 Outstanding! You\'re exam-ready!' :
+            pct >= 75 ? '🎉 Great work! Almost there!' :
+            pct >= 60 ? '👍 Good effort — review the explanations!' :
+            '📚 Keep studying — you\'ve got this!';
+  document.getElementById('score-msg').textContent = msg;
+  document.getElementById('score-panel').classList.add('show');
+}
+
+function resetQuiz() {
+  quizAnswered = new Array(QUIZ_DATA.length).fill(null);
+  quizCorrect = 0; quizWrong = 0; streak = 0;
+  document.getElementById('score-panel').classList.remove('show');
+  buildQuiz();
+  saveProgress();
+}
+
+function shuffleQuiz() {
+  quizOrder = quizOrder.sort(() => Math.random()-0.5);
+  quizAnswered = new Array(QUIZ_DATA.length).fill(null);
+  quizCorrect = 0; quizWrong = 0; streak = 0;
+  document.getElementById('score-panel').classList.remove('show');
+  buildQuiz();
+}
+
+// ═══════════════════════════════════════
+//  FLASHCARDS
+// ═══════════════════════════════════════
+function buildFlashcards() {
+  const grid = document.getElementById('fc-grid');
+  grid.innerHTML = '';
+  FLASHCARD_DATA.forEach((fc, i) => {
+    const div = document.createElement('div');
+    div.className = 'flashcard';
+    div.onclick = function() { this.classList.toggle('flipped'); };
+    div.innerHTML = `
+      <div class="fc-inner">
+        <div class="fc-front">
+          <div class="fc-type">Question ${i+1} of ${FLASHCARD_DATA.length}</div>
+          <div class="fc-q">${fc.q}</div>
+          <div class="fc-hint">tap to flip →</div>
+        </div>
+        <div class="fc-back">
+          <div class="fc-type">Answer</div>
+          <div class="fc-a">${fc.a}</div>
+        </div>
+      </div>`;
+    grid.appendChild(div);
+  });
+}
+
+// ═══════════════════════════════════════
+//  CASES
+// ═══════════════════════════════════════
+function buildCases() {
+  const cont = document.getElementById('cases-container');
+  cont.innerHTML = '';
+  CASES_DATA.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'case-card';
+    div.innerHTML = `
+      <div class="case-header">
+        <div>
+          <div class="case-num">Case ${c.id} · ${c.badge}</div>
+          <div class="case-title">${c.title}</div>
+        </div>
+        <span class="tag tag-magenta">Vignette</span>
+      </div>
+      <div class="case-body">
+        <div class="vignette">${c.vignette}</div>
+        ${c.questions.map((q,qi) => `
+          <div class="case-q">
+            <div class="case-q-label">Question ${qi+1}</div>
+            <div class="case-q-text">${q.q}</div>
+            <button class="reveal-btn" onclick="revealAns(this, 'case-ans-${c.id}-${qi}')">
+              👁 Reveal Answer
+            </button>
+            <div class="case-answer" id="case-ans-${c.id}-${qi}">${q.a}</div>
+          </div>`).join('')}
+      </div>`;
+    cont.appendChild(div);
+  });
+}
+
+function revealAns(btn, id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('show');
+  btn.textContent = el.classList.contains('show') ? '🙈 Hide Answer' : '👁 Reveal Answer';
+}
+
+// ═══════════════════════════════════════
+//  PATHWAY
+// ═══════════════════════════════════════
+function buildPathway() {
+  const flow = document.getElementById('pathway-flow');
+  flow.innerHTML = '';
+  PATHWAY_NODES.forEach((node, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'pf-node';
+    btn.innerHTML = `<span class="order">${node.order}</span>${node.label}`;
+    btn.onclick = () => showNodeDetail(node, btn);
+    flow.appendChild(btn);
+    if (i < PATHWAY_NODES.length - 1) {
+      const arr = document.createElement('span');
+      arr.className = 'pf-arrow';
+      arr.textContent = '→';
+      flow.appendChild(arr);
+    }
+  });
+}
+
+function showNodeDetail(node, btn) {
+  document.querySelectorAll('.pf-node').forEach(n => n.classList.remove('active'));
+  btn.classList.add('active');
+  const det = document.getElementById('pf-detail');
+  det.classList.add('show');
+  det.innerHTML = `
+    <h4>🔬 ${node.detail.title}</h4>
+    <p>${node.detail.body}</p>
+    <ul>${node.detail.list.map(l => `<li>${l}</li>`).join('')}</ul>`;
+}
+
+// ═══════════════════════════════════════
+//  MNEMONICS
+// ═══════════════════════════════════════
+function buildMnemonics() {
+  const cont = document.getElementById('mnemonics-container');
+  cont.innerHTML = '';
+  MNEMONICS_DATA.forEach(m => {
+    const div = document.createElement('div');
+    div.className = 'mnemonic-card';
+    div.innerHTML = `
+      <div class="m-badge">💡 Mnemonic</div>
+      <div class="m-title">${m.word}</div>
+      <div class="m-subtitle">${m.subtitle}</div>
+      <div class="m-list">
+        ${m.items.map(item => `
+          <div class="m-item">
+            <div class="m-letter">${item.l}</div>
+            <div class="m-meaning"><strong>${item.bold}</strong><br><span>${item.rest}</span></div>
+          </div>`).join('')}
+      </div>`;
+    cont.appendChild(div);
+  });
+}
+
+// ═══════════════════════════════════════
+//  VIVA
+// ═══════════════════════════════════════
+function buildViva() {
+  const cont = document.getElementById('viva-container');
+  cont.innerHTML = '';
+  VIVA_DATA.forEach((v, i) => {
+    const div = document.createElement('div');
+    div.className = 'viva-q';
+    div.innerHTML = `
+      <div class="viva-q-text" onclick="toggleViva(this)">
+        <span><span class="vq-num">V${i+1}</span> — ${v.q}</span>
+        <span class="viva-toggle">▼ Reveal</span>
+      </div>
+      <div class="viva-answer">${v.a}</div>`;
+    cont.appendChild(div);
+  });
+}
+
+function toggleViva(el) {
+  const ans = el.nextElementSibling;
+  ans.classList.toggle('show');
+  el.querySelector('.viva-toggle').textContent = ans.classList.contains('show') ? '▲ Hide' : '▼ Reveal';
+}
+
+// ═══════════════════════════════════════
+//  SEARCH
+// ═══════════════════════════════════════
+const SEARCH_INDEX = [
+  ...FLASHCARD_DATA.map(f => ({title: f.q, body: f.a, tag:'Flashcard'})),
+  ...QUIZ_DATA.map(q => ({title: q.q, body: q.exp, tag:'Quiz'})),
+  ...VIVA_DATA.map(v => ({title: v.q, body: v.a, tag:'Viva'})),
+  ...CASES_DATA.map(c => ({title: c.title, body: c.vignette, tag:'Case'})),
+  ...MNEMONICS_DATA.map(m => ({title: m.word + ' — ' + m.subtitle, body: m.items.map(i=>i.bold+' '+i.rest).join(' '), tag:'Mnemonic'}))
+];
+
+document.getElementById('search-input').addEventListener('input', function() {
+  const q = this.value.trim().toLowerCase();
+  const wrap = document.getElementById('search-results');
+  const list = document.getElementById('search-list');
+  if (!q) { wrap.style.display = 'none'; return; }
+  const res = SEARCH_INDEX.filter(i =>
+    i.title.toLowerCase().includes(q) || i.body.toLowerCase().includes(q)
+  ).slice(0,8);
+  if (!res.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  list.innerHTML = res.map(r => `
+    <div class="card" style="cursor:default;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <span class="tag tag-cyan">${r.tag}</span>
+      </div>
+      <div class="card-title" style="font-size:13px;">${highlight(r.title, q)}</div>
+      <div class="card-body" style="margin-top:6px;">${highlight(r.body.substring(0,120), q)}…</div>
+    </div>`).join('');
+});
+
+function highlight(text, q) {
+  const re = new RegExp(`(${q})`, 'gi');
+  return text.replace(re, '<mark>$1</mark>');
+}
+
+// ═══════════════════════════════════════
+//  PERSIST
+// ═══════════════════════════════════════
+function saveProgress() {
+  try {
+    localStorage.setItem('vp_quiz_answered', JSON.stringify(quizAnswered));
+    localStorage.setItem('vp_correct', quizCorrect);
+    localStorage.setItem('vp_wrong', quizWrong);
+    localStorage.setItem('vp_streak', streak);
+  } catch(e) {}
+}
+
+function loadProgress() {
+  try {
+    const a = localStorage.getItem('vp_quiz_answered');
+    if (a) quizAnswered = JSON.parse(a);
+    quizCorrect = parseInt(localStorage.getItem('vp_correct') || 0);
+    quizWrong = parseInt(localStorage.getItem('vp_wrong') || 0);
+    streak = parseInt(localStorage.getItem('vp_streak') || 0);
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════
+loadProgress();
+buildQuiz();
+buildFlashcards();
+buildCases();
+buildPathway();
+buildMnemonics();
+buildViva();
+updateQuizStats();
+
+// Restore last tab
+const lastTab = localStorage.getItem('lastTab');
+if (lastTab) {
+  const btn = [...document.querySelectorAll('.tab-btn')].find(b => b.getAttribute('onclick')?.includes(`'${lastTab}'`));
+  if (btn) switchTab(lastTab, btn);
+}
+</script>
+</body>
+</html>

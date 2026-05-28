@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sleep & EEG Physiology — Interactive Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0e1a;
+  --surface: #111527;
+  --surface2: #181d30;
+  --border: #232840;
+  --border2: #2d3455;
+  --text: #e8eaf2;
+  --text2: #8b91b0;
+  --text3: #5a607e;
+  --accent: #6c8fff;
+  --accent2: #a78bfa;
+  --accent3: #34d399;
+  --accent4: #f59e0b;
+  --accent5: #f87171;
+  --glow: rgba(108,143,255,0.15);
+  --glow2: rgba(167,139,250,0.12);
+  --rem-color: #a78bfa;
+  --sws-color: #34d399;
+  --alpha-color: #6c8fff;
+  --beta-color: #f59e0b;
+  --theta-color: #fb923c;
+  --delta-color: #f87171;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ANIMATED BG */
+.bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.12;
+  animation: orb-float 12s ease-in-out infinite;
+}
+.bg-orb:nth-child(1){ width:500px;height:500px;background:var(--accent);top:-100px;left:-100px;animation-delay:0s; }
+.bg-orb:nth-child(2){ width:400px;height:400px;background:var(--accent2);top:40%;right:-100px;animation-delay:4s; }
+.bg-orb:nth-child(3){ width:300px;height:300px;background:var(--accent3);bottom:-50px;left:30%;animation-delay:8s; }
+
+@keyframes orb-float {
+  0%,100%{ transform:translateY(0) scale(1); }
+  50%{ transform:translateY(-30px) scale(1.05); }
+}
+
+/* EEG wave decoration */
+.eeg-line {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.07;
+}
+
+/* MAIN LAYOUT */
+#app {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px 60px;
+}
+
+/* HEADER */
+header {
+  padding: 36px 0 0;
+  text-align: center;
+  position: relative;
+}
+.header-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.header-label::before, .header-label::after {
+  content: '';
+  width: 30px;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.5;
+}
+h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(28px, 5vw, 52px);
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #e8eaf2 0%, #a78bfa 50%, #6c8fff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 12px;
+}
+.header-sub {
+  color: var(--text2);
+  font-size: 15px;
+  font-weight: 300;
+  margin-bottom: 24px;
+}
+
+/* STATS BAR */
+.stats-bar {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+.stat-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  transition: all 0.2s;
+}
+.stat-chip .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent3);
+  animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot {
+  0%,100%{ opacity:1;transform:scale(1); }
+  50%{ opacity:0.5;transform:scale(0.8); }
+}
+
+/* TABS */
+.tab-nav {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 28px;
+  scrollbar-width: none;
+}
+.tab-nav::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 9px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab-btn:hover { border-color: var(--border2); color: var(--text); }
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(108,143,255,0.3);
+}
+
+.tab-content { display: none; animation: fadeIn 0.3s ease; }
+.tab-content.active { display: block; }
+@keyframes fadeIn { from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:translateY(0); } }
+
+/* CARDS */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  transition: border-color 0.2s;
+}
+.card:hover { border-color: var(--border2); }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.section-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  margin-bottom: 20px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--border), transparent);
+}
+
+/* TAG BADGES */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  margin: 2px;
+}
+.badge-exam { background: rgba(245,158,11,0.15); color: var(--accent4); border: 1px solid rgba(245,158,11,0.3); }
+.badge-rem { background: rgba(167,139,250,0.15); color: var(--rem-color); border: 1px solid rgba(167,139,250,0.3); }
+.badge-sws { background: rgba(52,211,153,0.15); color: var(--sws-color); border: 1px solid rgba(52,211,153,0.3); }
+.badge-mech { background: rgba(108,143,255,0.15); color: var(--accent); border: 1px solid rgba(108,143,255,0.3); }
+.badge-danger { background: rgba(248,113,113,0.15); color: var(--accent5); border: 1px solid rgba(248,113,113,0.3); }
+.badge-pearl { background: rgba(52,211,153,0.1); color: var(--accent3); border: 1px solid rgba(52,211,153,0.25); }
+
+/* ===================== OVERVIEW ===================== */
+.overview-hero {
+  background: linear-gradient(135deg, #111527, #181d30);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.overview-hero::before {
+  content: '🧠';
+  position: absolute;
+  font-size: 120px;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.08;
+}
+.overview-hero h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px;
+  margin-bottom: 12px;
+}
+.overview-hero p { color: var(--text2); line-height: 1.7; font-size: 15px; }
+
+.key-fact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.key-fact {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.2s;
+  cursor: default;
+}
+.key-fact:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); border-left-color: var(--accent2); }
+.key-fact .kf-label {
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.key-fact .kf-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.key-fact .kf-sub { font-size: 13px; color: var(--text2); }
+
+/* EEG WAVE VISUAL */
+.wave-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.wave-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+.wave-card::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 0 0 14px 14px;
+}
+.wave-card.alpha::before { background: var(--alpha-color); }
+.wave-card.beta::before { background: var(--beta-color); }
+.wave-card.theta::before { background: var(--theta-color); }
+.wave-card.delta::before { background: var(--delta-color); }
+.wave-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+.wave-letter {
+  font-family: 'DM Serif Display', serif;
+  font-size: 40px;
+  font-style: italic;
+  margin-bottom: 8px;
+}
+.wave-card.alpha .wave-letter { color: var(--alpha-color); }
+.wave-card.beta .wave-letter { color: var(--beta-color); }
+.wave-card.theta .wave-letter { color: var(--theta-color); }
+.wave-card.delta .wave-letter { color: var(--delta-color); }
+.wave-freq { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 500; margin-bottom: 6px; }
+.wave-state { font-size: 13px; color: var(--text2); }
+
+/* SLEEP CYCLE VISUAL */
+.cycle-visual {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.cycle-stages {
+  display: flex;
+  gap: 2px;
+  height: 60px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 16px 0;
+}
+.stage-block {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  transition: opacity 0.2s;
+  cursor: default;
+}
+.stage-block:hover { opacity: 0.85; }
+.stage-1{ background: rgba(108,143,255,0.25); color: var(--alpha-color); }
+.stage-2{ background: rgba(108,143,255,0.4); color: var(--alpha-color); }
+.stage-3{ background: rgba(248,113,113,0.3); color: var(--delta-color); }
+.stage-4{ background: rgba(248,113,113,0.5); color: var(--delta-color); }
+.stage-rem{ background: linear-gradient(135deg, rgba(167,139,250,0.4), rgba(167,139,250,0.6)); color: #c4b5fd; flex: 0.8; }
+.cycle-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+
+/* COMPARISON TABLE */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-top: 12px;
+}
+.compare-table th {
+  padding: 12px 16px;
+  background: var(--surface2);
+  color: var(--text2);
+  font-weight: 600;
+  text-align: left;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+  border-bottom: 1px solid var(--border);
+}
+.compare-table th:nth-child(2) { color: var(--sws-color); }
+.compare-table th:nth-child(3) { color: var(--rem-color); }
+.compare-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.5;
+}
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table tr:hover td { background: var(--surface2); }
+.compare-table td:first-child { color: var(--text2); font-weight: 500; }
+
+/* ===================== QUIZ ===================== */
+.quiz-header {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.quiz-progress-track {
+  flex: 1;
+  min-width: 150px;
+  height: 8px;
+  background: var(--surface2);
+  border-radius: 100px;
+  overflow: hidden;
+}
+.quiz-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 100px;
+  transition: width 0.4s ease;
+  width: 0%;
+}
+.quiz-score-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 100px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+}
+.streak-display {
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.question-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 28px;
+  margin-bottom: 16px;
+  transition: all 0.3s;
+}
+.question-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text3);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.question-number .q-badge {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+.question-text {
+  font-size: 16px;
+  line-height: 1.65;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+.options-list { display: flex; flex-direction: column; gap: 8px; }
+.option-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 13px 18px;
+  text-align: left;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.option-btn:hover:not(:disabled) { border-color: var(--accent); background: rgba(108,143,255,0.08); }
+.option-btn .opt-letter {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.option-btn.correct {
+  background: rgba(52,211,153,0.12);
+  border-color: var(--accent3);
+  animation: correct-pulse 0.4s ease;
+}
+.option-btn.correct .opt-letter { background: var(--accent3); border-color: var(--accent3); color: #0b0e1a; }
+.option-btn.wrong {
+  background: rgba(248,113,113,0.1);
+  border-color: var(--accent5);
+  animation: wrong-shake 0.4s ease;
+}
+.option-btn.wrong .opt-letter { background: var(--accent5); border-color: var(--accent5); color: #fff; }
+.option-btn:disabled { cursor: default; }
+@keyframes correct-pulse { 0%{ transform:scale(1); } 50%{ transform:scale(1.02); } 100%{ transform:scale(1); } }
+@keyframes wrong-shake { 0%,100%{ transform:translateX(0); } 25%{ transform:translateX(-6px); } 75%{ transform:translateX(6px); } }
+
+.explanation-box {
+  margin-top: 16px;
+  padding: 16px 20px;
+  background: var(--surface2);
+  border-radius: 12px;
+  border-left: 3px solid var(--accent3);
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text2);
+  display: none;
+}
+.explanation-box.show { display: block; animation: fadeIn 0.3s ease; }
+.explanation-box strong { color: var(--accent3); }
+
+.next-btn {
+  margin-top: 16px;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: none;
+}
+.next-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(108,143,255,0.4); }
+.next-btn.show { display: inline-flex; align-items: center; gap: 6px; }
+
+/* RESULTS */
+.results-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 48px;
+  text-align: center;
+  display: none;
+}
+.results-card.show { display: block; animation: fadeIn 0.5s ease; }
+.results-score {
+  font-family: 'DM Serif Display', serif;
+  font-size: 80px;
+  background: linear-gradient(135deg, var(--accent3), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+.results-msg { font-size: 20px; margin-bottom: 8px; }
+.results-sub { color: var(--text2); margin-bottom: 32px; }
+.restart-btn {
+  padding: 13px 32px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.restart-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(108,143,255,0.4); }
+
+/* ===================== FLASHCARDS ===================== */
+.flashcard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.flashcard {
+  height: 200px;
+  perspective: 1000px;
+  cursor: pointer;
+}
+.flashcard-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+.flashcard-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+.flashcard-front {
+  background: var(--surface);
+  position: relative;
+  overflow: hidden;
+}
+.flashcard-front::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+}
+.flashcard-back {
+  background: var(--surface2);
+  transform: rotateY(180deg);
+  border-color: var(--border2);
+}
+.fc-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.fc-question {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--text);
+}
+.fc-answer {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text2);
+}
+.fc-emoji { font-size: 28px; margin-bottom: 8px; }
+.flip-hint {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 12px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ===================== CLINICAL CASES ===================== */
+.case-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 28px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.case-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--accent), var(--accent2));
+}
+.case-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.case-vignette {
+  font-size: 15px;
+  line-height: 1.75;
+  margin-bottom: 20px;
+  padding: 18px;
+  background: var(--surface2);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+.case-questions { display: flex; flex-direction: column; gap: 14px; }
+.case-q {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.case-q-header {
+  padding: 14px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.case-q-header:hover { background: var(--surface); }
+.reveal-btn {
+  padding: 5px 14px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.reveal-btn:hover { transform: scale(1.03); }
+.case-q-answer {
+  padding: 16px 18px;
+  border-top: 1px solid var(--border);
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text2);
+  display: none;
+  background: rgba(108,143,255,0.04);
+}
+.case-q-answer.show { display: block; animation: fadeIn 0.3s ease; }
+.case-q-answer strong { color: var(--accent3); }
+
+/* ===================== MECHANISMS / PATHOPHYSIOLOGY ===================== */
+.flow-chart {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 20px;
+}
+.flow-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.flow-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.flow-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  position: relative;
+}
+.flow-step:not(:last-child) .flow-line {
+  position: absolute;
+  left: 20px;
+  top: 44px;
+  width: 2px;
+  height: calc(100% - 20px);
+  background: linear-gradient(180deg, var(--border2), transparent);
+}
+.flow-dot {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  border: 2px solid var(--border2);
+  background: var(--surface2);
+  margin-top: 2px;
+  z-index: 1;
+}
+.flow-body {
+  padding-bottom: 24px;
+  flex: 1;
+}
+.flow-body h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.flow-body p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.flow-arrow {
+  text-align: center;
+  color: var(--text3);
+  font-size: 20px;
+  margin: 4px 0 4px 20px;
+  line-height: 1;
+}
+
+.neurochem-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.neurochem-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.neurochem-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.35); border-color: var(--border2); }
+.nc-icon { font-size: 28px; margin-bottom: 10px; }
+.nc-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+.nc-role { font-size: 13px; color: var(--text2); line-height: 1.5; }
+.nc-expand {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.6;
+  display: none;
+}
+.nc-expand.show { display: block; animation: fadeIn 0.3s ease; }
+
+/* ===================== VIVA ===================== */
+.viva-grid { display: flex; flex-direction: column; gap: 10px; }
+.viva-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.viva-q {
+  padding: 16px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: background 0.2s;
+}
+.viva-q:hover { background: var(--surface2); }
+.viva-chevron {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  transition: transform 0.3s;
+  flex-shrink: 0;
+}
+.viva-item.open .viva-chevron { transform: rotate(180deg); }
+.viva-a {
+  padding: 0 20px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, padding 0.2s;
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.7;
+  border-top: 0px solid var(--border);
+}
+.viva-item.open .viva-a {
+  max-height: 200px;
+  padding: 14px 20px 18px;
+  border-top: 1px solid var(--border);
+}
+.viva-tag {
+  font-size: 11px;
+  background: rgba(245,158,11,0.15);
+  color: var(--accent4);
+  border: 1px solid rgba(245,158,11,0.25);
+  border-radius: 100px;
+  padding: 2px 8px;
+  flex-shrink: 0;
+}
+
+/* ===================== MNEMONICS ===================== */
+.mnemonic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+.mnemonic-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+}
+.mnemonic-card::after {
+  content: attr(data-emoji);
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  font-size: 36px;
+  opacity: 0.15;
+}
+.mnem-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  margin-bottom: 6px;
+  color: var(--accent2);
+}
+.mnem-subtitle { font-size: 13px; color: var(--text2); margin-bottom: 16px; }
+.mnem-letters { display: flex; flex-direction: column; gap: 8px; }
+.mnem-row { display: flex; align-items: baseline; gap: 12px; }
+.mnem-letter {
+  font-family: 'DM Serif Display', serif;
+  font-size: 24px;
+  color: var(--accent);
+  width: 24px;
+  flex-shrink: 0;
+}
+.mnem-word { font-weight: 600; font-size: 14px; margin-right: 6px; }
+.mnem-desc { font-size: 13px; color: var(--text2); }
+
+/* SEARCH */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 16px;
+  margin-bottom: 20px;
+  transition: border-color 0.2s;
+}
+.search-bar:focus-within { border-color: var(--accent); }
+.search-bar input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+}
+.search-bar input::placeholder { color: var(--text3); }
+.search-icon { color: var(--text3); font-size: 16px; }
+
+/* UTILITY */
+.highlight { background: rgba(108,143,255,0.15); padding: 2px 6px; border-radius: 4px; color: var(--accent); font-weight: 500; }
+.pill-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.pill {
+  padding: 5px 14px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--text2);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 600px) {
+  #app { padding: 0 12px 60px; }
+  h1 { font-size: 28px; }
+  .question-card { padding: 18px; }
+  .results-score { font-size: 60px; }
+  .flashcard-grid { grid-template-columns: 1fr 1fr; }
+  .flashcard { height: 170px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+</div>
+
+<svg class="eeg-line" viewBox="0 0 1200 60" preserveAspectRatio="none">
+  <polyline points="0,30 80,30 100,5 120,55 140,30 200,30 220,10 230,50 240,30 300,30 320,15 340,45 360,30 420,30 440,8 450,52 460,30 520,30 540,20 550,40 560,30 620,30 640,12 660,48 680,30 740,30 760,18 770,42 780,30 840,30 860,5 880,55 900,30 960,30 980,22 990,38 1000,30 1060,30 1080,10 1100,50 1120,30 1200,30"
+  fill="none" stroke="var(--accent)" stroke-width="2"/>
+</svg>
+
+<div id="app">
+  <header>
+    <div class="header-label">Mansoura University · Physiology</div>
+    <h1>Sleep & EEG Physiology</h1>
+    <p class="header-sub">Interactive Study Platform · USMLE-Style Exam Preparation</p>
+    <div class="stats-bar">
+      <div class="stat-chip"><span class="dot"></span><span id="stat-progress">0%</span> Complete</div>
+      <div class="stat-chip">🎯 <span id="stat-score">0/0</span> Quiz</div>
+      <div class="stat-chip">🔥 <span id="stat-streak">0</span> Streak</div>
+      <div class="stat-chip">📚 25 MCQs · 12 Viva · 5 Cases</div>
+    </div>
+  </header>
+
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('overview',this)">🧠 Overview</button>
+    <button class="tab-btn" onclick="switchTab('quiz',this)">🎯 Quiz</button>
+    <button class="tab-btn" onclick="switchTab('flashcards',this)">🃏 Flashcards</button>
+    <button class="tab-btn" onclick="switchTab('cases',this)">🏥 Clinical Cases</button>
+    <button class="tab-btn" onclick="switchTab('mechanisms',this)">⚙️ Mechanisms</button>
+    <button class="tab-btn" onclick="switchTab('viva',this)">🗣️ Viva</button>
+    <button class="tab-btn" onclick="switchTab('mnemonics',this)">🧩 Mnemonics</button>
+  </nav>
+
+  <!-- =================== OVERVIEW =================== -->
+  <div id="tab-overview" class="tab-content active">
+    <div class="overview-hero">
+      <div style="max-width:75%">
+        <h2>Sleep & EEG — The Big Picture</h2>
+        <p>Sleep is an <strong>active inhibitory process</strong> where the brain suppresses its own arousal circuits. Two fundamentally different sleep states alternate in 90-100 min cycles: <strong>Slow-Wave Sleep (SWS)</strong> — driven by serotonin and GABA — and <strong>REM (Paradoxical) Sleep</strong> — driven by acetylcholine. The EEG reflects brain state with four distinct wave patterns from fast (alert) to slow (deep sleep).</p>
+        <div class="pill-list" style="margin-top:16px">
+          <span class="badge badge-exam">⚠️ EXAM: SWS vs REM MCQs</span>
+          <span class="badge badge-exam">⚠️ EXAM: EEG Wave Frequencies</span>
+          <span class="badge badge-exam">⚠️ Written Q: REM Mechanism</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">🔑 Key Numbers</div>
+    <div class="key-fact-grid">
+      <div class="key-fact"><div class="kf-label">Sleep cycle duration</div><div class="kf-value">90–100 min</div><div class="kf-sub">~4-5 cycles per night</div></div>
+      <div class="key-fact" style="border-left-color:var(--rem-color)"><div class="kf-label">REM proportion</div><div class="kf-value">20–25%</div><div class="kf-sub">of total sleep time</div></div>
+      <div class="key-fact" style="border-left-color:var(--sws-color)"><div class="kf-label">SWS proportion</div><div class="kf-value">75–80%</div><div class="kf-sub">deep, restorative sleep</div></div>
+      <div class="key-fact" style="border-left-color:var(--beta-color)"><div class="kf-label">Infant sleep need</div><div class="kf-value">~18 hrs</div><div class="kf-sub">vs. adult 8 hrs, elderly 6 hrs</div></div>
+      <div class="key-fact" style="border-left-color:var(--theta-color)"><div class="kf-label">REM brain metabolism</div><div class="kf-value">+20%</div><div class="kf-sub">increase vs. SWS</div></div>
+      <div class="key-fact" style="border-left-color:var(--delta-color)"><div class="kf-label">EEG electrode sites</div><div class="kf-value">8 sites</div><div class="kf-sub">recorded from head pairs</div></div>
+    </div>
+
+    <div class="section-title">〰️ EEG Wave Types</div>
+    <div class="wave-grid">
+      <div class="wave-card alpha"><div class="wave-letter">α</div><div class="wave-freq">8–13 Hz</div><div class="wave-state">😌 Relaxed wakefulness (eyes closed)</div></div>
+      <div class="wave-card beta"><div class="wave-letter">β</div><div class="wave-freq">14–40 Hz</div><div class="wave-state">👁️ Alert state (eyes open) · Also in REM!</div></div>
+      <div class="wave-card theta"><div class="wave-letter">θ</div><div class="wave-freq">4–7 Hz</div><div class="wave-state">😴 Infants + Light sleep (Stage 1 & 2)</div></div>
+      <div class="wave-card delta"><div class="wave-letter">δ</div><div class="wave-freq">&lt;3 Hz</div><div class="wave-state">💤 Infants + Deep sleep (Stage 3 & 4)</div></div>
+    </div>
+
+    <div class="section-title">💤 Sleep Cycle Architecture</div>
+    <div class="cycle-visual">
+      <p style="font-size:14px;color:var(--text2);margin-bottom:8px">One complete 90-100 minute cycle — progresses Stage 1 → 4 → REM</p>
+      <div class="cycle-stages">
+        <div class="stage-block stage-1" title="Stage 1: Theta waves">S1<br>θ</div>
+        <div class="stage-block stage-2" title="Stage 2: Theta + spindles">S2<br>💫</div>
+        <div class="stage-block stage-3" title="Stage 3: Delta begins">S3<br>δ</div>
+        <div class="stage-block stage-4" title="Stage 4: Deep delta">S4<br>δδ</div>
+        <div class="stage-block stage-rem" title="REM: Paradoxical - Beta EEG + atonia">REM<br>β 👁️</div>
+      </div>
+      <div class="cycle-labels"><span>0 min</span><span>~15 min</span><span>~35 min</span><span>~55 min</span><span>~70 min</span><span>~95 min</span></div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px">
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><span style="width:12px;height:12px;border-radius:3px;background:rgba(108,143,255,0.4);display:inline-block"></span>SWS stages</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><span style="width:12px;height:12px;border-radius:3px;background:rgba(167,139,250,0.5);display:inline-block"></span>REM (paradoxical sleep)</div>
+      </div>
+    </div>
+
+    <div class="section-title">📊 SWS vs REM Comparison</div>
+    <div class="card">
+      <table class="compare-table">
+        <thead><tr><th>Feature</th><th>SWS (Non-REM)</th><th>REM (Paradoxical)</th></tr></thead>
+        <tbody>
+          <tr><td>% of total sleep</td><td>75–80%</td><td>20–25%</td></tr>
+          <tr><td>EEG pattern</td><td>Theta → Delta (slow, synchronised)</td><td>Beta rhythm (fast, like alert state)</td></tr>
+          <tr><td>Muscle tone</td><td>Mild decrease</td><td>⚠️ <strong>Marked decrease (atonia)</strong></td></tr>
+          <tr><td>Heart rate / RR</td><td>Decreased</td><td>Irregular, increased</td></tr>
+          <tr><td>Arousal threshold</td><td>Low (easy to wake)</td><td>High (hard to wake)</td></tr>
+          <tr><td>Dreams</td><td>Rare; not remembered</td><td>Vivid; remembered ✅</td></tr>
+          <tr><td>Initiating NT</td><td>Serotonin (Raphe) + GABA (Preoptic)</td><td>Acetylcholine (REM ON neurons)</td></tr>
+          <tr><td>Terminating NT</td><td>—</td><td>Serotonin + Noradrenaline (REM OFF)</td></tr>
+          <tr><td>Brain metabolism</td><td>Decreased</td><td>+20% increase</td></tr>
+          <tr><td>Somnambulism</td><td>✅ Can occur (muscle tone present)</td><td>❌ Cannot occur (atonia)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- =================== QUIZ =================== -->
+  <div id="tab-quiz" class="tab-content">
+    <div class="quiz-header">
+      <div style="flex:1;min-width:120px">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:6px;font-family:'JetBrains Mono',monospace">PROGRESS</div>
+        <div class="quiz-progress-track"><div class="quiz-progress-fill" id="quiz-fill"></div></div>
+      </div>
+      <div class="quiz-score-chip">✅ <span id="correct-count">0</span> / ❌ <span id="wrong-count">0</span></div>
+      <div class="streak-display">🔥 <span id="streak-display">0</span></div>
+    </div>
+
+    <div id="quiz-container"></div>
+    <div class="results-card" id="results-card">
+      <div class="results-score" id="final-score">0%</div>
+      <div class="results-msg" id="results-msg">Quiz Complete!</div>
+      <div class="results-sub" id="results-sub"></div>
+      <button class="restart-btn" onclick="restartQuiz()">🔄 Restart Quiz</button>
+    </div>
+  </div>
+
+  <!-- =================== FLASHCARDS =================== -->
+  <div id="tab-flashcards" class="tab-content">
+    <p style="color:var(--text2);font-size:14px;margin-bottom:20px">Click any card to reveal the answer. <span style="color:var(--text3)">Tap again to flip back.</span></p>
+    <div class="flashcard-grid" id="flashcard-grid"></div>
+  </div>
+
+  <!-- =================== CLINICAL CASES =================== -->
+  <div id="tab-cases" class="tab-content">
+    <div id="cases-container"></div>
+  </div>
+
+  <!-- =================== MECHANISMS =================== -->
+  <div id="tab-mechanisms" class="tab-content">
+
+    <div class="section-title">🧪 Neurochemicals in Sleep</div>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:16px">Click each molecule to expand its role.</p>
+    <div class="neurochem-grid" id="neurochem-grid"></div>
+
+    <div class="section-title">⚙️ SWS Initiation Flow</div>
+    <div class="flow-chart">
+      <div class="flow-title">🟢 How Slow-Wave Sleep Begins</div>
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div><div class="flow-dot">😴</div><div class="flow-line"></div></div>
+          <div class="flow-body">
+            <h4>Raphe Nucleus (Lower pons/medulla)</h4>
+            <p>Serotonergic neurons release <span class="highlight">Serotonin (5-HT)</span>, which inhibits the Reticular Activating System (RAS) — shutting down the brain's arousal circuit.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div><div class="flow-dot">🧠</div><div class="flow-line"></div></div>
+          <div class="flow-body">
+            <h4>Preoptic Nucleus (Anterior Hypothalamus)</h4>
+            <p>Releases <span class="highlight">GABA</span> onto histaminergic neurons in the posterior hypothalamus, silencing their excitatory drive to the thalamus and cortex.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div><div class="flow-dot">🚫</div><div class="flow-line"></div></div>
+          <div class="flow-body">
+            <h4>Histamine Blocked</h4>
+            <p>Posterior hypothalamus histaminergic neurons are suppressed → no histamine release → thalamus and cortex lose their wake-promoting excitation.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div><div class="flow-dot">💤</div></div>
+          <div class="flow-body" style="padding-bottom:0">
+            <h4>SWS Induced</h4>
+            <p>Cortical and thalamic activity slow down progressively through Stages 1→4 with theta and delta waves.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">🔴 REM Sleep Control</div>
+    <div class="flow-chart">
+      <div class="flow-title">🌀 REM ON / REM OFF Balance</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:14px;padding:18px">
+          <div style="color:var(--rem-color);font-weight:700;font-size:14px;margin-bottom:12px">🟣 REM ON (Initiates REM)</div>
+          <ul style="font-size:13px;color:var(--text2);line-height:1.8;padding-left:16px">
+            <li><strong>Cholinergic neurons</strong> in upper brainstem RF</li>
+            <li>Activated when serotonin/NA levels fall</li>
+            <li>Send excitatory signals → RAS, Thalamus, Cortex</li>
+            <li>Result: Beta-rhythm EEG + muscle atonia</li>
+          </ul>
+        </div>
+        <div style="background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.2);border-radius:14px;padding:18px">
+          <div style="color:var(--accent3);font-weight:700;font-size:14px;margin-bottom:12px">🟢 REM OFF (Terminates REM)</div>
+          <ul style="font-size:13px;color:var(--text2);line-height:1.8;padding-left:16px">
+            <li><strong>Raphe nuclei</strong> — serotoninergic</li>
+            <li><strong>Locus ceruleus</strong> — noradrenergic</li>
+            <li>Inhibit cholinergic REM ON neurons</li>
+            <li>Result: REM episode ends, cycle restarts</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">📌 Sleep-Promoting Brain Structures</div>
+    <div class="card-grid">
+      <div class="card"><div style="font-size:22px;margin-bottom:8px">🔵</div><div style="font-weight:600;margin-bottom:4px">Suprachiasmatic Nucleus</div><div style="font-size:13px;color:var(--text2)">Promotes sleep and synchronises the sleep/wake rhythm with light-dark cycles (circadian clock).</div></div>
+      <div class="card"><div style="font-size:22px;margin-bottom:8px">🟢</div><div style="font-weight:600;margin-bottom:4px">Nucleus Tractus Solitarius</div><div style="font-size:13px;color:var(--text2)">Stimulation leads to sleep induction; one of the subcortical sleep-promoting structures.</div></div>
+      <div class="card"><div style="font-size:22px;margin-bottom:8px">🟡</div><div style="font-weight:600;margin-bottom:4px">Preoptic Area (Ant. Hypo)</div><div style="font-size:13px;color:var(--text2)">GABAergic inhibition of wake-promoting histaminergic neurons in posterior hypothalamus.</div></div>
+      <div class="card"><div style="font-size:22px;margin-bottom:8px">🔴</div><div style="font-weight:600;margin-bottom:4px">Raphe Nuclei</div><div style="font-size:13px;color:var(--text2)">Dual role: serotonin initiates SWS; also part of REM OFF system to terminate REM.</div></div>
+    </div>
+  </div>
+
+  <!-- =================== VIVA =================== -->
+  <div id="tab-viva" class="tab-content">
+    <p style="color:var(--text2);font-size:14px;margin-bottom:20px">Click any question to reveal the model answer. Items marked ⚠️ are high-yield exam favourites.</p>
+    <div class="viva-grid" id="viva-grid"></div>
+  </div>
+
+  <!-- =================== MNEMONICS =================== -->
+  <div id="tab-mnemonics" class="tab-content">
+    <p style="color:var(--text2);font-size:14px;margin-bottom:20px">Custom mnemonics from the Sleep & EEG lecture content.</p>
+    <div class="mnemonic-grid" id="mnemonics-grid"></div>
+  </div>
+
+</div><!-- #app -->
+
+<script>
+// =================== DATA ===================
+
+const QUESTIONS = [
+  {
+    q: "Which of the following is the defining characteristic that differentiates sleep from coma?",
+    opts: ["The presence of delta waves","A marked decrease in muscle tone","A state of unconsciousness from which a person can be aroused","The presence of rapid eye movements","Decreased basal metabolic rate"],
+    correct: 2,
+    exp: "<strong>Sleep is reversible</strong> — the key word is 'aroused.' Both sleep and coma are states of unconsciousness, but only sleep allows arousal by sensory stimuli. Delta waves, muscle changes, and REM features occur in sleep but don't define the sleep/coma distinction."
+  },
+  {
+    q: "What is the frequency range of Alpha waves recorded in relaxed wakefulness?",
+    opts: ["14–40 cycles/sec","8–13 cycles/sec","4–7 cycles/sec","<3 cycles/sec",">40 cycles/sec"],
+    correct: 1,
+    exp: "<strong>Alpha = 8–13 Hz</strong>, the 'idle rhythm' of a relaxed, eyes-closed awake brain. Remember: Alpha → Awake but not Alert. Beta (14-40 Hz) appears with alertness. Theta (4-7 Hz) = light sleep. Delta (<3 Hz) = deep sleep."
+  },
+  {
+    q: "In which stage of Non-REM sleep are 'sleep spindles' characteristically observed on the EEG?",
+    opts: ["Stage 1","Stage 2","Stage 3","Stage 4","REM Sleep"],
+    correct: 1,
+    exp: "<strong>Stage 2</strong> features sleep spindles — sudden bursts of 12-14 Hz waves appearing within a theta wave background. Stage 1 is pure theta. Stages 3 & 4 are delta. REM is paradoxical beta."
+  },
+  {
+    q: "Which neurotransmitter is primarily associated with the induction of Slow-Wave Sleep (SWS)?",
+    opts: ["Histamine","Acetylcholine","Serotonin","Norepinephrine","Glutamate"],
+    correct: 2,
+    exp: "<strong>Serotonin</strong> from raphe nuclei inhibits the RAS to induce SWS. Histamine promotes wakefulness. Acetylcholine initiates REM (REM ON). Norepinephrine terminates REM (REM OFF). GABA (preoptic) also contributes to SWS by blocking histaminergic wake neurons."
+  },
+  {
+    q: "Which brain structure promotes sleep and synchronizes the sleep/wake rhythm with light-dark cycles?",
+    opts: ["Nucleus tractus solitarius","Locus ceruleus","Preoptic nucleus","Suprachiasmatic nucleus","Raphe nuclei"],
+    correct: 3,
+    exp: "<strong>Suprachiasmatic nucleus (SCN)</strong> of the hypothalamus is the master circadian clock. It receives light signals via the retinohypothalamic tract and synchronises the sleep-wake cycle. The preoptic nucleus initiates SWS via GABA; raphe nuclei via serotonin — those are different roles."
+  },
+  {
+    q: "How does the preoptic nucleus of the anterior hypothalamus induce sleep?",
+    opts: ["By sending excitatory cholinergic signals to the cortex","By sending inhibitory GABAergic signals to histaminergic neurons","By releasing norepinephrine into the RAS","By stimulating the locus ceruleus","By directly inhibiting the optic nerve"],
+    correct: 1,
+    exp: "<strong>GABA from the preoptic area</strong> suppresses histaminergic neurons in the posterior hypothalamus, removing their excitatory influence on the thalamus and cortex. This is why antihistamines cause drowsiness — they mimic this effect."
+  },
+  {
+    q: "Why do first-generation antihistamine drugs often cause drowsiness?",
+    opts: ["They stimulate the raphe nuclei directly","They increase beta wave frequency","They block the excitatory effect of histamine on the thalamus and cortex","They mimic acetylcholine in the brainstem","They inhibit the suprachiasmatic nucleus"],
+    correct: 2,
+    exp: "<strong>Histamine normally activates the thalamus and cortex</strong> to maintain wakefulness. Blocking H1 receptors mimics the natural GABA-mediated sleep induction by the preoptic area — histamine's wake-promoting effect is silenced."
+  },
+  {
+    q: "Which neuronal group constitutes the 'REM ON' center?",
+    opts: ["Serotonergic neurons in raphe nuclei","Histaminergic neurons in posterior hypothalamus","Cholinergic neurons in upper brainstem RF","Noradrenergic neurons in locus ceruleus","GABAergic neurons in anterior hypothalamus"],
+    correct: 2,
+    exp: "<strong>Cholinergic (ACh) neurons in the upper brainstem reticular formation</strong> are the REM ON center. Their increased activity sends excitatory signals to the RAS, thalamus, and cortex, creating the paradoxical awakening-like EEG of REM. Options A and D are REM OFF. Option B promotes wakefulness. Option E promotes SWS."
+  },
+  {
+    q: "Which neurotransmitter systems are responsible for naturally terminating REM sleep?",
+    opts: ["Increased cholinergic activity","Decreased suprachiasmatic activity","Increased serotonin (raphe) + noradrenaline (locus ceruleus)","Widespread GABA release from cortex","Depletion of brain glucose"],
+    correct: 2,
+    exp: "<strong>REM OFF = raphe nuclei (serotonin) + locus ceruleus (noradrenaline)</strong>. These monoaminergic neurons become progressively active and send inhibitory projections to suppress the cholinergic REM ON neurons, ending the REM episode."
+  },
+  {
+    q: "What is the expected EEG finding during REM sleep?",
+    opts: ["High-amplitude Delta waves","Spindles within Theta waves","Pure Alpha waves","High-frequency Beta-rhythm resembling wakefulness","Complete electrical silence"],
+    correct: 3,
+    exp: "<strong>REM = Beta rhythm</strong>, making it 'paradoxical sleep' — the EEG looks like alert wakefulness (14-40 Hz) while the person is deeply asleep with high arousal threshold and marked muscle atonia. Option A = Stage 4 SWS. Option B = Stage 2."
+  },
+  {
+    q: "Which physiological parameters are INCREASED during REM sleep compared to Slow-Wave Sleep?",
+    opts: ["Muscle tone","Heart rate only","Arousal threshold to sensory stimuli only","Both heart rate and arousal threshold","All of the above"],
+    correct: 3,
+    exp: "<strong>REM features: increased/irregular HR + high arousal threshold</strong> (very hard to wake). Muscle tone, however, markedly <em>decreases</em> (atonia). So A is wrong, but both B and C are correct, making D the answer."
+  },
+  {
+    q: "What percentage of total sleep time does REM sleep typically represent?",
+    opts: ["5–10%","20–25%","50–60%","75–80%","90–100%"],
+    correct: 1,
+    exp: "<strong>REM = 20–25%</strong> of total sleep. SWS = 75–80%. In a typical 8-hour night: ~6 hours SWS, ~2 hours REM distributed across 4-5 cycles. REM periods get progressively longer toward morning."
+  },
+  {
+    q: "Why are dreams experienced during REM sleep usually remembered, while SWS dreams are not?",
+    opts: ["SWS dreams never occur","Only Stage 1 dreams are recalled","REM dreams undergo memory consolidation","Dreams cause marked increase in muscle tone","They are a sign of pathological sleep"],
+    correct: 2,
+    exp: "<strong>REM sleep is critical for memory consolidation</strong>. The heightened cortical activity during REM (beta rhythm) enables encoding of dream content. SWS may involve some dreaming but it is fragmentary and rarely recalled."
+  },
+  {
+    q: "The most accepted theory of sleep states that it is caused by:",
+    opts: ["Passive fatigue of the RAS","Depletion of cortical oxygen","An active inhibitory process","Overstimulation of histaminergic neurons","Lactic acid accumulation in brainstem"],
+    correct: 2,
+    exp: "<strong>Active Inhibitory Theory</strong> — sleep is NOT simply the brain 'turning off' from fatigue (passive theory). Instead, specific neurons actively suppress thalamic and cortical activity via serotonin, GABA, and other inhibitory signals."
+  },
+  {
+    q: "According to the normal sleep cycle, what stage immediately follows Stage 4 of Non-REM sleep?",
+    opts: ["Stage 1 Non-REM","Relaxed wakefulness","Rapid Eye Movement (REM) sleep","Stage 2 Non-REM","Coma"],
+    correct: 2,
+    exp: "<strong>After Stage 4, the cycle transitions directly into REM</strong>. The sequence is: Wake → S1 → S2 → S3 → S4 → REM, then the cycle repeats. In later cycles, Stage 4 is shorter and REM periods lengthen."
+  },
+  {
+    q: "What is the approximate duration of one complete sleep cycle?",
+    opts: ["30–45 minutes","60–70 minutes","90–100 minutes","120–150 minutes","8 hours"],
+    correct: 2,
+    exp: "<strong>90–100 minutes</strong> per cycle: approximately 60 min SWS + 30 min REM. With 4-5 cycles per night, this accounts for a typical 7-8 hour sleep."
+  },
+  {
+    q: "The 'passive theory' of sleep proposes which mechanism?",
+    opts: ["Active cortical inhibition by GABA","Fatigue of the Reticular Activating System","Serotonin release from raphe nuclei","Cholinergic stimulation of the thalamus","Circadian synchrony by the SCN"],
+    correct: 1,
+    exp: "<strong>Passive theory = RAS fatigue</strong>. This older theory proposed sleep occurs when the arousal system simply gets tired. It is now superseded by the <em>active inhibitory theory</em> which recognises sleep as an actively generated state."
+  },
+  {
+    q: "A drug that blocks serotonin synthesis would most likely cause:",
+    opts: ["Narcolepsy","Coma","Insomnia","Increased SWS","Excessive REM sleep"],
+    correct: 2,
+    exp: "<strong>Insomnia</strong>. Serotonin is essential to initiate SWS via raphe nucleus inhibition of the RAS. Without it, the brain cannot enter and maintain sleep. This has been demonstrated experimentally in cats given PCPA (parachlorophenylalanine)."
+  },
+  {
+    q: "Which subcortical structure, when electrically stimulated, leads to sleep?",
+    opts: ["Posterior hypothalamus","Nucleus of tractus solitarius","Optic chiasm","Primary motor cortex","Vestibular nuclei"],
+    correct: 1,
+    exp: "<strong>Nucleus tractus solitarius</strong> is one of the subcortical structures whose stimulation induces sleep. The raphe nuclei and suprachiasmatic nucleus also promote sleep. The posterior hypothalamus, by contrast, contains histaminergic wake-promoting neurons — its stimulation causes wakefulness."
+  },
+  {
+    q: "What is the normal daily sleep requirement for infants?",
+    opts: ["6 hours","8 hours","12 hours","18 hours","24 hours"],
+    correct: 3,
+    exp: "<strong>Infants ≈ 18 hours</strong>. Sleep requirements decrease with age: infants ~18h → adults ~8h → elderly ~6h. This reflects the developmental importance of sleep for neural maturation and growth hormone secretion."
+  },
+  {
+    q: "Sleepwalking and sleep talking typically occur in which phase of sleep?",
+    opts: ["Relaxed wakefulness","Stage 1 Non-REM","REM Sleep","Slow-Wave Sleep (Non-REM)","Stage of sleep onset"],
+    correct: 3,
+    exp: "<strong>SWS (Non-REM)</strong> — parasomnia behaviours like sleepwalking occur in SWS because <em>some</em> motor tone is preserved. In REM, the marked muscle atonia (brainstem inhibition of motor neurons) physically prevents acting out dreams — which is why REM behaviour disorder is pathological."
+  },
+  {
+    q: "Brain metabolism and activity increase by what percentage during REM sleep?",
+    opts: ["5%","10%","20%","50%","100%"],
+    correct: 2,
+    exp: "<strong>+20%</strong> increase in brain metabolism during REM. This explains the paradox: despite being asleep, brain activity exceeds even resting wakefulness, supporting the high neural costs of dreaming and memory consolidation."
+  },
+  {
+    q: "Which physiological mechanism protects a person from physically acting out violent dreams?",
+    opts: ["Presence of Delta waves during dream sleep","Marked decrease in muscle tone (atonia) during REM","Increased heart rate suppressing motor activity","Histamine blockade of motor neurons","Active inhibition by GABA during Stage 2"],
+    correct: 1,
+    exp: "<strong>REM atonia</strong> — brainstem inhibitory pathways send descending inhibition to spinal motor neurons during REM, creating virtual paralysis. This is the body's safety mechanism. When it fails (REM sleep behaviour disorder), patients physically act out their dreams, risking injury."
+  },
+  {
+    q: "Prolonged sleep deprivation primarily leads to:",
+    opts: ["Improved memory consolidation","Cortical hypertrophy","Deterioration of higher brain functions and decreased alertness","Permanent increase in muscle tone","Immediate onset of coma"],
+    correct: 2,
+    exp: "<strong>Cognitive and alertness deterioration</strong>. Sleep is essential for CNS restoration, metabolic waste clearance (glymphatic system), and memory consolidation. Deprivation impairs attention, working memory, judgment, and emotional regulation — it does not improve any of these."
+  },
+  {
+    q: "Which structure sends inhibitory projections to cholinergic neurons to terminate REM sleep?",
+    opts: ["Preoptic area","Nucleus tractus solitarius","Locus ceruleus","Posterior hypothalamus","Thalamus"],
+    correct: 2,
+    exp: "<strong>Locus ceruleus</strong> (noradrenergic) + raphe nuclei (serotonergic) form the REM OFF system. Their inhibitory projections suppress the cholinergic REM ON neurons in the upper brainstem RF, ending the REM episode."
+  }
+];
+
+const FLASHCARDS = [
+  { emoji:"🧠", q:"What is the key difference between sleep and coma?", a:"Sleep = unconsciousness from which you CAN be aroused. Coma = unconsciousness from which you CANNOT be aroused." },
+  { emoji:"〰️", q:"Alpha waves: frequency and state?", a:"8–13 Hz · Relaxed wakefulness with eyes closed (disappears on eye opening or mental task)" },
+  { emoji:"⚡", q:"Beta waves: frequency and state?", a:"14–40 Hz · Alert, awake state with eyes open. Also seen during REM sleep (paradoxical)." },
+  { emoji:"😴", q:"Theta waves: frequency and state?", a:"4–7 Hz · Normal in infants. In adults: light sleep (Stage 1 & 2 SWS). Also sleep spindles in Stage 2." },
+  { emoji:"💤", q:"Delta waves: frequency and state?", a:"<3 Hz · Deep, dreamless sleep (Stage 3 & 4 SWS). Also normal in infants." },
+  { emoji:"🔄", q:"What is the duration and composition of one sleep cycle?", a:"90–100 min total: ~60 min SWS (Stages 1→4) + ~30 min REM. Repeats 4-5 times per night." },
+  { emoji:"💜", q:"Why is REM called 'paradoxical sleep'?", a:"EEG shows awake-like Beta rhythm despite being deeply asleep with high arousal threshold and marked muscle atonia." },
+  { emoji:"🧪", q:"REM ON vs REM OFF neurons?", a:"REM ON: Cholinergic (ACh), upper brainstem RF. REM OFF: Serotonergic (raphe) + Noradrenergic (locus ceruleus)." },
+  { emoji:"🟢", q:"How does the preoptic area initiate SWS?", a:"GABAergic neurons → inhibit histaminergic neurons (post. hypothalamus) → block histamine's excitatory effect on cortex → SWS." },
+  { emoji:"💊", q:"Why do antihistamines cause drowsiness?", a:"Block histamine H1 receptors on thalamus/cortex → mimic GABAergic sleep induction → wakefulness suppressed." },
+  { emoji:"🏃", q:"What prevents you from acting out dreams?", a:"Marked muscle atonia (brainstem inhibition of spinal motor neurons) during REM sleep. Failure = REM behaviour disorder." },
+  { emoji:"📊", q:"SWS proportions vs REM proportions?", a:"SWS = 75–80% of sleep. REM = 20–25% of sleep. Importance: both are essential and cannot be permanently skipped." },
+  { emoji:"💧", q:"What happens to HR/RR/ABP in SWS vs REM?", a:"SWS: all decrease. REM: irregular and increased. A key differentiator." },
+  { emoji:"🎓", q:"Sleep needs across lifespan?", a:"Infant ≈ 18 h · Adult ≈ 8 h · Elderly ≈ 6 h. Needs decrease with age." },
+  { emoji:"⏰", q:"What is the Suprachiasmatic Nucleus?", a:"Hypothalamic circadian clock. Promotes sleep and synchronises sleep/wake cycle with environmental light-dark cycles." },
+  { emoji:"🌙", q:"What is the most accepted theory of sleep?", a:"Active inhibitory theory: sleep is actively generated by inhibitory neurons (not passive RAS fatigue)." },
+  { emoji:"👻", q:"Where do sleepwalking/talking occur?", a:"Slow-Wave Sleep (Non-REM). NOT in REM (muscle atonia prevents it)." },
+  { emoji:"💡", q:"REM brain metabolism: how much does it increase?", a:"Brain activity and metabolism increase by 20% during REM — higher than resting wakefulness." },
+  { emoji:"😤", q:"What does blocking serotonin synthesis cause?", a:"Severe insomnia. Serotonin from raphe nuclei is required to initiate SWS by inhibiting the RAS." },
+  { emoji:"🎯", q:"Sleep spindles: what stage and significance?", a:"Stage 2 NREM. Sudden 12-14 Hz bursts within theta background. Mark transition to stable light sleep." }
+];
+
+const CASES = [
+  {
+    num: "Case 01",
+    title: "The Drowsy Patient",
+    vignette: "A 35-year-old woman with seasonal allergies takes her prescribed cetirizine (a first-generation antihistamine) in the morning. By 10 AM, she is struggling to stay awake at her desk, finding it difficult to concentrate. Her colleague asks: 'Are you sleepy? Didn't you take your allergy medication?'",
+    qs: [
+      { q:"What is the physiological mechanism behind antihistamine-induced drowsiness?", a:"<strong>Histamine normally activates the thalamus and cerebral cortex</strong> via H1 receptors, maintaining wakefulness. Antihistamines block these receptors, preventing histamine's excitatory effect — effectively mimicking the natural sleep mechanism where GABAergic neurons from the preoptic area inhibit histaminergic neurons in the posterior hypothalamus. The result is suppression of cortical arousal and induction of drowsiness." },
+      { q:"Which brain structure's neurons are being blocked?", a:"<strong>Histaminergic neurons of the posterior hypothalamus</strong>. These are the wake-promoting neurons that, when activated by histamine, drive alertness. Their blockade removes excitatory tone from the thalamus and cortex." },
+      { q:"How does this mimic the natural SWS mechanism?", a:"During natural SWS induction: Preoptic nucleus → GABA → inhibit posterior hypothalamus histaminergic neurons → no histamine → sleep. The antihistamine short-circuits this by directly blocking the histamine receptor at the thalamus/cortex level — achieving the same endpoint via a different mechanism." }
+    ]
+  },
+  {
+    num: "Case 02",
+    title: "The Polysomnography Paradox",
+    vignette: "A 45-year-old male engineer undergoes a sleep study. The EEG technician notices that at the 70-minute mark, the trace suddenly shifts from high-amplitude, slow (<3 Hz) synchronized waves to a low-amplitude, high-frequency (14-40 Hz) desynchronized pattern. Simultaneously, the EMG shows near-complete loss of muscle tone, and the patient's eyes begin moving rapidly under closed lids.",
+    qs: [
+      { q:"What sleep stage occurred before this transition, and what EEG characterised it?", a:"<strong>Stage 4 Slow-Wave Sleep</strong>. EEG showed high-amplitude, synchronised Delta waves (<3 Hz), representing the deepest non-REM sleep. Brain activity and metabolism were at their lowest." },
+      { q:"Name the stage the patient has now entered and explain the paradox.", a:"<strong>REM (Rapid Eye Movement / Paradoxical) sleep</strong>. The paradox: the EEG resembles an alert, awake brain (Beta rhythm 14-40 Hz) yet the patient is deeply asleep, very difficult to arouse, and has marked muscle atonia. Brain activity increases by ~20%." },
+      { q:"What neurochemical event triggered this transition?", a:"<strong>REM ON neurons activated</strong>: Serotonin/NA levels fell, releasing cholinergic neurons in the upper brainstem RF from inhibition. These REM ON neurons fired, sending excitatory signals to the RAS, thalamus, and cortex (creating Beta EEG) while simultaneously activating descending motor inhibition (atonia)." },
+      { q:"What investigation would confirm REM sleep?", a:"<strong>EEG</strong> (shows Beta waves) + <strong>EMG</strong> (confirms marked muscle atonia) + <strong>EOG</strong> (records rapid eye movements). Together as polysomnography, these distinguish REM from wakefulness definitively." }
+    ]
+  },
+  {
+    num: "Case 03",
+    title: "The Violent Dreamer",
+    vignette: "A 58-year-old man is brought to the neurology clinic by his wife. She reports that for the past year, approximately 1 hour after falling asleep each night, he shouts, flails his arms, and once fell out of bed. He has no memory of these events but says his dreams have been unusually vivid and violent. He has a known diagnosis of Parkinson's disease.",
+    qs: [
+      { q:"What sleep disorder is this patient likely experiencing?", a:"<strong>REM Sleep Behaviour Disorder (RBD)</strong>. The patient is physically acting out his dreams during REM sleep, which is pathological. Normally, REM atonia prevents any such movement." },
+      { q:"What physiological mechanism has been disrupted?", a:"<strong>Failure of REM muscle atonia</strong>. Normally, brainstem inhibitory pathways send descending signals to spinal cord motor neurons during REM, causing near-complete paralysis to prevent dream enactment. In RBD, these inhibitory brainstem pathways (subcoeruleus/sublaterodorsal nucleus) are damaged, allowing motor activity during REM." },
+      { q:"Why does this occur after about 1 hour (not immediately)?", a:"Because the first REM episode occurs after completing Stage 1→2→3→4 of SWS, which takes approximately 60-70 minutes. The patient then enters REM (~70-90 min mark), where the motor disinhibition manifests." },
+      { q:"What is the clinical significance of this condition in Parkinson's disease?", a:"RBD is a recognised <strong>prodromal feature of synucleinopathies</strong> (Parkinson's, Lewy body dementia). The alpha-synuclein pathology damages the brainstem nuclei responsible for REM atonia years before clinical parkinsonism appears. RBD may precede Parkinson's diagnosis by 10+ years." }
+    ]
+  },
+  {
+    num: "Case 04",
+    title: "The Insomniac Researcher",
+    vignette: "A neuroscience researcher is developing a new compound that selectively destroys serotonergic neurons in the raphe nuclei of experimental rats. Within days of treatment, the animals develop severe, intractable insomnia — they remain active and awake almost continuously despite obvious behavioural fatigue.",
+    qs: [
+      { q:"Explain why raphe nucleus destruction causes insomnia.", a:"<strong>Serotonin from raphe nuclei is essential for SWS initiation</strong>. It inhibits the Reticular Activating System (RAS), reducing brain arousal. Without this inhibitory serotonergic input, the RAS remains tonically active, keeping the animal in a perpetual state of wakefulness." },
+      { q:"What other structure contributes to SWS, and how?", a:"<strong>Preoptic nucleus of the anterior hypothalamus</strong> releases GABA → inhibits histaminergic neurons in the posterior hypothalamus → removes histamine's excitatory drive on the thalamus/cortex. Together with raphe serotonin, this forms the dual-mechanism of SWS induction." },
+      { q:"Would REM sleep also be affected? Why?", a:"<strong>Yes, REM would be disrupted too</strong>. The raphe nuclei are also part of the REM OFF system — their serotonergic neurons (along with locus ceruleus noradrenaline) terminate REM episodes. Without functional raphe nuclei, the REM ON/OFF balance is disrupted, potentially leading to prolonged or disorganised REM if somehow sleep were initiated." }
+    ]
+  },
+  {
+    num: "Case 05",
+    title: "The USMLE EEG Challenge",
+    vignette: "A medical student is reviewing an EEG recording from a volunteer. Sequence observed: Recording 1 — 14-40 Hz low-amplitude waves. Recording 2 — 8-13 Hz regular sinusoidal waves. Recording 3 — 4-7 Hz waves with intermittent bursts of 12-14 Hz. Recording 4 — >50% <3 Hz waves. Recording 5 — return to 14-40 Hz with complete loss of muscle tone.",
+    qs: [
+      { q:"Identify each recording's state:", a:"<strong>Recording 1</strong>: Beta waves → Alert wakefulness (eyes open, mental activity). <strong>Recording 2</strong>: Alpha waves → Relaxed wakefulness (eyes closed). <strong>Recording 3</strong>: Theta + sleep spindles → Stage 2 NREM. <strong>Recording 4</strong>: Delta waves → Stage 3-4 deep NREM. <strong>Recording 5</strong>: Beta waves + atonia → REM (paradoxical) sleep." },
+      { q:"Which recording represents the highest risk of a somnambulism episode?", a:"<strong>Recording 4 (Stage 3-4 SWS)</strong>. Parasomnias including sleepwalking, sleep talking, and sleep terrors occur in deep non-REM sleep where some motor tone is preserved but consciousness is profoundly reduced. They cannot occur in Recording 5 (REM) due to muscle atonia." },
+      { q:"In which recording would you most likely observe vivid, remembered dreams?", a:"<strong>Recording 5 (REM sleep)</strong>. REM sleep is characterised by vivid, narrative dreams that are remembered upon waking. Brain activity increases by 20%, and the high-frequency cortical activity supports memory encoding and consolidation of the dream experience." }
+    ]
+  }
+];
+
+const VIVA = [
+  { q:"Clinically, how do you differentiate sleep from coma?", a:"Both are states of unconsciousness. Sleep is reversible — the person can be aroused by sensory stimuli (calling their name, light touch, pain). Coma is irreversible by sensory stimuli.", exam: true },
+  { q:"Name the four main EEG wave types and their frequencies.", a:"Alpha (8-13 Hz) · Beta (14-40 Hz) · Theta (4-7 Hz) · Delta (<3 Hz). Mnemonic: Always Be Taking Data (A→B→T→D going from fast to slow).", exam: false },
+  { q:"Under what condition do you record Alpha vs Beta waves?", a:"Alpha: relaxed wakefulness, eyes closed. Beta: alert state, eyes open, OR paradoxically during REM sleep.", exam: false },
+  { q:"Why is REM called 'paradoxical sleep'?", a:"Because despite the person being deeply asleep and difficult to arouse, the EEG shows a high-frequency Beta rhythm identical to alert wakefulness. Brain metabolism also increases by 20%.", exam: true },
+  { q:"What is the most accepted basic theory of sleep?", a:"The Active Inhibitory Theory: sleep is caused by an active neurochemical process suppressing the thalamus and cortex — not passive fatigue of the RAS (which was the older passive theory).", exam: true },
+  { q:"Explain how the anterior hypothalamus promotes SWS.", a:"The preoptic nucleus releases GABA onto histaminergic neurons in the posterior hypothalamus, suppressing their excitatory effect on the thalamus and cortex, thereby inducing sleep.", exam: true },
+  { q:"What role does serotonin play in sleep?", a:"Serotonin, released from raphe nuclei (lower pons/medulla), inhibits the RAS to initiate Slow-Wave Sleep. It is the primary neurotransmitter for SWS induction.", exam: true },
+  { q:"What initiates and terminates REM sleep?", a:"Initiated by REM ON: cholinergic neurons in upper brainstem RF. Terminated by REM OFF: serotonergic (raphe) + noradrenergic (locus ceruleus) neurons inhibiting the cholinergic neurons.", exam: true },
+  { q:"Discuss the importance of muscle atonia during REM sleep.", a:"Brainstem descending inhibition of spinal motor neurons during REM prevents physically acting out dreams, protecting the individual from injury. Failure = REM sleep behaviour disorder.", exam: false },
+  { q:"What are sleep spindles and when do they occur?", a:"Sudden bursts of ~12-14 Hz waveforms appearing within the theta background of Stage 2 NREM sleep. They mark stable light sleep and reflect thalamo-cortical interaction.", exam: false },
+  { q:"How long is a normal sleep cycle and how is it divided?", a:"90–100 minutes total: ~60 min SWS (Stages 1-4) + ~30 min REM. Repeated 4-5 times per night. REM periods lengthen toward morning.", exam: false },
+  { q:"What is the physiological significance of sleep?", a:"Restoration of normal CNS activity levels, glymphatic brain waste clearance, growth hormone secretion (peak in Stage 4), memory consolidation (REM), and immune function maintenance.", exam: false }
+];
+
+const MNEMONICS = [
+  {
+    title: "A B T D",
+    subtitle: "EEG waves from fastest to slowest",
+    emoji: "〰️",
+    rows: [
+      { letter:"A", word:"Alpha", desc:"8-13 Hz · Awake, relaxed (eyes closed)" },
+      { letter:"B", word:"Beta", desc:"14-40 Hz · Brain is Busy (alert/REM)" },
+      { letter:"T", word:"Theta", desc:"4-7 Hz · Tired/light sleep (Stage 1-2)" },
+      { letter:"D", word:"Delta", desc:"<3 Hz · Deep sleep (Stage 3-4)" }
+    ]
+  },
+  {
+    title: "S.A.G.H.",
+    subtitle: "SWS induction: Serotonin And GABA Hit (the wake system)",
+    emoji: "😴",
+    rows: [
+      { letter:"S", word:"Serotonin", desc:"Raphe nuclei → inhibit RAS" },
+      { letter:"A", word:"And", desc:"working together simultaneously" },
+      { letter:"G", word:"GABA", desc:"Preoptic area → inhibit posterior hypothalamus" },
+      { letter:"H", word:"Histamine blocked", desc:"→ cortex loses arousal drive → SWS" }
+    ]
+  },
+  {
+    title: "C.A.R.E.S.",
+    subtitle: "REM sleep characteristics",
+    emoji: "👁️",
+    rows: [
+      { letter:"C", word:"Cholinergic (REM ON)", desc:"ACh neurons initiate REM" },
+      { letter:"A", word:"Atonia", desc:"Marked muscle tone decrease" },
+      { letter:"R", word:"Rapid Eye Movements", desc:"Defining feature of REM" },
+      { letter:"E", word:"EEG = Beta (paradoxical)", desc:"Alert-like brain waves while asleep" },
+      { letter:"S", word:"Serotonin/NA end it", desc:"REM OFF system terminates REM" }
+    ]
+  },
+  {
+    title: "18 → 8 → 6",
+    subtitle: "Sleep needs across the lifespan",
+    emoji: "🌙",
+    rows: [
+      { letter:"18", word:"Infants", desc:"18 hours — maximum brain development" },
+      { letter:"→", word:"Adults", desc:"8 hours — standard maintenance" },
+      { letter:"6", word:"Elderly", desc:"6 hours — reduced requirement" }
+    ]
+  },
+  {
+    title: "P.A.R.A.D.O.X",
+    subtitle: "Why REM is called Paradoxical",
+    emoji: "🔀",
+    rows: [
+      { letter:"P", word:"Profoundly hard to wake", desc:"High arousal threshold" },
+      { letter:"A", word:"Atonia (muscle paralysis)", desc:"Cannot act out dreams" },
+      { letter:"R", word:"Rapid Eye Movements", desc:"Conjugate eye jerks" },
+      { letter:"A", word:"Active brain (Beta EEG)", desc:"Looks awake on EEG" },
+      { letter:"D", word:"Dreams are recalled", desc:"Memory consolidation occurs" },
+      { letter:"O", word:"Outstanding metabolism", desc:"+20% brain metabolic rate" },
+      { letter:"X", word:"eXtra irregular HR/RR", desc:"Autonomic variability peaks" }
+    ]
+  }
+];
+
+const NEUROCHEMS = [
+  { icon:"🟢", name:"Serotonin (5-HT)", role:"SWS Initiator", source:"Raphe nuclei (lower pons/medulla)", detail:"Inhibits the RAS to induce slow-wave sleep. Also part of the REM OFF system. Depletion = insomnia.", color:"var(--sws-color)" },
+  { icon:"🔵", name:"GABA", role:"SWS Inducer", source:"Preoptic nucleus (anterior hypothalamus)", detail:"Inhibits histaminergic wake neurons in the posterior hypothalamus. Removes their excitatory effect on thalamus/cortex.", color:"var(--alpha-color)" },
+  { icon:"💜", name:"Acetylcholine (ACh)", role:"REM ON Transmitter", source:"Cholinergic neurons, upper brainstem RF", detail:"Increased ACh activity triggers REM sleep by exciting the RAS, thalamus, and cortex → Beta EEG. REM ON neurons.", color:"var(--rem-color)" },
+  { icon:"🟡", name:"Histamine", role:"Wake Promoter", source:"Tuberomammillary nucleus, posterior hypothalamus", detail:"Excites thalamus and cerebral cortex to maintain wakefulness. Blocked by antihistamines → drowsiness. Inhibited by GABA during SWS.", color:"var(--beta-color)" },
+  { icon:"🔴", name:"Noradrenaline (NA)", role:"REM OFF + Arousal", source:"Locus ceruleus", detail:"Promotes wakefulness and arousal. Part of the REM OFF system — inhibits cholinergic neurons to terminate REM.", color:"var(--accent5)" },
+  { icon:"⚪", name:"Melatonin", role:"Circadian Modulator", source:"Pineal gland (via SCN input)", detail:"Released in darkness, signals the body that it is night. Works with the suprachiasmatic nucleus to time sleep onset.", color:"var(--text2)" }
+];
+
+// =================== STATE ===================
+let currentQ = 0;
+let correct = 0;
+let wrong = 0;
+let streak = 0;
+let answered = false;
+let totalAnswered = 0;
+
+// =================== INIT ===================
+function init() {
+  renderQuiz();
+  renderFlashcards();
+  renderCases();
+  renderViva();
+  renderMnemonics();
+  renderNeurochems();
+  loadFromStorage();
+}
+
+function loadFromStorage() {
+  const saved = JSON.parse(localStorage.getItem('sleep_eeg_progress') || '{}');
+  if (saved.currentQ) currentQ = saved.currentQ;
+  if (saved.correct) correct = saved.correct;
+  if (saved.wrong) wrong = saved.wrong;
+  if (saved.streak) streak = saved.streak;
+  totalAnswered = correct + wrong;
+  updateStats();
+  const lastTab = localStorage.getItem('sleep_eeg_tab');
+  if (lastTab) {
+    const btn = document.querySelector(`.tab-btn[onclick*="'${lastTab}'"]`);
+    if (btn) switchTab(lastTab, btn);
+  }
+}
+
+function saveToStorage() {
+  localStorage.setItem('sleep_eeg_progress', JSON.stringify({ currentQ, correct, wrong, streak }));
+}
+
+// =================== TABS ===================
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+  localStorage.setItem('sleep_eeg_tab', name);
+}
+
+// =================== STATS ===================
+function updateStats() {
+  const total = QUESTIONS.length;
+  const pct = Math.round((totalAnswered / total) * 100);
+  document.getElementById('stat-progress').textContent = pct + '%';
+  document.getElementById('stat-score').textContent = correct + '/' + totalAnswered;
+  document.getElementById('stat-streak').textContent = streak;
+  document.getElementById('correct-count').textContent = correct;
+  document.getElementById('wrong-count').textContent = wrong;
+  document.getElementById('streak-display').textContent = streak;
+  const fill = (totalAnswered / total) * 100;
+  document.getElementById('quiz-fill').style.width = fill + '%';
+}
+
+// =================== QUIZ ===================
+function renderQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  if (currentQ >= QUESTIONS.length) {
+    showResults();
+    return;
+  }
+  const q = QUESTIONS[currentQ];
+  const card = document.createElement('div');
+  card.className = 'question-card';
+  card.id = 'current-qcard';
+  const letters = ['A','B','C','D','E'];
+  card.innerHTML = `
+    <div class="question-number">
+      <span class="q-badge">Q${currentQ + 1}</span>
+      <span style="color:var(--text3)">of ${QUESTIONS.length}</span>
+    </div>
+    <div class="question-text">${q.q}</div>
+    <div class="options-list">
+      ${q.opts.map((o, i) => `
+        <button class="option-btn" onclick="selectOption(${i})" id="opt-${i}">
+          <span class="opt-letter">${letters[i]}</span>
+          ${o}
+        </button>
+      `).join('')}
+    </div>
+    <div class="explanation-box" id="explanation-box">
+      ${q.exp}
+    </div>
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()">
+      ${currentQ + 1 < QUESTIONS.length ? 'Next Question →' : 'See Results 🎉'}
+    </button>
+  `;
+  container.appendChild(card);
+  answered = false;
+}
+
+function selectOption(idx) {
+  if (answered) return;
+  answered = true;
+  totalAnswered++;
+  const q = QUESTIONS[currentQ];
+  const allBtns = document.querySelectorAll('.option-btn');
+  allBtns.forEach(b => b.disabled = true);
+  if (idx === q.correct) {
+    allBtns[idx].classList.add('correct');
+    correct++;
+    streak++;
+  } else {
+    allBtns[idx].classList.add('wrong');
+    allBtns[q.correct].classList.add('correct');
+    wrong++;
+    streak = 0;
+  }
+  document.getElementById('explanation-box').classList.add('show');
+  document.getElementById('next-btn').classList.add('show');
+  updateStats();
+  saveToStorage();
+}
+
+function nextQuestion() {
+  currentQ++;
+  saveToStorage();
+  if (currentQ >= QUESTIONS.length) {
+    document.getElementById('quiz-container').innerHTML = '';
+    showResults();
+  } else {
+    renderQuiz();
+  }
+}
+
+function showResults() {
+  const rc = document.getElementById('results-card');
+  rc.classList.add('show');
+  const pct = Math.round((correct / QUESTIONS.length) * 100);
+  document.getElementById('final-score').textContent = pct + '%';
+  let msg = pct >= 90 ? '🏆 Outstanding!' : pct >= 75 ? '🌟 Excellent Work!' : pct >= 60 ? '👍 Good Effort!' : '📚 Keep Studying!';
+  document.getElementById('results-msg').textContent = msg;
+  document.getElementById('results-sub').textContent = `${correct} correct out of ${QUESTIONS.length} questions · Best streak: ${streak}`;
+}
+
+function restartQuiz() {
+  currentQ = 0; correct = 0; wrong = 0; streak = 0; totalAnswered = 0;
+  saveToStorage();
+  document.getElementById('results-card').classList.remove('show');
+  updateStats();
+  renderQuiz();
+}
+
+// =================== FLASHCARDS ===================
+function renderFlashcards() {
+  const grid = document.getElementById('flashcard-grid');
+  grid.innerHTML = FLASHCARDS.map((fc, i) => `
+    <div class="flashcard" onclick="this.classList.toggle('flipped')" id="fc-${i}">
+      <div class="flashcard-inner">
+        <div class="flashcard-face flashcard-front">
+          <div class="fc-label">Question</div>
+          <div class="fc-emoji">${fc.emoji}</div>
+          <div class="fc-question">${fc.q}</div>
+          <div class="flip-hint">↺ tap to flip</div>
+        </div>
+        <div class="flashcard-face flashcard-back">
+          <div class="fc-label">Answer</div>
+          <div class="fc-answer">${fc.a}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// =================== CASES ===================
+function renderCases() {
+  const container = document.getElementById('cases-container');
+  container.innerHTML = CASES.map((c, ci) => `
+    <div class="case-card">
+      <div class="case-number">${c.num} · ${c.title}</div>
+      <div class="case-vignette">${c.vignette}</div>
+      <div class="case-questions">
+        ${c.qs.map((q, qi) => `
+          <div class="case-q">
+            <div class="case-q-header">
+              <span>${qi + 1}. ${q.q}</span>
+              <button class="reveal-btn" onclick="revealCaseQ(${ci},${qi},this)">Reveal</button>
+            </div>
+            <div class="case-q-answer" id="cq-${ci}-${qi}">${q.a}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function revealCaseQ(ci, qi, btn) {
+  const el = document.getElementById(`cq-${ci}-${qi}`);
+  if (el.classList.contains('show')) {
+    el.classList.remove('show');
+    btn.textContent = 'Reveal';
+  } else {
+    el.classList.add('show');
+    btn.textContent = 'Hide';
+  }
+}
+
+// =================== VIVA ===================
+function renderViva() {
+  const grid = document.getElementById('viva-grid');
+  grid.innerHTML = VIVA.map((v, i) => `
+    <div class="viva-item" id="viva-${i}">
+      <div class="viva-q" onclick="toggleViva(${i})">
+        <span>${v.q}</span>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          ${v.exam ? '<span class="viva-tag">⚠️ High-Yield</span>' : ''}
+          <div class="viva-chevron">▾</div>
+        </div>
+      </div>
+      <div class="viva-a">${v.a}</div>
+    </div>
+  `).join('');
+}
+
+function toggleViva(i) {
+  const el = document.getElementById('viva-' + i);
+  el.classList.toggle('open');
+}
+
+// =================== MNEMONICS ===================
+function renderMnemonics() {
+  const grid = document.getElementById('mnemonics-grid');
+  grid.innerHTML = MNEMONICS.map(m => `
+    <div class="mnemonic-card" data-emoji="${m.emoji}">
+      <div class="mnem-title">${m.title}</div>
+      <div class="mnem-subtitle">${m.subtitle}</div>
+      <div class="mnem-letters">
+        ${m.rows.map(r => `
+          <div class="mnem-row">
+            <span class="mnem-letter">${r.letter}</span>
+            <span class="mnem-word">${r.word}</span>
+            <span class="mnem-desc">— ${r.desc}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+// =================== NEUROCHEMS ===================
+function renderNeurochems() {
+  const grid = document.getElementById('neurochem-grid');
+  grid.innerHTML = NEUROCHEMS.map((nc, i) => `
+    <div class="neurochem-card" onclick="toggleNC(${i})" id="nc-${i}">
+      <div class="nc-icon">${nc.icon}</div>
+      <div class="nc-name" style="color:${nc.color}">${nc.name}</div>
+      <div style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.8px">${nc.role}</div>
+      <div class="nc-role">📍 ${nc.source}</div>
+      <div class="nc-expand" id="nce-${i}">${nc.detail}</div>
+    </div>
+  `).join('');
+}
+
+function toggleNC(i) {
+  const el = document.getElementById('nce-' + i);
+  el.classList.toggle('show');
+}
+
+// =================== START ===================
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

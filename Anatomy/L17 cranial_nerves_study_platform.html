@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cranial Nerves I–VI · Neural Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #050a14;
+  --surface: #0c1628;
+  --surface2: #111e36;
+  --border: rgba(100,180,255,0.12);
+  --text: #e8f0ff;
+  --muted: #7a9aba;
+  --accent: #3d9eff;
+  --accent2: #7b61ff;
+  --accent3: #00e5b0;
+  --accent4: #ff6b6b;
+  --accent5: #ffd166;
+  --cn3: #7b61ff;
+  --cn4: #3d9eff;
+  --cn6: #00e5b0;
+  --v1: #ff9f43;
+  --font-head: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --r: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── ANIMATED BG ── */
+.bg-mesh {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(61,158,255,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 80% 80%, rgba(123,97,255,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(0,229,176,0.04) 0%, transparent 70%);
+  animation: meshShift 20s ease-in-out infinite alternate;
+}
+@keyframes meshShift {
+  from { transform: scale(1) rotate(0deg); }
+  to   { transform: scale(1.05) rotate(1deg); }
+}
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(100,180,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100,180,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ── LAYOUT ── */
+#app { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 20px 60px; }
+
+/* ── HEADER ── */
+.header {
+  padding: 40px 0 32px;
+  display: flex; align-items: flex-start; gap: 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+.header-icon {
+  width: 56px; height: 56px; border-radius: 14px;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; flex-shrink: 0;
+  box-shadow: 0 0 30px rgba(123,97,255,0.35);
+}
+.header-title { font-family: var(--font-head); font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+.header-sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
+.header-stats { margin-left: auto; display: flex; gap: 12px; align-items: center; }
+.stat-pill {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 999px; padding: 6px 14px;
+  font-size: 12px; font-family: var(--font-mono); color: var(--muted);
+  display: flex; align-items: center; gap: 6px;
+}
+.stat-pill span { color: var(--accent3); font-weight: 500; }
+
+/* ── PROGRESS BAR ── */
+.global-progress {
+  background: var(--surface2); border-radius: 999px; height: 4px;
+  margin-bottom: 28px; overflow: hidden;
+}
+.global-progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent3));
+  border-radius: 999px; transition: width 0.6s ease;
+}
+
+/* ── TABS ── */
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 28px; }
+.tab {
+  padding: 8px 16px; border-radius: 8px; border: 1px solid transparent;
+  background: transparent; color: var(--muted); cursor: pointer;
+  font-family: var(--font-body); font-size: 13px; font-weight: 500;
+  transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+}
+.tab:hover { color: var(--text); background: var(--surface2); }
+.tab.active {
+  background: var(--surface2); border-color: var(--border);
+  color: var(--text);
+}
+.tab .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); opacity: 0;
+  transition: opacity 0.2s;
+}
+.tab.active .dot { opacity: 1; }
+
+/* ── SECTIONS ── */
+.section { display: none; animation: fadeIn 0.3s ease; }
+.section.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── CARD BASE ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r); padding: 20px;
+}
+.card-title {
+  font-family: var(--font-head); font-size: 14px; font-weight: 700;
+  letter-spacing: 0.5px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 14px;
+}
+
+/* ── OVERVIEW ── */
+.overview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.nerve-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 18px; position: relative; overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.nerve-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+.nerve-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.nerve-cn1::before { background: linear-gradient(90deg,#ffd166,#ff9f43); }
+.nerve-cn2::before { background: linear-gradient(90deg,#ff6b6b,#ff9f43); }
+.nerve-cn3::before { background: linear-gradient(90deg,var(--cn3),var(--accent)); }
+.nerve-cn4::before { background: linear-gradient(90deg,var(--cn4),var(--accent3)); }
+.nerve-cn6::before { background: linear-gradient(90deg,var(--cn6),var(--accent)); }
+.nerve-v1::before  { background: linear-gradient(90deg,var(--v1),#ff6b6b); }
+.nerve-num {
+  font-family: var(--font-head); font-size: 11px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+}
+.nerve-name { font-family: var(--font-head); font-size: 18px; font-weight: 800; margin-bottom: 10px; }
+.nerve-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.tag {
+  font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 999px;
+  letter-spacing: 0.5px; text-transform: uppercase;
+}
+.tag-exam { background: rgba(255,209,102,0.15); color: var(--accent5); border: 1px solid rgba(255,209,102,0.25); }
+.tag-motor { background: rgba(123,97,255,0.15); color: var(--cn3); border: 1px solid rgba(123,97,255,0.25); }
+.tag-sensory { background: rgba(61,158,255,0.15); color: var(--accent); border: 1px solid rgba(61,158,255,0.25); }
+.tag-mixed { background: rgba(0,229,176,0.15); color: var(--accent3); border: 1px solid rgba(0,229,176,0.25); }
+.tag-parasym { background: rgba(255,107,107,0.15); color: var(--accent4); border: 1px solid rgba(255,107,107,0.25); }
+.nerve-fact { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+.search-bar {
+  display: flex; gap: 10px; margin-bottom: 20px;
+}
+.search-input {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 14px; color: var(--text);
+  font-family: var(--font-body); font-size: 14px; outline: none;
+  transition: border-color 0.2s;
+}
+.search-input:focus { border-color: var(--accent); }
+.search-input::placeholder { color: var(--muted); }
+
+.clinical-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.clinical-item {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px; cursor: pointer;
+  transition: all 0.2s;
+}
+.clinical-item:hover { border-color: var(--accent); transform: translateY(-1px); }
+.clinical-item-head { font-family: var(--font-head); font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.clinical-item-body { font-size: 12px; color: var(--muted); }
+.pearl-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(255,209,102,0.1); border: 1px solid rgba(255,209,102,0.2);
+  border-radius: 6px; padding: 2px 8px; font-size: 11px; color: var(--accent5);
+  margin-bottom: 12px;
+}
+
+/* ── COMPARISON TABLE ── */
+.comp-table-wrap { overflow-x: auto; }
+.comp-table {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+}
+.comp-table th {
+  background: var(--surface2); color: var(--accent); font-family: var(--font-head);
+  font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
+  padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border);
+}
+.comp-table td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text); }
+.comp-table tr:hover td { background: rgba(255,255,255,0.02); }
+.comp-table tr:last-child td { border-bottom: none; }
+
+/* ── QUIZ ── */
+.quiz-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+.quiz-progress-bar { flex: 1; min-width: 200px; background: var(--surface2); border-radius: 999px; height: 6px; overflow: hidden; }
+.quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent3)); border-radius: 999px; transition: width 0.5s ease; }
+.quiz-score-display {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 16px; font-family: var(--font-mono);
+  font-size: 13px; color: var(--accent3);
+}
+.question-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 24px; margin-bottom: 20px;
+}
+.question-num { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+.question-text { font-family: var(--font-head); font-size: 17px; font-weight: 600; margin-bottom: 20px; line-height: 1.4; }
+.options { display: flex; flex-direction: column; gap: 8px; }
+.option-btn {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px 16px; text-align: left;
+  color: var(--text); cursor: pointer; font-family: var(--font-body);
+  font-size: 14px; display: flex; align-items: center; gap: 10px;
+  transition: all 0.15s;
+}
+.option-btn:hover:not(:disabled) { border-color: var(--accent); background: rgba(61,158,255,0.08); }
+.option-letter {
+  width: 26px; height: 26px; border-radius: 6px; background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+  color: var(--muted); flex-shrink: 0;
+}
+.option-btn.correct { border-color: var(--accent3); background: rgba(0,229,176,0.1); animation: pulse 0.4s ease; }
+.option-btn.wrong   { border-color: var(--accent4); background: rgba(255,107,107,0.1); animation: shake 0.4s ease; }
+.option-btn.correct .option-letter { background: var(--accent3); color: var(--bg); }
+.option-btn.wrong   .option-letter { background: var(--accent4); color: #fff; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+.explanation {
+  display: none; margin-top: 14px; padding: 14px;
+  background: rgba(61,158,255,0.07); border-radius: 8px;
+  border-left: 3px solid var(--accent); font-size: 13px; color: var(--text); line-height: 1.6;
+}
+.explanation.show { display: block; animation: fadeIn 0.3s ease; }
+.next-btn {
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  border: none; border-radius: 8px; padding: 12px 24px;
+  color: #fff; font-family: var(--font-head); font-size: 14px; font-weight: 700;
+  cursor: pointer; margin-top: 16px; display: none; transition: opacity 0.2s;
+}
+.next-btn:hover { opacity: 0.85; }
+.next-btn.show { display: inline-flex; align-items: center; gap: 8px; }
+
+/* ── FLASHCARDS ── */
+.flash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.flashcard { perspective: 1000px; height: 180px; cursor: pointer; }
+.flashcard-inner {
+  position: relative; width: 100%; height: 100%;
+  transform-style: preserve-3d; transition: transform 0.5s ease;
+}
+.flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+.flashcard-front, .flashcard-back {
+  position: absolute; inset: 0; border-radius: var(--r);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 20px; backface-visibility: hidden; text-align: center;
+}
+.flashcard-front {
+  background: var(--surface); border: 1px solid var(--border);
+}
+.flashcard-back {
+  background: linear-gradient(135deg, rgba(61,158,255,0.15), rgba(123,97,255,0.15));
+  border: 1px solid rgba(61,158,255,0.25);
+  transform: rotateY(180deg);
+}
+.flashcard-q { font-family: var(--font-head); font-size: 15px; font-weight: 700; line-height: 1.4; }
+.flashcard-a { font-size: 13px; color: var(--text); line-height: 1.5; }
+.flashcard-hint { font-size: 10px; color: var(--muted); margin-top: 10px; text-transform: uppercase; letter-spacing: 1px; }
+.flashcard-num { font-family: var(--font-mono); font-size: 10px; color: var(--muted); margin-bottom: 8px; }
+
+/* ── CLINICAL CASES ── */
+.case-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); margin-bottom: 16px; overflow: hidden;
+}
+.case-header {
+  padding: 16px 20px; background: var(--surface2);
+  border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px;
+  cursor: pointer;
+}
+.case-icon {
+  width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.case-title { font-family: var(--font-head); font-size: 15px; font-weight: 700; }
+.case-preview { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.case-body { padding: 20px; display: none; }
+.case-body.open { display: block; animation: fadeIn 0.3s ease; }
+.case-vignette {
+  background: rgba(61,158,255,0.05); border: 1px solid rgba(61,158,255,0.15);
+  border-radius: 8px; padding: 14px; margin-bottom: 16px;
+  font-size: 14px; line-height: 1.7;
+}
+.case-q { font-family: var(--font-head); font-size: 14px; font-weight: 600; margin: 14px 0 8px; }
+.reveal-btn {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 16px; color: var(--accent);
+  font-family: var(--font-mono); font-size: 12px; cursor: pointer;
+  transition: all 0.2s; margin-top: 8px;
+}
+.reveal-btn:hover { border-color: var(--accent); background: rgba(61,158,255,0.1); }
+.answer-reveal {
+  display: none; margin-top: 10px; padding: 14px;
+  background: rgba(0,229,176,0.06); border-radius: 8px;
+  border-left: 3px solid var(--accent3); font-size: 13px; line-height: 1.6;
+}
+.answer-reveal.show { display: block; animation: fadeIn 0.3s ease; }
+.answer-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent3); margin-bottom: 6px; }
+
+/* ── ANATOMY TAB ── */
+.anatomy-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-bottom: 24px; }
+.anatomy-item {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px; cursor: pointer; transition: all 0.2s;
+  position: relative; overflow: hidden;
+}
+.anatomy-item:hover { border-color: var(--accent2); transform: translateY(-2px); }
+.anatomy-item::after {
+  content: attr(data-glyph); position: absolute; right: 10px; top: 10px;
+  font-size: 22px; opacity: 0.2;
+}
+.anatomy-item-name { font-family: var(--font-head); font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.anatomy-item-type { font-size: 11px; color: var(--muted); }
+.anatomy-detail {
+  display: none; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 16px; margin-top: 10px;
+}
+.anatomy-detail.open { display: block; animation: fadeIn 0.3s ease; }
+
+/* ── FLOWCHART ── */
+.flowchart { display: flex; flex-direction: column; align-items: flex-start; gap: 0; }
+.flow-step {
+  display: flex; align-items: flex-start; gap: 14px; position: relative; width: 100%;
+}
+.flow-step:not(:last-child)::after {
+  content: ''; position: absolute; left: 17px; top: 40px; bottom: -20px;
+  width: 2px; background: linear-gradient(180deg, var(--accent2), transparent);
+}
+.flow-dot {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800; font-family: var(--font-mono);
+  color: #fff; box-shadow: 0 0 15px rgba(61,158,255,0.3);
+}
+.flow-content {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 14px; margin-bottom: 20px;
+}
+.flow-title { font-family: var(--font-head); font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.flow-desc { font-size: 12px; color: var(--muted); }
+
+/* ── MNEMONICS ── */
+.mnemonic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.mnemonic-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 20px; position: relative; overflow: hidden;
+}
+.mnemonic-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(123,97,255,0.05), rgba(61,158,255,0.05));
+}
+.mnemonic-title { font-family: var(--font-head); font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+.mnemonic-phrase {
+  font-family: var(--font-mono); font-size: 20px; font-weight: 700;
+  color: var(--accent3); letter-spacing: 2px; margin-bottom: 14px;
+}
+.mnemonic-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.mnemonic-list li {
+  display: flex; gap: 10px; align-items: flex-start; font-size: 13px;
+}
+.mnemonic-letter {
+  width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: #fff;
+}
+
+/* ── QUIZ SUMMARY ── */
+.quiz-summary {
+  display: none; text-align: center; padding: 40px 20px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r);
+}
+.quiz-summary.show { display: block; animation: fadeIn 0.5s ease; }
+.score-circle {
+  width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 20px;
+  background: conic-gradient(var(--accent3) calc(var(--pct) * 1%), var(--surface2) 0);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-head); font-size: 24px; font-weight: 800;
+  position: relative;
+}
+.score-circle::before {
+  content: ''; position: absolute; inset: 8px; background: var(--surface);
+  border-radius: 50%;
+}
+.score-circle span { position: relative; z-index: 1; }
+
+/* ── DIAGNOSIS TAB ── */
+.dx-algo { display: flex; flex-direction: column; gap: 16px; }
+.dx-step {
+  display: flex; gap: 14px; align-items: flex-start;
+}
+.dx-badge {
+  background: linear-gradient(135deg, var(--accent4), var(--accent5));
+  color: var(--bg); border-radius: 8px; padding: 4px 10px;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+  flex-shrink: 0; margin-top: 2px;
+}
+.dx-content { flex: 1; }
+.dx-title { font-family: var(--font-head); font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.dx-desc { font-size: 13px; color: var(--muted); }
+
+.lesion-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+.lesion-box {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px;
+}
+.lesion-box-title { font-family: var(--font-head); font-size: 12px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.lesion-box ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+.lesion-box li { font-size: 12px; color: var(--muted); padding-left: 14px; position: relative; }
+.lesion-box li::before { content: '→'; position: absolute; left: 0; color: var(--accent3); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .header { flex-direction: column; }
+  .header-stats { margin-left: 0; }
+  .overview-grid { grid-template-columns: 1fr; }
+  .lesion-compare { grid-template-columns: 1fr; }
+  .tabs { gap: 2px; }
+  .tab { padding: 7px 11px; font-size: 12px; }
+}
+
+/* ── MISC ── */
+.section-title {
+  font-family: var(--font-head); font-size: 20px; font-weight: 800;
+  margin-bottom: 18px; display: flex; align-items: center; gap: 10px;
+}
+.section-title span { font-size: 22px; }
+.divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+.empty { color: var(--muted); text-align: center; padding: 30px; font-size: 14px; }
+.highlight-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(255,107,107,0.12); border: 1px solid rgba(255,107,107,0.25);
+  border-radius: 6px; padding: 2px 8px; font-size: 11px; color: var(--accent4);
+  font-weight: 600; letter-spacing: 0.3px; margin-right: 6px;
+}
+</style>
+</head>
+<body>
+<div class="bg-mesh"></div>
+<div class="bg-grid"></div>
+
+<div id="app">
+  <div class="header">
+    <div class="header-icon">🧠</div>
+    <div>
+      <div class="header-title">Cranial Nerves I · II · III · IV · VI · V1</div>
+      <div class="header-sub">Neuroanatomy · Medical Study Platform · GSE · GVE · GSA · SA</div>
+    </div>
+    <div class="header-stats">
+      <div class="stat-pill">🎯 Score <span id="globalScore">0%</span></div>
+      <div class="stat-pill">🔥 Streak <span id="globalStreak">0</span></div>
+      <div class="stat-pill">📦 Done <span id="globalDone">0/25</span></div>
+    </div>
+  </div>
+
+  <div class="global-progress">
+    <div class="global-progress-fill" id="globalBar" style="width:0%"></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('overview')"><div class="dot"></div>🗺️ Overview</button>
+    <button class="tab" onclick="switchTab('quiz')"><div class="dot"></div>🧩 Quiz (25)</button>
+    <button class="tab" onclick="switchTab('flash')"><div class="dot"></div>🃏 Flashcards</button>
+    <button class="tab" onclick="switchTab('cases')"><div class="dot"></div>🏥 Clinical Cases</button>
+    <button class="tab" onclick="switchTab('anatomy')"><div class="dot"></div>⚙️ Anatomy</button>
+    <button class="tab" onclick="switchTab('diagnosis')"><div class="dot"></div>🔬 Lesions</button>
+    <button class="tab" onclick="switchTab('mnemonics')"><div class="dot"></div>💡 Mnemonics</button>
+  </div>
+
+  <!-- ══════════════ OVERVIEW ══════════════ -->
+  <div class="section active" id="sec-overview">
+    <div class="section-title"><span>🗺️</span> Nerve Overview</div>
+
+    <div class="search-bar">
+      <input class="search-input" id="searchInput" placeholder="🔍  Search any concept, nerve, sign, nucleus…" oninput="filterSearch()">
+    </div>
+
+    <div class="overview-grid" id="nerveGrid">
+      <!-- Nerve cards injected by JS -->
+    </div>
+
+    <hr class="divider">
+    <div class="section-title" style="font-size:16px;"><span>📊</span> Nerve Comparison</div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="comp-table-wrap">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>Nerve</th><th>Type</th><th>Nucleus</th><th>SOF Entry</th><th>Cavernous Sinus</th><th>Lesion Sign</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>CN I (Olfactory)</td><td>Pure Sensory (SA)</td><td>—</td><td>N/A</td><td>N/A</td><td>Anosmia</td></tr>
+            <tr><td>CN II (Optic)</td><td>Pure Sensory (SA)</td><td>—</td><td>Optic Canal</td><td>N/A</td><td>Ipsilateral Blindness</td></tr>
+            <tr><td>CN III (Oculomotor)</td><td>Motor + Parasympathetic</td><td>Somatic motor + Edinger-Westphal</td><td>Inside ring</td><td>Lateral wall (top)</td><td>Ptosis · Mydriasis · "Down & Out"</td></tr>
+            <tr><td>CN IV (Trochlear)</td><td>Pure Motor (GSE)</td><td>Trochlear nucleus</td><td>Outside ring</td><td>Lateral wall (below III)</td><td>Diplopia on downward gaze</td></tr>
+            <tr><td>CN VI (Abducent)</td><td>Pure Motor (GSE)</td><td>Abducent nucleus (pons)</td><td>Inside ring</td><td>Floor (lateral to ICA)</td><td>Internal strabismus (medial squint)</td></tr>
+            <tr><td>CN V1 (Ophthalmic)</td><td>Pure Sensory (GSA)</td><td>Spinal trigeminal nucleus</td><td>Outside ring (L,F) / Inside (N)</td><td>Lateral wall</td><td>Loss of corneal reflex</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-title" style="font-size:16px;"><span>⚡</span> High-Yield Clinical Pearls</div>
+    <div class="clinical-grid" id="pearlGrid"></div>
+  </div>
+
+  <!-- ══════════════ QUIZ ══════════════ -->
+  <div class="section" id="sec-quiz">
+    <div class="section-title"><span>🧩</span> Quiz Mode</div>
+    <div class="quiz-header">
+      <div style="font-size:13px;color:var(--muted)">Q <span id="qNum">1</span> / 25</div>
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quizBar" style="width:4%"></div></div>
+      <div class="quiz-score-display">✅ <span id="qCorrect">0</span> &nbsp;❌ <span id="qWrong">0</span></div>
+      <button class="reveal-btn" onclick="restartQuiz()">↺ Restart</button>
+    </div>
+    <div id="quizContainer"></div>
+    <div class="quiz-summary" id="quizSummary">
+      <div class="score-circle" id="scoreCircle"><span id="scorePct">0%</span></div>
+      <div class="section-title" style="justify-content:center;margin-top:0">Quiz Complete! 🎉</div>
+      <p style="color:var(--muted);margin-bottom:20px">Check your results below or restart for another round.</p>
+      <button class="next-btn show" onclick="restartQuiz()">↺ Restart Quiz</button>
+    </div>
+  </div>
+
+  <!-- ══════════════ FLASHCARDS ══════════════ -->
+  <div class="section" id="sec-flash">
+    <div class="section-title"><span>🃏</span> Flashcards <span style="font-size:13px;color:var(--muted);font-family:var(--font-mono);font-weight:400;">— click to flip</span></div>
+    <div class="flash-grid" id="flashGrid"></div>
+  </div>
+
+  <!-- ══════════════ CLINICAL CASES ══════════════ -->
+  <div class="section" id="sec-cases">
+    <div class="section-title"><span>🏥</span> Clinical Cases</div>
+    <div id="casesContainer"></div>
+  </div>
+
+  <!-- ══════════════ ANATOMY ══════════════ -->
+  <div class="section" id="sec-anatomy">
+    <div class="section-title"><span>⚙️</span> Nuclei & Structures</div>
+    <div class="anatomy-grid" id="anatomyGrid"></div>
+    <hr class="divider">
+    <div class="section-title" style="font-size:16px;"><span>🔄</span> Olfactory Pathway Flowchart</div>
+    <div class="card">
+      <div class="flowchart" id="flowchart"></div>
+    </div>
+    <hr class="divider">
+    <div class="section-title" style="font-size:16px;"><span>🔄</span> Parasympathetic Pupilloconstriction Pathway</div>
+    <div class="card">
+      <div class="flowchart" id="flowchart2"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ DIAGNOSIS ══════════════ -->
+  <div class="section" id="sec-diagnosis">
+    <div class="section-title"><span>🔬</span> Lesion Localisation</div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">Extraocular Nerve Lesion Pattern</div>
+      <div class="dx-algo" id="dxAlgo"></div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">CN VI — Nuclear vs Peripheral Lesion</div>
+      <div class="lesion-compare">
+        <div class="lesion-box">
+          <div class="lesion-box-title" style="color:var(--accent4)">🔴 Nuclear Lesion (Facial Colliculus)</div>
+          <ul>
+            <li>Ipsilateral lateral rectus palsy</li>
+            <li>Ipsilateral facial (CN VII) palsy</li>
+            <li>Both caused simultaneously</li>
+            <li>Location: Pons (facial colliculus)</li>
+          </ul>
+        </div>
+        <div class="lesion-box">
+          <div class="lesion-box-title" style="color:var(--accent3)">🟢 Peripheral Lesion</div>
+          <ul>
+            <li>Ipsilateral lateral rectus palsy only</li>
+            <li>No facial palsy</li>
+            <li>Internal strabismus (medial squint)</li>
+            <li>Unopposed medial rectus action</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Cavernous Sinus Anatomy Summary</div>
+      <div class="comp-table-wrap">
+        <table class="comp-table">
+          <thead><tr><th>Structure</th><th>Position in Sinus</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>CN III (Oculomotor)</td><td>Lateral wall — superior</td><td>Enters SOF inside tendinous ring</td></tr>
+            <tr><td>CN IV (Trochlear)</td><td>Lateral wall — below CN III</td><td>Enters SOF outside tendinous ring</td></tr>
+            <tr><td>V1 (Ophthalmic)</td><td>Lateral wall — below CN IV</td><td>Lacrimal/Frontal outside; Nasociliary inside ring</td></tr>
+            <tr><td>CN VI (Abducent)</td><td>Floor — inferolateral to ICA</td><td>Most vulnerable to pressure changes</td></tr>
+            <tr><td>Internal Carotid A.</td><td>Centre of sinus</td><td>Sympathetic plexus travels with it</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MNEMONICS ══════════════ -->
+  <div class="section" id="sec-mnemonics">
+    <div class="section-title"><span>💡</span> Mnemonics & Memory Aids</div>
+    <div class="mnemonic-grid" id="mnemonicGrid"></div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+
+const nerves = [
+  {
+    num:'CN I', name:'Olfactory', cls:'nerve-cn1',
+    tags:['sensory','sa'],
+    fact:'Peripheral processes in nasal mucosa (roof + upper walls). Central processes pierce the cribriform plate of the ethmoid to synapse in the olfactory bulb.',
+    exam:false
+  },
+  {
+    num:'CN II', name:'Optic', cls:'nerve-cn2',
+    tags:['sensory','sa'],
+    fact:'Formed by axons of ganglion cells of the retina. Enters cranial cavity via the optic canal surrounded by all 3 meningeal layers. Transection → ipsilateral total blindness.',
+    exam:false
+  },
+  {
+    num:'CN III', name:'Oculomotor', cls:'nerve-cn3',
+    tags:['motor','parasympathetic','exam'],
+    fact:'Arises from medial cerebral peduncle. Lateral wall of cavernous sinus (top). Enters orbit inside tendinous ring. Superior div → SR + levator palpebrae. Inferior div → MR, IR, IO + parasympathetics to ciliary ganglion.',
+    exam:true
+  },
+  {
+    num:'CN IV', name:'Trochlear', cls:'nerve-cn4',
+    tags:['motor','exam'],
+    fact:'ONLY CN from dorsal midbrain. Crosses midline → supplies contralateral superior oblique. Enters SOF outside tendinous ring. Lesion → diplopia looking downstairs.',
+    exam:true
+  },
+  {
+    num:'CN VI', name:'Abducent', cls:'nerve-cn6',
+    tags:['motor','exam'],
+    fact:'Arises lower pons (pons-medulla junction). Passes in floor of cavernous sinus inferolateral to ICA. Enters SOF inside ring. Supplies lateral rectus. Lesion → medial squint.',
+    exam:true
+  },
+  {
+    num:'V1', name:'Ophthalmic', cls:'nerve-v1',
+    tags:['sensory','mixed'],
+    fact:'Divides into 3 branches: Lacrimal (lateral wall), Frontal (roof — supratrochlear + supraorbital), Nasociliary (crosses optic nerve, branches: long ciliaries, sensory root to ciliary ganglion, anterior/posterior ethmoidals, infratrochlear).',
+    exam:false
+  }
+];
+
+const pearls = [
+  { head:'SO4 LR6', body:'Superior Oblique → CN IV (Trochlear). Lateral Rectus → CN VI (Abducent). All others → CN III.', exam:true },
+  { head:'Only Dorsal CN', body:'Trochlear (CN IV) is the ONLY cranial nerve emerging from the posterior (dorsal) aspect of the brainstem.', exam:true },
+  { head:'CN III Lesion: "Down & Out"', body:'Ptosis (levator palpebrae), Mydriasis (loss of constrictor pupillae), eye deviated down and out (unopposed CN IV + VI).', exam:true },
+  { head:'Facial Colliculus', body:'CN VI nucleus + encircling CN VII fibers = facial colliculus. Lesion here → lateral rectus palsy + ipsilateral facial palsy.', exam:true },
+  { head:'Ciliary Ganglion Roots', body:'Sensory (nasociliary) + Sympathetic (ICA plexus) + Parasympathetic (Edinger-Westphal via CN III inferior div).', exam:false },
+  { head:'Short vs Long Ciliary Nerves', body:'Short (8-10) from ciliary ganglion → parasympathetic + sensory. Long (2) from nasociliary → sympathetic to dilator pupillae.', exam:false },
+  { head:'Cavernous Sinus Positions', body:'CN III (top) → CN IV → V1 all in lateral wall. CN VI in floor, most exposed. ICA in centre.', exam:true },
+  { head:'Corneal Reflex Limbs', body:'Sensory limb: nasociliary (V1) via long + short ciliary nerves. Motor limb: CN VII (facial, orbicularis oculi).', exam:false },
+];
+
+const quizData = [
+  { q:'Parasympathetic fibers of CN III reach the ciliary ganglion via which nerve branch?', opts:['Superior rectus','Inferior rectus','Inferior oblique','Medial rectus','Levator palpebrae'], ans:2, exp:'Preganglionic parasympathetic fibers from the Edinger-Westphal nucleus travel within the inferior division of CN III and reach the ciliary ganglion via the nerve to the inferior oblique.' },
+  { q:'Internal squint (medial deviation) results from a lesion of which cranial nerve?', opts:['Superior division of oculomotor','Trochlear','Abducent','Optic nerve','Inferior division of oculomotor'], ans:2, exp:'Abducent nerve (CN VI) palsy paralyzes the lateral rectus, causing unopposed medial rectus action → medial squint.' },
+  { q:'The ONLY cranial nerve that emerges from the posterior (dorsal) aspect of the brainstem is:', opts:['Abducent','Trochlear','Oculomotor','Vagus','Accessory'], ans:1, exp:'CN IV (Trochlear) originates from the dorsal surface of the midbrain, just below the inferior colliculus — unique among all cranial nerves.' },
+  { q:'Which extraocular muscles are NOT supplied by CN III (oculomotor)?', opts:['Medial rectus & inferior oblique','Superior rectus & levator palpebrae','Superior oblique & lateral rectus','Inferior rectus & superior rectus','Levator palpebrae & medial rectus'], ans:2, exp:'Superior oblique is CN IV (Trochlear) and lateral rectus is CN VI (Abducent) — remembered as SO4LR6.' },
+  { q:'Which nerve fibers cross to the opposite side WITHIN the brainstem to supply a contralateral muscle?', opts:['Oculomotor','Abducent','Trochlear','Optic','Facial'], ans:2, exp:'CN IV (Trochlear) axons decussate within the midbrain to supply the contralateral superior oblique muscle.' },
+  { q:'Complete transection of the optic nerve results in:', opts:['Contralateral hemianopia','Total blindness of the same (ipsilateral) side','Loss of pupillary light reflex only','Diplopia','Strabismus'], ans:1, exp:'The optic nerve carries all SA visual fibers from one retina; transection causes total ipsilateral anopsia.' },
+  { q:'Which nucleus supplies parasympathetic fibers to the constrictor pupillae?', opts:['Somatic motor nucleus','Mesencephalic nucleus','Edinger-Westphal nucleus','Superior salivary nucleus','Nucleus ambiguus'], ans:2, exp:'Edinger-Westphal (accessory oculomotor nucleus) provides GVE (parasympathetic) fibers to the sphincter pupillae and ciliary muscle.' },
+  { q:'Which cranial nerve passes in the FLOOR of the cavernous sinus?', opts:['Oculomotor','Trochlear','Ophthalmic (V1)','Abducent','Optic'], ans:3, exp:'CN VI (Abducent) runs in the floor of the cavernous sinus, inferolateral to the internal carotid artery — making it especially vulnerable to raised intracranial pressure.' },
+  { q:'Inability to depress the ADDUCTED eye is characteristic of a lesion to:', opts:['Oculomotor nerve','Trochlear nerve','Abducent nerve','Optic nerve','Ophthalmic nerve'], ans:1, exp:'The superior oblique (CN IV) depresses the adducted eye — patients with CN IV palsy have trouble walking downstairs.' },
+  { q:'The sensory root of the ciliary ganglion comes from the:', opts:['Frontal nerve','Lacrimal nerve','Nasociliary nerve','Optic nerve','Trochlear nerve'], ans:2, exp:'The nasociliary branch of V1 provides the sensory root to the ciliary ganglion.' },
+  { q:'Which nerve enters the orbit through the superior orbital fissure INSIDE the tendinous ring?', opts:['Frontal','Lacrimal','Trochlear','Nasociliary','Supratrochlear'], ans:3, exp:'The nasociliary nerve enters inside the common tendinous ring. Frontal, lacrimal, and trochlear enter outside the ring.' },
+  { q:'What structure forms the facial colliculus?', opts:['Facial colliculus','Superior colliculus','Inferior colliculus','Cerebral peduncle','Olfactory bulb'], ans:0, exp:'The facial colliculus in the pons floor (rhomboid fossa) = CN VI somatic motor nucleus + encircling CN VII fibers. Lesion → CN VI + CN VII palsy.' },
+  { q:'Where are the peripheral processes of olfactory neurons located?', opts:['Olfactory bulb','Olfactory tract','Cribriform plate','Roof and upper nasal cavity mucosa','Primary olfactory cortex'], ans:3, exp:'Bipolar olfactory neurons reside in the olfactory epithelium of the roof and upper nasal cavity; their peripheral processes act as receptors.' },
+  { q:'The superior division of CN III (oculomotor) supplies:', opts:['Superior oblique & superior rectus','Superior rectus & levator palpebrae superioris','Medial rectus & inferior rectus','Inferior oblique & lateral rectus','Levator palpebrae & superior oblique'], ans:1, exp:'Superior division supplies only SR and levator palpebrae. The inferior division supplies MR, IR, IO, and parasympathetics.' },
+  { q:'General Somatic Afferent (GSA) fibers primarily carry:', opts:['Hearing and balance','Taste','Motor to skeletal muscle','General sensations (pain, touch, temperature) from skin','Parasympathetic signals'], ans:3, exp:'GSA = general exteroception (pain, touch, temperature) from skin and mucous membranes via spinal trigeminal nucleus.' },
+  { q:'Sympathetic fibers to the dilator pupillae travel in:', opts:['Short ciliary nerves','Long ciliary nerves','Frontal nerve','Lacrimal nerve','Optic nerve'], ans:1, exp:'Postganglionic sympathetic fibers (from superior cervical ganglion via ICA plexus) reach the dilator pupillae via the two long ciliary branches of the nasociliary nerve.' },
+  { q:'The anterior ethmoidal nerve supplies:', opts:['Cornea','Lacrimal gland','Ethmoidal & sphenoidal sinuses','Nasal mucosa & skin of lower nose dorsum','Medial angle of eye'], ans:3, exp:'Anterior ethmoidal supplies the nasal mucosa and the skin over the lower dorsum of the nose (external nasal branch).' },
+  { q:'Short ciliary nerves arise directly from the:', opts:['Oculomotor nerve','Optic nerve','Trigeminal ganglion','Ciliary ganglion','Nasociliary nerve'], ans:3, exp:'8–10 short ciliary nerves are the terminal branches of the ciliary ganglion, carrying parasympathetic + sensory + sympathetic fibers to the eyeball.' },
+  { q:'Which nucleus handles the pupillary LIGHT REFLEX?', opts:['Edinger-Westphal nucleus','Pretectal nucleus','Interstitial nucleus of Cajal','Para-abducent nucleus','Main sensory nucleus'], ans:1, exp:'The pretectal nucleus (midbrain) mediates the afferent limb of the pupillary light reflex, driving the Edinger-Westphal nucleus bilaterally.' },
+  { q:'Special Visceral Efferent (SVE) fibers supply muscles derived from:', opts:['Somites','Pharyngeal arches','Smooth muscle precursors','Ectoderm','Neural crest only'], ans:1, exp:'SVE supplies pharyngeal arch–derived muscles: muscles of mastication (CN V3), facial expression (CN VII), larynx/pharynx (CN IX, X).' },
+  { q:'The nasociliary nerve crosses OVER the optic nerve from:', opts:['Medial to lateral','Inferior to superior','Lateral to medial','Superior to inferior','Posterior to anterior'], ans:2, exp:'The nasociliary enters the orbit laterally and crosses the optic nerve from lateral to medial to run along the medial orbital wall.' },
+  { q:'Vertical conjugate eye movements are coordinated by the:', opts:['Para-abducent nucleus','Interstitial nucleus of Cajal','Pretectal nucleus','Nucleus ambiguus','Edinger-Westphal nucleus'], ans:1, exp:'The interstitial nucleus of Cajal (midbrain) coordinates vertical eye movements; the para-abducent (PPRF) coordinates horizontal conjugate gaze.' },
+  { q:'The frontal nerve terminates by dividing into:', opts:['Anterior and posterior ethmoidal nerves','Supratrochlear and supraorbital nerves','Long and short ciliary nerves','Glandular and palpebral branches','Maxillary and mandibular nerves'], ans:1, exp:'The frontal nerve, running under the orbital roof, divides around mid-orbit into the supratrochlear (medial) and supraorbital (lateral) nerves.' },
+  { q:'Ptosis in CN III palsy is due to paralysis of:', opts:['Superior oblique','Superior rectus','Constrictor pupillae','Levator palpebrae superioris','Orbicularis oculi'], ans:3, exp:'Levator palpebrae superioris (CN III, GSE) elevates the upper lid; paralysis → ptosis. Note: Müller muscle (sympathetic) contributes a smaller component.' },
+  { q:'Which of the following cranial nerves is "mixed" (motor + sensory)?', opts:['Vestibulocochlear','Optic','Hypoglossal','Trigeminal','Trochlear'], ans:3, exp:'Trigeminal (CN V) is the largest cranial nerve and is mixed: large sensory root (GSA) + small motor root (SVE) for muscles of mastication.' },
+];
+
+const flashcards = [
+  { q:'What is SO4LR6?', a:'Superior Oblique → CN IV (Trochlear). Lateral Rectus → CN VI (Abducent). All other extraocular muscles → CN III.' },
+  { q:'What is the Edinger-Westphal nucleus?', a:'The parasympathetic (GVE) nucleus of CN III. Supplies constrictor pupillae (via short ciliary nerves) and ciliary muscle for accommodation.' },
+  { q:'CN IV unique features?', a:'Only CN from DORSAL midbrain. Only CN that crosses to supply the CONTRALATERAL muscle (superior oblique). Longest intracranial course.' },
+  { q:'3 branches of V1 (ophthalmic)?', a:'Lacrimal (lateral wall) · Frontal → supratrochlear + supraorbital (roof) · Nasociliary (crosses optic nerve, medial wall)' },
+  { q:'What passes in the floor of the cavernous sinus?', a:'CN VI (Abducent), inferolateral to the internal carotid artery. Most vulnerable to raised ICP.' },
+  { q:'Ciliary ganglion: 3 roots?', a:'1) Sensory: nasociliary nerve\n2) Sympathetic: ICA plexus\n3) Parasympathetic: Edinger-Westphal via CN III inferior division' },
+  { q:'CN III palsy: clinical triad?', a:'Ptosis (levator palpebrae) + Mydriasis (constrictor pupillae loss) + Eye "Down & Out" (unopposed CN IV + VI)' },
+  { q:'What is the facial colliculus?', a:'A swelling on the floor of the 4th ventricle (rhomboid fossa) formed by the CN VI nucleus + encircling CN VII fibers.' },
+  { q:'Short vs Long ciliary nerves — difference?', a:'Short (8-10): from ciliary ganglion → sensory + parasympathetic. Long (2): from nasociliary directly → sympathetic to dilator pupillae.' },
+  { q:'What structures pass through the superior orbital fissure INSIDE the tendinous ring?', a:'CN III (superior + inferior divisions), CN VI, nasociliary nerve, sympathetic root, and ophthalmic artery (+ optic nerve via optic canal).' },
+  { q:'Olfactory pathway: 5 steps?', a:'Receptors (nasal mucosa) → Cribriform plate → Olfactory bulb → Olfactory tract → Olfactory striae → Primary olfactory cortex (uncus)' },
+  { q:'GSE vs SVE distinction?', a:'GSE: skeletal muscle from somites (extraocular muscles, tongue). SVE: muscles from pharyngeal arches (mastication, facial expression, pharynx).' },
+  { q:'CN VI nuclear lesion vs peripheral?', a:'Nuclear: lateral rectus palsy + CN VII facial palsy (facial colliculus). Peripheral: lateral rectus palsy only → medial squint.' },
+  { q:'Pretectal vs Edinger-Westphal — roles?', a:'Pretectal nucleus: detects light input (afferent limb of light reflex). Edinger-Westphal: sends parasympathetic output to constrict pupil (efferent limb).' },
+  { q:'Nasociliary nerve branches (5)?', a:'1) Sensory root to ciliary ganglion\n2) Two long ciliary nerves (sympathetic + sensory)\n3) Posterior ethmoidal\n4) Anterior ethmoidal\n5) Infratrochlear' },
+  { q:'Para-abducent nucleus function?', a:'PPRF (paramedian pontine reticular formation) coordinates HORIZONTAL conjugate gaze. Interstitial nucleus of Cajal → VERTICAL gaze.' },
+  { q:'CN IV palsy classic complaint?', a:'Diplopia when looking downward, especially when descending stairs. Cannot depress the adducted eye.' },
+  { q:'Complete optic nerve section effect?', a:'Total ipsilateral blindness (anopsia). Loss of ipsilateral direct AND contralateral consensual pupillary light reflexes.' },
+  { q:'What supplies lacrimal gland?', a:'Parasympathetic: CN VII (greater petrosal) via pterygopalatine ganglion → zygomatic nerve → communicating branch → lacrimal nerve. Not CN III.' },
+  { q:'Frontal nerve: 2 terminal branches?', a:'Supratrochlear nerve (medial, smaller) + Supraorbital nerve (lateral, larger) — both supply forehead skin.' },
+];
+
+const cases = [
+  {
+    icon:'🔴', title:'Case 1 — The "Down & Out" Eye',
+    preview:'50-year-old woman, sudden right ptosis + diplopia + headache.',
+    vignette:'A 50-year-old woman presents with sudden onset right-sided ptosis, diplopia, and a severe headache ("worst of my life"). On examination her right eye is deviated "downward and laterally," the right pupil is 7 mm and non-reactive to light, and she cannot elevate, adduct, or depress the right eye.',
+    qs:[
+      { q:'Q1 — Which nerve is affected?', a:'Right CN III (Oculomotor nerve). The combination of ptosis, mydriasis, and "down and out" eye is pathognomonic.' },
+      { q:'Q2 — Why is the eye "down and out"?', a:'CN III supplies all extraocular muscles except SO (CN IV) and LR (CN VI). With CN III paralyzed, the only functioning muscles are superior oblique (depresses) and lateral rectus (abducts), pulling the eye inferolaterally.' },
+      { q:'Q3 — Why is the pupil dilated and non-reactive?', a:'Parasympathetic fibers from the Edinger-Westphal nucleus travel in CN III (peripherally, most susceptible to compression). Loss → constrictor pupillae paralysis → mydriasis and loss of light reflex.' },
+      { q:'Q4 — What is the most critical differential?', a:'Posterior communicating artery (PCoA) aneurysm compressing CN III — a surgical emergency. Pupil-involving CN III palsy = aneurysm until proven otherwise.' },
+    ]
+  },
+  {
+    icon:'🟡', title:'Case 2 — Staircase Diplopia',
+    preview:'35-year-old man, diplopia only when looking down.',
+    vignette:'A 35-year-old man complains of double vision that is worst when descending stairs or reading. He tilts his head to the right to compensate. Examination shows inability to depress the left eye when it is adducted.',
+    qs:[
+      { q:'Q1 — Which nerve/muscle is affected?', a:'Left CN IV (Trochlear nerve) — paralysis of the left superior oblique muscle.' },
+      { q:'Q2 — Why does he tilt his head?', a:'Head tilting contralaterally compensates for the cyclotorsion defect caused by superior oblique palsy, reducing diplopia.' },
+      { q:'Q3 — What is unique about CN IV anatomy?', a:'It is the only CN emerging from the dorsal brainstem, has the longest intracranial course, crosses the midline to supply the contralateral superior oblique, and enters the SOF outside the tendinous ring.' },
+    ]
+  },
+  {
+    icon:'🟢', title:'Case 3 — Medial Squint',
+    preview:'Patient with sudden onset inward deviation of one eye.',
+    vignette:'A 60-year-old hypertensive man presents with sudden horizontal diplopia. Examination shows the right eye is deviated medially (internal strabismus) and he cannot abduct it past the midline.',
+    qs:[
+      { q:'Q1 — Which nerve is damaged?', a:'Right CN VI (Abducent nerve), causing paralysis of the right lateral rectus muscle.' },
+      { q:'Q2 — Why does medial squint occur?', a:'The lateral rectus is the only abductor of the eye. Its paralysis allows the unopposed medial rectus to pull the eye medially → internal strabismus.' },
+      { q:'Q3 — Where in the cavernous sinus is CN VI?', a:'In the floor of the cavernous sinus, inferolateral to the internal carotid artery — the most exposed position, making it especially vulnerable to raised ICP and cavernous sinus thrombosis.' },
+    ]
+  },
+  {
+    icon:'🔵', title:'Case 4 — Pontine Lesion',
+    preview:'MRI shows lesion at facial colliculus; facial + eye findings.',
+    vignette:'A 45-year-old presents with inability to abduct the right eye and paralysis of all right facial muscles. MRI shows a focal lesion in the floor of the 4th ventricle at the level of the pons.',
+    qs:[
+      { q:'Q1 — What structure is the lesion in?', a:'The facial colliculus — a prominence in the rhomboid fossa formed by the CN VI somatic motor nucleus encircled by CN VII (facial) nerve fibers.' },
+      { q:'Q2 — Why both CN VI and CN VII signs?', a:'Because the facial nerve fibers loop around the abducent nucleus to form the facial colliculus, a single lesion damages both simultaneously.' },
+      { q:'Q3 — Nuclear vs peripheral CN VI lesion distinction?', a:'Nuclear: CN VI + CN VII palsy (facial colliculus). Peripheral: CN VI palsy only (medial squint, no facial weakness).' },
+    ]
+  },
+  {
+    icon:'🟣', title:'Case 5 — Loss of Corneal Reflex',
+    preview:'Visual acuity intact, but absent corneal reflex bilaterally (one side).',
+    vignette:'A 55-year-old presents after orbital trauma. Visual acuity is 6/6 bilaterally. However, touching the right cornea with a wisp of cotton produces no blink reflex on the right, though the left cornea touched produces a bilateral blink.',
+    qs:[
+      { q:'Q1 — Which nerve is damaged?', a:'Right nasociliary nerve (branch of V1, ophthalmic division of CN V) — the sensory limb of the corneal reflex.' },
+      { q:'Q2 — How do long and short ciliary nerves relate?', a:'Long ciliary nerves (from nasociliary directly) carry sensory fibers to the cornea and sympathetic fibers to dilator pupillae. Short ciliary nerves (from ciliary ganglion) carry parasympathetic + sensory fibers.' },
+      { q:'Q3 — What is the efferent limb of the corneal reflex?', a:'CN VII (facial nerve) → orbicularis oculi → blink. A lesion of CN VII would abolish the blink (both direct and consensual) while corneal sensation remains intact.' },
+    ]
+  },
+  {
+    icon:'🟠', title:'Case 6 — Anosmia After Head Trauma',
+    preview:'Loss of smell following frontal head injury.',
+    vignette:'A 28-year-old rugby player sustains a frontal head injury. He reports complete loss of smell. Examination confirms anosmia bilaterally with no visual or motor deficits.',
+    qs:[
+      { q:'Q1 — Mechanism of traumatic anosmia?', a:'Shearing of olfactory nerve filaments (fila olfactoria) as they pierce the cribriform plate of the ethmoid bone. The cribriform plate can fracture, tearing the delicate unmyelinated fibers.' },
+      { q:'Q2 — Trace the olfactory pathway.', a:'Olfactory receptors (nasal mucosa) → olfactory nerve filaments pierce cribriform plate → olfactory bulb (synapse) → olfactory tract → olfactory striae → primary olfactory cortex (uncus of temporal lobe) + amygdaloid nucleus (area 28).' },
+      { q:'Q3 — Why is CSF rhinorrhoea a concern in this patient?', a:'Cribriform plate fracture creates a communication between the subarachnoid space and the nasal cavity, allowing CSF to leak and potentially allowing pathogens to access the CNS.' },
+    ]
+  }
+];
+
+const anatomyItems = [
+  { name:'Edinger-Westphal Nucleus', type:'GVE · CN III', glyph:'👁', detail:'Parasympathetic nucleus of CN III in the midbrain. Sends preganglionic fibers via inferior division of CN III → ciliary ganglion → short ciliary nerves → constrictor pupillae + ciliary muscle.' },
+  { name:'Pretectal Nucleus', type:'Midbrain · Reflex', glyph:'💡', detail:'Located at the midbrain-diencephalon junction. Receives light from optic tract → bilateral output to Edinger-Westphal nuclei → bilateral pupillary constriction (direct + consensual light reflexes).' },
+  { name:'Abducent Nucleus', type:'GSE · CN VI · Pons', glyph:'↔', detail:'Somatic motor nucleus in the pons. Encircled by CN VII fibers forming the facial colliculus. Contains motor neurons for lateral rectus AND interneurons projecting via MLF to contralateral CN III nucleus (for conjugate gaze).' },
+  { name:'Para-abducent Nucleus (PPRF)', type:'Pons · Horizontal Gaze', glyph:'⟷', detail:'Paramedian Pontine Reticular Formation. Coordinates horizontal conjugate eye movements. Sends signals to ipsilateral CN VI nucleus and contralateral CN III (via MLF) for conjugate lateral gaze.' },
+  { name:'Interstitial Nucleus of Cajal', type:'Midbrain · Vertical Gaze', glyph:'↕', detail:'Located in the rostral midbrain. Coordinates VERTICAL conjugate eye movements. Lesion → vertical gaze palsy.' },
+  { name:'Trochlear Nucleus', type:'GSE · CN IV · Midbrain', glyph:'🔄', detail:'Located in the caudal midbrain at the level of the inferior colliculus. Unique: axons exit dorsally, cross in the superior medullary velum, and supply the contralateral superior oblique.' },
+  { name:'Ciliary Ganglion', type:'Parasympathetic Ganglion', glyph:'⭕', detail:'Located in the posterior orbit, lateral to the optic nerve. Receives: sensory root (nasociliary), sympathetic root (ICA plexus), parasympathetic root (EWN via CN III inferior division). Outputs 8-10 short ciliary nerves.' },
+  { name:'Facial Colliculus', type:'Pons · CN VI + CN VII', glyph:'🔵', detail:'Prominence on the floor of the 4th ventricle (rhomboid fossa). Formed by CN VI somatic motor nucleus wrapped by CN VII (facial) nerve fibers on their way to exit the pons.' },
+  { name:'Olfactory Bulb', type:'CN I · First Synapse', glyph:'👃', detail:'Overlies the cribriform plate. Contains mitral and tufted cells (second-order neurons). Receives olfactory nerve filaments (first-order neurons) from nasal mucosa via cribriform plate perforations.' },
+  { name:'Oculomotor Nucleus', type:'GSE · CN III · Midbrain', glyph:'👁', detail:'Located in the ventral periaqueductal gray at the level of the superior colliculus. Contains separate sub-nuclei for each extraocular muscle it supplies. Receives inputs from pretectal nucleus, Cajal nucleus, and PPRF.' },
+];
+
+const flowSteps1 = [
+  { title:'Olfactory Receptors', desc:'Bipolar neurons in the olfactory epithelium (roof + upper 1/3 nasal cavity). Peripheral processes = chemoreceptors.' },
+  { title:'Cribriform Plate of Ethmoid', desc:'~20 olfactory nerve filaments (CN I) pierce the foramina of the cribriform plate.' },
+  { title:'Olfactory Bulb', desc:'First synapse. Glomeruli formed between olfactory axons and mitral/tufted cells (2nd order neurons).' },
+  { title:'Olfactory Tract', desc:'Axons of 2nd order neurons travel posteriorly.' },
+  { title:'Olfactory Striae', desc:'Tract divides: medial stria → septal area; lateral stria → primary olfactory cortex; intermediate stria → anterior perforated substance.' },
+  { title:'Primary Olfactory Cortex', desc:'Uncus of the temporal lobe (parahippocampal gyrus). Also projects to amygdaloid nucleus and entorhinal cortex (area 28).' },
+];
+
+const flowSteps2 = [
+  { title:'Edinger-Westphal Nucleus (Midbrain)', desc:'Preganglionic parasympathetic GVE fibers originate here.' },
+  { title:'CN III Inferior Division', desc:'Fibers travel within the nerve to the inferior oblique branch.' },
+  { title:'Ciliary Ganglion', desc:'Preganglionic fibers synapse here. Located lateral to optic nerve in posterior orbit.' },
+  { title:'Short Ciliary Nerves (8-10)', desc:'Postganglionic fibers leave the ganglion.' },
+  { title:'Constrictor Pupillae + Ciliary Muscle', desc:'Pupillary constriction (miosis) and lens accommodation (near vision).' },
+];
+
+const mnemonics = [
+  {
+    title:'Extraocular Muscle Innervation',
+    phrase:'SO4 LR6',
+    items:[
+      ['S','Superior Oblique → CN IV (Trochlear)'],
+      ['O','(all Other muscles) → CN III (Oculomotor)'],
+      ['4','CN Four = Trochlear'],
+      ['L','Lateral Rectus → CN VI (Abducent)'],
+      ['R','Rectus (lateral)'],
+      ['6','CN Six = Abducent'],
+    ]
+  },
+  {
+    title:'CN III Palsy — Clinical Signs',
+    phrase:'P M D O',
+    items:[
+      ['P','Ptosis (levator palpebrae paralysis)'],
+      ['M','Mydriasis (dilated, non-reactive pupil)'],
+      ['D','Diplopia (double vision)'],
+      ['O','Out — eye deviated "down and out"'],
+    ]
+  },
+  {
+    title:'V1 Branches in the Orbit',
+    phrase:'L F N',
+    items:[
+      ['L','Lacrimal — lateral wall of orbit'],
+      ['F','Frontal — roof of orbit → supratrochlear + supraorbital'],
+      ['N','Nasociliary — crosses optic nerve medially'],
+    ]
+  },
+  {
+    title:'Ciliary Ganglion Roots',
+    phrase:'SSP',
+    items:[
+      ['S','Sensory root — from nasociliary nerve (V1)'],
+      ['S','Sympathetic root — from internal carotid plexus'],
+      ['P','Parasympathetic root — from Edinger-Westphal via CN III inf. div.'],
+    ]
+  },
+  {
+    title:'Cavernous Sinus Contents (top→bottom)',
+    phrase:'O T T A F',
+    items:[
+      ['O','Oculomotor (CN III) — lateral wall, top'],
+      ['T','Trochlear (CN IV) — lateral wall'],
+      ['T','Trigeminal V1 — lateral wall, below IV'],
+      ['A','Abducent (CN VI) — FLOOR (most vulnerable)'],
+      ['F','Foramen → all exit via superior orbital fissure'],
+    ]
+  },
+  {
+    title:'Functional Components — Motor Types',
+    phrase:'GSE SVE GVE',
+    items:[
+      ['G','General Somatic Efferent — somite-derived muscles (CN III,IV,VI,XII)'],
+      ['S','Special Visceral Efferent — pharyngeal arch muscles (CN V,VII,IX,X)'],
+      ['G','General Visceral Efferent — parasympathetics (CN III, VII, IX, X)'],
+    ]
+  },
+];
+
+const dxAlgo = [
+  { badge:'CN III', title:'Oculomotor Nerve Palsy', desc:'Ptosis (complete) · Dilated, non-reactive pupil (mydriasis) · Eye deviated "down and out" · Inability to elevate, adduct, or fully depress · Consider PCoA aneurysm if pupil-involving' },
+  { badge:'CN IV', title:'Trochlear Nerve Palsy', desc:'Inability to depress adducted eye · Diplopia on downward gaze (stairs/reading) · Compensatory contralateral head tilt · Vertical diplopia · Most commonly isolated from trauma (long intracranial course)' },
+  { badge:'CN VI', title:'Abducent Nerve Palsy', desc:'Inability to abduct affected eye · Internal strabismus (medial squint) · Horizontal diplopia · Most common CN palsy with raised ICP (floor of cavernous sinus)' },
+  { badge:'V1', title:'Ophthalmic (V1) Division Palsy', desc:'Loss of corneal reflex (sensory limb) · Anaesthesia of forehead, upper eyelid, cornea · Possible loss of nasal sensation · Vision PRESERVED (optic nerve intact)' },
+  { badge:'Facial Colliculus', title:'Combined CN VI + CN VII Nuclear Lesion', desc:'Ipsilateral lateral rectus palsy (medial squint) · Ipsilateral complete facial palsy (UMN spared) · Location: pons · Caused by demyelination, infarction, or tumour' },
+];
+
+// ─── STATE ─────────────────────────────────────────────────────────────────
+let quizIdx = 0, quizCorrect = 0, quizWrong = 0, quizStreak = 0;
+let selectedTab = 'overview';
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem('cn_state') || '{}');
+    quizCorrect = s.correct || 0;
+    quizWrong   = s.wrong   || 0;
+    quizIdx     = s.idx     || 0;
+    quizStreak  = s.streak  || 0;
+  } catch(e) {}
+}
+function saveState() {
+  try {
+    localStorage.setItem('cn_state', JSON.stringify({ correct:quizCorrect, wrong:quizWrong, idx:quizIdx, streak:quizStreak }));
+  } catch(e) {}
+}
+
+// ─── TABS ───────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('sec-'+tab).classList.add('active');
+  const tabs = document.querySelectorAll('.tab');
+  const names = ['overview','quiz','flash','cases','anatomy','diagnosis','mnemonics'];
+  tabs[names.indexOf(tab)].classList.add('active');
+  selectedTab = tab;
+  localStorage.setItem('cn_tab', tab);
+}
+
+// ─── RENDER: OVERVIEW ───────────────────────────────────────────────────────
+function renderOverview() {
+  const grid = document.getElementById('nerveGrid');
+  grid.innerHTML = nerves.map(n => `
+    <div class="nerve-card ${n.cls}" data-search="${n.num} ${n.name} ${n.fact}">
+      <div class="nerve-num">${n.num}</div>
+      <div class="nerve-name">${n.name}</div>
+      <div class="nerve-tags">
+        ${n.tags.map(t => `<span class="tag tag-${t}">${t}</span>`).join('')}
+        ${n.exam ? '<span class="tag tag-exam">⚠️ EXAM</span>' : ''}
+      </div>
+      <div class="nerve-fact">${n.fact}</div>
+    </div>
+  `).join('');
+
+  const pg = document.getElementById('pearlGrid');
+  pg.innerHTML = pearls.map(p => `
+    <div class="clinical-item" data-search="${p.head} ${p.body}">
+      ${p.exam ? '<div class="pearl-badge">⚠️ High-Yield Exam</div>' : ''}
+      <div class="clinical-item-head">${p.head}</div>
+      <div class="clinical-item-body">${p.body}</div>
+    </div>
+  `).join('');
+}
+
+function filterSearch() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  document.querySelectorAll('[data-search]').forEach(el => {
+    el.style.display = el.dataset.search.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+// ─── RENDER: QUIZ ───────────────────────────────────────────────────────────
+function renderQuiz() {
+  updateQuizHeader();
+  if (quizIdx >= quizData.length) {
+    showQuizSummary();
+    return;
+  }
+  const d = quizData[quizIdx];
+  const container = document.getElementById('quizContainer');
+  document.getElementById('quizSummary').classList.remove('show');
+  container.innerHTML = `
+    <div class="question-card">
+      <div class="question-num">Question ${quizIdx + 1} of ${quizData.length}</div>
+      <div class="question-text">${d.q}</div>
+      <div class="options" id="opts">
+        ${d.opts.map((o,i) => `
+          <button class="option-btn" onclick="selectOption(${i})" id="opt${i}">
+            <div class="option-letter">${String.fromCharCode(65+i)}</div>
+            <span>${o}</span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="explanation" id="exp">${d.exp}</div>
+      <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+  `;
+}
+
+function selectOption(idx) {
+  const d = quizData[quizIdx];
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+  const exp = document.getElementById('exp');
+  const nb  = document.getElementById('nextBtn');
+
+  if (idx === d.ans) {
+    btns[idx].classList.add('correct');
+    quizCorrect++; quizStreak++;
+  } else {
+    btns[idx].classList.add('wrong');
+    btns[d.ans].classList.add('correct');
+    quizWrong++; quizStreak = 0;
+  }
+  exp.classList.add('show');
+  nb.classList.add('show');
+  updateQuizHeader();
+  updateGlobalStats();
+  saveState();
+}
+
+function nextQuestion() {
+  quizIdx++;
+  saveState();
+  renderQuiz();
+}
+
+function restartQuiz() {
+  quizIdx = quizCorrect = quizWrong = quizStreak = 0;
+  saveState();
+  document.getElementById('quizSummary').classList.remove('show');
+  document.getElementById('quizContainer').innerHTML = '';
+  renderQuiz();
+  updateGlobalStats();
+}
+
+function updateQuizHeader() {
+  const pct = Math.round((quizIdx / quizData.length) * 100);
+  document.getElementById('quizBar').style.width = Math.max(4, pct) + '%';
+  document.getElementById('qNum').textContent = Math.min(quizIdx + 1, quizData.length);
+  document.getElementById('qCorrect').textContent = quizCorrect;
+  document.getElementById('qWrong').textContent = quizWrong;
+}
+
+function showQuizSummary() {
+  document.getElementById('quizContainer').innerHTML = '';
+  const total = quizCorrect + quizWrong;
+  const pct = total ? Math.round((quizCorrect/total)*100) : 0;
+  const sc = document.getElementById('scoreCircle');
+  sc.style.setProperty('--pct', pct);
+  document.getElementById('scorePct').textContent = pct + '%';
+  document.getElementById('quizSummary').classList.add('show');
+}
+
+function updateGlobalStats() {
+  const total = quizCorrect + quizWrong;
+  const pct = total ? Math.round((quizCorrect/total)*100) : 0;
+  document.getElementById('globalScore').textContent = pct + '%';
+  document.getElementById('globalStreak').textContent = quizStreak;
+  document.getElementById('globalDone').textContent = `${Math.min(quizIdx,quizData.length)}/${quizData.length}`;
+  document.getElementById('globalBar').style.width = Math.round((quizIdx/quizData.length)*100) + '%';
+}
+
+// ─── RENDER: FLASHCARDS ─────────────────────────────────────────────────────
+function renderFlash() {
+  const grid = document.getElementById('flashGrid');
+  grid.innerHTML = flashcards.map((f,i) => `
+    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+      <div class="flashcard-inner">
+        <div class="flashcard-front">
+          <div class="flashcard-num">${String(i+1).padStart(2,'0')} / ${flashcards.length}</div>
+          <div class="flashcard-q">${f.q}</div>
+          <div class="flashcard-hint">tap to reveal</div>
+        </div>
+        <div class="flashcard-back">
+          <div class="flashcard-num">${String(i+1).padStart(2,'0')} / ${flashcards.length}</div>
+          <div class="flashcard-a">${f.a}</div>
+          <div class="flashcard-hint">tap to flip back</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── RENDER: CASES ──────────────────────────────────────────────────────────
+function renderCases() {
+  const c = document.getElementById('casesContainer');
+  c.innerHTML = cases.map((cas, ci) => `
+    <div class="case-card">
+      <div class="case-header" onclick="toggleCase(${ci})">
+        <div class="case-icon">${cas.icon}</div>
+        <div>
+          <div class="case-title">${cas.title}</div>
+          <div class="case-preview">${cas.preview}</div>
+        </div>
+        <div style="margin-left:auto;color:var(--muted);font-size:20px" id="caseArrow${ci}">›</div>
+      </div>
+      <div class="case-body" id="caseBody${ci}">
+        <div class="case-vignette">${cas.vignette}</div>
+        ${cas.qs.map((q,qi) => `
+          <div class="case-q">${q.q}</div>
+          <button class="reveal-btn" onclick="revealAnswer(${ci},${qi})">Reveal Answer</button>
+          <div class="answer-reveal" id="ans_${ci}_${qi}">
+            <div class="answer-label">✅ Answer</div>
+            ${q.a}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleCase(ci) {
+  const body  = document.getElementById('caseBody'+ci);
+  const arrow = document.getElementById('caseArrow'+ci);
+  const open  = body.classList.contains('open');
+  body.classList.toggle('open', !open);
+  arrow.textContent = open ? '›' : '⌄';
+}
+
+function revealAnswer(ci, qi) {
+  const el = document.getElementById(`ans_${ci}_${qi}`);
+  el.classList.add('show');
+}
+
+// ─── RENDER: ANATOMY ────────────────────────────────────────────────────────
+function renderAnatomy() {
+  const grid = document.getElementById('anatomyGrid');
+  grid.innerHTML = anatomyItems.map((a,i) => `
+    <div class="anatomy-item" data-glyph="${a.glyph}" onclick="toggleAnatomy(${i})">
+      <div class="anatomy-item-name">${a.name}</div>
+      <div class="anatomy-item-type">${a.type}</div>
+    </div>
+    <div class="anatomy-detail" id="anat${i}" style="display:none;grid-column:1/-1">
+      <strong>${a.name}</strong><br>
+      <span style="font-size:12px;color:var(--muted)">${a.type}</span>
+      <p style="margin-top:8px;font-size:13px;color:var(--text)">${a.detail}</p>
+    </div>
+  `).join('');
+
+  const fc = document.getElementById('flowchart');
+  fc.innerHTML = flowSteps1.map((s,i) => `
+    <div class="flow-step">
+      <div class="flow-dot">${i+1}</div>
+      <div class="flow-content">
+        <div class="flow-title">${s.title}</div>
+        <div class="flow-desc">${s.desc}</div>
+      </div>
+    </div>
+  `).join('');
+
+  const fc2 = document.getElementById('flowchart2');
+  fc2.innerHTML = flowSteps2.map((s,i) => `
+    <div class="flow-step">
+      <div class="flow-dot">${i+1}</div>
+      <div class="flow-content">
+        <div class="flow-title">${s.title}</div>
+        <div class="flow-desc">${s.desc}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleAnatomy(i) {
+  const el = document.getElementById('anat'+i);
+  const vis = el.style.display !== 'none';
+  // close all
+  document.querySelectorAll('.anatomy-detail').forEach(d => d.style.display = 'none');
+  if (!vis) { el.style.display = 'block'; el.classList.add('open'); }
+}
+
+// ─── RENDER: DIAGNOSIS ──────────────────────────────────────────────────────
+function renderDiagnosis() {
+  document.getElementById('dxAlgo').innerHTML = dxAlgo.map(d => `
+    <div class="dx-step">
+      <div class="dx-badge">${d.badge}</div>
+      <div class="dx-content">
+        <div class="dx-title">${d.title}</div>
+        <div class="dx-desc">${d.desc}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── RENDER: MNEMONICS ──────────────────────────────────────────────────────
+function renderMnemonics() {
+  document.getElementById('mnemonicGrid').innerHTML = mnemonics.map(m => `
+    <div class="mnemonic-card">
+      <div class="mnemonic-title">${m.title}</div>
+      <div class="mnemonic-phrase">${m.phrase}</div>
+      <ul class="mnemonic-list">
+        ${m.items.map(([l,t]) => `
+          <li>
+            <div class="mnemonic-letter">${l}</div>
+            <span>${t}</span>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+  `).join('');
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+function init() {
+  loadState();
+  renderOverview();
+  renderQuiz();
+  renderFlash();
+  renderCases();
+  renderAnatomy();
+  renderDiagnosis();
+  renderMnemonics();
+  updateGlobalStats();
+
+  const lastTab = localStorage.getItem('cn_tab') || 'overview';
+  switchTab(lastTab);
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,2070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌀 Vestibular Apparatus — Interactive Study Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070d1a;
+    --surface: #0d1829;
+    --surface2: #111f35;
+    --surface3: #162540;
+    --border: rgba(0,200,255,0.12);
+    --border2: rgba(0,200,255,0.22);
+    --cyan: #00e5ff;
+    --cyan-dim: rgba(0,229,255,0.15);
+    --teal: #00bfa5;
+    --gold: #ffd54f;
+    --rose: #ff6b8a;
+    --violet: #b388ff;
+    --green: #69f0ae;
+    --text: #e8f4fd;
+    --text-dim: #8ab4cc;
+    --text-muted: #4a7090;
+    --radius: 14px;
+    --shadow: 0 4px 32px rgba(0,0,0,0.5);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── ANIMATED BACKGROUND ── */
+  .bg-canvas {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    overflow: hidden;
+  }
+  .bg-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.08;
+    animation: orbDrift 20s ease-in-out infinite alternate;
+  }
+  .bg-orb:nth-child(1){ width:500px;height:500px;background:var(--cyan);top:-100px;left:-100px;animation-duration:18s; }
+  .bg-orb:nth-child(2){ width:400px;height:400px;background:var(--teal);bottom:0;right:-80px;animation-duration:24s;animation-delay:-8s; }
+  .bg-orb:nth-child(3){ width:300px;height:300px;background:var(--violet);top:40%;left:40%;animation-duration:15s;animation-delay:-4s; }
+  @keyframes orbDrift {
+    0%   { transform: translate(0,0) scale(1); }
+    100% { transform: translate(40px,30px) scale(1.15); }
+  }
+  .particles { position: absolute; inset: 0; }
+  .particle {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: var(--cyan);
+    border-radius: 50%;
+    opacity: 0;
+    animation: floatUp var(--dur,8s) ease-in-out infinite;
+    animation-delay: var(--delay,0s);
+    left: var(--x,50%);
+  }
+  @keyframes floatUp {
+    0%   { opacity:0; transform: translateY(100vh) scale(0.5); }
+    20%  { opacity:0.6; }
+    80%  { opacity:0.3; }
+    100% { opacity:0; transform: translateY(-20px) scale(1.5); }
+  }
+
+  /* ── LAYOUT ── */
+  .app { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 16px 80px; }
+
+  /* ── HEADER ── */
+  header {
+    text-align: center;
+    padding: 52px 0 32px;
+  }
+  header .badge {
+    display: inline-block;
+    background: var(--cyan-dim);
+    border: 1px solid var(--border2);
+    color: var(--cyan);
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 40px;
+    margin-bottom: 18px;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 6vw, 3.4rem);
+    font-weight: 800;
+    line-height: 1.12;
+    background: linear-gradient(135deg, #ffffff 0%, var(--cyan) 60%, var(--teal) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+  }
+  header p {
+    color: var(--text-dim);
+    font-size: 15px;
+    max-width: 480px;
+    margin: 0 auto 22px;
+  }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+  .stat-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 40px;
+    padding: 7px 18px;
+    font-size: 13px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .stat-chip span { color: var(--cyan); font-weight: 600; font-size: 15px; }
+
+  /* ── SEARCH ── */
+  .search-wrap {
+    max-width: 480px;
+    margin: 0 auto 32px;
+    position: relative;
+  }
+  .search-wrap input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 40px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 12px 48px 12px 20px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .search-wrap input::placeholder { color: var(--text-muted); }
+  .search-wrap input:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px var(--cyan-dim); }
+  .search-wrap .search-icon {
+    position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+    font-size: 18px; opacity: 0.5; pointer-events: none;
+  }
+  .search-results {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0; right: 0;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    max-height: 280px;
+    overflow-y: auto;
+    z-index: 100;
+    display: none;
+  }
+  .search-results.active { display: block; }
+  .search-result-item {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .search-result-item:hover { background: var(--surface3); }
+  .search-result-item .res-title { color: var(--cyan); font-weight: 600; margin-bottom: 2px; }
+  .search-result-item .res-snippet { color: var(--text-dim); font-size: 12px; }
+
+  /* ── TABS ── */
+  .tabs-scroll { overflow-x: auto; margin-bottom: 28px; }
+  .tabs {
+    display: flex;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 5px;
+    width: fit-content;
+    min-width: 100%;
+  }
+  .tab-btn {
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    border-radius: 40px;
+    color: var(--text-dim);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all .2s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tab-btn:hover { color: var(--text); background: var(--surface2); }
+  .tab-btn.active {
+    background: linear-gradient(135deg, var(--cyan), var(--teal));
+    color: #060c18;
+    font-weight: 700;
+    box-shadow: 0 2px 16px rgba(0,229,255,0.3);
+  }
+
+  /* ── TAB PANELS ── */
+  .tab-panel { display: none; animation: fadeIn .35s ease; }
+  .tab-panel.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ── CARDS / SURFACES ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    transition: border-color .2s, transform .2s, box-shadow .2s;
+  }
+  .card:hover { border-color: var(--border2); transform: translateY(-2px); box-shadow: var(--shadow); }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .card-text { color: var(--text-dim); font-size: 14px; }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-sub { color: var(--text-dim); font-size: 14px; margin-bottom: 24px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+  @media(max-width:700px){ .grid-2,.grid-3,.grid-4{ grid-template-columns:1fr; } }
+  @media(min-width:701px) and (max-width:900px){ .grid-3,.grid-4{ grid-template-columns:1fr 1fr; } }
+
+  /* ── TAGS ── */
+  .tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 40px;
+    margin-right: 5px;
+    margin-top: 5px;
+  }
+  .tag-high   { background: rgba(255,107,138,0.15); color: var(--rose); border: 1px solid rgba(255,107,138,0.3); }
+  .tag-exam   { background: rgba(255,213,79,0.15);  color: var(--gold); border: 1px solid rgba(255,213,79,0.3); }
+  .tag-pearl  { background: rgba(105,240,174,0.15); color: var(--green); border: 1px solid rgba(105,240,174,0.3); }
+  .tag-cyan   { background: var(--cyan-dim); color: var(--cyan); border: 1px solid var(--border2); }
+
+  /* ── OVERVIEW TAB ── */
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    border-left: 3px solid var(--cyan);
+  }
+  .summary-card.gold-accent { border-left-color: var(--gold); }
+  .summary-card.rose-accent { border-left-color: var(--rose); }
+  .summary-card.green-accent { border-left-color: var(--green); }
+  .summary-card.violet-accent { border-left-color: var(--violet); }
+
+  .timeline {
+    position: relative;
+    margin: 28px 0;
+  }
+  .timeline::before {
+    content:'';
+    position: absolute;
+    left: 20px;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--cyan), var(--teal), transparent);
+  }
+  .timeline-item {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 22px;
+    padding-left: 50px;
+    position: relative;
+  }
+  .timeline-dot {
+    position: absolute;
+    left: 12px;
+    top: 4px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--cyan);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: var(--cyan);
+    font-weight: 700;
+  }
+  .timeline-content { flex: 1; }
+  .timeline-label {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--cyan);
+    margin-bottom: 4px;
+  }
+  .timeline-text { font-size: 13px; color: var(--text-dim); }
+
+  .key-signs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap: 14px; margin-top: 20px; }
+  .sign-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    transition: border-color .2s;
+  }
+  .sign-card:hover { border-color: var(--border2); }
+  .sign-icon { font-size: 24px; margin-bottom: 8px; }
+  .sign-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+  .sign-desc { font-size: 13px; color: var(--text-dim); margin-bottom: 8px; }
+
+  /* ── QUIZ TAB ── */
+  .quiz-header {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .quiz-meta { display: flex; gap: 20px; flex-wrap: wrap; }
+  .quiz-meta-item { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+  .quiz-meta-item .val { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--cyan); }
+  .quiz-meta-item .lbl { color: var(--text-dim); font-size: 12px; }
+  .progress-bar-wrap {
+    background: var(--surface2);
+    border-radius: 40px;
+    height: 6px;
+    overflow: hidden;
+    margin: 12px 0;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--cyan), var(--teal));
+    border-radius: 40px;
+    transition: width .4s ease;
+  }
+  .q-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 16px;
+    transition: border-color .2s;
+  }
+  .q-number {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .q-text { font-size: 15px; font-weight: 500; margin-bottom: 16px; line-height: 1.55; }
+  .q-options { display: flex; flex-direction: column; gap: 8px; }
+  .q-opt {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all .18s;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .q-opt:hover:not(.disabled) { border-color: var(--border2); background: var(--surface3); transform: translateX(4px); }
+  .q-opt .opt-letter {
+    display: inline-flex;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    color: var(--text-dim);
+    transition: all .18s;
+  }
+  .q-opt.correct { background: rgba(105,240,174,0.1); border-color: var(--green); animation: pulse .4s ease; }
+  .q-opt.correct .opt-letter { background: var(--green); border-color: var(--green); color: #060c18; }
+  .q-opt.wrong { background: rgba(255,107,138,0.1); border-color: var(--rose); animation: shake .4s ease; }
+  .q-opt.wrong .opt-letter { background: var(--rose); border-color: var(--rose); color: #fff; }
+  .q-opt.disabled { cursor: not-allowed; opacity: 0.75; }
+  .q-explanation {
+    margin-top: 14px;
+    background: rgba(0,229,255,0.06);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 13px;
+    color: var(--text-dim);
+    display: none;
+    animation: fadeIn .3s ease;
+  }
+  .q-explanation.show { display: block; }
+  .q-explanation strong { color: var(--cyan); }
+
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--cyan), var(--teal));
+    color: #060c18;
+    border: none;
+    border-radius: 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 11px 24px;
+    cursor: pointer;
+    transition: opacity .2s, transform .2s, box-shadow .2s;
+  }
+  .btn:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,229,255,0.3); }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--text-dim);
+  }
+  .btn-outline:hover { color: var(--text); border-color: var(--cyan); background: var(--cyan-dim); }
+
+  /* ── FLASHCARDS TAB ── */
+  .flashcards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap: 18px; }
+  .flashcard-wrap { perspective: 1000px; height: 180px; cursor: pointer; }
+  .flashcard-inner {
+    width: 100%; height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform .6s cubic-bezier(.4,0,.2,1);
+  }
+  .flashcard-wrap.flipped .flashcard-inner { transform: rotateY(180deg); }
+  .flashcard-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .flashcard-front { background: var(--surface); }
+  .flashcard-back { background: linear-gradient(135deg, #091525, #0d2035); transform: rotateY(180deg); border-color: var(--border2); }
+  .fc-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+  .fc-front-q { font-family: 'Syne', sans-serif; font-size: 13.5px; font-weight: 700; line-height: 1.45; }
+  .fc-back-a { font-size: 13px; color: var(--text-dim); line-height: 1.55; }
+  .fc-back-a strong { color: var(--cyan); }
+  .fc-hint { font-size: 11px; color: var(--text-muted); margin-top: 10px; }
+
+  /* ── CLINICAL CASES TAB ── */
+  .case-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .case-header {
+    background: linear-gradient(135deg, var(--surface2), var(--surface3));
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .case-num {
+    background: linear-gradient(135deg, var(--cyan), var(--teal));
+    color: #060c18;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+  .case-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 6px; }
+  .case-vignette { font-size: 14px; color: var(--text-dim); line-height: 1.65; }
+  .case-body { padding: 18px 22px; }
+  .case-q {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .case-q-text { font-size: 14px; font-weight: 500; margin-bottom: 10px; }
+  .reveal-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--cyan-dim);
+    border: 1px solid var(--border2);
+    color: var(--cyan);
+    border-radius: 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 16px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .reveal-btn:hover { background: rgba(0,229,255,0.2); }
+  .case-answer {
+    display: none;
+    animation: fadeIn .3s ease;
+    margin-top: 10px;
+    background: rgba(105,240,174,0.06);
+    border: 1px solid rgba(105,240,174,0.2);
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 13.5px;
+    color: var(--text-dim);
+    line-height: 1.65;
+  }
+  .case-answer.show { display: block; }
+  .case-answer strong { color: var(--green); }
+
+  /* ── PATHOPHYSIOLOGY TAB ── */
+  .pathophys-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px,1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .struct-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    cursor: pointer;
+    transition: all .2s;
+    text-align: center;
+  }
+  .struct-card:hover, .struct-card.active { border-color: var(--cyan); background: var(--surface3); }
+  .struct-card .struct-icon { font-size: 28px; margin-bottom: 10px; }
+  .struct-card .struct-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 5px; }
+  .struct-card .struct-short { font-size: 12px; color: var(--text-muted); }
+  .struct-detail {
+    display: none;
+    animation: fadeIn .3s ease;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 24px;
+  }
+  .struct-detail.show { display: block; }
+  .struct-detail-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 17px; margin-bottom: 12px; color: var(--cyan); }
+  .struct-detail-body { font-size: 14px; color: var(--text-dim); line-height: 1.7; }
+
+  .flowchart {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 24px;
+  }
+  .flow-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 18px; color: var(--cyan); }
+  .flow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+  .flow-step {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 13.5px;
+    position: relative;
+    transition: border-color .2s;
+  }
+  .flow-step:hover { border-color: var(--border2); }
+  .flow-step-num {
+    display: inline-flex;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--cyan-dim);
+    border: 1px solid var(--border2);
+    color: var(--cyan);
+    font-weight: 700;
+    font-size: 12px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .flow-arrow {
+    text-align: center;
+    font-size: 20px;
+    color: var(--teal);
+    margin: 3px 0;
+    line-height: 1;
+  }
+
+  /* ── MECHANISMS TAB ── */
+  .mech-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    margin-bottom: 24px;
+  }
+  .mech-table th {
+    background: var(--surface2);
+    color: var(--cyan);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border2);
+  }
+  .mech-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-dim);
+    vertical-align: top;
+  }
+  .mech-table tr:last-child td { border-bottom: none; }
+  .mech-table tr:hover td { background: rgba(0,229,255,0.03); }
+  .mech-table td:first-child { color: var(--text); font-weight: 500; }
+
+  /* ── MANIFESTATIONS TAB ── */
+  .manif-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 16px; }
+  .manif-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    border-top: 3px solid var(--rose);
+  }
+  .manif-card.teal-top { border-top-color: var(--teal); }
+  .manif-card.gold-top { border-top-color: var(--gold); }
+  .manif-card.violet-top { border-top-color: var(--violet); }
+  .manif-card.green-top { border-top-color: var(--green); }
+  .manif-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; margin-bottom: 6px; }
+  .manif-icon { font-size: 28px; float: right; margin-left: 8px; }
+  .manif-desc { font-size: 13.5px; color: var(--text-dim); line-height: 1.65; }
+  .manif-mechanism { font-size: 12px; color: var(--text-muted); margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; }
+  .manif-mechanism strong { color: var(--text-dim); }
+
+  /* ── MNEMONICS TAB ── */
+  .mnemonic-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    position: relative;
+  }
+  .mnemonic-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+  }
+  .mnemonic-card:nth-child(1)::before { background: var(--cyan); }
+  .mnemonic-card:nth-child(2)::before { background: var(--gold); }
+  .mnemonic-card:nth-child(3)::before { background: var(--rose); }
+  .mnemonic-card:nth-child(4)::before { background: var(--green); }
+  .mnemonic-card:nth-child(5)::before { background: var(--violet); }
+  .mnemonic-card:nth-child(6)::before { background: var(--teal); }
+  .mnemonic-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .mnemonic-name { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--cyan); letter-spacing: 2px; }
+  .mnemonic-card:nth-child(2) .mnemonic-name { color: var(--gold); }
+  .mnemonic-card:nth-child(3) .mnemonic-name { color: var(--rose); }
+  .mnemonic-card:nth-child(4) .mnemonic-name { color: var(--green); }
+  .mnemonic-card:nth-child(5) .mnemonic-name { color: var(--violet); }
+  .mnemonic-card:nth-child(6) .mnemonic-name { color: var(--teal); }
+  .mnemonic-title { font-size: 13px; color: var(--text-dim); font-style: italic; }
+  .mnemonic-expand-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .mnemonic-expand-btn:hover { border-color: var(--border2); color: var(--text); }
+  .mnemonic-letters { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+  .mnemonic-row {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .mnemonic-letter {
+    display: inline-flex;
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--cyan-dim);
+    border: 1px solid var(--border2);
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--cyan);
+    flex-shrink: 0;
+  }
+  .mnemonic-card:nth-child(2) .mnemonic-letter { background: rgba(255,213,79,0.12); border-color: rgba(255,213,79,0.3); color: var(--gold); }
+  .mnemonic-card:nth-child(3) .mnemonic-letter { background: rgba(255,107,138,0.12); border-color: rgba(255,107,138,0.3); color: var(--rose); }
+  .mnemonic-card:nth-child(4) .mnemonic-letter { background: rgba(105,240,174,0.12); border-color: rgba(105,240,174,0.3); color: var(--green); }
+  .mnemonic-card:nth-child(5) .mnemonic-letter { background: rgba(179,136,255,0.12); border-color: rgba(179,136,255,0.3); color: var(--violet); }
+  .mnemonic-card:nth-child(6) .mnemonic-letter { background: rgba(0,191,165,0.12); border-color: rgba(0,191,165,0.3); color: var(--teal); }
+  .mnemonic-desc { font-size: 13.5px; color: var(--text-dim); line-height: 1.6; }
+  .mnemonic-desc strong { color: var(--text); }
+  .mnemonic-details {
+    display: none;
+    margin-top: 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 13px;
+    color: var(--text-dim);
+    animation: fadeIn .3s ease;
+  }
+  .mnemonic-details.show { display: block; }
+  .mnemonic-details li { margin-bottom: 5px; padding-left: 4px; }
+  .mnemonic-details li::marker { color: var(--cyan); }
+
+  /* ── SCORE MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(6,12,24,0.85);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(6px);
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    padding: 36px;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    animation: fadeIn .3s ease;
+    box-shadow: 0 0 80px rgba(0,229,255,0.15);
+  }
+  .modal-emoji { font-size: 60px; margin-bottom: 16px; }
+  .modal-title { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; }
+  .modal-score { font-size: 3rem; font-weight: 800; font-family: 'Syne', sans-serif; color: var(--cyan); margin: 10px 0; }
+  .modal-sub { color: var(--text-dim); font-size: 14px; margin-bottom: 24px; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 40px; }
+
+  /* ── SEARCH HIGHLIGHT ── */
+  .highlight-result { border-color: var(--cyan) !important; animation: highlightPulse 1.5s ease; }
+  @keyframes highlightPulse { 0%,100%{box-shadow:none} 50%{box-shadow:0 0 20px rgba(0,229,255,0.4)} }
+
+  /* ── MOTIVATIONAL BANNER ── */
+  .motivation-banner {
+    background: linear-gradient(135deg, rgba(0,229,255,0.07), rgba(0,191,165,0.07));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13.5px;
+    color: var(--text-dim);
+  }
+  .motivation-banner .mot-icon { font-size: 22px; flex-shrink: 0; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 24px 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- Animated background -->
+<div class="bg-canvas">
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+  <div class="particles" id="particles"></div>
+</div>
+
+<div class="app">
+
+  <!-- Header -->
+  <header>
+    <div class="badge">⚕️ Physiology · Semester 4</div>
+    <h1>Vestibular Apparatus</h1>
+    <p>Your complete interactive study platform — from anatomy to clinical cases</p>
+    <div class="stats-bar">
+      <div class="stat-chip">🧠 Quiz Score: <span id="scoreDisplay">0/25</span></div>
+      <div class="stat-chip">🔥 Streak: <span id="streakDisplay">0</span></div>
+      <div class="stat-chip">📊 Progress: <span id="progressDisplay">0%</span></div>
+      <div class="stat-chip">🃏 Cards: <span id="cardsDisplay">0/22</span></div>
+    </div>
+    <div class="search-wrap">
+      <input type="text" id="globalSearch" placeholder="🔍 Search concepts, terms, mechanisms..." autocomplete="off">
+      <div class="search-icon">🔍</div>
+      <div class="search-results" id="searchResults"></div>
+    </div>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs-scroll">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('overview')">🏠 Overview</button>
+      <button class="tab-btn" onclick="switchTab('quiz')">🧪 Quiz</button>
+      <button class="tab-btn" onclick="switchTab('flashcards')">🃏 Flashcards</button>
+      <button class="tab-btn" onclick="switchTab('cases')">🏥 Clinical Cases</button>
+      <button class="tab-btn" onclick="switchTab('pathophys')">⚙️ Pathophysiology</button>
+      <button class="tab-btn" onclick="switchTab('mechanisms')">🔬 Mechanisms</button>
+      <button class="tab-btn" onclick="switchTab('manifestations')">⚡ Manifestations</button>
+      <button class="tab-btn" onclick="switchTab('mnemonics')">🧩 Mnemonics</button>
+    </div>
+  </div>
+
+  <!-- ══ OVERVIEW TAB ══ -->
+  <div class="tab-panel active" id="tab-overview">
+    <div class="section-title">🏠 Overview</div>
+    <div class="section-sub">Core concepts at a glance — the essential framework of vestibular physiology</div>
+
+    <div class="motivation-banner">
+      <span class="mot-icon">💡</span>
+      <span><strong>Remember:</strong> The key exam exception — vestibular hair cell depolarization occurs via <strong>K⁺ influx</strong> (not Na⁺!), because endolymph is uniquely rich in potassium.</span>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid-2" style="margin-bottom:24px">
+      <div class="summary-card">
+        <div class="card-title">📍 Location</div>
+        <p class="card-text">Non-auditory part of the inner ear labyrinth, housed in the <strong>petrous portion of the temporal bone</strong> at the skull base.</p>
+      </div>
+      <div class="summary-card gold-accent">
+        <div class="card-title">🏗️ Components</div>
+        <p class="card-text">Two <strong>otolith organs</strong> (utricle & saccule) containing Maculae, plus three <strong>semicircular canals</strong> (horizontal, anterior vertical, posterior vertical) containing Crista ampullaris.</p>
+      </div>
+      <div class="summary-card rose-accent">
+        <div class="card-title">⚡ Key Ionic Exception</div>
+        <p class="card-text">Unlike typical neurons that depolarize via Na⁺, vestibular hair cells depolarize via <strong>K⁺ influx</strong> — because the endolymph is K⁺-rich (similar to intracellular fluid).</p>
+        <span class="tag tag-exam">⚠️ Exam Favourite</span>
+        <span class="tag tag-high">High-Yield</span>
+      </div>
+      <div class="summary-card green-accent">
+        <div class="card-title">🔄 Two Receptor Systems</div>
+        <p class="card-text"><strong>Maculae:</strong> Detect gravity + linear acceleration via Otoconia (calcium carbonate crystals).<br><strong>Crista ampullaris:</strong> Detect angular acceleration via cupula deflection.</p>
+      </div>
+      <div class="summary-card violet-accent">
+        <div class="card-title">🧬 Neural Output</div>
+        <p class="card-text">Vestibular ganglion → Vestibular nucleus → Spinal cord, Reticular formation, Contralateral thalamus, Cerebellum, CN III/IV/VI nuclei (via MLF).</p>
+      </div>
+      <div class="summary-card">
+        <div class="card-title">🌊 Co-planar Canal Rule</div>
+        <p class="card-text">Each semicircular canal on one side corresponds to one SCC on the <strong>opposite side lying in the same geometric plane</strong>. Both act together symmetrically.
+        <span class="tag tag-exam">MCQ Favourite</span></p>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Timeline -->
+    <div class="section-title" style="font-size:1.1rem">🕐 Signal Flow Timeline</div>
+    <p class="section-sub" style="margin-bottom:16px">From head movement to conscious perception</p>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot">1</div>
+        <div class="timeline-content">
+          <div class="timeline-label">Head Movement</div>
+          <div class="timeline-text">Angular or linear acceleration displaces the endolymph relative to the membranous labyrinth</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot">2</div>
+        <div class="timeline-content">
+          <div class="timeline-label">Mechanical Transduction</div>
+          <div class="timeline-text">Deflects cupula (SCCs) or otolith membrane (maculae) → bends stereocilia toward or away from kinocilium</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot">3</div>
+        <div class="timeline-content">
+          <div class="timeline-label">Ionic Response ⚠️</div>
+          <div class="timeline-text">Toward kinocilium → K⁺ channels open → K⁺ influx → depolarization. Away → channels close → hyperpolarization</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot">4</div>
+        <div class="timeline-content">
+          <div class="timeline-label">Vestibular Nerve</div>
+          <div class="timeline-text">Changed firing rate travels from vestibular ganglion along CN VIII to the vestibular nucleus in the brainstem</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot">5</div>
+        <div class="timeline-content">
+          <div class="timeline-label">Central Processing</div>
+          <div class="timeline-text">Vestibular nucleus distributes signals to spinal cord (posture), reticular formation (autonomics), cerebellum, and extraocular motor nuclei</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot">6</div>
+        <div class="timeline-content">
+          <div class="timeline-label">Conscious Awareness</div>
+          <div class="timeline-text">Fibers pass to contralateral thalamus → somatic sensory cortex → conscious sense of equilibrium and spatial orientation</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Key Clinical Signs Grid -->
+    <div class="section-title" style="font-size:1.1rem">🎯 Key Concepts & Clinical Pearls</div>
+    <div class="key-signs-grid">
+      <div class="sign-card">
+        <div class="sign-icon">⚡</div>
+        <div class="sign-title">K⁺ Depolarization</div>
+        <div class="sign-desc">Depolarization via K⁺ influx (not Na⁺!) because endolymph is K⁺-rich like ICF.</div>
+        <span class="tag tag-exam">⚠️ Exam</span><span class="tag tag-high">High-Yield</span>
+      </div>
+      <div class="sign-card">
+        <div class="sign-icon">🌀</div>
+        <div class="sign-title">Basal Discharge Rate</div>
+        <div class="sign-desc">At rest (head erect, stationary), hair cells maintain a symmetrical basal rate of discharge, signaling the normal position.</div>
+        <span class="tag tag-pearl">Clinical Pearl</span>
+      </div>
+      <div class="sign-card">
+        <div class="sign-icon">🏃</div>
+        <div class="sign-title">Inertia vs Momentum</div>
+        <div class="sign-desc">Inertia acts at <em>onset</em> of acceleration (opposite direction). Momentum acts at <em>deceleration</em> (same direction).</div>
+        <span class="tag tag-exam">⚠️ Exam</span>
+      </div>
+      <div class="sign-card">
+        <div class="sign-icon">👁️</div>
+        <div class="sign-title">Post-Rotatory Vertigo</div>
+        <div class="sign-desc">Felt 20–30 sec after stopping rotation. Caused by endolymph momentum bending cupula — sensation of spinning in opposite direction.</div>
+        <span class="tag tag-high">High-Yield</span><span class="tag tag-exam">⚠️ Exam</span>
+      </div>
+      <div class="sign-card">
+        <div class="sign-icon">🔗</div>
+        <div class="sign-title">MLF Connection</div>
+        <div class="sign-desc">Medial Longitudinal Fasciculus connects vestibular nucleus to CN III, IV, VI nuclei — basis of nystagmus & VOR.</div>
+        <span class="tag tag-pearl">Clinical Pearl</span>
+      </div>
+      <div class="sign-card">
+        <div class="sign-icon">🌊</div>
+        <div class="sign-title">Meniere's Disease</div>
+        <div class="sign-desc">Excess endolymph causes <em>asymmetrical & excessive</em> stimulation of SCCs → vertigo, nystagmus, tinnitus.</div>
+        <span class="tag tag-high">High-Yield</span>
+      </div>
+      <div class="sign-card">
+        <div class="sign-icon">🤢</div>
+        <div class="sign-title">Motion Sickness Triad</div>
+        <div class="sign-desc">Bradycardia + Hypotension + Nausea/Vomiting/Sweating = autonomic connections via reticular formation.</div>
+        <span class="tag tag-exam">⚠️ Written Q</span>
+      </div>
+      <div class="sign-card">
+        <div class="sign-icon">💎</div>
+        <div class="sign-title">Otoconia</div>
+        <div class="sign-desc">Calcium carbonate crystals in the otolith membrane of the macula. Their mass increases gravitational sensitivity.</div>
+        <span class="tag tag-pearl">Clinical Pearl</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ QUIZ TAB ══ -->
+  <div class="tab-panel" id="tab-quiz">
+    <div class="section-title">🧪 Quiz Mode</div>
+    <div class="section-sub">25 exam-style MCQs — answer to reveal explanations and track your streak</div>
+
+    <div class="quiz-header">
+      <div class="quiz-meta">
+        <div class="quiz-meta-item">
+          <div>
+            <div class="val" id="qScore">0</div>
+            <div class="lbl">Score</div>
+          </div>
+        </div>
+        <div class="quiz-meta-item">
+          <div>
+            <div class="val" id="qStreak">0</div>
+            <div class="lbl">Streak 🔥</div>
+          </div>
+        </div>
+        <div class="quiz-meta-item">
+          <div>
+            <div class="val" id="qAnswered">0</div>
+            <div class="lbl">Answered</div>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-outline" onclick="resetQuiz()">↺ Reset Quiz</button>
+    </div>
+    <div style="margin-bottom:20px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-bottom:6px">
+        <span>Progress</span><span id="qProgressPct">0%</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="qProgressBar" style="width:0%"></div></div>
+    </div>
+    <div id="quizContainer"></div>
+    <div style="margin-top:20px;text-align:center">
+      <button class="btn" onclick="showScoreModal()">📊 See Final Score</button>
+    </div>
+  </div>
+
+  <!-- ══ FLASHCARDS TAB ══ -->
+  <div class="tab-panel" id="tab-flashcards">
+    <div class="section-title">🃏 Flashcards</div>
+    <div class="section-sub">Click any card to flip and reveal the answer — 22 essential concepts</div>
+    <div class="motivation-banner">
+      <span class="mot-icon">🎯</span>
+      <span>Tap a card to flip it. Track which concepts you've mastered!</span>
+    </div>
+    <div class="flashcards-grid" id="flashcardsGrid"></div>
+  </div>
+
+  <!-- ══ CLINICAL CASES TAB ══ -->
+  <div class="tab-panel" id="tab-cases">
+    <div class="section-title">🏥 Clinical Cases</div>
+    <div class="section-sub">Exam-style vignettes — apply your knowledge to real clinical scenarios</div>
+    <div id="casesContainer"></div>
+  </div>
+
+  <!-- ══ PATHOPHYSIOLOGY TAB ══ -->
+  <div class="tab-panel" id="tab-pathophys">
+    <div class="section-title">⚙️ Anatomy & Pathophysiology</div>
+    <div class="section-sub">Clickable structures + step-by-step mechanistic flow charts</div>
+
+    <div class="section-title" style="font-size:1rem;margin-bottom:12px">🏗️ Click a Structure to Explore</div>
+    <div class="pathophys-grid" id="structGrid"></div>
+    <div class="struct-detail" id="structDetail"></div>
+
+    <hr class="divider">
+
+    <div class="section-title" style="font-size:1rem;margin-bottom:4px">📊 Flow Charts</div>
+    <p class="section-sub">Step-by-step mechanistic pathways</p>
+
+    <div class="flowchart">
+      <div class="flow-title">⚡ Hair Cell Depolarization Pathway</div>
+      <div class="flow-steps" id="flowDepol"></div>
+    </div>
+
+    <div class="flowchart">
+      <div class="flow-title">🌀 Angular Acceleration — Onset of Rotation (Right)</div>
+      <div class="flow-steps" id="flowRotation"></div>
+    </div>
+
+    <div class="flowchart">
+      <div class="flow-title">🛑 Post-Rotatory Vertigo — Deceleration</div>
+      <div class="flow-steps" id="flowVertigo"></div>
+    </div>
+  </div>
+
+  <!-- ══ MECHANISMS TAB ══ -->
+  <div class="tab-panel" id="tab-mechanisms">
+    <div class="section-title">🔬 Key Mechanisms & Comparisons</div>
+    <div class="section-sub">Comparison tables and mechanistic details for each receptor system</div>
+
+    <div class="section-title" style="font-size:1rem;margin-bottom:12px">📋 Crista Ampullaris vs Macula</div>
+    <div style="overflow-x:auto;margin-bottom:28px">
+      <table class="mech-table">
+        <thead>
+          <tr><th>Feature</th><th>Crista Ampullaris</th><th>Macula</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Location</td><td>Ampulla of semicircular canals</td><td>Utricle and saccule</td></tr>
+          <tr><td>Detects</td><td>Angular acceleration (rotation)</td><td>Linear acceleration + gravity (head position)</td></tr>
+          <tr><td>Covering</td><td>Gelatinous <strong>Cupula</strong> (no crystals)</td><td><strong>Otolith membrane</strong> with Otoconia (CaCO₃)</td></tr>
+          <tr><td>Hair cell orientation</td><td>Uniform — all cells same direction within one crista</td><td>Varies regionally — creates directional specificity</td></tr>
+          <tr><td>Kinocilium position</td><td>Horizontal SCC: toward utricle | Vertical SCC: away from utricle</td><td>Variable by region</td></tr>
+          <tr><td>Example stimulus</td><td>Spinning in a chair, sudden turn of head</td><td>Car acceleration, elevator ride, head tilt</td></tr>
+          <tr><td>Constant speed</td><td>NOT detected (cupula returns to rest)</td><td>NOT detected (endolymph equilibrates)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title" style="font-size:1rem;margin-bottom:12px">📋 Stereocilia vs Kinocilium</div>
+    <div style="overflow-x:auto;margin-bottom:28px">
+      <table class="mech-table">
+        <thead>
+          <tr><th>Feature</th><th>Stereocilia</th><th>Kinocilium</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Number</td><td>Numerous (many per cell)</td><td>Single (one per cell)</td></tr>
+          <tr><td>Size</td><td>Short, thin</td><td>Long, thick</td></tr>
+          <tr><td>Mobility</td><td>Motile — deflect in response to fluid</td><td>Tough / stiff — reference point</td></tr>
+          <tr><td>Function</td><td>Primary mechanical sensor; opens K⁺ channels when deflected toward kinocilium</td><td>Structural polarity marker — determines direction of depolarization</td></tr>
+          <tr><td>Result of toward-bending</td><td>K⁺ channels open → K⁺ influx → Depolarization</td><td>N/A (reference structure)</td></tr>
+          <tr><td>Result of away-bending</td><td>K⁺ channels close → Hyperpolarization</td><td>N/A</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title" style="font-size:1rem;margin-bottom:12px">📋 Vestibular Nucleus Output Targets</div>
+    <div style="overflow-x:auto;margin-bottom:28px">
+      <table class="mech-table">
+        <thead>
+          <tr><th>Target</th><th>Pathway</th><th>Function / Reflex</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Spinal cord</td><td>Vestibulospinal tract</td><td>Muscle tone control, postural reflexes, anti-fall responses</td></tr>
+          <tr><td>Reticular formation</td><td>Reticulospinal tract</td><td>Autonomic reflexes — bradycardia, hypotension, nausea, vomiting, sweating (motion sickness)</td></tr>
+          <tr><td>Somatic sensory cortex</td><td>Contralateral thalamus</td><td>Conscious awareness of equilibrium and spatial orientation</td></tr>
+          <tr><td>Cerebellum</td><td>Cerebellar peduncles</td><td>Postural coordination and fine-tuning of balance</td></tr>
+          <tr><td>CN III, IV, VI nuclei</td><td>Medial Longitudinal Fasciculus (MLF)</td><td>Vestibulo-ocular reflex (VOR), nystagmus, gaze stabilization</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title" style="font-size:1rem;margin-bottom:12px">📋 Inertia vs Momentum in Vestibular Detection</div>
+    <div style="overflow-x:auto">
+      <table class="mech-table">
+        <thead>
+          <tr><th>Phase</th><th>Physical Law</th><th>Endolymph Direction</th><th>Sensation</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Onset of acceleration (forward)</td><td>Inertia</td><td>Displaced opposite to movement</td><td>Start of acceleration; sensation of moving backward</td></tr>
+          <tr><td>Constant speed</td><td>None (equilibrium)</td><td>Returns to baseline</td><td>No sensation of movement</td></tr>
+          <tr><td>Deceleration / stoppage</td><td>Momentum</td><td>Displaced same direction as original movement</td><td>False sensation of counter-movement (post-rotatory vertigo)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ MANIFESTATIONS TAB ══ -->
+  <div class="tab-panel" id="tab-manifestations">
+    <div class="section-title">⚡ Clinical Manifestations</div>
+    <div class="section-sub">Effects of excessive or asymmetrical vestibular stimulation</div>
+
+    <div class="motivation-banner">
+      <span class="mot-icon">⚠️</span>
+      <span><strong>Exam written question:</strong> "These manifestations include…" — learn all four categories: Vertigo, Nystagmus, Autonomic reactions, Changes in muscle tone</span>
+    </div>
+
+    <div class="manif-grid">
+      <div class="manif-card">
+        <div class="manif-icon">🌀</div>
+        <div class="manif-name">Vertigo</div>
+        <div class="manif-desc">A <strong>false sensation of rotational movement</strong>. The brain misinterprets an asymmetrical discharge pattern as genuine rotation. Occurs after sudden stoppage of rotation or in labyrinthine disease.</div>
+        <div class="manif-mechanism"><strong>Mechanism:</strong> Asymmetrical discharge from both vestibular apparatuses → cortex interprets as rotation</div>
+      </div>
+      <div class="manif-card teal-top">
+        <div class="manif-icon">👁️</div>
+        <div class="manif-name">Nystagmus</div>
+        <div class="manif-desc">Rapid, oscillatory eye movements. Has a slow phase (VOR attempt to stabilize gaze) and a fast corrective phase. Direction named after fast phase.</div>
+        <div class="manif-mechanism"><strong>Mechanism:</strong> Asymmetrical vestibular input → vestibular nucleus → MLF → CN III, IV, VI nuclei → rhythmic extraocular muscle contractions</div>
+      </div>
+      <div class="manif-card gold-top">
+        <div class="manif-icon">🤢</div>
+        <div class="manif-name">Motion Sickness</div>
+        <div class="manif-desc">The classic triad: <strong>Bradycardia, Hypotension</strong> (cardiovascular), plus <strong>Nausea, Vomiting, Profuse Sweating</strong> (GI/autonomic). Triggered by unusual or excessive patterns of vestibular stimulation.</div>
+        <div class="manif-mechanism"><strong>Mechanism:</strong> Vestibular nucleus → reticular formation autonomic centers → parasympathetic/sympathetic dysregulation</div>
+      </div>
+      <div class="manif-card violet-top">
+        <div class="manif-icon">💪</div>
+        <div class="manif-name">Muscle Tone Changes</div>
+        <div class="manif-desc">Altered tonus of skeletal muscles, especially those maintaining posture. The system attempts to counter perceived falling by increasing tone in anti-gravity muscles.</div>
+        <div class="manif-mechanism"><strong>Mechanism:</strong> Vestibular nucleus → vestibulospinal tract → spinal motor neurons → postural muscle adjustment</div>
+      </div>
+      <div class="manif-card green-top">
+        <div class="manif-icon">🛑</div>
+        <div class="manif-name">Post-Rotatory Vertigo</div>
+        <div class="manif-desc">Appears <strong>20–30 seconds after stopping rotation</strong>. Endolymph momentum continues moving after body stops, bending cupula "in reverse" — creating a false counter-rotation sensation.</div>
+        <div class="manif-mechanism"><strong>Mechanism:</strong> Endolymph momentum → cupula deflection opposite to recent rotation → asymmetrical discharge → false counter-rotation percept</div>
+      </div>
+      <div class="manif-card">
+        <div class="manif-icon">🩺</div>
+        <div class="manif-name">Menière's Disease</div>
+        <div class="manif-desc">Excess endolymph (endolymphatic hydrops) causing episodic: <strong>Vertigo + Nystagmus + Tinnitus + Hearing loss</strong>. Classic example of asymmetrical excessive SCC stimulation.</div>
+        <div class="manif-mechanism"><strong>Mechanism:</strong> Endolymphatic hydrops → asymmetrical & excessive stimulation of SCCs → unpredictable bursts of vertigo</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section-title" style="font-size:1rem;margin-bottom:12px">🎯 Nystagmus Types Comparison</div>
+    <div style="overflow-x:auto">
+      <table class="mech-table">
+        <thead>
+          <tr><th>Type</th><th>Trigger</th><th>Mechanism</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Rotational Nystagmus</td><td>Sudden angular acceleration (e.g., spinning chair)</td><td>Asymmetrical SCC discharge → MLF → extraocular nuclei</td></tr>
+          <tr><td>Post-Rotatory Nystagmus</td><td>Sudden stopping after rotation</td><td>Endolymph momentum → reversed cupula deflection</td></tr>
+          <tr><td>Optokinetic (Kinetic) Nystagmus</td><td>Following rapidly moving visual objects</td><td>Visual tracking reflex — driven by visual input during movement</td></tr>
+          <tr><td>Pathological Nystagmus</td><td>Labyrinthitis, Menière's, MLF lesions</td><td>Spontaneous asymmetrical discharge without head movement</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ MNEMONICS TAB ══ -->
+  <div class="tab-panel" id="tab-mnemonics">
+    <div class="section-title">🧩 Mnemonics</div>
+    <div class="section-sub">6 custom mnemonics designed from your lecture content — expand each for full detail</div>
+    <div id="mnemonicsContainer"></div>
+  </div>
+
+</div><!-- /app -->
+
+<!-- Score Modal -->
+<div class="modal-overlay" id="scoreModal" onclick="this.classList.remove('show')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-emoji" id="modalEmoji">🎉</div>
+    <div class="modal-title" id="modalTitle">Quiz Complete!</div>
+    <div class="modal-score" id="modalScore">0/25</div>
+    <div class="modal-sub" id="modalSub">Keep practising to master vestibular physiology!</div>
+    <button class="btn" onclick="document.getElementById('scoreModal').classList.remove('show')">Close</button>
+    <button class="btn btn-outline" onclick="resetQuiz();document.getElementById('scoreModal').classList.remove('show')" style="margin-left:10px">↺ Retry</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════
+
+const QUIZ_DATA = [
+  {
+    q: "Which of the following ions is responsible for the depolarization of vestibular hair cells?",
+    opts: ["Sodium (Na⁺)", "Calcium (Ca²⁺)", "Potassium (K⁺)", "Chloride (Cl⁻)", "Magnesium (Mg²⁺)"],
+    correct: 2,
+    why: "Bending of stereocilia towards the kinocilium opens mechanically gated K⁺ channels, leading to K⁺ influx. This is an important exception — depolarization via K⁺, not Na⁺, because the endolymph is K⁺-rich (similar to ICF)."
+  },
+  {
+    q: "What is the state of vestibular hair cell discharge during rest (no deflection of cilia)?",
+    opts: ["Complete inhibition", "Maximum discharge", "A basal rate of discharge", "Fluctuating bursts", "Action potentials cannot occur"],
+    correct: 2,
+    why: "Even at complete rest, hair cells maintain a basal (spontaneous) rate of discharge. This baseline signals the upright head position and allows both increases (depolarization) and decreases (hyperpolarization) to be detected."
+  },
+  {
+    q: "Bending of stereocilia AWAY from the kinocilium results in:",
+    opts: ["Depolarization", "Hyperpolarization", "K⁺ influx", "Increased rate of discharge", "Opening of mechanically gated channels"],
+    correct: 1,
+    why: "Bending away from the kinocilium closes K⁺ channels, preventing K⁺ influx. This results in hyperpolarization and inhibition of vestibular nerve fiber discharge."
+  },
+  {
+    q: "In the HORIZONTAL semicircular canal, where is the kinocilium located relative to the utricle?",
+    opts: ["Away from the utricle", "Towards the utricle", "Superior to the utricle", "In the center of the crista", "Randomly oriented"],
+    correct: 1,
+    why: "In horizontal SCCs, the kinocilium faces TOWARD the utricle. In vertical SCCs, the orientation is reversed — kinocilium faces AWAY from the utricle. This distinction determines the direction of response to cupula deflection."
+  },
+  {
+    q: "Deflection of the cupula TOWARD the utricle in the horizontal semicircular canal causes:",
+    opts: ["Hyperpolarization of all hair cells", "Inhibition of vestibular nerve fibers", "Depolarization of all hair cells", "No change in impulse discharge", "Opening of sodium channels"],
+    correct: 2,
+    why: "Since the kinocilium is oriented toward the utricle in horizontal SCCs, a cupula deflection in that direction bends stereocilia toward the kinocilium → K⁺ channels open → depolarization → increased discharge."
+  },
+  {
+    q: "At the ONSET of linear acceleration, what physical property causes the maculae to be displaced in the OPPOSITE direction?",
+    opts: ["Momentum", "Gravity", "Inertia", "Viscosity", "Capillary action"],
+    correct: 2,
+    why: "Inertia causes the maculae (and the fluid/membrane) to lag behind during the onset of acceleration, displacing them opposite to the direction of movement. Momentum, by contrast, acts during deceleration."
+  },
+  {
+    q: "Which part of the vestibular apparatus is responsible for detecting LINEAR acceleration?",
+    opts: ["Semicircular canals", "Crista ampullaris", "Cupula", "Maculae (utricle & saccule)", "Cochlea"],
+    correct: 3,
+    why: "The maculae in the utricle and saccule detect linear acceleration and the absolute position of the head in space (gravity). The semicircular canals/crista detect angular (rotational) acceleration."
+  },
+  {
+    q: "After 20 seconds of CONSTANT SPEED rotation, what happens to the endolymph and cupulae?",
+    opts: ["Endolymph flows faster than canals", "Cupula is maximally deflected", "Endolymph matches canal speed; cupulae return to original position", "Discharge rate remains maximum", "Hyperpolarization becomes irreversible"],
+    correct: 2,
+    why: "During constant speed rotation, the endolymph eventually reaches the same speed as the canal walls. The relative movement ceases, the cupula returns to its resting position, and discharge returns to basal level — constant speed is NOT detected."
+  },
+  {
+    q: "Post-rotatory vertigo is caused by:",
+    opts: ["Inertia of endolymph at start of rotation", "Momentum of endolymph on deceleration", "Gravity acting on the otolith membrane", "Spontaneous discharge of the maculae", "Ischemia of the vestibular ganglion"],
+    correct: 1,
+    why: "On sudden deceleration, the body stops but the endolymph continues moving due to momentum. This bends the cupula in a direction opposite to its previous deflection, creating a false sensation of counter-rotation — post-rotatory vertigo."
+  },
+  {
+    q: "The orientation of hair cells in the MACULAE is:",
+    opts: ["All arranged in the exact same direction", "All kinocilia pointing inferiorly", "NOT all arranged in the same direction — varies by region", "Always pointing towards the ampulla", "Identical to crista arrangement"],
+    correct: 2,
+    why: "In the maculae, hair cells are not uniformly oriented. Their direction varies from region to region. This means ANY displacement will stimulate some cells and inhibit others, producing a unique pattern for each direction."
+  },
+  {
+    q: "Vestibular hair cells are classified as which type of receptor?",
+    opts: ["Chemoreceptors", "Photoreceptors", "Mechanoreceptors", "Thermoreceptors", "Nociceptors"],
+    correct: 2,
+    why: "The crista ampullaris and macula are specific mechanoreceptors. They respond to mechanical deformation (bending of cilia) rather than chemical, light, heat, or pain stimuli."
+  },
+  {
+    q: "Which structure fills the membranous labyrinth of the vestibular apparatus?",
+    opts: ["Perilymph", "Endolymph", "Plasma", "CSF", "Interstitial fluid"],
+    correct: 1,
+    why: "The sacs and canals contain endolymph, a fluid unusually rich in K⁺ (unlike ECF). This K⁺-rich environment is what makes the hair cell depolarization mechanism unique."
+  },
+  {
+    q: "The GELATINOUS covering of the maculae is uniquely rich in:",
+    opts: ["Sodium crystals", "Potassium crystals", "Calcium carbonate crystals", "Magnesium sulfate", "Hyaluronic acid"],
+    correct: 2,
+    why: "The otolith membrane of the macula contains calcium carbonate crystals called Otoconia. These add mass to the membrane, increasing its sensitivity to gravitational pull and linear acceleration."
+  },
+  {
+    q: "The mother cells (neuronal cell bodies) of the vestibular nerve fibers are located in the:",
+    opts: ["Vestibular nucleus", "Spiral ganglion", "Vestibular ganglion", "Thalamus", "Cerebellum"],
+    correct: 2,
+    why: "The cell bodies of vestibular afferent neurons are in the vestibular ganglion (also known as Scarpa's ganglion). Their peripheral branches innervate the hair cells; central branches travel to the vestibular nucleus."
+  },
+  {
+    q: "The vestibular nucleus sends fibers to which cranial nerve nuclei to control eye movement?",
+    opts: ["CN II, III, IV", "CN III, IV, VI", "CN V, VII, IX", "CN III, IV, V", "CN IV, VI, VIII"],
+    correct: 1,
+    why: "The vestibular nucleus projects to the nuclei of CN III (oculomotor), IV (trochlear), and VI (abducens) via the Medial Longitudinal Fasciculus (MLF). These three cranial nerves collectively control all extraocular muscles."
+  },
+  {
+    q: "Which pathway connects the vestibular apparatus to the SOMATIC SENSORY CORTEX for conscious awareness?",
+    opts: ["Vestibulospinal tract", "Reticulospinal tract", "Medial Longitudinal Fasciculus", "Fibers through the contralateral thalamus", "Cerebellar peduncles"],
+    correct: 3,
+    why: "Fibers from the vestibular nucleus pass to the contralateral thalamus, and from there to the somatic sensory cortex for conscious perception of equilibrium. The vestibulospinal tract handles posture; the MLF handles eye movement."
+  },
+  {
+    q: "Motion sickness (bradycardia, hypotension, nausea) is mediated by connections between the vestibular apparatus and the:",
+    opts: ["Cerebellum", "Somatic sensory cortex", "Reticular formation", "Medial Longitudinal Fasciculus", "Spinal cord"],
+    correct: 2,
+    why: "The autonomic reactions of motion sickness arise because the vestibular nucleus projects to the brainstem reticular formation, which houses autonomic centers. Overstimulation triggers bradycardia, hypotension, nausea, vomiting, and sweating."
+  },
+  {
+    q: "Oscillatory movement of the eyeballs due to ASYMMETRICAL vestibular stimulation is called:",
+    opts: ["Vertigo", "Menière's sign", "Nystagmus", "Motion sickness", "Hyperpolarization"],
+    correct: 2,
+    why: "Nystagmus is the term for oscillatory (back-and-forth) eye movements. It consists of a slow phase driven by the VOR and a fast corrective phase. It results from asymmetrical firing to the extraocular motor nuclei via the MLF."
+  },
+  {
+    q: "Each semicircular canal on one side corresponds to one SCC on the OPPOSITE side because they:",
+    opts: ["Share the same endolymph supply", "Are innervated by the same ganglion", "Lie in the same geometric plane", "Have identical hair cell orientation", "Are both horizontal"],
+    correct: 2,
+    why: "Co-planar SCCs: each canal on one side lies in the exact same geometric plane as one canal on the opposite side. They form functional pairs that act together — one side depolarizes while the mirror-side hyperpolarizes."
+  },
+  {
+    q: "When the head is ERECT and STATIONARY, the discharge from both maculae is:",
+    opts: ["Zero", "Asymmetrical", "Symmetrical", "Hyperpolarized", "Rapidly fluctuating"],
+    correct: 2,
+    why: "When the head is erect and stationary, both maculae are exposed to the same gravitational force equally, producing symmetrical discharge from both sides. This symmetry signals the normal upright position to the brain."
+  },
+  {
+    q: "The gelatinous covering in the CRISTA AMPULLARIS (spanning the entire ampulla) is called the:",
+    opts: ["Otolith membrane", "Cupula", "Otoconia layer", "Utricle", "Vestibular ganglion"],
+    correct: 1,
+    why: "The cupula is the dome-shaped gelatinous structure that fills the ampulla and in which the stereocilia of crista hair cells are embedded. Unlike the otolith membrane, it contains NO calcium crystals."
+  },
+  {
+    q: "Menière's disease causes vertigo and nystagmus through which primary mechanism?",
+    opts: ["Loss of endolymph", "Destruction of visual cortex", "Asymmetrical & excessive stimulation of SCCs", "Calcium carbonate crystal dissolution", "Paralysis of CN III, IV, VI"],
+    correct: 2,
+    why: "Menière's disease involves excessive endolymph accumulation (hydrops) causing asymmetrical and excessive stimulation of the SCCs. This drives the vestibular nucleus to fire asymmetrically → vertigo and nystagmus."
+  },
+  {
+    q: "Optokinetic (kinetic) nystagmus is triggered by:",
+    opts: ["Spontaneous labyrinthitis", "Following rapidly moving visual objects while moving", "Changes in endolymph K⁺ concentration", "Rapid head rotation in the dark", "Dislodged otoconia (BPPV)"],
+    correct: 1,
+    why: "Optokinetic nystagmus occurs when a person follows rapidly moving visual objects — the eyes track slowly then snap back quickly. It relies on visual tracking during movement, distinct from vestibular-driven rotational nystagmus."
+  },
+  {
+    q: "A person accelerating in a car feels as if they are moving BACKWARD at the start. This sensation is due to:",
+    opts: ["Excessive firing of the crista ampullaris", "Gravity acting on the utricle", "Inertia displacing the maculae in the opposite direction", "Momentum pushing the cupula forward", "Decreased discharge from the vestibular ganglion"],
+    correct: 2,
+    why: "At the onset of forward acceleration, inertia causes the otolith membrane to lag behind, displacing the maculae backward. The brain interprets this discharge pattern as a sensation of moving backward (or the world tilting forward)."
+  },
+  {
+    q: "If endolymph K⁺ concentration were experimentally reduced to near-zero, the main consequence would be:",
+    opts: ["Maximum continuous depolarization", "Increased action potential frequency", "Complete loss of hair cell depolarization", "Conversion to Na⁺-driven depolarization", "Uncontrolled nystagmus"],
+    correct: 2,
+    why: "Vestibular hair cell depolarization depends critically on K⁺ influx from the K⁺-rich endolymph. If K⁺ is removed, there is no driving force for K⁺ to enter the cell when channels open — depolarization cannot occur, and all vestibular sensation is lost."
+  }
+];
+
+const FLASHCARD_DATA = [
+  { q: "What is the vestibular apparatus and where is it located?", a: "<strong>Non-auditory part</strong> of the inner ear labyrinth. Located in the <strong>petrous portion of the temporal bone</strong> at the skull base." },
+  { q: "Name the two receptor organs and their locations", a: "<strong>Macula</strong> → in the utricle & saccule (otolith organs). <strong>Crista ampullaris</strong> → in the ampulla of each semicircular canal." },
+  { q: "What do the maculae detect vs the crista ampullaris?", a: "<strong>Maculae:</strong> Linear acceleration + head position (gravity). <strong>Crista ampullaris:</strong> Angular acceleration (rotation)." },
+  { q: "What ion causes depolarization of hair cells and WHY is it unusual?", a: "<strong>K⁺ (Potassium)</strong> causes depolarization — unusual because typical neurons use Na⁺. The endolymph is K⁺-rich (like ICF), so K⁺ flows in when channels open." },
+  { q: "What are the two types of cilia on vestibular hair cells?", a: "<strong>Stereocilia:</strong> Numerous, short, thin, motile. <strong>Kinocilium:</strong> Single, long, thick, stiff. Stereocilia bend toward kinocilium = depolarization." },
+  { q: "What is the 'basal rate of discharge' and why is it important?", a: "A spontaneous firing rate present even at rest. Allows the system to detect BOTH increases (depolarization) and decreases (hyperpolarization), not just one direction." },
+  { q: "What are Otoconia and where are they found?", a: "<strong>Calcium carbonate crystals</strong> embedded in the otolith membrane of the macula (utricle & saccule). Their mass increases gravitational sensitivity." },
+  { q: "What is the cupula and how does it differ from the otolith membrane?", a: "The <strong>cupula</strong> is the gelatinous dome filling the ampulla of SCCs — contains NO crystals. The <strong>otolith membrane</strong> in maculae DOES contain Otoconia." },
+  { q: "Inertia vs Momentum: which acts at onset vs deceleration?", a: "<strong>Inertia</strong> acts at ONSET → displaces endolymph OPPOSITE to movement. <strong>Momentum</strong> acts at DECELERATION → displaces endolymph SAME direction as original movement." },
+  { q: "What is post-rotatory vertigo and when does it occur?", a: "A false sense of <strong>counter-rotation</strong> occurring <strong>20–30 seconds after stopping rotation</strong>. Caused by endolymph momentum continuing to push the cupula after the body stops." },
+  { q: "Name the 5 destinations of fibers from the Vestibular Nucleus", a: "1. Spinal cord (vestibulospinal) | 2. Reticular formation | 3. Contralateral thalamus → cortex | 4. Cerebellum | 5. CN III, IV, VI nuclei (via MLF)" },
+  { q: "What pathway connects vestibular nucleus to eye movement nuclei?", a: "<strong>Medial Longitudinal Fasciculus (MLF)</strong> connects vestibular nucleus to CN III (oculomotor), IV (trochlear), VI (abducens) nuclei." },
+  { q: "What are the 4 manifestations of excessive vestibular stimulation?", a: "1. Vertigo | 2. Nystagmus | 3. Autonomic reactions (Motion Sickness) | 4. Changes in muscle tone" },
+  { q: "List the autonomic features of motion sickness", a: "<strong>Bradycardia + Hypotension</strong> (cardiovascular) + <strong>Nausea + Vomiting + Profuse Sweating</strong> (GI/autonomic) — all via reticular formation connections." },
+  { q: "What is nystagmus and what causes it?", a: "Oscillatory eye movements. <strong>Cause:</strong> Asymmetrical vestibular discharge → MLF → asymmetrical firing to CN III/IV/VI nuclei → rhythmic extraocular contractions." },
+  { q: "What is the co-planar canal rule?", a: "Each SCC on one side lies in the <strong>same geometric plane</strong> as one SCC on the opposite side. They form functional pairs — one depolarizes as its mirror-side hyperpolarizes." },
+  { q: "Kinocilium direction in horizontal vs vertical SCCs?", a: "<strong>Horizontal SCC:</strong> Kinocilium toward the utricle (utriculopetal). <strong>Vertical SCC:</strong> Kinocilium away from utricle (utriculofugal)." },
+  { q: "What is Menière's disease and its mechanism?", a: "Excess endolymph (<strong>endolymphatic hydrops</strong>) → asymmetrical excessive SCC stimulation → episodic vertigo + nystagmus + tinnitus + hearing loss." },
+  { q: "Why can't constant speed be detected by the vestibular system?", a: "At constant speed, the endolymph eventually matches the canal wall speed — no relative fluid movement → cupula/otolith returns to rest position → discharge returns to basal level." },
+  { q: "Where are the vestibular afferent cell bodies located?", a: "In the <strong>Vestibular Ganglion</strong> (Scarpa's ganglion). Peripheral branches go to hair cells; central branches go to the vestibular nucleus." },
+  { q: "What is the vestibulospinal tract responsible for?", a: "Maintains <strong>muscle tone and postural reflexes</strong>. Carries vestibular commands to spinal motor neurons to prevent falling during movement." },
+  { q: "What happens to discharge symmetry when the head tilts?", a: "The gravitational pull on the otolith membrane becomes <strong>asymmetrical</strong>, stimulating some macular regions and inhibiting others — creating a unique pattern identifying the tilt angle and direction." }
+];
+
+const CASES_DATA = [
+  {
+    num: "01",
+    title: "The Rotational Chair Experiment",
+    vignette: "A physiology student is placed in a rotational chair and spun to the right at increasing speed. After 40 seconds of constant rotation, the chair is abruptly stopped. The student reports feeling like the room is spinning to the LEFT, exhibits rhythmic eye movements, and is nauseated.",
+    questions: [
+      {
+        q: "Q1: During the onset of rightward rotation, what happens to the right and left SCCs?",
+        a: "<strong>Right (ipsilateral) crista:</strong> Endolymph inertia lags left → cupula deflects toward utricle (in horizontal SCC) → stereocilia bend toward kinocilium → <strong>Depolarization → Increased discharge</strong>.<br><br><strong>Left (contralateral) crista:</strong> Mirror-plane partner experiences opposite deflection → stereocilia away from kinocilium → <strong>Hyperpolarization → Decreased discharge</strong>.<br><br>This asymmetrical pattern signals rightward rotation to the cortex."
+      },
+      {
+        q: "Q2: Why did the student feel the room spinning LEFT after the chair stopped?",
+        a: "<strong>Post-rotatory vertigo</strong> due to endolymph momentum. After sudden stoppage, the endolymph continues moving rightward (same direction as the original spin) due to momentum. This pushes the cupulae in a direction that is the OPPOSITE of the onset phase — the brain interprets this new asymmetric discharge as leftward rotation. The sensation lasts 20–30 seconds until the endolymph settles."
+      },
+      {
+        q: "Q3: Explain the mechanism of nausea in this scenario.",
+        a: "The asymmetrical vestibular discharge reaches the vestibular nucleus, which sends strong projections to the <strong>brainstem reticular formation</strong>. This structure contains autonomic centers (cardiovascular and GI). Excessive stimulation triggers parasympathetic/sympathetic dysregulation → bradycardia, hypotension, nausea, vomiting, and profuse sweating — the full picture of motion sickness."
+      }
+    ]
+  },
+  {
+    num: "02",
+    title: "The Car Passenger",
+    vignette: "A passenger in a car reports feeling as if they are being 'pushed backward into the seat' when the car accelerates from a traffic light. When the car brakes suddenly, they feel 'lurched forward' even after coming to a complete stop.",
+    questions: [
+      {
+        q: "Q1: Explain the 'pushed backward' sensation at the onset of acceleration.",
+        a: "At the onset of forward acceleration, <strong>inertia</strong> causes the otolith membrane of the maculae to lag behind the body's movement. This displaces the otolith membrane BACKWARD (opposite to acceleration). The resultant pattern of hair cell stimulation/inhibition is interpreted by the cortex as backward displacement or forward acceleration."
+      },
+      {
+        q: "Q2: Why do they feel 'lurched forward' after the car stops?",
+        a: "On deceleration, <strong>momentum</strong> carries the otolith membrane FORWARD (in the same direction as the original movement). This creates a new discharge pattern that the cortex interprets as forward movement — even though the body is now stationary. This is the linear analog of post-rotatory vertigo."
+      }
+    ]
+  },
+  {
+    num: "03",
+    title: "Endolymph K⁺ Experiment",
+    vignette: "In a laboratory experiment, a micropipette infuses a solution with near-zero K⁺ concentration into the endolymph space of an anesthetized animal. Within minutes, all detectable vestibular nerve discharge ceases completely, despite normal mechanical stimuli being applied.",
+    questions: [
+      {
+        q: "Q1: Explain the mechanism by which removing K⁺ abolishes vestibular sensation.",
+        a: "Vestibular hair cell depolarization depends entirely on <strong>K⁺ influx</strong> when stereocilia bend toward the kinocilium. The driving force for K⁺ entry is the HIGH concentration of K⁺ in the surrounding endolymph (similar to ICF). When endolymph K⁺ is eliminated, even if mechanically gated K⁺ channels open, there is no concentration gradient to drive K⁺ into the cell — <strong>depolarization cannot occur</strong>, and all vestibular nerve discharge ceases."
+      },
+      {
+        q: "Q2: Why is this ionic mechanism different from most sensory neurons?",
+        a: "Most sensory and neural depolarization occurs via <strong>Na⁺ influx</strong> because extracellular fluid is rich in Na⁺. In vestibular hair cells, this is reversed — the unique K⁺-rich endolymph creates the driving force for K⁺ to flow IN when channels open, causing depolarization. This is described as the notable exception: 'depolarization via K⁺, not Na⁺.'"
+      }
+    ]
+  },
+  {
+    num: "04",
+    title: "Motion Sickness on a Boat",
+    vignette: "A 28-year-old passenger on a small boat in choppy water develops severe nausea, vomits twice, and is found to have a heart rate of 52 bpm and blood pressure of 90/60 mmHg. He is pale and sweating profusely.",
+    questions: [
+      {
+        q: "Q1: What is the physiological basis of ALL findings in this patient?",
+        a: "This is <strong>motion sickness</strong> — an autonomic reaction to excessive/unusual vestibular stimulation.<br><br>• <strong>Nausea & Vomiting:</strong> GI autonomic effects via reticular formation → vagal stimulation<br>• <strong>Bradycardia (HR 52):</strong> Excessive parasympathetic activation via autonomic centers<br>• <strong>Hypotension (BP 90/60):</strong> Vasodilation + reduced cardiac output from autonomic dysregulation<br>• <strong>Profuse Sweating:</strong> Sympathetic activation of sweat glands<br><br>The common pathway: Vestibular nucleus → Brainstem <strong>reticular formation</strong> autonomic centers → combined autonomic storm."
+      },
+      {
+        q: "Q2: Which specific part of the vestibular pathway mediates these autonomic effects?",
+        a: "The <strong>vestibular nucleus → reticular formation</strong> connection. The reticular formation in the brainstem houses the cardiovascular center, vomiting center, and other autonomic regulatory areas. When the vestibular nucleus sends excessive or conflicting signals (as in choppy water), these centers are overstimulated, producing the clinical picture of motion sickness."
+      }
+    ]
+  },
+  {
+    num: "05",
+    title: "The Dancer's Nystagmus",
+    vignette: "A professional ballet dancer is examined after completing 10 rapid pirouettes and then coming to a sudden stop. The examiner observes rhythmic, lateral oscillations of the dancer's eyes for approximately 25 seconds. The dancer reports a brief spinning sensation during this period.",
+    questions: [
+      {
+        q: "Q1: Describe the complete neural pathway producing the observed eye movements.",
+        a: "<strong>Step 1:</strong> Sudden stop → Endolymph momentum bends cupulae asymmetrically (momentum effect)<br><strong>Step 2:</strong> Asymmetrical discharge from vestibular hair cells → vestibular ganglion → vestibular nucleus<br><strong>Step 3:</strong> Vestibular nucleus sends signals via the <strong>Medial Longitudinal Fasciculus (MLF)</strong><br><strong>Step 4:</strong> MLF activates CN III, IV, and VI nuclei asymmetrically<br><strong>Step 5:</strong> Rhythmic, alternating contraction of extraocular muscles → <strong>Nystagmus</strong>"
+      },
+      {
+        q: "Q2: Why does the nystagmus resolve after ~25 seconds?",
+        a: "As the endolymph gradually decelerates and comes to rest (momentum dissipates), the cupula returns to its neutral position. The asymmetric discharge normalizes back to the basal bilateral symmetrical rate. With no further asymmetrical input, the drive for nystagmus disappears and the eye movements stop. The 20–30 second duration is characteristic of post-rotatory nystagmus."
+      }
+    ]
+  },
+  {
+    num: "06",
+    title: "Menière's Disease Presentation",
+    vignette: "A 45-year-old accountant reports recurrent episodes (lasting 20–60 minutes each) of severe room-spinning, fluctuating right-sided hearing loss, and a roaring sound in the right ear. During attacks, his eyes show repetitive involuntary movements. No positional trigger is identified.",
+    questions: [
+      {
+        q: "Q1: What is the pathophysiological mechanism of this patient's episodic vertigo?",
+        a: "<strong>Diagnosis: Menière's Disease</strong><br><br>The mechanism involves <strong>endolymphatic hydrops</strong> — an abnormal accumulation of endolymph in the membranous labyrinth. This increased endolymph pressure causes SPONTANEOUS, asymmetrical, and excessive stimulation of the semicircular canals. The unequal discharge between right and left vestibular systems is interpreted by the cortex as rotational movement → vertigo.<br><br>The spontaneous nature (no positional trigger) distinguishes this from BPPV."
+      },
+      {
+        q: "Q2: Why does this patient also have hearing loss and tinnitus?",
+        a: "The endolymphatic hydrops affects BOTH the vestibular labyrinth AND the cochlea (they share the same endolymph space). The increased pressure distorts the cochlear hair cells, impairing the tonotopic frequency coding → <strong>fluctuating sensorineural hearing loss</strong>. The abnormal mechanical stimulation of cochlear structures also generates aberrant neural signals perceived as a roaring sound → <strong>tinnitus</strong>."
+      }
+    ]
+  }
+];
+
+const STRUCTURES_DATA = [
+  {
+    icon: "🐚",
+    name: "Utricle",
+    short: "Detects horizontal linear acceleration",
+    detail: "The utricle is the larger of the two otolith organs. Its macula lies primarily in the HORIZONTAL plane, making it most sensitive to horizontal linear acceleration (e.g., forward/backward car acceleration) and the tilt of the head from side to side. The otolith membrane with its Otoconia sags or shifts due to gravity and inertial forces."
+  },
+  {
+    icon: "🌙",
+    name: "Saccule",
+    short: "Detects vertical linear acceleration",
+    detail: "The saccule is the smaller otolith organ. Its macula lies primarily in the VERTICAL plane, making it most sensitive to vertical linear acceleration (e.g., going up/down in an elevator) and front-to-back head tilts. Together with the utricle, it provides complete coverage of all linear motion directions."
+  },
+  {
+    icon: "⭕",
+    name: "Semicircular Canals",
+    short: "3 canals detect angular acceleration",
+    detail: "Three canals: horizontal (lateral), anterior vertical, and posterior vertical. They are oriented roughly at 90° to each other, covering all planes of rotation. Each canal has an ampulla containing the crista ampullaris. Key fact: each canal has a co-planar partner on the opposite side. They ONLY detect onset and cessation of rotation — NOT constant speed."
+  },
+  {
+    icon: "🔘",
+    name: "Crista Ampullaris",
+    short: "SCC receptor — detects rotation",
+    detail: "Located in the ampulla of each SCC. Consists of hair cells with their stereocilia embedded in the gelatinous CUPULA — a dome-shaped structure filling the entire lumen of the ampulla. When rotation causes relative endolymph flow, the cupula is deflected, bending the stereocilia. NO calcium crystals — just gelatinous material."
+  },
+  {
+    icon: "🏔️",
+    name: "Macula",
+    short: "Otolith organ receptor — detects gravity & linear",
+    detail: "The receptor organ of the utricle and saccule. Consists of hair cells whose stereocilia are embedded in the OTOLITH MEMBRANE — a gelatinous layer topped with Otoconia (CaCO₃ crystals). The crystals add mass, making the membrane sensitive to gravity. Unlike crista, macular hair cells are NOT uniformly oriented — different regions respond to different directions."
+  },
+  {
+    icon: "☂️",
+    name: "Cupula",
+    short: "Gelatinous dome in the ampulla (SCCs)",
+    detail: "A dome-shaped gelatinous mass that fills the entire cross-section of the ampulla. Hair cell stereocilia are embedded within it. The cupula acts as a pendulum — deflected by relative endolymph flow during rotation. After constant speed is reached, the cupula springs back to center. Contains NO crystals — pure gelatinous protein matrix."
+  },
+  {
+    icon: "💎",
+    name: "Otoconia",
+    short: "CaCO₃ crystals — give weight to macula",
+    detail: "Calcium carbonate crystals embedded in the otolith membrane of the macula. Their extra mass increases the inertia and gravitational sensitivity of the otolith membrane. When the head tilts or accelerates linearly, these heavy crystals lag behind or shift, bending the macular hair cells beneath. Dislodged otoconia (moving into SCCs) can cause BPPV."
+  },
+  {
+    icon: "🧬",
+    name: "Hair Cells",
+    short: "Mechanoreceptor transducers",
+    detail: "The primary sensory cells. Each has numerous short stereocilia and ONE kinocilium. Bending stereocilia TOWARD kinocilium → K⁺ channels open → K⁺ influx (from K⁺-rich endolymph) → Depolarization → ↑ firing in vestibular nerve. Bending AWAY → K⁺ channels close → Hyperpolarization → ↓ firing. At rest, there is a constant basal firing rate."
+  }
+];
+
+const FLOW_DEPOL = [
+  "Head movement occurs (angular or linear)",
+  "Endolymph displaced relative to membranous labyrinth",
+  "Cupula (SCCs) or Otolith membrane (maculae) is deflected",
+  "Stereocilia BEND TOWARDS the kinocilium",
+  "Mechanically gated K⁺ channels OPEN",
+  "K⁺ INFLUX from K⁺-rich endolymph → Depolarization of hair cell",
+  "Increased rate of impulse discharge in Vestibular nerve",
+  "Signal travels to Vestibular Nucleus → CNS targets"
+];
+
+const FLOW_ROTATION = [
+  "Head rotates to the RIGHT in horizontal plane",
+  "Inertia causes endolymph to LAG behind (moves relatively LEFT)",
+  "Right crista cupula deflected toward utricle",
+  "Stereocilia bend toward kinocilium (horizontal SCC) → K⁺ influx → DEPOLARIZATION → ↑ Discharge",
+  "Left crista cupula deflected away from utricle",
+  "Stereocilia bend away from kinocilium → Channels close → HYPERPOLARIZATION → ↓ Discharge",
+  "Asymmetrical discharge → Vestibular nucleus → Cortex",
+  "Conscious sensation of RIGHTWARD rotation"
+];
+
+const FLOW_VERTIGO = [
+  "Rotation STOPS suddenly (body stops, endolymph does NOT)",
+  "Endolymph MOMENTUM continues moving in original direction",
+  "Cupula on side of recent rotation deflected in REVERSE direction",
+  "Stereocilia now bend AWAY from kinocilium → Hyperpolarization",
+  "Opposite side becomes relatively MORE stimulated → Asymmetry reversed",
+  "Brain interprets new asymmetry as rotation in OPPOSITE direction",
+  "Post-rotatory VERTIGO — persists 20–30 seconds",
+  "Simultaneously: MLF → CN III/IV/VI → Post-rotatory NYSTAGMUS"
+];
+
+const MNEMONICS_DATA = [
+  {
+    name: "VACUUM",
+    title: "Components of the vestibular apparatus",
+    letters: ["V","A","C","U","U","M"],
+    descs: ["Vestibular ganglion — cell bodies of afferent neurons","Ampulla — where crista ampullaris lives","Canals (3 semicircular) — horizontal, ant. vertical, post. vertical","Utricle — otolith organ detecting horizontal linear acceleration","saccUle — otolith organ detecting vertical linear acceleration","Macula — the receptor in utricle & saccule (otoconia-bearing)"],
+    detail: "Recall: VACUUM holds the key components of the vestibular system. The Vestibular ganglion → Ampullae/Crista → Canals → Utricle → saccUle → Macula."
+  },
+  {
+    name: "KINKY K",
+    title: "Hair cell depolarization mechanism",
+    letters: ["K","I","N","K","Y","K"],
+    descs: ["K⁺ channels open when…","…stereocIlia bend…","…toward kiNocilium","K⁺ flows IN (influx)","…because endolYmph is K⁺-rich","Kinetic depolarization — the KEY exception!"],
+    detail: "Why 'KINKY K'? Because the K⁺-based depolarization is an 'odd' exception to the Na⁺ rule — and KINocilium direction is KEY. Whenever you see a vestibular depolarization question, remember: K⁺ is KINKY — it flows IN when stereocilia bend TOWARD the kinocilium."
+  },
+  {
+    name: "IM SICK",
+    title: "4 manifestations of excessive vestibular stimulation",
+    letters: ["I","M","S","I","C","K"],
+    descs: ["Imbalance of muscle tone (vestibulospinal)","Motion sickness (autonomic — nausea, vomiting, sweating, bradycardia)","Spinning sensation = Vertigo","…In the wrong direction (false perception)","Counter-rotation after stopping","Kinetic eye movements = Nystagmus"],
+    detail: "IM SICK perfectly describes what happens with excessive vestibular stimulation. All 4 manifestations: Vertigo, Nystagmus, Autonomic (motion sickness), and Muscle tone changes — covered!"
+  },
+  {
+    name: "SCRUM",
+    title: "Vestibular nucleus output targets (where it sends fibers)",
+    letters: ["S","C","R","U","M"],
+    descs: ["Spinal cord → vestibulospinal tract → posture & muscle tone","Cerebellum → postural coordination","Reticular formation → autonomic reflexes (motion sickness)","contrUlateral thalamus → somatic sensory cortex (conscious perception)","Motor nuclei of CN III, IV, VI (via MLF) → eye movements & nystagmus"],
+    detail: "SCRUM: The vestibular nucleus passes the ball (signals) to 5 key players. Spinal cord, Cerebellum, Reticular formation, contralUral thalamus, and Motor nuclei of CN III/IV/VI. These 5 targets explain ALL clinical manifestations."
+  },
+  {
+    name: "CLUE",
+    title: "Cupula vs Otolith — key differences",
+    letters: ["C","L","U","E"],
+    descs: ["Crystals? NO — cupula has NONE (gelatinous only)","Linear? NO — cupula detects ANGULAR (SCCs), not linear","Utricle/saccUle has the otolith membrane (WITH crystals)","Endolymph flow bends cupula; GRAVITY pulls otolith"],
+    detail: "CLUE helps distinguish the two receptor coverings. The cupula is CRYSTAL-FREE and responds to fluid FLOW. The otolith membrane is CRYSTAL-RICH and responds to GRAVITY and linear forces."
+  },
+  {
+    name: "PRIMA",
+    title: "Post-rotatory vertigo — what happens after stopping",
+    letters: ["P","R","I","M","A"],
+    descs: ["Persists 20–30 seconds after stopping","Rotation stopped — but endolymph still moves","Inertia? No — it's MOMENTUM this time (acts at deceleration)","Makes you feel counter-rotation (false sensation)","Asymmetrical discharge → Nystagmus + Vertigo"],
+    detail: "PRIMA reminds you of the POST-rotatory phenomenon. Remember: Inertia acts at ONSET, Momentum acts at STOP. PRIMA = the 'prima donna' who keeps spinning even after the music stops!"
+  }
+];
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let quizState = JSON.parse(localStorage.getItem('vestibular_quiz') || '{"answers":{},"score":0,"streak":0}');
+let cardsFlipped = JSON.parse(localStorage.getItem('vestibular_cards') || '[]');
+let activeTab = localStorage.getItem('vestibular_tab') || 'overview';
+
+// ══════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  const btns = document.querySelectorAll('.tab-btn');
+  btns.forEach(b => { if (b.getAttribute('onclick').includes(name)) b.classList.add('active'); });
+  activeTab = name;
+  localStorage.setItem('vestibular_tab', name);
+}
+
+// ══════════════════════════════════════════
+// PARTICLES
+// ══════════════════════════════════════════
+function initParticles() {
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.setProperty('--x', Math.random() * 100 + '%');
+    p.style.setProperty('--dur', (7 + Math.random() * 10) + 's');
+    p.style.setProperty('--delay', (-Math.random() * 10) + 's');
+    container.appendChild(p);
+  }
+}
+
+// ══════════════════════════════════════════
+// QUIZ
+// ══════════════════════════════════════════
+function buildQuiz() {
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = '';
+  QUIZ_DATA.forEach((item, qi) => {
+    const div = document.createElement('div');
+    div.className = 'q-block';
+    div.id = 'q-' + qi;
+    const answered = quizState.answers[qi] !== undefined;
+    const chosen = quizState.answers[qi];
+    div.innerHTML = `
+      <div class="q-number">Question ${qi + 1} of ${QUIZ_DATA.length}</div>
+      <div class="q-text">${item.q}</div>
+      <div class="q-options">
+        ${item.opts.map((opt, oi) => {
+          let cls = '';
+          if (answered) {
+            cls = 'disabled';
+            if (oi === item.correct) cls += ' correct';
+            else if (oi === chosen && oi !== item.correct) cls += ' wrong';
+          }
+          return `<div class="q-opt ${cls}" onclick="answerQ(${qi},${oi})">
+            <span class="opt-letter">${String.fromCharCode(65+oi)}</span>
+            <span>${opt}</span>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="q-explanation ${answered ? 'show' : ''}">
+        <strong>${answered && chosen === item.correct ? '✅ Correct!' : answered ? '❌ Wrong.' : ''}</strong> ${item.why}
+      </div>
+    `;
+    container.appendChild(div);
+  });
+  updateQuizUI();
+}
+
+function answerQ(qi, oi) {
+  if (quizState.answers[qi] !== undefined) return;
+  const item = QUIZ_DATA[qi];
+  const isCorrect = oi === item.correct;
+  quizState.answers[qi] = oi;
+  if (isCorrect) {
+    quizState.score++;
+    quizState.streak++;
+  } else {
+    quizState.streak = 0;
+  }
+  localStorage.setItem('vestibular_quiz', JSON.stringify(quizState));
+  const opts = document.querySelectorAll('#q-' + qi + ' .q-opt');
+  opts.forEach((opt, i) => {
+    opt.classList.add('disabled');
+    if (i === item.correct) opt.classList.add('correct');
+    else if (i === oi && !isCorrect) opt.classList.add('wrong');
+  });
+  const exp = document.querySelector('#q-' + qi + ' .q-explanation');
+  exp.innerHTML = `<strong>${isCorrect ? '✅ Correct!' : '❌ Wrong.'}</strong> ${item.why}`;
+  exp.classList.add('show');
+  updateQuizUI();
+}
+
+function updateQuizUI() {
+  const answered = Object.keys(quizState.answers).length;
+  const pct = Math.round((answered / QUIZ_DATA.length) * 100);
+  document.getElementById('qScore').textContent = quizState.score;
+  document.getElementById('qStreak').textContent = quizState.streak;
+  document.getElementById('qAnswered').textContent = answered;
+  document.getElementById('qProgressBar').style.width = pct + '%';
+  document.getElementById('qProgressPct').textContent = pct + '%';
+  document.getElementById('scoreDisplay').textContent = quizState.score + '/' + QUIZ_DATA.length;
+  document.getElementById('streakDisplay').textContent = quizState.streak;
+  document.getElementById('progressDisplay').textContent = pct + '%';
+}
+
+function resetQuiz() {
+  quizState = { answers: {}, score: 0, streak: 0 };
+  localStorage.setItem('vestibular_quiz', JSON.stringify(quizState));
+  buildQuiz();
+}
+
+function showScoreModal() {
+  const score = quizState.score;
+  const total = QUIZ_DATA.length;
+  const pct = Math.round((score / total) * 100);
+  let emoji = '💪', title = 'Keep Practising!', sub = 'Review the explanations and try again!';
+  if (pct >= 90) { emoji = '🏆'; title = 'Outstanding!'; sub = 'You have mastered vestibular physiology!'; }
+  else if (pct >= 75) { emoji = '🎉'; title = 'Great Work!'; sub = 'Almost there — review a few weak areas!'; }
+  else if (pct >= 60) { emoji = '📚'; title = 'Good Progress!'; sub = 'Focus on the highlighted topics.'; }
+  document.getElementById('modalEmoji').textContent = emoji;
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalScore').textContent = score + '/' + total + ' (' + pct + '%)';
+  document.getElementById('modalSub').textContent = sub;
+  document.getElementById('scoreModal').classList.add('show');
+}
+
+// ══════════════════════════════════════════
+// FLASHCARDS
+// ══════════════════════════════════════════
+function buildFlashcards() {
+  const grid = document.getElementById('flashcardsGrid');
+  grid.innerHTML = '';
+  FLASHCARD_DATA.forEach((card, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'flashcard-wrap' + (cardsFlipped.includes(i) ? ' flipped' : '');
+    wrap.onclick = () => {
+      wrap.classList.toggle('flipped');
+      if (!cardsFlipped.includes(i)) {
+        cardsFlipped.push(i);
+      } else {
+        cardsFlipped = cardsFlipped.filter(x => x !== i);
+      }
+      localStorage.setItem('vestibular_cards', JSON.stringify(cardsFlipped));
+      document.getElementById('cardsDisplay').textContent = cardsFlipped.length + '/' + FLASHCARD_DATA.length;
+    };
+    wrap.innerHTML = `
+      <div class="flashcard-inner">
+        <div class="flashcard-face flashcard-front">
+          <div class="fc-label">❓ Question ${i + 1}</div>
+          <div class="fc-front-q">${card.q}</div>
+          <div class="fc-hint">tap to flip</div>
+        </div>
+        <div class="flashcard-face flashcard-back">
+          <div class="fc-label">💡 Answer</div>
+          <div class="fc-back-a">${card.a}</div>
+        </div>
+      </div>
+    `;
+    grid.appendChild(wrap);
+  });
+  document.getElementById('cardsDisplay').textContent = cardsFlipped.length + '/' + FLASHCARD_DATA.length;
+}
+
+// ══════════════════════════════════════════
+// CASES
+// ══════════════════════════════════════════
+function buildCases() {
+  const container = document.getElementById('casesContainer');
+  container.innerHTML = '';
+  CASES_DATA.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'case-block';
+    div.innerHTML = `
+      <div class="case-header">
+        <div class="case-num">Case ${c.num}</div>
+        <div>
+          <div class="case-title">${c.title}</div>
+          <div class="case-vignette">${c.vignette}</div>
+        </div>
+      </div>
+      <div class="case-body">
+        ${c.questions.map((q, qi) => `
+          <div class="case-q">
+            <div class="case-q-text">${q.q}</div>
+            <button class="reveal-btn" onclick="revealCaseAnswer(this)">👁️ Reveal Answer</button>
+            <div class="case-answer">${q.a}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function revealCaseAnswer(btn) {
+  const ans = btn.nextElementSibling;
+  ans.classList.toggle('show');
+  btn.textContent = ans.classList.contains('show') ? '🙈 Hide Answer' : '👁️ Reveal Answer';
+}
+
+// ══════════════════════════════════════════
+// PATHOPHYSIOLOGY
+// ══════════════════════════════════════════
+function buildPathophys() {
+  // Structure grid
+  const grid = document.getElementById('structGrid');
+  grid.innerHTML = '';
+  STRUCTURES_DATA.forEach((s, i) => {
+    const card = document.createElement('div');
+    card.className = 'struct-card';
+    card.id = 'struct-' + i;
+    card.innerHTML = `<div class="struct-icon">${s.icon}</div><div class="struct-name">${s.name}</div><div class="struct-short">${s.short}</div>`;
+    card.onclick = () => showStructDetail(i);
+    grid.appendChild(card);
+  });
+
+  // Flowcharts
+  buildFlowChart('flowDepol', FLOW_DEPOL);
+  buildFlowChart('flowRotation', FLOW_ROTATION);
+  buildFlowChart('flowVertigo', FLOW_VERTIGO);
+}
+
+function showStructDetail(i) {
+  const detail = document.getElementById('structDetail');
+  document.querySelectorAll('.struct-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('struct-' + i).classList.add('active');
+  const s = STRUCTURES_DATA[i];
+  detail.innerHTML = `<div class="struct-detail-title">${s.icon} ${s.name}</div><div class="struct-detail-body">${s.detail}</div>`;
+  detail.classList.add('show');
+  detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function buildFlowChart(id, steps) {
+  const container = document.getElementById(id);
+  container.innerHTML = '';
+  steps.forEach((step, i) => {
+    const div = document.createElement('div');
+    div.className = 'flow-step';
+    div.innerHTML = `<span class="flow-step-num">${i + 1}</span><span>${step}</span>`;
+    container.appendChild(div);
+    if (i < steps.length - 1) {
+      const arrow = document.createElement('div');
+      arrow.className = 'flow-arrow';
+      arrow.textContent = '↓';
+      container.appendChild(arrow);
+    }
+  });
+}
+
+// ══════════════════════════════════════════
+// MNEMONICS
+// ══════════════════════════════════════════
+function buildMnemonics() {
+  const container = document.getElementById('mnemonicsContainer');
+  container.innerHTML = '';
+  MNEMONICS_DATA.forEach((m, mi) => {
+    const div = document.createElement('div');
+    div.className = 'mnemonic-card';
+    div.innerHTML = `
+      <div class="mnemonic-header">
+        <div>
+          <div class="mnemonic-name">${m.name}</div>
+          <div class="mnemonic-title">${m.title}</div>
+        </div>
+        <button class="mnemonic-expand-btn" onclick="toggleMnemonicDetail(${mi})">📖 Full Notes</button>
+      </div>
+      <div class="mnemonic-letters">
+        ${m.letters.map((letter, li) => `
+          <div class="mnemonic-row">
+            <div class="mnemonic-letter">${letter}</div>
+            <div class="mnemonic-desc"><strong>${letter} —</strong> ${m.descs[li]}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="mnemonic-details" id="mnem-detail-${mi}">
+        <p>${m.detail}</p>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function toggleMnemonicDetail(i) {
+  const det = document.getElementById('mnem-detail-' + i);
+  det.classList.toggle('show');
+}
+
+// ══════════════════════════════════════════
+// SEARCH
+// ══════════════════════════════════════════
+const SEARCH_INDEX = [];
+function buildSearchIndex() {
+  QUIZ_DATA.forEach((q, i) => {
+    SEARCH_INDEX.push({ title: 'Quiz Q' + (i+1), snippet: q.q, tab: 'quiz', id: 'q-' + i });
+  });
+  FLASHCARD_DATA.forEach((f, i) => {
+    SEARCH_INDEX.push({ title: 'Flashcard ' + (i+1), snippet: f.q, tab: 'flashcards', id: null });
+  });
+  CASES_DATA.forEach((c, i) => {
+    SEARCH_INDEX.push({ title: 'Case: ' + c.title, snippet: c.vignette.substring(0, 100) + '…', tab: 'cases', id: null });
+  });
+  STRUCTURES_DATA.forEach((s, i) => {
+    SEARCH_INDEX.push({ title: s.name, snippet: s.short, tab: 'pathophys', id: 'struct-' + i });
+  });
+  MNEMONICS_DATA.forEach((m, i) => {
+    SEARCH_INDEX.push({ title: 'Mnemonic: ' + m.name, snippet: m.title, tab: 'mnemonics', id: null });
+  });
+}
+
+document.getElementById('globalSearch').addEventListener('input', function() {
+  const q = this.value.trim().toLowerCase();
+  const results = document.getElementById('searchResults');
+  if (q.length < 2) { results.classList.remove('active'); return; }
+  const hits = SEARCH_INDEX.filter(item =>
+    item.title.toLowerCase().includes(q) || item.snippet.toLowerCase().includes(q)
+  ).slice(0, 8);
+  if (hits.length === 0) { results.classList.remove('active'); return; }
+  results.innerHTML = hits.map((h, i) => `
+    <div class="search-result-item" onclick="goToSearchResult(${SEARCH_INDEX.indexOf(h)})">
+      <div class="res-title">${h.title}</div>
+      <div class="res-snippet">${h.snippet.replace(/<[^>]*>/g,'').substring(0,90)}…</div>
+    </div>
+  `).join('');
+  results.classList.add('active');
+});
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap')) {
+    document.getElementById('searchResults').classList.remove('active');
+  }
+});
+
+function goToSearchResult(idx) {
+  const item = SEARCH_INDEX[idx];
+  switchTab(item.tab);
+  document.getElementById('searchResults').classList.remove('active');
+  document.getElementById('globalSearch').value = '';
+  if (item.id) {
+    setTimeout(() => {
+      const el = document.getElementById(item.id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.add('highlight-result');
+        setTimeout(() => el.classList.remove('highlight-result'), 2000);
+      }
+    }, 300);
+  }
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+function init() {
+  initParticles();
+  buildQuiz();
+  buildFlashcards();
+  buildCases();
+  buildPathophys();
+  buildMnemonics();
+  buildSearchIndex();
+  updateQuizUI();
+  // Restore last tab
+  if (activeTab && activeTab !== 'overview') switchTab(activeTab);
+}
+
+init();
+</script>
+</body>
+</html>

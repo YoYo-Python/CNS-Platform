@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parkinson's Pharmacology — Interactive Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c14;
+  --surface: #0e1520;
+  --surface2: #141d2e;
+  --surface3: #1a2540;
+  --border: rgba(99,179,237,0.12);
+  --accent: #63b3ed;
+  --accent2: #9f7aea;
+  --accent3: #68d391;
+  --accent4: #f6ad55;
+  --accent5: #fc8181;
+  --text: #e2e8f0;
+  --text-dim: #718096;
+  --text-muted: #4a5568;
+  --gold: #f6e05e;
+  --glow: rgba(99,179,237,0.15);
+  --radius: 12px;
+  --radius-lg: 20px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+/* BG GRID */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(99,179,237,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99,179,237,0.03) 1px, transparent 1px);
+  background-size:60px 60px;
+  pointer-events:none;
+  z-index:0;
+}
+/* ORBS */
+.orb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0;}
+.orb1{width:600px;height:600px;background:rgba(99,179,237,0.06);top:-200px;right:-100px;}
+.orb2{width:500px;height:500px;background:rgba(159,122,234,0.05);bottom:-100px;left:-150px;}
+.orb3{width:300px;height:300px;background:rgba(104,211,145,0.04);top:50%;left:50%;transform:translate(-50%,-50%);}
+
+/* HEADER */
+header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(8,12,20,0.85);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:0 24px;
+}
+.header-inner{
+  max-width:1400px;margin:0 auto;
+  display:flex;align-items:center;gap:16px;
+  height:64px;
+}
+.logo{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;white-space:nowrap;
+}
+.badge-subject{
+  font-family:'JetBrains Mono',monospace;font-size:0.7rem;
+  background:rgba(99,179,237,0.1);border:1px solid rgba(99,179,237,0.25);
+  color:var(--accent);padding:3px 10px;border-radius:20px;
+}
+.search-wrap{
+  flex:1;max-width:360px;margin-left:auto;position:relative;
+}
+.search-wrap input{
+  width:100%;background:var(--surface2);border:1px solid var(--border);
+  color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.85rem;
+  padding:8px 16px 8px 40px;border-radius:8px;outline:none;
+  transition:border-color .2s;
+}
+.search-wrap input:focus{border-color:rgba(99,179,237,0.4);}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:0.85rem;}
+.search-results-panel{
+  position:absolute;top:calc(100% + 8px);left:0;right:0;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius);max-height:320px;overflow-y:auto;
+  display:none;z-index:200;
+}
+.search-result-item{padding:10px 16px;cursor:pointer;border-bottom:1px solid var(--border);font-size:0.82rem;}
+.search-result-item:hover{background:var(--surface3);}
+.search-result-item .res-tab{color:var(--accent);font-size:0.7rem;font-family:'JetBrains Mono',monospace;}
+/* STATS BAR */
+.stats-bar{
+  display:flex;gap:24px;padding:10px 24px;
+  max-width:1400px;margin:0 auto;
+  border-bottom:1px solid var(--border);
+}
+.stat-item{display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--text-dim);}
+.stat-val{color:var(--accent);font-family:'JetBrains Mono',monospace;font-weight:600;}
+/* TABS NAV */
+.tabs-nav{
+  display:flex;gap:4px;padding:12px 24px 0;
+  max-width:1400px;margin:0 auto;
+  overflow-x:auto;scrollbar-width:none;
+}
+.tabs-nav::-webkit-scrollbar{display:none;}
+.tab-btn{
+  font-family:'Syne',sans-serif;font-size:0.8rem;font-weight:600;
+  padding:10px 18px;border-radius:10px 10px 0 0;
+  border:1px solid transparent;border-bottom:none;
+  background:transparent;color:var(--text-dim);
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.tab-btn:hover{color:var(--text);background:var(--surface2);}
+.tab-btn.active{
+  background:var(--surface);color:var(--accent);
+  border-color:var(--border);
+}
+/* MAIN */
+main{
+  max-width:1400px;margin:0 auto;padding:24px;
+  position:relative;z-index:1;
+}
+.tab-panel{display:none;animation:fadeIn .3s ease;}
+.tab-panel.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* SECTION HEADER */
+.section-header{margin-bottom:28px;}
+.section-title{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:2rem;
+  background:linear-gradient(135deg,var(--text),var(--accent));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;line-height:1.1;
+}
+.section-sub{color:var(--text-dim);margin-top:8px;font-size:0.9rem;}
+
+/* GRID LAYOUTS */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:16px;}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;}
+
+/* CARD BASE */
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:20px;
+  transition:border-color .2s,transform .2s;
+}
+.card:hover{border-color:rgba(99,179,237,0.3);transform:translateY(-2px);}
+.card-title{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;
+  margin-bottom:12px;display:flex;align-items:center;gap:8px;
+}
+
+/* TAGS */
+.tag{
+  font-size:0.65rem;font-family:'JetBrains Mono',monospace;font-weight:600;
+  padding:2px 8px;border-radius:20px;letter-spacing:.5px;
+}
+.tag-exam{background:rgba(246,173,85,0.15);color:var(--accent4);border:1px solid rgba(246,173,85,0.3);}
+.tag-high{background:rgba(252,129,129,0.15);color:var(--accent5);border:1px solid rgba(252,129,129,0.3);}
+.tag-pearl{background:rgba(104,211,145,0.15);color:var(--accent3);border:1px solid rgba(104,211,145,0.3);}
+.tag-mech{background:rgba(99,179,237,0.15);color:var(--accent);border:1px solid rgba(99,179,237,0.3);}
+
+/* OVERVIEW */
+.pathway-card{
+  background:linear-gradient(135deg,var(--surface),var(--surface2));
+  border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:24px;position:relative;overflow:hidden;
+}
+.pathway-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+}
+.pathway-card.blue::before{background:linear-gradient(90deg,var(--accent),transparent);}
+.pathway-card.purple::before{background:linear-gradient(90deg,var(--accent2),transparent);}
+.pathway-card.green::before{background:linear-gradient(90deg,var(--accent3),transparent);}
+.pathway-card.orange::before{background:linear-gradient(90deg,var(--accent4),transparent);}
+.pathway-card.red::before{background:linear-gradient(90deg,var(--accent5),transparent);}
+
+.key-point{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:10px 0;border-bottom:1px solid var(--border);
+}
+.key-point:last-child{border-bottom:none;}
+.kp-icon{font-size:1.1rem;margin-top:2px;flex-shrink:0;}
+.kp-text{font-size:0.87rem;line-height:1.6;color:var(--text-dim);}
+.kp-text strong{color:var(--text);}
+
+/* FLOWCHART */
+.flow-container{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:24px;margin-top:16px;
+}
+.flow-title{font-family:'Syne',sans-serif;font-weight:700;margin-bottom:20px;font-size:1rem;}
+.flow-row{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin-bottom:8px;}
+.flow-node{
+  background:var(--surface3);border:1px solid var(--border);
+  border-radius:8px;padding:10px 16px;font-size:0.8rem;
+  text-align:center;min-width:130px;
+}
+.flow-node.start{border-color:rgba(99,179,237,0.4);color:var(--accent);}
+.flow-node.mid{border-color:rgba(246,173,85,0.4);color:var(--accent4);}
+.flow-node.end{border-color:rgba(104,211,145,0.4);color:var(--accent3);}
+.flow-node.block{border-color:rgba(252,129,129,0.4);color:var(--accent5);}
+.flow-arrow{color:var(--text-dim);font-size:1.2rem;padding:0 8px;flex-shrink:0;}
+.flow-label{
+  font-size:0.65rem;font-family:'JetBrains Mono',monospace;
+  color:var(--accent5);background:rgba(252,129,129,0.1);
+  border:1px solid rgba(252,129,129,0.25);
+  border-radius:4px;padding:2px 6px;margin-left:4px;
+}
+.flow-label.green{color:var(--accent3);background:rgba(104,211,145,0.1);border-color:rgba(104,211,145,0.25);}
+
+/* QUIZ */
+.quiz-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;flex-wrap:wrap;gap:12px;
+}
+.quiz-progress-bar{
+  height:6px;background:var(--surface3);border-radius:3px;
+  margin-bottom:20px;overflow:hidden;
+}
+.quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width .4s;}
+.question-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:28px;margin-bottom:16px;
+}
+.q-number{
+  font-family:'JetBrains Mono',monospace;font-size:0.72rem;
+  color:var(--accent);margin-bottom:12px;
+}
+.q-text{font-size:0.97rem;line-height:1.7;margin-bottom:20px;font-weight:500;}
+.options-list{display:flex;flex-direction:column;gap:8px;}
+.option-btn{
+  text-align:left;background:var(--surface2);border:1px solid var(--border);
+  color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.87rem;
+  padding:14px 18px;border-radius:10px;cursor:pointer;
+  transition:all .2s;line-height:1.5;
+}
+.option-btn:hover:not(:disabled){background:var(--surface3);border-color:rgba(99,179,237,0.3);}
+.option-btn.correct{background:rgba(104,211,145,0.1);border-color:var(--accent3);color:var(--accent3);}
+.option-btn.wrong{background:rgba(252,129,129,0.1);border-color:var(--accent5);color:var(--accent5);}
+.option-btn:disabled{cursor:default;}
+@keyframes pulse-green{0%,100%{box-shadow:0 0 0 0 rgba(104,211,145,0.4);}50%{box-shadow:0 0 0 8px rgba(104,211,145,0);}}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}50%{transform:translateX(6px);}}
+.option-btn.correct{animation:pulse-green .6s ease;}
+.option-btn.wrong{animation:shake .4s ease;}
+.explanation-box{
+  margin-top:16px;padding:16px;background:rgba(99,179,237,0.05);
+  border:1px solid rgba(99,179,237,0.2);border-radius:10px;
+  font-size:0.85rem;line-height:1.7;display:none;
+}
+.explanation-box.show{display:block;animation:fadeIn .3s ease;}
+.explanation-box .why-correct{color:var(--accent3);font-weight:600;margin-bottom:4px;}
+.quiz-controls{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;}
+.btn{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:0.82rem;
+  padding:10px 22px;border-radius:8px;border:none;cursor:pointer;
+  transition:all .2s;letter-spacing:.5px;
+}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
+.btn-primary:hover{opacity:.85;transform:translateY(-1px);}
+.btn-ghost{background:var(--surface2);border:1px solid var(--border);color:var(--text);}
+.btn-ghost:hover{border-color:rgba(99,179,237,0.4);color:var(--accent);}
+.score-display{
+  text-align:center;padding:40px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);display:none;
+}
+.score-big{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:4rem;
+  background:linear-gradient(135deg,var(--accent3),var(--accent));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.score-msg{color:var(--text-dim);margin-top:8px;font-size:1rem;}
+
+/* FLASHCARDS */
+.flashcards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+.flashcard-wrapper{height:200px;perspective:1000px;cursor:pointer;}
+.flashcard-inner{
+  position:relative;width:100%;height:100%;
+  transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1);
+}
+.flashcard-wrapper.flipped .flashcard-inner{transform:rotateY(180deg);}
+.flashcard-face{
+  position:absolute;inset:0;
+  border-radius:var(--radius-lg);padding:24px;
+  display:flex;flex-direction:column;justify-content:center;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border:1px solid var(--border);
+}
+.flashcard-front{
+  background:var(--surface);
+}
+.flashcard-back{
+  background:linear-gradient(135deg,var(--surface2),var(--surface3));
+  transform:rotateY(180deg);
+  border-color:rgba(99,179,237,0.3);
+}
+.fc-q-label{
+  font-size:0.65rem;font-family:'JetBrains Mono',monospace;
+  color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;
+}
+.fc-q-text{font-size:0.88rem;line-height:1.6;color:var(--text);}
+.fc-a-text{font-size:0.85rem;line-height:1.6;color:var(--accent3);}
+.fc-hint{
+  margin-top:auto;font-size:0.7rem;color:var(--text-muted);
+  text-align:right;padding-top:8px;
+}
+
+/* CLINICAL CASES */
+.case-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:28px;margin-bottom:16px;
+}
+.case-header{
+  display:flex;align-items:flex-start;gap:16px;margin-bottom:20px;
+}
+.case-icon{
+  font-size:2rem;width:56px;height:56px;
+  background:var(--surface2);border-radius:12px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.case-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;margin-bottom:4px;}
+.case-meta{font-size:0.78rem;color:var(--text-dim);}
+.vignette-box{
+  background:var(--surface2);border-left:3px solid var(--accent2);
+  border-radius:0 8px 8px 0;padding:16px;margin-bottom:20px;
+  font-size:0.88rem;line-height:1.8;
+}
+.case-questions{display:flex;flex-direction:column;gap:12px;}
+.case-q{border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.case-q-text{
+  padding:14px 18px;font-size:0.88rem;font-weight:500;
+  background:var(--surface2);cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.case-q-text:hover{background:var(--surface3);}
+.case-q-arrow{transition:transform .3s;}
+.case-q.open .case-q-arrow{transform:rotate(90deg);}
+.case-answer{
+  padding:0;max-height:0;overflow:hidden;
+  transition:max-height .4s ease,padding .3s;
+  font-size:0.85rem;line-height:1.7;color:var(--text-dim);
+  background:rgba(104,211,145,0.03);
+}
+.case-answer.open{
+  padding:14px 18px;
+  max-height:400px;
+  border-top:1px solid var(--border);
+}
+.answer-highlight{color:var(--accent3);font-weight:600;}
+
+/* PATHOPHYSIOLOGY */
+.pathway-flow{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:28px;margin-bottom:20px;
+}
+.pathway-step{
+  display:flex;gap:16px;align-items:flex-start;
+  padding:16px 0;border-bottom:1px solid var(--border);
+  cursor:pointer;
+}
+.pathway-step:last-child{border-bottom:none;}
+.step-num{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:0.85rem;
+  flex-shrink:0;
+}
+.step-num.blue{background:rgba(99,179,237,0.15);color:var(--accent);}
+.step-num.red{background:rgba(252,129,129,0.15);color:var(--accent5);}
+.step-num.orange{background:rgba(246,173,85,0.15);color:var(--accent4);}
+.step-num.green{background:rgba(104,211,145,0.15);color:var(--accent3);}
+.step-content{flex:1;}
+.step-title{font-weight:600;margin-bottom:4px;font-size:0.92rem;}
+.step-detail{font-size:0.82rem;color:var(--text-dim);line-height:1.6;display:none;}
+.step-detail.show{display:block;}
+.pathway-step:hover .step-detail{display:block;}
+
+.clickable-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px;}
+.click-item{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px;cursor:pointer;
+  transition:all .2s;
+}
+.click-item:hover,.click-item.active{
+  border-color:rgba(99,179,237,0.4);background:var(--surface3);
+}
+.click-item-title{font-weight:600;font-size:0.88rem;margin-bottom:4px;}
+.click-item-sub{font-size:0.75rem;color:var(--text-dim);}
+.click-detail-box{
+  background:var(--surface2);border:1px solid rgba(99,179,237,0.25);
+  border-radius:var(--radius);padding:16px;font-size:0.85rem;line-height:1.7;
+  margin-bottom:16px;display:none;color:var(--text-dim);
+}
+.click-detail-box.show{display:block;animation:fadeIn .2s ease;}
+
+/* DIAGNOSIS / COMPARISON */
+.table-wrap{overflow-x:auto;border-radius:var(--radius-lg);border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;}
+th{
+  background:var(--surface2);padding:14px 18px;text-align:left;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:0.82rem;
+  color:var(--accent);border-bottom:1px solid var(--border);white-space:nowrap;
+}
+td{
+  padding:12px 18px;font-size:0.84rem;border-bottom:1px solid var(--border);
+  color:var(--text-dim);vertical-align:top;line-height:1.6;
+}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--surface2);}
+.td-yes{color:var(--accent3);}
+.td-no{color:var(--accent5);}
+.td-warn{color:var(--accent4);}
+
+.algo-flow{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:24px;
+}
+.algo-step{
+  display:flex;gap:12px;align-items:flex-start;margin-bottom:16px;
+}
+.algo-num{
+  min-width:28px;height:28px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.72rem;font-weight:700;color:#fff;flex-shrink:0;margin-top:2px;
+}
+.algo-content{font-size:0.87rem;line-height:1.6;}
+.algo-content strong{color:var(--text);}
+.algo-content .note{color:var(--accent4);font-size:0.78rem;font-style:italic;}
+.algo-arrow{
+  text-align:center;color:var(--text-muted);font-size:1.2rem;margin-left:40px;margin-bottom:8px;
+}
+
+/* TREATMENT */
+.drug-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:20px;position:relative;overflow:hidden;
+}
+.drug-card::after{
+  content:'';position:absolute;top:0;right:0;
+  width:80px;height:80px;border-radius:0 0 0 80px;opacity:.1;
+}
+.drug-card.dopamine::after{background:var(--accent);}
+.drug-card.enzyme::after{background:var(--accent2);}
+.drug-card.agonist::after{background:var(--accent3);}
+.drug-card.anti::after{background:var(--accent4);}
+.drug-card.special::after{background:var(--accent5);}
+.drug-name{font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;margin-bottom:4px;}
+.drug-class{font-size:0.73rem;font-family:'JetBrains Mono',monospace;color:var(--text-muted);margin-bottom:12px;}
+.drug-mech{font-size:0.83rem;line-height:1.6;color:var(--text-dim);margin-bottom:12px;}
+.drug-props{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.drug-prop{
+  font-size:0.73rem;padding:3px 10px;border-radius:20px;
+  background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);
+}
+.drug-warning{
+  font-size:0.78rem;padding:8px 12px;border-radius:8px;
+  background:rgba(246,173,85,0.08);border:1px solid rgba(246,173,85,0.2);
+  color:var(--accent4);margin-top:8px;
+}
+.drug-warning.danger{background:rgba(252,129,129,0.08);border-color:rgba(252,129,129,0.2);color:var(--accent5);}
+
+/* MNEMONICS */
+.mnemonic-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:24px;
+}
+.mnemonic-word{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:2rem;
+  letter-spacing:4px;margin-bottom:20px;
+}
+.mnemonic-row{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:10px 0;border-bottom:1px solid var(--border);
+}
+.mnemonic-row:last-child{border-bottom:none;}
+.mnemonic-letter{
+  width:36px;height:36px;border-radius:8px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;
+}
+.mnemonic-meaning{font-size:0.88rem;line-height:1.6;}
+.mnemonic-meaning strong{font-size:1rem;}
+.mnemonic-sub{display:block;font-size:0.78rem;color:var(--text-dim);margin-top:2px;}
+
+/* VIVA */
+.viva-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);overflow:hidden;margin-bottom:12px;
+}
+.viva-q{
+  padding:20px 24px;cursor:pointer;
+  display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+  transition:background .2s;
+}
+.viva-q:hover{background:var(--surface2);}
+.viva-q-text{font-weight:600;font-size:0.9rem;line-height:1.5;flex:1;}
+.viva-q-num{
+  font-family:'JetBrains Mono',monospace;font-size:0.72rem;
+  color:var(--accent);flex-shrink:0;margin-top:2px;
+}
+.viva-toggle{
+  font-size:1.2rem;color:var(--text-muted);flex-shrink:0;
+  transition:transform .3s;
+}
+.viva-card.open .viva-toggle{transform:rotate(45deg);color:var(--accent5);}
+.viva-answer{
+  max-height:0;overflow:hidden;transition:max-height .4s ease;
+}
+.viva-card.open .viva-answer{max-height:400px;}
+.viva-answer-inner{
+  padding:0 24px 20px;border-top:1px solid var(--border);
+  font-size:0.87rem;line-height:1.8;color:var(--text-dim);margin-top:0;
+}
+.viva-answer-inner{padding-top:16px;}
+.exam-flag{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:0.72rem;font-family:'JetBrains Mono',monospace;
+  background:rgba(246,173,85,0.1);border:1px solid rgba(246,173,85,0.25);
+  color:var(--accent4);padding:3px 10px;border-radius:20px;margin-bottom:10px;
+}
+
+/* SCORE BADGE */
+.streak-badge{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(246,173,85,0.1);border:1px solid rgba(246,173,85,0.2);
+  border-radius:8px;padding:6px 14px;font-size:0.82rem;
+  color:var(--accent4);font-family:'JetBrains Mono',monospace;
+}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .section-title{font-size:1.5rem;}
+  .tabs-nav{padding:8px 12px 0;}
+  main{padding:16px;}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}
+  .mnemonic-word{font-size:1.5rem;}
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--surface);}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:rgba(99,179,237,0.3);}
+
+/* PROGRESS RING */
+.progress-ring-wrap{position:relative;width:48px;height:48px;}
+.progress-ring{transform:rotate(-90deg);}
+.progress-ring-bg{fill:none;stroke:var(--surface3);stroke-width:4;}
+.progress-ring-fill{fill:none;stroke:var(--accent);stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset .5s;}
+.ring-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-family:'JetBrains Mono',monospace;color:var(--accent);}
+</style>
+</head>
+<body>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">🧠 PD Pharma</div>
+    <div class="badge-subject">Pharmacology · Mansoura</div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="globalSearch" placeholder="Search drugs, mechanisms, side effects…" autocomplete="off">
+      <div class="search-results-panel" id="searchPanel"></div>
+    </div>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-item">📚 Progress: <span class="stat-val" id="statProgress">0%</span></div>
+    <div class="stat-item">🎯 Quiz Score: <span class="stat-val" id="statScore">0/0</span></div>
+    <div class="stat-item">🔥 Streak: <span class="stat-val" id="statStreak">0</span></div>
+    <div class="stat-item">📖 Cards Studied: <span class="stat-val" id="statCards">0</span></div>
+  </div>
+</header>
+
+<div class="tabs-nav" id="tabsNav">
+  <button class="tab-btn active" data-tab="overview">🏠 Overview</button>
+  <button class="tab-btn" data-tab="quiz">🎯 Quiz</button>
+  <button class="tab-btn" data-tab="flashcards">🃏 Flashcards</button>
+  <button class="tab-btn" data-tab="cases">🏥 Clinical Cases</button>
+  <button class="tab-btn" data-tab="patho">🔬 Pathophysiology</button>
+  <button class="tab-btn" data-tab="diagnosis">🔎 Diagnosis</button>
+  <button class="tab-btn" data-tab="treatment">💊 Treatment</button>
+  <button class="tab-btn" data-tab="mnemonics">🧠 Mnemonics</button>
+  <button class="tab-btn" data-tab="viva">🗣️ Viva</button>
+</div>
+
+<main>
+
+<!-- ===== OVERVIEW ===== -->
+<div class="tab-panel active" id="tab-overview">
+  <div class="section-header">
+    <h1 class="section-title">Parkinson's Disease<br>Pharmacological Management</h1>
+    <p class="section-sub">Comprehensive overview of pathophysiology, key drugs, and exam high-yields</p>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:20px;">
+    <div class="pathway-card blue">
+      <div class="card-title">🧠 Core Pathophysiology</div>
+      <div class="key-point"><span class="kp-icon">⚡</span><div class="kp-text"><strong>Nigrostriatal Pathway:</strong> Progressive degeneration of dopaminergic neurons in the substantia nigra pars compacta → loss of striatal dopamine → unopposed ACh activity → TRAP symptoms</div></div>
+      <div class="key-point"><span class="kp-icon">🔴</span><div class="kp-text"><strong>Lewy Bodies:</strong> Intraneuronal inclusions containing α-synuclein — the hallmark pathology of PD</div></div>
+      <div class="key-point"><span class="kp-icon">⚖️</span><div class="kp-text"><strong>Key Imbalance:</strong> ↓ Dopamine + ↑ Acetylcholine = Extrapyramidal dysfunction. Treatment restores this balance.</div></div>
+      <div class="key-point"><span class="kp-icon">🧬</span><div class="kp-text"><strong>Etiology:</strong> Genetic (α-synuclein, Parkin mutations) + Environmental (MPTP, pesticides)</div></div>
+    </div>
+    <div class="pathway-card purple">
+      <div class="card-title">🎯 Clinical Triad — TRAP</div>
+      <div class="key-point"><span class="kp-icon">🤲</span><div class="kp-text"><strong>T — Tremor:</strong> Resting ("pill-rolling"), 4–6 Hz, suppressed by voluntary movement. Best treated by anticholinergics.</div></div>
+      <div class="key-point"><span class="kp-icon">💪</span><div class="kp-text"><strong>R — Rigidity:</strong> "Lead pipe" or "cogwheel" rigidity. Due to increased muscle tone from dopamine deficiency.</div></div>
+      <div class="key-point"><span class="kp-icon">🐌</span><div class="kp-text"><strong>A — Akinesia/Bradykinesia:</strong> Slowness of movement. Best treated by dopaminergic agents. NOT responsive to anticholinergics.</div></div>
+      <div class="key-point"><span class="kp-icon">🚶</span><div class="kp-text"><strong>P — Postural Instability:</strong> Late feature. Festinating gait, falls risk. Multifactorial.</div></div>
+    </div>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:20px;">
+    <div class="pathway-card green">
+      <div class="card-title">🔵 Nigrostriatal</div>
+      <div class="kp-text" style="font-size:0.82rem;line-height:1.6;color:var(--text-dim);">SNc → Striatum. Motor control via D2R. <strong>Deficit → Parkinson's.</strong> Excess → Dyskinesia. Blockade → EPS/Drug-induced PD.</div>
+    </div>
+    <div class="pathway-card purple">
+      <div class="card-title">🟣 Mesolimbic/Cortical</div>
+      <div class="kp-text" style="font-size:0.82rem;line-height:1.6;color:var(--text-dim);">VTA → Limbic/Cortex. Reward & emotion. <strong>Excess → Schizophrenia/Hallucinations.</strong> L-dopa excess causes psychosis.</div>
+    </div>
+    <div class="pathway-card orange">
+      <div class="card-title">🟠 Tuberoinfundibular</div>
+      <div class="kp-text" style="font-size:0.82rem;line-height:1.6;color:var(--text-dim);">Hypothalamus → Pituitary. Regulates prolactin. <strong>Blockade → Hyperprolactinemia</strong> (galactorrhea). Deficit → PRL suppression.</div>
+    </div>
+    <div class="pathway-card red">
+      <div class="card-title">⚠️ Exam High-Yields</div>
+      <div class="kp-text" style="font-size:0.82rem;line-height:1.6;color:var(--text-dim);">• Dopamine can NOT cross BBB<br>• Carbidopa = peripheral AAAD inhibitor<br>• Tolcapone = hepatotoxic<br>• Selegiline = insomnia (amphetamine-like)<br>• Vit B6 worsens L-dopa</div>
+    </div>
+  </div>
+
+  <!-- Metabolism Flowchart -->
+  <div class="flow-container">
+    <div class="flow-title">⚗️ Levodopa Metabolism — Interactive Flowchart</div>
+    <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:16px;">🩸 PERIPHERAL (Before BBB):</div>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:20px;">
+      <div class="flow-node start">Levodopa<br>(Oral)</div>
+      <div class="flow-arrow">→</div>
+      <div>
+        <div style="display:flex;align-items:center;gap:4px;margin-bottom:8px;">
+          <div class="flow-node mid">Dopamine<br><small>(Peripheral)</small></div>
+          <div class="flow-label">⛔ Carbidopa blocks AAAD here</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <div class="flow-node mid">3-O-Methyldopa</div>
+          <div class="flow-label green">⛔ Entacapone blocks COMT here</div>
+        </div>
+      </div>
+    </div>
+    <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:16px;">🧠 CENTRAL (After BBB):</div>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;">
+      <div class="flow-node start">L-dopa<br>crosses BBB</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node start">Dopamine<br>(Central)</div>
+      <div class="flow-arrow">→</div>
+      <div>
+        <div style="display:flex;align-items:center;gap:4px;margin-bottom:8px;">
+          <div class="flow-node end">D1, D2<br>Receptors</div>
+          <span style="color:var(--accent3);font-size:0.78rem;">✅ Therapeutic!</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;margin-bottom:8px;">
+          <div class="flow-node mid">DOPAC<br>(via MAO-B)</div>
+          <div class="flow-label">⛔ Selegiline blocks MAO-B</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <div class="flow-node mid">3-MT<br>(via COMT)</div>
+          <div class="flow-label green">⛔ Tolcapone blocks central COMT</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drug Classes Summary -->
+  <div style="margin-top:20px;">
+    <h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:16px;font-size:1rem;">💊 Drug Classes at a Glance</h3>
+    <div class="grid-3">
+      <div class="card"><div class="card-title" style="color:var(--accent);">🔵 Dopamine Precursors</div><div style="font-size:0.82rem;color:var(--text-dim);line-height:1.7;">Levodopa (+Carbidopa as Sinemet). Gold standard. Crosses BBB as prodrug. 75% dose reduction with Carbidopa.</div><div style="margin-top:10px;"><span class="tag tag-exam">EXAM ⭐</span></div></div>
+      <div class="card"><div class="card-title" style="color:var(--accent2);">🟣 Enzyme Inhibitors</div><div style="font-size:0.82rem;color:var(--text-dim);line-height:1.7;">COMT inhibitors (Entacapone, Tolcapone) — prevent 3-OMD formation. MAO-B inhibitors (Selegiline, Rasagiline) — prevent central dopamine breakdown.</div><div style="margin-top:10px;"><span class="tag tag-high">HIGH YIELD</span></div></div>
+      <div class="card"><div class="card-title" style="color:var(--accent3);">🟢 DA Agonists</div><div style="font-size:0.82rem;color:var(--text-dim);line-height:1.7;">Direct D2 agonists. Ergot: Bromocriptine (vasospasm risk). Non-ergot: Pramipexole, Apomorphine (for acute freezing).</div><div style="margin-top:10px;"><span class="tag tag-pearl">CLINICAL PEARL</span></div></div>
+      <div class="card"><div class="card-title" style="color:var(--accent4);">🟠 Amantadine</div><div style="font-size:0.82rem;color:var(--text-dim);line-height:1.7;">Dual MOA: DA releaser + NMDA antagonist. Antiviral origin. Causes livedo reticularis (characteristic rash).</div><div style="margin-top:10px;"><span class="tag tag-mech">MECHANISM</span></div></div>
+      <div class="card"><div class="card-title" style="color:var(--accent5);">🔴 Anticholinergics</div><div style="font-size:0.82rem;color:var(--text-dim);line-height:1.7;">Benztropine, Trihexyphenidyl. Central M2 blockers. Good for tremor & sialorrhea. Contraindicated in BPH, glaucoma, dementia.</div><div style="margin-top:10px;"><span class="tag tag-exam">EXAM ⭐</span></div></div>
+      <div class="card"><div class="card-title" style="color:var(--text);">🔵 Istradefylline</div><div style="font-size:0.82rem;color:var(--text-dim);line-height:1.7;">Adenosine A2 receptor antagonist. Add-on to Sinemet to reduce motor fluctuations. Novel mechanism distinct from dopaminergic drugs.</div><div style="margin-top:10px;"><span class="tag tag-mech">MECHANISM</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== QUIZ ===== -->
+<div class="tab-panel" id="tab-quiz">
+  <div class="section-header">
+    <h1 class="section-title">🎯 MCQ Quiz Mode</h1>
+    <p class="section-sub">25 exam-style questions — Egyptian medical exam format</p>
+  </div>
+  <div class="quiz-header">
+    <div class="streak-badge">🔥 Streak: <span id="streakCount">0</span></div>
+    <div style="font-size:0.85rem;color:var(--text-dim);">Question <span id="currentQ">1</span> / <span id="totalQ">25</span></div>
+    <div id="progressRing" class="progress-ring-wrap">
+      <svg class="progress-ring" width="48" height="48">
+        <circle class="progress-ring-bg" cx="24" cy="24" r="20"/>
+        <circle class="progress-ring-fill" id="ringFill" cx="24" cy="24" r="20" stroke-dasharray="125.6" stroke-dashoffset="125.6"/>
+      </svg>
+      <div class="ring-text" id="ringPct">0%</div>
+    </div>
+  </div>
+  <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quizProgressFill" style="width:0%"></div></div>
+  <div id="quizContainer"></div>
+  <div class="score-display" id="scoreDisplay">
+    <div style="font-size:3rem;margin-bottom:16px;">🎉</div>
+    <div class="score-big" id="scoreBig"></div>
+    <div class="score-msg" id="scoreMsg"></div>
+    <div style="margin-top:24px;display:flex;gap:12px;justify-content:center;">
+      <button class="btn btn-primary" onclick="resetQuiz()">🔄 Retake Quiz</button>
+      <button class="btn btn-ghost" onclick="switchTab('flashcards')">🃏 Study Flashcards</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FLASHCARDS ===== -->
+<div class="tab-panel" id="tab-flashcards">
+  <div class="section-header">
+    <h1 class="section-title">🃏 Flashcard Deck</h1>
+    <p class="section-sub">Click any card to flip — 22 key concepts</p>
+  </div>
+  <div class="flashcards-grid" id="flashcardsGrid"></div>
+</div>
+
+<!-- ===== CLINICAL CASES ===== -->
+<div class="tab-panel" id="tab-cases">
+  <div class="section-header">
+    <h1 class="section-title">🏥 Clinical Cases</h1>
+    <p class="section-sub">Exam-style vignettes — tap questions to reveal answers</p>
+  </div>
+  <div id="casesContainer"></div>
+</div>
+
+<!-- ===== PATHOPHYSIOLOGY ===== -->
+<div class="tab-panel" id="tab-patho">
+  <div class="section-header">
+    <h1 class="section-title">🔬 Pathophysiology</h1>
+    <p class="section-sub">Interactive mechanism explorer — click structures for details</p>
+  </div>
+
+  <h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:12px;font-size:0.95rem;">🧩 Key Structures — Click to Explore</h3>
+  <div class="clickable-grid" id="structuresGrid"></div>
+  <div class="click-detail-box" id="structureDetail"></div>
+
+  <div class="pathway-flow">
+    <div class="flow-title">🔄 Disease Mechanism — Step by Step</div>
+    <div id="pathoSteps"></div>
+  </div>
+
+  <div class="grid-2" style="margin-top:20px;">
+    <div class="pathway-card blue">
+      <div class="card-title">⚙️ Direct Pathway (facilitates movement)</div>
+      <div style="font-size:0.83rem;color:var(--text-dim);line-height:1.8;">
+        Cortex → Striatum → (D1 stimulation → inhibit GPi) → Thalamus disinhibited → Cortical activation → <strong style="color:var(--accent3);">Movement facilitated ✅</strong>
+      </div>
+    </div>
+    <div class="pathway-card red">
+      <div class="card-title">⚙️ Indirect Pathway (inhibits movement)</div>
+      <div style="font-size:0.83rem;color:var(--text-dim);line-height:1.8;">
+        Cortex → Striatum → (D2 stimulation → inhibit GPe) → STN disinhibited → activates GPi → Thalamus inhibited → <strong style="color:var(--accent5);">Movement reduced ❌</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DIAGNOSIS ===== -->
+<div class="tab-panel" id="tab-diagnosis">
+  <div class="section-header">
+    <h1 class="section-title">🔎 Drug Comparison & Diagnosis</h1>
+    <p class="section-sub">Comparison tables, side effects, and diagnostic algorithm</p>
+  </div>
+
+  <div class="table-wrap" style="margin-bottom:20px;">
+    <table>
+      <thead><tr><th>Drug</th><th>Class</th><th>MOA</th><th>Key SE</th><th>⚠️ Contraindication</th><th>Exam Flag</th></tr></thead>
+      <tbody id="drugTableBody"></tbody>
+    </table>
+  </div>
+
+  <h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:16px;font-size:0.95rem;">📊 COMT vs MAO-B Inhibitors Comparison</h3>
+  <div class="table-wrap" style="margin-bottom:20px;">
+    <table>
+      <thead><tr><th>Feature</th><th>Entacapone</th><th>Tolcapone</th><th>Selegiline</th><th>Rasagiline</th></tr></thead>
+      <tbody>
+        <tr><td>Enzyme target</td><td>COMT</td><td>COMT</td><td>MAO-B</td><td>MAO-B</td></tr>
+        <tr><td>Site of action</td><td class="td-yes">Peripheral only</td><td class="td-warn">Central + Peripheral</td><td class="td-yes">Central (brain)</td><td class="td-yes">Central (brain)</td></tr>
+        <tr><td>Hepatotoxicity</td><td class="td-yes">No ✅</td><td class="td-no">Yes ❌ (monitor LFTs)</td><td class="td-yes">No</td><td class="td-yes">No</td></tr>
+        <tr><td>Insomnia</td><td>No</td><td>No</td><td class="td-warn">Yes (amphetamine metabolite)</td><td>Minimal</td></tr>
+        <tr><td>Monotherapy?</td><td class="td-no">No — adjunct only</td><td class="td-no">No — adjunct only</td><td class="td-yes">Yes (mild disease)</td><td class="td-yes">Yes (mild disease)</td></tr>
+        <tr><td>Tyramine risk at high dose</td><td>No</td><td>No</td><td class="td-warn">Yes (loses MAO-B selectivity)</td><td class="td-warn">Yes (high dose)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:16px;font-size:0.95rem;">🔄 Treatment Selection Algorithm</h3>
+  <div class="algo-flow">
+    <div class="algo-step"><div class="algo-num">1</div><div class="algo-content"><strong>New Diagnosis of PD (Young patient, mild symptoms):</strong> Start MAO-B inhibitor (Selegiline/Rasagiline) as monotherapy to delay L-dopa initiation. <span class="note">Rationale: Delay L-dopa to postpone dyskinesias.</span></div></div>
+    <div class="algo-arrow">↓</div>
+    <div class="algo-step"><div class="algo-num">2</div><div class="algo-content"><strong>Moderate symptoms requiring more efficacy:</strong> Initiate Levodopa + Carbidopa (Sinemet). Add COMT inhibitor (Entacapone) → Stalevo® triple combination. <span class="note">Rationale: COMT inhibitor prolongs L-dopa half-life, smooths "wearing-off".</span></div></div>
+    <div class="algo-arrow">↓</div>
+    <div class="algo-step"><div class="algo-num">3</div><div class="algo-content"><strong>Motor fluctuations / Wearing-off:</strong> Shorten dose intervals of Sinemet. Add dopamine agonist (Pramipexole). Consider Istradefylline (A2 antagonist). <span class="note">Wearing-off = predictable. On-off = unpredictable.</span></div></div>
+    <div class="algo-arrow">↓</div>
+    <div class="algo-step"><div class="algo-num">4</div><div class="algo-content"><strong>Acute freezing episodes (acute hypomobility):</strong> Subcutaneous Apomorphine injection. Works in 5–10 minutes. <span class="note">⭐ EXAM: Apomorphine = rapid rescue for freezing.</span></div></div>
+    <div class="algo-arrow">↓</div>
+    <div class="algo-step"><div class="algo-num">5</div><div class="algo-content"><strong>Dominant tremor + sialorrhea:</strong> Add central anticholinergic (Benztropine/Trihexyphenidyl). <span class="note">⚠️ Contraindicated in BPH, glaucoma, dementia!</span></div></div>
+    <div class="algo-arrow">↓</div>
+    <div class="algo-step"><div class="algo-num">6</div><div class="algo-content"><strong>Drug-induced Parkinsonism (antipsychotics):</strong> Use anticholinergics only. Do NOT add dopaminergic drugs — will worsen psychosis.</div></div>
+  </div>
+</div>
+
+<!-- ===== TREATMENT ===== -->
+<div class="tab-panel" id="tab-treatment">
+  <div class="section-header">
+    <h1 class="section-title">💊 Treatment Guide</h1>
+    <p class="section-sub">Complete pharmacological management — color-coded by class</p>
+  </div>
+  <div class="grid-2" id="treatmentGrid"></div>
+</div>
+
+<!-- ===== MNEMONICS ===== -->
+<div class="tab-panel" id="tab-mnemonics">
+  <div class="section-header">
+    <h1 class="section-title">🧠 Mnemonics Lab</h1>
+    <p class="section-sub">Custom memory tools built from the lecture — designed for exam day</p>
+  </div>
+  <div class="grid-2" id="mnemonicsGrid"></div>
+</div>
+
+<!-- ===== VIVA ===== -->
+<div class="tab-panel" id="tab-viva">
+  <div class="section-header">
+    <h1 class="section-title">🗣️ Viva Questions</h1>
+    <p class="section-sub">12 high-level questions — click to reveal model answers</p>
+  </div>
+  <div id="vivaContainer"></div>
+</div>
+
+</main>
+
+<script>
+// ==================== DATA ====================
+const QUIZ_DATA = [
+  {q:"Why is exogenous dopamine ineffective in treating Parkinson's disease?",opts:["It rapidly converts to a toxic metabolite","It triggers fatal arrhythmias at therapeutic doses","It cannot cross the Blood-Brain Barrier","It only acts on D1 receptors","It permanently inhibits the indirect pathway"],correct:2,exp:"Dopamine is highly ionized at physiological pH and structurally cannot cross the BBB, necessitating use of prodrugs like Levodopa. Peripherally it causes CV side effects but no central benefit.",tags:["HIGH YIELD","EXAM ⭐"]},
+  {q:"What is the precise pharmacological role of Carbidopa in combination therapy?",opts:["It agonizes central D2 receptors","It inhibits aromatic amino acid decarboxylase peripherally","It blocks peripheral COMT","It acts as a dopamine releaser","It prevents central metabolism of dopamine"],correct:1,exp:"Carbidopa is an AAAD inhibitor that is highly ionized and cannot cross the BBB. It prevents peripheral conversion of L-dopa → dopamine, reducing GI/CVS side effects and allowing 75% dose reduction.",tags:["EXAM ⭐"]},
+  {q:"A physician adds Entacapone to a patient's Levodopa regimen. By which mechanism does this improve symptoms?",opts:["By preventing the formation of 3-O-methyldopa (3-OMD)","By inhibiting MAO-B in the brain","By stimulating dopamine release from nigrostriatal neurons","By blocking central muscarinic receptors","By directly activating post-synaptic D2 receptors"],correct:0,exp:"Entacapone inhibits COMT, reducing peripheral conversion of Levodopa to 3-OMD, which normally competes with L-dopa for BBB transporters, thereby increasing central L-dopa bioavailability.",tags:["MECHANISM"]},
+  {q:"Which drug blocks muscarinic M2 receptors to restore neurochemical balance in the striatum?",opts:["Bromocriptine","Trihexyphenidyl","Selegiline","Tolcapone","Apomorphine"],correct:1,exp:"Trihexyphenidyl and Benztropine are central muscarinic antagonists that reduce cholinergic overactivity in the striatum, beneficial for tremor and sialorrhea.",tags:["CLINICAL"]},
+  {q:"How does Selegiline increase central dopamine levels?",opts:["By selectively inhibiting dopamine breakdown by MAO-B","By acting as a direct dopamine receptor agonist","By inhibiting the COMT enzyme peripherally","By enhancing absorption of Levodopa in the GI tract","By blocking the reuptake of acetylcholine"],correct:0,exp:"Selegiline is a selective MAO-B inhibitor that stops the metabolism of dopamine in the basal ganglia, raising striatal dopamine concentrations.",tags:["MECHANISM"]},
+  {q:"What is the mechanism behind the 'wearing-off' effect observed in Levodopa therapy?",opts:["Downregulation of dopamine receptors","Short half-life of Levodopa causing rapid return of bradykinesia","Peripheral accumulation of 3-OMD","Overstimulation of NMDA receptors","Auto-oxidation of dopamine in the synapse"],correct:1,exp:"Levodopa has a short therapeutic effect (1–2 hours) per dose, leading to rapid fluctuations in motor control — predictable end-of-dose deterioration.",tags:["EXAM ⭐"]},
+  {q:"Which agent acts primarily as a dopamine releaser AND NMDA receptor antagonist?",opts:["Levodopa","Amantadine","Rasagiline","Istradefylline","Haloperidol"],correct:1,exp:"Amantadine was originally an anti-influenza antiviral. It increases dopamine release from nigrostriatal neurons, inhibits its reuptake, and blocks NMDA receptors (reducing excitotoxicity).",tags:["HIGH YIELD"]},
+  {q:"How does normal dopamine release from the SNc facilitate movement?",opts:["Stimulates D1 to activate direct pathway and D2 to inhibit indirect pathway","Stimulates D2 to activate both pathways simultaneously","Inhibits D1 to block the direct pathway","Blocks D1 and D2 completely","Enhances acetylcholine release in the striatum"],correct:0,exp:"Dopamine from SNc stimulates D1 receptors (activating direct pathway → movement facilitated) and stimulates D2 receptors (inhibiting indirect pathway → less movement suppression). Net effect = movement.",tags:["MECHANISM"]},
+  {q:"Why are high doses of Levodopa associated with dyskinesia?",opts:["Toxic metabolite accumulation","Excessive dopamine concentrations in the striatum","Severe anticholinergic rebound","Peripheral vasodilation","Hyperactivation of the reticular activating system"],correct:1,exp:"Long-term high-dose L-dopa leads to excessive dopamine in the striatum, causing involuntary movements (dyskinesias) — the opposite problem from PD itself.",tags:["CLINICAL"]},
+  {q:"Istradefylline decreases motor fluctuations via which specific mechanism?",opts:["D2 agonism","COMT inhibition","Adenosine A2 receptor antagonism","MAO-A inhibition","Muscarinic blockade"],correct:2,exp:"Istradefylline is the first adenosine A2A receptor antagonist approved as an add-on to Sinemet (Levodopa/Carbidopa) to reduce 'off' time in PD patients.",tags:["MECHANISM"]},
+  {q:"Why does typical antipsychotic use (e.g., haloperidol) induce Parkinson-like symptoms?",opts:["They destroy the substantia nigra","They block dopamine receptors in the basal ganglia","They deplete acetylcholine","They act as MAO inhibitors","They cause severe neuroinflammation"],correct:1,exp:"Antipsychotics treat psychosis by blocking D2 receptors in the mesolimbic pathway, but also inadvertently block them in the nigrostriatal pathway, mimicking dopamine deficiency = drug-induced Parkinsonism.",tags:["CLINICAL"]},
+  {q:"How does Domperidone alleviate Levodopa-induced nausea WITHOUT worsening Parkinsonian motor symptoms?",opts:["It stimulates central D2 receptors","It blocks peripheral D2 receptors in the CTZ but cannot cross the BBB","It increases gastric emptying via serotonin receptors","It acts as an antihistamine","It metabolizes excess dopamine"],correct:1,exp:"Domperidone blocks dopamine receptors in the Chemoreceptor Trigger Zone (CTZ), which sits outside the BBB. It cannot enter the brain, so Parkinsonian control is unaffected.",tags:["CLINICAL PEARL"]},
+  {q:"What is the mechanism behind orthostatic hypotension caused by Levodopa?",opts:["Central respiratory depression","Alpha-receptor agonism","Peripheral conversion to dopamine causing cardiovascular effects","Direct myocardial toxicity","Diuretic effect"],correct:2,exp:"Peripheral decarboxylation of L-dopa forms dopamine in peripheral tissues. Dopamine acts on cardiovascular receptors causing hypotension and cardiac arrhythmias.",tags:["MECHANISM"]},
+  {q:"What occurs when a patient takes an abnormally high dose of Selegiline?",opts:["It loses its absorption capacity","It begins to inhibit MAO-A as well, risking tyramine interaction","It completely converts to amphetamine","It permanently blocks D1 receptors","It causes acute liver failure"],correct:1,exp:"At high doses, Selegiline loses its MAO-B selectivity and inhibits MAO-A as well, creating risk for severe hypertensive reaction ('cheese reaction') with tyramine-rich foods.",tags:["EXAM ⭐"]},
+  {q:"Why do anticholinergic drugs have little effect on bradykinesia?",opts:["They cannot penetrate the BBB","Bradykinesia is solely dependent on dopamine deficiency, while tremors are influenced by relative ACh excess","They are rapidly degraded by cholinesterase","They only act on peripheral nerves","They cause severe drowsiness"],correct:1,exp:"Anticholinergics address the ACh-side of the DA/ACh imbalance. Bradykinesia is primarily a consequence of dopamine deficiency and does not respond to reducing ACh.",tags:["MECHANISM"]},
+  {q:"Parkinson's disease is pathologically characterized by the presence of:",opts:["Neurofibrillary tangles","Amyloid plaques","Lewy bodies","Negri bodies","Aschoff bodies"],correct:2,exp:"Lewy bodies are intraneuronal inclusion bodies containing α-synuclein protein — the hallmark pathology of PD. Neurofibrillary tangles = Alzheimer's. Negri bodies = Rabies. Aschoff bodies = Rheumatic fever.",tags:["DEFINITION"]},
+  {q:"Which specific neural pathway undergoes progressive degeneration in Parkinson's disease?",opts:["Mesolimbic pathway","Tuberoinfundibular pathway","Nigrostriatal pathway","Spinothalamic tract","Corticospinal tract"],correct:2,exp:"The nigrostriatal pathway (neurons projecting from substantia nigra pars compacta to striatum) is the primary site of degeneration in PD, explaining the motor symptoms.",tags:["DEFINITION"]},
+  {q:"Which drug acts as an antiviral agent while also being utilized in Parkinson's disease?",opts:["Selegiline","Tolcapone","Amantadine","Pramipexole","Bromocriptine"],correct:2,exp:"Amantadine was originally an anti-influenza drug before its anti-Parkinsonian properties were discovered. It releases dopamine and blocks NMDA receptors.",tags:["HIGH YIELD"]},
+  {q:"Hyperactivation of the mesolimbic-mesocortical pathway primarily causes:",opts:["Parkinson's disease","Hyperprolactinemia","Bradykinesia","Schizophrenia and hallucinations","Livedo reticularis"],correct:3,exp:"Excess dopamine activity in the mesolimbic/mesocortical tract produces hallucinations and psychosis. This is why L-dopa can cause psychiatric side effects and why antipsychotics block this pathway.",tags:["DEFINITION"]},
+  {q:"TRAP in the context of Parkinson's Disease stands for:",opts:["A metabolic breakdown pathway","Tremor, Rigidity, Akinesia, Postural instability","A surgical procedure","A class of anticholinergic drugs","The mechanism of Amantadine"],correct:1,exp:"TRAP = Tremor (resting), Rigidity (lead-pipe/cogwheel), Akinesia/bradykinesia, Postural instability — the four cardinal clinical features of PD.",tags:["DEFINITION"]},
+  {q:"Stalevo® is a fixed-dose combination containing which three components?",opts:["Levodopa, Carbidopa, Selegiline","Levodopa, Carbidopa, Entacapone","Levodopa, Tolcapone, Amantadine","Carbidopa, Bromocriptine, Trihexyphenidyl","Levodopa, Carbidopa, Haloperidol"],correct:1,exp:"Stalevo combines Levodopa + Carbidopa (Sinemet) + Entacapone in a single tablet. The COMT inhibitor prolongs L-dopa's effect and reduces 'wearing-off'.",tags:["DEFINITION"]},
+  {q:"Compare Tolcapone and Entacapone — which statement is TRUE?",opts:["Entacapone is highly hepatotoxic, Tolcapone is safe","Tolcapone acts only peripherally","Tolcapone acts both centrally and peripherally but is hepatotoxic","Entacapone is an MAO-B inhibitor","Tolcapone is preferred for mild disease monotherapy"],correct:2,exp:"Tolcapone inhibits COMT both centrally and peripherally but carries significant hepatotoxicity risk. Entacapone works only peripherally and is the safer liver-friendly alternative.",tags:["EXAM ⭐","COMPARISON"]},
+  {q:"Which class of dopamine agonists includes Pramipexole?",opts:["Ergot derivatives","Non-ergot derivatives","Muscarinic blockers","Antivirals","Decarboxylase inhibitors"],correct:1,exp:"Pramipexole and Apomorphine are non-ergot dopamine agonists. Bromocriptine is the ergot derivative. Ergot agonists carry risk of vasospasm; non-ergot do not.",tags:["COMPARISON"]},
+  {q:"A patient taking Levodopa should restrict dietary protein intake because:",opts:["Protein increases the risk of hepatotoxicity","Amino acids compete with Levodopa for BBB transporters, decreasing central delivery","Protein permanently binds to Carbidopa","Protein enhances the MAO-B enzyme","Protein causes severe gastric ulcers"],correct:1,exp:"High-protein diets → high amino acid levels → competition with L-dopa for the same large neutral amino acid transporters at the BBB → less L-dopa enters the brain.",tags:["EXAM ⭐"]},
+  {q:"Which patient profile represents a strict contraindication for Trihexyphenidyl therapy?",opts:["A 45-year-old female with hyperprolactinemia","A 70-year-old male with BPH and dementia","A 60-year-old male with drug-induced Parkinsonism","A 50-year-old female with severe sialorrhea","A 65-year-old male with resting tremor, no cognitive decline"],correct:1,exp:"Anticholinergics like Trihexyphenidyl are contraindicated in BPH (causes urinary retention due to detrusor relaxation), Glaucoma (mydriasis increases IOP), and Dementia (worsens cognitive decline).",tags:["CONTRAINDICATION","EXAM ⭐"]}
+];
+
+const FLASHCARD_DATA = [
+  {q:"Why is systemic dopamine useless for PD?",a:"Dopamine is highly ionized at physiological pH → cannot cross the BBB. Causes severe peripheral side effects with no central therapeutic benefit."},
+  {q:"What is the mechanism of action of Levodopa?",a:"Levodopa (prodrug) crosses the BBB via neutral amino acid transporters → converted to dopamine by AAAD in the brain → restores dopaminergic signaling."},
+  {q:"Why is Carbidopa added to Levodopa?",a:"Carbidopa inhibits peripheral AAAD (cannot cross BBB) → prevents peripheral L-dopa→dopamine conversion → reduces GI/CVS side effects → allows 75% L-dopa dose reduction."},
+  {q:"What is Sinemet?",a:"Levodopa + Carbidopa combined tablet. Standard first-line PD treatment. Increases CNS L-dopa bioavailability to ~60% vs ~5% with L-dopa alone."},
+  {q:"What is Stalevo?",a:"Triple combination: Levodopa + Carbidopa + Entacapone. COMT inhibitor prolongs L-dopa half-life and reduces 'wearing-off' episodes."},
+  {q:"Why should Vitamin B6 (pyridoxine) be avoided with Levodopa?",a:"Pyridoxine is a cofactor for AAAD → enhances peripheral decarboxylation of L-dopa → less L-dopa reaches the brain → worsens PD control. ⭐ EXAM MCQ"},
+  {q:"Difference: 'Wearing-off' vs 'On-off' phenomenon?",a:"Wearing-off = predictable end-of-dose deterioration (1–2 hrs). On-off = sudden, unpredictable fluctuation between mobility and immobility. Both are long-term L-dopa complications."},
+  {q:"Entacapone mechanism + advantage over Tolcapone?",a:"Both are COMT inhibitors. Entacapone = peripheral COMT only + NO hepatotoxicity. Tolcapone = peripheral + central COMT + HEPATOTOXIC (monitor LFTs)."},
+  {q:"Selegiline: mechanism and unique side effect?",a:"Selective MAO-B inhibitor → blocks central dopamine breakdown → raises striatal DA. Unique: causes INSOMNIA due to amphetamine-like metabolites. At high doses: loses selectivity → tyramine reaction."},
+  {q:"What is Apomorphine used for in PD?",a:"Non-ergot D2 agonist given subcutaneously for ACUTE intermittent hypomobility ('freezing' episodes). Rapid onset 5–10 minutes. ⭐ EXAM MCQ"},
+  {q:"Ergot vs Non-ergot dopamine agonists?",a:"Ergot (Bromocriptine): D2 agonist, risk of VASOSPASM. Non-ergot (Pramipexole, Apomorphine): D2 agonists, NO vasospasm. Both have longer duration and no 'on-off' effect vs L-dopa."},
+  {q:"Amantadine: dual mechanism?",a:"(1) Increases dopamine release + inhibits reuptake from nigrostriatal neurons. (2) NMDA receptor antagonist → reduces glutamate excitotoxicity. Also causes LIVEDO RETICULARIS (reddish-blue mottled skin)."},
+  {q:"Anticholinergics: which symptoms do they treat best?",a:"Tremor ✅ and Sialorrhea ✅ — best responders. Bradykinesia ❌ — minimal benefit (bradykinesia is DA-dependent, not ACh-dependent)."},
+  {q:"Anticholinergics: 3 contraindications?",a:"(1) BPH — causes urinary retention. (2) Glaucoma — mydriasis → increases intraocular pressure. (3) Dementia — worsens cognitive decline. All atropine-like side effects."},
+  {q:"Drug-induced Parkinsonism: treatment?",a:"Central anticholinergics (Benztropine or Trihexyphenidyl). Do NOT use dopaminergic drugs — they counteract the antipsychotic and worsen the psychosis."},
+  {q:"How does Domperidone help in PD therapy?",a:"Blocks D2 receptors at the CTZ (Chemoreceptor Trigger Zone) → prevents L-dopa-induced vomiting. CTZ is outside the BBB, so Domperidone cannot enter the brain → doesn't worsen PD."},
+  {q:"What causes hallucinations in PD patients on L-dopa?",a:"Excess dopamine activity in the mesolimbic-mesocortical pathway (same pathway overstimulated in schizophrenia). Treatment: Atypical antipsychotics (quetiapine, clozapine) that spare the nigrostriatal pathway."},
+  {q:"Why does high-protein diet worsen L-dopa efficacy?",a:"Amino acids compete with L-dopa for large neutral amino acid transporters at the BBB → less L-dopa penetrates the brain → reduced therapeutic effect."},
+  {q:"What is Livedo Reticularis?",a:"Reddish-blue mottled discoloration of skin with mild edema, caused by cutaneous vascular changes. Specific characteristic side effect of Amantadine."},
+  {q:"What is 3-O-Methyldopa (3-OMD)?",a:"Metabolite of Levodopa formed by COMT. Competes with L-dopa for BBB transport. Reduced by COMT inhibitors (Entacapone, Tolcapone) → more L-dopa reaches brain."},
+  {q:"Istradefylline mechanism?",a:"Adenosine A2A receptor antagonist. Add-on therapy to Sinemet. Reduces 'off' time and motor fluctuations in PD. Novel mechanism unrelated to dopamine or acetylcholine."},
+  {q:"What are Lewy bodies?",a:"Intraneuronal inclusion bodies containing aggregated α-synuclein protein. Hallmark pathology of Parkinson's disease found in the substantia nigra pars compacta. ≠ Alzheimer's (neurofibrillary tangles/amyloid plaques)."}
+];
+
+const CASES_DATA = [
+  {
+    icon:"🔵",title:"Case 1: The Discolored Secretions",meta:"65-year-old male, on standard Parkinson's therapy",
+    vignette:"A 65-year-old male with PD on Levodopa + Carbidopa notices his sweat and urine have turned a brownish-black color. He is alarmed and presents to the clinic. His motor symptoms are well-controlled.",
+    questions:[
+      {q:"What is the most likely explanation for this finding?",a:"<span class='answer-highlight'>Benign Levodopa metabolite excretion.</span> Peripheral metabolites of Levodopa (including melanin-like oxidation products) can be excreted in sweat, urine, and saliva, causing brownish discoloration. This is a harmless cosmetic side effect — reassure the patient."},
+      {q:"Should the medication be stopped?",a:"No. This finding is clinically insignificant and does not warrant drug discontinuation. The patient should be counseled that it is a known, benign side effect. No dose adjustment is needed."},
+      {q:"What is the mechanism?",a:"Levodopa and its dopamine metabolites undergo oxidation to form <span class='answer-highlight'>melanin-like pigments</span>, which are then excreted in bodily secretions. This is analogous to the substrate-product relationship in melanin synthesis."}
+    ]
+  },
+  {
+    icon:"🧊",title:"Case 2: The Freezing Episode",meta:"70-year-old female, long-term L-dopa therapy",
+    vignette:"A 70-year-old female with advanced PD on Levodopa/Carbidopa has been experiencing sudden 'freezing' episodes — complete inability to move for 5–15 minutes, occurring unpredictably. Her husband calls the emergency line during an episode.",
+    questions:[
+      {q:"What phenomenon is this called?",a:"This is the <span class='answer-highlight'>'On-Off' phenomenon</span> — a sudden, unpredictable fluctuation in clinical state where the patient abruptly shifts from mobile ('on') to completely immobile ('off'). It differs from 'wearing-off' which is predictable end-of-dose deterioration."},
+      {q:"What is the acute treatment of choice?",a:"<span class='answer-highlight'>Subcutaneous Apomorphine injection.</span> This is the only approved treatment for acute intermittent hypomobility (freezing episodes). It is a non-ergot D2 receptor agonist with rapid onset of 5–10 minutes. ⭐ High-yield EXAM point."},
+      {q:"What is the underlying pharmacological mechanism of the freezing?",a:"As PD progresses, the striatum loses capacity to buffer fluctuating L-dopa levels. When plasma L-dopa drops below the therapeutic threshold — even briefly — dopamine receptor stimulation becomes insufficient → sudden loss of motor control. This requires <span class='answer-highlight'>rapid D2 receptor agonism</span> to reverse."}
+    ]
+  },
+  {
+    icon:"👴",title:"Case 3: The Elderly Man in the ER",meta:"72-year-old male, BPH and Parkinson's",
+    vignette:"A 72-year-old male with Parkinson's disease is prescribed Trihexyphenidyl 2mg TID for severe resting tremor. Two days later, he presents to the ER with severe eye pain, blurred vision, and inability to urinate. Examination reveals a hard, distended bladder and a fixed, dilated pupil.",
+    questions:[
+      {q:"What is the diagnosis?",a:"<span class='answer-highlight'>Acute urinary retention</span> (from BPH + anticholinergic-induced detrusor relaxation) AND <span class='answer-highlight'>acute angle-closure glaucoma</span> (from anticholinergic-induced mydriasis blocking the drainage angle)."},
+      {q:"What was the prescribing error?",a:"Trihexyphenidyl (an anticholinergic) is <span class='answer-highlight'>strictly contraindicated</span> in patients with Benign Prostatic Hyperplasia (BPH) and Glaucoma. Anticholinergics inhibit detrusor contraction → urinary retention, and cause mydriasis → increased intraocular pressure."},
+      {q:"What alternative could be considered for his tremor?",a:"For tremor in a patient with BPH/Glaucoma, consider a <span class='answer-highlight'>dopamine agonist or L-dopa/Carbidopa</span>. The anticholinergic must be discontinued immediately and the complications managed (catheterization, IOP-lowering agents)."}
+    ]
+  },
+  {
+    icon:"💊",title:"Case 4: The Multivitamin Problem",meta:"58-year-old male, recently started supplements",
+    vignette:"A 58-year-old male with well-controlled PD on Levodopa/Carbidopa (without Carbidopa was unavailable for 2 months but now added) starts taking a B-complex multivitamin on his physician's advice for 'nerve health.' Two weeks later he reports worsening tremors and stiffness.",
+    questions:[
+      {q:"What is the cause of symptom worsening?",a:"<span class='answer-highlight'>Vitamin B6 (pyridoxine)</span> in the multivitamin acts as a cofactor for aromatic amino acid decarboxylase (AAAD). This enhances peripheral decarboxylation of Levodopa → less L-dopa crosses the BBB → reduced central dopamine. ⭐ Classic EXAM MCQ."},
+      {q:"Why is Carbidopa protective here?",a:"Carbidopa is an AAAD inhibitor. When Carbidopa is present, peripheral AAAD is already inhibited — so extra pyridoxine has minimal additional effect. This is one reason why Levodopa should always be combined with Carbidopa."},
+      {q:"What is the management?",a:"Discontinue the Vitamin B6-containing supplement. If B-vitamin supplementation is needed, ensure Carbidopa is coadministered. With Carbidopa, Vitamin B6 interactions are significantly reduced."}
+    ]
+  },
+  {
+    icon:"🌐",title:"Case 5: The Amantadine Rash",meta:"61-year-old female, Parkinson's monotherapy",
+    vignette:"A 61-year-old female with early PD is started on Amantadine monotherapy. After 3 weeks, she develops a reddish-blue, lace-like mottling of her lower limbs, most prominent on her calves, with mild pitting edema. Her PD symptoms are improved.",
+    questions:[
+      {q:"What is this skin finding called?",a:"<span class='answer-highlight'>Livedo Reticularis</span> — a dermatological condition characterized by a reddish-blue mottled (net-like) discoloration of the skin with mild edema. It is a characteristic and well-documented side effect of Amantadine."},
+      {q:"What is Amantadine's mechanism in PD?",a:"Dual mechanism: (1) <span class='answer-highlight'>Increases dopamine release</span> from nigrostriatal neurons and inhibits its reuptake. (2) <span class='answer-highlight'>NMDA receptor antagonist</span> — reduces glutamate-mediated excitotoxicity. Originally developed as an antiviral (anti-influenza) drug."},
+      {q:"Should Amantadine be discontinued?",a:"Livedo reticularis from Amantadine is typically benign and reversible on discontinuation. The decision depends on the <span class='answer-highlight'>benefit-risk ratio</span> — if PD control is good and the rash is cosmetically acceptable, continuation may be considered with close monitoring. It usually resolves within weeks of stopping the drug."}
+    ]
+  },
+  {
+    icon:"🤢",title:"Case 6: The Nauseated Patient",meta:"67-year-old male, new L-dopa therapy",
+    vignette:"A 67-year-old male newly diagnosed with PD is started on Levodopa monotherapy. He returns after 1 week with severe nausea and vomiting. His physician adds Carbidopa and Domperidone to the regimen. His GI symptoms resolve within days.",
+    questions:[
+      {q:"Where does L-dopa-induced nausea originate?",a:"The <span class='answer-highlight'>Chemoreceptor Trigger Zone (CTZ)</span> in the area postrema of the medulla. The CTZ is located outside the BBB, so peripheral dopamine (from L-dopa peripheral conversion) can directly stimulate D2 receptors there → vomiting."},
+      {q:"How does Domperidone prevent nausea without worsening PD?",a:"Domperidone blocks <span class='answer-highlight'>D2 receptors at the CTZ</span>. Crucially, it is highly ionized and <span class='answer-highlight'>cannot cross the BBB</span>. Therefore, it stops vomiting signals without entering the brain and without antagonizing the therapeutic dopaminergic effects in the striatum."},
+      {q:"Why does Carbidopa also help with nausea?",a:"Carbidopa inhibits peripheral AAAD → <span class='answer-highlight'>less L-dopa is converted to dopamine peripherally</span> → less peripheral dopamine reaches the CTZ → reduced emesis. Additionally, this allows the L-dopa dose to be reduced by 75%, further decreasing peripheral dopamine levels."}
+    ]
+  }
+];
+
+const PATHO_STRUCTURES = [
+  {name:"Substantia Nigra pars compacta",sub:"SNc — Primary lesion site",detail:"Cell bodies of dopaminergic neurons that project to the striatum via the nigrostriatal pathway. Progressive degeneration in PD leads to dopamine deficiency. Contains Lewy bodies (α-synuclein aggregates). ~80% of neurons must die before symptoms appear — explaining the long prodromal phase."},
+  {name:"Striatum (Caudate + Putamen)",sub:"Main target of SNc projections",detail:"Receives dopaminergic input from the SNc. In PD: loss of dopamine → caudate nucleus becomes hyperactive (excessive ACh activity). The striatum is the site where the DA/ACh balance must be restored by pharmacotherapy."},
+  {name:"Globus Pallidus (GPi/GPe)",sub:"Output nuclei of basal ganglia",detail:"GPi = internal segment (main output gate). In PD: without adequate D1 stimulation of direct pathway, GPi becomes hyperactive → excessively inhibits thalamus → less cortical activation → bradykinesia and rigidity."},
+  {name:"Subthalamic Nucleus (STN)",sub:"Indirect pathway component",detail:"In the indirect pathway: normally kept in check by GPe (which is inhibited by DA via D2). In PD: D2 stimulation ↓ → GPe disinhibited? No — GPe is LESS inhibited, so STN gets LESS inhibitory input → STN overactivates → activates GPi → thalamus inhibited → movement suppressed."},
+  {name:"Thalamus (VA/VL)",sub:"Motor relay to cortex",detail:"Receives inhibitory input from GPi. In normal state: dopamine allows direct pathway to disinhibit thalamus → facilitates movement. In PD: excess GPi inhibition → thalamus cannot activate motor cortex → bradykinesia."},
+  {name:"Lewy Bodies (α-synuclein)",sub:"Pathological hallmark of PD",detail:"Intraneuronal inclusion bodies containing misfolded α-synuclein protein filaments. Found in SNc neurons. Their accumulation correlates with neurodegeneration. Their presence distinguishes PD from other parkinsonian syndromes (e.g., MSA, PSP). Also found in Lewy body dementia."},
+  {name:"AAAD (Aromatic AA Decarboxylase)",sub:"Key enzyme in L-dopa metabolism",detail:"Enzyme that converts L-dopa → dopamine, both peripherally and centrally. Inhibited by Carbidopa (peripheral). Requires Vitamin B6 as cofactor — hence B6 supplements worsen L-dopa efficacy. Also called DOPA decarboxylase."},
+  {name:"CTZ (Chemoreceptor Trigger Zone)",sub:"Outside BBB — nausea center",detail:"Located in the area postrema of the medulla oblongata. Positioned outside the blood-brain barrier. Rich in D2 receptors — stimulated by peripheral dopamine from L-dopa conversion → vomiting. Domperidone acts here without crossing the BBB."}
+];
+
+const PATHO_STEPS = [
+  {num:"1",color:"blue",title:"Normal State: DA/ACh Balance",detail:"In the healthy nigrostriatal system, dopamine from SNc neurons inhibits the caudate nucleus, balancing excitatory acetylcholine activity. This equilibrium allows smooth, coordinated movement initiation."},
+  {num:"2",color:"red",title:"Neurodegeneration Begins",detail:"Progressive death of dopaminergic neurons in the SNc — driven by α-synuclein aggregation (Lewy body formation), mitochondrial dysfunction, and oxidative stress from dopamine metabolism (H₂O₂ production by MAO)."},
+  {num:"3",color:"orange",title:"Dopamine Deficiency → ACh Excess",detail:"As SNc neurons die, striatal dopamine drops. Acetylcholine from interneurons becomes relatively unopposed (relative cholinergic excess). The DA/ACh balance is disrupted — the pharmacological target for ALL PD drugs."},
+  {num:"4",color:"orange",title:"Basal Ganglia Circuit Disruption",detail:"With less D1 stimulation → direct pathway underactive. With less D2 stimulation → indirect pathway overactive. Both converge on GPi hyperactivity → excessive thalamic inhibition → reduced motor cortex activation."},
+  {num:"5",color:"red",title:"Clinical Manifestations: TRAP",detail:"Tremor (resting, 4-6 Hz) from ACh excess. Rigidity from increased muscle tone. Akinesia/Bradykinesia from reduced cortical motor activation. Postural instability from loss of protective reflexes."},
+  {num:"6",color:"green",title:"Pharmacological Restoration",detail:"Treatment aims to restore balance: (1) Increase DA — L-dopa, DA agonists, MAO-B/COMT inhibitors, Amantadine. (2) Decrease ACh — anticholinergics. Goal: re-establish the DA/ACh equilibrium."}
+];
+
+const DRUGS_TABLE = [
+  {name:"Levodopa",cls:"Dopamine Precursor",moa:"Crosses BBB → converted to DA by central AAAD",se:"Dyskinesia, nausea, hallucinations, brownish secretions, orthostatic hypotension",contra:"Active psychosis; use with caution in cardiac arrhythmias",exam:"Mechanism of action is a written Q ⭐"},
+  {name:"Carbidopa",cls:"Peripheral AAAD inhibitor",moa:"Inhibits peripheral AAAD (cannot cross BBB) → reduces peripheral L-dopa degradation",se:"Used to reduce L-dopa side effects — does not have independent CNS SE",contra:"Should not be used alone",exam:"Combination with L-dopa is a written Q ⭐"},
+  {name:"Entacapone",cls:"COMT inhibitor (peripheral)",moa:"Inhibits peripheral COMT → prevents L-dopa→3-OMD conversion",se:"Diarrhea, brownish urine discoloration, dyskinesia (from prolonged L-dopa)",contra:"None major (unlike Tolcapone)",exam:"Part of Stalevo triple combo ⭐"},
+  {name:"Tolcapone",cls:"COMT inhibitor (central + peripheral)",moa:"Inhibits COMT both peripherally and centrally",se:"HEPATOTOXICITY (monitor LFTs!), diarrhea",contra:"Liver disease",exam:"Hepatotoxic — EXAM MCQ ⭐"},
+  {name:"Selegiline",cls:"Selective MAO-B inhibitor",moa:"Inhibits central MAO-B → prevents dopamine breakdown → raises striatal DA",se:"Insomnia (amphetamine-like metabolites), hypertensive crisis at high doses (loses selectivity)",contra:"Concurrent SSRIs/TCAs (serotonin syndrome risk)",exam:"Insomnia side effect is EXAM MCQ ⭐"},
+  {name:"Rasagiline",cls:"Selective MAO-B inhibitor",moa:"More potent, selective MAO-B inhibitor. No amphetamine metabolite.",se:"Minimal — headache, arthralgia",contra:"Concurrent SSRIs at high doses",exam:"Compared to selegiline: less insomnia"},
+  {name:"Bromocriptine",cls:"Ergot dopamine agonist",moa:"Direct D2 receptor agonist. No 'on-off' effect. Longer duration than L-dopa.",se:"Vasospasm (ergot effect!), nausea, hallucinations, fibrosis",contra:"CAD, peripheral vascular disease",exam:"Ergot = vasospasm risk ⭐"},
+  {name:"Pramipexole",cls:"Non-ergot dopamine agonist",moa:"Direct D2/D3 receptor agonist. No vasospasm.",se:"Daytime somnolence, nausea, impulse control disorders",contra:"Use caution in renal impairment",exam:"Non-ergot = no vasospasm"},
+  {name:"Apomorphine",cls:"Non-ergot dopamine agonist (injectable)",moa:"Rapid-acting D2 agonist given subcutaneously",se:"Nausea (severe), orthostatic hypotension, skin nodules",contra:"Must pretreat with antiemetic (Domperidone)",exam:"Acute freezing episodes = Apomorphine ⭐"},
+  {name:"Amantadine",cls:"Antiviral / DA releaser / NMDA antagonist",moa:"Increases DA release, inhibits reuptake, blocks NMDA receptors",se:"LIVEDO RETICULARIS, ankle edema, hallucinations, insomnia",contra:"Renal failure (renally cleared)",exam:"Livedo reticularis = Amantadine ⭐"},
+  {name:"Trihexyphenidyl",cls:"Central anticholinergic",moa:"Blocks central M2 muscarinic receptors → reduces striatal ACh activity",se:"Dry mouth, urinary retention, blurred vision, memory impairment",contra:"BPH, Glaucoma, Dementia (elderly!)",exam:"Contraindications are EXAM ⭐"},
+  {name:"Benztropine",cls:"Central anticholinergic",moa:"Central M2 muscarinic antagonist. DOC for drug-induced Parkinsonism.",se:"Similar to trihexyphenidyl — atropine-like",contra:"BPH, Glaucoma, Dementia",exam:"DOC for drug-induced Parkinsonism ⭐"},
+  {name:"Istradefylline",cls:"Adenosine A2A antagonist",moa:"Blocks A2A receptors → modulates indirect pathway → reduces 'off' time",se:"Dyskinesia, insomnia, nausea",contra:"Adjunct only — not monotherapy",exam:"Novel mechanism — adenosine antagonist ⭐"},
+  {name:"Domperidone",cls:"Peripheral D2 antagonist (antiemetic)",moa:"Blocks D2 at CTZ (outside BBB) → prevents L-dopa-induced vomiting",se:"Hyperprolactinemia, cardiac QT prolongation",contra:"Cannot be used for Parkinsonism (no CNS entry)",exam:"Does NOT cross BBB — EXAM MCQ ⭐"}
+];
+
+const TREATMENT_DRUGS = [
+  {name:"Levodopa + Carbidopa",sub:"Sinemet® — Gold Standard",cls:"dopamine",moa:"L-dopa crosses BBB → central dopamine. Carbidopa blocks peripheral AAAD → 75% dose reduction.",props:["First-line therapy","Gold standard","Both direct and indirect route"],warn:"Long-term: dyskinesias, wearing-off, on-off phenomenon, hallucinations"},
+  {name:"Entacapone",sub:"Comtan® — Adjunct to L-dopa",cls:"enzyme",moa:"Peripheral COMT inhibitor → prevents 3-OMD formation → prolongs L-dopa half-life",props:["Adjunct only","No hepatotoxicity","Part of Stalevo"],warn:"Diarrhea, brownish urine discoloration"},
+  {name:"Tolcapone",sub:"Tasmar® — Central + Peripheral",cls:"enzyme",moa:"Central + peripheral COMT inhibitor → maximum L-dopa bioavailability",props:["More potent than Entacapone","Central action","Hepatotoxic — monitor LFTs"],warn:"⚠️ HEPATOTOXIC — check liver enzymes before prescribing!",danger:true},
+  {name:"Selegiline",sub:"Eldepryl® — MAO-B Inhibitor",cls:"enzyme",moa:"Selective MAO-B inhibitor → blocks dopamine breakdown in the brain",props:["Monotherapy: mild disease","Adjunct: moderate disease","Neuroprotective?"],warn:"Insomnia (amphetamine-like metabolite). High doses → tyramine reaction risk"},
+  {name:"Pramipexole",sub:"Mirapex® — Non-Ergot Agonist",cls:"agonist",moa:"Direct D2/D3 receptor agonist. No 'on-off' effect. Longer duration than L-dopa.",props:["No vasospasm risk","Longer duration","Can delay L-dopa initiation"],warn:"Impulse control disorders, daytime somnolence, nausea"},
+  {name:"Apomorphine",sub:"Apokyn® — Rescue Therapy",cls:"agonist",moa:"Rapid-acting injectable D2 agonist — approved for acute freezing episodes",props:["⭐ Rescue for freezing","Onset: 5–10 minutes","Subcutaneous injection"],warn:"Severe nausea — must pretreat with Domperidone. Skin nodules at injection sites",danger:true},
+  {name:"Amantadine",sub:"Symmetrel® — Dual Mechanism",cls:"special",moa:"(1) DA release + inhibits reuptake. (2) NMDA receptor antagonist",props:["Antiviral origin","Good for dyskinesias","NMDA antagonism"],warn:"Livedo reticularis, ankle edema, hallucinations"},
+  {name:"Benztropine / Trihexyphenidyl",sub:"Cogentin® / Artane® — Anticholinergics",cls:"anti",moa:"Central M2 muscarinic blockers → reduce cholinergic excess in striatum",props:["Best for tremor","Helps sialorrhea","DOC: drug-induced PD"],warn:"⚠️ Contraindicated: BPH, Glaucoma, Dementia. Atropine-like side effects.",danger:true}
+];
+
+const MNEMONICS_DATA = [
+  {
+    word:"TRAP",
+    colors:["#63b3ed","#9f7aea","#f6ad55","#fc8181"],
+    title:"Cardinal Signs of Parkinson's Disease",
+    items:[
+      {letter:"T",color:"#63b3ed",word:"Tremor",detail:"Resting tremor ('pill-rolling'), 4-6 Hz. Suppressed by voluntary movement. Best treated by anticholinergics."},
+      {letter:"R",color:"#9f7aea",word:"Rigidity",detail:"'Lead-pipe' or 'cogwheel' rigidity. Increased muscle tone. Responds to dopaminergic drugs."},
+      {letter:"A",color:"#f6ad55",word:"Akinesia / Bradykinesia",detail:"Slowness of movement initiation. Most disabling. Best treated by L-dopa and DA agonists."},
+      {letter:"P",color:"#fc8181",word:"Postural Instability",detail:"Late feature. Festinating gait, falls. Reduced postural reflexes. Multifactorial etiology."}
+    ]
+  },
+  {
+    word:"SINEMET",
+    colors:["#63b3ed","#68d391","#9f7aea","#f6ad55","#fc8181","#63b3ed","#f6e05e"],
+    title:"Remember what Sinemet combination does",
+    items:[
+      {letter:"S",color:"#63b3ed",word:"Stop peripheral breakdown",detail:"Carbidopa stops peripheral AAAD → prevents L-dopa degradation outside CNS"},
+      {letter:"I",color:"#68d391",word:"Increase CNS delivery",detail:"More L-dopa reaches the brain — bioavailability rises from ~5% to ~60%"},
+      {letter:"N",color:"#9f7aea",word:"Nausea is reduced",detail:"Less peripheral dopamine → less CTZ stimulation → less nausea"},
+      {letter:"E",color:"#f6ad55",word:"Efficacy improved",detail:"Same therapeutic effect with 75% less Levodopa required"},
+      {letter:"M",color:"#fc8181",word:"Metabolites reduced",detail:"Fewer peripheral dopamine metabolites → fewer cardiovascular side effects"},
+      {letter:"E",color:"#63b3ed",word:"Enzyme targeted = AAAD",detail:"Carbidopa specifically targets aromatic amino acid decarboxylase peripherally"},
+      {letter:"T",color:"#f6e05e",word:"Two drugs, one pill",detail:"Combined as Sinemet. Triple as Stalevo (+ Entacapone)"}
+    ]
+  },
+  {
+    word:"CAVE",
+    colors:["#fc8181","#9f7aea","#63b3ed","#68d391"],
+    title:"Anticholinergic Contraindications (Danger Signs)",
+    items:[
+      {letter:"C",color:"#fc8181",word:"Closed-angle Glaucoma",detail:"Anticholinergics cause mydriasis → blocks drainage angle → dangerous IOP rise → acute glaucoma attack"},
+      {letter:"A",color:"#9f7aea",word:"Alzheimer's / Dementia",detail:"Anticholinergics worsen cognitive decline in patients with dementia — absolute contraindication in elderly with memory issues"},
+      {letter:"V",color:"#63b3ed",word:"Voiding problems (BPH)",detail:"M2 blockade relaxes detrusor muscle → urinary retention → absolute contraindication in Benign Prostatic Hyperplasia"},
+      {letter:"E",color:"#68d391",word:"Elderly — use caution!",detail:"Even without the above, elderly patients are more susceptible to confusion, falls, dry mouth, and heat stroke from anticholinergic burden"}
+    ]
+  },
+  {
+    word:"COMT-MEN",
+    colors:["#63b3ed","#9f7aea","#f6ad55","#68d391","#f6e05e","#fc8181","#63b3ed"],
+    title:"COMT Inhibitors — Tolcapone vs Entacapone",
+    items:[
+      {letter:"C",color:"#63b3ed",word:"Central action: Tolcapone only",detail:"Tolcapone crosses BBB and inhibits COMT centrally AND peripherally. Entacapone = peripheral only."},
+      {letter:"O",color:"#9f7aea",word:"Only Tolcapone is hepatotoxic",detail:"Tolcapone causes serious hepatotoxicity — monitor LFTs! Entacapone is safe for the liver."},
+      {letter:"M",color:"#f6ad55",word:"More potent = Tolcapone",detail:"Due to dual (central + peripheral) action, Tolcapone offers greater L-dopa bioavailability boost."},
+      {letter:"T",color:"#68d391",word:"Triple combo = Stalevo (has Entacapone)",detail:"Stalevo = L-dopa + Carbidopa + Entacapone. Not Tolcapone — because Entacapone is safer."},
+      {letter:"M",color:"#f6e05e",word:"Metabolites blocked = 3-OMD",detail:"Both block 3-O-Methyldopa formation — the competitor of L-dopa for BBB transporters."},
+      {letter:"E",color:"#fc8181",word:"Entacapone = Everyday safe choice",detail:"Entacapone preferred in clinical practice due to favorable safety profile."},
+      {letter:"N",color:"#63b3ed",word:"Neither is monotherapy",detail:"Both COMT inhibitors are adjuncts only — never used alone for PD treatment."}
+    ]
+  },
+  {
+    word:"SALAMI",
+    colors:["#fc8181","#63b3ed","#9f7aea","#f6ad55","#68d391","#f6e05e"],
+    title:"Selegiline — Key Points",
+    items:[
+      {letter:"S",color:"#fc8181",word:"Selective MAO-B inhibitor",detail:"At normal doses, selectively inhibits MAO-B (DA catabolism). At HIGH doses: loses selectivity → inhibits MAO-A → tyramine reaction risk ('cheese effect')."},
+      {letter:"A",color:"#63b3ed",word:"Amphetamine-like metabolites",detail:"Selegiline is metabolized to L-amphetamine and L-methamphetamine → explains insomnia side effect. ⭐ EXAM MCQ."},
+      {letter:"L",color:"#9f7aea",word:"Low-dose: safe; High-dose: risky",detail:"Dose-dependent selectivity. At low therapeutic doses, MAO-B selective. High doses → MAO-A inhibition."},
+      {letter:"A",color:"#f6ad55",word:"Add-on or monotherapy",detail:"Can be used as monotherapy for mild PD or as adjunct to L-dopa to smooth motor fluctuations."},
+      {letter:"M",color:"#68d391",word:"MAO-B metabolizes DA (not 5-HT)",detail:"MAO-B preferentially metabolizes dopamine and β-phenylethylamine. MAO-A metabolizes serotonin and noradrenaline."},
+      {letter:"I",color:"#f6e05e",word:"Insomnia — give in the MORNING",detail:"Due to amphetamine-like stimulant effect, always prescribe to be taken in the morning to minimize sleep disruption."}
+    ]
+  }
+];
+
+const VIVA_DATA = [
+  {q:"Why is systemic dopamine administration useless for a Parkinson's patient?",exam:true,a:"Dopamine is highly ionized at physiological pH and cannot cross the blood-brain barrier due to its hydrophilic nature. While it causes severe peripheral side effects (hypertension, arrhythmias, nausea), it has no central therapeutic benefit. This is why we use Levodopa — a neutral amino acid that shares BBB transporters with phenylalanine and tyrosine."},
+  {q:"Explain the complete rationale behind the drug 'Sinemet'.",exam:true,a:"Sinemet combines Levodopa (the active prodrug that crosses the BBB) with Carbidopa (a peripheral AAAD inhibitor that cannot cross the BBB). When given alone, ~95% of L-dopa is metabolized peripherally by AAAD, leaving only 1-5% to reach the brain — causing massive peripheral dopamine with severe GI/CV toxicity. Carbidopa blocks this peripheral destruction, increasing CNS L-dopa delivery to ~60%, allowing a 75% dose reduction. This dramatically reduces side effects while maintaining central efficacy."},
+  {q:"A patient on Levodopa reports intense visual hallucinations. What pathway is involved and how do you manage it?",exam:false,a:"Hallucinations result from excessive dopamine activity in the mesolimbic-mesocortical pathway — the same pathway dysregulated in schizophrenia. Management: (1) Reduce L-dopa dose or simplify regimen. (2) Eliminate adjuncts (DA agonists, amantadine). (3) If antipsychotic needed: use atypical agents that spare nigrostriatal pathway — Quetiapine or Clozapine. ⚠️ Never use typical antipsychotics (e.g., haloperidol) — they will worsen Parkinsonism by blocking nigrostriatal D2 receptors."},
+  {q:"Why are Vitamin B6 supplements strictly avoided in patients taking Levodopa (without Carbidopa)?",exam:true,a:"Vitamin B6 (pyridoxine) is an essential cofactor for aromatic amino acid decarboxylase (AAAD). Supplementation enhances the activity of peripheral AAAD, accelerating the peripheral conversion of Levodopa to dopamine. This means less Levodopa crosses the BBB, reducing central dopamine restoration and worsening PD control. This interaction is largely neutralized when Carbidopa is present (since Carbidopa already blocks peripheral AAAD)."},
+  {q:"Distinguish between the 'wearing-off' effect and the 'on-off' phenomenon.",exam:true,a:"Wearing-off: Predictable, end-of-dose deterioration. Occurs as L-dopa plasma levels fall below therapeutic threshold before the next dose. Timing is predictable. Management: shorter dosing intervals, controlled-release Sinemet, COMT inhibitors, MAO-B inhibitors. On-off: Sudden, unpredictable fluctuations — patient abruptly transitions from mobile ('on') to completely immobile ('off') with no clear relation to dose timing. Due to progressive loss of striatal buffering capacity. Management: Apomorphine rescue injection, dopamine agonists, deep brain stimulation."},
+  {q:"What is the specific role of Apomorphine in advanced Parkinson's disease?",exam:true,a:"Apomorphine is a non-ergot dopamine D2 receptor agonist given as a subcutaneous injection. It is the ONLY approved treatment for acute intermittent hypomobility ('freezing episodes') in PD. It acts within 5–10 minutes — far faster than oral agents. It is used as 'rescue therapy' when a patient enters an acute 'off' state. Important: patients must be pretreated with an antiemetic (Domperidone) to prevent severe nausea. Metoclopramide is contraindicated (crosses BBB, worsens PD)."},
+  {q:"How does Bromocriptine differ from Pramipexole structurally and functionally?",exam:false,a:"Both are D2 receptor agonists. Bromocriptine: Ergot derivative — the ergot ring structure can cause vasospasm, pulmonary fibrosis, and retroperitoneal fibrosis. Contraindicated in peripheral vascular disease and CAD. Pramipexole: Non-ergot derivative — lacks the ergot ring, therefore NO vasospasm risk. Preferred clinically. Also has D3 affinity which may have neuroprotective properties. Both have longer duration of action than L-dopa and do not exhibit the 'on-off' phenomenon."},
+  {q:"Why must a physician check liver enzymes before prescribing Tolcapone?",exam:true,a:"Tolcapone (a COMT inhibitor) carries a significant risk of fatal fulminant hepatocellular necrosis — a rare but potentially lethal adverse effect. Before initiation, liver function tests must be normal. LFTs must then be monitored every 2–4 weeks for the first 6 months, then periodically thereafter. Tolcapone must be discontinued immediately if ALT/AST rise above 2× the upper limit of normal or if any clinical signs of liver disease appear. The safer alternative is Entacapone, which acts only peripherally and is not hepatotoxic."},
+  {q:"A patient presents with drug-induced Parkinsonism from typical antipsychotics. What is the drug of choice and why?",exam:true,a:"Drug of choice: Central anticholinergics (Benztropine or Trihexyphenidyl). Rationale: Antipsychotics cause Parkinsonism by blocking nigrostriatal D2 receptors. If we add dopaminergic drugs (L-dopa, DA agonists), they compete with the antipsychotic blockade — potentially overwhelming the antipsychotic effect and worsening the underlying psychosis. Anticholinergics work by reducing the cholinergic side of the DA/ACh imbalance WITHOUT stimulating dopamine receptors. This manages the motor symptoms while respecting the antipsychotic mechanism."},
+  {q:"Why should you NEVER prescribe anticholinergics to a Parkinson's patient with Glaucoma?",exam:true,a:"Anticholinergics (Benztropine, Trihexyphenidyl) are M2 muscarinic blockers. Peripherally, they cause mydriasis (pupil dilation) by blocking the circular pupillary sphincter muscle. In angle-closure glaucoma, the dilated lens-iris complex mechanically blocks the trabecular drainage angle of the anterior chamber. This prevents aqueous humor outflow → acute dangerous rise in intraocular pressure → can cause permanent optic nerve damage and blindness within hours if untreated."},
+  {q:"What is Livedo Reticularis and what drug causes it?",exam:false,a:"Livedo reticularis is a dermatological condition presenting as a reddish-blue, net-like (lace-patterned) mottled discoloration of the skin, most prominent on the extremities, with accompanying mild pitting edema. It is caused by cutaneous vasomotor changes — likely related to catecholamine-mediated vasoconstriction effects on cutaneous vasculature. It is a characteristic and well-documented side effect of Amantadine (the antiviral/DA-releaser/NMDA antagonist). It is reversible upon drug discontinuation."},
+  {q:"Describe the therapeutic logic behind prescribing Domperidone to a Parkinson's patient on L-dopa.",exam:true,a:"Levodopa causes nausea/vomiting by being converted peripherally to dopamine, which stimulates D2 receptors in the Chemoreceptor Trigger Zone (CTZ). The CTZ is located outside the BBB (area postrema). Domperidone blocks these D2 receptors in the CTZ, preventing the emetic signal. Crucially, Domperidone is highly polar and cannot cross the BBB — so it does not antagonize dopaminergic activity in the striatum and does not worsen Parkinsonism. It is the antiemetic of choice for PD patients. ⚠️ Metoclopramide crosses the BBB — contraindicated!"}
+];
+
+// ============ STATE ============
+let quizState = {
+  current: 0,
+  score: 0,
+  streak: 0,
+  answered: new Array(QUIZ_DATA.length).fill(null),
+  cardsFlipped: 0
+};
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('pd_pharma_state');
+    if (s) quizState = { ...quizState, ...JSON.parse(s) };
+  } catch(e) {}
+}
+
+function saveState() {
+  try { localStorage.setItem('pd_pharma_state', JSON.stringify(quizState)); } catch(e) {}
+}
+
+function updateStats() {
+  const answered = quizState.answered.filter(a => a !== null).length;
+  const correct = quizState.answered.filter(a => a === true).length;
+  const pct = Math.round((answered / QUIZ_DATA.length) * 100);
+  document.getElementById('statProgress').textContent = pct + '%';
+  document.getElementById('statScore').textContent = correct + '/' + answered;
+  document.getElementById('statStreak').textContent = quizState.streak;
+  document.getElementById('statCards').textContent = quizState.cardsFlipped || 0;
+  // ring
+  const fill = document.getElementById('ringFill');
+  const dashOffset = 125.6 * (1 - pct / 100);
+  if(fill) fill.style.strokeDashoffset = dashOffset;
+  const ringPct = document.getElementById('ringPct');
+  if(ringPct) ringPct.textContent = pct + '%';
+  document.getElementById('streakCount').textContent = quizState.streak;
+}
+
+// ============ TABS ============
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => {
+    p.classList.toggle('active', p.id === 'tab-' + name);
+  });
+  localStorage.setItem('pd_pharma_tab', name);
+}
+
+document.getElementById('tabsNav').addEventListener('click', e => {
+  const btn = e.target.closest('.tab-btn');
+  if (btn) switchTab(btn.dataset.tab);
+});
+
+// ============ QUIZ ============
+function buildQuiz() {
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = '';
+  const q = QUIZ_DATA[quizState.current];
+  const card = document.createElement('div');
+  card.className = 'question-card';
+  const wasAnswered = quizState.answered[quizState.current];
+  card.innerHTML = `
+    <div class="q-number">QUESTION ${quizState.current + 1} OF ${QUIZ_DATA.length} • ${q.tags.map(t=>`<span class="tag tag-${t==='EXAM ⭐'?'exam':t==='HIGH YIELD'?'high':t==='CLINICAL PEARL'?'pearl':'mech'}">${t}</span>`).join(' ')}</div>
+    <div class="q-text">${q.q}</div>
+    <div class="options-list">
+      ${q.opts.map((o, i) => `
+        <button class="option-btn ${wasAnswered !== null ? (i === q.correct ? 'correct' : (wasAnswered === false && i === quizState._lastChosen ? 'wrong' : '')) : ''}"
+          data-idx="${i}" ${wasAnswered !== null ? 'disabled' : ''}>${String.fromCharCode(65+i)}. ${o}</button>
+      `).join('')}
+    </div>
+    <div class="explanation-box ${wasAnswered !== null ? 'show' : ''}">
+      <div class="why-correct">✅ Why correct: ${String.fromCharCode(65+q.correct)} — ${q.opts[q.correct]}</div>
+      <div style="margin-top:8px;">${q.exp}</div>
+    </div>
+  `;
+  container.appendChild(card);
+
+  document.getElementById('currentQ').textContent = quizState.current + 1;
+  document.getElementById('totalQ').textContent = QUIZ_DATA.length;
+  document.getElementById('quizProgressFill').style.width = ((quizState.current / QUIZ_DATA.length) * 100) + '%';
+
+  card.querySelectorAll('.option-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (quizState.answered[quizState.current] !== null) return;
+      const chosen = parseInt(btn.dataset.idx);
+      const correct = chosen === q.correct;
+      quizState.answered[quizState.current] = correct;
+      quizState._lastChosen = chosen;
+      if (correct) {
+        quizState.score++;
+        quizState.streak++;
+      } else {
+        quizState.streak = 0;
+      }
+      btn.classList.add(correct ? 'correct' : 'wrong');
+      if (!correct) card.querySelectorAll('.option-btn')[q.correct].classList.add('correct');
+      card.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+      card.querySelector('.explanation-box').classList.add('show');
+      saveState();
+      updateStats();
+    });
+  });
+
+  // Nav buttons
+  const nav = document.createElement('div');
+  nav.className = 'quiz-controls';
+  nav.innerHTML = `
+    ${quizState.current > 0 ? '<button class="btn btn-ghost" id="prevBtn">← Previous</button>' : ''}
+    ${quizState.current < QUIZ_DATA.length - 1 
+      ? '<button class="btn btn-primary" id="nextBtn">Next Question →</button>' 
+      : '<button class="btn btn-primary" id="finishBtn">🎯 Finish Quiz</button>'}
+    <button class="btn btn-ghost" id="resetBtn" style="margin-left:auto;">🔄 Reset</button>
+  `;
+  container.appendChild(nav);
+  document.getElementById('prevBtn')?.addEventListener('click', () => { quizState.current--; buildQuiz(); });
+  document.getElementById('nextBtn')?.addEventListener('click', () => { quizState.current++; buildQuiz(); });
+  document.getElementById('finishBtn')?.addEventListener('click', showScore);
+  document.getElementById('resetBtn')?.addEventListener('click', resetQuiz);
+}
+
+function showScore() {
+  document.getElementById('quizContainer').style.display = 'none';
+  const sd = document.getElementById('scoreDisplay');
+  sd.style.display = 'block';
+  const correct = quizState.answered.filter(a => a === true).length;
+  const total = quizState.answered.filter(a => a !== null).length;
+  const pct = Math.round((correct / total) * 100);
+  document.getElementById('scoreBig').textContent = `${correct} / ${total}`;
+  const msgs = ['Keep studying! You\'ve got this 💪', 'Good work! Review the wrong ones 📖', 'Great job! Almost there 🌟', 'Excellent! You nailed it! 🏆', 'Perfect score! Outstanding! 🎉'];
+  document.getElementById('scoreMsg').textContent = msgs[Math.floor(pct / 25)];
+}
+
+function resetQuiz() {
+  quizState.current = 0;
+  quizState.score = 0;
+  quizState.streak = 0;
+  quizState.answered = new Array(QUIZ_DATA.length).fill(null);
+  document.getElementById('quizContainer').style.display = 'block';
+  document.getElementById('scoreDisplay').style.display = 'none';
+  saveState();
+  updateStats();
+  buildQuiz();
+}
+
+// ============ FLASHCARDS ============
+function buildFlashcards() {
+  const grid = document.getElementById('flashcardsGrid');
+  const colors = ['var(--accent)','var(--accent2)','var(--accent3)','var(--accent4)','var(--accent5)'];
+  FLASHCARD_DATA.forEach((fc, i) => {
+    const color = colors[i % colors.length];
+    const wrapper = document.createElement('div');
+    wrapper.className = 'flashcard-wrapper';
+    wrapper.innerHTML = `
+      <div class="flashcard-inner">
+        <div class="flashcard-face flashcard-front" style="border-color:${color}22;">
+          <div class="fc-q-label" style="color:${color};">Q ${i+1} of ${FLASHCARD_DATA.length} · Click to flip</div>
+          <div class="fc-q-text">${fc.q}</div>
+          <div class="fc-hint">🔄 Tap to reveal answer</div>
+        </div>
+        <div class="flashcard-face flashcard-back" style="border-color:${color}55;">
+          <div class="fc-q-label" style="color:${color};">ANSWER</div>
+          <div class="fc-a-text">${fc.a}</div>
+        </div>
+      </div>
+    `;
+    wrapper.addEventListener('click', () => {
+      wrapper.classList.toggle('flipped');
+      if (!wrapper.classList.contains('flipped')) return;
+      quizState.cardsFlipped = (quizState.cardsFlipped || 0) + 1;
+      saveState();
+      updateStats();
+    });
+    grid.appendChild(wrapper);
+  });
+}
+
+// ============ CASES ============
+function buildCases() {
+  const container = document.getElementById('casesContainer');
+  CASES_DATA.forEach(c => {
+    const card = document.createElement('div');
+    card.className = 'case-card';
+    card.innerHTML = `
+      <div class="case-header">
+        <div class="case-icon">${c.icon}</div>
+        <div><div class="case-title">${c.title}</div><div class="case-meta">👤 ${c.meta}</div></div>
+      </div>
+      <div class="vignette-box">📋 ${c.vignette}</div>
+      <div class="case-questions">
+        ${c.questions.map((q, qi) => `
+          <div class="case-q" id="cq-${c.title.replace(/\s/g,'')}-${qi}">
+            <div class="case-q-text" onclick="toggleCaseQ(this.parentElement)">
+              <span>❓ ${q.q}</span>
+              <span class="case-q-arrow">›</span>
+            </div>
+            <div class="case-answer"><div style="padding:14px 18px;">${q.a}</div></div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function toggleCaseQ(el) {
+  el.classList.toggle('open');
+  const answer = el.querySelector('.case-answer');
+  answer.classList.toggle('open');
+}
+
+// ============ PATHOPHYSIOLOGY ============
+function buildPatho() {
+  const grid = document.getElementById('structuresGrid');
+  const detail = document.getElementById('structureDetail');
+  let active = null;
+  PATHO_STRUCTURES.forEach((s, i) => {
+    const item = document.createElement('div');
+    item.className = 'click-item';
+    item.innerHTML = `<div class="click-item-title">${s.name}</div><div class="click-item-sub">${s.sub}</div>`;
+    item.addEventListener('click', () => {
+      if (active) active.classList.remove('active');
+      if (active === item) { active = null; detail.classList.remove('show'); return; }
+      item.classList.add('active');
+      active = item;
+      detail.textContent = s.detail;
+      detail.classList.add('show');
+    });
+    grid.appendChild(item);
+  });
+
+  const stepsContainer = document.getElementById('pathoSteps');
+  PATHO_STEPS.forEach(step => {
+    const div = document.createElement('div');
+    div.className = 'pathway-step';
+    div.innerHTML = `
+      <div class="step-num ${step.color}">${step.num}</div>
+      <div class="step-content">
+        <div class="step-title">${step.title}</div>
+        <div class="step-detail">${step.detail}</div>
+      </div>
+    `;
+    div.addEventListener('click', () => {
+      div.querySelector('.step-detail').classList.toggle('show');
+    });
+    stepsContainer.appendChild(div);
+  });
+}
+
+// ============ DIAGNOSIS TABLE ============
+function buildDiagnosisTable() {
+  const tbody = document.getElementById('drugTableBody');
+  DRUGS_TABLE.forEach(d => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${d.name}</strong></td>
+      <td style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:0.75rem;">${d.cls}</td>
+      <td>${d.moa}</td>
+      <td style="color:var(--accent4);">${d.se}</td>
+      <td style="color:var(--accent5);">${d.contra}</td>
+      <td><span class="tag tag-exam">${d.exam}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ============ TREATMENT ============
+function buildTreatment() {
+  const grid = document.getElementById('treatmentGrid');
+  TREATMENT_DRUGS.forEach(d => {
+    const card = document.createElement('div');
+    card.className = `drug-card ${d.cls}`;
+    card.innerHTML = `
+      <div class="drug-name">${d.name}</div>
+      <div class="drug-class">${d.sub}</div>
+      <div class="drug-mech">${d.moa}</div>
+      <div class="drug-props">${d.props.map(p => `<span class="drug-prop">${p}</span>`).join('')}</div>
+      <div class="drug-warning ${d.danger ? 'danger' : ''}">⚠️ ${d.warn}</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ============ MNEMONICS ============
+function buildMnemonics() {
+  const grid = document.getElementById('mnemonicsGrid');
+  MNEMONICS_DATA.forEach((m, mi) => {
+    const card = document.createElement('div');
+    card.className = 'mnemonic-card';
+    const gradColors = m.colors.slice(0, 3).join(', ');
+    card.innerHTML = `
+      <div class="mnemonic-word" style="background:linear-gradient(135deg,${gradColors});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">${m.word}</div>
+      <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:16px;font-family:'JetBrains Mono',monospace;">${m.title}</div>
+      ${m.items.map((item, i) => `
+        <div class="mnemonic-row">
+          <div class="mnemonic-letter" style="background:${item.color}22;color:${item.color};">${item.letter}</div>
+          <div class="mnemonic-meaning">
+            <strong>${item.word}</strong>
+            <span class="mnemonic-sub">${item.detail}</span>
+          </div>
+        </div>
+      `).join('')}
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ============ VIVA ============
+function buildViva() {
+  const container = document.getElementById('vivaContainer');
+  VIVA_DATA.forEach((v, i) => {
+    const card = document.createElement('div');
+    card.className = 'viva-card';
+    card.innerHTML = `
+      <div class="viva-q" onclick="toggleViva(this.parentElement)">
+        <div>
+          ${v.exam ? '<div class="exam-flag">⭐ EXAM FAVOURITE</div>' : ''}
+          <div class="viva-q-text">${v.q}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+          <div class="viva-q-num">V${i+1}</div>
+          <div class="viva-toggle">+</div>
+        </div>
+      </div>
+      <div class="viva-answer">
+        <div class="viva-answer-inner">${v.a}</div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function toggleViva(card) {
+  const wasOpen = card.classList.contains('open');
+  document.querySelectorAll('.viva-card.open').forEach(c => c.classList.remove('open'));
+  if (!wasOpen) card.classList.add('open');
+}
+
+// ============ SEARCH ============
+const searchIndex = [];
+function buildSearchIndex() {
+  QUIZ_DATA.forEach((q, i) => searchIndex.push({text: q.q + ' ' + q.opts.join(' '), tab:'quiz', label:'Quiz Q' + (i+1) + ': ' + q.q.substring(0,60)+'…'}));
+  FLASHCARD_DATA.forEach((f, i) => searchIndex.push({text: f.q + ' ' + f.a, tab:'flashcards', label:'Flashcard: ' + f.q.substring(0,60)+'…'}));
+  VIVA_DATA.forEach((v, i) => searchIndex.push({text: v.q + ' ' + v.a, tab:'viva', label:'Viva: ' + v.q.substring(0,60)+'…'}));
+  DRUGS_TABLE.forEach(d => searchIndex.push({text: d.name + ' ' + d.cls + ' ' + d.moa + ' ' + d.se, tab:'diagnosis', label:'Drug: ' + d.name + ' — ' + d.cls}));
+}
+
+const searchInput = document.getElementById('globalSearch');
+const searchPanel = document.getElementById('searchPanel');
+
+searchInput.addEventListener('input', () => {
+  const val = searchInput.value.toLowerCase().trim();
+  if (val.length < 2) { searchPanel.style.display = 'none'; return; }
+  const results = searchIndex.filter(s => s.text.toLowerCase().includes(val)).slice(0, 8);
+  if (!results.length) { searchPanel.style.display = 'none'; return; }
+  searchPanel.innerHTML = results.map(r => `<div class="search-result-item" data-tab="${r.tab}"><div class="res-tab">${r.tab.toUpperCase()}</div>${r.label}</div>`).join('');
+  searchPanel.style.display = 'block';
+});
+
+searchPanel.addEventListener('click', e => {
+  const item = e.target.closest('.search-result-item');
+  if (item) {
+    switchTab(item.dataset.tab);
+    searchPanel.style.display = 'none';
+    searchInput.value = '';
+  }
+});
+document.addEventListener('click', e => { if (!e.target.closest('.search-wrap')) searchPanel.style.display = 'none'; });
+
+// ============ INIT ============
+loadState();
+buildQuiz();
+buildFlashcards();
+buildCases();
+buildPatho();
+buildDiagnosisTable();
+buildTreatment();
+buildMnemonics();
+buildViva();
+buildSearchIndex();
+updateStats();
+
+// Restore last tab
+const savedTab = localStorage.getItem('pd_pharma_tab');
+if (savedTab) switchTab(savedTab);
+</script>
+</body>
+</html>

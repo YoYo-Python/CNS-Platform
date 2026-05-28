@@ -1,0 +1,1843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pain Sensation — Mansoura Physiology Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0f1a;
+  --bg2: #111827;
+  --bg3: #1a2236;
+  --card: #141c2e;
+  --card2: #1e2a42;
+  --border: #2a3a5c;
+  --border2: #3a4f7a;
+  --text: #e8edf8;
+  --text2: #a0aec0;
+  --text3: #64748b;
+  --accent: #4f8ef7;
+  --accent2: #7eb5ff;
+  --accent-glow: rgba(79,142,247,0.18);
+  --red: #ef4444;
+  --green: #22c55e;
+  --yellow: #f59e0b;
+  --purple: #a78bfa;
+  --cyan: #22d3ee;
+  --pink: #f472b6;
+  --orange: #fb923c;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 32px rgba(0,0,0,0.4);
+  --font-display: 'Playfair Display', serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ANIMATED BG */
+.bg-orbs {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  overflow: hidden;
+}
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  animation: orb-drift 18s ease-in-out infinite;
+}
+.orb:nth-child(1) { width: 600px; height: 600px; background: #4f8ef7; top: -200px; left: -200px; animation-delay: 0s; }
+.orb:nth-child(2) { width: 400px; height: 400px; background: #a78bfa; bottom: -100px; right: -100px; animation-delay: 6s; }
+.orb:nth-child(3) { width: 300px; height: 300px; background: #22d3ee; top: 50%; left: 50%; animation-delay: 3s; }
+@keyframes orb-drift {
+  0%,100% { transform: translate(0,0); }
+  33% { transform: translate(40px,-30px); }
+  66% { transform: translate(-30px,20px); }
+}
+
+/* HEADER */
+header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(11,15,26,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+}
+.header-inner {
+  max-width: 1400px; margin: 0 auto;
+  display: flex; align-items: center; gap: 20px;
+  height: 64px;
+}
+.logo {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--accent2);
+  letter-spacing: -0.5px;
+  flex-shrink: 0;
+}
+.logo span { color: var(--text3); font-size: 0.7rem; display: block; font-family: var(--font-body); font-weight: 400; letter-spacing: 0; }
+
+.search-bar {
+  flex: 1; max-width: 400px;
+  position: relative;
+}
+.search-bar input {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  padding: 8px 16px 8px 40px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color var(--transition);
+}
+.search-bar input:focus { border-color: var(--accent); }
+.search-bar::before {
+  content: '🔍';
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  font-size: 0.85rem;
+}
+.search-results {
+  position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  z-index: 200;
+  max-height: 300px; overflow-y: auto;
+  display: none;
+}
+.search-results.active { display: block; }
+.search-result-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  border-bottom: 1px solid var(--border);
+  transition: background var(--transition);
+}
+.search-result-item:hover { background: var(--bg3); }
+.search-result-item .sr-tag { font-size: 0.7rem; color: var(--accent); margin-bottom: 2px; font-family: var(--font-mono); }
+
+.stats-bar {
+  display: flex; gap: 12px; align-items: center; margin-left: auto;
+}
+.stat-chip {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+}
+.stat-chip .val { color: var(--accent2); font-weight: 600; }
+
+/* TABS */
+.tab-nav {
+  background: rgba(11,15,26,0.7);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 64px; z-index: 90;
+  overflow-x: auto;
+}
+.tab-nav::-webkit-scrollbar { height: 3px; }
+.tab-nav::-webkit-scrollbar-thumb { background: var(--border2); }
+.tabs-inner {
+  max-width: 1400px; margin: 0 auto;
+  display: flex; padding: 0 24px;
+}
+.tab-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 14px 18px;
+  background: transparent;
+  border: none; border-bottom: 2px solid transparent;
+  color: var(--text3);
+  font-family: var(--font-body);
+  font-size: 0.83rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition);
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--accent2); border-bottom-color: var(--accent); }
+
+/* MAIN LAYOUT */
+main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+  position: relative; z-index: 1;
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeUp 0.35s ease; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* SECTION TITLE */
+.section-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  margin-bottom: 8px;
+  letter-spacing: -1px;
+}
+.section-sub {
+  color: var(--text2);
+  font-size: 0.9rem;
+  margin-bottom: 28px;
+}
+
+/* CARDS GRID */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  transition: all var(--transition);
+}
+.card:hover {
+  border-color: var(--border2);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+/* BADGE */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  letter-spacing: 0.3px;
+}
+.badge-red { background: rgba(239,68,68,0.15); color: #fc8181; border: 1px solid rgba(239,68,68,0.3); }
+.badge-yellow { background: rgba(245,158,11,0.15); color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
+.badge-blue { background: rgba(79,142,247,0.15); color: var(--accent2); border: 1px solid rgba(79,142,247,0.3); }
+.badge-green { background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
+.badge-purple { background: rgba(167,139,250,0.15); color: #c4b5fd; border: 1px solid rgba(167,139,250,0.3); }
+.badge-cyan { background: rgba(34,211,238,0.15); color: #67e8f9; border: 1px solid rgba(34,211,238,0.3); }
+.badge-pink { background: rgba(244,114,182,0.15); color: #f9a8d4; border: 1px solid rgba(244,114,182,0.3); }
+
+/* TAGS ROW */
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+
+/* ==================== TAB 1: OVERVIEW ==================== */
+.hero-card {
+  background: linear-gradient(135deg, rgba(79,142,247,0.12), rgba(167,139,250,0.08));
+  border: 1px solid rgba(79,142,247,0.3);
+  border-radius: var(--radius);
+  padding: 32px;
+  margin-bottom: 28px;
+  display: flex; gap: 24px; align-items: center;
+}
+.hero-icon { font-size: 4rem; flex-shrink: 0; }
+.hero-text h1 { font-family: var(--font-display); font-size: 2.2rem; letter-spacing: -1px; margin-bottom: 8px; }
+.hero-text p { color: var(--text2); line-height: 1.7; max-width: 700px; }
+
+.info-row { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+
+.summary-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+}
+.summary-card h3 { font-size: 0.85rem; color: var(--accent2); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+.summary-card ul { list-style: none; }
+.summary-card ul li { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; color: var(--text2); display: flex; gap: 8px; align-items: flex-start; line-height: 1.5; }
+.summary-card ul li:last-child { border-bottom: none; }
+.summary-card ul li::before { content: '▸'; color: var(--accent); flex-shrink: 0; margin-top: 1px; }
+
+/* TIMELINE */
+.timeline { position: relative; padding-left: 28px; margin: 20px 0; }
+.timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--accent), var(--purple)); border-radius: 2px; }
+.timeline-item { position: relative; margin-bottom: 20px; }
+.timeline-item::before { content: ''; position: absolute; left: -24px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); box-shadow: 0 0 10px rgba(79,142,247,0.5); }
+.timeline-item h4 { font-size: 0.92rem; margin-bottom: 4px; }
+.timeline-item p { font-size: 0.82rem; color: var(--text2); line-height: 1.6; }
+
+/* KEY SIGNS GRID */
+.signs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin-top: 16px; }
+.sign-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  cursor: default;
+  transition: all var(--transition);
+}
+.sign-card:hover { border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow); }
+.sign-card h4 { font-size: 0.9rem; margin-bottom: 6px; display: flex; gap: 8px; align-items: center; }
+.sign-card p { font-size: 0.82rem; color: var(--text2); line-height: 1.6; }
+
+/* ==================== TAB 2: QUIZ ==================== */
+.quiz-header {
+  display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 24px;
+}
+.progress-ring-wrap { position: relative; width: 80px; height: 80px; flex-shrink: 0; }
+.progress-ring-wrap svg { transform: rotate(-90deg); }
+.progress-ring-bg { fill: none; stroke: var(--border); stroke-width: 6; }
+.progress-ring-fill { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
+.progress-ring-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 0.95rem; font-weight: 600; color: var(--accent2); }
+
+.quiz-stats { display: flex; gap: 12px; flex-wrap: wrap; }
+.q-stat { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 16px; text-align: center; }
+.q-stat .val { font-size: 1.4rem; font-family: var(--font-mono); font-weight: 700; }
+.q-stat .lbl { font-size: 0.72rem; color: var(--text3); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+.q-stat.green .val { color: var(--green); }
+.q-stat.red .val { color: var(--red); }
+.q-stat.yellow .val { color: var(--yellow); }
+
+.progress-bar-wrap { background: var(--card); border-radius: 3px; height: 6px; width: 100%; margin-bottom: 6px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--purple)); border-radius: 3px; transition: width 0.4s ease; }
+
+.question-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 20px;
+}
+.q-meta { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+.q-number { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text3); }
+.q-text { font-size: 1.05rem; line-height: 1.7; margin-bottom: 20px; font-weight: 500; }
+.options { display: flex; flex-direction: column; gap: 10px; }
+.option-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 13px 16px;
+  text-align: left;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 12px;
+  transition: all var(--transition);
+  line-height: 1.5;
+}
+.option-btn:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-glow); }
+.option-btn .opt-letter {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600;
+  flex-shrink: 0;
+  transition: all var(--transition);
+}
+.option-btn.correct { border-color: var(--green); background: rgba(34,197,94,0.1); animation: pulse-green 0.5s ease; }
+.option-btn.correct .opt-letter { background: var(--green); color: #000; }
+.option-btn.wrong { border-color: var(--red); background: rgba(239,68,68,0.1); animation: shake 0.4s ease; }
+.option-btn.wrong .opt-letter { background: var(--red); color: #fff; }
+.option-btn:disabled { cursor: default; }
+@keyframes pulse-green { 0%,100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+@keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+.explanation {
+  background: rgba(79,142,247,0.08);
+  border: 1px solid rgba(79,142,247,0.2);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-top: 16px;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--text2);
+  display: none;
+  animation: fadeUp 0.3s ease;
+}
+.explanation .expl-why { color: var(--accent2); font-weight: 600; margin-bottom: 6px; }
+.explanation.show { display: block; }
+
+.quiz-nav { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+.btn {
+  padding: 11px 22px;
+  border-radius: 30px;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 0.87rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+.btn-outline { background: transparent; border: 1px solid var(--border2); color: var(--text); }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent2); }
+.btn-danger { background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #fc8181; }
+.btn-danger:hover { background: rgba(239,68,68,0.3); }
+
+/* ==================== TAB 3: FLASHCARDS ==================== */
+.flashcard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+.flashcard { height: 200px; perspective: 1000px; cursor: pointer; }
+.fc-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.55s cubic-bezier(0.4,0,0.2,1); }
+.flashcard.flipped .fc-inner { transform: rotateY(180deg); }
+.fc-front, .fc-back {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  border-radius: var(--radius);
+  padding: 22px;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  border: 1px solid var(--border);
+}
+.fc-front {
+  background: var(--card);
+}
+.fc-back {
+  background: linear-gradient(135deg, var(--card2), var(--card));
+  border-color: var(--accent);
+  transform: rotateY(180deg);
+}
+.fc-tag { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+.fc-question { font-size: 0.92rem; font-weight: 600; line-height: 1.5; }
+.fc-answer { font-size: 0.86rem; color: var(--text2); line-height: 1.6; }
+.fc-hint { font-size: 0.72rem; color: var(--text3); margin-top: auto; padding-top: 10px; text-align: center; }
+
+.fc-controls { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; }
+.fc-counter { font-family: var(--font-mono); font-size: 0.85rem; color: var(--text2); margin-left: auto; }
+
+/* ==================== TAB 4: CLINICAL CASES ==================== */
+.case-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.case-header {
+  background: linear-gradient(90deg, rgba(79,142,247,0.15), transparent);
+  border-bottom: 1px solid var(--border);
+  padding: 18px 24px;
+  display: flex; align-items: center; gap: 14px;
+}
+.case-num {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+.case-header h3 { font-size: 1rem; }
+.case-header p { font-size: 0.82rem; color: var(--text3); }
+.case-body { padding: 24px; }
+.vignette {
+  background: var(--bg3);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 16px 18px;
+  font-size: 0.9rem;
+  line-height: 1.8;
+  margin-bottom: 20px;
+  color: var(--text2);
+}
+.case-questions { list-style: none; margin-bottom: 20px; }
+.case-questions li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.88rem;
+  display: flex; gap: 10px;
+}
+.case-questions li:last-child { border-bottom: none; }
+.case-questions li .q-marker { color: var(--yellow); font-weight: 700; flex-shrink: 0; font-family: var(--font-mono); }
+.answer-reveal { display: none; animation: fadeUp 0.35s ease; }
+.answer-reveal.show { display: block; }
+.answer-box {
+  background: rgba(34,197,94,0.08);
+  border: 1px solid rgba(34,197,94,0.25);
+  border-radius: var(--radius-sm);
+  padding: 18px;
+  font-size: 0.87rem;
+  line-height: 1.8;
+  color: var(--text2);
+  margin-top: 14px;
+}
+.answer-box .ans-step { color: var(--green); font-weight: 700; margin-bottom: 4px; }
+
+/* ==================== TAB 5: PATHOPHYSIOLOGY ==================== */
+.patho-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-bottom: 32px; }
+.patho-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 18px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.patho-item:hover, .patho-item.open { border-color: var(--purple); box-shadow: 0 0 20px rgba(167,139,250,0.15); }
+.patho-item h4 { font-size: 0.9rem; margin-bottom: 6px; display: flex; gap: 8px; }
+.patho-detail { font-size: 0.82rem; color: var(--text2); line-height: 1.6; display: none; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; }
+.patho-item.open .patho-detail { display: block; animation: fadeUp 0.3s ease; }
+
+/* FLOWCHART */
+.flowchart { display: flex; flex-direction: column; gap: 0; }
+.fc-node {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  font-size: 0.86rem;
+  position: relative;
+  transition: all var(--transition);
+}
+.fc-node:hover { border-color: var(--cyan); }
+.fc-node.highlight { border-color: var(--accent); background: rgba(79,142,247,0.1); }
+.fc-node.injury { border-color: var(--red); background: rgba(239,68,68,0.1); }
+.fc-node.receptor { border-color: var(--yellow); background: rgba(245,158,11,0.1); }
+.fc-node.result { border-color: var(--green); background: rgba(34,197,94,0.1); }
+.fc-arrow {
+  text-align: center;
+  color: var(--text3);
+  font-size: 1.2rem;
+  padding: 4px 0;
+  line-height: 1;
+}
+.fc-sub { font-size: 0.75rem; color: var(--text3); margin-top: 4px; }
+.flowcharts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+.fc-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+}
+.fc-section h4 { font-size: 0.85rem; font-family: var(--font-mono); color: var(--accent2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+
+/* ==================== TAB 6: DIAGNOSIS ==================== */
+.diag-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.85rem; }
+.diag-table th { background: var(--card2); border: 1px solid var(--border); padding: 12px 14px; text-align: left; font-family: var(--font-mono); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent2); }
+.diag-table td { border: 1px solid var(--border); padding: 11px 14px; vertical-align: top; color: var(--text2); line-height: 1.6; }
+.diag-table tr:hover td { background: var(--bg3); }
+.diag-table tr.header-row td { background: var(--card2); color: var(--text); font-weight: 600; }
+
+.algo-step {
+  display: flex; gap: 16px; align-items: flex-start; margin-bottom: 12px;
+}
+.algo-num {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700;
+  flex-shrink: 0;
+  color: #fff;
+}
+.algo-content h4 { font-size: 0.9rem; margin-bottom: 4px; }
+.algo-content p { font-size: 0.82rem; color: var(--text2); line-height: 1.6; }
+
+/* ==================== TAB 7: TREATMENT ==================== */
+.treatment-section { margin-bottom: 28px; }
+.treatment-section h3 {
+  font-size: 0.85rem; font-family: var(--font-mono); text-transform: uppercase;
+  letter-spacing: 1px; color: var(--accent2); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.treatment-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.treatment-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 18px;
+}
+.treatment-card h4 { font-size: 0.92rem; margin-bottom: 8px; display: flex; gap: 8px; align-items: center; }
+.treatment-card ul { list-style: none; }
+.treatment-card ul li { font-size: 0.83rem; color: var(--text2); padding: 4px 0; display: flex; gap: 6px; align-items: flex-start; line-height: 1.5; }
+.treatment-card ul li::before { content: '→'; color: var(--accent); flex-shrink: 0; }
+.treatment-card.urgent { border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.05); }
+.treatment-card.moderate { border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.05); }
+.treatment-card.mild { border-color: rgba(34,197,94,0.35); background: rgba(34,197,94,0.05); }
+
+/* ==================== TAB 8: MNEMONICS ==================== */
+.mnemonic-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.mnem-header {
+  padding: 20px 24px;
+  display: flex; gap: 16px; align-items: center;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.mnem-header:hover { background: var(--bg3); }
+.mnem-title { font-size: 1rem; font-weight: 600; }
+.mnem-sub { font-size: 0.82rem; color: var(--text3); margin-top: 3px; }
+.mnem-icon { font-size: 2rem; flex-shrink: 0; }
+.mnem-toggle { margin-left: auto; color: var(--text3); font-size: 1.2rem; transition: transform var(--transition); }
+.mnemonic-card.open .mnem-toggle { transform: rotate(180deg); }
+.mnem-body {
+  display: none;
+  padding: 0 24px 24px;
+  animation: fadeUp 0.3s ease;
+}
+.mnemonic-card.open .mnem-body { display: block; }
+.mnem-big {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  letter-spacing: 3px;
+  color: var(--accent2);
+  margin: 10px 0 16px;
+  word-break: break-all;
+}
+.mnem-letter-row {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.mnem-letter-row:last-child { border-bottom: none; }
+.mnem-letter {
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--accent);
+  width: 32px;
+  flex-shrink: 0;
+}
+.mnem-expand { font-size: 0.87rem; color: var(--text2); line-height: 1.6; }
+.mnem-expand strong { color: var(--text); }
+
+/* VIVA */
+.viva-section { margin-top: 32px; }
+.viva-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 18px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.viva-card:hover { border-color: var(--border2); }
+.viva-q { font-size: 0.92rem; font-weight: 500; display: flex; gap: 10px; align-items: flex-start; }
+.viva-q .vnum { font-family: var(--font-mono); color: var(--text3); font-size: 0.78rem; flex-shrink: 0; margin-top: 2px; }
+.viva-a { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--text2); line-height: 1.7; animation: fadeUp 0.3s ease; }
+.viva-a.show { display: block; }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  header { padding: 0 16px; }
+  .header-inner { height: 56px; }
+  .logo span { display: none; }
+  .stats-bar { gap: 8px; }
+  .stat-chip { padding: 4px 10px; font-size: 0.72rem; }
+  main { padding: 20px 16px 60px; }
+  .hero-card { flex-direction: column; padding: 22px; }
+  .section-title { font-size: 1.5rem; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+
+/* FINISH SCREEN */
+.finish-screen {
+  display: none;
+  text-align: center;
+  padding: 60px 20px;
+}
+.finish-screen.show { display: block; animation: fadeUp 0.5s ease; }
+.finish-icon { font-size: 5rem; margin-bottom: 16px; }
+.finish-screen h2 { font-family: var(--font-display); font-size: 2.5rem; margin-bottom: 12px; }
+.finish-screen p { color: var(--text2); margin-bottom: 24px; font-size: 1rem; }
+.finish-score { font-family: var(--font-mono); font-size: 3rem; color: var(--accent2); font-weight: 700; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb"></div><div class="orb"></div><div class="orb"></div>
+</div>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      ⚡ PainPhysio
+      <span>Mansoura University · Physiology CNS 4</span>
+    </div>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search topics, terms..." autocomplete="off">
+      <div class="search-results" id="searchResults"></div>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-chip">🔥 <span class="val" id="streakVal">0</span> streak</div>
+      <div class="stat-chip">✅ <span class="val" id="scoreVal">0</span>/<span id="totalVal">25</span></div>
+      <div class="stat-chip">📊 <span class="val" id="pctVal">0</span>%</div>
+    </div>
+  </div>
+</header>
+
+<nav class="tab-nav">
+  <div class="tabs-inner">
+    <button class="tab-btn active" data-tab="overview">🏠 Overview</button>
+    <button class="tab-btn" data-tab="quiz">🎯 Quiz</button>
+    <button class="tab-btn" data-tab="flashcards">🃏 Flashcards</button>
+    <button class="tab-btn" data-tab="cases">🩺 Clinical Cases</button>
+    <button class="tab-btn" data-tab="patho">🧬 Pathophysiology</button>
+    <button class="tab-btn" data-tab="diagnosis">🔬 Diagnosis</button>
+    <button class="tab-btn" data-tab="treatment">💊 Treatment</button>
+    <button class="tab-btn" data-tab="mnemonics">🧠 Mnemonics</button>
+  </div>
+</nav>
+
+<main>
+
+<!-- ===== OVERVIEW ===== -->
+<div class="tab-panel active" id="tab-overview">
+  <div class="hero-card">
+    <div class="hero-icon">⚡</div>
+    <div class="hero-text">
+      <h1>Pain Sensation</h1>
+      <p>Cutaneous & Deep Pain — nociceptors, neural pathways, hyperalgesia, ischemic pain, and their clinical correlates. Covers fast vs. slow pain, autonomic reactions, and the gate-control principles relevant for Mansoura Physiology exams.</p>
+      <div class="info-row">
+        <span class="badge badge-red">⚠️ High Yield</span>
+        <span class="badge badge-blue">MCQ-Heavy</span>
+        <span class="badge badge-yellow">Written Qs</span>
+        <span class="badge badge-purple">Viva Favorite</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:28px;">
+    <div class="summary-card">
+      <h3>🔑 Core Concepts</h3>
+      <ul>
+        <li>Pain receptors = free nerve endings (no capsule)</li>
+        <li>Absent in: liver parenchyma, lung alveoli, brain, bone ⚠️</li>
+        <li>Slowly adapting / non-adapting (protective!) ⚠️</li>
+        <li>Stimulation is chemical: Direct stimulators vs. Sensitizers ⚠️</li>
+        <li>Sensitizers (Substance P, PGE) lower threshold</li>
+        <li>Direct stimulators (K+, bradykinin, serotonin, histamine)</li>
+        <li>TRPV1 / TRPA1 channels → Na⁺ & Ca²⁺ influx ⚠️</li>
+        <li>Thermal threshold = 45°C ⚠️</li>
+      </ul>
+    </div>
+    <div class="summary-card">
+      <h3>⚡ Neural Pathways</h3>
+      <ul>
+        <li>Fast pain: A-delta myelinated → neospinothalamic → Glutamate ⚠️</li>
+        <li>Slow pain: C non-myelinated → paleospinothalamic → Substance-P ⚠️</li>
+        <li>Fast pain: felt 0.1s, laminae I & IV, VPLN thalamus → cortex</li>
+        <li>Slow pain: felt 1s, laminae II & III (SGR) → RF & intralaminar nuclei</li>
+        <li>Slow pain causes RAS arousal, emotional reactions ⚠️</li>
+        <li>Cortex: intensity, locality, modality discrimination ⚠️</li>
+        <li>Thalamus: perceives crude diffuse pain without cortex</li>
+        <li>Tickling & itching = C-fibers (anterolateral system)</li>
+      </ul>
+    </div>
+    <div class="summary-card">
+      <h3>🔴 Hyperalgesia Types</h3>
+      <ul>
+        <li>Primary (Allodynia): flare area, non-painful stimuli → pain ⚠️</li>
+        <li>Mechanism: local axon reflex → antidromic Substance-P release</li>
+        <li>Secondary: healthy skin, mild painful stimuli → more pain</li>
+        <li>Mechanism: convergence-facilitation at dorsal horn cells</li>
+        <li>Primary develops in 30–60 min, lasts hours/days</li>
+        <li>Secondary has shorter duration than primary</li>
+      </ul>
+    </div>
+    <div class="summary-card">
+      <h3>💔 Deep & Ischemic Pain</h3>
+      <ul>
+        <li>Deep pain: C-fibers only, poorly localized, dull/burning ⚠️</li>
+        <li>Causes reflex muscle spasm → immobilizes injured part</li>
+        <li>Deep pain autonomics: parasympathetic (↓HR, nausea)</li>
+        <li>Ischemic pain: K⁺ + lactic acid accumulation ⚠️</li>
+        <li>Intermittent claudication: calf pain on walking, relieved by rest ⚠️</li>
+        <li>Mild pain → sympathetic pressor (↑HR, ↑BP, pupil dilation)</li>
+        <li>Severe pain → parasympathetic depressor (↓HR, ↓BP, nausea)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 class="section-title" style="font-size:1.3rem;">🕒 Timeline: Nail Injury Integrative Scenario</h2>
+  <p class="section-sub">Stepwise events following a nail puncture — the classic integrative example from the lecture</p>
+  <div class="timeline">
+    <div class="timeline-item">
+      <h4>⚡ 0 – 0.1 seconds: Fast Pricking Pain</h4>
+      <p>A-delta myelinated fibers activate. Neospinothalamic tract carries signal to primary sensory cortex. Rapid localization + withdrawal reflex initiated. Glutamate released at laminae I & IV.</p>
+    </div>
+    <div class="timeline-item">
+      <h4>🔥 1 second: Slow Burning Pain Begins</h4>
+      <p>C non-myelinated fibers take over. Paleospinothalamic tract to reticular formation & intralaminar nuclei. Substance-P released. Strong arousal, anxiety, and emotional distress (RAS activation).</p>
+    </div>
+    <div class="timeline-item">
+      <h4>🌸 30–60 minutes: Flare & Primary Hyperalgesia</h4>
+      <p>Local axon reflex releases Substance-P antidromically. Surrounding skin (flare area) becomes hypersensitive — clothes touching the area cause pain (Allodynia). Receptor threshold drops significantly.</p>
+    </div>
+    <div class="timeline-item">
+      <h4>🔵 Hours later: Secondary Hyperalgesia</h4>
+      <p>Convergence-facilitation at dorsal horn cells. Healthy skin around injury becomes more sensitive to mild painful stimuli. Shorter duration than primary hyperalgesia.</p>
+    </div>
+    <div class="timeline-item">
+      <h4>🤢 Ongoing: Autonomic Reactions</h4>
+      <p>If pain is severe: parasympathetic depressor response — ↓HR, ↓BP, nausea/vomiting. If mild: sympathetic pressor — ↑HR, ↑BP, pupillary dilatation, ↓GIT motility.</p>
+    </div>
+  </div>
+
+  <h2 class="section-title" style="font-size:1.3rem; margin-top:32px;">🏷️ Key Signs & Concepts Grid</h2>
+  <div class="signs-grid">
+    <div class="sign-card"><h4>🧬 Free Nerve Endings</h4><p>Morphological form of all pain receptors. No capsule. Widely distributed in skin, arterial walls, dura, periosteum.</p><div class="tags"><span class="badge badge-red">⚠️ MCQ</span><span class="badge badge-blue">Definition</span></div></div>
+    <div class="sign-card"><h4>🚫 Absent Locations</h4><p>Liver parenchyma, lung alveoli, brain tissue, bone — completely devoid of pain receptors.</p><div class="tags"><span class="badge badge-red">⚠️ MCQ</span><span class="badge badge-yellow">Exam Fave</span></div></div>
+    <div class="sign-card"><h4>⚗️ TRPV1 / TRPA1</h4><p>Non-selective cation channels opened by direct stimulators → Na⁺ and Ca²⁺ influx → action potential at 1st node of Ranvier.</p><div class="tags"><span class="badge badge-red">⚠️ MCQ</span><span class="badge badge-purple">Mechanism</span></div></div>
+    <div class="sign-card"><h4>🔮 Substance-P</h4><p>Key sensitizer AND neurotransmitter of slow pain pathway AND mediator of primary hyperalgesia. Triple role!</p><div class="tags"><span class="badge badge-yellow">⭐ Pearl</span><span class="badge badge-purple">Multi-role</span></div></div>
+    <div class="sign-card"><h4>🌡️ 45°C Threshold</h4><p>Thermal pain threshold. Standard measured using thermostatically controlled metallic rod — most accurate method.</p><div class="tags"><span class="badge badge-red">⚠️ MCQ</span></div></div>
+    <div class="sign-card"><h4>⚡ Glutamate</h4><p>Rapidly-acting transmitter released by 1st-order neurons of neospinothalamic (fast pain) tract at laminae I & IV.</p><div class="tags"><span class="badge badge-red">⚠️ MCQ</span></div></div>
+    <div class="sign-card"><h4>🧠 Substantia Gelatinosa Rolandi</h4><p>Laminae II & III — termination of slow C-fiber pain afferents in dorsal horn. Where Substance-P is released.</p><div class="tags"><span class="badge badge-blue">Structure</span></div></div>
+    <div class="sign-card"><h4>🦵 Intermittent Claudication</h4><p>Severe calf pain during walking in arteriosclerotic patients. Relieved by rest (blood washes K⁺ and lactic acid).</p><div class="tags"><span class="badge badge-red">⚠️ MCQ</span><span class="badge badge-cyan">Clinical</span></div></div>
+    <div class="sign-card"><h4>🌀 Reticular Activating System</h4><p>Activated by paleospinothalamic tract → causes strong arousal, emotional and somatic reactions to pain.</p><div class="tags"><span class="badge badge-red">⚠️ MCQ</span></div></div>
+    <div class="sign-card"><h4>💪 Reflex Muscle Spasm</h4><p>Protective reflex of deep pain — surrounding muscles contract to immobilize the injured part and limit tissue damage.</p><div class="tags"><span class="badge badge-cyan">Clinical Pearl</span></div></div>
+    <div class="sign-card"><h4>🎯 Convergence-Facilitation</h4><p>Theory for secondary hyperalgesia — fibers from injury + healthy skin converge on same DHCs, amplifying response.</p><div class="tags"><span class="badge badge-purple">Mechanism</span></div></div>
+    <div class="sign-card"><h4>🔄 Non-Adapting Receptors</h4><p>Pain receptors are slowly/non-adapting → continuously alert CNS to remove injurious agent. PROTECTIVE purpose.</p><div class="tags"><span class="badge badge-red">⚠️ MCQ</span><span class="badge badge-yellow">Written Q</span></div></div>
+  </div>
+</div>
+
+<!-- ===== QUIZ ===== -->
+<div class="tab-panel" id="tab-quiz">
+  <h2 class="section-title">🎯 Quiz Mode</h2>
+  <p class="section-sub">25 USMLE-style MCQs · Immediate feedback · Detailed explanations</p>
+
+  <div class="quiz-header">
+    <div class="progress-ring-wrap">
+      <svg width="80" height="80" viewBox="0 0 80 80">
+        <circle class="progress-ring-bg" cx="40" cy="40" r="33"/>
+        <circle class="progress-ring-fill" id="ringFill" cx="40" cy="40" r="33" stroke-dasharray="207.3" stroke-dashoffset="207.3"/>
+      </svg>
+      <div class="progress-ring-text" id="ringText">0%</div>
+    </div>
+    <div class="quiz-stats">
+      <div class="q-stat green"><div class="val" id="correctCount">0</div><div class="lbl">Correct</div></div>
+      <div class="q-stat red"><div class="val" id="wrongCount">0</div><div class="lbl">Wrong</div></div>
+      <div class="q-stat yellow"><div class="val" id="streakCount">0</div><div class="lbl">Streak 🔥</div></div>
+      <div class="q-stat"><div class="val" id="qProgress">0/25</div><div class="lbl">Progress</div></div>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:10px;">
+      <button class="btn btn-outline" onclick="resetQuiz()">↺ Reset</button>
+    </div>
+  </div>
+
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+  <p style="font-size:0.78rem;color:var(--text3);margin-bottom:20px;" id="progressLabel">Question 0 of 25</p>
+
+  <div id="quizContainer"></div>
+  <div class="finish-screen" id="finishScreen">
+    <div class="finish-icon">🏆</div>
+    <h2>Quiz Complete!</h2>
+    <div class="finish-score" id="finalScore"></div>
+    <p id="finalMsg"></p>
+    <button class="btn btn-primary" onclick="resetQuiz()" style="margin-top:16px;">🔄 Retake Quiz</button>
+  </div>
+</div>
+
+<!-- ===== FLASHCARDS ===== -->
+<div class="tab-panel" id="tab-flashcards">
+  <h2 class="section-title">🃏 Flashcards</h2>
+  <p class="section-sub">Click any card to flip · 24 cards covering all key concepts</p>
+  <div class="fc-controls">
+    <button class="btn btn-outline" onclick="flipAll(false)">↩ Reset All</button>
+    <button class="btn btn-primary" onclick="shuffleCards()">🔀 Shuffle</button>
+    <div class="fc-counter" id="fcCounter">0 / 24 flipped</div>
+  </div>
+  <div class="flashcard-grid" id="flashcardGrid"></div>
+</div>
+
+<!-- ===== CLINICAL CASES ===== -->
+<div class="tab-panel" id="tab-cases">
+  <h2 class="section-title">🩺 Clinical Cases</h2>
+  <p class="section-sub">6 exam-style vignettes · Reveal step-by-step answers</p>
+  <div id="casesContainer"></div>
+</div>
+
+<!-- ===== PATHOPHYSIOLOGY ===== -->
+<div class="tab-panel" id="tab-patho">
+  <h2 class="section-title">🧬 Pathophysiology</h2>
+  <p class="section-sub">Click items to expand · Interactive flowcharts</p>
+
+  <h3 style="font-size:0.85rem;font-family:var(--font-mono);color:var(--accent2);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">🔬 Key Structures & Mechanisms</h3>
+  <div class="patho-grid">
+    <div class="patho-item" onclick="togglePatho(this)"><h4>⚡ A-delta Fibers</h4><p class="patho-detail">Myelinated, fast-conducting. Carry fast, pricking cutaneous pain. Signal reaches cortex in 0.1s. Release Glutamate at laminae I & IV. Responsible for rapid withdrawal reflexes. Part of neospinothalamic tract.</p></div>
+    <div class="patho-item" onclick="togglePatho(this)"><h4>🐢 C Fibers</h4><p class="patho-detail">Non-myelinated, slow-conducting. Carry slow burning cutaneous AND all deep pain. Signal reaches cortex in 1s. Release Substance-P at laminae II & III (SGR). Part of paleospinothalamic tract. Also carry tickling and itching.</p></div>
+    <div class="patho-item" onclick="togglePatho(this)"><h4>🎯 TRPV1 Channel</h4><p class="patho-detail">Transient Receptor Potential Vanilloid 1. A non-selective cation channel on nociceptors. Activated by direct chemical stimulators (K⁺, bradykinin, heat >43°C). Allows Na⁺ and Ca²⁺ influx → generator potential → action potential.</p></div>
+    <div class="patho-item" onclick="togglePatho(this)"><h4>🔷 Laminae I & IV</h4><p class="patho-detail">Dorsal horn termination of first-order neurons of fast pain (neospinothalamic). Where Glutamate is released. Second-order neurons then cross and ascend in the lateral spinothalamic tract to VPLN of thalamus.</p></div>
+    <div class="patho-item" onclick="togglePatho(this)"><h4>🟢 Substantia Gelatinosa (II & III)</h4><p class="patho-detail">Dorsal horn laminae II & III = "Substantia Gelatinosa of Rolandi (SGR)." Termination of slow C-fiber afferents. Where Substance-P is released. Second-order neurons then relay extensively in the reticular formation and intralaminar nuclei.</p></div>
+    <div class="patho-item" onclick="togglePatho(this)"><h4>🧠 VPLN Thalamus</h4><p class="patho-detail">Ventral Posterolateral Nucleus — relay for fast pain. 2nd-order neurons of neospinothalamic tract synapse here. 3rd-order neurons project to primary somatosensory cortex for precise localization and modality discrimination.</p></div>
+    <div class="patho-item" onclick="togglePatho(this)"><h4>🌀 Reticular Formation</h4><p class="patho-detail">Paleospinothalamic pathway has HEAVY relays here. Activation of the Reticular Activating System (RAS) causes strong arousal, emotional reactions, and somatic responses. Explains why slow pain causes distress, nausea, and behavioral changes.</p></div>
+    <div class="patho-item" onclick="togglePatho(this)"><h4>🔮 Substance P (Triple Role)</h4><p class="patho-detail">1. SENSITIZER: released by peripheral tissue → lowers nociceptor threshold. 2. NEUROTRANSMITTER: slow pain 1st-order neuron → releases in SGR. 3. PRIMARY HYPERALGESIA MEDIATOR: antidromic release in flare area → decreases receptor threshold.</p></div>
+    <div class="patho-item" onclick="togglePatho(this)"><h4>🦿 Dorsal Horn Cells (DHCs)</h4><p class="patho-detail">Central to secondary hyperalgesia via convergence-facilitation. Afferent fibers from the original injury AND from surrounding healthy skin BOTH converge on same DHCs. Continuous barrage from injury site facilitates these neurons → amplified response to healthy skin stimuli.</p></div>
+  </div>
+
+  <h3 style="font-size:0.85rem;font-family:var(--font-mono);color:var(--accent2);text-transform:uppercase;letter-spacing:1px;margin:28px 0 14px;">📊 Mechanistic Flowcharts</h3>
+  <div class="flowcharts-grid">
+    <div class="fc-section">
+      <h4>Pain Receptor Stimulation</h4>
+      <div class="flowchart">
+        <div class="fc-node injury">🩸 Tissue Damage</div>
+        <div class="fc-arrow">↓</div>
+        <div class="fc-node">🧪 Chemical mediator release<div class="fc-sub">K⁺, bradykinin, serotonin, histamine (Direct Stimulators)</div></div>
+        <div class="fc-arrow">↓</div>
+        <div class="fc-node highlight">⚡ Non-selective cation channel activation<div class="fc-sub">TRPV1, TRPA1</div></div>
+        <div class="fc-arrow">↓</div>
+        <div class="fc-node receptor">🔌 Na⁺ + Ca²⁺ influx → Generator potential</div>
+        <div class="fc-arrow">↓</div>
+        <div class="fc-node result">✅ Action potential at 1st node of Ranvier</div>
+        <div class="fc-arrow">↕</div>
+        <div class="fc-node" style="border-color:var(--pink);background:rgba(244,114,182,0.08);">🔮 Sensitizers (Substance-P, PGE)<div class="fc-sub">Lower threshold — amplify pain</div></div>
+      </div>
+    </div>
+    <div class="fc-section">
+      <h4>Primary Hyperalgesia (Local Axon Reflex)</h4>
+      <div class="flowchart">
+        <div class="fc-node injury">🩸 Tissue Injury</div>
+        <div class="fc-arrow">↓</div>
+        <div class="fc-node">🔌 Pain afferents stimulated (orthodromic)</div>
+        <div class="fc-arrow">↓</div>
+        <div class="fc-node highlight">↩ Collateral fibers fire ANTIDROMICALLY<div class="fc-sub">Backwards to surrounding skin (flare area)</div></div>
+        <div class="fc-arrow">↓</div>
+        <div class="fc-node receptor">🔮 Substance-P released peripherally</div>
+        <div class="fc-arrow">↓</div>
+        <div class="fc-node">📉 Receptor threshold DECREASES</div>
+        <div class="fc-arrow">↓</div>
+        <div class="fc-node result">😣 Allodynia — non-painful stimuli = pain</div>
+      </div>
+    </div>
+    <div class="fc-section">
+      <h4>Ischemic Pain Mechanism</h4>
+      <div class="flowchart">
+        <div class="fc-node">💪 Active muscle (walking, exercise)</div>
+        <div class="fc-arrow">↓</div>
+        <div class="fc-node">🏭 Metabolite production: K⁺ + lactic acid</div>
+        <div class="fc-arrow">↓</div>
+        <div class="fc-node injury">🩸 Arteriosclerosis / Thrombosis / Spasm<div class="fc-sub">Inadequate blood supply</div></div>
+        <div class="fc-arrow">↓</div>
+        <div class="fc-node highlight">⬆️ Metabolite accumulation (not washed away)</div>
+        <div class="fc-arrow">↓</div>
+        <div class="fc-node receptor">🔌 Nociceptor stimulation by K⁺ & lactic acid</div>
+        <div class="fc-arrow">↓</div>
+        <div class="fc-node result">😫 Severe ischemic pain (relieved by rest)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DIAGNOSIS ===== -->
+<div class="tab-panel" id="tab-diagnosis">
+  <h2 class="section-title">🔬 Diagnosis & Investigation</h2>
+  <p class="section-sub">Pain threshold measurement · Tract comparison · Diagnostic algorithm</p>
+
+  <h3 style="font-size:0.85rem;font-family:var(--font-mono);color:var(--accent2);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">📏 Pain Threshold Measurement Methods</h3>
+  <table class="diag-table">
+    <tr><th>Method</th><th>Technique</th><th>Accuracy</th><th>Notes</th></tr>
+    <tr><td>Pin Prick</td><td>Pricking skin with a pin at measured pressure levels</td><td>⭐⭐</td><td>Simple but variable pressure control</td></tr>
+    <tr><td>Pressure / Compression</td><td>Compressing skin against a hard bony surface</td><td>⭐⭐</td><td>Better for deep pain threshold</td></tr>
+    <tr><td>Thermal Method ⚠️</td><td>Thermostatically controlled metallic rod exposed to skin</td><td>⭐⭐⭐ MOST ACCURATE</td><td>Standard threshold = 45°C exactly</td></tr>
+  </table>
+
+  <h3 style="font-size:0.85rem;font-family:var(--font-mono);color:var(--accent2);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;margin-top:28px;">⚡ Fast vs. Slow Pain Pathway Comparison</h3>
+  <div style="overflow-x:auto;">
+    <table class="diag-table">
+      <tr><th>Feature</th><th>Fast Pain (Neospinothalamic)</th><th>Slow Pain (Paleospinothalamic)</th></tr>
+      <tr><td>Quality</td><td>Sharp, pricking, well-localized</td><td>Burning, dull, poorly localized</td></tr>
+      <tr><td>Fiber Type</td><td>A-delta (myelinated)</td><td>C (non-myelinated)</td></tr>
+      <tr><td>Onset</td><td>0.1 seconds ⚠️</td><td>1 second ⚠️</td></tr>
+      <tr><td>Duration</td><td>Short-lived</td><td>Long-lasting</td></tr>
+      <tr><td>Neurotransmitter</td><td>Glutamate ⚠️</td><td>Substance-P ⚠️</td></tr>
+      <tr><td>Dorsal Horn Laminae</td><td>I & IV</td><td>II & III (SGR)</td></tr>
+      <tr><td>Thalamic Relay</td><td>VPLN (specific)</td><td>Intralaminar nuclei (diffuse)</td></tr>
+      <tr><td>RF Involvement</td><td>Minimal</td><td>Heavy relay → RAS arousal ⚠️</td></tr>
+      <tr><td>Cortical Projection</td><td>Primary sensory cortex (localized)</td><td>Diffuse cortical areas</td></tr>
+      <tr><td>Primary Function</td><td>Rapid withdrawal reflex, precise localization</td><td>Sustained arousal, emotional reaction, behavioral change</td></tr>
+    </table>
+  </div>
+
+  <h3 style="font-size:0.85rem;font-family:var(--font-mono);color:var(--accent2);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;margin-top:28px;">🔵 Hyperalgesia Comparison</h3>
+  <div style="overflow-x:auto;">
+    <table class="diag-table">
+      <tr><th>Feature</th><th>Primary Hyperalgesia (Allodynia)</th><th>Secondary Hyperalgesia</th></tr>
+      <tr><td>Location</td><td>The flare / area of tissue injury</td><td>Healthy skin SURROUNDING the injury</td></tr>
+      <tr><td>Stimulus type</td><td>Non-painful (e.g. light touch) → pain</td><td>Mild painful stimuli → amplified pain</td></tr>
+      <tr><td>Mechanism</td><td>Local axon reflex (antidromic) + Substance-P</td><td>Convergence-facilitation at DHCs + thalamus</td></tr>
+      <tr><td>Key mediator</td><td>Substance-P (peripheral)</td><td>Facilitation of shared central neurons</td></tr>
+      <tr><td>Onset</td><td>30–60 minutes post-injury</td><td>Develops alongside primary</td></tr>
+      <tr><td>Duration</td><td>Hours to days</td><td>Shorter than primary</td></tr>
+    </table>
+  </div>
+
+  <h3 style="font-size:0.85rem;font-family:var(--font-mono);color:var(--accent2);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;margin-top:28px;">🗺️ Diagnostic Algorithm: Type of Pain</h3>
+  <div style="max-width:560px;">
+    <div class="algo-step"><div class="algo-num">1</div><div class="algo-content"><h4>Onset timing?</h4><p>Immediate (&lt;0.1s) → Fast pain (A-delta). Delayed (~1s) → Slow pain (C-fibers)</p></div></div>
+    <div class="algo-step"><div class="algo-num">2</div><div class="algo-content"><h4>Pain quality?</h4><p>Sharp/pricking/well-localized → Cutaneous fast pain. Dull/burning/poorly localized → Deep pain or slow cutaneous</p></div></div>
+    <div class="algo-step"><div class="algo-num">3</div><div class="algo-content"><h4>Location relative to injury?</h4><p>At injury site (flare) + non-painful stimulus → Primary hyperalgesia. Surrounding healthy skin + amplified pain → Secondary hyperalgesia</p></div></div>
+    <div class="algo-step"><div class="algo-num">4</div><div class="algo-content"><h4>Autonomic response?</h4><p>↑HR, ↑BP → mild pain (sympathetic). ↓HR, nausea → severe pain or deep pain (parasympathetic)</p></div></div>
+    <div class="algo-step"><div class="algo-num">5</div><div class="algo-content"><h4>Relationship to activity?</h4><p>Pain during exertion, relieved by rest → Ischemic pain (claudication / angina)</p></div></div>
+    <div class="algo-step"><div class="algo-num">6</div><div class="algo-content"><h4>Associated muscle spasm?</h4><p>Reflex rigidity of surrounding muscles → Deep pain origin (muscle, joint, periosteum)</p></div></div>
+  </div>
+</div>
+
+<!-- ===== TREATMENT ===== -->
+<div class="tab-panel" id="tab-treatment">
+  <h2 class="section-title">💊 Management & Interventions</h2>
+  <p class="section-sub">Targeting pain mechanisms at each physiological level</p>
+
+  <div class="treatment-section">
+    <h3>🚨 Targeting Sensitizers (Immediate Priority)</h3>
+    <div class="treatment-grid">
+      <div class="treatment-card urgent">
+        <h4>🔮 Anti-Substance-P Strategies</h4>
+        <ul>
+          <li>Block Substance-P release → reduces sensitization and primary hyperalgesia</li>
+          <li>Capsaicin depletes Substance-P from C-fiber terminals</li>
+          <li>Tachykinin receptor antagonists (experimental)</li>
+        </ul>
+      </div>
+      <div class="treatment-card urgent">
+        <h4>💊 Anti-Prostaglandin (PGE)</h4>
+        <ul>
+          <li>NSAIDs (ibuprofen, aspirin) inhibit COX enzymes → ↓PGE production</li>
+          <li>Reduce sensitization of nociceptors</li>
+          <li>Most effective when given BEFORE tissue damage (pre-emptive)</li>
+        </ul>
+      </div>
+      <div class="treatment-card urgent">
+        <h4>🚫 TRPV1 Channel Blockers</h4>
+        <ul>
+          <li>Block the gateway for Na⁺/Ca²⁺ influx → no action potential</li>
+          <li>Local anesthetics (lidocaine) block Na⁺ channels</li>
+          <li>Heat avoidance to stay below 45°C threshold</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="treatment-section">
+    <h3>🛤️ Targeting Pain Pathways</h3>
+    <div class="treatment-grid">
+      <div class="treatment-card moderate">
+        <h4>⚡ Fast Pathway (Neospinothalamic)</h4>
+        <ul>
+          <li>NMDA antagonists (ketamine) block Glutamate receptors</li>
+          <li>A-delta fiber block with local anesthetics</li>
+          <li>Transcutaneous electrical nerve stimulation (TENS)</li>
+        </ul>
+      </div>
+      <div class="treatment-card moderate">
+        <h4>🐢 Slow Pathway (Paleospinothalamic)</h4>
+        <ul>
+          <li>Opioids (morphine) act at mu receptors in SGR → inhibit Substance-P</li>
+          <li>Opioids also modulate intralaminar nuclei and RAS arousal</li>
+          <li>Tricyclic antidepressants for chronic slow pain management</li>
+        </ul>
+      </div>
+      <div class="treatment-card moderate">
+        <h4>🧠 Central Modulation</h4>
+        <ul>
+          <li>Opioids at periaqueductal gray (PAG) — endogenous analgesia system</li>
+          <li>Antidepressants (SNRIs) modulate descending inhibitory pathways</li>
+          <li>Cortical processing modification through cognitive-behavioral therapy</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="treatment-section">
+    <h3>🩸 Ischemic Pain Management</h3>
+    <div class="treatment-grid">
+      <div class="treatment-card mild">
+        <h4>🦵 Intermittent Claudication</h4>
+        <ul>
+          <li>Rest immediately → allows blood to wash away K⁺ and lactic acid</li>
+          <li>Antiplatelet agents (aspirin, clopidogrel) to prevent thrombosis</li>
+          <li>Statins to slow arteriosclerosis progression</li>
+          <li>Vasodilators to improve peripheral blood supply</li>
+          <li>Supervised exercise rehabilitation programs</li>
+        </ul>
+      </div>
+      <div class="treatment-card mild">
+        <h4>💗 Anginal (Cardiac Ischemic) Pain</h4>
+        <ul>
+          <li>Nitrates → vasodilate coronary vessels → restore blood flow</li>
+          <li>Beta-blockers → ↓myocardial O₂ demand → ↓metabolite accumulation</li>
+          <li>Antiplatelet / anticoagulant therapy</li>
+          <li>Sublingual GTN for acute attacks</li>
+        </ul>
+      </div>
+      <div class="treatment-card mild">
+        <h4>💪 Muscle Cramp / Spasm</h4>
+        <ul>
+          <li>Stretching and massage to physically disperse metabolites</li>
+          <li>Hydration to maintain K⁺ balance</li>
+          <li>Muscle relaxants (baclofen, diazepam) for reflex spasm with deep pain</li>
+          <li>Electrolyte replacement (Mg²⁺, K⁺ correction)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="treatment-section">
+    <h3>🌸 Hyperalgesia Management</h3>
+    <div class="treatment-grid">
+      <div class="treatment-card moderate">
+        <h4>Primary Hyperalgesia</h4>
+        <ul>
+          <li>Ice packs to limit local axon reflex and reduce Substance-P release</li>
+          <li>NSAIDs reduce PGE sensitization in flare area</li>
+          <li>Topical lidocaine to block antidromic impulses</li>
+          <li>Capsaicin to deplete Substance-P (long-term)</li>
+        </ul>
+      </div>
+      <div class="treatment-card moderate">
+        <h4>Secondary Hyperalgesia</h4>
+        <ul>
+          <li>Treat primary lesion to reduce afferent barrage to DHCs</li>
+          <li>NMDA antagonists to reduce central sensitization (ketamine)</li>
+          <li>Gabapentin/pregabalin to stabilize dorsal horn excitability</li>
+          <li>Spinal cord stimulation for chronic cases</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MNEMONICS ===== -->
+<div class="tab-panel" id="tab-mnemonics">
+  <h2 class="section-title">🧠 Mnemonics & Memory Aids</h2>
+  <p class="section-sub">7 custom-crafted mnemonics from your lecture content · Click to expand</p>
+
+  <div id="mnemonicsContainer"></div>
+
+  <!-- VIVA QUESTIONS -->
+  <div class="viva-section">
+    <h2 class="section-title" style="font-size:1.3rem;">🗣️ Viva Questions</h2>
+    <p class="section-sub">12 viva-style Q&As · Click to reveal answer</p>
+    <div id="vivaContainer"></div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+
+const quizData = [
+  { id:1, type:"Mechanism", q:"Which of the following substances acts primarily to SENSITIZE pain receptors by lowering their threshold?", opts:["Potassium ions (K⁺)","Serotonin","Substance-P","Lactic acid","Bradykinin"], ans:2, correct:"Substance-P and PGE sensitize the receptor membrane by LOWERING its threshold, causing greater pain with less stimulation. They are sensitizers.", wrong:"K⁺, Serotonin, Lactic acid, and Bradykinin are all direct stimulators — they directly activate cation channels to trigger action potentials." },
+  { id:2, type:"Mechanism", q:"During primary hyperalgesia (allodynia), non-painful stimuli cause pain due to:", opts:["Convergence-facilitation at the thalamus","Loss of myelination in A-delta fibers","Local axon reflex releasing Substance-P","Complete adaptation of free nerve endings","Parasympathetic nervous system activation"], ans:2, correct:"Collateral antidromic fibers release Substance-P into the flare area, decreasing pain receptor threshold so touch becomes painful.", wrong:"Convergence causes SECONDARY hyperalgesia. Pain receptors are NON-adapting. Myelination loss = neuropathic, not hyperalgesia." },
+  { id:3, type:"Mechanism", q:"The transient receptor potential channels (TRPV1, TRPA1) in nociceptors are activated by direct stimulators causing an influx of:", opts:["Cl⁻ and K⁺","Na⁺ and Ca²⁺","Mg²⁺ and Ca²⁺","K⁺ only","Proteins"], ans:1, correct:"Direct stimulators activate non-selective cation channels → Na⁺ and Ca²⁺ influx → generator potential → action potential.", wrong:"The channel is non-selective for cations. Cl⁻ influx would HYPERPOLARIZE the membrane. Proteins don't flow through ion channels." },
+  { id:4, type:"Mechanism", q:"Fast pain initiates rapid protective withdrawal reflexes because:", opts:["It travels via slow C-fibers","It activates the reticular activating system","It relies on Substance P","It is transmitted by rapidly conducting A-delta myelinated fibers","It originates in deep viscera"], ans:3, correct:"Fast A-delta fibers are myelinated and rapidly inform the CNS within 0.1s to initiate immediate withdrawal reflexes.", wrong:"C-fibers, Substance-P, and RAS activation are all features of SLOW pain via the paleospinothalamic tract." },
+  { id:5, type:"Mechanism", q:"Secondary hyperalgesia makes healthy surrounding skin more sensitive to mild painful stimuli via:", opts:["Convergence-facilitation theory at dorsal horn cells","Antidromic axon reflex","Direct chemical irritation of healthy skin","Reflex muscle spasm","Local ischemia"], ans:0, correct:"Afferent fibers from the injury AND the healthy surrounding skin converge on the SAME dorsal horn cells. Continuous injury impulses facilitate these neurons → amplified response.", wrong:"Antidromic reflex = PRIMARY hyperalgesia. Chemical irritation and ischemia don't explain why HEALTHY skin becomes hypersensitive." },
+  { id:6, type:"Mechanism", q:"Ischemic pain in active muscles is primarily caused by:", opts:["Direct mechanical crushing of nerve endings","Accumulation of K⁺ and lactic acid","Release of histamine from mast cells","Excessive blood flow (hyperemia)","Reflex muscle spasm"], ans:1, correct:"Active muscles produce K⁺ and lactic acid. When blood supply is inadequate, these accumulate and potently stimulate local pain receptors.", wrong:"Hyperemia would WASH metabolites away and relieve pain. Histamine relates to acute tissue injury, not ischemia." },
+  { id:7, type:"Mechanism", q:"How does the paleospinothalamic tract influence arousal and emotional responses to pain?", opts:["By terminating solely in the primary sensory cortex","By releasing glutamate in the spinal cord","By transmitting via A-delta fibers","By activating the reticular activating system (RAS) and intralaminar nuclei","By causing local axon reflexes"], ans:3, correct:"Slow pain pathway causes STRONG AROUSAL and emotional reactions due to heavy relaying in the reticular formation (RAS) and intralaminar nuclei.", wrong:"It uses Substance-P not glutamate, uses C-fibers not A-delta, and terminates WIDELY across the cortex, not just primary sensory cortex." },
+  { id:8, type:"Mechanism", q:"Mild cutaneous pain typically triggers which autonomic response?", opts:["Decreased heart rate","Pupillary constriction","Increased GIT motility","Increased arterial blood pressure","Nausea and vomiting"], ans:3, correct:"Mild pain is SYMPATHETIC 'PRESSOR' in nature → ↑HR, ↑arterial BP, pupillary DILATION, and DECREASED GIT motility.", wrong:"All other options are PARASYMPATHETIC responses seen with SEVERE pain, not mild pain." },
+  { id:9, type:"Mechanism", q:"In the neospinothalamic tract, first-order neurons release which neurotransmitter at the dorsal horn?", opts:["Substance-P","Acetylcholine","Serotonin","Glutamate","Histamine"], ans:3, correct:"Fast pain first-order neurons release the rapidly-acting transmitter GLUTAMATE at laminae I & IV of the dorsal horn.", wrong:"Substance-P is the slow pain transmitter. Serotonin and histamine are peripheral pain mediators, not dorsal horn neurotransmitters." },
+  { id:10, type:"Mechanism", q:"If a patient's sensory cerebral cortex is destroyed, how is pain perception altered?", opts:["Pain is completely abolished","Only tickling sensations remain","Pain is felt but is diffuse, ill-defined, and type cannot be identified","Only fast pricking pain is felt perfectly","Primary hyperalgesia spreads body-wide"], ans:2, correct:"The THALAMUS can perceive crude pain without the cortex. However, precision for intensity, locality, and modality is LOST. Pain becomes diffuse and ill-defined.", wrong:"Pain is NOT abolished — thalamic perception remains. The cortex handles discrimination, not the ability to feel pain at all." },
+  { id:11, type:"Mechanism", q:"The physiological purpose of the deep pain reflex muscle spasm is to:", opts:["Increase blood supply to the injured muscle","Limit or immobilize the injured part to minimize tissue damage","Generate heat to accelerate healing","Compress the nerve to block pain transmission","Induce secondary hyperalgesia"], ans:1, correct:"Reflex spasm of surrounding muscles IMMOBILIZES the injured part, minimizing further tissue damage — a protective somatic reflex.", wrong:"Spasm actually DECREASES blood supply (can cause ischemia) and does NOT block pain signals." },
+  { id:12, type:"Mechanism", q:"The thermal threshold for pain receptor stimulation is typically:", opts:["10°C","25°C","37°C (body temperature)","45°C","60°C"], ans:3, correct:"Most individuals begin to feel pain at 45°C. This is the standard thermal threshold, measured by thermostatically controlled rod — the MOST ACCURATE method.", wrong:"37°C is body temperature. 10°C would cause cold pain, not hot thermal pain. 60°C is far above threshold." },
+  { id:13, type:"Mechanism", q:"Why are pain receptors considered non-adapting receptors?", opts:["To prevent sensory overload in the CNS","To continuously direct the subject to remove the injurious agent","To allow Substance-P levels to replenish","To favor the fast pathway over the slow pathway","To cause reflex vasodilation"], ans:1, correct:"Non-adaptation is CRUCIAL for protection. If pain receptors adapted, the subject would ignore ongoing tissue damage and fail to remove the harmful agent.", wrong:"Adaptation would be DANGEROUS. Continuous pain signaling ensures protective behavior persists as long as tissue damage continues." },
+  { id:14, type:"Mechanism", q:"Which second-order neurons ascend to the VPLN (ventrobasal) complex of the thalamus for pain processing?", opts:["Paleospinothalamic tract neurons","Local axon reflex neurons","Intralaminar nuclei relay neurons","Neospinothalamic tract neurons","Corticospinal tract neurons"], ans:3, correct:"In the FAST pathway, 2nd-order neurons of the neospinothalamic tract cross and ascend to the VPLN (ventrobasal) thalamus for precise localization.", wrong:"Paleospinothalamic neurons relay mostly in the RETICULAR FORMATION and INTRALAMINAR nuclei, giving diffuse cortical projections." },
+  { id:15, type:"Mechanism", q:"Intermittent claudication is relieved by rest because:", opts:["Rest increases sympathetic tone to vessels","Rest blocks antidromic impulse conduction","Normal blood supply washes away accumulated K⁺ and lactic acid","Rest activates the paleospinothalamic tract","Rest releases endogenous opioids"], ans:2, correct:"During REST, adequate blood supply is restored and WASHES AWAY the accumulated K⁺ and lactic acid, removing the stimulants from pain receptors.", wrong:"This is a pure metabolite-accumulation mechanism. Endogenous opioids and sympathetic tone are not the primary mechanism here." },
+  { id:16, type:"Structure", q:"Pain receptors are morphologically classified as:", opts:["Encapsulated nerve endings","Free nerve endings","Pacinian corpuscles","Meissner's corpuscles","Merkel's discs"], ans:1, correct:"Pain receptors (nociceptors) are FREE NERVE ENDINGS — no capsule, widely distributed in skin, arterial walls, dura, and periosteum.", wrong:"Pacinian, Meissner's, and Merkel's are all mechanoreceptors with specialized capsules for touch and pressure, NOT pain." },
+  { id:17, type:"Structure", q:"Which of the following tissues lacks pain receptors entirely?", opts:["Periosteum","Arterial walls","Skin","Brain tissue","Dura mater"], ans:3, correct:"Pain receptors are COMPLETELY ABSENT in: brain tissue, liver parenchyma, lung alveoli, and bone marrow.", wrong:"Skin, arterial walls, dura mater, and periosteum are RICH in pain receptors — periosteum is especially sensitive!" },
+  { id:18, type:"Structure", q:"The definition of 'Pain Threshold' is:", opts:["The duration of pain after the stimulus is removed","The LOWEST intensity of injurious agent needed to produce pain","The maximum tolerable pain intensity","The temperature at which tissue burns","The conduction speed of the neospinothalamic tract"], ans:1, correct:"Pain threshold = the LOWEST intensity of the injurious agent needed to stimulate pain receptors and produce the pain sensation.", wrong:"This is a precise definition question. Pain tolerance (max tolerable) is different from pain threshold (minimum detectable)." },
+  { id:19, type:"Structure", q:"First-order neurons of the paleospinothalamic tract end in which specific dorsal horn laminae?", opts:["Laminae I and II","Laminae I and IV","Laminae II and III (Substantia Gelatinosa of Rolandi)","Laminae IV and V","Ventral horn"], ans:2, correct:"Slow C fibers end in LAMINAE II & III — the Substantia Gelatinosa of Rolandi (SGR). This is where Substance-P is released.", wrong:"Laminae I & IV are for the FAST neospinothalamic tract (Glutamate release). Ventral horn is for motor neurons." },
+  { id:20, type:"Structure", q:"Tickling sensation is transmitted by which type of nerve fiber?", opts:["A-alpha fibers (proprioception)","A-beta fibers (touch)","C non-myelinated fibers","A-delta myelinated fibers","Dorsal column fibers"], ans:2, correct:"Both itching and tickling are transmitted by C non-myelinated nerve fibers — they are examples of slow cutaneous pain variants via the anterolateral system.", wrong:"A-alpha = proprioception. A-beta = discriminative touch. A-delta = fast pain. Dorsal columns = fine touch and proprioception." },
+  { id:21, type:"Structure", q:"Polymodal pain receptors respond to:", opts:["Light touch only","Heavy pressure alone","A combination of mechanical, chemical, AND thermal tissue damage","Joint position sense","Muscle stretch only"], ans:2, correct:"Polymodal receptors respond to tissue damage from ANY combination of painful stimuli — mechanical, chemical, or thermal.", wrong:"They are NOT unimodal. Mechanoreceptors handle touch/pressure. Muscle spindles and GTOs handle proprioception." },
+  { id:22, type:"Comparative", q:"Compare the onset timing of fast pain versus slow pain:", opts:["Fast: 1s ; Slow: 5s","Fast: 0.1s ; Slow: 1s","Fast: 0.01s ; Slow: 0.1s","Fast: 2s ; Slow: 10s","Both are 0.1s via different tracts"], ans:1, correct:"FAST pain is felt 0.1 second after stimulation (A-delta). SLOW burning pain is felt 1 second after stimulation (C-fibers). Key exam values!", wrong:"The precise values are 0.1s (fast) and 1s (slow). These reflect the difference in myelination and conduction velocity." },
+  { id:23, type:"Comparative", q:"Which type of pain is poorly localized and associated with parasympathetic manifestations?", opts:["Pricking cutaneous pain","Primary hyperalgesia","Deep pain","Fast pain","Secondary hyperalgesia"], ans:2, correct:"DEEP pain is poorly localized, dull/burning, transmitted by C-fibers, and SPECIFICALLY causes parasympathetic reactions (nausea, ↓HR, ↓BP).", wrong:"Cutaneous fast pain is WELL localized. Hyperalgesia is increased sensitivity, not a type of pain with specific autonomics." },
+  { id:24, type:"Comparative", q:"Primary hyperalgesia DIFFERS from secondary hyperalgesia in that primary hyperalgesia:", opts:["Occurs in healthy surrounding skin","Involves convergence at the thalamus","Is triggered by non-painful stimuli (Allodynia)","Has a shorter duration","Uses only the paleospinothalamic tract"], ans:2, correct:"Primary hyperalgesia (ALLODYNIA) = non-painful stimuli cause pain. It occurs IN the flare area. Secondary = mild painful stimuli cause MORE pain in HEALTHY skin.", wrong:"SECONDARY involves healthy surrounding skin and convergence-facilitation. Secondary has SHORTER duration than primary." },
+  { id:25, type:"Comparative", q:"Severe pain regulates the autonomic nervous system by triggering a:", opts:["Pressor sympathetic response (↑HR, ↑BP)","Depressor parasympathetic response (↓HR, ↓BP, nausea)","Massive adrenaline surge from adrenal medulla","Cortisol spike and stress response","Increased gastrointestinal motility"], ans:1, correct:"SEVERE pain causes DEPRESSOR (parasympathetic) reactions: ↓HR, ↓BP, pupillary constriction, nausea, vomiting — the opposite of mild pain.", wrong:"Mild pain triggers the PRESSOR sympathetic response (↑HR, ↑BP, pupil dilation). Severe pain flips to parasympathetic dominance." }
+];
+
+const flashcardsData = [
+  { tag:"Receptor", q:"What is the morphological type of pain receptors?", a:"FREE NERVE ENDINGS — no capsule, widely distributed in skin, arterial walls, dura, and periosteum." },
+  { tag:"Receptor", q:"Where are pain receptors COMPLETELY ABSENT?", a:"Liver parenchyma, lung alveoli, brain tissue, and bone marrow." },
+  { tag:"Mechanism", q:"What are the two categories of chemical pain stimulators?", a:"1. DIRECT STIMULATORS (K⁺, bradykinin, serotonin, histamine) — activate cation channels directly. 2. SENSITIZERS (Substance-P, PGE) — lower receptor threshold." },
+  { tag:"Mechanism", q:"What channels do direct stimulators activate, and what ions enter?", a:"Non-selective cation channels TRPV1 and TRPA1 → Na⁺ and Ca²⁺ INFLUX → generator potential → action potential." },
+  { tag:"Receptor", q:"Why is it vital that pain receptors are slowly/non-adapting?", a:"To CONTINUOUSLY direct the subject to remove the injurious agent. Adaptation would be dangerous — the person would ignore ongoing tissue damage." },
+  { tag:"Threshold", q:"What is the thermal pain threshold and why is the thermal method most accurate?", a:"45°C. Uses a thermostatically controlled metallic rod — provides precise, reproducible, controlled heat stimulation." },
+  { tag:"Fast Pain", q:"Describe the fast pain (neospinothalamic) pathway fiber to cortex.", a:"A-delta myelinated fibers → laminae I & IV (Glutamate) → VPLN thalamus → primary somatosensory cortex. Onset: 0.1 seconds." },
+  { tag:"Slow Pain", q:"Describe the slow pain (paleospinothalamic) pathway fiber to cortex.", a:"C non-myelinated fibers → laminae II & III/SGR (Substance-P) → reticular formation + intralaminar nuclei → diffuse cortex. Onset: 1 second." },
+  { tag:"Neurotransmitter", q:"What transmitter does each pain pathway release at the dorsal horn?", a:"Fast (Neospinothalamic): GLUTAMATE (rapidly-acting). Slow (Paleospinothalamic): SUBSTANCE-P (slowly-acting)." },
+  { tag:"Pathway", q:"Why does slow pain cause such strong arousal and emotional reactions?", a:"Because the paleospinothalamic pathway has HEAVY relays in the Reticular Activating System (RAS) and intralaminar nuclei." },
+  { tag:"Cortex", q:"What is the role of the cerebral cortex in pain perception?", a:"Intensity, locality, and MODALITY DISCRIMINATION. Without the cortex, pain is perceived at the thalamus as DIFFUSE and ILL-DEFINED." },
+  { tag:"Hyperalgesia", q:"Define primary hyperalgesia (allodynia) and its mechanism.", a:"Increased pain sensitivity in the FLARE AREA where non-painful stimuli cause pain. Mechanism: LOCAL AXON REFLEX → antidromic Substance-P release → ↓threshold." },
+  { tag:"Hyperalgesia", q:"Define secondary hyperalgesia and its mechanism.", a:"Increased pain sensitivity in HEALTHY SURROUNDING SKIN where mild painful stimuli cause more pain. Mechanism: CONVERGENCE-FACILITATION at dorsal horn cells." },
+  { tag:"Autonomic", q:"What autonomic response does MILD pain trigger?", a:"SYMPATHETIC PRESSOR: ↑HR, ↑arterial BP, pupillary DILATION, ↓GIT motility." },
+  { tag:"Autonomic", q:"What autonomic response does SEVERE pain trigger?", a:"PARASYMPATHETIC DEPRESSOR: ↓HR, ↓BP, pupillary constriction, nausea, vomiting." },
+  { tag:"Deep Pain", q:"What are 4 key characteristics of deep pain?", a:"1. Poorly localized. 2. Dull/aching/burning quality. 3. Transmitted by C fibers ONLY. 4. Causes reflex muscle SPASM and parasympathetic manifestations." },
+  { tag:"Deep Pain", q:"What is the purpose of reflex muscle spasm in deep pain?", a:"To IMMOBILIZE the injured part and minimize further tissue damage. A protective somatic reflex." },
+  { tag:"Ischemic", q:"What causes ischemic pain and what washes it away?", a:"CAUSE: Accumulation of K⁺ and lactic acid from active muscles with inadequate blood supply. RELIEF: REST — restores blood flow to clear metabolites." },
+  { tag:"Ischemic", q:"Define intermittent claudication with its mechanism.", a:"Severe ischemic pain in calf muscles DURING WALKING in arteriosclerotic patients. Caused by K⁺/lactic acid accumulation. Relieved by rest." },
+  { tag:"Substance P", q:"Name the THREE roles of Substance-P in pain physiology.", a:"1. PERIPHERAL SENSITIZER (lowers nociceptor threshold). 2. NEUROTRANSMITTER of slow pain at SGR. 3. MEDIATOR of primary hyperalgesia (antidromic release in flare)." },
+  { tag:"Polymodal", q:"What are polymodal nociceptors?", a:"Pain receptors responding to ANY COMBINATION of mechanical, chemical, and thermal tissue damage. Not specific to one modality." },
+  { tag:"Comparison", q:"Fast vs. Slow pain: fiber types?", a:"Fast Pain: A-delta MYELINATED. Slow Pain: C NON-MYELINATED. Myelination = faster conduction. Hence 0.1s vs 1s onset." },
+  { tag:"Comparison", q:"Fast vs. Slow pain: dorsal horn laminae?", a:"Fast (Neospinothalamic): Laminae I & IV. Slow (Paleospinothalamic): Laminae II & III (Substantia Gelatinosa of Rolandi)." },
+  { tag:"Clinical", q:"What happens to pain if the sensory cortex is destroyed?", a:"Pain is STILL FELT at the thalamic level but becomes DIFFUSE, ILL-DEFINED, and the specific nature/locality cannot be identified. The thalamus perceives crude pain." },
+];
+
+const casesData = [
+  {
+    title:"The Sunburn Shower",
+    scenario:"Emergency",
+    vignette:"A 22-year-old student develops a painful sunburn on his back. The next morning, the warm spray of a shower causes him to cry out in agony. The warm water is not normally painful. On examination, the affected area is red (erythema/flare) and tender.",
+    questions:["Q1: What specific type of hypersensitivity does this patient demonstrate?","Q2: What is the underlying physiological mechanism?","Q3: What molecule is the key mediator and what is its source?","Q4: What is the clinical term for non-painful stimuli causing pain?"],
+    answer: `<div class="ans-step">Diagnosis:</div>
+PRIMARY HYPERALGESIA (Allodynia) in the flare area of sunburn.
+
+<div class="ans-step" style="margin-top:12px;">Q1 — Type:</div>
+Primary hyperalgesia — increased sensitivity in the area of actual tissue injury (flare) where normally non-painful stimuli cause pain.
+
+<div class="ans-step" style="margin-top:12px;">Q2 — Mechanism (Local Axon Reflex):</div>
+The sunburn injures nociceptors → pain afferents are stimulated (orthodromic). COLLATERAL fibers of the same neuron fire ANTIDROMICALLY (backwards toward the skin). These antidromic impulses reach the surrounding flare area and release Substance-P peripherally. Substance-P LOWERS the pain receptor threshold → hypersensitivity.
+
+<div class="ans-step" style="margin-top:12px;">Q3 — Mediator:</div>
+SUBSTANCE-P — released from the nerve terminal ANTIDROMICALLY into the flare area, not from the spinal cord. This is the peripheral release.
+
+<div class="ans-step" style="margin-top:12px;">Q4 — Clinical term:</div>
+ALLODYNIA — the clinical term for normally non-painful stimuli (warm water) causing pain due to lowered receptor threshold.`
+  },
+  {
+    title:"The Fractured Tibia",
+    scenario:"Deep Pain",
+    vignette:"A 30-year-old athlete fractures his tibia during a football match. Besides severe local pain, the physician notes that the entire calf musculature is in rigid spasm. The patient rates his pain as 9/10 and begins to feel nauseated. His pulse is noted to be bradycardic at 52 bpm.",
+    questions:["Q1: What type of pain is this patient primarily experiencing?","Q2: Explain the fiber type transmitting this pain.","Q3: Why is the calf musculature in spasm?","Q4: Explain the nausea and bradycardia — which nervous system is activated?"],
+    answer:`<div class="ans-step">Diagnosis:</div>
+DEEP PAIN from fractured periosteum + muscle/soft tissue injury.
+
+<div class="ans-step" style="margin-top:12px;">Q1 — Pain type:</div>
+Deep pain — poorly localized, severe, dull/aching in quality, arising from periosteum, muscle, and connective tissue around the fracture.
+
+<div class="ans-step" style="margin-top:12px;">Q2 — Fiber type:</div>
+Deep pain is transmitted EXCLUSIVELY by C non-myelinated fibers (unmyelinated). Unlike cutaneous fast pain which can also use A-delta, deep pain uses ONLY slow C fibers.
+
+<div class="ans-step" style="margin-top:12px;">Q3 — Muscle spasm:</div>
+Deep pain triggers a SOMATIC REFLEX → spasm of surrounding muscles. This immobilizes the injured part to minimize further movement and tissue damage. It is a PROTECTIVE reflex.
+
+<div class="ans-step" style="margin-top:12px;">Q4 — Autonomic response:</div>
+Severe deep pain activates the PARASYMPATHETIC (depressor) system → ↓HR (bradycardia at 52 bpm) + ↓BP + nausea/vomiting. This is the OPPOSITE of mild pain which causes sympathetic pressor effects.`
+  },
+  {
+    title:"Intermittent Claudication",
+    scenario:"Ischemic Pain",
+    vignette:"A 68-year-old man with long-standing arteriosclerosis presents to the clinic complaining of severe, cramping pain in his RIGHT calf that ONLY occurs when he walks more than 100 meters. The pain forces him to stop walking. It completely resolves within 2 minutes of rest. He denies rest pain.",
+    questions:["Q1: What is this classic clinical syndrome called?","Q2: What is the exact biochemical mechanism of the pain?","Q3: Why does WALKING cause pain but REST relieves it?","Q4: What would happen if the arteriosclerosis progressed to complete ischemia at rest?"],
+    answer:`<div class="ans-step">Diagnosis:</div>
+INTERMITTENT CLAUDICATION — classic ischemic pain of peripheral arterial disease.
+
+<div class="ans-step" style="margin-top:12px;">Q1 — Syndrome:</div>
+Intermittent claudication — severe ischemic pain in calf muscles during walking, relieved completely by rest, in patients with arteriosclerosis.
+
+<div class="ans-step" style="margin-top:12px;">Q2 — Mechanism:</div>
+During walking, active calf muscles produce metabolic byproducts: K⁺ ions and lactic acid. Arteriosclerosis limits blood supply → these substances ACCUMULATE and are NOT washed away. K⁺ and lactic acid potently stimulate local pain receptors → severe ischemic pain.
+
+<div class="ans-step" style="margin-top:12px;">Q3 — Walking vs. Rest:</div>
+WALKING: high metabolic activity + impaired blood supply = metabolite accumulation = pain. REST: metabolic demand falls + reduced blood flow is now sufficient to clear K⁺ and lactic acid = pain resolves.
+
+<div class="ans-step" style="margin-top:12px;">Q4 — Progression:</div>
+REST PAIN — if ischemia is severe enough that metabolites accumulate even at rest, the patient develops constant ischemic pain. This signals critical limb ischemia and risks gangrene.`
+  },
+  {
+    title:"The Paper Cut & Surrounding Skin",
+    scenario:"Secondary Hyperalgesia",
+    vignette:"A researcher deliberately studies hyperalgesia. A subject receives a small paper cut on the index finger. 2 hours later, the researcher lightly pricked the healthy skin 4 cm AWAY from the cut with a pin. The subject reported the pinprick felt much more painful than usual — far more than a pinprick of identical intensity on the other (uninjured) hand.",
+    questions:["Q1: What type of hyperalgesia does the 4 cm away skin represent?","Q2: What is the central mechanism explaining this?","Q3: How does this differ mechanistically from primary hyperalgesia?","Q4: How long does secondary hyperalgesia typically last compared to primary?"],
+    answer:`<div class="ans-step">Diagnosis:</div>
+SECONDARY HYPERALGESIA in healthy surrounding skin.
+
+<div class="ans-step" style="margin-top:12px;">Q1 — Type:</div>
+Secondary hyperalgesia — increased pain sensitivity in HEALTHY SKIN SURROUNDING the injury where mild painful stimuli cause exaggerated pain.
+
+<div class="ans-step" style="margin-top:12px;">Q2 — Central mechanism (Convergence-Facilitation):</div>
+Afferent fibers from the paper cut AND afferent fibers from the surrounding 4 cm of healthy skin BOTH CONVERGE onto the SAME dorsal horn cells (DHCs) and thalamic neurons. The continuous barrage of impulses from the paper cut FACILITATES these shared central neurons. When mild stimuli arrive from healthy skin, the central response is EXAGGERATED.
+
+<div class="ans-step" style="margin-top:12px;">Q3 — Difference from primary:</div>
+PRIMARY hyperalgesia: PERIPHERAL mechanism (local axon reflex → antidromic Substance-P in the flare area). SECONDARY hyperalgesia: CENTRAL mechanism (convergence-facilitation at dorsal horn and thalamus, in healthy skin).
+
+<div class="ans-step" style="margin-top:12px;">Q4 — Duration:</div>
+Secondary hyperalgesia has SHORTER duration than primary hyperalgesia. Primary lasts hours to days; secondary resolves faster as the central sensitization dissipates.`
+  },
+  {
+    title:"The Thermal Rod Test",
+    scenario:"Pain Threshold",
+    vignette:"In a physiology practical, a student volunteer places her forearm against a thermostatically controlled metallic rod. At 37°C she feels warmth. At 42°C she feels uncomfortable heat. At 45°C she immediately withdraws her arm, reporting definite pain. At 40°C, the same student with a new sunburn feels pain (testing the burned area).",
+    questions:["Q1: What does 45°C represent?","Q2: Why is the thermal method considered the most accurate?","Q3: At 40°C on the sunburned area — what physiological phenomenon explains pain at a normally non-painful temperature?","Q4: Name the receptor channels activated at the thermal threshold."],
+    answer:`<div class="ans-step">Q1 — Significance of 45°C:</div>
+45°C is the THERMAL PAIN THRESHOLD — the lowest temperature that stimulates thermal pain receptors and produces the sensation of pain in most individuals. Below this, warmth is perceived without pain.
+
+<div class="ans-step" style="margin-top:12px;">Q2 — Why thermal method is most accurate:</div>
+The thermostatically controlled metallic rod provides PRECISE, REPRODUCIBLE, STANDARDIZED heat delivery. Unlike pin prick (variable pressure) or compression (variable technique), thermal stimulation is objectively quantifiable and highly controlled.
+
+<div class="ans-step" style="margin-top:12px;">Q3 — Pain at 40°C in sunburned skin:</div>
+PRIMARY HYPERALGESIA. The sunburn triggered a local axon reflex → antidromic Substance-P release → LOWERED receptor threshold in the burned area. The threshold may drop below 40°C, so normally subthreshold heat now exceeds the lowered threshold and causes pain.
+
+<div class="ans-step" style="margin-top:12px;">Q4 — Channels activated:</div>
+TRPV1 (Transient Receptor Potential Vanilloid 1) — the primary heat-sensitive nociceptor channel, activated at temperatures ≥43°C. Also TRPA1 for cold and chemical nociception.`
+  },
+  {
+    title:"The Nail Puncture — Integration",
+    scenario:"Integrative",
+    vignette:"A worker steps on a rusty nail. He IMMEDIATELY jerks his foot away. Over the next hour, a red flare develops around the puncture, which hurts severely when his pants brush against it. Later, a dull, diffuse, throbbing pain takes over, accompanied by nausea.",
+    questions:["Q1: What explains the immediate jerk of the foot?","Q2: What pathway and fiber carries the immediate sharp pain?","Q3: What explains the red flare and allodynia to pants?","Q4: What explains the late dull/throbbing pain with nausea?"],
+    answer:`<div class="ans-step">Q1 — Immediate foot jerk:</div>
+FLEXION WITHDRAWAL REFLEX — initiated by fast A-delta fibers of the neospinothalamic tract. Information reaches the spinal cord in 0.1 seconds, triggering an immediate somatic reflex before the pain is even consciously perceived.
+
+<div class="ans-step" style="margin-top:12px;">Q2 — Immediate sharp pain pathway:</div>
+FAST pain via A-delta MYELINATED fibers → neospinothalamic tract → laminae I & IV (Glutamate) → VPLN thalamus → primary somatosensory cortex. Provides precise localization. Onset: 0.1s.
+
+<div class="ans-step" style="margin-top:12px;">Q3 — Red flare and allodynia:</div>
+The flare and primary hyperalgesia develop via the LOCAL AXON REFLEX. Stimulated pain afferents send antidromic impulses to surrounding skin. Substance-P is released → vasodilation (flare) + lowered receptor threshold (allodynia). Pants touching = non-painful stimulus causing pain.
+
+<div class="ans-step" style="margin-top:12px;">Q4 — Late dull pain + nausea:</div>
+SLOW DEEP/BURNING PAIN via C non-myelinated fibers → paleospinothalamic tract → RAS activation (emotional arousal) + parasympathetic response (nausea, potential ↓HR). This is the sustained tissue-damage signal that keeps demanding attention.`
+  }
+];
+
+const mnemonicsData = [
+  {
+    icon:"🧬",
+    title:"SKID — Absent Locations for Pain Receptors",
+    subtitle:"Where do nociceptors NOT exist?",
+    word:"SKID",
+    letters:[
+      {l:"S", e:"Skull (brain tissue) — brain parenchyma has no pain receptors"},
+      {l:"K", e:"aKa Keloid-free — bone (medullary cavity) — no pain receptors (but periosteum has lots!)"},
+      {l:"I", e:"Inside the liver — liver parenchyma is pain-free"},
+      {l:"D", e:"Deep lungs — lung alveoli have no pain receptors"}
+    ]
+  },
+  {
+    icon:"⚡",
+    title:"FAG-SPC — Pain Pathways Summary",
+    subtitle:"Fast & Slow pathway neurotransmitters and tracts",
+    word:"FAG · SPC",
+    letters:[
+      {l:"F", e:"Fast pain"},
+      {l:"A", e:"A-delta fibers (myelinated)"},
+      {l:"G", e:"Glutamate neurotransmitter"},
+      {l:"S", e:"Slow pain"},
+      {l:"P", e:"Paleospinothalamic tract"},
+      {l:"C", e:"C-fibers + Substance-P neurotransmitter (double C!)"}
+    ]
+  },
+  {
+    icon:"🔮",
+    title:"Substance-P is TEN — Triple Extraordinary Nociceptor Molecule",
+    subtitle:"Remember Substance-P's 3 roles",
+    word:"TEN",
+    letters:[
+      {l:"T", e:"Threshold lowering SENSITIZER — lowers nociceptor threshold peripherally when tissue is damaged"},
+      {l:"E", e:"sEcond-order neurotransmitter — released at Substantia Gelatinosa (laminae II & III) in slow pain pathway"},
+      {l:"N", e:"ANtidromic releaser — released antidromically in the flare area causing primary hyperalgesia (allodynia)"}
+    ]
+  },
+  {
+    icon:"🩸",
+    title:"KAMI — Ischemic Pain Metabolites",
+    subtitle:"What accumulates to cause ischemic pain?",
+    word:"KAMI",
+    letters:[
+      {l:"K", e:"K⁺ (potassium ions) accumulate during active metabolism"},
+      {l:"A", e:"Arteriosclerosis / Arterial obstruction → inadequate blood supply"},
+      {l:"M", e:"Metabolite accumulation — lactic acid + K⁺ not washed away"},
+      {l:"I", e:"Ischemic pain — stimulates nociceptors; relieved when blood flow IMPROVES at rest"}
+    ]
+  },
+  {
+    icon:"🌊",
+    title:"MILD vs SEVERE — Autonomic Pain Responses",
+    subtitle:"Remember which pain gives which autonomic response",
+    word:"MILD → UP · SEVERE → DOWN",
+    letters:[
+      {l:"M", e:"Mild pain = sYMpathetic activation"},
+      {l:"↑", e:"↑ Heart Rate, ↑ Blood Pressure, ↑ Pupil size (dilation), ↓GIT motility = PRESSOR response"},
+      {l:"S", e:"Severe pain = paraSymPathetic activation"},
+      {l:"↓", e:"↓ Heart Rate (brady), ↓ Blood Pressure, Nausea, Vomiting = DEPRESSOR response"}
+    ]
+  },
+  {
+    icon:"🔵",
+    title:"CLAP — Primary vs Secondary Hyperalgesia",
+    subtitle:"Distinguish the two types at a glance",
+    word:"CLAP",
+    letters:[
+      {l:"C", e:"Collateral antidromic reflex = PRIMARY hyperalgesia (Local Axon Reflex in flare area)"},
+      {l:"L", e:"Locality: PRIMARY = IN the flare. SECONDARY = SURROUNDING healthy skin"},
+      {l:"A", e:"Allodynia = PRIMARY (non-painful stimuli cause pain). Amplification = SECONDARY (mild pain → more pain)"},
+      {l:"P", e:"Peripheral mechanism = PRIMARY. Central (dorsal horn convergence) = SECONDARY"}
+    ]
+  },
+  {
+    icon:"🏋️",
+    title:"DEEP — Characteristics of Deep Pain",
+    subtitle:"All you need to remember about deep pain",
+    word:"DEEP",
+    letters:[
+      {l:"D", e:"Diffuse/poorly localized (unlike cutaneous fast pain)"},
+      {l:"E", e:"Exclusively C-fibers (non-myelinated) — NO A-delta involved!"},
+      {l:"E", e:"Emotional + Parasympathetic response (nausea, ↓HR) — not sympathetic"},
+      {l:"P", e:"Protective muscle sPasm — reflex spasm immobilizes the injured part"}
+    ]
+  }
+];
+
+const vivaData = [
+  { q:"Define pain sensation and its physiological significance.", a:"Pain is an unpleasant sensory AND emotional experience associated with actual tissue damage. It is a PROTECTIVE sense directing the person to remove the injurious agent — essential for survival." },
+  { q:"Where are pain receptors completely absent in the body?", a:"Completely absent in: liver parenchyma, lung alveoli, brain tissue (parenchyma), and bone (marrow). Remember: SKID — Skull/brain, Keloid-free bone, Inside liver, Deep lungs." },
+  { q:"Why is it clinically significant that pain receptors are slowly/non-adapting?", a:"Non-adaptation is VITAL because it continuously directs the subject to remove the injurious agent. If pain receptors adapted, the person would stop noticing ongoing tissue damage and fail to protect themselves — potentially fatal." },
+  { q:"Distinguish direct stimulators from sensitizers of pain receptors.", a:"DIRECT STIMULATORS (K⁺, serotonin, histamine, bradykinin, acids): directly activate TRPV1/TRPA1 channels → Na⁺/Ca²⁺ influx → action potential. SENSITIZERS (Substance-P, PGE): do NOT trigger action potentials but LOWER receptor threshold, amplifying pain response." },
+  { q:"What is the thermal pain threshold and which measurement method is most accurate?", a:"45°C is the thermal threshold. The THERMAL METHOD (thermostatically controlled metallic rod) is most accurate because it delivers precise, reproducible, standardized stimulation — unlike subjective pin prick or compression methods." },
+  { q:"What neurotransmitters are released at the dorsal horn by fast and slow pain pathways?", a:"FAST pain (neospinothalamic): GLUTAMATE (rapidly-acting) at laminae I & IV. SLOW pain (paleospinothalamic): SUBSTANCE-P (slowly-acting) at laminae II & III (SGR). FAG-SPC mnemonic!" },
+  { q:"What is the role of the cerebral cortex in pain perception?", a:"The cortex handles INTENSITY, LOCALITY, and MODALITY DISCRIMINATION. Without the cortex (e.g. cortical damage), the patient can still feel pain at the thalamus, but it is DIFFUSE, ILL-DEFINED, and the exact nature cannot be identified." },
+  { q:"Explain the mechanism of primary hyperalgesia (allodynia).", a:"Local Axon Reflex: tissue injury stimulates pain afferents (orthodromic). COLLATERAL fibers fire ANTIDROMICALLY to surrounding flare area → release SUBSTANCE-P peripherally → LOWERS receptor threshold → non-painful stimuli (touch, warm water) now exceed threshold → pain." },
+  { q:"What autonomic reactions occur with mild versus severe pain?", a:"MILD pain = SYMPATHETIC PRESSOR: ↑HR, ↑BP, pupillary DILATION, ↓GIT motility. SEVERE pain = PARASYMPATHETIC DEPRESSOR: ↓HR, ↓BP, nausea, vomiting. This flip from sympathetic to parasympathetic with increasing severity is high-yield!" },
+  { q:"What are the key characteristics of deep pain?", a:"DEEP mnemonic: Diffuse/poorly localized; Exclusively C-fibers (no A-delta); Emotional/parasympathetic response (nausea, ↓HR); Protective muscle sPasm (immobilizes injured part). Quality: dull, aching, burning." },
+  { q:"Explain intermittent claudication — mechanism, trigger, and relief.", a:"Arteriosclerotic calf pain DURING WALKING, RELIEVED BY REST. Mechanism: active muscles produce K⁺ and lactic acid → arteriosclerosis prevents adequate blood supply → metabolites ACCUMULATE → stimulate nociceptors. REST: blood flow clears metabolites → pain resolves." },
+  { q:"Compare Substance-P's roles in pain physiology — name all three.", a:"TEN — Triple role: 1. Threshold-lowering SENSITIZER (peripheral, tissue damage). 2. sEcond-order Neurotransmitter at SGR (laminae II & III) for slow pain. 3. ANtidromic releaser causing PRIMARY HYPERALGESIA (released in flare area via local axon reflex)." }
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let state = {
+  currentQ: 0,
+  answered: new Array(25).fill(null), // null, 'correct', 'wrong'
+  correct: 0,
+  wrong: 0,
+  streak: 0,
+  maxStreak: 0,
+  fcFlipped: 0,
+  activeTab: 'overview'
+};
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('painPhysioState');
+    if (s) { const parsed = JSON.parse(s); Object.assign(state, parsed); }
+  } catch(e) {}
+}
+
+function saveState() {
+  try { localStorage.setItem('painPhysioState', JSON.stringify(state)); } catch(e) {}
+}
+
+// ============================================================
+// STATS
+// ============================================================
+function updateStats() {
+  const total = 25;
+  const answered = state.answered.filter(x => x !== null).length;
+  const pct = Math.round((answered / total) * 100);
+  document.getElementById('streakVal').textContent = state.streak;
+  document.getElementById('scoreVal').textContent = state.correct;
+  document.getElementById('totalVal').textContent = total;
+  document.getElementById('pctVal').textContent = pct;
+  // Ring
+  const circumference = 207.3;
+  const offset = circumference - (pct / 100) * circumference;
+  document.getElementById('ringFill').style.strokeDashoffset = offset;
+  document.getElementById('ringText').textContent = pct + '%';
+  // Bar
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `Question ${Math.min(state.currentQ + 1, total)} of ${total}`;
+  document.getElementById('qProgress').textContent = `${answered}/${total}`;
+  document.getElementById('correctCount').textContent = state.correct;
+  document.getElementById('wrongCount').textContent = state.wrong;
+  document.getElementById('streakCount').textContent = state.streak;
+  saveState();
+}
+
+// ============================================================
+// QUIZ
+// ============================================================
+function buildQuiz() {
+  const container = document.getElementById('quizContainer');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const qIdx = state.currentQ;
+  if (qIdx >= quizData.length) {
+    showFinish();
+    return;
+  }
+
+  const q = quizData[qIdx];
+  const isAnswered = state.answered[qIdx] !== null;
+
+  const card = document.createElement('div');
+  card.className = 'question-card';
+  card.innerHTML = `
+    <div class="q-meta">
+      <span class="q-number">Q${qIdx + 1} / ${quizData.length}</span>
+      <span class="badge badge-${q.type === 'Mechanism' ? 'blue' : q.type === 'Comparative' ? 'purple' : 'cyan'}">${q.type}</span>
+    </div>
+    <div class="q-text">${q.q}</div>
+    <div class="options" id="optionsWrap"></div>
+    <div class="explanation" id="explanationWrap">
+      <div class="expl-why">✅ Why Correct:</div>
+      <p>${q.correct}</p>
+      <div class="expl-why" style="margin-top:10px;color:var(--red);">❌ Why Others Wrong:</div>
+      <p>${q.wrong}</p>
+    </div>
+  `;
+  container.appendChild(card);
+
+  const opts = card.querySelector('#optionsWrap');
+  const letters = ['A','B','C','D','E'];
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${opt}</span>`;
+    if (isAnswered) {
+      btn.disabled = true;
+      if (i === q.ans) btn.classList.add('correct');
+      if (i !== q.ans && state.answered[qIdx] === 'wrong') {
+        // We don't know which was selected, just show correct
+      }
+    }
+    btn.addEventListener('click', () => selectAnswer(qIdx, i, btn));
+    opts.appendChild(btn);
+  });
+
+  if (isAnswered) {
+    card.querySelector('#explanationWrap').classList.add('show');
+  }
+
+  // Nav buttons
+  const nav = document.createElement('div');
+  nav.className = 'quiz-nav';
+  if (qIdx > 0) {
+    const prev = document.createElement('button');
+    prev.className = 'btn btn-outline';
+    prev.innerHTML = '← Previous';
+    prev.onclick = () => { state.currentQ--; buildQuiz(); updateStats(); };
+    nav.appendChild(prev);
+  }
+  if (qIdx < quizData.length - 1) {
+    const next = document.createElement('button');
+    next.className = 'btn btn-primary';
+    next.innerHTML = isAnswered ? 'Next →' : 'Skip →';
+    next.onclick = () => { state.currentQ++; buildQuiz(); updateStats(); };
+    nav.appendChild(next);
+  }
+  container.appendChild(nav);
+}
+
+function selectAnswer(qIdx, chosen, btn) {
+  if (state.answered[qIdx] !== null) return;
+  const q = quizData[qIdx];
+  const correct = chosen === q.ans;
+  state.answered[qIdx] = correct ? 'correct' : 'wrong';
+
+  if (correct) {
+    state.correct++;
+    state.streak++;
+  } else {
+    state.wrong++;
+    state.streak = 0;
+  }
+
+  const opts = btn.parentElement.querySelectorAll('.option-btn');
+  opts.forEach((b, i) => {
+    b.disabled = true;
+    if (i === q.ans) b.classList.add('correct');
+  });
+  if (!correct) btn.classList.add('wrong');
+
+  const expl = document.getElementById('explanationWrap');
+  if (expl) expl.classList.add('show');
+
+  updateStats();
+  buildQuiz();
+}
+
+function showFinish() {
+  document.getElementById('quizContainer').innerHTML = '';
+  const finish = document.getElementById('finishScreen');
+  finish.classList.add('show');
+  const pct = Math.round((state.correct / 25) * 100);
+  document.getElementById('finalScore').textContent = `${state.correct} / 25 (${pct}%)`;
+  let msg = '';
+  if (pct >= 90) msg = '🏆 Outstanding! You have mastered pain physiology!';
+  else if (pct >= 75) msg = '🎯 Great work! Review the questions you missed.';
+  else if (pct >= 60) msg = '📚 Good effort! Focus on the mechanisms section.';
+  else msg = '💪 Keep studying! Review the flowcharts and flashcards first.';
+  document.getElementById('finalMsg').textContent = msg;
+}
+
+function resetQuiz() {
+  state.currentQ = 0;
+  state.answered = new Array(25).fill(null);
+  state.correct = 0;
+  state.wrong = 0;
+  state.streak = 0;
+  document.getElementById('finishScreen').classList.remove('show');
+  buildQuiz();
+  updateStats();
+}
+
+// ============================================================
+// FLASHCARDS
+// ============================================================
+function buildFlashcards() {
+  const grid = document.getElementById('flashcardGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  flashcardsData.forEach((fc, i) => {
+    const card = document.createElement('div');
+    card.className = 'flashcard';
+    card.innerHTML = `
+      <div class="fc-inner">
+        <div class="fc-front">
+          <div class="fc-tag">${fc.tag}</div>
+          <div class="fc-question">${fc.q}</div>
+          <div class="fc-hint">Click to reveal →</div>
+        </div>
+        <div class="fc-back">
+          <div class="fc-tag">Answer</div>
+          <div class="fc-answer">${fc.a}</div>
+        </div>
+      </div>
+    `;
+    card.addEventListener('click', () => {
+      const wasFlipped = card.classList.contains('flipped');
+      card.classList.toggle('flipped');
+      if (!wasFlipped) state.fcFlipped++;
+      else state.fcFlipped = Math.max(0, state.fcFlipped - 1);
+      document.getElementById('fcCounter').textContent = `${document.querySelectorAll('.flashcard.flipped').length} / ${flashcardsData.length} flipped`;
+    });
+    grid.appendChild(card);
+  });
+}
+
+function flipAll(flip) {
+  document.querySelectorAll('.flashcard').forEach(c => {
+    if (flip) c.classList.add('flipped');
+    else c.classList.remove('flipped');
+  });
+  document.getElementById('fcCounter').textContent = `${flip ? flashcardsData.length : 0} / ${flashcardsData.length} flipped`;
+}
+
+function shuffleCards() {
+  const grid = document.getElementById('flashcardGrid');
+  const cards = Array.from(grid.children);
+  for (let i = cards.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    grid.appendChild(cards[j]);
+    cards.splice(j, 1);
+  }
+}
+
+// ============================================================
+// CASES
+// ============================================================
+function buildCases() {
+  const container = document.getElementById('casesContainer');
+  if (!container) return;
+  container.innerHTML = '';
+  casesData.forEach((c, i) => {
+    const div = document.createElement('div');
+    div.className = 'case-card';
+    div.innerHTML = `
+      <div class="case-header">
+        <div class="case-num">${i+1}</div>
+        <div>
+          <h3>${c.title}</h3>
+          <p>${c.scenario}</p>
+        </div>
+        <div style="margin-left:auto;"><span class="badge badge-blue">Clinical Vignette</span></div>
+      </div>
+      <div class="case-body">
+        <div class="vignette">${c.vignette}</div>
+        <ul class="case-questions">
+          ${c.questions.map(q => `<li><span class="q-marker">?</span> ${q}</li>`).join('')}
+        </ul>
+        <button class="btn btn-primary" onclick="revealCase(this)">🔍 Reveal Answers</button>
+        <div class="answer-reveal">
+          <div class="answer-box">${c.answer}</div>
+        </div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function revealCase(btn) {
+  const reveal = btn.nextElementSibling;
+  reveal.classList.toggle('show');
+  btn.textContent = reveal.classList.contains('show') ? '🙈 Hide Answers' : '🔍 Reveal Answers';
+}
+
+// ============================================================
+// PATHOPHYSIOLOGY
+// ============================================================
+function togglePatho(el) {
+  el.classList.toggle('open');
+}
+
+// ============================================================
+// MNEMONICS
+// ============================================================
+function buildMnemonics() {
+  const container = document.getElementById('mnemonicsContainer');
+  if (!container) return;
+  const colors = ['badge-blue','badge-purple','badge-cyan','badge-yellow','badge-red','badge-green','badge-pink'];
+  container.innerHTML = '';
+  mnemonicsData.forEach((m, i) => {
+    const div = document.createElement('div');
+    div.className = 'mnemonic-card';
+    div.innerHTML = `
+      <div class="mnem-header" onclick="toggleMnem(this.parentElement)">
+        <div class="mnem-icon">${m.icon}</div>
+        <div>
+          <div class="mnem-title">${m.title}</div>
+          <div class="mnem-sub">${m.subtitle}</div>
+        </div>
+        <div class="mnem-toggle">▼</div>
+      </div>
+      <div class="mnem-body">
+        <div class="mnem-big">${m.word}</div>
+        ${m.letters.map(l => `
+          <div class="mnem-letter-row">
+            <div class="mnem-letter">${l.l}</div>
+            <div class="mnem-expand">${l.e}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function toggleMnem(card) {
+  card.classList.toggle('open');
+}
+
+// ============================================================
+// VIVA
+// ============================================================
+function buildViva() {
+  const container = document.getElementById('vivaContainer');
+  if (!container) return;
+  container.innerHTML = '';
+  vivaData.forEach((v, i) => {
+    const div = document.createElement('div');
+    div.className = 'viva-card';
+    div.innerHTML = `
+      <div class="viva-q"><span class="vnum">V${i+1}</span><span>${v.q}</span></div>
+      <div class="viva-a">${v.a}</div>
+    `;
+    div.addEventListener('click', () => {
+      div.querySelector('.viva-a').classList.toggle('show');
+    });
+    container.appendChild(div);
+  });
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function initTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + tab).classList.add('active');
+      state.activeTab = tab;
+      saveState();
+    });
+  });
+  // Restore last tab
+  if (state.activeTab && state.activeTab !== 'overview') {
+    const btn = document.querySelector(`[data-tab="${state.activeTab}"]`);
+    if (btn) btn.click();
+  }
+}
+
+// ============================================================
+// SEARCH
+// ============================================================
+const searchIndex = [
+  ...quizData.map(q => ({ tab:'quiz', label:'Quiz Q' + q.id, text: q.q, detail: q.opts[q.ans] })),
+  ...flashcardsData.map((f, i) => ({ tab:'flashcards', label:'Flashcard #' + (i+1), text: f.q, detail: f.a.substring(0, 80) + '...' })),
+  ...mnemonicsData.map(m => ({ tab:'mnemonics', label:'Mnemonic', text: m.title, detail: m.subtitle })),
+  { tab:'patho', label:'Pathophysiology', text:'TRPV1 TRPA1 channels nociceptors', detail:'Activated by direct stimulators → Na⁺ Ca²⁺ influx' },
+  { tab:'diagnosis', label:'Diagnosis', text:'Pain threshold thermal method 45 degrees', detail:'Most accurate = thermal method: 45°C' },
+  { tab:'cases', label:'Clinical Case', text:'Intermittent claudication ischemic pain', detail:'Calf pain walking arteriosclerosis' },
+  { tab:'overview', label:'Key Concept', text:'Absent pain receptors liver lung brain bone', detail:'SKID mnemonic' },
+];
+
+function initSearch() {
+  const input = document.getElementById('searchInput');
+  const results = document.getElementById('searchResults');
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    if (!q || q.length < 2) { results.classList.remove('active'); return; }
+    const matches = searchIndex.filter(item => item.text.toLowerCase().includes(q) || item.detail.toLowerCase().includes(q)).slice(0, 8);
+    if (!matches.length) { results.classList.remove('active'); return; }
+    results.innerHTML = matches.map(m => `
+      <div class="search-result-item" data-tab="${m.tab}">
+        <div class="sr-tag">${m.tab.toUpperCase()} · ${m.label}</div>
+        <div>${m.text.substring(0, 70)}</div>
+      </div>
+    `).join('');
+    results.classList.add('active');
+    results.querySelectorAll('.search-result-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const tab = el.dataset.tab;
+        document.querySelector(`[data-tab="${tab}"]`)?.click();
+        results.classList.remove('active');
+        input.value = '';
+      });
+    });
+  });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.search-bar')) results.classList.remove('active');
+  });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  loadState();
+  initTabs();
+  initSearch();
+  buildQuiz();
+  buildFlashcards();
+  buildCases();
+  buildMnemonics();
+  buildViva();
+  updateStats();
+});
+</script>
+</body>
+</html>

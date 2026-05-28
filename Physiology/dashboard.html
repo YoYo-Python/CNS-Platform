@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 Physiology Lecture Command Center</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #070a13;
+            --surface: #0f1322;
+            --surface-card: #151b30;
+            --border: rgba(99, 140, 255, 0.15);
+            --accent: #38bdf8;
+            --accent2: #818cf8;
+            --accent3: #34d399;
+            --text: #e2eaf8;
+            --text-muted: #6b7c96;
+            --radius: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg-canvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.15;
+            animation: drift 25s ease-in-out infinite alternate;
+        }
+
+        .orb:nth-child(1) {
+            width: 600px;
+            height: 600px;
+            background: #1a6fbf;
+            top: -100px;
+            left: -100px;
+        }
+
+        .orb:nth-child(2) {
+            width: 500px;
+            height: 500px;
+            background: #7c3aed;
+            bottom: -150px;
+            right: -100px;
+            animation-delay: -5s;
+        }
+
+        @keyframes drift {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                transform: translate(50px, 40px) scale(1.1);
+            }
+        }
+
+        .wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 2px;
+            padding: 6px 16px;
+            border-radius: 100px;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+
+        header h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(28px, 4.5vw, 48px);
+            font-weight: 800;
+            line-height: 1.1;
+            background: linear-gradient(135deg, #fff 20%, var(--accent) 60%, var(--accent2) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        header p {
+            color: var(--text-muted);
+            margin-top: 10px;
+            font-size: 15px;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .stat-pill {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 10px 24px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-pill .num {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 16px;
+        }
+
+        .stat-pill .lbl {
+            color: var(--text-muted);
+        }
+
+        .search-wrap {
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 20px 14px 45px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            color: var(--text);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.25);
+        }
+
+        .search-wrap::before {
+            content: '🔍';
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            opacity: 0.6;
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 6px;
+            border-radius: 100px;
+            max-width: fit-content;
+            margin: 0 auto 40px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .tab-btn {
+            padding: 10px 24px;
+            border-radius: 100px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .tab-btn:hover {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(129, 140, 248, 0.15));
+            color: var(--accent);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.1);
+        }
+
+        .panel {
+            display: none;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .lecture-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 18px;
+        }
+
+        .card {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px;
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: var(--radius);
+            border: 2px solid var(--accent);
+            opacity: 0;
+            transition: opacity 0.25s;
+            pointer-events: none;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            border-color: transparent;
+        }
+
+        .card:hover::after {
+            opacity: 0.4;
+        }
+
+        .card-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--accent);
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.08);
+            padding: 2px 8px;
+            border-radius: 4px;
+            width: max-content;
+        }
+
+        .card-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            color: #fff;
+        }
+
+        .card-desc {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 16px;
+            flex: 1;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 12px;
+            font-size: 12px;
+        }
+
+        .card-tag {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent3);
+            font-weight: 600;
+        }
+
+        .launch-icon {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            font-size: 14px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-canvas">
+        <div class="orb"></div>
+        <div class="orb"></div>
+    </div>
+
+    <div class="wrapper">
+        <header>
+            <div class="badge">Mansoura Neurophysiology</div>
+            <h1>Physiology Command Center</h1>
+            <p>Instant access to all 25 interactive study system modules</p>
+        </header>
+
+        <div class="stats-bar">
+            <div class="stat-pill"><span class="lbl">Syllabus Index:</span><span class="num">25 Platforms Loaded</span>
+            </div>
+            <div class="stat-pill"><span class="lbl">Configuration:</span><span class="num"
+                    style="color:var(--accent3)">Direct Link Mode</span></div>
+        </div>
+
+        <div class="search-wrap">
+            <input type="text" class="search-input" id="globalSearch"
+                placeholder="Type to filter matching modules instantly...">
+        </div>
+
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('block1', this)">Lectures 01 – 10</button>
+            <button class="tab-btn" onclick="switchTab('block2', this)">Lectures 11 – 20</button>
+            <button class="tab-btn" onclick="switchTab('block3', this)">Lectures 21 – 25</button>
+        </div>
+
+        <div id="block1" class="panel active">
+            <div class="lecture-grid">
+                <a href="Physio L1 Sensation .html" class="card">
+                    <span class="card-num">Lec 01</span>
+                    <h3 class="card-title">Sensory Transduction & Receptor Properties</h3>
+                    <p class="card-desc">Mechanisms of action potential initiation, receptor potentials, sensory
+                        pathways, and general modalities.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <a href="Physio L2 mechanoception_study_platform.html" class="card">
+                    <span class="card-num">Lec 02</span>
+                    <h3 class="card-title">Mechanoceptive Sensations & Coding</h3>
+                    <p class="card-desc">Tactile receptors, mechanoreceptors, positioning, vibration tracking, and
+                        spatial frequency tuning.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <a href="Physio L3 somatosensory_study_platform.html" class="card">
+                    <span class="card-num">Lec 03</span>
+                    <h3 class="card-title">Somatosensory Physiology & Pathways</h3>
+                    <p class="card-desc">Dorsal Column-Medial Lemniscal system vs. Anterolateral system structure and
+                        thalamocortical maps.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <a href="Physio L4 pain_sensation_study_platform.html" class="card">
+                    <span class="card-num">Lec 04</span>
+                    <h3 class="card-title">Pain Sensation: System Mechanisms I</h3>
+                    <p class="card-desc">Fast vs. Slow pain, nociceptor classes, peripheral tracking, and hyperalgesia
+                        signaling.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <a href="Physio L5 pain_sensation_study_platform-1.html" class="card">
+                    <span class="card-num">Lec 05</span>
+                    <h3 class="card-title">Pain Sensation: Control & Modulation II</h3>
+                    <p class="card-desc">Analgesia command networks, Gate Control Theory, opioid receptor grids, and
+                        clinical referred maps.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <a href="Physio L6 CNS_Reflex_Action_Study_Platform.html" class="card">
+                    <span class="card-num">Lec 06</span>
+                    <h3 class="card-title">CNS Reflex Action & Synaptic Circuits</h3>
+                    <p class="card-desc">Reflex arc mechanics, functional classifications, processing delays, and
+                        feedback logic setups.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <a href="Physio L7 synaptic_transmission.html" class="card">
+                    <span class="card-num">Lec 07</span>
+                    <h3 class="card-title">Synaptic Transmission & Neurochemistry</h3>
+                    <p class="card-desc">EPSPs/IPSPs summation dynamics, synaptic fatigue, chemical transmitters, and
+                        ionophore channels.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <a href="Physio L8 spinal_reflexes_study_platform.html" class="card">
+                    <span class="card-num">Lec 08</span>
+                    <h3 class="card-title">Spinal Reflexes & Muscle Spindle Dynamics</h3>
+                    <p class="card-desc">Intrafusal fiber mechanics, Alpha-Gamma co-activation profiles, primary vs.
+                        secondary annulospiral endings.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <a href="Physio L9 .html" class="card">
+                    <span class="card-num">Lec 09</span>
+                    <h3 class="card-title">Spinal Reflexes & Stretch Reflex Architecture</h3>
+                    <p class="card-desc">Monosynaptic tracking loops, Golgi tendon organs, protective dynamic inverse
+                        stretch reflexes, and clasp-knife properties.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <a href="Physio L10 motor_cortex_study_platform.html" class="card">
+                    <span class="card-num">Lec 10</span>
+                    <h3 class="card-title">Motor Cortex & Descending Pyramidal Tracts</h3>
+                    <p class="card-desc">Brodmann Area 4 maps, corticospinal pathways, Betz cell processing loops, and
+                        Upper vs Lower motor lesions.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+            </div>
+        </div>
+
+        <div id="block2" class="panel">
+            <div class="lecture-grid">
+                <a href="Physio L11 motor_neuron_lesions_study_platform.html" class="card">
+                    <span class="card-num">Lec 11</span>
+                    <h3 class="card-title">Motor Neuron &amp; Spinal Cord Lesions</h3>
+                    <p class="card-desc">Clinical patterns of spinal shock, Brown-Séquard hemisection syndromes,
+                        fasciculations vs fibrillations, and denervation dynamics.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <a href="Physio L12 vestibular_study_platform.html" class="card">
+                    <span class="card-num">Lec 12</span>
+                    <h3 class="card-title">Vestibular Apparatus &amp; Equilibrium</h3>
+                    <p class="card-desc">Anatomy of maculae and crista ampullaris, potassium depolarization exceptions,
+                        VOR arcs, and motion sickness pathophysiology.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <a href="Physio L13 thalamus_ras_study_platform.html" class="card">
+                    <span class="card-num">Lec 13</span>
+                    <h3 class="card-title">Thalamus, RAS &amp; Consciousness Control</h3>
+                    <p class="card-desc">Specific vs. non-specific relay tracking, sensory gating algorithms, and
+                        ascending reticular network balances.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <a href="Physio L14.html" class="card">
+                    <span class="card-num">Lec 14</span>
+                    <h3 class="card-title">Basal Ganglia Circuitry &amp; Pathophysiology</h3>
+                    <p class="card-desc">Direct and indirect pathways, D1/D2 receptor profiling, Parkinson's triad,
+                        Chorea, Athetosis, and Hemiballismus mechanisms.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <a href="Physio L15.html" class="card">
+                    <span class="card-num">Lec 15</span>
+                    <h3 class="card-title">Cerebellum Coordination &amp; Ataxia Syndromes</h3>
+                    <p class="card-desc">Servo-comparator mechanics, deep nuclei arrays, ballistic movement constraints,
+                        and clinical signs like dysmetria.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <a href="Physio L16hypothalamus_study_platform.html" class="card">
+                    <span class="card-num">Lec 16</span>
+                    <h3 class="card-title">Hypothalamus &amp; Limbic System Integration</h3>
+                    <p class="card-desc">Autonomic control hubs, thermoregulation setpoints, Papez circuit geometry, and
+                        reward vs. punishment centers.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <a href="Physio L17 sleep_eeg_study_platform.html" class="card">
+                    <span class="card-num">Lec 17</span>
+                    <h3 class="card-title">Sleep &amp; EEG Waves Physiology</h3>
+                    <p class="card-desc">Alpha, Beta, Theta, and Delta frequency metrics, SWS stages vs. REM paradoxical
+                        sleep and atonia systems.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <a href="Physio L18 learning_memory_platform.html" class="card">
+                    <span class="card-num">Lec 18</span>
+                    <h3 class="card-title">Learning Mechanisms &amp; Memory Consolidation</h3>
+                    <p class="card-desc">Habituation, sensitization, chemical cascades of intermediate memory,
+                        structural LTM changes, and Alzheimer's loops.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <a href="Physio L19 cortical_association_areas_study_platform.html" class="card">
+                    <span class="card-num">Lec 19</span>
+                    <h3 class="card-title">Cortical Association Areas &amp; Aphasia Guide</h3>
+                    <p class="card-desc">Parieto-occipito-temporal sub-areas, Wernicke's vs. Broca's execution nodes,
+                        Exner's agraphia, and visual agnosias.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <a href="Physio L20 visual_perception_study_platform.html" class="card">
+                    <span class="card-num">Lec 20</span>
+                    <h3 class="card-title">Visual Perception &amp; Retinal Signal Processing</h3>
+                    <p class="card-desc">Duplicity theory parameters, Young-Helmholtz color vectors, retinal lateral
+                        inhibition, and LGB layer sorting grids.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+            </div>
+        </div>
+
+        <div id="block3" class="panel">
+            <div class="lecture-grid">
+                <a href="Physio L21 ocular_study_platform.html" class="card">
+                    <span class="card-num">Lec 21</span>
+                    <h3 class="card-title">Ocular Physics &amp; Eye Anatomy Layering</h3>
+                    <p class="card-desc">Corneal refraction physics, uveal vascular dynamics, near response triad
+                        mechanics, and intraocular glaucoma profiles.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <a href="Physio L22 retinal_physiology_study.html" class="card">
+                    <span class="card-num">Lec 22</span>
+                    <h3 class="card-title">Retinal Phototransduction &amp; Adaptation Cascades</h3>
+                    <p class="card-desc">Dark current mechanisms, cGMP channel control systems, rhodopsin structural
+                        shifting, and night blindness paths.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <a href="Physio L23 hearing_physiology_study_platform.html" class="card">
+                    <span class="card-num">Lec 23</span>
+                    <h3 class="card-title">Visual Pathways, Fields &amp; Cortical Columns</h3>
+                    <p class="card-desc">Optic chiasm decussation geometry, hemianopia mapping variations, and Areas 17,
+                        18, and 19 functional segmentation.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <a href="Physio L24 part 2 .html" class="card">
+                    <span class="card-num">Lec 24</span>
+                    <h3 class="card-title">Hearing Mechanics &amp; Central Auditory Streams</h3>
+                    <p class="card-desc">Ossicular lever matching mechanics, endocochlear potential voltage, hair cell
+                        transduction, and tonotopic maps.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <a href="Physio L25gustation_olfaction_study.html" class="card">
+                    <span class="card-num">Lec 25</span>
+                    <h3 class="card-title">Chemical Senses: Gustatory &amp; Olfactory Arrays</h3>
+                    <p class="card-desc">Taste bud classifications, G-protein gustatin vs. Golf paths, cyclic nucleotide
+                        openings, and unconditioned visceral responses.</p>
+                    <div class="card-footer"><span class="card-tag">Interactive Study</span><span
+                            class="launch-icon">Launch ↗</span></div>
+                </a>
+                <div class="no-results" id="emptyState">No modules match the current filtering parameters inside this
+                    directory block.</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            element.classList.add('active');
+
+            executeFilter();
+        }
+
+        const searchField = document.getElementById('globalSearch');
+        searchField.addEventListener('input', executeFilter);
+
+        function executeFilter() {
+            const query = searchField.value.trim().toLowerCase();
+            const activePanel = document.querySelector('.panel.active');
+            const cards = activePanel.querySelectorAll('.card');
+            const emptyNotice = activePanel.querySelector('.no-results') || document.getElementById('emptyState');
+
+            let visibleCounter = 0;
+
+            cards.forEach(card => {
+                const titleText = card.querySelector('.card-title').textContent.toLowerCase();
+                const descText = card.querySelector('.card-desc').textContent.toLowerCase();
+                const moduleTag = card.querySelector('.card-num').textContent.toLowerCase();
+
+                if (titleText.includes(query) || descText.includes(query) || moduleTag.includes(query)) {
+                    card.style.display = 'flex';
+                    visibleCounter++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            if (visibleCounter === 0) {
+                emptyNotice.style.display = 'block';
+                if (!activePanel.querySelector('.no-results')) {
+                    activePanel.querySelector('.lecture-grid').appendChild(emptyNotice);
+                }
+            } else {
+                emptyNotice.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+
+</html>

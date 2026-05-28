@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧠 Neuro Histology Study Platform — Cerebrum & Cerebellum</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --bg2: #0f1525;
+    --bg3: #151d35;
+    --panel: #1a2540;
+    --panel2: #1e2d4a;
+    --border: #253558;
+    --border2: #2e4070;
+    --text: #e8edf8;
+    --text2: #9baacf;
+    --text3: #5c6e9a;
+    --accent: #4f9eff;
+    --accent2: #7b5fff;
+    --accent3: #ff6b9d;
+    --gold: #f5c842;
+    --green: #34d399;
+    --red: #f87171;
+    --orange: #fb923c;
+    --teal: #22d3ee;
+    --pink: #ec4899;
+    --cerebrum: #4f9eff;
+    --cerebellum: #7b5fff;
+    --shadow: 0 8px 32px rgba(0,0,0,0.4);
+    --glow: 0 0 20px rgba(79,158,255,0.2);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ANIMATED BACKGROUND */
+  .bg-canvas {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    overflow: hidden;
+  }
+  .orb {
+    position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.12;
+    animation: drift 20s ease-in-out infinite alternate;
+  }
+  .orb1 { width: 600px; height: 600px; background: var(--accent); top: -200px; left: -100px; animation-delay: 0s; }
+  .orb2 { width: 500px; height: 500px; background: var(--accent2); bottom: -100px; right: -100px; animation-delay: -7s; }
+  .orb3 { width: 400px; height: 400px; background: var(--accent3); top: 50%; left: 50%; animation-delay: -14s; }
+  @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(40px, 30px) scale(1.1); } }
+
+  /* HEADER */
+  header {
+    position: relative; z-index: 10;
+    background: linear-gradient(135deg, rgba(79,158,255,0.08), rgba(123,95,255,0.08));
+    border-bottom: 1px solid var(--border);
+    padding: 20px 24px 0;
+    backdrop-filter: blur(12px);
+  }
+  .header-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-icon { font-size: 36px; }
+  .logo-text h1 { font-family: 'DM Serif Display', serif; font-size: 22px; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .logo-text p { font-size: 12px; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* STATS BAR */
+  .stats-bar { display: flex; gap: 16px; flex-wrap: wrap; }
+  .stat-pill {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 20px; padding: 6px 14px;
+    font-size: 12px; color: var(--text2);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .stat-pill .val { color: var(--text); font-weight: 700; font-size: 13px; }
+  .stat-pill .streak-fire { color: var(--orange); }
+
+  /* SEARCH */
+  .search-wrap { position: relative; max-width: 280px; }
+  .search-wrap input {
+    width: 100%; background: var(--panel); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 12px 8px 36px;
+    color: var(--text); font-family: 'Outfit', sans-serif; font-size: 13px;
+    outline: none; transition: border-color 0.2s;
+  }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-wrap input::placeholder { color: var(--text3); }
+  .search-wrap .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 14px; }
+
+  /* TAB NAV */
+  .tab-nav {
+    display: flex; gap: 4px; overflow-x: auto;
+    padding-bottom: 0; scrollbar-width: none;
+  }
+  .tab-nav::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    padding: 10px 16px; border: none; background: transparent;
+    color: var(--text3); cursor: pointer; white-space: nowrap;
+    font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500;
+    border-bottom: 2px solid transparent; transition: all 0.2s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .tab-btn:hover { color: var(--text2); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* MAIN CONTENT */
+  main { position: relative; z-index: 5; padding: 24px; max-width: 1100px; margin: 0 auto; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; animation: fadeSlide 0.3s ease; }
+  @keyframes fadeSlide { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* SECTION TITLES */
+  .section-title {
+    font-family: 'DM Serif Display', serif; font-size: 28px;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, var(--text), var(--text2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .section-sub { color: var(--text3); font-size: 14px; margin-bottom: 28px; }
+
+  /* CARDS GRID */
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 28px; }
+
+  .card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px;
+    transition: all 0.25s; position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(79,158,255,0.04), transparent);
+    pointer-events: none;
+  }
+  .card:hover { border-color: var(--border2); transform: translateY(-2px); box-shadow: var(--shadow); }
+  .card-icon { font-size: 28px; margin-bottom: 10px; }
+  .card h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+  .card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+  /* TAGS */
+  .tag {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+    margin: 3px 3px 3px 0;
+  }
+  .tag-exam { background: rgba(245,200,66,0.15); color: var(--gold); border: 1px solid rgba(245,200,66,0.3); }
+  .tag-high { background: rgba(247,97,113,0.15); color: var(--red); border: 1px solid rgba(247,97,113,0.3); }
+  .tag-pearl { background: rgba(52,211,153,0.15); color: var(--green); border: 1px solid rgba(52,211,153,0.3); }
+  .tag-cerebrum { background: rgba(79,158,255,0.15); color: var(--cerebrum); border: 1px solid rgba(79,158,255,0.3); }
+  .tag-cerebellum { background: rgba(123,95,255,0.15); color: var(--cerebellum); border: 1px solid rgba(123,95,255,0.3); }
+
+  /* LAYERS TABLE */
+  .layers-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+  .layers-table th, .layers-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .layers-table th { background: var(--panel2); color: var(--text2); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .layers-table tr:hover td { background: rgba(79,158,255,0.04); }
+  .layer-num { font-family: 'DM Mono', monospace; font-weight: 700; font-size: 20px; color: var(--accent); opacity: 0.6; }
+
+  /* QUIZ */
+  .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+  .progress-bar-wrap { flex: 1; min-width: 200px; }
+  .progress-bar-label { font-size: 12px; color: var(--text3); margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .progress-bar { height: 6px; background: var(--panel2); border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 3px; transition: width 0.5s ease; }
+
+  .quiz-q {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 14px; padding: 24px; margin-bottom: 20px;
+    transition: box-shadow 0.2s;
+  }
+  .quiz-q.answered { pointer-events: none; }
+  .q-number { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; margin-bottom: 8px; }
+  .q-text { font-size: 15px; font-weight: 500; line-height: 1.6; margin-bottom: 16px; }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option {
+    padding: 12px 16px; border-radius: 10px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--bg3);
+    font-size: 13px; transition: all 0.2s; display: flex; align-items: center; gap: 10px;
+  }
+  .option:hover:not(.correct):not(.wrong) { border-color: var(--accent); background: rgba(79,158,255,0.06); }
+  .option.correct { background: rgba(52,211,153,0.12); border-color: var(--green); color: var(--green); animation: pulse 0.4s; }
+  .option.wrong { background: rgba(248,113,113,0.12); border-color: var(--red); color: var(--red); animation: shake 0.4s; }
+  .option.reveal-correct { background: rgba(52,211,153,0.06); border-color: rgba(52,211,153,0.4); }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+  .option-letter { width: 24px; height: 24px; border-radius: 50%; background: var(--bg); display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 700; flex-shrink: 0; border: 1px solid var(--border); }
+  .explanation { margin-top: 12px; padding: 12px 16px; background: rgba(79,158,255,0.06); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; font-size: 13px; color: var(--text2); line-height: 1.6; display: none; }
+  .explanation.show { display: block; animation: fadeSlide 0.3s; }
+
+  .score-display { text-align: center; padding: 32px; background: var(--panel); border-radius: 16px; border: 1px solid var(--border); }
+  .score-big { font-family: 'DM Serif Display', serif; font-size: 64px; background: linear-gradient(135deg, var(--green), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .score-msg { font-size: 18px; color: var(--text2); margin-top: 8px; }
+
+  /* FLASHCARDS */
+  .flash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .flash-card {
+    height: 180px; perspective: 1000px; cursor: pointer;
+  }
+  .flash-inner {
+    width: 100%; height: 100%; position: relative;
+    transform-style: preserve-3d; transition: transform 0.5s;
+  }
+  .flash-card.flipped .flash-inner { transform: rotateY(180deg); }
+  .flash-face {
+    position: absolute; inset: 0; backface-visibility: hidden;
+    border-radius: 14px; padding: 20px;
+    display: flex; flex-direction: column; justify-content: center;
+    border: 1px solid var(--border);
+  }
+  .flash-front { background: var(--panel); }
+  .flash-back { background: linear-gradient(135deg, var(--panel), var(--panel2)); transform: rotateY(180deg); border-color: var(--border2); }
+  .flash-face .flash-tag { font-size: 10px; color: var(--text3); font-family: 'DM Mono', monospace; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .flash-face .flash-q { font-size: 14px; font-weight: 600; line-height: 1.5; }
+  .flash-face .flash-a { font-size: 13px; color: var(--green); line-height: 1.6; }
+  .flash-hint { font-size: 11px; color: var(--text3); margin-top: auto; }
+
+  /* CASES */
+  .case-card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 14px; margin-bottom: 20px; overflow: hidden;
+  }
+  .case-header {
+    padding: 18px 24px; background: linear-gradient(135deg, rgba(79,158,255,0.08), rgba(123,95,255,0.08));
+    border-bottom: 1px solid var(--border); cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .case-title { font-weight: 600; font-size: 15px; }
+  .case-tag { font-size: 11px; color: var(--text3); }
+  .case-body { padding: 20px 24px; }
+  .vignette { font-size: 14px; color: var(--text2); line-height: 1.8; margin-bottom: 20px; padding: 16px; background: var(--bg3); border-radius: 10px; border-left: 3px solid var(--accent); }
+  .case-q { margin-bottom: 16px; }
+  .case-q-text { font-size: 14px; font-weight: 500; margin-bottom: 10px; }
+  .reveal-btn {
+    padding: 8px 18px; border-radius: 8px; border: 1px solid var(--accent);
+    background: transparent; color: var(--accent); cursor: pointer;
+    font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500;
+    transition: all 0.2s;
+  }
+  .reveal-btn:hover { background: rgba(79,158,255,0.1); }
+  .case-answer {
+    display: none; padding: 12px 16px; margin-top: 10px;
+    background: rgba(52,211,153,0.06); border-left: 3px solid var(--green);
+    border-radius: 0 8px 8px 0; font-size: 13px; color: var(--text2); line-height: 1.6;
+  }
+  .case-answer.show { display: block; animation: fadeSlide 0.3s; }
+
+  /* ANATOMY / PATHOPHYS */
+  .anat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-bottom: 28px; }
+  .anat-item {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px; cursor: pointer;
+    transition: all 0.2s; position: relative;
+  }
+  .anat-item:hover { border-color: var(--accent2); transform: translateY(-2px); }
+  .anat-item.open { border-color: var(--accent2); }
+  .anat-item h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .anat-item .anat-sub { font-size: 12px; color: var(--text3); }
+  .anat-detail { display: none; margin-top: 12px; font-size: 13px; color: var(--text2); line-height: 1.6; padding-top: 12px; border-top: 1px solid var(--border); }
+  .anat-item.open .anat-detail { display: block; animation: fadeSlide 0.25s; }
+
+  /* FLOWCHART */
+  .flowchart { margin: 24px 0; }
+  .flow-step {
+    display: flex; align-items: center; gap: 0; margin-bottom: 0;
+    flex-direction: column;
+  }
+  .flow-node {
+    background: var(--panel2); border: 1px solid var(--border2);
+    border-radius: 12px; padding: 14px 20px; text-align: center;
+    font-size: 13px; min-width: 280px; max-width: 480px; width: 100%;
+    position: relative;
+  }
+  .flow-node.highlight { border-color: var(--accent); background: rgba(79,158,255,0.08); }
+  .flow-node.output { border-color: var(--green); background: rgba(52,211,153,0.06); }
+  .flow-node.entry { border-color: var(--accent2); background: rgba(123,95,255,0.08); }
+  .flow-node-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+  .flow-node-sub { font-size: 12px; color: var(--text3); }
+  .flow-arrow { font-size: 20px; color: var(--text3); margin: 4px 0; }
+
+  /* COMPARISON TABLE */
+  .comp-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; border-radius: 12px; overflow: hidden; }
+  .comp-table th { background: var(--panel2); padding: 14px 16px; text-align: left; font-size: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; }
+  .comp-table td { padding: 13px 16px; font-size: 13px; border-bottom: 1px solid var(--border); }
+  .comp-table tr:last-child td { border-bottom: none; }
+  .comp-table tr:hover td { background: rgba(79,158,255,0.04); }
+  .comp-table td:first-child { font-weight: 600; color: var(--text); }
+
+  /* TREATMENT / MNEMONICS */
+  .mnem-card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 14px; padding: 22px; margin-bottom: 16px;
+  }
+  .mnem-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--gold); margin-bottom: 4px; }
+  .mnem-stands { font-size: 13px; color: var(--text3); margin-bottom: 14px; }
+  .mnem-letter { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 8px; padding: 8px 12px; border-radius: 8px; background: var(--bg3); }
+  .mnem-l { font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 700; color: var(--accent); min-width: 24px; }
+  .mnem-meaning { font-size: 13px; }
+  .mnem-meaning strong { color: var(--text); }
+  .mnem-meaning span { color: var(--text2); }
+
+  /* LAYERS VISUAL */
+  .cortex-visual { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+  .cortex-side { flex: 1; min-width: 280px; }
+  .cortex-side h3 { font-size: 14px; font-weight: 600; color: var(--text2); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .layer-row {
+    display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+    border-radius: 8px; margin-bottom: 6px; border: 1px solid var(--border);
+    transition: all 0.2s; cursor: pointer;
+  }
+  .layer-row:hover { border-color: var(--border2); background: rgba(79,158,255,0.04); }
+  .layer-row .lr-num { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 700; color: var(--accent); min-width: 20px; }
+  .layer-row .lr-name { font-size: 13px; font-weight: 500; }
+  .layer-row .lr-cells { font-size: 12px; color: var(--text3); margin-left: auto; text-align: right; max-width: 180px; }
+
+  /* SEARCH RESULTS */
+  .search-results { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; overflow: hidden; display: none; }
+  .search-results.show { display: block; }
+  .search-result-item { padding: 14px 18px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .search-result-item:last-child { border-bottom: none; }
+  .search-result-item strong { color: var(--accent); }
+  .search-result-item p { color: var(--text2); margin-top: 4px; line-height: 1.5; }
+
+  /* DIAGNOSIS TAB */
+  .algo-wrap { display: flex; flex-direction: column; align-items: center; gap: 0; margin-bottom: 28px; }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .badge {
+    padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    background: rgba(79,158,255,0.12); border: 1px solid rgba(79,158,255,0.3); color: var(--accent);
+  }
+  .badge.alt { background: rgba(123,95,255,0.12); border-color: rgba(123,95,255,0.3); color: var(--accent2); }
+  .badge.gold { background: rgba(245,200,66,0.12); border-color: rgba(245,200,66,0.3); color: var(--gold); }
+
+  /* TREATMENT urgency */
+  .tx-section { margin-bottom: 24px; }
+  .tx-section h3 { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; padding: 8px 14px; border-radius: 8px; }
+  .tx-section.priority h3 { background: rgba(248,113,113,0.15); color: var(--red); }
+  .tx-section.secondary h3 { background: rgba(79,158,255,0.1); color: var(--accent); }
+  .tx-section.tertiary h3 { background: rgba(52,211,153,0.1); color: var(--green); }
+  .tx-item { display: flex; gap: 12px; align-items: flex-start; padding: 10px 14px; background: var(--bg3); border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
+  .tx-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  .priority .tx-dot { background: var(--red); }
+  .secondary .tx-dot { background: var(--accent); }
+  .tertiary .tx-dot { background: var(--green); }
+
+  /* BTN */
+  .btn {
+    padding: 10px 20px; border-radius: 10px; border: none; cursor: pointer;
+    font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600;
+    transition: all 0.2s;
+  }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; }
+  .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-ghost { background: transparent; border: 1px solid var(--border2); color: var(--text2); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    header { padding: 16px 16px 0; }
+    main { padding: 16px; }
+    .cards-grid { grid-template-columns: 1fr; }
+    .flash-grid { grid-template-columns: 1fr; }
+    .anat-grid { grid-template-columns: 1fr; }
+  }
+
+  /* MISC */
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+  .highlight-box { background: rgba(245,200,66,0.07); border: 1px solid rgba(245,200,66,0.2); border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; }
+  .highlight-box p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .highlight-box strong { color: var(--gold); }
+  .notice { display: flex; gap: 10px; align-items: flex-start; padding: 12px 16px; background: rgba(245,200,66,0.06); border-radius: 10px; font-size: 13px; color: var(--text2); margin-bottom: 16px; }
+  .notice-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  .no-results { text-align: center; padding: 32px; color: var(--text3); }
+  .quiz-controls { display: flex; gap: 10px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<div class="bg-canvas">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<header>
+  <div class="header-top">
+    <div class="logo">
+      <div class="logo-icon">🧠</div>
+      <div class="logo-text">
+        <h1>NeuroHisto Study</h1>
+        <p>Cerebrum & Cerebellum Histology</p>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end;">
+      <div class="stats-bar">
+        <div class="stat-pill">📊 Progress: <span class="val" id="stat-progress">0%</span></div>
+        <div class="stat-pill">🎯 Score: <span class="val" id="stat-score">0/0</span></div>
+        <div class="stat-pill"><span class="streak-fire">🔥</span> Streak: <span class="val" id="stat-streak">0</span></div>
+        <div class="stat-pill">⚡ Cards: <span class="val" id="stat-cards">0/20</span></div>
+      </div>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Search all content…" oninput="handleSearch(this.value)">
+      </div>
+    </div>
+  </div>
+
+  <nav class="tab-nav" id="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('overview',this)">🗺️ Overview</button>
+    <button class="tab-btn" onclick="switchTab('quiz',this)">🎯 Quiz</button>
+    <button class="tab-btn" onclick="switchTab('flashcards',this)">⚡ Flashcards</button>
+    <button class="tab-btn" onclick="switchTab('cases',this)">🏥 Cases</button>
+    <button class="tab-btn" onclick="switchTab('anatomy',this)">🔬 Anatomy & Pathway</button>
+    <button class="tab-btn" onclick="switchTab('diagnosis',this)">🧪 Compare & ID</button>
+    <button class="tab-btn" onclick="switchTab('treatment',this)">📚 Full Answers</button>
+    <button class="tab-btn" onclick="switchTab('mnemonics',this)">🧩 Mnemonics</button>
+  </nav>
+</header>
+
+<main>
+  <!-- SEARCH RESULTS -->
+  <div class="search-results" id="search-results"></div>
+
+  <!-- ===================== OVERVIEW ===================== -->
+  <div class="tab-content active" id="tab-overview">
+    <h2 class="section-title">Overview</h2>
+    <p class="section-sub">Everything you need to know about Cerebrum & Cerebellum Histology — at a glance.</p>
+
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-icon">🏗️</div>
+        <h3>Cerebral Cortex</h3>
+        <p>6 layers with 5 main nerve cell types plus neuroglial cells. Each layer has distinct cells and connectivity patterns.</p>
+        <div style="margin-top:10px">
+          <span class="tag tag-cerebrum">Cerebrum</span>
+          <span class="tag tag-high">High Yield</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🌿</div>
+        <h3>Cerebellar Cortex</h3>
+        <p>3 layers — molecular, Purkinje, granular — with only ONE efferent fiber type: the Purkinje cell axon.</p>
+        <div style="margin-top:10px">
+          <span class="tag tag-cerebellum">Cerebellum</span>
+          <span class="tag tag-exam">Exam Fave</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-icon">⭐</div>
+        <h3>Betz Cells</h3>
+        <p>The <strong style="color:var(--gold)">largest pyramidal cells</strong> in the CNS. Located exclusively in Layer V (Internal Pyramidal Layer) of the motor cortex.</p>
+        <div style="margin-top:10px">
+          <span class="tag tag-exam">MCQ Target</span>
+          <span class="tag tag-high">High Yield</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-icon">📤</div>
+        <h3>Only Cerebellar Efferent</h3>
+        <p>Purkinje cell axons are the <strong style="color:var(--green)">sole output</strong> of the cerebellar cortex → deep cerebellar nuclei + vestibular nuclei.</p>
+        <div style="margin-top:10px">
+          <span class="tag tag-exam">MCQ Target</span>
+          <span class="tag tag-pearl">Clinical Pearl</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔄</div>
+        <h3>Martinotti — "Inverted Cell"</h3>
+        <p>Short dendrites + ascending axon ending in Layer I. The ONLY cell with an axon that travels towards the cortical surface.</p>
+        <div style="margin-top:10px">
+          <span class="tag tag-pearl">Clinical Pearl</span>
+          <span class="tag tag-cerebrum">Cerebrum</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🌹</div>
+        <h3>Cerebellar Rosette</h3>
+        <p>Mossy fiber terminal + granule cell dendrites + Golgi cell axons = cerebellar glomerulus. A key histological landmark.</p>
+        <div style="margin-top:10px">
+          <span class="tag tag-cerebellum">Cerebellum</span>
+          <span class="tag tag-high">High Yield</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="notice"><span class="notice-icon">⭐</span><span>These are the <strong style="color:var(--gold)">TOP 3 EXAM HIGHLIGHTS</strong> per the lecturer: (1) Betz cells in Layer V, (2) Purkinje axon = only cerebellar efferent, (3) Martinotti cell = "inverted cell" with ascending axon to Layer I.</span></div>
+
+    <h3 style="font-size:16px;font-weight:700;margin-bottom:14px;">🧱 Cerebral Cortex — 6 Layers</h3>
+    <div class="cortex-visual">
+      <div class="cortex-side">
+        <h3>Layers (Superficial → Deep)</h3>
+        <div class="layer-row"><span class="lr-num">I</span><span class="lr-name">Molecular</span><span class="lr-cells">Horizontal cells of Cajal only</span></div>
+        <div class="layer-row"><span class="lr-num">II</span><span class="lr-name">External Granular</span><span class="lr-cells">Stellate + small pyramidal</span></div>
+        <div class="layer-row"><span class="lr-num">III</span><span class="lr-name">External Pyramidal</span><span class="lr-cells">Medium pyramidal + Martinotti</span></div>
+        <div class="layer-row"><span class="lr-num">IV</span><span class="lr-name">Internal Granular</span><span class="lr-cells">Granule + Martinotti</span></div>
+        <div class="layer-row" style="border-color:var(--gold);"><span class="lr-num" style="color:var(--gold)">V</span><span class="lr-name" style="color:var(--gold)">Internal Pyramidal ⭐</span><span class="lr-cells">Betz cells + granule + Martinotti</span></div>
+        <div class="layer-row"><span class="lr-num">VI</span><span class="lr-name">Multiform</span><span class="lr-cells">Small pyramidal + granule + Martinotti + fusiform</span></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <h3 style="font-size:16px;font-weight:700;margin-bottom:14px;">🌿 Cerebellar Cortex — 3 Layers</h3>
+    <div class="cortex-visual">
+      <div class="cortex-side">
+        <h3>Layers (Outside → Inside)</h3>
+        <div class="layer-row"><span class="lr-num" style="color:var(--teal)">①</span><span class="lr-name">Outer Molecular</span><span class="lr-cells">Stellate (superficial) + Basket cells (deep)</span></div>
+        <div class="layer-row" style="border-color:var(--accent2)"><span class="lr-num" style="color:var(--accent2)">②</span><span class="lr-name" style="color:var(--accent2)">Middle Purkinje ⭐</span><span class="lr-cells">Single row of Purkinje cells</span></div>
+        <div class="layer-row"><span class="lr-num" style="color:var(--green)">③</span><span class="lr-name">Inner Granular</span><span class="lr-cells">Granule cells + Golgi cells</span></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <h3 style="font-size:16px;font-weight:700;margin-bottom:14px;">📋 5 Cell Types of Cerebral Cortex</h3>
+    <table class="layers-table">
+      <thead><tr><th>Cell Type</th><th>Shape</th><th>Axon Direction</th><th>Key Fact</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Pyramidal</strong></td><td>Pyramid-shaped</td><td>Enters white matter ↓</td><td>Apical dendrite to mol. layer; Betz = largest (Layer V)</td></tr>
+        <tr><td><strong>Stellate (Granule)</strong></td><td>Star-shaped</td><td>Short local axon</td><td>Small (4-8 µm), short dendrites in all directions</td></tr>
+        <tr><td><strong>Martinotti</strong></td><td>Polygonal</td><td>Ascends ↑ to Layer I</td><td>"Inverted cell" — axon goes UP, dendrites are short</td></tr>
+        <tr><td><strong>Fusiform</strong></td><td>Spindle-shaped</td><td>Enters white matter ↓</td><td>Dendrites from BOTH poles; axon enters white matter</td></tr>
+        <tr><td><strong>Horizontal of Cajal</strong></td><td>Horizontal fusiform</td><td>Runs parallel to surface</td><td>ONLY in Layer I; synapses with pyramidal cell dendrites</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ===================== QUIZ ===================== -->
+  <div class="tab-content" id="tab-quiz">
+    <h2 class="section-title">Quiz Mode 🎯</h2>
+    <p class="section-sub">25 MCQs — USMLE/PLAB style — based directly on lecture content.</p>
+    <div class="quiz-header">
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-label"><span id="q-prog-label">Question 0 of 25</span><span id="q-score-label">Score: 0</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="q-prog-fill" style="width:0%"></div></div>
+      </div>
+      <div class="quiz-controls">
+        <button class="btn btn-ghost" onclick="resetQuiz()">↺ Reset</button>
+        <button class="btn btn-primary" onclick="showScore()">See Score</button>
+      </div>
+    </div>
+    <div id="quiz-container"></div>
+  </div>
+
+  <!-- ===================== FLASHCARDS ===================== -->
+  <div class="tab-content" id="tab-flashcards">
+    <h2 class="section-title">Flashcards ⚡</h2>
+    <p class="section-sub">Click any card to flip it and reveal the answer. 20 cards covering all key concepts.</p>
+    <div style="display:flex;gap:10px;margin-bottom:20px;">
+      <button class="btn btn-ghost" onclick="resetFlash()">↺ Reset All</button>
+      <span style="color:var(--text3);font-size:13px;align-self:center;">Flipped: <span id="flash-count">0</span>/20</span>
+    </div>
+    <div class="flash-grid" id="flash-container"></div>
+  </div>
+
+  <!-- ===================== CASES ===================== -->
+  <div class="tab-content" id="tab-cases">
+    <h2 class="section-title">Clinical Cases 🏥</h2>
+    <p class="section-sub">5 exam-style histology vignettes. Read the scenario, then reveal the answer.</p>
+    <div id="cases-container"></div>
+  </div>
+
+  <!-- ===================== ANATOMY ===================== -->
+  <div class="tab-content" id="tab-anatomy">
+    <h2 class="section-title">Anatomy & Pathway 🔬</h2>
+    <p class="section-sub">Click items to expand. Trace the full cerebellar signaling pathway below.</p>
+
+    <h3 style="font-size:14px;font-weight:700;color:var(--text2);margin-bottom:14px;text-transform:uppercase;letter-spacing:0.08em;">Key Structures — Click to Expand</h3>
+    <div class="anat-grid" id="anat-container"></div>
+
+    <div class="divider"></div>
+    <h3 style="font-size:14px;font-weight:700;color:var(--text2);margin-bottom:14px;text-transform:uppercase;letter-spacing:0.08em;">Cerebellar Mossy Fiber Pathway — Full Flow</h3>
+    <div class="algo-wrap">
+      <div class="flow-node entry"><div class="flow-node-title">🏁 Origin: Spinal Cord / Brain Stem</div><div class="flow-node-sub">Source of Mossy Fibers (afferent input)</div></div>
+      <div class="flow-arrow">↓ Mossy Fibers enter</div>
+      <div class="flow-node"><div class="flow-node-title">🌿 Inner Granular Layer</div><div class="flow-node-sub">Mossy fiber forms "Rosette" / glomerulus</div></div>
+      <div class="flow-arrow">↓ Synapse at rosette with</div>
+      <div class="flow-node"><div class="flow-node-title">⚙️ Granule Cell Dendrites + Golgi Cell Axons</div><div class="flow-node-sub">Cerebellar glomerulus formed here</div></div>
+      <div class="flow-arrow">↓ Granule cell axon ascends</div>
+      <div class="flow-node"><div class="flow-node-title">🌐 Outer Molecular Layer</div><div class="flow-node-sub">Axon bifurcates in T-junction → Parallel Fibers</div></div>
+      <div class="flow-arrow">↓ Parallel fibers synapse with</div>
+      <div class="flow-node highlight"><div class="flow-node-title">🟣 Purkinje Cell Dendrites</div><div class="flow-node-sub">Dendrites fan out in the molecular layer</div></div>
+      <div class="flow-arrow">↓ Purkinje cell axon descends</div>
+      <div class="flow-node output"><div class="flow-node-title">📤 White Matter (Only Efferent!)</div><div class="flow-node-sub">The SOLE efferent of cerebellar cortex</div></div>
+      <div class="flow-arrow">↓ Terminates in</div>
+      <div class="flow-node output"><div class="flow-node-title">🎯 Deep Cerebellar Nuclei + Vestibular Nuclei</div><div class="flow-node-sub">Final destination of cerebellar output</div></div>
+    </div>
+
+    <div class="divider"></div>
+    <h3 style="font-size:14px;font-weight:700;color:var(--text2);margin-bottom:14px;text-transform:uppercase;letter-spacing:0.08em;">Climbing Fiber Pathway</h3>
+    <div class="algo-wrap">
+      <div class="flow-node entry"><div class="flow-node-title">🧠 Inferior Olivary Nucleus</div><div class="flow-node-sub">Origin of Climbing Fibers</div></div>
+      <div class="flow-arrow">↓ Climbing fibers bypass granular layer</div>
+      <div class="flow-node highlight"><div class="flow-node-title">🌐 Molecular Layer → Purkinje Cell Dendrites</div><div class="flow-node-sub">Direct excitatory input — no relay needed</div></div>
+    </div>
+
+    <div class="divider"></div>
+    <h3 style="font-size:14px;font-weight:700;color:var(--text2);margin-bottom:14px;text-transform:uppercase;letter-spacing:0.08em;">Cerebral White Matter Fibers — Classification</h3>
+    <div class="cards-grid">
+      <div class="card"><div class="card-icon">🔵</div><h3>Association Fibers</h3><p>Connect different regions on the <strong style="color:var(--accent)">same side</strong> of the same hemisphere.</p></div>
+      <div class="card"><div class="card-icon">🟣</div><h3>Commissural Fibers</h3><p>Connect the <strong style="color:var(--accent2)">two hemispheres</strong> to each other (e.g., corpus callosum).</p></div>
+      <div class="card"><div class="card-icon">🟢</div><h3>Projection Fibers</h3><p><strong style="color:var(--green)">Afferent and efferent</strong> — travel to/from the cerebral cortex to/from other CNS areas.</p></div>
+    </div>
+  </div>
+
+  <!-- ===================== DIAGNOSIS / COMPARE ===================== -->
+  <div class="tab-content" id="tab-diagnosis">
+    <h2 class="section-title">Compare & Identify 🧪</h2>
+    <p class="section-sub">Comparison tables and identification badges for exams.</p>
+
+    <h3 style="font-size:15px;font-weight:700;margin-bottom:14px;">Afferent Fiber Comparison — Cerebellum</h3>
+    <table class="comp-table">
+      <thead><tr><th>Feature</th><th>Climbing Fibers</th><th>Mossy Fibers</th></tr></thead>
+      <tbody>
+        <tr><td>Origin</td><td>Inferior olivary nucleus</td><td>Spinal cord / Brain stem</td></tr>
+        <tr><td>Entry layer</td><td>Bypasses granular → Molecular layer</td><td>Inner granular layer</td></tr>
+        <tr><td>Terminal structure</td><td>Synapses directly on Purkinje dendrites</td><td>Rosette/glomerulus terminal</td></tr>
+        <tr><td>Synapse partners</td><td>Purkinje cell dendrites only</td><td>Granule cell dendrites + Golgi cell axons</td></tr>
+        <tr><td>Pathway to Purkinje</td><td>Direct (1 synapse)</td><td>Indirect via granule → parallel fibers (2+ synapses)</td></tr>
+        <tr><td>Key landmark</td><td>—</td><td>Cerebellar glomerulus / "rosette"</td></tr>
+      </tbody>
+    </table>
+
+    <div class="divider"></div>
+    <h3 style="font-size:15px;font-weight:700;margin-bottom:14px;">Cerebral vs Cerebellar Cortex Layers</h3>
+    <table class="comp-table">
+      <thead><tr><th>Feature</th><th>Cerebral Cortex</th><th>Cerebellar Cortex</th></tr></thead>
+      <tbody>
+        <tr><td>Number of layers</td><td>6 layers</td><td>3 layers</td></tr>
+        <tr><td>Outer layer</td><td>Molecular (Horizontal cells of Cajal)</td><td>Molecular (Stellate + Basket cells)</td></tr>
+        <tr><td>Middle layer(s)</td><td>External Granular, External Pyramidal, Internal Granular</td><td>Purkinje cell layer</td></tr>
+        <tr><td>Deep layer</td><td>Internal Pyramidal + Multiform</td><td>Granular (Granule + Golgi cells)</td></tr>
+        <tr><td>Efferent cells</td><td>Pyramidal cells (Betz = largest, Layer V)</td><td>Purkinje cells ONLY</td></tr>
+        <tr><td>Main afferents</td><td>Projection fibers</td><td>Climbing fibers + Mossy fibers</td></tr>
+        <tr><td>Unique landmark</td><td>Betz cells in Layer V</td><td>Cerebellar rosette (glomerulus)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="divider"></div>
+    <h3 style="font-size:15px;font-weight:700;margin-bottom:14px;">Cerebral Cortex Cell ID Badges</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:16px;">Match the description to the cell type — key for MCQs:</p>
+    <div class="badge-grid">
+      <div class="badge">Pyramid-shape + apical dendrite to Mol. layer = <strong>Pyramidal</strong></div>
+      <div class="badge alt">Ascending axon + short dendrites = <strong>Martinotti</strong></div>
+      <div class="badge gold">Only in Layer I + horizontal = <strong>Cajal</strong></div>
+      <div class="badge">4-8 µm + star-shaped = <strong>Stellate</strong></div>
+      <div class="badge alt">Spindle + dendrites from BOTH poles = <strong>Fusiform</strong></div>
+      <div class="badge gold">Largest pyramidal + Layer V = <strong>Betz cell</strong></div>
+      <div class="badge">Pyriform + only efferent = <strong>Purkinje</strong></div>
+      <div class="badge alt">Basket-like endings on Purkinje = <strong>Basket cell</strong></div>
+      <div class="badge">T-shaped bifurcating axon = <strong>Parallel fibers (Granule axon)</strong></div>
+      <div class="badge gold">Rosette terminal + granular layer = <strong>Mossy fiber</strong></div>
+    </div>
+
+    <div class="divider"></div>
+    <h3 style="font-size:15px;font-weight:700;margin-bottom:14px;">Cerebellar Cell Comparison</h3>
+    <table class="comp-table">
+      <thead><tr><th>Cell</th><th>Layer</th><th>Axon Destination</th><th>Key Role</th></tr></thead>
+      <tbody>
+        <tr><td>Stellate</td><td>Molecular (superficial)</td><td>Purkinje cell dendrites</td><td>Inhibitory interneuron in mol. layer</td></tr>
+        <tr><td>Basket</td><td>Molecular (deep)</td><td>Forms basket around Purkinje soma</td><td>Inhibitory baskets around Purkinje</td></tr>
+        <tr><td>Purkinje</td><td>Purkinje layer</td><td>Deep cerebellar + vestibular nuclei</td><td>ONLY EFFERENT of cerebellar cortex</td></tr>
+        <tr><td>Granule</td><td>Granular</td><td>Ascends → parallel fibers in mol. layer</td><td>Relay mossy → Purkinje (indirect)</td></tr>
+        <tr><td>Golgi</td><td>Granular</td><td>Fans in granular layer (multiple planes)</td><td>Synapse with mossy fiber rosettes</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ===================== FULL ANSWERS / TREATMENT ===================== -->
+  <div class="tab-content" id="tab-treatment">
+    <h2 class="section-title">Full Essay Answers 📚</h2>
+    <p class="section-sub">Complete model answers for the 4 essay questions — ready for exam writing practice.</p>
+
+    <div class="tx-section priority">
+      <h3>⭐ Essay Q1 — 6 Layers of the Cerebral Cortex</h3>
+      <div class="tx-item"><div class="tx-dot"></div><div><strong>Layer I — Molecular:</strong> Contains Horizontal cells of Cajal. Small, fusiform, horizontally oriented. Axons run parallel to surface, synapse with pyramidal cell dendrites.</div></div>
+      <div class="tx-item"><div class="tx-dot"></div><div><strong>Layer II — External Granular:</strong> Contains stellate cells and small pyramidal cells.</div></div>
+      <div class="tx-item"><div class="tx-dot"></div><div><strong>Layer III — External Pyramidal:</strong> Contains medium-sized pyramidal cells and Martinotti cells.</div></div>
+      <div class="tx-item"><div class="tx-dot"></div><div><strong>Layer IV — Internal Granular:</strong> Contains numerous granule cells and Martinotti cells.</div></div>
+      <div class="tx-item"><div class="tx-dot"></div><div><strong>Layer V — Internal Pyramidal (Ganglionic): ⭐</strong> Contains Betz cells (largest pyramidal cells of the motor cortex), few granule cells, and Martinotti cells. Origin of major descending motor tracts.</div></div>
+      <div class="tx-item"><div class="tx-dot"></div><div><strong>Layer VI — Multiform:</strong> Contains small pyramidal, granule, Martinotti, and fusiform cells.</div></div>
+    </div>
+
+    <div class="tx-section secondary">
+      <h3>📝 Essay Q2 — 5 Cell Types of Cerebral Cortex</h3>
+      <div class="tx-item"><div class="tx-dot"></div><div><strong>Pyramidal cells:</strong> Pyramid-shaped. Apical dendrite → Molecular layer. Basal dendrites at same level. Axon enters white matter as projection/association/commissural fibers.</div></div>
+      <div class="tx-item"><div class="tx-dot"></div><div><strong>Stellate (Granule) cells:</strong> Small (4-8 µm), star-shaped. Short dendrites in all directions. Short local axon. Found in multiple layers.</div></div>
+      <div class="tx-item"><div class="tx-dot"></div><div><strong>Martinotti cells:</strong> Polygonal, the "inverted cell." Short dendrites + axon that uniquely ascends toward the surface to end in Layer I.</div></div>
+      <div class="tx-item"><div class="tx-dot"></div><div><strong>Fusiform cells:</strong> Spindle-shaped. Dendrites arise from both poles. Axon enters white matter.</div></div>
+      <div class="tx-item"><div class="tx-dot"></div><div><strong>Horizontal cells of Cajal:</strong> Small, fusiform, horizontally oriented. Exclusively in Layer I. Axon runs parallel to surface; synapses with pyramidal cell dendrites, receiving input from Martinotti axons.</div></div>
+    </div>
+
+    <div class="tx-section tertiary">
+      <h3>🌿 Essay Q3 — 3 Layers of Cerebellar Cortex</h3>
+      <div class="tx-item"><div class="tx-dot"></div><div><strong>Outer Molecular Layer:</strong> Mainly fibers, few cells. Superficial = Stellate cells. Deep = Basket cells (long axons form basket-like endings around Purkinje cell bodies). Receives: parallel fibers (from granule axons) and climbing fibers (from inferior olivary nucleus).</div></div>
+      <div class="tx-item"><div class="tx-dot"></div><div><strong>Middle Purkinje Cell Layer:</strong> Single row of large, pyriform Purkinje cells. Dendrites fan into molecular layer. Axons = ONLY efferent of cerebellar cortex, entering white matter → deep cerebellar + vestibular nuclei.</div></div>
+      <div class="tx-item"><div class="tx-dot"></div><div><strong>Inner Granular Layer:</strong> Closely packed granule cells (axons ascend → parallel fibers). Scattered Golgi cells (dendrites fan in multiple planes, axons synapse at rosettes).</div></div>
+    </div>
+
+    <div class="tx-section priority">
+      <h3>🔀 Essay Q4 — Climbing vs Mossy Fibers</h3>
+      <div class="tx-item"><div class="tx-dot"></div><div><strong>Climbing Fibers:</strong> Origin = Inferior olivary nucleus. Travel directly to the molecular layer, bypassing the granular layer. Terminate on the dendrites of Purkinje cells. Represent direct excitatory afferent input.</div></div>
+      <div class="tx-item"><div class="tx-dot"></div><div><strong>Mossy Fibers:</strong> Origin = Spinal cord or brain stem. Terminate in inner granular layer. End as rosette-like (mossy) terminals forming cerebellar glomeruli, synapsing with granule cell dendrites and Golgi cell axons. Indirect route to Purkinje cells via granule cells → parallel fibers.</div></div>
+    </div>
+
+    <div class="divider"></div>
+    <h3 style="font-size:15px;font-weight:700;margin-bottom:14px;">📖 Viva Questions — Model Answers</h3>
+    <div id="viva-container"></div>
+  </div>
+
+  <!-- ===================== MNEMONICS ===================== -->
+  <div class="tab-content" id="tab-mnemonics">
+    <h2 class="section-title">Mnemonics 🧩</h2>
+    <p class="section-sub">6 custom mnemonics — built from the lecture content.</p>
+    <div id="mnem-container"></div>
+  </div>
+</main>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+
+const quizData = [
+  { q:"Which cells in the cerebral cortex possess an apical dendrite that extends toward the molecular layer?", opts:["Stellate cells","Horizontal cells of Cajal","Pyramidal cells","Martinotti cells","Fusiform cells"], ans:2, exp:"Pyramidal cells have a characteristic apical dendrite that extends all the way to the molecular (Layer I) layer, plus basal dendrites and a descending axon entering white matter." },
+  { q:"What is the approximate size of Stellate (granule) cells in the cerebral cortex?", opts:["1-3 µm","4-8 µm","10-15 µm","20-25 µm",">30 µm"], ans:1, exp:"Stellate cells are defined as small cells, specifically 4-8 µm in diameter, with short dendrites in all directions." },
+  { q:"The axon of the Martinotti cell is unique because it:", opts:["Enters the white matter","Forms a basket around Purkinje cells","Runs horizontally in Layer I","Ascends and ends in Layer I","Synapses with Golgi cells"], ans:3, exp:'Martinotti cells are called the "inverted cell" precisely because their axon ascends toward the cortical surface to end in Layer I — opposite to most neurons whose axons descend.' },
+  { q:"Which cell of the cerebral cortex has dendrites arising from both of its poles?", opts:["Fusiform cells","Martinotti cells","Stellate cells","Betz cells","Basket cells"], ans:0, exp:"Fusiform cells are spindle-shaped with dendrites arising from both poles (top and bottom), and an axon that enters the white matter." },
+  { q:"Where are the Horizontal cells of Cajal exclusively located?", opts:["Layer I","Layer II","Layer III","Layer IV","Layer V"], ans:0, exp:"Horizontal cells of Cajal are exclusively found in Layer I (Molecular Layer). This exclusivity is a high-yield exam point." },
+  { q:"Layer II of the cerebral cortex is primarily known as the:", opts:["Molecular layer","External Granular Layer","External Pyramidal Layer","Internal Granular Layer","Multiform Layer"], ans:1, exp:"Layer II is the External Granular Layer, containing stellate cells and small pyramidal cells." },
+  { q:"Which layer contains the Betz cells? ⭐", opts:["Layer II","Layer III","Layer IV","Layer V","Layer VI"], ans:3, exp:"Layer V (Internal Pyramidal / Ganglionic Layer) contains Betz cells — the largest pyramidal cells — in the motor cortex. This is a HIGH YIELD exam point highlighted by the lecturer." },
+  { q:"Which of the following nerve fibers connect the two cerebral hemispheres?", opts:["Association fibers","Projection fibers","Commissural fibers","Mossy fibers","Climbing fibers"], ans:2, exp:"Commissural fibers connect the two hemispheres. Association fibers connect regions on the same side, and projection fibers connect the cortex to other CNS structures." },
+  { q:"In the cerebral medulla, fibers connecting areas on the SAME side are called:", opts:["Commissural fibers","Projection fibers","Association fibers","Climbing fibers","Parallel fibers"], ans:2, exp:"Association fibers connect different areas on the same side (ipsilateral connections). Commissural fibers cross between hemispheres." },
+  { q:"What shape characterizes the Purkinje cells of the cerebellum?", opts:["Star-shaped","Polygonal","Pyriform","Fusiform","Pyramidal"], ans:2, exp:"Purkinje cells are pyriform (pear-shaped). This distinguishes them from the pyramidal shape of cerebral pyramidal cells." },
+  { q:"The deeply located cells in the cerebellar molecular layer that form endings around Purkinje cell bodies are:", opts:["Stellate cells","Basket cells","Granule cells","Golgi cells","Martinotti cells"], ans:1, exp:"Basket cells are located deep in the molecular layer. Their long axons form characteristic basket-like endings (pericellular baskets) around the cell bodies of Purkinje cells." },
+  { q:"What forms the 'parallel fibers' in the cerebellar cortex?", opts:["Axons of Golgi cells","Dendrites of Purkinje cells","Axons of granule cells","Mossy fibers","Climbing fibers"], ans:2, exp:"Granule cell axons ascend from the inner granular layer to the molecular layer, where they bifurcate in a T-junction to form parallel fibers that run along the surface." },
+  { q:"Where do climbing fibers originate? ⭐", opts:["Spinal cord","Cerebral cortex","Inferior olivary nucleus","Vestibular nuclei","Deep cerebellar nuclei"], ans:2, exp:"Climbing fibers originate specifically from the inferior olivary nucleus. Mossy fibers — NOT climbing fibers — originate from the spinal cord or brain stem." },
+  { q:"The only efferent fibers of the cerebellar cortex are the axons of: ⭐", opts:["Granule cells","Golgi cells","Basket cells","Purkinje cells","Stellate cells"], ans:3, exp:"Purkinje cell axons are the ONLY efferent fibers of the cerebellar cortex. All other cerebellar cortex cells are interneurons. This is heavily emphasized." },
+  { q:"Where do Purkinje cell axons terminate?", opts:["Molecular layer","Inferior olivary nucleus","Spinal cord","Deep cerebellar and vestibular nuclei","Thalamus"], ans:3, exp:"Purkinje cell axons enter the white matter and terminate in the deep cerebellar nuclei and vestibular nuclei — the first relay station for cerebellar output." },
+  { q:"Mossy fibers synapse primarily with:", opts:["Purkinje cell dendrites","Basket cell axons","Granule cell dendrites and Golgi cell axons","Stellate cell dendrites","Climbing fibers"], ans:2, exp:"Mossy fibers end as rosette-like (mossy) terminals in the granular layer, synapsing with the dendrites of granule cells and the axons of Golgi cells — forming the cerebellar glomerulus." },
+  { q:"Which layer of the cerebellar cortex is described as 'mainly cells with few fibers'?", opts:["Molecular layer","Purkinje layer","Granular layer","Layer I of cerebrum","Cerebral medulla"], ans:2, exp:"The inner granular layer is densely packed with cells (granule and Golgi cells) and has relatively few fibers. The molecular layer is the opposite — mainly fibers with few cells." },
+  { q:"Recurrent collateral fibers in the cerebellum arise from the axons of:", opts:["Golgi cells","Granule cells","Mossy fibers","Purkinje cells","Basket cells"], ans:3, exp:"Recurrent collateral fibers arise from the axons of Purkinje cells, allowing feedback to the cerebellar cortex itself." },
+  { q:"Which layer of the cerebral cortex contains medium-sized pyramidal cells and Martinotti cells?", opts:["External Granular (II)","External Pyramidal (III)","Internal Granular (IV)","Internal Pyramidal (V)","Multiform (VI)"], ans:1, exp:"The External Pyramidal Layer (Layer III) contains medium-sized pyramidal cells and Martinotti cells. Small pyramidal cells are in Layer II; the large Betz cells are in Layer V." },
+  { q:"Layer VI of the cerebral cortex is known as the:", opts:["Ganglionic layer","Multiform layer","Internal granular layer","Molecular layer","External pyramidal layer"], ans:1, exp:"Layer VI is the Multiform (Polymorphic) layer, containing numerous small pyramidal, granule, Martinotti, and fusiform cells — hence 'multiform.'" },
+  { q:"Stellate (molecular) cells in the cerebellar molecular layer synapse with:", opts:["Axons of Golgi cells","Mossy fibers","Dendrites of Purkinje cells","Axons of Purkinje cells","Climbing fibers"], ans:2, exp:"Molecular (stellate) cells are superficially located in the molecular layer and their axons synapse with the dendrites of Purkinje cells." },
+  { q:"The term 'rosette-like terminal' is exclusively associated with:", opts:["Climbing fibers","Association fibers","Mossy fibers","Parallel fibers","Purkinje axons"], ans:2, exp:'Mossy fibers end as mossy/rosette-like terminals in the inner granular layer. Only mossy fibers form this specific cerebellar glomerulus structure with granule and Golgi cells.' },
+  { q:"Which cell type has dendrites that fan out in different planes within the cerebellar granular layer?", opts:["Purkinje cells","Granule cells","Golgi cells","Basket cells","Stellate cells"], ans:2, exp:"Golgi cells have dendrites that fan out in different planes in the granular layer. Their axons participate in the cerebellar glomerulus at the mossy fiber rosettes." },
+  { q:"Afferent fibers to the cerebral cortex are classified under which white matter category?", opts:["Commissural fibers","Association fibers","Projection fibers","Climbing fibers","Parallel fibers"], ans:2, exp:"Projection fibers consist of BOTH afferent (to cortex) and efferent (from cortex) fibers. Commissural and association fibers are entirely within the cerebrum." },
+  { q:"Which layer of the cerebral cortex is largely devoid of pyramidal cells?", opts:["Layer I","Layer II","Layer III","Layer V","Layer VI"], ans:0, exp:"Layer I (Molecular layer) contains only Horizontal cells of Cajal — no pyramidal cells. Layers II, III, V, and VI all contain pyramidal cell variants." }
+];
+
+const flashData = [
+  { q:"What is Layer I of the cerebral cortex called and what cell is exclusive to it?", a:"Molecular Layer — contains only Horizontal cells of Cajal, which run their axons parallel to the cortical surface.", tag:"Cerebrum" },
+  { q:"Name the 6 layers of the cerebral cortex in order (superficial → deep).", a:"I Molecular → II External Granular → III External Pyramidal → IV Internal Granular → V Internal Pyramidal → VI Multiform.", tag:"Cerebrum" },
+  { q:"What makes Martinotti cells 'inverted'?", a:"Their axon ascends toward the cortical surface to end in Layer I, while most neurons have descending axons. Dendrites are short.", tag:"⭐ Exam" },
+  { q:"Where are Betz cells located and what are they?", a:"Betz cells = the LARGEST pyramidal cells (ganglionic cells). Located in Layer V (Internal Pyramidal Layer) of the motor cortex.", tag:"⭐ Exam" },
+  { q:"Describe Fusiform cells.", a:"Spindle-shaped cells with dendrites arising from BOTH poles. Axon enters white matter. Found in Layer VI (Multiform).", tag:"Cerebrum" },
+  { q:"What are the 3 types of fibers in the cerebral medulla?", a:"1. Association (same side) 2. Commissural (between hemispheres) 3. Projection (afferent + efferent to/from cortex).", tag:"Cerebrum" },
+  { q:"Name the 3 layers of the cerebellar cortex (outside → inside).", a:"1. Outer Molecular 2. Middle Purkinje cell layer 3. Inner Granular layer.", tag:"Cerebellum" },
+  { q:"What is the ONLY efferent fiber of the cerebellar cortex?", a:"The axon of the Purkinje cell. It exits the cerebellar cortex → deep cerebellar nuclei + vestibular nuclei.", tag:"⭐ Exam" },
+  { q:"What cells are in the cerebellar molecular layer?", a:"Superficial: Stellate cells. Deep: Basket cells (whose axons form baskets around Purkinje cell bodies).", tag:"Cerebellum" },
+  { q:"Where do climbing fibers originate and where do they terminate?", a:"Origin: Inferior olivary nucleus. Termination: Directly on Purkinje cell dendrites in the molecular layer.", tag:"⭐ Exam" },
+  { q:"Where do mossy fibers originate and where do they terminate?", a:"Origin: Spinal cord or brain stem. Termination: Rosette-like terminals in granular layer, synapsing with granule cell dendrites + Golgi cell axons.", tag:"Cerebellum" },
+  { q:"What is a 'cerebellar glomerulus' (rosette)?", a:"A mossy fiber terminal forming a rosette by synapsing with granule cell dendrites and Golgi cell axons in the inner granular layer.", tag:"Cerebellum" },
+  { q:"Describe the path of a granule cell axon.", a:"Axon ascends from inner granular layer → enters molecular layer → bifurcates at a T-junction → forms parallel fibers running along the surface.", tag:"Cerebellum" },
+  { q:"What shape are Purkinje cells and where are their axons going?", a:"Pyriform (pear-shaped). Axons descend through white matter to terminate in deep cerebellar nuclei and vestibular nuclei.", tag:"Cerebellum" },
+  { q:"What size are stellate (granule) cells in the cerebral cortex?", a:"Small: 4-8 µm. Star-shaped with short dendrites in all directions and short local axons.", tag:"Cerebrum" },
+  { q:"Which cerebellar layer contains Golgi cells and what is their synaptic role?", a:"Golgi cells are in the inner granular layer. Their dendrites fan in multiple planes; their axons synapse with mossy fiber rosette terminals (forming glomeruli).", tag:"Cerebellum" },
+  { q:"What do Basket cells do in the cerebellum?", a:"Located deep in the molecular layer — their long axons form basket-like pericellular endings around Purkinje cell bodies, providing inhibitory input.", tag:"Cerebellum" },
+  { q:"How does a pyramidal cell differ from a fusiform cell?", a:"Pyramidal = pyramid shape, apical dendrite to Mol. layer, basal dendrites. Fusiform = spindle shape, dendrites from BOTH poles. Both send axons to white matter.", tag:"Cerebrum" },
+  { q:"What does Layer IV (Internal Granular) of the cerebral cortex contain?", a:"Numerous granule (stellate) cells and Martinotti cells.", tag:"Cerebrum" },
+  { q:"What is the full relay chain of mossy fiber information reaching Purkinje cells?", a:"Mossy fiber → Granule cell → Parallel fiber → Purkinje cell dendrite → Purkinje axon (efferent out).", tag:"⭐ Exam" }
+];
+
+const casesData = [
+  {
+    title:"Case 1: The Ascending Axon",
+    tag:"Histology Identification",
+    vignette:"A histologist observes a cortical neuron with a polygonal soma, short dendrites projecting in all directions, and — unusually — an axon that courses superficially toward the cortical surface, terminating in the most superficial cortical layer.",
+    questions:[
+      { q:"Q1: What cell type is being described?", a:"Martinotti cell — the 'inverted cell.' Its axon uniquely ascends to end in Layer I (Molecular layer), while most neuronal axons descend into the white matter." },
+      { q:"Q2: In which layers of the cerebral cortex can Martinotti cells be found?", a:"Martinotti cells are found in Layer III (External Pyramidal), Layer IV (Internal Granular), Layer V (Internal Pyramidal), and Layer VI (Multiform) — essentially all layers except I and II." },
+      { q:"Q3: Why is this cell called 'inverted'?", a:"Because the direction of its axon is inverted compared to most cortical neurons. Most neurons have axons that project DEEP (into white matter); the Martinotti axon projects SUPERFICIALLY to Layer I." }
+    ]
+  },
+  {
+    title:"Case 2: The Basket Former",
+    tag:"Cerebellar Histology",
+    vignette:"On a cerebellar histology slide, a cell is identified in the deep portion of the outer cerebellar layer. It has a long axon that makes elaborate endings that encircle the soma of another, much larger cell type below it.",
+    questions:[
+      { q:"Q1: What cell type forms these 'basket-like' endings?", a:"Basket cells. They are located in the DEEP portion of the outer molecular layer. Their long axons form basket-like (pericellular) endings around the cell bodies of Purkinje cells." },
+      { q:"Q2: What is the large cell being encircled?", a:"The Purkinje cell — the only efferent neuron of the cerebellar cortex. Purkinje cells are pyriform (pear-shaped) and form a single row in the middle Purkinje cell layer." },
+      { q:"Q3: What other cell is superficially located in the same layer as Basket cells?", a:"Stellate cells are located superficially in the molecular layer (while Basket cells are deep). Stellate cells also synapse with Purkinje cell dendrites, but without forming baskets." }
+    ]
+  },
+  {
+    title:"Case 3: The Rosette Mystery",
+    tag:"Cerebellar Glomerulus",
+    vignette:"An electron microscopy image shows a complex synaptic structure in the inner granular layer of the cerebellum. A large axonal terminal is seen forming multiple synaptic contacts simultaneously — with dendritic processes of small densely-packed cells and with axonal processes of larger scattered cells.",
+    questions:[
+      { q:"Q1: What is this multi-synaptic structure called?", a:"A cerebellar glomerulus, also called a 'rosette.' It is formed by a mossy fiber terminal synapsing simultaneously with granule cell dendrites AND Golgi cell axons in the inner granular layer." },
+      { q:"Q2: What is the origin of the large axon terminal forming this rosette?", a:"Mossy fibers, which originate from the spinal cord or brain stem." },
+      { q:"Q3: After synaptic transmission at the rosette, how does information reach Purkinje cells?", a:"Granule cells are activated → their axons ascend to the molecular layer → bifurcate into T-shaped parallel fibers → parallel fibers synapse with the dendrites of Purkinje cells." }
+    ]
+  },
+  {
+    title:"Case 4: The T-Junction Fibers",
+    tag:"Parallel Fibers",
+    vignette:"A neuroanatomist injects a tracer into the inner granular layer of the cerebellum and later observes labeled fibers ascending to the outer layer, where they bifurcate to form a characteristic T-shaped branching pattern, running longitudinally along the cerebellar folia.",
+    questions:[
+      { q:"Q1: What are these T-shaped bifurcating fibers called?", a:"Parallel fibers. They are formed by the ascending axons of granule cells, which bifurcate at a T-junction in the molecular layer to run parallel to the cerebellar surface." },
+      { q:"Q2: What type of neuron generates these fibers?", a:"Granule cells (small, densely packed neurons in the inner granular layer). Their axons ascend to form parallel fibers." },
+      { q:"Q3: What is the synaptic target of parallel fibers?", a:"Parallel fibers synapse with the dendrites of Purkinje cells in the molecular layer — providing the indirect (polysynaptic) route for mossy fiber input to reach Purkinje cells." }
+    ]
+  },
+  {
+    title:"Case 5: Layer V Selective Damage",
+    tag:"Motor Cortex Pathology",
+    vignette:"In an experimental model, selective damage is induced to Layer V of the primary motor cortex. Histological analysis shows loss of the largest neurons in the cortex, with relative preservation of all other layers.",
+    questions:[
+      { q:"Q1: What specific cell type is selectively lost?", a:"Betz cells — the largest pyramidal cells (also called ganglionic cells) in the CNS. They are exclusively located in Layer V (Internal Pyramidal / Ganglionic Layer) of the motor cortex." },
+      { q:"Q2: What is the clinical significance of these cells?", a:"Betz cells are the origin of major descending motor tracts. Their large axons contribute to the corticospinal (pyramidal) tract, which controls voluntary motor function." },
+      { q:"Q3: What is Layer V also called?", a:"Layer V is called the Internal Pyramidal Layer or the Ganglionic Layer — the latter term specifically because it contains Betz (ganglionic) cells." }
+    ]
+  }
+];
+
+const anatData = [
+  { title:"Horizontal Cells of Cajal", sub:"Layer I — Molecular Layer", icon:"↔️", detail:"Small, fusiform, horizontally oriented cells. Exclusively in Layer I. Axons run parallel to the cortical surface. Synapse with pyramidal cell dendrites. Also receive input from ascending Martinotti cell axons." },
+  { title:"Pyramidal Cells", sub:"Layers II, III, V, VI", icon:"△", detail:"Pyramid-shaped neurons with an apical dendrite extending to the molecular layer, basal dendrites at the same cortical level, and a descending axon that enters the white matter as projection, association, or commissural fibers. Betz cells = the largest variant, in Layer V." },
+  { title:"Stellate (Granule) Cells — Cerebrum", sub:"Layers II–VI", icon:"⭐", detail:"Small (4-8 µm), star-shaped neurons. Short dendrites extend in all directions. Short local axons. Found in multiple cortical layers. NOT the same as cerebellar granule cells." },
+  { title:"Martinotti Cells", sub:"Layers III–VI — 'Inverted Cell'", icon:"🔄", detail:"Polygonal soma. Short dendrites. Unique ascending axon that ends in Layer I (Molecular Layer). Called the 'inverted cell' because unlike all other cortical neurons, the axon travels toward the surface, not deep." },
+  { title:"Fusiform Cells", sub:"Layer VI — Multiform", icon:"🔷", detail:"Spindle-shaped (fusiform) neurons with dendrites arising from BOTH poles — one extending superficially and one deeply. Axon enters the white matter. Primarily in Layer VI." },
+  { title:"Purkinje Cells", sub:"Middle Purkinje Layer — Cerebellum", icon:"🟣", detail:"Large pyriform (pear-shaped) cells forming a single row. Elaborate dendritic tree fans into the molecular layer. Axon = the ONLY efferent of the cerebellar cortex → deep cerebellar nuclei + vestibular nuclei." },
+  { title:"Basket Cells", sub:"Deep Molecular Layer — Cerebellum", icon:"🧺", detail:"Located deep in the molecular layer. Long axons form characteristic basket-like (pericellular) endings that encircle the cell bodies of Purkinje cells. Inhibitory interneurons." },
+  { title:"Cerebellar Granule Cells", sub:"Inner Granular Layer — Cerebellum", icon:"🔵", detail:"Closely packed small neurons. Dendrites synapse with mossy fiber rosettes and Golgi cell axons. Axons ascend to the molecular layer and bifurcate into T-junctions forming parallel fibers that synapse with Purkinje dendrites." },
+  { title:"Golgi Cells", sub:"Inner Granular Layer — Cerebellum", icon:"🌐", detail:"Large neurons in the inner granular layer. Dendrites fan into multiple planes in the granular layer (and some extend into molecular layer). Axons participate in the cerebellar glomerulus (rosette) with mossy fibers." },
+  { title:"Betz Cells", sub:"Layer V — Motor Cortex ⭐ EXAM", icon:"🏆", detail:"The LARGEST pyramidal cells in the CNS. Also called ganglionic cells. Located exclusively in Layer V (Internal Pyramidal Layer) of the motor cortex. Origin of major descending motor tracts. HIGH YIELD MCQ target." }
+];
+
+const mnemonics = [
+  {
+    title:"MSPIM-F",
+    stands:"Layers of Cerebral Cortex I–VI",
+    letters:[
+      { l:"M", strong:"Molecular", rest:"— Layer I (Horizontal cells of Cajal)" },
+      { l:"S", strong:"Stellate/External Granular", rest:"— Layer II (Stellate + small pyramidal)" },
+      { l:"P", strong:"Pyramidal/External", rest:"— Layer III (Medium pyramidal + Martinotti)" },
+      { l:"I", strong:"Internal Granular", rest:"— Layer IV (Granule + Martinotti)" },
+      { l:"M", strong:"Motor/Internal Pyramidal", rest:"— Layer V (Betz cells ⭐)" },
+      { l:"F", strong:"Fusiform/Multiform", rest:"— Layer VI (Mixed small cells)" }
+    ],
+    tip:'Remember: "My Students Pass In Medical Finals"'
+  },
+  {
+    title:"PUMBA",
+    stands:"Cerebellar Cortex Layers (Outside → Inside)",
+    letters:[
+      { l:"P", strong:"Purkinje layer", rest:"— Middle layer, single row of pyriform cells" },
+      { l:"U", strong:"bUndle of Parallel fibers", rest:"— In the molecular layer above" },
+      { l:"M", strong:"Molecular", rest:"— Outer layer (Stellate + Basket cells)" },
+      { l:"B", strong:"Basket cells", rest:"— Deep part of molecular layer" },
+      { l:"A", strong:"Axon only output", rest:"— Purkinje axon = ONLY efferent" }
+    ],
+    tip:"Think of Pumba (Lion King) carrying the output signals OUT of the cerebellum!"
+  },
+  {
+    title:"CLIMB Direct, MOSS Indirect",
+    stands:"Cerebellar Afferent Fibers",
+    letters:[
+      { l:"C", strong:"Climbing fibers", rest:"= Direct to Purkinje dendrites" },
+      { l:"O", strong:"Olivary nucleus", rest:"= Origin of climbing fibers" },
+      { l:"M", strong:"Mossy fibers", rest:"= Multi-synapse route via granule cells" },
+      { l:"I", strong:"Indirect", rest:"= Mossy → Granule → Parallel → Purkinje" }
+    ],
+    tip:"CLIMBING = DIRECT (like climbing straight to the top). MOSSY = INDIRECT (like a mossy trail with many stops)."
+  },
+  {
+    title:"BAGPIPE",
+    stands:"Martinotti Cell Features",
+    letters:[
+      { l:"B", strong:"Both directions?", rest:"— No! Dendrites short, axon goes UP" },
+      { l:"A", strong:"Axon Ascends", rest:"— Unique ascending axon to Layer I" },
+      { l:"G", strong:"Ganglionic cousin?", rest:"— No! Martinotti ≠ Betz cell" },
+      { l:"P", strong:"Polygonal", rest:"— Body shape is polygonal" },
+      { l:"I", strong:"Inverted Cell", rest:"— Its other name" },
+      { l:"E", strong:"Ends in Layer I", rest:"— Terminal destination of its axon" }
+    ],
+    tip:"Martinotti plays the BAGPIPES by sending its tune (axon) UP to the audience (Layer I)!"
+  },
+  {
+    title:"ACP — Fiber Types",
+    stands:"White Matter Fiber Classification",
+    letters:[
+      { l:"A", strong:"Association", rest:"— Same side (ipsilateral)" },
+      { l:"C", strong:"Commissural", rest:"— Cross to the other hemisphere" },
+      { l:"P", strong:"Projection", rest:"— Project to/from cortex (afferent + efferent)" }
+    ],
+    tip:'"ACP — Always Cross Projections." Association stays local, Commissural crosses, Projection goes in or out.'
+  },
+  {
+    title:"ROSS — Rosette",
+    stands:"Cerebellar Glomerulus Components",
+    letters:[
+      { l:"R", strong:"Rosette", rest:"= Mossy fiber terminal structure" },
+      { l:"O", strong:"Originates from Spinal/Brain stem", rest:"— source of mossy fibers" },
+      { l:"S", strong:"Synapse with Granule dendrites", rest:"+ Golgi axons" },
+      { l:"S", strong:"Situated in granular layer", rest:"— inner granular layer location" }
+    ],
+    tip:"When you see a ROSETTE in the cerebellar granular layer, think ROSS — it's always a mossy fiber terminal!"
+  }
+];
+
+const vivaData = [
+  { q:"What are the two broad categories of cells found in the cerebral cortex?", a:"The cerebral cortex contains neuroglial cells (supporting cells) and several types of nerve cells (neurons)." },
+  { q:"Describe the typical structure of a Pyramidal cell.", a:"Pyramidal cells are pyramid-shaped with an apical dendrite extending to the molecular layer, basal dendrites at the same cortical level, and an axon that enters the white matter (as projection, association, or commissural fibers)." },
+  { q:"Why is the Martinotti cell referred to as the 'inverted cell'?", a:"It is called the inverted cell because — unlike most cortical neurons whose axons project deeply — the Martinotti axon ascends toward the cortical surface to end in the superficial Layer I, while its dendrites are short. ⭐ EXAM: Lecturer emphasized this unique orientation." },
+  { q:"Where are the Horizontal cells of Cajal found and what is their shape?", a:"They are small, fusiform, and horizontally oriented cells located exclusively in Layer I (Molecular Layer). Their axons run parallel to the cortical surface." },
+  { q:"What are Betz cells and where are they located?", a:"Betz cells are the largest pyramidal cells in the CNS, also called ganglionic cells. They are located in Layer V (Internal Pyramidal Layer) of the motor cortex. ⭐ EXAM: High MCQ priority." },
+  { q:"Differentiate between Association, Commissural, and Projection fibers.", a:"Association fibers: connect areas on the same side (ipsilateral). Commissural fibers: connect the two hemispheres (e.g., corpus callosum). Projection fibers: afferent AND efferent fibers traveling to and from the cerebral cortex." },
+  { q:"What are the three layers of the cerebellar cortex from outside inward?", a:"1. Outer Molecular Layer, 2. Middle Purkinje Cell Layer, 3. Inner Granular Layer." },
+  { q:"Explain the unique structural interaction of the Basket cell.", a:"Located deep in the molecular layer, the Basket cell has a long axon that forms basket-like (pericellular) endings around the cell bodies of Purkinje cells." },
+  { q:"Describe the course of a Granule cell axon in the cerebellum.", a:"The axon of the small granule cell ascends from the inner granular layer into the molecular layer, where it divides into two branches at a T-junction, forming parallel fibers that run along the cerebellar surface and synapse with Purkinje cell dendrites." },
+  { q:"What is the origin and termination of climbing fibers?", a:"Climbing fibers originate from the inferior olivary nucleus and end on the dendrites of Purkinje cells in the molecular layer. They bypass the granular layer entirely." },
+  { q:"What structures form a 'rosette' or glomerulus in the cerebellar cortex?", a:"A rosette is formed by a mossy fiber terminal synapsing with the dendrites of granule cells and the axons of Golgi cells in the inner granular layer." },
+  { q:"Identify the only efferent fibers of the cerebellar cortex and their destination.", a:"The axons of Purkinje cells are the ONLY efferent fibers of the cerebellar cortex. They enter the white matter and terminate in the deep cerebellar nuclei and vestibular nuclei. ⭐ EXAM: Heavily emphasized by the lecturer." }
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let state = { quizAnswers:{}, quizScore:0, streak:0, flashFlipped:new Set(), tabHistory:'overview' };
+
+function loadState() {
+  try { const s = localStorage.getItem('neuroHisto'); if(s) state = {...state,...JSON.parse(s)}; } catch(e){}
+}
+function saveState() {
+  try { localStorage.setItem('neuroHisto', JSON.stringify(state)); } catch(e){}
+}
+loadState();
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+  state.tabHistory = id;
+  saveState();
+  document.getElementById('search-results').classList.remove('show');
+  document.getElementById('search-input').value = '';
+}
+
+// ============================================================
+// STATS
+// ============================================================
+function updateStats() {
+  const answered = Object.keys(state.quizAnswers).length;
+  const pct = Math.round((answered/quizData.length)*100);
+  document.getElementById('stat-progress').textContent = pct+'%';
+  document.getElementById('stat-score').textContent = state.quizScore+'/'+answered;
+  document.getElementById('stat-streak').textContent = state.streak;
+  document.getElementById('stat-cards').textContent = state.flashFlipped.size+'/'+flashData.length;
+  document.getElementById('q-prog-fill').style.width = pct+'%';
+  document.getElementById('q-prog-label').textContent = 'Question '+answered+' of '+quizData.length;
+  document.getElementById('q-score-label').textContent = 'Score: '+state.quizScore;
+}
+
+// ============================================================
+// QUIZ
+// ============================================================
+function buildQuiz() {
+  const c = document.getElementById('quiz-container');
+  c.innerHTML = '';
+  quizData.forEach((q,i)=>{
+    const div = document.createElement('div');
+    div.className = 'quiz-q'+(state.quizAnswers[i]!==undefined?' answered':'');
+    div.id = 'qq'+i;
+    const letters = ['A','B','C','D','E'];
+    const answered = state.quizAnswers[i];
+    div.innerHTML = `<div class="q-number">Q${i+1} of ${quizData.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options">${q.opts.map((o,j)=>`
+        <div class="option ${answered!==undefined?(j===q.ans?'reveal-correct'+(answered===j?' correct':''):(answered===j?' wrong':'')):''}
+        " onclick="answerQ(${i},${j})" id="opt${i}_${j}">
+          <div class="option-letter">${letters[j]}</div>${o}
+        </div>`).join('')}
+      </div>
+      <div class="explanation ${answered!==undefined?'show':''}" id="exp${i}">💡 ${q.exp}</div>`;
+    // Fix classes for selected answer
+    if(answered !== undefined) {
+      const opts = div.querySelectorAll('.option');
+      opts.forEach((opt,j)=>{
+        opt.classList.remove('reveal-correct','correct','wrong');
+        if(j===q.ans) opt.classList.add('reveal-correct');
+        if(j===answered && answered===q.ans) opts[j].classList.add('correct');
+        if(j===answered && answered!==q.ans) opts[j].classList.add('wrong');
+      });
+    }
+    c.appendChild(div);
+  });
+}
+
+function answerQ(qi, chosen) {
+  if(state.quizAnswers[qi]!==undefined) return;
+  state.quizAnswers[qi] = chosen;
+  const correct = chosen === quizData[qi].ans;
+  if(correct) { state.quizScore++; state.streak++; } else { state.streak=0; }
+  const qEl = document.getElementById('qq'+qi);
+  qEl.classList.add('answered');
+  const opts = qEl.querySelectorAll('.option');
+  opts.forEach((opt,j)=>{
+    if(j===quizData[qi].ans) opt.classList.add('reveal-correct');
+    if(j===chosen && correct) opt.classList.add('correct');
+    if(j===chosen && !correct) opt.classList.add('wrong');
+  });
+  document.getElementById('exp'+qi).classList.add('show');
+  saveState();
+  updateStats();
+}
+
+function resetQuiz() {
+  state.quizAnswers={}; state.quizScore=0; state.streak=0;
+  saveState(); buildQuiz(); updateStats();
+}
+
+function showScore() {
+  const pct = Math.round((state.quizScore/quizData.length)*100);
+  let msg = pct>=90?'🏆 Outstanding! You aced it!':pct>=70?'🎉 Great work! Keep it up!':pct>=50?'📚 Good effort! Review the wrong answers.':'🔄 Keep studying — you\'ve got this!';
+  alert(`Score: ${state.quizScore}/${quizData.length} (${pct}%)\n${msg}`);
+}
+
+// ============================================================
+// FLASHCARDS
+// ============================================================
+function buildFlash() {
+  const c = document.getElementById('flash-container');
+  c.innerHTML = '';
+  flashData.forEach((f,i)=>{
+    const div = document.createElement('div');
+    div.className = 'flash-card'+(state.flashFlipped.has(i)?' flipped':'');
+    div.innerHTML = `<div class="flash-inner">
+      <div class="flash-face flash-front">
+        <div class="flash-tag">${f.tag}</div>
+        <div class="flash-q">${f.q}</div>
+        <div class="flash-hint" style="margin-top:12px;font-size:11px;color:var(--text3)">👆 Tap to reveal</div>
+      </div>
+      <div class="flash-face flash-back">
+        <div class="flash-tag" style="color:var(--green)">Answer</div>
+        <div class="flash-a">${f.a}</div>
+      </div>
+    </div>`;
+    div.onclick = ()=>flipCard(div, i);
+    c.appendChild(div);
+  });
+}
+
+function flipCard(el, i) {
+  el.classList.toggle('flipped');
+  if(el.classList.contains('flipped')) state.flashFlipped.add(i);
+  else state.flashFlipped.delete(i);
+  saveState(); updateStats();
+}
+
+function resetFlash() {
+  state.flashFlipped=new Set(); saveState(); buildFlash(); updateStats();
+}
+
+// ============================================================
+// CASES
+// ============================================================
+function buildCases() {
+  const c = document.getElementById('cases-container');
+  c.innerHTML = casesData.map((cas,ci)=>`
+    <div class="case-card">
+      <div class="case-header" onclick="toggleCase(${ci})">
+        <div>
+          <div class="case-title">📋 ${cas.title}</div>
+          <div class="case-tag" style="margin-top:4px"><span class="tag tag-cerebrum">${cas.tag}</span></div>
+        </div>
+        <span id="case-arrow${ci}" style="color:var(--text3);font-size:18px;">▼</span>
+      </div>
+      <div class="case-body" id="case-body${ci}" style="display:none;">
+        <div class="vignette">🏥 ${cas.vignette}</div>
+        ${cas.questions.map((q,qi)=>`
+          <div class="case-q">
+            <div class="case-q-text">${q.q}</div>
+            <button class="reveal-btn" onclick="revealCaseAns(${ci},${qi})">🔍 Reveal Answer</button>
+            <div class="case-answer" id="ca${ci}_${qi}">✅ ${q.a}</div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function toggleCase(i) {
+  const b = document.getElementById('case-body'+i);
+  const a = document.getElementById('case-arrow'+i);
+  const open = b.style.display!=='none';
+  b.style.display = open?'none':'block';
+  a.textContent = open?'▼':'▲';
+}
+
+function revealCaseAns(ci,qi) {
+  document.getElementById('ca'+ci+'_'+qi).classList.toggle('show');
+}
+
+// ============================================================
+// ANATOMY
+// ============================================================
+function buildAnat() {
+  const c = document.getElementById('anat-container');
+  c.innerHTML = anatData.map((a,i)=>`
+    <div class="anat-item" id="anat${i}" onclick="toggleAnat(${i})">
+      <div style="font-size:22px;margin-bottom:6px;">${a.icon}</div>
+      <h4>${a.title}</h4>
+      <div class="anat-sub">${a.sub}</div>
+      <div class="anat-detail">${a.detail}</div>
+    </div>`).join('');
+}
+
+function toggleAnat(i) {
+  document.getElementById('anat'+i).classList.toggle('open');
+}
+
+// ============================================================
+// MNEMONICS
+// ============================================================
+function buildMnem() {
+  const c = document.getElementById('mnem-container');
+  c.innerHTML = mnemonics.map(m=>`
+    <div class="mnem-card">
+      <div class="mnem-title">${m.title}</div>
+      <div class="mnem-stands">For: ${m.stands}</div>
+      ${m.letters.map(l=>`
+        <div class="mnem-letter">
+          <div class="mnem-l">${l.l}</div>
+          <div class="mnem-meaning"><strong>${l.strong}</strong> <span>${l.rest}</span></div>
+        </div>`).join('')}
+      <div style="margin-top:14px;padding:10px 14px;background:rgba(245,200,66,0.06);border-radius:8px;font-size:13px;color:var(--gold);">💡 ${m.tip}</div>
+    </div>`).join('');
+}
+
+// ============================================================
+// VIVA
+// ============================================================
+function buildViva() {
+  const c = document.getElementById('viva-container');
+  c.innerHTML = vivaData.map((v,i)=>`
+    <div class="case-card" style="margin-bottom:14px;">
+      <div class="case-header" onclick="toggleViva(${i})">
+        <div class="case-title" style="font-size:14px;">V${i+1}: ${v.q}</div>
+        <span id="viva-arr${i}" style="color:var(--text3);">▼</span>
+      </div>
+      <div id="viva-body${i}" style="display:none;padding:16px 24px;">
+        <p style="font-size:13px;color:var(--text2);line-height:1.7;">✅ ${v.a}</p>
+      </div>
+    </div>`).join('');
+}
+
+function toggleViva(i) {
+  const b = document.getElementById('viva-body'+i);
+  const a = document.getElementById('viva-arr'+i);
+  const open = b.style.display!=='none';
+  b.style.display = open?'none':'block';
+  a.textContent = open?'▼':'▲';
+}
+
+// ============================================================
+// SEARCH
+// ============================================================
+const searchIndex = [
+  ...quizData.map((q,i)=>({type:'Quiz Q'+( i+1), text:q.q+' '+q.opts.join(' ')+' '+q.exp})),
+  ...flashData.map((f,i)=>({type:'Flashcard '+(i+1), text:f.q+' '+f.a})),
+  ...casesData.flatMap(c=>[{type:'Case: '+c.title, text:c.vignette+' '+c.questions.map(q=>q.q+' '+q.a).join(' ')}]),
+  ...anatData.map(a=>({type:'Anatomy: '+a.title, text:a.title+' '+a.sub+' '+a.detail})),
+  ...mnemonics.map(m=>({type:'Mnemonic: '+m.title, text:m.title+' '+m.stands+' '+m.letters.map(l=>l.strong+' '+l.rest).join(' ')+' '+m.tip})),
+  ...vivaData.map((v,i)=>({type:'Viva V'+(i+1), text:v.q+' '+v.a}))
+];
+
+function handleSearch(val) {
+  const el = document.getElementById('search-results');
+  if(!val || val.length<2) { el.classList.remove('show'); return; }
+  const q = val.toLowerCase();
+  const hits = searchIndex.filter(s=>s.text.toLowerCase().includes(q)).slice(0,8);
+  if(!hits.length) { el.innerHTML='<div class="no-results">No results found for "'+val+'"</div>'; el.classList.add('show'); return; }
+  el.innerHTML = '<div style="padding:10px 18px;font-size:11px;color:var(--text3);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:0.08em;">Search Results</div>'+
+    hits.map(h=>{
+      const idx = h.text.toLowerCase().indexOf(q);
+      const snippet = h.text.substring(Math.max(0,idx-30), idx+80).replace(new RegExp(val,'gi'), m=>'<strong>'+m+'</strong>');
+      return `<div class="search-result-item"><strong>${h.type}</strong><p>…${snippet}…</p></div>`;
+    }).join('');
+  el.classList.add('show');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+buildQuiz();
+buildFlash();
+buildCases();
+buildAnat();
+buildMnem();
+buildViva();
+updateStats();
+
+// Restore last tab
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabIds = ['overview','quiz','flashcards','cases','anatomy','diagnosis','treatment','mnemonics'];
+const lastIdx = tabIds.indexOf(state.tabHistory);
+if(lastIdx>0) { switchTab(state.tabHistory, tabBtns[lastIdx]); }
+</script>
+</body>
+</html>

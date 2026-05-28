@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anti-Epileptic Drugs — Interactive Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08090d;
+  --surface: #0f1117;
+  --surface2: #161821;
+  --surface3: #1d1f2e;
+  --border: rgba(255,255,255,0.07);
+  --border-bright: rgba(255,255,255,0.14);
+  --text: #e8eaf0;
+  --text-dim: #8b8fa8;
+  --text-dimmer: #555870;
+  --accent: #6c63ff;
+  --accent2: #ff6584;
+  --accent3: #43e97b;
+  --accent4: #f7971e;
+  --accent5: #38f9d7;
+  --gold: #ffd700;
+  --red: #ff4757;
+  --green: #2ed573;
+  --blue: #1e90ff;
+  --purple: #a29bfe;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  --shadow-lg: 0 20px 60px rgba(0,0,0,0.6);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ANIMATED BACKGROUND */
+.bg-canvas {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+}
+.orb {
+  position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.12; animation: drift 18s infinite ease-in-out;
+}
+.orb1 { width: 600px; height: 600px; background: var(--accent); top: -200px; left: -150px; animation-delay: 0s; }
+.orb2 { width: 400px; height: 400px; background: var(--accent2); bottom: -100px; right: -100px; animation-delay: -6s; }
+.orb3 { width: 300px; height: 300px; background: var(--accent3); top: 50%; left: 50%; animation-delay: -12s; }
+@keyframes drift {
+  0%,100% { transform: translate(0,0) scale(1); }
+  33% { transform: translate(40px,-30px) scale(1.05); }
+  66% { transform: translate(-30px,50px) scale(0.95); }
+}
+
+/* LAYOUT */
+.app { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 16px 60px; }
+
+/* HERO */
+.hero {
+  padding: 48px 0 32px;
+  text-align: center;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(108,99,255,0.15); border: 1px solid rgba(108,99,255,0.3);
+  border-radius: 100px; padding: 6px 16px; font-size: 12px; color: var(--purple);
+  font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em; margin-bottom: 20px;
+}
+.hero h1 {
+  font-family: 'Syne', sans-serif; font-size: clamp(28px,5vw,56px); font-weight: 800;
+  line-height: 1.1; margin-bottom: 12px;
+  background: linear-gradient(135deg, #fff 0%, var(--purple) 50%, var(--accent5) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero p { color: var(--text-dim); font-size: 16px; max-width: 500px; margin: 0 auto 28px; }
+
+/* STATS BAR */
+.stats-bar {
+  display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 32px;
+}
+.stat-pill {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 100px;
+  padding: 8px 16px; display: flex; align-items: center; gap: 8px; font-size: 13px;
+}
+.stat-pill .dot { width: 8px; height: 8px; border-radius: 50%; }
+.dot-green { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.dot-gold { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+.dot-blue { background: var(--blue); box-shadow: 0 0 8px var(--blue); }
+.stat-val { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--text); }
+.stat-lbl { color: var(--text-dim); }
+
+/* SEARCH */
+.search-wrap { position: relative; max-width: 480px; margin: 0 auto 32px; }
+.search-wrap input {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border-bright);
+  border-radius: 100px; padding: 12px 20px 12px 48px; color: var(--text); font-size: 14px;
+  font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s;
+}
+.search-wrap input:focus { border-color: var(--accent); }
+.search-wrap input::placeholder { color: var(--text-dimmer); }
+.search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-dimmer); font-size: 16px; }
+
+/* TABS */
+.tabs {
+  display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 28px;
+}
+.tab-btn {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 100px;
+  padding: 8px 18px; font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer;
+  color: var(--text-dim); transition: all 0.2s; white-space: nowrap;
+}
+.tab-btn:hover { border-color: var(--border-bright); color: var(--text); }
+.tab-btn.active {
+  background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 500;
+  box-shadow: 0 4px 20px rgba(108,99,255,0.4);
+}
+
+/* PANEL */
+.panel { display: none; animation: fadeIn 0.3s ease; }
+.panel.active { display: block; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+/* CARDS */
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 24px; margin-bottom: 16px; transition: border-color 0.2s;
+}
+.card:hover { border-color: var(--border-bright); }
+.card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.card-icon { font-size: 22px; }
+.card-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; }
+.card-subtitle { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+/* GRID */
+.grid2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 16px; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 14px; }
+
+/* TAGS */
+.tag {
+  display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 11px;
+  font-family: 'JetBrains Mono', monospace; font-weight: 600; margin: 2px;
+}
+.tag-red { background: rgba(255,71,87,0.15); color: var(--red); border: 1px solid rgba(255,71,87,0.3); }
+.tag-green { background: rgba(46,213,115,0.12); color: var(--green); border: 1px solid rgba(46,213,115,0.3); }
+.tag-blue { background: rgba(30,144,255,0.12); color: var(--blue); border: 1px solid rgba(30,144,255,0.3); }
+.tag-purple { background: rgba(162,155,254,0.12); color: var(--purple); border: 1px solid rgba(162,155,254,0.3); }
+.tag-gold { background: rgba(255,215,0,0.12); color: var(--gold); border: 1px solid rgba(255,215,0,0.3); }
+.tag-cyan { background: rgba(56,249,215,0.12); color: var(--accent5); border: 1px solid rgba(56,249,215,0.3); }
+
+/* ==== OVERVIEW ==== */
+.overview-hero {
+  background: linear-gradient(135deg, rgba(108,99,255,0.12), rgba(56,249,215,0.06));
+  border: 1px solid rgba(108,99,255,0.25); border-radius: var(--radius);
+  padding: 28px; margin-bottom: 24px;
+}
+.overview-hero h2 { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; margin-bottom:10px; }
+.overview-hero p { color: var(--text-dim); line-height:1.7; font-size:15px; }
+
+.concept-card {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 20px; cursor:pointer; transition: all 0.2s; position:relative; overflow:hidden;
+}
+.concept-card::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+}
+.concept-card.c1::before { background: var(--accent); }
+.concept-card.c2::before { background: var(--accent2); }
+.concept-card.c3::before { background: var(--accent3); }
+.concept-card.c4::before { background: var(--accent4); }
+.concept-card.c5::before { background: var(--accent5); }
+.concept-card.c6::before { background: var(--purple); }
+.concept-card:hover { transform:translateY(-2px); box-shadow: var(--shadow); border-color: var(--border-bright); }
+.concept-card h3 { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; margin-bottom:8px; }
+.concept-card p { font-size:13px; color:var(--text-dim); line-height:1.6; }
+.concept-card .mech { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent5); margin-top:10px; }
+
+.doc-table { width:100%; border-collapse:collapse; font-size:13px; }
+.doc-table th {
+  background:var(--surface2); padding:10px 14px; text-align:left; font-family:'Syne',sans-serif;
+  font-size:12px; color:var(--text-dim); border-bottom:1px solid var(--border); letter-spacing:0.05em;
+}
+.doc-table td { padding:12px 14px; border-bottom:1px solid var(--border); line-height:1.5; }
+.doc-table tr:hover td { background:var(--surface2); }
+.doc-table td:first-child { font-weight:600; color:var(--text); }
+
+.flowchart { display:flex; flex-direction:column; gap:4px; }
+.flow-step {
+  background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm);
+  padding:12px 16px; display:flex; align-items:center; gap:12px; position:relative;
+}
+.flow-step .step-num {
+  width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-family:'Syne',sans-serif; font-weight:800; font-size:12px; flex-shrink:0;
+}
+.flow-step p { font-size:13px; line-height:1.5; }
+.flow-arrow { text-align:center; color:var(--text-dimmer); font-size:18px; }
+
+/* ==== QUIZ ==== */
+.quiz-header {
+  background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius);
+  padding:20px 24px; margin-bottom:20px;
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+}
+.quiz-score-display { display:flex; gap:20px; align-items:center; flex-wrap:wrap; }
+.score-item { text-align:center; }
+.score-item .val { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; }
+.score-item .lbl { font-size:11px; color:var(--text-dim); font-family:'JetBrains Mono',monospace; }
+.progress-bar-outer { background:var(--surface3); border-radius:100px; height:6px; flex:1; min-width:120px; }
+.progress-bar-inner { height:6px; border-radius:100px; background:linear-gradient(90deg,var(--accent),var(--accent5)); transition:width 0.4s; }
+
+.q-card {
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:24px; margin-bottom:14px;
+}
+.q-num { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-dimmer); margin-bottom:10px; }
+.q-text { font-size:15px; line-height:1.7; margin-bottom:18px; font-weight:500; }
+.options { display:flex; flex-direction:column; gap:8px; }
+.opt-btn {
+  background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm);
+  padding:12px 16px; text-align:left; cursor:pointer; font-size:13px; color:var(--text);
+  font-family:'DM Sans',sans-serif; transition:all 0.15s; display:flex; align-items:center; gap:10px;
+}
+.opt-btn:hover:not(:disabled) { border-color:var(--accent); background:rgba(108,99,255,0.08); }
+.opt-btn .opt-key { width:22px; height:22px; border-radius:6px; background:var(--surface3); display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; flex-shrink:0; }
+.opt-btn.correct { border-color:var(--green); background:rgba(46,213,115,0.1); animation:pulse 0.4s ease; }
+.opt-btn.wrong { border-color:var(--red); background:rgba(255,71,87,0.1); animation:shake 0.3s ease; }
+.opt-btn:disabled { cursor:default; }
+@keyframes pulse { 0%{transform:scale(1)} 50%{transform:scale(1.02)} 100%{transform:scale(1)} }
+@keyframes shake { 0%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} 100%{transform:translateX(0)} }
+
+.explanation {
+  margin-top:16px; padding:14px 16px; background:rgba(108,99,255,0.06);
+  border:1px solid rgba(108,99,255,0.2); border-radius:var(--radius-sm);
+  font-size:13px; line-height:1.7; display:none;
+}
+.explanation.show { display:block; animation:fadeIn 0.2s ease; }
+.explanation strong { color:var(--accent5); }
+
+/* ==== FLASHCARDS ==== */
+.fc-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+.fc-card {
+  height:180px; cursor:pointer; perspective:1000px;
+}
+.fc-inner {
+  width:100%; height:100%; position:relative; transform-style:preserve-3d; transition:transform 0.5s ease;
+}
+.fc-card.flipped .fc-inner { transform:rotateY(180deg); }
+.fc-front, .fc-back {
+  position:absolute; inset:0; backface-visibility:hidden; border-radius:var(--radius);
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  padding:20px; text-align:center;
+}
+.fc-front {
+  background:var(--surface2); border:1px solid var(--border);
+}
+.fc-front .fc-q { font-size:13px; line-height:1.6; font-weight:500; }
+.fc-front .fc-hint { font-size:11px; color:var(--text-dimmer); margin-top:10px; font-family:'JetBrains Mono',monospace; }
+.fc-back {
+  background:linear-gradient(135deg, rgba(108,99,255,0.18), rgba(56,249,215,0.08));
+  border:1px solid rgba(108,99,255,0.3); transform:rotateY(180deg);
+}
+.fc-back .fc-a { font-size:13px; line-height:1.6; color:var(--text); }
+.fc-emoji { font-size:28px; margin-bottom:8px; }
+
+/* ==== CLINICAL CASES ==== */
+.case-card {
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:24px; margin-bottom:20px; overflow:hidden;
+}
+.case-header { display:flex; align-items:flex-start; gap:14px; margin-bottom:16px; }
+.case-num-badge {
+  width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+  font-family:'Syne',sans-serif; font-weight:800; font-size:16px; flex-shrink:0;
+}
+.case-title { font-family:'Syne',sans-serif; font-size:17px; font-weight:700; margin-bottom:4px; }
+.case-vignette {
+  background:var(--surface2); border-left:3px solid var(--accent); border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+  padding:14px 16px; margin-bottom:16px; font-size:14px; line-height:1.8; color:var(--text-dim);
+  font-style:italic;
+}
+.case-questions { display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+.case-q { font-size:13px; font-weight:500; padding:8px 0; border-bottom:1px solid var(--border); display:flex; gap:8px; }
+.case-q span { color:var(--accent4); font-family:'JetBrains Mono',monospace; font-size:11px; flex-shrink:0; margin-top:1px; }
+.reveal-btn {
+  background:transparent; border:1px solid var(--accent); color:var(--accent);
+  border-radius:var(--radius-sm); padding:10px 20px; cursor:pointer; font-size:13px;
+  font-family:'DM Sans',sans-serif; transition:all 0.2s;
+}
+.reveal-btn:hover { background:var(--accent); color:#fff; }
+.case-answer {
+  margin-top:14px; display:none; animation:fadeIn 0.3s ease;
+}
+.case-answer.show { display:block; }
+.case-answer-step {
+  display:flex; gap:12px; margin-bottom:12px; padding:12px; background:var(--surface2);
+  border-radius:var(--radius-sm); font-size:13px; line-height:1.6;
+}
+.step-label { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--accent5); white-space:nowrap; font-weight:600; margin-top:2px; }
+
+/* ==== PATHOPHYSIOLOGY ==== */
+.path-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin-bottom:28px; }
+.path-item {
+  background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius);
+  padding:18px; cursor:pointer; transition:all 0.2s;
+}
+.path-item:hover { border-color:var(--border-bright); transform:translateY(-2px); }
+.path-item h3 { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+.path-item p { font-size:12px; color:var(--text-dim); line-height:1.6; }
+.path-item .path-detail { display:none; margin-top:10px; padding-top:10px; border-top:1px solid var(--border); font-size:12px; color:var(--text-dim); line-height:1.6; }
+.path-item.open .path-detail { display:block; animation:fadeIn 0.2s; }
+.path-item.open { border-color:var(--accent); }
+
+/* ==== DIAGNOSIS ==== */
+.diag-algo {
+  background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius);
+  padding:20px; margin-bottom:20px;
+}
+.algo-step {
+  display:flex; align-items:center; gap:12px; padding:12px; border-radius:var(--radius-sm);
+  margin-bottom:8px; border:1px solid var(--border);
+}
+.algo-step-num {
+  width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-family:'Syne',sans-serif; font-weight:800; font-size:13px; flex-shrink:0;
+}
+.algo-step p { font-size:13px; line-height:1.5; }
+.algo-arrow { text-align:center; color:var(--text-dimmer); margin:2px 0; font-size:14px; }
+
+.contrast-table-wrap { overflow-x:auto; border-radius:var(--radius); border:1px solid var(--border); }
+.contrast-table { width:100%; border-collapse:collapse; font-size:13px; }
+.contrast-table th { background:var(--surface2); padding:12px 14px; text-align:left; font-family:'Syne',sans-serif; font-size:11px; color:var(--text-dim); border-bottom:1px solid var(--border); letter-spacing:0.05em; white-space:nowrap; }
+.contrast-table td { padding:11px 14px; border-bottom:1px solid var(--border); vertical-align:top; line-height:1.6; }
+.contrast-table tr:last-child td { border-bottom:none; }
+.contrast-table tr:hover td { background:rgba(255,255,255,0.02); }
+.contrast-table td:first-child { font-weight:600; }
+
+/* ==== TREATMENT ==== */
+.treatment-tier {
+  margin-bottom:20px; border-radius:var(--radius); overflow:hidden;
+  border:1px solid var(--border);
+}
+.treatment-tier-header {
+  padding:14px 20px; display:flex; align-items:center; gap:10px; font-family:'Syne',sans-serif; font-weight:700; font-size:15px;
+}
+.treatment-tier-body { padding:16px 20px; }
+.drug-row {
+  display:flex; flex-wrap:wrap; align-items:flex-start; gap:10px; padding:12px 0;
+  border-bottom:1px solid var(--border);
+}
+.drug-row:last-child { border-bottom:none; }
+.drug-name { font-weight:700; font-size:14px; min-width:140px; }
+.drug-info { flex:1; min-width:200px; }
+.drug-mech { font-size:12px; color:var(--text-dim); margin-bottom:4px; font-family:'JetBrains Mono',monospace; }
+.drug-use { font-size:13px; line-height:1.5; }
+.drug-side { font-size:12px; color:var(--accent2); margin-top:4px; }
+
+/* ==== MNEMONICS ==== */
+.mnemonic-card {
+  background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius);
+  padding:22px; margin-bottom:16px; transition:border-color 0.2s;
+}
+.mnemonic-card:hover { border-color:var(--border-bright); }
+.mnemonic-title { font-family:'Syne',sans-serif; font-size:16px; font-weight:800; margin-bottom:6px; }
+.mnemonic-desc { font-size:12px; color:var(--text-dim); margin-bottom:14px; }
+.mnemonic-word {
+  display:inline-flex; align-items:baseline; gap:2px; margin:4px;
+  background:var(--surface3); border-radius:8px; padding:6px 12px; font-size:14px;
+}
+.mnemonic-word .letter { font-family:'Syne',sans-serif; font-weight:800; font-size:18px; color:var(--accent); margin-right:4px; }
+.mnemonic-list { list-style:none; margin-top:12px; }
+.mnemonic-list li { padding:6px 0; font-size:13px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+.mnemonic-list li:last-child { border-bottom:none; }
+.mnemonic-list li::before { content:'→'; color:var(--accent5); font-size:12px; }
+
+/* ==== VIVA ==== */
+.viva-card {
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:0; margin-bottom:10px; overflow:hidden; transition:border-color 0.2s;
+}
+.viva-card.open { border-color:rgba(108,99,255,0.3); }
+.viva-q {
+  padding:16px 20px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:12px;
+  font-size:14px; font-weight:500; user-select:none;
+}
+.viva-q:hover { background:rgba(255,255,255,0.02); }
+.viva-toggle { font-size:18px; color:var(--text-dimmer); transition:transform 0.25s; flex-shrink:0; }
+.viva-card.open .viva-toggle { transform:rotate(45deg); color:var(--accent); }
+.viva-a {
+  display:none; padding:0 20px 16px; font-size:13px; line-height:1.8;
+  color:var(--text-dim); border-top:1px solid var(--border);
+  background:rgba(108,99,255,0.03);
+}
+.viva-a.show { display:block; animation:fadeIn 0.2s; padding-top:14px; }
+.viva-a strong { color:var(--text); }
+.viva-badge { font-family:'JetBrains Mono',monospace; font-size:10px; padding:2px 8px; border-radius:100px; margin-left:8px; }
+
+/* SECTION TITLE */
+.section-title {
+  font-family:'Syne',sans-serif; font-size:20px; font-weight:800;
+  margin: 24px 0 14px; display:flex; align-items:center; gap:10px;
+}
+.section-title .line { flex:1; height:1px; background:var(--border); }
+
+/* SEARCH HIGHLIGHT */
+.hl { background:rgba(255,215,0,0.25); border-radius:2px; color:var(--gold); }
+
+/* RESPONSIVE */
+@media(max-width:600px) {
+  .fc-grid { grid-template-columns:1fr 1fr; }
+  .quiz-score-display { gap:12px; }
+  .doc-table { font-size:12px; }
+}
+
+.empty-search { text-align:center; padding:40px; color:var(--text-dimmer); font-size:14px; display:none; }
+
+/* SCROLL BAR */
+::-webkit-scrollbar { width:6px; height:6px; }
+::-webkit-scrollbar-track { background:var(--surface); }
+::-webkit-scrollbar-thumb { background:var(--surface3); border-radius:3px; }
+</style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<div class="app">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">⚡ Pharmacology · Team 63rd · Mansoura University</div>
+    <h1>Anti-Epileptic Drugs</h1>
+    <p>Seizure Classification · Drug Mechanisms · Clinical Cases · Exam Mastery</p>
+    <div class="stats-bar">
+      <div class="stat-pill"><div class="dot dot-green"></div><span class="stat-val" id="stat-score">0</span><span class="stat-lbl">Quiz Score</span></div>
+      <div class="stat-pill"><div class="dot dot-gold"></div><span class="stat-val" id="stat-streak">0🔥</span><span class="stat-lbl">Streak</span></div>
+      <div class="stat-pill"><div class="dot dot-blue"></div><span class="stat-val" id="stat-pct">0%</span><span class="stat-lbl">Progress</span></div>
+    </div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="globalSearch" placeholder="Search drugs, mechanisms, conditions..." oninput="doSearch(this.value)">
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('overview',this)">🧠 Overview</button>
+    <button class="tab-btn" onclick="showTab('quiz',this)">🎯 Quiz</button>
+    <button class="tab-btn" onclick="showTab('flashcards',this)">🃏 Flashcards</button>
+    <button class="tab-btn" onclick="showTab('cases',this)">🏥 Clinical Cases</button>
+    <button class="tab-btn" onclick="showTab('patho',this)">⚡ Pathophysiology</button>
+    <button class="tab-btn" onclick="showTab('diagnosis',this)">🔬 Diagnosis</button>
+    <button class="tab-btn" onclick="showTab('treatment',this)">💊 Treatment</button>
+    <button class="tab-btn" onclick="showTab('mnemonics',this)">🔑 Mnemonics</button>
+    <button class="tab-btn" onclick="showTab('viva',this)">🗣️ Viva</button>
+  </div>
+
+  <!-- ===== OVERVIEW ===== -->
+  <div class="panel active" id="panel-overview">
+    <div class="overview-hero">
+      <h2>⚡ Epilepsy & Anti-Epileptic Pharmacology</h2>
+      <p>Epilepsy is a brain disorder with a <strong>continuous predisposition</strong> to generate epileptic seizures. It is NOT a single disease entity — different epilepsies require different drugs. A seizure is a <strong>sudden, single episodic electrical discharge</strong> in cerebral neurons (measured by EEG), which may cause convulsions (violent, involuntary contraction of voluntary muscles).</p>
+    </div>
+
+    <div class="section-title">🧬 Core Concepts <div class="line"></div></div>
+    <div class="grid2" id="conceptGrid">
+      <div class="concept-card c1">
+        <h3>🔴 Status Epilepticus</h3>
+        <p>Prolonged seizures without recovery of full consciousness between episodes. Life-threatening emergency.</p>
+        <div class="mech">→ Emergency: IV Diazepam/Lorazepam first</div>
+        <div style="margin-top:8px"><span class="tag tag-red">⚠️ EXAM</span><span class="tag tag-gold">High-Yield</span></div>
+      </div>
+      <div class="concept-card c2">
+        <h3>🔵 Focal Seizures</h3>
+        <p><strong>Simple:</strong> Localized, no LOC. <strong>Complex:</strong> Spreads, LOC. DOC: Carbamazepine.</p>
+        <div class="mech">→ Na+ channel blocker</div>
+        <div style="margin-top:8px"><span class="tag tag-blue">DOC: CBZ</span></div>
+      </div>
+      <div class="concept-card c3">
+        <h3>🟡 Generalized Absence</h3>
+        <p>Blank staring 10–14 sec, up to 100×/day. No loss of posture. T-type Ca²⁺ channel driven.</p>
+        <div class="mech">→ Ethosuximide (T-type Ca²⁺ block)</div>
+        <div style="margin-top:8px"><span class="tag tag-green">DOC: Ethosuximide</span><span class="tag tag-gold">⚠️ EXAM</span></div>
+      </div>
+      <div class="concept-card c4">
+        <h3>🟠 Generalized Tonic-Clonic</h3>
+        <p>Tonic rigidity → Clonic jerking → Post-ictal stupor. Bilateral synchronous discharge.</p>
+        <div class="mech">→ Valproic Acid (broad-spectrum)</div>
+        <div style="margin-top:8px"><span class="tag tag-gold">DOC: Valproate</span></div>
+      </div>
+      <div class="concept-card c5">
+        <h3>⚡ Myoclonic Seizures</h3>
+        <p>Brief, electric shock-like muscle jerks of one or more limbs, singly or in bursts.</p>
+        <div class="mech">→ Valproate / Levetiracetam</div>
+        <div style="margin-top:8px"><span class="tag tag-cyan">Levetiracetam</span></div>
+      </div>
+      <div class="concept-card c6">
+        <h3>🟣 Reflex Seizures</h3>
+        <p>Triggered by specific stimuli: flashing lights, hyperventilation. Avoid precipitating factors.</p>
+        <div class="mech">→ Avoid triggers; AED prophylaxis</div>
+        <div style="margin-top:8px"><span class="tag tag-purple">Trigger-Induced</span></div>
+      </div>
+    </div>
+
+    <div class="section-title">📊 Drug of Choice Summary <div class="line"></div></div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="doc-table">
+        <thead><tr>
+          <th>Seizure Type</th><th>Drug of Choice (DOC)</th><th>Mechanism</th><th>Key Contraindication</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Generalized Tonic-Clonic</td><td><span class="tag tag-gold">Valproic Acid</span></td><td>Na⁺ block + T-Ca²⁺ block + ↑GABA</td><td>Children &lt;2 yrs, Pregnancy (teratogenic)</td></tr>
+          <tr><td>Generalized Absence</td><td><span class="tag tag-green">Ethosuximide</span></td><td>T-type Ca²⁺ channel block</td><td>—</td></tr>
+          <tr><td>Focal (Partial)</td><td><span class="tag tag-blue">Carbamazepine</span></td><td>Na⁺ channel block</td><td>Absence epilepsy (contraindicated)</td></tr>
+          <tr><td>Status Epilepticus</td><td><span class="tag tag-red">IV Diazepam</span></td><td>GABA-A allosteric → Cl⁻ influx</td><td>Additive with CNS depressants</td></tr>
+          <tr><td>Myoclonic</td><td><span class="tag tag-cyan">Valproate / Levetiracetam</span></td><td>Broad / SV2A block</td><td>—</td></tr>
+          <tr><td>Adjuvant (Focal)</td><td><span class="tag tag-purple">Gabapentin / Pregabalin</span></td><td>↑ GABA release; α2δ Ca²⁺ block</td><td>Not monotherapy</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title">🌊 Status Epilepticus Treatment Flowchart <div class="line"></div></div>
+    <div class="flowchart">
+      <div class="flow-step" style="border-color:rgba(255,71,87,0.4);background:rgba(255,71,87,0.05)">
+        <div class="step-num" style="background:rgba(255,71,87,0.2);color:var(--red)">1</div>
+        <p><strong>IV Diazepam / Lorazepam</strong> (or buccal Midazolam in children / rectal)<br><span style="font-size:12px;color:var(--text-dim)">Augments GABA-A → ↑ Cl⁻ influx → hyperpolarization → seizure termination</span></p>
+      </div>
+      <div class="flow-arrow">↓ if unresolved</div>
+      <div class="flow-step" style="border-color:rgba(30,144,255,0.4);background:rgba(30,144,255,0.05)">
+        <div class="step-num" style="background:rgba(30,144,255,0.2);color:var(--blue)">2</div>
+        <p><strong>IV Fosphenytoin</strong><br><span style="font-size:12px;color:var(--text-dim)">Blocks Na⁺ channels → reduces high-frequency neuronal firing</span></p>
+      </div>
+      <div class="flow-arrow">↓ if unresolved</div>
+      <div class="flow-step" style="border-color:rgba(162,155,254,0.4);background:rgba(162,155,254,0.05)">
+        <div class="step-num" style="background:rgba(162,155,254,0.2);color:var(--purple)">3</div>
+        <p><strong>IV Phenobarbitone</strong><br><span style="font-size:12px;color:var(--text-dim)">Non-selective GABA stimulation → broad CNS depression</span></p>
+      </div>
+      <div class="flow-arrow">↓ severe/refractory</div>
+      <div class="flow-step" style="border-color:rgba(255,215,0,0.4);background:rgba(255,215,0,0.05)">
+        <div class="step-num" style="background:rgba(255,215,0,0.2);color:var(--gold)">4</div>
+        <p><strong>General Anesthesia (Thiopental) + Artificial Respiration</strong><br><span style="font-size:12px;color:var(--text-dim)">ICU management for refractory status epilepticus</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== QUIZ ===== -->
+  <div class="panel" id="panel-quiz">
+    <div class="quiz-header">
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:18px;margin-bottom:4px">🎯 Quiz Mode</div>
+        <div style="font-size:12px;color:var(--text-dim)">25 questions · Immediate feedback</div>
+      </div>
+      <div class="quiz-score-display">
+        <div class="score-item"><div class="val" id="q-correct" style="color:var(--green)">0</div><div class="lbl">CORRECT</div></div>
+        <div class="score-item"><div class="val" id="q-wrong" style="color:var(--red)">0</div><div class="lbl">WRONG</div></div>
+        <div class="score-item"><div class="val" id="q-streak" style="color:var(--gold)">0🔥</div><div class="lbl">STREAK</div></div>
+        <div style="display:flex;flex-direction:column;gap:4px;min-width:150px;">
+          <div style="font-size:11px;color:var(--text-dim);font-family:'JetBrains Mono',monospace" id="q-pct-label">0 / 25</div>
+          <div class="progress-bar-outer"><div class="progress-bar-inner" id="q-progress" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+    <div id="quizContainer"></div>
+  </div>
+
+  <!-- ===== FLASHCARDS ===== -->
+  <div class="panel" id="panel-flashcards">
+    <div class="card" style="margin-bottom:20px;text-align:center;background:rgba(108,99,255,0.06);border-color:rgba(108,99,255,0.2)">
+      <div style="font-size:14px;color:var(--text-dim)">🃏 Click any card to flip it · <span style="color:var(--accent)">24 cards</span> covering all key concepts</div>
+    </div>
+    <div class="fc-grid" id="flashcardGrid"></div>
+  </div>
+
+  <!-- ===== CLINICAL CASES ===== -->
+  <div class="panel" id="panel-cases">
+    <div id="casesContainer"></div>
+  </div>
+
+  <!-- ===== PATHOPHYSIOLOGY ===== -->
+  <div class="panel" id="panel-patho">
+    <div class="section-title">⚡ Seizure Mechanisms — Click to Expand <div class="line"></div></div>
+    <div class="path-grid" id="pathoGrid"></div>
+
+    <div class="section-title">🔄 Glutamatergic Synapse — AED Targets <div class="line"></div></div>
+    <div class="card">
+      <div class="flowchart">
+        <div class="flow-step" style="border-color:rgba(247,151,30,0.4);background:rgba(247,151,30,0.05)">
+          <div class="step-num" style="background:rgba(247,151,30,0.2);color:var(--accent4)">→</div>
+          <p><strong>Action Potential</strong> arrives at presynaptic terminal → Depolarization opens voltage-gated Ca²⁺ channels → <strong>Glutamate vesicle fusion & release</strong></p>
+        </div>
+        <div class="flow-arrow">↓ Points of intervention:</div>
+        <div class="flow-step" style="border-color:rgba(56,249,215,0.3);background:rgba(56,249,215,0.05)">
+          <div class="step-num" style="background:rgba(56,249,215,0.2);color:var(--accent5)" style="font-size:10px">A</div>
+          <p>🔵 <strong>Levetiracetam</strong> binds <strong>SV2A</strong> protein → Blocks vesicular glutamate release presynaptically</p>
+        </div>
+        <div class="flow-step" style="border-color:rgba(162,155,254,0.3);background:rgba(162,155,254,0.05)">
+          <div class="step-num" style="background:rgba(162,155,254,0.2);color:var(--purple)" style="font-size:10px">B</div>
+          <p>🟣 <strong>Gabapentin / Pregabalin</strong> block α2δ subunit of presynaptic L-type Ca²⁺ channel → ↓ Ca²⁺ influx → ↓ glutamate release</p>
+        </div>
+        <div class="flow-step" style="border-color:rgba(255,101,132,0.3);background:rgba(255,101,132,0.05)">
+          <div class="step-num" style="background:rgba(255,101,132,0.2);color:var(--accent2)" style="font-size:10px">C</div>
+          <p>🔴 <strong>Topiramate / Lamotrigine / Felbamate</strong> block postsynaptic AMPA / Kainate / NMDA receptors → ↓ Excitatory postsynaptic effect</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">📊 Seizure Types Comparison <div class="line"></div></div>
+    <div class="contrast-table-wrap">
+      <table class="contrast-table">
+        <thead><tr><th>Feature</th><th>Focal Seizures</th><th>Generalized Tonic-Clonic</th><th>Absence Seizures</th></tr></thead>
+        <tbody>
+          <tr><td>Definition</td><td>Small number of cortical neurons fire locally</td><td>Massive body jerking; tonic rigidity then clonic</td><td>Sudden altered consciousness 10–14 sec</td></tr>
+          <tr><td>Consciousness</td><td>Simple: intact; Complex: lost</td><td>Lost throughout; post-ictal stupor</td><td>Transiently lost; resumes immediately</td></tr>
+          <tr><td>EEG Pattern</td><td>Focal (e.g., temporal lobe spikes)</td><td>Bilateral synchronous sharp waves</td><td>Symmetric 3 Hz spike-and-wave</td></tr>
+          <tr><td>Mechanism</td><td>Focal cortical spread</td><td>Bilateral hemispheric discharge</td><td>T-type Ca²⁺ thalamic pacemaker</td></tr>
+          <tr><td>DOC</td><td>Carbamazepine</td><td>Valproic Acid</td><td>Ethosuximide</td></tr>
+          <tr><td>Contraindicated Drug</td><td>—</td><td>—</td><td>Carbamazepine / Phenobarbitone</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== DIAGNOSIS ===== -->
+  <div class="panel" id="panel-diagnosis">
+    <div class="section-title">🔬 Diagnostic Algorithm <div class="line"></div></div>
+    <div class="diag-algo">
+      <div class="algo-step" style="border-color:rgba(255,71,87,0.3);background:rgba(255,71,87,0.04)"><div class="algo-step-num" style="background:rgba(255,71,87,0.2);color:var(--red)">1</div><p><strong>Clinical History</strong> — Characterize seizure: onset, spread, LOC, duration, postictal state. Is it focal or generalized?</p></div>
+      <div class="algo-arrow">↓</div>
+      <div class="algo-step" style="border-color:rgba(247,151,30,0.3);background:rgba(247,151,30,0.04)"><div class="algo-step-num" style="background:rgba(247,151,30,0.2);color:var(--accent4)">2</div><p><strong>EEG (Electroencephalogram)</strong> — Gold standard. Documents electrical discharges. Identifies pattern (3 Hz spike-wave = absence; focal spikes = partial; generalized = GTC).</p></div>
+      <div class="algo-arrow">↓</div>
+      <div class="algo-step" style="border-color:rgba(30,144,255,0.3);background:rgba(30,144,255,0.04)"><div class="algo-step-num" style="background:rgba(30,144,255,0.2);color:var(--blue)">3</div><p><strong>Rule out Provoked Causes</strong> — Acute brain infections (meningitis), trauma, metabolic (hypoglycemia, hyponatremia), fever, toxins. These are not epilepsy.</p></div>
+      <div class="algo-arrow">↓</div>
+      <div class="algo-step" style="border-color:rgba(108,99,255,0.3);background:rgba(108,99,255,0.04)"><div class="algo-step-num" style="background:rgba(108,99,255,0.2);color:var(--accent)">4</div><p><strong>Classify Epilepsy Type</strong> — Use seizure semiology + EEG pattern to assign type (focal, GTC, absence, myoclonic, etc.).</p></div>
+      <div class="algo-arrow">↓</div>
+      <div class="algo-step" style="border-color:rgba(46,213,115,0.3);background:rgba(46,213,115,0.04)"><div class="algo-step-num" style="background:rgba(46,213,115,0.2);color:var(--green)">5</div><p><strong>Select Appropriate AED</strong> — Match drug to seizure type. Monotherapy first. Adjust by plasma concentration and response.</p></div>
+      <div class="algo-arrow">↓</div>
+      <div class="algo-step" style="border-color:rgba(56,249,215,0.3);background:rgba(56,249,215,0.04)"><div class="algo-step-num" style="background:rgba(56,249,215,0.2);color:var(--accent5)">6</div><p><strong>Monitor & Adjust</strong> — Plasma drug levels, liver enzymes (valproate, carbamazepine), CBC (phenytoin). Avoid drug interactions.</p></div>
+    </div>
+
+    <div class="section-title">⚡ Drug Mechanism Comparison <div class="line"></div></div>
+    <div class="contrast-table-wrap">
+      <table class="contrast-table">
+        <thead><tr><th>Drug</th><th>Na⁺ Block</th><th>T-Ca²⁺ Block</th><th>GABA ↑</th><th>Glu Block</th><th>SV2A</th><th>CYP450</th></tr></thead>
+        <tbody>
+          <tr><td>Carbamazepine</td><td>✅ Primary</td><td>—</td><td>—</td><td>—</td><td>—</td><td>Induces (auto)</td></tr>
+          <tr><td>Phenytoin</td><td>✅ Primary</td><td>—</td><td>—</td><td>—</td><td>—</td><td>Induces</td></tr>
+          <tr><td>Valproic Acid</td><td>✅</td><td>✅ Partial</td><td>✅ ↑ Synthesis</td><td>—</td><td>—</td><td>Inhibits</td></tr>
+          <tr><td>Ethosuximide</td><td>—</td><td>✅ Primary</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>Lamotrigine</td><td>✅</td><td>✅</td><td>—</td><td>✅ (AMPA/NMDA)</td><td>—</td><td>—</td></tr>
+          <tr><td>Topiramate</td><td>✅</td><td>—</td><td>—</td><td>✅ (AMPA/Kainate)</td><td>—</td><td>—</td></tr>
+          <tr><td>Levetiracetam</td><td>—</td><td>—</td><td>—</td><td>—</td><td>✅ Primary</td><td>None (safe)</td></tr>
+          <tr><td>Benzodiazepines</td><td>—</td><td>—</td><td>✅ (GABA-A allosteric)</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>Phenobarbitone</td><td>—</td><td>—</td><td>✅ Non-selective</td><td>—</td><td>—</td><td>Induces</td></tr>
+          <tr><td>Gabapentin</td><td>—</td><td>—</td><td>✅ ↑ Release</td><td>—</td><td>—</td><td>None</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== TREATMENT ===== -->
+  <div class="panel" id="panel-treatment">
+    <div class="treatment-tier" style="border-color:rgba(255,71,87,0.3)">
+      <div class="treatment-tier-header" style="background:rgba(255,71,87,0.08)">
+        🚨 <span style="color:var(--red)">EMERGENCY — Status Epilepticus</span>
+      </div>
+      <div class="treatment-tier-body">
+        <div class="drug-row">
+          <div>
+            <div class="drug-name">1st: IV Diazepam / Lorazepam</div>
+            <div class="drug-mech">GABA-A allosteric modulation → ↑ Cl⁻ influx → hyperpolarization</div>
+            <div class="drug-use">DOC for status epilepticus. Rectal in children; buccal Midazolam alternative.</div>
+            <div class="drug-side">⚠️ Additive with other CNS depressants</div>
+          </div>
+        </div>
+        <div class="drug-row">
+          <div>
+            <div class="drug-name">2nd: IV Fosphenytoin</div>
+            <div class="drug-mech">Prodrug of Phenytoin → Na⁺ channel block</div>
+            <div class="drug-use">Given if benzodiazepines fail to terminate seizure.</div>
+          </div>
+        </div>
+        <div class="drug-row">
+          <div>
+            <div class="drug-name">3rd: IV Phenobarbitone</div>
+            <div class="drug-mech">Non-selective GABA receptor stimulation</div>
+            <div class="drug-use">Third-line; significant sedation.</div>
+          </div>
+        </div>
+        <div class="drug-row">
+          <div>
+            <div class="drug-name">Refractory: Thiopental + Ventilation</div>
+            <div class="drug-mech">General anesthesia + ICU</div>
+            <div class="drug-use">For refractory cases unresponsive to above.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="treatment-tier" style="border-color:rgba(30,144,255,0.3)">
+      <div class="treatment-tier-header" style="background:rgba(30,144,255,0.08)">
+        💊 <span style="color:var(--blue)">Long-Term AED Management</span>
+      </div>
+      <div class="treatment-tier-body">
+        <div class="drug-row">
+          <div class="drug-name">Valproic Acid</div>
+          <div class="drug-info">
+            <div class="drug-mech">Na⁺ block + T-Ca²⁺ block + ↑ GABA synthesis | CYP450: Inhibitor</div>
+            <div class="drug-use">DOC: Generalized Tonic-Clonic, Myoclonic. Broad-spectrum.</div>
+            <div class="drug-side">⚠️ Hepatotoxicity, Alopecia, Teratogenic (spina bifida), Weight gain. Monitor LFTs. Avoid &lt;2 yrs & pregnancy.</div>
+          </div>
+        </div>
+        <div class="drug-row">
+          <div class="drug-name">Carbamazepine</div>
+          <div class="drug-info">
+            <div class="drug-mech">Na⁺ channel block | CYP450: Auto-inducer (dose needs ↑ over time)</div>
+            <div class="drug-use">DOC: Focal (partial) epilepsy. Also trigeminal neuralgia.</div>
+            <div class="drug-side">⚠️ Dilutional hyponatremia (↑ADH), Steven-Johnson Syndrome, Diplopia. Contraindicated in absence epilepsy.</div>
+          </div>
+        </div>
+        <div class="drug-row">
+          <div class="drug-name">Ethosuximide</div>
+          <div class="drug-info">
+            <div class="drug-mech">T-type Ca²⁺ channel block in thalamo-cortical neurons</div>
+            <div class="drug-use">DOC: Generalized Absence (Petit-Mal) exclusively.</div>
+            <div class="drug-side">⚠️ GI upset, Sedation, Hiccups</div>
+          </div>
+        </div>
+        <div class="drug-row">
+          <div class="drug-name">Phenytoin</div>
+          <div class="drug-info">
+            <div class="drug-mech">Na⁺ channel block (prolongs inactivated state) | CYP450: Inducer</div>
+            <div class="drug-use">Partial seizures, GTC. NOT for absence.</div>
+            <div class="drug-side">⚠️ Gingival hyperplasia, Hirsutism, Megaloblastic anemia (↓ folate), Aplastic anemia (rare), Nystagmus, Ataxia. Decreases oral contraceptive efficacy.</div>
+          </div>
+        </div>
+        <div class="drug-row">
+          <div class="drug-name">Levetiracetam</div>
+          <div class="drug-info">
+            <div class="drug-mech">SV2A vesicle protein block → ↓ presynaptic glutamate release | No CYP450 interactions</div>
+            <div class="drug-use">Broad-spectrum: Focal, GTC, Myoclonic. Excellent safety profile.</div>
+            <div class="drug-side">⚠️ Dizziness, Nervousness, Behavioral changes (rare)</div>
+          </div>
+        </div>
+        <div class="drug-row">
+          <div class="drug-name">Lamotrigine</div>
+          <div class="drug-info">
+            <div class="drug-mech">Blocks glutamate receptors + Na⁺ + Ca²⁺ channels</div>
+            <div class="drug-use">Broad-spectrum: Focal, GTC, Absence. Used in women (better teratogenic profile).</div>
+            <div class="drug-side">⚠️ Steven-Johnson Syndrome (severe rash) — must discontinue immediately</div>
+          </div>
+        </div>
+        <div class="drug-row">
+          <div class="drug-name">Topiramate</div>
+          <div class="drug-info">
+            <div class="drug-mech">Blocks glutamate receptors (AMPA/Kainate) + Na⁺ channels</div>
+            <div class="drug-use">Focal and generalized seizures. Also migraine prophylaxis.</div>
+            <div class="drug-side">⚠️ Cognitive decline ("Dopamax"), Weight loss, Kidney stones</div>
+          </div>
+        </div>
+        <div class="drug-row">
+          <div class="drug-name">Gabapentin / Pregabalin</div>
+          <div class="drug-info">
+            <div class="drug-mech">↑ GABA release; block α2δ subunit of L-type Ca²⁺ → ↓ glutamate</div>
+            <div class="drug-use">Adjuvant only for focal seizures. Also: neuropathic pain, anxiety.</div>
+            <div class="drug-side">⚠️ Sedation, Dizziness, Nystagmus, Weight gain. NOT monotherapy.</div>
+          </div>
+        </div>
+        <div class="drug-row">
+          <div class="drug-name">Phenobarbitone</div>
+          <div class="drug-info">
+            <div class="drug-mech">Non-selective GABA receptor stimulation → CNS depression | CYP450: Inducer</div>
+            <div class="drug-use">GTC, Focal. Status epilepticus (3rd line).</div>
+            <div class="drug-side">⚠️ Sedation, Dependence, Contraindicated in absence (worsens)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="background:rgba(255,215,0,0.04);border-color:rgba(255,215,0,0.2)">
+      <div class="card-header"><div class="card-icon">⚠️</div><div><div class="card-title">Critical AED Management Rules</div></div></div>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;font-size:13px;line-height:1.6">
+        <li>🔹 <strong>Start with monotherapy</strong> — more efficient, fewer side effects</li>
+        <li>🔹 <strong>Never abrupt withdrawal</strong> — may precipitate status epilepticus (always taper gradually)</li>
+        <li>🔹 <strong>Discontinue only</strong> after ≥2 years seizure-free + normal EEG</li>
+        <li>🔹 <strong>Women of childbearing age:</strong> 5 mg folic acid daily before pregnancy; family planning essential</li>
+        <li>🔹 <strong>CYP450 inducers</strong> (CBZ, Phenytoin, Phenobarbitone) decrease oral contraceptive efficacy</li>
+        <li>🔹 <strong>Carbamazepine auto-induction:</strong> Plasma levels fall → dose must increase over months</li>
+        <li>🔹 <strong>Observe activities:</strong> No swimming alone, advise regarding driving</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== MNEMONICS ===== -->
+  <div class="panel" id="panel-mnemonics">
+    <div id="mnemonicsContainer"></div>
+  </div>
+
+  <!-- ===== VIVA ===== -->
+  <div class="panel" id="panel-viva">
+    <div class="card" style="margin-bottom:20px;background:rgba(108,99,255,0.06);border-color:rgba(108,99,255,0.2);text-align:center">
+      <div style="font-size:14px;color:var(--text-dim)">🗣️ 12 Viva questions · Click to expand answers · <span style="color:var(--gold)">⚠️ = EXAM tip</span></div>
+    </div>
+    <div id="vivaContainer"></div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+// ======== DATA ========
+
+const quizData = [
+  {q:"A 25-year-old male has tonic rigidity followed by 1–2 min of massive body jerking (clonic phase), leaving him in a stuporous state. Which drug is most suitable for long-term management?",opts:["Clonazepam","Ethosuximide","Felbamate","Valproate","Pregabalin"],ans:3,exp:"Valproate (Valproic acid) is the DOC for Generalized Tonic-Clonic (GTC) epilepsy (Grand-mal). Ethosuximide is for absence; Clonazepam is adjuvant; Pregabalin is only adjuvant for focal."},
+  {q:"A patient on carbamazepine for 6 months has breakthrough seizures. You add a second drug. Which is LEAST likely to have a pharmacokinetic interaction with carbamazepine?",opts:["Topiramate","Felbamate","Levetiracetam","Lamotrigine","Ethosuximide"],ans:2,exp:"Levetiracetam has minimal CYP450 interactions and does not bind significantly to plasma proteins, making it pharmacokinetically safe to combine with carbamazepine."},
+  {q:"Which drug is effective in TERMINATING status epilepticus?",opts:["Diazepam","Clonazepam","Carbamazepine","Felbamate","Ethosuximide"],ans:0,exp:"IV Diazepam or Lorazepam are the drugs of choice for immediate emergency treatment of status epilepticus. Clonazepam is an adjuvant for absence/myoclonic, not SE termination."},
+  {q:"Gabapentin's mechanism of action is best described as:",opts:["Inhibits monoamine oxidase","Agonist at dopamine receptors","Increases Na⁺ channel inactivation","Blocks reuptake of neurotransmitters","Increases release of GABA and inhibits presynaptic Ca²⁺ channels"],ans:4,exp:"Gabapentin is a GABA analog that increases GABA release and inhibits the α2δ subunit of presynaptic Ca²⁺ channels to decrease glutamate release. It does NOT affect CYP450."},
+  {q:"Drug of choice for initial treatment of generalized absence seizure (petit mal) in children:",opts:["Ethosuximide","Felbamate","Levetiracetam","Carbamazepine","Phenytoin"],ans:0,exp:"Ethosuximide is the 1st choice for generalized absence seizures by selectively blocking T-type Ca²⁺ channels in thalamic neurons. Carbamazepine and Phenytoin are contraindicated for absence."},
+  {q:"A 10-year-old has BOTH typical absence AND occasional GTC seizures on EEG. Best single agent?",opts:["Ethosuximide","Lamotrigine","Valproic acid","Levetiracetam","Clonazepam"],ans:2,exp:"Valproic acid is the only broad-spectrum AED that effectively covers both absence (T-Ca²⁺ block) and GTC (Na⁺ block + ↑GABA). Ethosuximide only treats absence, leaving GTC uncontrolled."},
+  {q:"An 8-year-old girl with typical absence epilepsy is started on ethosuximide. What is the most likely mechanism of its antiseizure effect?",opts:["Prolonging inactivated state of Na⁺ channels","Enhancing GABA-A receptor Cl⁻ influx","Inhibiting T-type Ca²⁺ channels in thalamic neurons","Blocking L-type Ca²⁺ channels","Increasing GABA release"],ans:2,exp:"Ethosuximide specifically targets T-type Ca²⁺ channels in thalamo-cortical neurons, preventing the pacemaker current that drives 3 Hz spike-and-wave discharges in absence seizures."},
+  {q:"A 45-year-old has recurrent right-hand twitching spreading to the arm, no LOC, left temporal lobe spikes on EEG. Carbamazepine is prescribed. What is its mechanism?",opts:["Prolonging inactivated state of Na⁺ channels","Enhancing GABA-A receptor Cl⁻ influx","Inhibiting T-type Ca²⁺ channels","Blocking L-type Ca²⁺ channels","Increasing GABA release"],ans:0,exp:"Carbamazepine's PRIMARY mechanism is blocking neuronal Na⁺ channels by prolonging their inactivated state, preventing repetitive high-frequency firing in focal discharge zones."},
+  {q:"How do benzodiazepines (e.g., Diazepam) decrease neuronal excitability?",opts:["Blockade of T-type Ca²⁺ channels","Increased Cl⁻ influx via GABA-A receptor allosteric modulation","Blockade of presynaptic SV2A vesicles","Inhibition of CYP450","Inhibition of glutamate synthesis"],ans:1,exp:"Benzodiazepines bind benzodiazepine receptors → allosteric modulation of GABA-A receptors → augmented Cl⁻ influx → membrane hyperpolarization → reduced neuronal excitability."},
+  {q:"How does Levetiracetam prevent seizure propagation?",opts:["Induces CYP450 auto-induction","Blocks voltage-gated Na⁺ channels","Blocks SV2A protein to decrease glutamate release","Stimulates GABA synthesis","Blocks NMDA receptors selectively"],ans:2,exp:"Levetiracetam uniquely binds SV2A (synaptic vesicle glycoprotein 2A), a presynaptic protein, decreasing vesicular glutamate release. This is its exclusive mechanism with no CYP450 interactions."},
+  {q:"Phenobarbitone reduces seizure activity primarily through:",opts:["Decreasing excitatory effects of glutamate","Selective T-type Ca²⁺ channel blockade","Non-selective stimulation of GABA receptors causing CNS depression","Enhancing MAO activity","SV2A blockade"],ans:2,exp:"Phenobarbitone is a barbiturate that non-selectively stimulates GABA receptors, causing broad CNS depression. This distinguishes it from benzodiazepines (which are GABA-A specific allosteric modulators)."},
+  {q:"Lamotrigine achieves its anti-epileptic effect by:",opts:["Inhibiting GABA transaminase","Blocking glutamate receptors, Na⁺ & Ca²⁺ channels","Increasing ADH secretion","Irreversibly binding GABA-A","Agonizing AMPA receptors"],ans:1,exp:"Lamotrigine is an 'anti-glutamate' agent that blocks glutamate receptors (AMPA/NMDA) as well as Na⁺ and Ca²⁺ channels, giving it a broad spectrum of activity."},
+  {q:"Topiramate helps control seizures via:",opts:["Blocking glutamate receptors and Na⁺ channels","Increasing SV2A protein expression","Activating T-type Ca²⁺ channels","Enhancing dopamine reuptake","Agonizing NMDA receptors"],ans:0,exp:"Topiramate has a dual mechanism: blocking postsynaptic glutamate receptors (AMPA/Kainate) AND blocking Na⁺ channels. Its notable side effects are cognitive decline and weight loss."},
+  {q:"The definition of a 'convulsion' in the context of epilepsy is:",opts:["A sudden single episodic electrical discharge","A violent, involuntary contraction of voluntary muscles","A focal seizure without LOC","An abnormal EEG without physical symptoms","Altered consciousness for 10–14 sec"],ans:1,exp:"A convulsion is strictly defined as a violent, involuntary contraction of voluntary muscles. This is distinct from a seizure (electrical event) or absence (altered consciousness without motor activity)."},
+  {q:"A seizure triggered by a flashing light is classified as:",opts:["Unprovoked focal","Provoked seizure","Reflex seizure","Status epilepticus","Complex partial"],ans:2,exp:"Reflex seizures occur in response to specific stimuli such as flashing lights or hyperventilation. Provoked seizures refer to those due to acute structural causes (meningitis, trauma, metabolic)."},
+  {q:"What defines 'Complex' focal epilepsy?",opts:["Presence of a rash","Localized discharge with NO LOC","Immediate bilateral hemisphere involvement","Localized discharge that spreads, with LOC","Absence of EEG abnormalities"],ans:3,exp:"Complex focal seizures begin with a localized discharge that SPREADS to become widespread, resulting in loss of consciousness (LOC). Simple focal seizures maintain consciousness throughout."},
+  {q:"Myoclonic seizures are best described as:",opts:["Prolonged seizures without recovery of consciousness","Sudden altered consciousness for 10–14 sec","Brief, electric shock-like muscle jerks","Rigidity followed by massive jerking for 2 min","Focal twitching of the right hand only"],ans:2,exp:"Myoclonic seizures are brief, electric shock-like or lightning-like muscle jerks affecting one or more limbs, occurring singly or in bursts. They are distinct from the prolonged phases of GTC seizures."},
+  {q:"When is it appropriate to consider discontinuing AED therapy?",opts:["After 6 months of reduced seizure frequency","When the patient turns 18","Patient is fit-free ≥2 years AND EEG is normal","Immediately after first seizure resolves","When CYP450 auto-induction is detected"],ans:2,exp:"AEDs are discontinued ONLY when the patient has been seizure-free for at least 2 years, the EEG is normal, AND withdrawal is executed gradually. Premature withdrawal risks severe relapse or status epilepticus."},
+  {q:"A major regulatory precaution for women of childbearing age taking AEDs:",opts:["Permanently discontinue before pregnancy","Switch exclusively to phenobarbitone","Take folic acid 5 mg daily before pregnancy","Exempt from all AED side effects","Check liver enzymes daily"],ans:2,exp:"Women on AEDs should take 5 mg folic acid daily before pregnancy to reduce teratogenic risk (especially from valproate: spina bifida). Discontinuing AEDs abruptly risks fatal status epilepticus."},
+  {q:"Why are oral contraceptives less effective in patients taking Phenytoin or Carbamazepine?",opts:["They block OCP absorption in the gut","AEDs cause vomiting","AEDs induce CYP450 → accelerated OCP metabolism","AEDs directly inhibit estrogen receptors","AEDs block T-type Ca²⁺ channels"],ans:2,exp:"Phenytoin and Carbamazepine are CYP450 inducers, accelerating the hepatic metabolism of estrogen/progestins in oral contraceptives, reducing their plasma levels and efficacy."},
+  {q:"How must an AED be removed from a patient's regimen to avoid fatal relapse?",opts:["Abruptly, to clear the liver","Gradual withdrawal","Replace with massive dose of diazepam","Only if SJS develops","Through surgical resection"],ans:1,exp:"Abrupt AED withdrawal may precipitate severe seizures or status epilepticus. All AED additions and withdrawals must be gradual, with slow dose tapering over weeks to months."},
+  {q:"Which drug is CONTRAINDICATED in generalized absence epilepsy?",opts:["Ethosuximide","Valproic acid","Levetiracetam","Phenobarbitone","Lamotrigine"],ans:3,exp:"Phenobarbitone (and Carbamazepine) are contraindicated in generalized absence epilepsy — they may worsen absence seizures. Ethosuximide is the 1st choice; valproate, lamotrigine, and levetiracetam are effective."},
+  {q:"Which mechanism applies to BOTH Valproic Acid AND Lamotrigine?",opts:["Increasing ADH secretion","Blocking SV2A proteins","Selective GABA-A agonism","Blocking Na⁺ channels","Irreversible MAO inhibition"],ans:3,exp:"Both Valproic acid and Lamotrigine share Na⁺ channel blockade among their mechanisms. Valproate additionally blocks T-Ca²⁺ and increases GABA; Lamotrigine additionally blocks glutamate receptors."},
+  {q:"A patient is treated with a drug causing 'cognitive decline and weight loss' as specific adverse effects. Which drug?",opts:["Gabapentin","Ethosuximide","Topiramate","Phenytoin","Valproic Acid"],ans:2,exp:"Topiramate is nicknamed 'Dopamax' due to its cognitive side effects. Weight LOSS (unlike most AEDs) and cognitive decline are its hallmark adverse effects, useful identifiers in exam scenarios."},
+  {q:"General management advice for epileptic patients regarding their environment:",opts:["Total bed rest","High carbohydrate diet","Observation during activities like swimming","Induce hyperventilation daily","Expose to flashing lights for tolerance"],ans:2,exp:"Epileptic patients need activity supervision, especially swimming, to prevent drowning during an unexpected seizure. Hyperventilation and flashing lights should be AVOIDED as they can precipitate seizures."},
+];
+
+const flashcards = [
+  {q:"What is the DOC for Status Epilepticus?",a:"IV Diazepam or Lorazepam — augments GABA-A (allosteric) → ↑ Cl⁻ influx → hyperpolarization. Rectal in children; buccal Midazolam alternative.",e:"🚨"},
+  {q:"What is the DOC for Generalized Absence (Petit Mal)?",a:"Ethosuximide — blocks T-type Ca²⁺ channels in thalamo-cortical neurons, suppressing the 3 Hz pacemaker current.",e:"🧠"},
+  {q:"What is the DOC for Generalized Tonic-Clonic Epilepsy?",a:"Valproic Acid — broad spectrum: blocks Na⁺ & T-Ca²⁺ channels AND increases GABA synthesis.",e:"⚡"},
+  {q:"What is the DOC for Focal (Partial) Epilepsy?",a:"Carbamazepine — blocks neuronal Na⁺ channels (prolongs inactivated state). Contraindicated in absence epilepsy.",e:"🔵"},
+  {q:"How does Levetiracetam work?",a:"Blocks SV2A (synaptic vesicle glycoprotein 2A) → decreases presynaptic glutamate vesicle release. No CYP450 interactions. Broad-spectrum.",e:"🟢"},
+  {q:"Name 3 adverse effects of Valproic Acid.",a:"① Hepatotoxicity (monitor LFTs) ② Alopecia ③ Teratogenic (spina bifida). Also: weight gain, tremor. Inhibits CYP450.",e:"⚠️"},
+  {q:"Why do carbamazepine levels fall after 6 months?",a:"Auto-induction: Carbamazepine induces CYP450 enzymes that metabolize itself → plasma levels fall → dose must be increased.",e:"📉"},
+  {q:"What are the steps of the GTC (Grand-Mal) seizure?",a:"① Tonic phase: generalized muscle rigidity (seconds) ② Clonic phase: massive jerking 1–2 min ③ Post-ictal: stupor, exhaustion (Todd's paralysis possible).",e:"🌊"},
+  {q:"What severe skin reaction is associated with Lamotrigine & Carbamazepine?",a:"Steven-Johnson Syndrome (SJS) — a life-threatening severe hypersensitivity reaction. Drug must be discontinued immediately.",e:"🔴"},
+  {q:"Why is Carbamazepine limited in the elderly?",a:"Carbamazepine increases ADH secretion → dilutional hyponatremia → risk of fluid retention and hyponatremia complications in elderly.",e:"👴"},
+  {q:"What mechanism does Phenytoin share with Carbamazepine?",a:"Both block neuronal Na⁺ channels (prolong inactivated state). Phenytoin also causes: gingival hyperplasia, hirsutism, megaloblastic anemia (↓ folate).",e:"🔗"},
+  {q:"What is the mechanism of Benzodiazepines in epilepsy?",a:"Bind benzodiazepine receptors → allosteric modulation of GABA-A receptors → augmented Cl⁻ influx → membrane hyperpolarization → ↓ excitability.",e:"🔐"},
+  {q:"What are Gabapentin and Pregabalin used for in epilepsy?",a:"ADJUVANT only for focal seizures. NOT monotherapy. Also used for neuropathic pain. Mechanism: ↑ GABA release + block α2δ Ca²⁺ channel subunit.",e:"➕"},
+  {q:"When can you stop AED therapy?",a:"Only when patient is seizure-free ≥ 2 years AND EEG is normal. Withdrawal MUST be gradual. Abrupt withdrawal may cause status epilepticus.",e:"⏱️"},
+  {q:"What is the significance of Carbamazepine being contraindicated in absence epilepsy?",a:"Carbamazepine can WORSEN absence seizures — it may increase their frequency. Always identify seizure type before prescribing.",e:"❌"},
+  {q:"What is the teratogenic risk with Valproate?",a:"Spina bifida (neural tube defect). Valproate should be avoided in women of childbearing age. If needed, 5 mg folic acid daily before pregnancy.",e:"🤰"},
+  {q:"What is a 'Reflex Seizure'?",a:"A seizure triggered by specific stimuli: flashing lights or hyperventilation. Management: identify and avoid triggers + prophylactic AEDs.",e:"🔦"},
+  {q:"How does Topiramate reduce excitability?",a:"Dual mechanism: ① Blocks AMPA/Kainate glutamate receptors (postsynaptic) ② Blocks Na⁺ channels. Side effects: cognitive decline ('Dopamax'), weight loss.",e:"🧩"},
+  {q:"Difference between Simple and Complex Focal Seizures?",a:"Simple: Localized discharge, NO loss of consciousness. Complex: Localized discharge that SPREADS → loss of consciousness.",e:"🔍"},
+  {q:"What does Phenobarbitone do differently from Benzodiazepines?",a:"Phenobarbitone non-selectively stimulates GABA receptors (broadly), causing general CNS depression. Benzodiazepines are SELECTIVE allosteric modulators of GABA-A only.",e:"⚖️"},
+  {q:"Why does Phenytoin cause megaloblastic anemia?",a:"Phenytoin decreases folate absorption/metabolism → megaloblastic anemia. Rare aplastic anemia is also reported. Key distinguishing side effect.",e:"🩸"},
+  {q:"What happens if you abruptly withdraw an AED?",a:"May precipitate severe seizures or status epilepticus (life-threatening). Abrupt AED withdrawal is STRICTLY CONTRAINDICATED. Always taper gradually.",e:"💥"},
+  {q:"Why use Folic Acid 5mg in epileptic women before pregnancy?",a:"All AEDs carry some teratogenic risk. 5 mg folic acid (higher than standard) given pre-conception to reduce neural tube defect risk, especially critical with valproate.",e:"🌿"},
+  {q:"What is the sequence for treating refractory Status Epilepticus?",a:"① IV Diazepam/Lorazepam → ② IV Fosphenytoin → ③ IV Phenobarbitone → ④ General anesthesia (Thiopental) + artificial respiration (ICU).",e:"📋"},
+];
+
+const cases = [
+  {
+    title:"Emergency — The Seizure That Won't Stop",
+    color:"rgba(255,71,87,0.8)",bg:"rgba(255,71,87,0.12)",
+    vignette:"A 25-year-old female arrives in the ED with continuous, violent involuntary muscle contractions of all extremities for 10+ minutes without regaining consciousness. She has epilepsy but stopped her medications abruptly 3 days ago when she found out she was pregnant.",
+    questions:["What is the diagnosis and why is it life-threatening?","What is the immediate first-line pharmacological treatment and its mechanism?","What is the correct treatment sequence if the first-line drug fails?","What error in AED management led to this emergency?"],
+    answer:[
+      {label:"DIAGNOSIS", text:"Status Epilepticus — defined as prolonged seizures WITHOUT recovery of full consciousness between episodes. Life-threatening because continuous neuronal firing causes hyperthermia, metabolic acidosis, hypoxia, rhabdomyolysis, and permanent brain damage or death."},
+      {label:"FIRST-LINE TX", text:"IV Diazepam (or Lorazepam) immediately. Mechanism: binds benzodiazepine receptors → allosteric modulation of GABA-A → ↑ Cl⁻ influx → membrane hyperpolarization → terminates seizure. Rectal administration in children; buccal Midazolam is an alternative."},
+      {label:"SEQUENCE", text:"If Diazepam fails → IV Fosphenytoin (Na⁺ channel block) → If still unresolved → IV Phenobarbitone → Refractory: General anesthesia (Thiopental) + ICU + artificial respiration."},
+      {label:"ROOT CAUSE", text:"Abrupt AED withdrawal — strictly contraindicated. AED withdrawal MUST be gradual. Abrupt cessation (especially of GABAergic drugs) lowers seizure threshold dramatically. The pregnancy discovery should trigger specialist consultation, not drug discontinuation."},
+    ]
+  },
+  {
+    title:"Breakthrough Seizures After 6 Months",
+    color:"rgba(30,144,255,0.8)",bg:"rgba(30,144,255,0.1)",
+    vignette:"A 45-year-old man with partial (focal) epilepsy was started on carbamazepine 6 months ago and achieved excellent seizure control initially. Over the past month, he reports increasing frequency of breakthrough focal seizures despite consistent medication compliance. Recent drug levels show sub-therapeutic carbamazepine plasma concentration.",
+    questions:["What pharmacokinetic phenomenon explains this finding?","What molecular target is involved?","What would be the safest drug to add for combination therapy, considering drug interactions?"],
+    answer:[
+      {label:"MECHANISM", text:"Auto-induction: Carbamazepine induces its own hepatic metabolism by upregulating CYP450 enzymes. Over time, accelerated drug metabolism reduces plasma levels, causing therapeutic failure even at the same dose. Dose must be escalated over months."},
+      {label:"TARGET", text:"Cytochrome P450 enzymes (CYP3A4 primarily). Carbamazepine is both a substrate AND an inducer of CYP450, creating a self-defeating pharmacokinetic cycle unique among AEDs."},
+      {label:"BEST ADD-ON", text:"Levetiracetam — it has NO clinically significant CYP450 interactions, low protein binding, and renal excretion. It is the least likely to have pharmacokinetic interaction with carbamazepine among available AEDs, making it the safest combination partner."},
+    ]
+  },
+  {
+    title:"The Blanking Child",
+    color:"rgba(46,213,115,0.8)",bg:"rgba(46,213,115,0.08)",
+    vignette:"An 8-year-old girl is brought by her parents who noticed she 'blanks out' and stares into space for about 10–12 seconds, sometimes 50–80 times per day. She has no memory of these episodes and resumes normal activity immediately after. She does NOT fall. A recent EEG shows symmetric 3 Hz spike-and-wave discharges.",
+    questions:["What type of seizure is this?","What is the key diagnostic EEG finding?","What is the first-line drug and mechanism?","What drug should be AVOIDED and why?"],
+    answer:[
+      {label:"SEIZURE TYPE", text:"Generalized Absence Seizure (Petit Mal). Characterized by sudden, brief (10–15 sec) altered consciousness with no loss of posture, no post-ictal confusion, and multiple daily occurrences. The child resumes activity immediately — a hallmark."},
+      {label:"EEG", text:"Symmetric 3 Hz (3-per-second) spike-and-wave discharges on EEG — pathognomonic for absence epilepsy. This reflects synchronous thalamo-cortical oscillations driven by T-type Ca²⁺ channel pacemaker currents."},
+      {label:"TREATMENT", text:"Ethosuximide — DOC. Mechanism: selectively blocks T-type Ca²⁺ channels in thalamo-cortical neurons, suppressing the pacemaker current that drives 3 Hz oscillations. No effect on Na⁺ channels (no use in other seizure types)."},
+      {label:"AVOID", text:"Carbamazepine AND Phenobarbitone are CONTRAINDICATED in absence epilepsy — they may paradoxically WORSEN absence seizures and increase their frequency. This is a classic exam trap."},
+    ]
+  },
+  {
+    title:"The Rash That Changes Management",
+    color:"rgba(255,101,132,0.8)",bg:"rgba(255,101,132,0.08)",
+    vignette:"A 38-year-old woman with temporal lobe epilepsy develops a widespread, painful mucocutaneous rash involving her eyes, mouth, and genitals 3 weeks after starting a new AED. She reports blistering skin lesions. She had previously been controlled on carbamazepine but was switched 6 weeks ago.",
+    questions:["What severe adverse reaction is occurring?","What drug most likely caused this?","What is the immediate management?","What broad-spectrum alternative with SV2A mechanism can replace her treatment?"],
+    answer:[
+      {label:"REACTION", text:"Steven-Johnson Syndrome (SJS) — a life-threatening severe mucocutaneous hypersensitivity reaction. Characterized by blistering, sloughing skin and mucosal involvement. Mortality can reach 10–30% without prompt management."},
+      {label:"CULPRIT DRUG", text:"Lamotrigine (given the timeline — she was switched to it). Both Lamotrigine AND Carbamazepine are known SJS-causers in epilepsy. The recent switch and 3-week timeline is classic for lamotrigine-induced SJS (especially if dose was escalated quickly)."},
+      {label:"MANAGEMENT", text:"IMMEDIATE discontinuation of the offending drug. SJS requires ICU admission, supportive care (wound care, ophthalmology, nutrition), and avoidance of all cross-reactive drugs. Steroids are controversial."},
+      {label:"ALTERNATIVE", text:"Levetiracetam — blocks SV2A protein presynaptically to decrease glutamate release. It is broad-spectrum (covers focal, GTC, myoclonic), has NO significant drug-drug interactions, and no known SJS association. Ideal replacement in this scenario."},
+    ]
+  },
+  {
+    title:"The Epileptic Woman Who Wants to Start a Family",
+    color:"rgba(162,155,254,0.8)",bg:"rgba(162,155,254,0.08)",
+    vignette:"A 29-year-old woman with well-controlled generalized tonic-clonic epilepsy on valproic acid 1000mg/day comes for preconception counseling. She and her husband want to start a family in 6 months. Her neurologist needs to counsel her on AED management, teratogenicity, and precautions.",
+    questions:["What is the teratogenic risk of Valproic Acid?","What must be started immediately regardless of drug change?","What monitoring is required for a patient on valproic acid?","What AED management principle applies when considering a drug switch?"],
+    answer:[
+      {label:"TERATOGENICITY", text:"Valproic acid causes neural tube defects — specifically SPINA BIFIDA (failure of the neural tube to close). Risk is ~1–2% (10× higher than general population). It is the most teratogenic common AED and should ideally be avoided in women of childbearing potential."},
+      {label:"IMMEDIATE ACTION", text:"Start Folic Acid 5 mg daily IMMEDIATELY and continue through the first trimester. The higher dose (5 mg vs standard 0.4–1 mg) is required because AEDs interfere with folate metabolism. This reduces neural tube defect risk significantly."},
+      {label:"MONITORING", text:"Liver function tests (LFTs) routinely — valproate can cause severe hepatotoxicity (especially dangerous in children under 2). Also monitor: complete blood count, plasma drug levels, and weight."},
+      {label:"DRUG SWITCH", text:"Any AED change must be GRADUAL — never abrupt. Gradually introduce the new drug while slowly tapering valproate. Abrupt discontinuation can precipitate status epilepticus, which is far more dangerous to the fetus than controlled AED use."},
+    ]
+  },
+  {
+    title:"Elderly Man With Focal Seizures & Hyponatremia",
+    color:"rgba(247,151,30,0.8)",bg:"rgba(247,151,30,0.07)",
+    vignette:"A 72-year-old man with newly diagnosed focal epilepsy is started on carbamazepine. Three weeks later, routine bloodwork shows serum sodium of 126 mEq/L (normal 135–145). He is mildly confused and reports nausea. He is otherwise taking no diuretics or other medications.",
+    questions:["What is the adverse effect and mechanism?","What molecule is implicated?","What limits carbamazepine's use in this population?","What alternative AED would avoid this risk?"],
+    answer:[
+      {label:"MECHANISM", text:"Dilutional Hyponatremia caused by Carbamazepine. The drug increases ADH (antidiuretic hormone) secretion → inappropriate water retention → dilutes serum sodium → hyponatremia. Serum Na⁺ of 126 with confusion is clinically significant."},
+      {label:"MOLECULE", text:"ADH (Antidiuretic Hormone / Vasopressin). Carbamazepine acts via V2 receptor potentiation or direct hypothalamic effects to increase ADH-mediated water reabsorption in the collecting duct of the kidney."},
+      {label:"ELDERLY CONCERN", text:"Elderly patients are particularly vulnerable because: (1) reduced baseline renal diluting capacity, (2) often on other medications that affect sodium, (3) higher baseline ADH sensitivity. Symptomatic hyponatremia can cause falls, confusion, seizures paradoxically."},
+      {label:"ALTERNATIVE", text:"Levetiracetam — no effect on ADH, no CYP450 interactions, renally cleared (dose adjust for GFR), excellent safety profile in elderly. Lamotrigine is also an option. Both avoid the sodium-lowering effect of carbamazepine."},
+    ]
+  },
+];
+
+const pathoItems = [
+  {icon:"⚡",title:"Abnormal Neuronal Firing",tags:["Core Mechanism"],summary:"A small number of cortical neurons begin firing abnormally.",detail:"The initial abnormal focus generates repetitive action potentials. In focal epilepsy, this remains local. In generalized epilepsy, the excitability spreads widely across both hemispheres simultaneously through corpus callosum and subcortical pathways."},
+  {icon:"🔵",title:"Na⁺ Channel Pathophysiology",tags:["Na⁺"],summary:"Voltage-gated Na⁺ channels are responsible for action potential generation.",detail:"In epilepsy, Na⁺ channels recover too quickly from inactivation, allowing high-frequency repetitive firing. AEDs like Carbamazepine, Phenytoin, Valproate, and Lamotrigine prolong the inactivated state of Na⁺ channels, preventing sustained high-frequency discharge."},
+  {icon:"🟡",title:"T-type Ca²⁺ Channel Role",tags:["Absence","Thalamus"],summary:"Low-voltage T-type Ca²⁺ channels drive thalamo-cortical pacemaker currents.",detail:"In absence epilepsy, thalamic relay neurons fire rhythmically via T-type Ca²⁺ channel currents → 3 Hz spike-and-wave discharge. Ethosuximide specifically blocks these channels, eliminating the thalamic pacemaker without affecting Na⁺ channels."},
+  {icon:"🔴",title:"GABAergic Failure",tags:["Inhibition","GABA"],summary:"Reduced inhibitory GABAergic tone allows uncontrolled excitatory spread.",detail:"GABA (γ-aminobutyric acid) is the principal inhibitory neurotransmitter. GABA-A receptors control Cl⁻ influx → hyperpolarization. When GABAergic inhibition fails (due to genetic, structural, or drug withdrawal causes), excitation dominates and seizure propagates."},
+  {icon:"🟢",title:"Glutamatergic Excess",tags:["Excitation","AMPA","NMDA"],summary:"Excess glutamate release drives seizure propagation.",detail:"Glutamate acting on AMPA and NMDA receptors is the primary driver of excitatory transmission and seizure spread. AEDs targeting this include: Levetiracetam (SV2A → ↓ release), Lamotrigine/Topiramate (receptor block), Gabapentin/Pregabalin (↓ Ca²⁺-mediated release)."},
+  {icon:"🌊",title:"Seizure Spread Mechanisms",tags:["Focal→General"],summary:"Local discharge can remain focal or spread to generalize.",detail:"Focal discharge can: (1) remain localized = simple focal seizure, (2) spread within one hemisphere = complex focal seizure with LOC, (3) spread bilaterally via corpus callosum → secondary generalization (tonic-clonic). EEG patterns change with each stage."},
+  {icon:"🔥",title:"Status Epilepticus Pathophysiology",tags:["Emergency","SE"],summary:"Continuous neuronal firing overrides normal inhibitory mechanisms.",detail:"In SE, feedback inhibitory mechanisms (GABAergic interneurons, afterhyperpolarization) are overwhelmed. Metabolic consequences: ↑ temperature, lactic acidosis, hypoglycemia, hypoxia, cerebral edema, rhabdomyolysis. Without treatment: permanent neuronal damage or death."},
+  {icon:"💊",title:"CYP450 Enzyme Interactions",tags:["Pharmacokinetics"],summary:"Many AEDs profoundly affect hepatic drug metabolism.",detail:"Inducers (CBZ, Phenytoin, Phenobarbitone): ↑ CYP450 → accelerates metabolism of other drugs (OCP, warfarin, other AEDs). Inhibitor (Valproate): inhibits CYP450 → ↑ plasma levels of other drugs. Carbamazepine auto-induces its OWN metabolism."},
+];
+
+const mnemonics = [
+  {
+    title:"DOC for Each Seizure — 'Val Eats Cakes Daily'",
+    desc:"Remember Drug of Choice assignments for each seizure type",
+    words:[
+      {l:"V",w:"Valproate → GTC (Tonic-Clonic)"},
+      {l:"E",w:"Ethosuximide → Absence (Petit Mal)"},
+      {l:"C",w:"Carbamazepine → focal (partial)"},
+      {l:"D",w:"Diazepam → Status Epilepticus (Emergency IV)"},
+    ]
+  },
+  {
+    title:"Carbamazepine Side Effects — 'DISA'",
+    desc:"Key adverse effects of carbamazepine to remember",
+    words:[
+      {l:"D",w:"Dilutional hyponatremia (↑ ADH)"},
+      {l:"I",w:"Induces CYP450 (auto-induction)"},
+      {l:"S",w:"SJS — Steven-Johnson Syndrome (severe rash)"},
+      {l:"A",w:"Aplastic anemia (rare hematological)"},
+    ]
+  },
+  {
+    title:"Valproate Side Effects — 'HALT'",
+    desc:"Adverse effects of Valproic Acid — the teratogenic broad-spectrum AED",
+    words:[
+      {l:"H",w:"Hepatotoxicity (monitor LFTs!)"},
+      {l:"A",w:"Alopecia (hair loss)"},
+      {l:"L",w:"Liver failure risk in children <2"},
+      {l:"T",w:"Teratogenic → Spina Bifida (avoid in pregnancy)"},
+    ]
+  },
+  {
+    title:"Status Epilepticus Treatment — 'D-F-P-T'",
+    desc:"The 4-step emergency protocol for status epilepticus",
+    words:[
+      {l:"D",w:"Diazepam/Lorazepam IV (1st line)"},
+      {l:"F",w:"Fosphenytoin IV (if unresolved)"},
+      {l:"P",w:"Phenobarbitone IV (3rd line)"},
+      {l:"T",w:"Thiopental anesthesia + ventilation (refractory)"},
+    ]
+  },
+  {
+    title:"When to STOP AEDs — 'TWO-EEG'",
+    desc:"Criteria for safely discontinuing AED therapy",
+    words:[
+      {l:"2",w:"2+ Years seizure-free (minimum duration)"},
+      {l:"E",w:"EEG normal (no epileptiform activity)"},
+      {l:"G",w:"Gradual withdrawal only — never abrupt!"},
+    ]
+  },
+  {
+    title:"Phenytoin Side Effects — 'HANG'",
+    desc:"Distinctive adverse effects of Phenytoin — the Na⁺ channel blocker",
+    words:[
+      {l:"H",w:"Hirsutism (abnormal hair growth)"},
+      {l:"A",w:"Anemia — Megaloblastic (↓ folate) + Aplastic"},
+      {l:"N",w:"Nystagmus + Ataxia (cerebellar signs)"},
+      {l:"G",w:"Gingival hyperplasia (gum overgrowth)"},
+    ]
+  },
+];
+
+const vivaData = [
+  {q:"Define epilepsy.",a:"Epilepsy is a <strong>disease of the brain</strong> characterized by a continuous predisposition to generate epileptic seizures. It is an organic disorder verified by EEG. Importantly, epilepsy is NOT a single disease — different epilepsies require different pharmacological approaches.", exam:true},
+  {q:"What is the difference between simple and complex focal seizures?",a:"<strong>Simple focal:</strong> Localized electrical discharge with NO loss of consciousness — patient is fully aware during the seizure. <strong>Complex focal:</strong> Localized discharge that becomes widespread with LOSS of consciousness. This distinction guides prognosis and functional impact.", exam:false},
+  {q:"Identify the drug of choice for generalized absence epilepsy and its mechanism.",a:"<strong>Ethosuximide</strong> is the DOC for generalized absence epilepsy. Mechanism: selectively blocks T-type Ca²⁺ channels in thalamo-cortical neurons, suppressing the 3 Hz pacemaker current that drives spike-and-wave discharges. It has no effect on Na⁺ channels.", exam:true},
+  {q:"How does Phenytoin work and what are its specific adverse effects?",a:"Phenytoin blocks neuronal Na⁺ channels by prolonging their inactivated state, preventing high-frequency repetitive firing. Key adverse effects: <strong>gingival hyperplasia</strong>, hirsutism, nystagmus, ataxia, megaloblastic anemia (↓ folate), aplastic anemia (rare). It induces CYP450 → decreases oral contraceptive efficacy.", exam:false},
+  {q:"What severe hematological side effects can Phenytoin cause?",a:"Phenytoin can cause: ① <strong>Megaloblastic anemia</strong> — due to decreased folic acid absorption and metabolism (most common). ② <strong>Aplastic anemia</strong> — rare but life-threatening (idiosyncratic reaction). Folic acid supplementation reduces megaloblastic risk.", exam:false},
+  {q:"Explain the mechanism of action of Levetiracetam.",a:"Levetiracetam binds to and blocks <strong>SV2A (Synaptic Vesicle glycoprotein 2A)</strong>, a presynaptic membrane protein involved in vesicle fusion and neurotransmitter release. This decreases vesicular glutamate release from excitatory presynaptic terminals. Unique advantage: <strong>no clinically significant CYP450 interactions</strong>.", exam:false},
+  {q:"What is the risk of abruptly withdrawing an anti-epileptic drug?",a:"Abrupt AED withdrawal may precipitate <strong>severe seizures or status epilepticus</strong> — a life-threatening emergency. Therefore, ALL AED additions and withdrawals must be <strong>gradual</strong>. This applies even when switching drugs: introduce the new drug slowly while tapering the old one.", exam:true},
+  {q:"Why must you closely monitor liver enzymes in a patient on Valproic Acid?",a:"Valproic acid can cause <strong>severe hepatotoxicity</strong> — particularly dangerous in <strong>children under 2 years old</strong> (highest risk of fatal hepatotoxicity). Routine LFT monitoring is mandatory. Other hepatic concerns: it inhibits CYP450, potentially elevating levels of co-administered drugs.", exam:false},
+  {q:"What is the treatment protocol for Status Epilepticus?",a:"<strong>Step 1:</strong> IV Diazepam / Lorazepam (or rectal in children, buccal Midazolam). <strong>Step 2:</strong> If unresolved → IV Fosphenytoin. <strong>Step 3:</strong> If still unresolved → IV Phenobarbitone. <strong>Step 4:</strong> Refractory SE → General anesthesia (Thiopental) + artificial respiration in ICU.", exam:true},
+  {q:"Name a severe skin reaction associated with Lamotrigine and Carbamazepine.",a:"<strong>Steven-Johnson Syndrome (SJS)</strong> — a severe mucocutaneous hypersensitivity reaction involving painful blistering and sloughing of skin and mucous membranes. Requires immediate drug discontinuation and ICU-level supportive care. Can be fatal.", exam:false},
+  {q:"How does Carbamazepine impact water retention?",a:"Carbamazepine increases <strong>ADH (antidiuretic hormone) secretion</strong> → promotes renal water reabsorption → dilutional hyponatremia. This limits its use especially in <strong>elderly patients</strong> who are more susceptible to hyponatremia-related complications (falls, confusion, paradoxical seizures).", exam:false},
+  {q:"What is the primary clinical use for Gabapentin and Pregabalin in epilepsy?",a:"They are used exclusively as <strong>adjuvant (add-on) drugs</strong> for focal seizures — NOT as monotherapy. They also have significant use in: neuropathic pain, fibromyalgia, anxiety disorders (Pregabalin). Mechanism: ↑ GABA release + block α2δ subunit of presynaptic Ca²⁺ channels.", exam:false},
+];
+
+// ======== STATE ========
+let quizAnswered = new Array(quizData.length).fill(null);
+let quizCorrect = 0, quizWrong = 0, quizStreak = 0;
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem('aed_state') || '{}');
+    if (s.answered) quizAnswered = s.answered;
+    if (s.correct) quizCorrect = s.correct;
+    if (s.wrong) quizWrong = s.wrong;
+    if (s.streak) quizStreak = s.streak;
+  } catch(e) {}
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('aed_state', JSON.stringify({
+      answered: quizAnswered, correct: quizCorrect, wrong: quizWrong, streak: quizStreak,
+      tab: document.querySelector('.tab-btn.active')?.textContent
+    }));
+  } catch(e) {}
+}
+
+// ======== TABS ========
+function showTab(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
+  saveState();
+}
+
+// ======== RENDER QUIZ ========
+function renderQuiz() {
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = '';
+  quizData.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = 'q-card';
+    div.id = 'qcard-' + i;
+    const answered = quizAnswered[i];
+    div.innerHTML = `
+      <div class="q-num">Q${i+1} of ${quizData.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options">
+        ${q.opts.map((opt, j) => {
+          let cls = '';
+          if (answered !== null) {
+            if (j === q.ans) cls = 'correct';
+            else if (j === answered && answered !== q.ans) cls = 'wrong';
+          }
+          return `<button class="opt-btn ${cls}" ${answered !== null ? 'disabled' : ''} onclick="answerQ(${i}, ${j})">
+            <span class="opt-key">${String.fromCharCode(65+j)}</span> ${opt}
+          </button>`;
+        }).join('')}
+      </div>
+      <div class="explanation ${answered !== null ? 'show' : ''}" id="exp-${i}">
+        <strong>${answered === q.ans ? '✅ Correct!' : answered !== null ? '❌ Incorrect.' : ''}</strong> ${q.exp}
+      </div>
+    `;
+    container.appendChild(div);
+  });
+  updateQuizStats();
+}
+
+function answerQ(qi, oi) {
+  if (quizAnswered[qi] !== null) return;
+  quizAnswered[qi] = oi;
+  const q = quizData[qi];
+  if (oi === q.ans) { quizCorrect++; quizStreak++; }
+  else { quizWrong++; quizStreak = 0; }
+  saveState();
+  renderQuiz();
+  // Scroll to show explanation
+  setTimeout(() => document.getElementById('exp-' + qi)?.scrollIntoView({behavior:'smooth', block:'nearest'}), 100);
+}
+
+function updateQuizStats() {
+  const answered = quizAnswered.filter(a => a !== null).length;
+  const pct = Math.round(answered / quizData.length * 100);
+  document.getElementById('q-correct').textContent = quizCorrect;
+  document.getElementById('q-wrong').textContent = quizWrong;
+  document.getElementById('q-streak').textContent = quizStreak + '🔥';
+  document.getElementById('q-pct-label').textContent = `${answered} / ${quizData.length}`;
+  document.getElementById('q-progress').style.width = pct + '%';
+  document.getElementById('stat-score').textContent = quizCorrect;
+  document.getElementById('stat-streak').textContent = quizStreak + '🔥';
+  document.getElementById('stat-pct').textContent = pct + '%';
+}
+
+// ======== RENDER FLASHCARDS ========
+function renderFlashcards() {
+  const grid = document.getElementById('flashcardGrid');
+  grid.innerHTML = '';
+  flashcards.forEach((fc, i) => {
+    const div = document.createElement('div');
+    div.className = 'fc-card';
+    div.onclick = () => div.classList.toggle('flipped');
+    div.innerHTML = `
+      <div class="fc-inner">
+        <div class="fc-front">
+          <div class="fc-emoji">${fc.e}</div>
+          <div class="fc-q">${fc.q}</div>
+          <div class="fc-hint">tap to flip</div>
+        </div>
+        <div class="fc-back">
+          <div class="fc-emoji">${fc.e}</div>
+          <div class="fc-a">${fc.a}</div>
+        </div>
+      </div>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+// ======== RENDER CASES ========
+function renderCases() {
+  const container = document.getElementById('casesContainer');
+  container.innerHTML = '';
+  cases.forEach((c, i) => {
+    const div = document.createElement('div');
+    div.className = 'case-card';
+    div.innerHTML = `
+      <div class="case-header">
+        <div class="case-num-badge" style="background:${c.bg};color:${c.color}">C${i+1}</div>
+        <div>
+          <div class="case-title">${c.title}</div>
+          <div style="font-size:12px;color:var(--text-dim)">Clinical Vignette · ${c.questions.length} Questions</div>
+        </div>
+      </div>
+      <div class="case-vignette">${c.vignette}</div>
+      <div class="case-questions">
+        ${c.questions.map((q, j) => `<div class="case-q"><span>Q${j+1}</span>${q}</div>`).join('')}
+      </div>
+      <button class="reveal-btn" onclick="toggleCase(${i}, this)">🔍 Reveal Answer</button>
+      <div class="case-answer" id="case-ans-${i}">
+        ${c.answer.map(step => `
+          <div class="case-answer-step">
+            <div class="step-label">${step.label}</div>
+            <div>${step.text}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function toggleCase(i, btn) {
+  const el = document.getElementById('case-ans-' + i);
+  el.classList.toggle('show');
+  btn.textContent = el.classList.contains('show') ? '🙈 Hide Answer' : '🔍 Reveal Answer';
+}
+
+// ======== RENDER PATHO ========
+function renderPatho() {
+  const grid = document.getElementById('pathoGrid');
+  grid.innerHTML = '';
+  pathoItems.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'path-item';
+    div.innerHTML = `
+      <h3>${item.icon} ${item.title}</h3>
+      ${item.tags.map(t => `<span class="tag tag-purple" style="font-size:10px;margin-bottom:6px">${t}</span>`).join('')}
+      <p>${item.summary}</p>
+      <div class="path-detail">${item.detail}</div>
+    `;
+    div.onclick = () => {
+      div.classList.toggle('open');
+    };
+    grid.appendChild(div);
+  });
+}
+
+// ======== RENDER MNEMONICS ========
+function renderMnemonics() {
+  const container = document.getElementById('mnemonicsContainer');
+  container.innerHTML = '';
+  mnemonics.forEach(m => {
+    const div = document.createElement('div');
+    div.className = 'mnemonic-card';
+    div.innerHTML = `
+      <div class="mnemonic-title">🔑 ${m.title}</div>
+      <div class="mnemonic-desc">${m.desc}</div>
+      <div style="margin-bottom:14px">
+        ${m.words.map(w => `<div class="mnemonic-word"><span class="letter">${w.l}</span><span style="font-size:13px;color:var(--text-dim)">${w.w}</span></div>`).join('')}
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// ======== RENDER VIVA ========
+function renderViva() {
+  const container = document.getElementById('vivaContainer');
+  container.innerHTML = '';
+  vivaData.forEach((v, i) => {
+    const div = document.createElement('div');
+    div.className = 'viva-card';
+    div.innerHTML = `
+      <div class="viva-q" onclick="toggleViva(${i})">
+        <span>V${i+1}: ${v.q} ${v.exam ? '<span class="viva-badge tag-gold">⚠️ EXAM</span>' : ''}</span>
+        <span class="viva-toggle">+</span>
+      </div>
+      <div class="viva-a" id="viva-a-${i}">${v.a}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function toggleViva(i) {
+  const card = document.querySelectorAll('.viva-card')[i];
+  const ans = document.getElementById('viva-a-' + i);
+  card.classList.toggle('open');
+  ans.classList.toggle('show');
+}
+
+// ======== SEARCH ========
+function doSearch(val) {
+  const v = val.trim().toLowerCase();
+  if (!v) {
+    document.querySelectorAll('[data-searchable]').forEach(el => {
+      el.style.display = '';
+      el.innerHTML = el.getAttribute('data-original') || el.innerHTML;
+    });
+    return;
+  }
+  // Simple: highlight in overview
+  const conceptCards = document.querySelectorAll('.concept-card');
+  conceptCards.forEach(card => {
+    const text = card.textContent.toLowerCase();
+    card.style.display = text.includes(v) ? '' : 'none';
+  });
+}
+
+// ======== INIT ========
+loadState();
+renderQuiz();
+renderFlashcards();
+renderCases();
+renderPatho();
+renderMnemonics();
+renderViva();
+updateQuizStats();
+</script>
+</body>
+</html>

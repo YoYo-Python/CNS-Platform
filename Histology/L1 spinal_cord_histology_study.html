@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧠 Spinal Cord Histology — Interactive Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e1a;
+  --surface: #111827;
+  --surface2: #1a2438;
+  --border: #1e2d42;
+  --text: #e2eaf5;
+  --muted: #7a8ba8;
+  --accent: #4fffb0;
+  --accent2: #00d4ff;
+  --accent3: #ff6b6b;
+  --accent4: #ffd166;
+  --accent5: #c77dff;
+  --gray-active: #22c55e;
+  --white-active: #60a5fa;
+  --glow: rgba(79,255,176,0.15);
+  --radius: 14px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+/* ANIMATED BG */
+.bg-orbs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:0.12;animation:drift 18s infinite ease-in-out;}
+.orb1{width:700px;height:700px;background:var(--accent);top:-200px;left:-200px;animation-delay:0s;}
+.orb2{width:500px;height:500px;background:var(--accent2);bottom:-150px;right:-150px;animation-delay:-6s;}
+.orb3{width:400px;height:400px;background:var(--accent5);top:40%;left:50%;animation-delay:-12s;}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(30px,-20px) scale(1.05);}66%{transform:translate(-20px,30px) scale(0.95);}};
+
+/* HEADER */
+header{position:relative;z-index:10;padding:28px 32px 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;letter-spacing:-0.02em;color:var(--accent);}
+.logo span{color:var(--muted);font-weight:400;}
+.stats-bar{display:flex;gap:16px;align-items:center;}
+.stat-pill{background:var(--surface2);border:1px solid var(--border);padding:6px 14px;border-radius:30px;font-size:0.78rem;color:var(--muted);font-family:'DM Mono',monospace;transition:all .3s;}
+.stat-pill b{color:var(--accent);}
+
+/* HERO */
+.hero{position:relative;z-index:10;text-align:center;padding:40px 24px 32px;}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(2rem,6vw,3.6rem);font-weight:800;line-height:1.1;letter-spacing:-0.03em;margin-bottom:12px;}
+.hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);max-width:600px;margin:0 auto 28px;font-size:1rem;}
+.search-wrap{max-width:480px;margin:0 auto;position:relative;}
+.search-wrap input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:40px;padding:14px 20px 14px 48px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.95rem;outline:none;transition:border .3s;}
+.search-wrap input:focus{border-color:var(--accent);}
+.search-wrap .icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:1.1rem;}
+#searchResults{position:absolute;top:calc(100% + 8px);left:0;right:0;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:8px;max-height:300px;overflow-y:auto;z-index:100;display:none;}
+.search-item{padding:10px 12px;border-radius:8px;cursor:pointer;font-size:0.88rem;transition:background .2s;}
+.search-item:hover{background:var(--border);}
+.search-item .tag{font-size:0.72rem;color:var(--accent);font-family:'DM Mono',monospace;margin-right:6px;}
+
+/* TABS */
+nav.tabs{position:relative;z-index:10;display:flex;gap:6px;padding:0 24px;overflow-x:auto;scrollbar-width:none;margin-bottom:6px;justify-content:center;flex-wrap:wrap;}
+nav.tabs::-webkit-scrollbar{display:none;}
+.tab-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:9px 18px;border-radius:30px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.85rem;transition:all .25s;white-space:nowrap;}
+.tab-btn.active{background:var(--accent);color:#000;font-weight:700;border-color:var(--accent);box-shadow:0 0 20px var(--glow);}
+.tab-btn:hover:not(.active){border-color:var(--accent);color:var(--accent);}
+
+/* CONTENT */
+main{position:relative;z-index:10;max-width:1200px;margin:0 auto;padding:24px;}
+.tab-panel{display:none;animation:fadeUp .4s ease;}
+.tab-panel.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}};
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:border .3s,transform .25s;}
+.card:hover{border-color:var(--accent);transform:translateY(-2px);}
+.card h3{font-family:'Syne',sans-serif;font-size:1rem;margin-bottom:8px;}
+.card p{font-size:0.88rem;color:var(--muted);line-height:1.6;}
+.grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+.grid3{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+
+/* TAGS */
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.tag{font-size:0.72rem;padding:3px 10px;border-radius:20px;font-family:'DM Mono',monospace;}
+.tag.exam{background:rgba(255,107,107,.15);color:var(--accent3);}
+.tag.highyield{background:rgba(79,255,176,.12);color:var(--accent);}
+.tag.pearl{background:rgba(0,212,255,.12);color:var(--accent2);}
+.tag.mcq{background:rgba(199,125,255,.15);color:var(--accent5);}
+.tag.anatomy{background:rgba(255,209,102,.12);color:var(--accent4);}
+
+/* SECTION TITLE */
+.section-title{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:20px;letter-spacing:-0.02em;}
+.section-title span{color:var(--accent);}
+.subtitle{color:var(--muted);font-size:0.9rem;margin-bottom:24px;margin-top:-14px;}
+
+/* OVERVIEW */
+.timeline{border-left:2px solid var(--border);margin:24px 0 0 16px;padding-left:24px;display:flex;flex-direction:column;gap:20px;}
+.timeline-item{position:relative;}
+.timeline-item::before{content:'';position:absolute;left:-32px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--glow);}
+.timeline-item h4{font-family:'Syne',sans-serif;font-size:0.95rem;margin-bottom:4px;}
+.timeline-item p{font-size:0.85rem;color:var(--muted);line-height:1.6;}
+
+/* QUIZ */
+.quiz-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px;}
+.progress-wrap{flex:1;min-width:200px;}
+.progress-bar-bg{background:var(--surface2);border-radius:20px;height:8px;overflow:hidden;}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:20px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+.score-pill{background:var(--surface2);border:1px solid var(--border);padding:8px 16px;border-radius:20px;font-family:'DM Mono',monospace;font-size:0.85rem;}
+.score-pill b{color:var(--accent);}
+.question-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;transition:all .3s;}
+.question-card.correct-glow{border-color:var(--accent);box-shadow:0 0 24px rgba(79,255,176,.2);animation:pulseGreen .5s ease;}
+.question-card.wrong-glow{border-color:var(--accent3);box-shadow:0 0 24px rgba(255,107,107,.2);animation:shake .4s ease;}
+@keyframes pulseGreen{0%,100%{box-shadow:0 0 24px rgba(79,255,176,.2);}50%{box-shadow:0 0 40px rgba(79,255,176,.5);}};
+@keyframes shake{0%,100%{transform:translateX(0);}20%,60%{transform:translateX(-6px);}40%,80%{transform:translateX(6px);}};
+.q-num{font-size:0.78rem;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:8px;}
+.q-text{font-size:1rem;line-height:1.6;margin-bottom:18px;}
+.options{display:flex;flex-direction:column;gap:9px;}
+.option-btn{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;text-align:left;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.9rem;transition:all .2s;display:flex;gap:12px;align-items:flex-start;}
+.option-btn:hover:not([disabled]){border-color:var(--accent2);color:var(--accent2);}
+.option-btn.correct{background:rgba(79,255,176,.1);border-color:var(--accent);color:var(--accent);}
+.option-btn.wrong{background:rgba(255,107,107,.1);border-color:var(--accent3);color:var(--accent3);}
+.option-btn[disabled]{cursor:default;}
+.opt-letter{font-family:'DM Mono',monospace;font-size:0.8rem;opacity:.6;min-width:16px;}
+.explanation{background:rgba(79,255,176,.05);border:1px solid rgba(79,255,176,.2);border-radius:10px;padding:14px;margin-top:14px;font-size:0.85rem;line-height:1.6;display:none;color:var(--muted);}
+.explanation.show{display:block;animation:fadeUp .3s ease;}
+.explanation strong{color:var(--accent);}
+
+/* FLASHCARDS */
+.flash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+.flash-card{height:200px;cursor:pointer;perspective:1000px;}
+.flash-inner{position:relative;width:100%;height:100%;transition:transform .6s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d;}
+.flash-card.flipped .flash-inner{transform:rotateY(180deg);}
+.flash-face{position:absolute;inset:0;border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;justify-content:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;}
+.flash-front{background:var(--surface);border:1px solid var(--border);}
+.flash-back{background:var(--surface2);border:1px solid var(--accent);transform:rotateY(180deg);}
+.flash-label{font-size:0.7rem;font-family:'DM Mono',monospace;color:var(--muted);margin-bottom:8px;}
+.flash-front .flash-label{color:var(--accent2);}
+.flash-back .flash-label{color:var(--accent);}
+.flash-q{font-size:0.9rem;line-height:1.5;font-family:'Syne',sans-serif;font-weight:700;}
+.flash-a{font-size:0.82rem;line-height:1.55;color:var(--muted);}
+.flash-hint{margin-top:auto;font-size:0.7rem;color:var(--border);text-align:right;}
+
+/* CLINICAL CASES */
+.case-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;}
+.case-header{display:flex;gap:12px;align-items:flex-start;margin-bottom:16px;}
+.case-icon{font-size:2rem;}
+.case-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;margin-bottom:4px;}
+.case-subtitle{font-size:0.82rem;color:var(--muted);}
+.case-body{background:var(--surface2);border-radius:10px;padding:16px;font-size:0.88rem;line-height:1.7;color:var(--muted);margin-bottom:16px;}
+.case-question{font-size:0.9rem;margin-bottom:10px;font-weight:500;}
+.reveal-btn{background:transparent;border:1px solid var(--accent5);color:var(--accent5);padding:9px 18px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.85rem;transition:all .25s;}
+.reveal-btn:hover{background:var(--accent5);color:#000;}
+.answer-reveal{background:rgba(199,125,255,.07);border:1px solid rgba(199,125,255,.25);border-radius:10px;padding:14px;margin-top:12px;font-size:0.85rem;line-height:1.6;color:var(--muted);display:none;}
+.answer-reveal.show{display:block;animation:fadeUp .35s ease;}
+.answer-reveal strong{color:var(--accent5);}
+.step{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start;}
+.step-num{background:var(--accent5);color:#000;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0;margin-top:2px;}
+
+/* ANATOMY / PATHOPHYS */
+.struct-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:28px;}
+.struct-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:all .25s;}
+.struct-item:hover,.struct-item.active{border-color:var(--accent4);box-shadow:0 0 16px rgba(255,209,102,.15);}
+.struct-item .struct-icon{font-size:1.6rem;margin-bottom:8px;}
+.struct-item h4{font-family:'Syne',sans-serif;font-size:0.88rem;margin-bottom:4px;}
+.struct-item p{font-size:0.78rem;color:var(--muted);}
+.struct-detail{background:var(--surface2);border:1px solid var(--accent4);border-radius:var(--radius);padding:20px;margin-bottom:28px;display:none;animation:fadeUp .3s ease;}
+.struct-detail.show{display:block;}
+.flowchart{display:flex;flex-direction:column;gap:0;align-items:flex-start;max-width:600px;}
+.flow-step{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;font-size:0.88rem;position:relative;width:100%;transition:border .25s;}
+.flow-step:hover{border-color:var(--accent2);}
+.flow-arrow{font-size:1.2rem;color:var(--accent2);text-align:left;padding-left:24px;margin:2px 0;}
+.flow-step .badge{font-size:0.7rem;color:var(--accent4);font-family:'DM Mono',monospace;margin-right:6px;}
+
+/* DIAGNOSIS */
+.algo-step{display:flex;gap:14px;margin-bottom:14px;align-items:flex-start;}
+.algo-num{min-width:36px;height:36px;border-radius:50%;background:var(--accent2);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;}
+.algo-content h4{font-family:'Syne',sans-serif;font-size:0.92rem;margin-bottom:4px;}
+.algo-content p{font-size:0.83rem;color:var(--muted);}
+.badge-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.finding-badge{background:var(--surface2);border:1px solid var(--border);padding:7px 14px;border-radius:8px;font-size:0.8rem;}
+.finding-badge.positive{border-color:var(--accent);color:var(--accent);}
+.finding-badge.negative{border-color:var(--accent3);color:var(--accent3);}
+.finding-badge.neutral{border-color:var(--accent2);color:var(--accent2);}
+
+/* COMPARISON TABLE */
+.compare-table{width:100%;border-collapse:collapse;font-size:0.85rem;margin:20px 0;}
+.compare-table th{background:var(--surface2);padding:12px 14px;text-align:left;font-family:'Syne',sans-serif;font-size:0.82rem;border-bottom:2px solid var(--accent);color:var(--accent);}
+.compare-table td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top;}
+.compare-table tr:hover td{background:rgba(255,255,255,.02);}
+
+/* TREATMENT */
+.treat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;}
+.treat-card{border-radius:var(--radius);padding:18px;transition:transform .25s;}
+.treat-card:hover{transform:translateY(-2px);}
+.treat-card.emergency{background:rgba(255,107,107,.07);border:1px solid rgba(255,107,107,.3);}
+.treat-card.primary{background:rgba(79,255,176,.06);border:1px solid rgba(79,255,176,.25);}
+.treat-card.supportive{background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.2);}
+.treat-card.research{background:rgba(199,125,255,.06);border:1px solid rgba(199,125,255,.2);}
+.treat-card h4{font-family:'Syne',sans-serif;font-size:0.9rem;margin-bottom:8px;}
+.treat-card ul{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.treat-card ul li{font-size:0.82rem;color:var(--muted);padding-left:14px;position:relative;line-height:1.5;}
+.treat-card ul li::before{content:'→';position:absolute;left:0;color:inherit;opacity:.5;}
+
+/* MNEMONICS */
+.mnem-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+.mnem-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;cursor:pointer;transition:all .3s;}
+.mnem-card.open{border-color:var(--accent5);}
+.mnem-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;letter-spacing:0.05em;color:var(--accent);}
+.mnem-name{font-size:0.82rem;color:var(--muted);margin-bottom:10px;}
+.mnem-list{display:none;margin-top:12px;display:flex;flex-direction:column;gap:8px;}
+.mnem-row{display:flex;gap:12px;align-items:flex-start;}
+.mnem-letter{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;color:var(--accent5);min-width:30px;}
+.mnem-meaning{font-size:0.85rem;color:var(--muted);line-height:1.5;padding-top:4px;}
+.mnem-meaning strong{color:var(--text);}
+
+/* PROGRESS RING */
+.progress-section{display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin-bottom:32px;}
+.ring-wrap{position:relative;width:90px;height:90px;}
+.ring-wrap svg{transform:rotate(-90deg);}
+.ring-wrap .ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:0.8rem;}
+.ring-wrap .ring-pct{font-size:1.2rem;font-weight:700;color:var(--accent);}
+
+/* MOTIVATIONAL */
+.motivation{background:linear-gradient(135deg,rgba(79,255,176,.08),rgba(0,212,255,.05));border:1px solid rgba(79,255,176,.15);border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;font-size:0.9rem;color:var(--muted);}
+.motivation strong{color:var(--accent);}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  header{flex-direction:column;align-items:flex-start;}
+  .hero h1{font-size:2rem;}
+  nav.tabs{justify-content:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<header>
+  <div class="logo">🧠 NeuroHisto <span>/ Spinal Cord</span></div>
+  <div class="stats-bar">
+    <div class="stat-pill">Score: <b id="hScore">0</b></div>
+    <div class="stat-pill">🔥 Streak: <b id="hStreak">0</b></div>
+    <div class="stat-pill">✅ <b id="hProgress">0</b>%</div>
+  </div>
+</header>
+
+<div class="hero">
+  <h1>Histology of the<br><em>Spinal Cord</em></h1>
+  <p>Mansoura Faculty of Medicine · Interactive Study Platform · All high-yield content in one place</p>
+  <div class="search-wrap">
+    <span class="icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search any concept…" autocomplete="off">
+    <div id="searchResults"></div>
+  </div>
+</div>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="overview">📋 Overview</button>
+  <button class="tab-btn" data-tab="quiz">🎯 Quiz</button>
+  <button class="tab-btn" data-tab="flashcards">🃏 Flashcards</button>
+  <button class="tab-btn" data-tab="cases">🏥 Clinical Cases</button>
+  <button class="tab-btn" data-tab="anatomy">🔬 Anatomy/Pathophys</button>
+  <button class="tab-btn" data-tab="diagnosis">🧪 Diagnosis</button>
+  <button class="tab-btn" data-tab="treatment">💊 Treatment/Management</button>
+  <button class="tab-btn" data-tab="mnemonics">💡 Mnemonics</button>
+</nav>
+
+<main>
+
+<!-- ===================== OVERVIEW ===================== -->
+<section class="tab-panel active" id="tab-overview">
+  <div class="section-title"><span>📋</span> Overview & Key Concepts</div>
+  <p class="subtitle">All high-yield facts from the lecture — flagged by exam importance</p>
+
+  <div class="motivation">
+    <strong>🎓 Start here!</strong> These cards cover the core distinctions your lecturer emphasized. Gray vs White Matter and the BBB are the most frequently tested concepts. Let's go! 💪
+  </div>
+
+  <div class="grid2" style="margin-bottom:28px;">
+    <div class="card">
+      <h3>⚪ White Matter</h3>
+      <p>Outer peripheral region. Composed of <strong>myelinated ascending/descending axons</strong>, oligodendrocytes, and blood capillaries. Appears white due to <strong>myelin lipids</strong>. No nerve cell bodies. Function: Rapid long-distance signal conduction via tracts.</p>
+      <div class="tags"><span class="tag highyield">⭐ High-Yield</span><span class="tag exam">🔴 Exam</span></div>
+    </div>
+    <div class="card">
+      <h3>🔘 Gray Matter</h3>
+      <p>Central <strong>H-shaped core</strong>. Contains multipolar nerve cell bodies, unmyelinated fibers, protoplasmic astrocytes, and capillaries. Appears gray due to <strong>absence of myelin</strong>. Divided into anterior, posterior, and lateral horns.</p>
+      <div class="tags"><span class="tag highyield">⭐ High-Yield</span><span class="tag exam">🔴 Exam</span></div>
+    </div>
+    <div class="card">
+      <h3>🛡️ Blood-Brain Barrier (BBB)</h3>
+      <p>Three layers: <strong>(1)</strong> Continuous non-fenestrated capillary endothelium → <strong>(2)</strong> Thick basement membrane → <strong>(3)</strong> Astrocyte feet. Protects sensitive CNS from toxins, bacteria, and drugs.</p>
+      <div class="tags"><span class="tag exam">🔴 Exam</span><span class="tag mcq">📝 MCQ</span><span class="tag pearl">💎 Pearl</span></div>
+    </div>
+    <div class="card">
+      <h3>🧫 Anterior Horn Cells (LM)</h3>
+      <p>5 key features (5-point question!): <strong>Multipolar</strong> shape · Rounded <strong>euchromatic nucleus</strong> · Prominent <strong>Nissl granules</strong> · Well-developed <strong>Golgi apparatus</strong> · <strong>Neurofibrils</strong> (silver stain only).</p>
+      <div class="tags"><span class="tag exam">🔴 Exam</span><span class="tag highyield">⭐ High-Yield</span></div>
+    </div>
+    <div class="card">
+      <h3>🔲 Ependymal Cells</h3>
+      <p>Cuboidal/columnar cells lining the <strong>central canal</strong>. Apically: cilia (CSF movement) + long microvilli (absorption). Basally: <strong>NO basement membrane</strong> — instead, fine processes extend into nervous tissue.</p>
+      <div class="tags"><span class="tag mcq">📝 MCQ</span><span class="tag pearl">💎 Pearl</span></div>
+    </div>
+    <div class="card">
+      <h3>🌀 Oligodendrocytes</h3>
+      <p>CNS myelin-forming cells. One oligodendrocyte wraps <strong>multiple axons simultaneously</strong> (vs. Schwann cells in PNS = one segment of one axon). Loss → <strong>Multiple Sclerosis</strong>.</p>
+      <div class="tags"><span class="tag highyield">⭐ High-Yield</span><span class="tag exam">🔴 Exam</span></div>
+    </div>
+    <div class="card">
+      <h3>🔵 Microglia</h3>
+      <p>The <strong>"policeman" of the CNS</strong>. Immune cells — activated by injury or infection. Perform phagocytosis to clear debris. Respond acutely to trauma and chronic disease.</p>
+      <div class="tags"><span class="tag anatomy">🔬 Glial</span></div>
+    </div>
+    <div class="card">
+      <h3>🔀 Golgi Type I vs II</h3>
+      <p><strong>Type I</strong>: Long axons, grouped in nuclei, form tracts for long-distance projection. <strong>Type II</strong>: Short axons, act as interneurons, associative or commissural. Both are multipolar neurons of the gray matter.</p>
+      <div class="tags"><span class="tag exam">🔴 Exam</span></div>
+    </div>
+  </div>
+
+  <div class="section-title" style="font-size:1.1rem;">🗂️ Gray Matter Horns — Functional Overview</div>
+  <div class="timeline">
+    <div class="timeline-item">
+      <h4>🔼 Anterior (Ventral) Horn — Motor</h4>
+      <p>Contains multipolar motor neuron cell bodies. Thick in cervical (upper limb supply) and lumbar enlargements. Thin in thoracic (trunk only). Golgi Type I cells project long axons out via ventral roots.</p>
+    </div>
+    <div class="timeline-item">
+      <h4>🔽 Posterior (Dorsal) Horn — Sensory</h4>
+      <p>Receives incoming sensory fibers from dorsal root ganglia. Processes pain, temperature, touch. Governs the ascending sensory tracts in the posterior funiculus.</p>
+    </div>
+    <div class="timeline-item">
+      <h4>↔️ Lateral Horn — Autonomic (T1–L2/3 & S2–S4)</h4>
+      <p>Only present at specific segments. Contains preganglionic sympathetic (T1–L2/3) and parasympathetic (S2–S4) neurons. Key identification feature for thoracic cross-sections.</p>
+    </div>
+    <div class="timeline-item">
+      <h4>🔗 Gray Commissure — Bridge</h4>
+      <p>Transversely connects the right and left halves of the gray matter around the central canal. Allows communication between both sides of the cord.</p>
+    </div>
+  </div>
+
+  <div class="section-title" style="font-size:1.1rem;margin-top:28px;">📐 White Matter Funiculi</div>
+  <div class="grid3" style="margin-top:8px;">
+    <div class="card"><h3>⬆️ Dorsal Funiculus</h3><p><strong>Ascending only.</strong> Carries fine touch, vibration, proprioception to brain.</p></div>
+    <div class="card"><h3>↕️ Lateral Funiculus</h3><p>Contains <strong>both ascending and descending tracts</strong>. Includes corticospinal and spinocerebellar.</p></div>
+    <div class="card"><h3>↕️ Anterior Funiculus</h3><p><strong>Both ascending and descending</strong> tracts. Contains reticulospinal, tectospinal tracts.</p></div>
+  </div>
+</section>
+
+<!-- ===================== QUIZ ===================== -->
+<section class="tab-panel" id="tab-quiz">
+  <div class="quiz-header">
+    <div>
+      <div class="section-title" style="margin-bottom:4px;"><span>🎯</span> Quiz Mode</div>
+      <p style="color:var(--muted);font-size:0.85rem;">25 MCQs from lecture content — select your answer for immediate feedback</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+      <div class="score-pill">Score: <b id="quizScore">0</b> / <b id="quizTotal">25</b> &nbsp;|&nbsp; 🔥 <b id="quizStreak">0</b></div>
+      <div class="progress-wrap">
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="quizProgress" style="width:0%"></div></div>
+      </div>
+      <button onclick="resetQuiz()" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:20px;cursor:pointer;font-size:0.78rem;">🔄 Reset</button>
+    </div>
+  </div>
+  <div id="quizContainer"></div>
+</section>
+
+<!-- ===================== FLASHCARDS ===================== -->
+<section class="tab-panel" id="tab-flashcards">
+  <div class="section-title"><span>🃏</span> Flashcards</div>
+  <p class="subtitle">Click any card to flip and reveal the answer · 20 cards covering all key concepts</p>
+  <div class="flash-grid" id="flashGrid"></div>
+</section>
+
+<!-- ===================== CLINICAL CASES ===================== -->
+<section class="tab-panel" id="tab-cases">
+  <div class="section-title"><span>🏥</span> Clinical Cases</div>
+  <p class="subtitle">Exam-style vignettes based on lecture scenarios — think before revealing!</p>
+
+  <!-- CASE 1 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-icon">🧑‍⚕️</div>
+      <div><div class="case-title">Case 1 — The Failing Insulation</div><div class="case-subtitle">A demyelination scenario</div></div>
+    </div>
+    <div class="case-body">A 32-year-old presents with progressive weakness and sensory loss in both legs over 6 months. An MRI of the spinal cord shows multiple plaques in the lateral and posterior funiculi. A histological biopsy of the white matter reveals loss of the insulating lipid-rich sheaths around axons, with relative preservation of axons themselves.</div>
+    <div class="case-question">❓ Q1: What cells are responsible for forming the destroyed structures in the white matter?</div>
+    <div class="case-question">❓ Q2: How does one of these cells differ from its PNS counterpart in terms of the number of axons it can serve?</div>
+    <div class="case-question">❓ Q3: What is the clinical diagnosis?</div>
+    <button class="reveal-btn" onclick="reveal(this)">🔓 Reveal Answer</button>
+    <div class="answer-reveal">
+      <div class="step"><div class="step-num">1</div><div><strong>Oligodendrocytes</strong> form the myelin sheaths in the CNS. Their myelin is composed of lipid-rich membrane, giving white matter its characteristic color and insulating function.</div></div>
+      <div class="step"><div class="step-num">2</div><div>One <strong>oligodendrocyte</strong> wraps multiple axons simultaneously via its many processes. In contrast, one <strong>Schwann cell</strong> (PNS) myelinates only a single internode of a single axon.</div></div>
+      <div class="step"><div class="step-num">3</div><div>The clinical diagnosis is <strong>Multiple Sclerosis</strong> — a CNS demyelinating disease characterized by plaques in white matter tracts.</div></div>
+    </div>
+  </div>
+
+  <!-- CASE 2 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-icon">🔬</div>
+      <div><div class="case-title">Case 2 — The Impenetrable Wall</div><div class="case-subtitle">Blood-Brain Barrier physiology</div></div>
+    </div>
+    <div class="case-body">A researcher injects Evans Blue dye (a large molecule that binds albumin) intravenously into a rat. After 30 minutes, organs throughout the body are stained blue. However, a histological cross-section of the spinal cord shows no blue staining in the gray matter, even though blood capillaries are present.</div>
+    <div class="case-question">❓ Q1: Name the THREE structural layers that prevented dye entry into the spinal cord tissue.</div>
+    <div class="case-question">❓ Q2: What is the crucial type of capillary endothelium in this barrier and why does it matter?</div>
+    <div class="case-question">❓ Q3: What would happen clinically if the astrocyte feet component of this barrier were selectively destroyed?</div>
+    <button class="reveal-btn" onclick="reveal(this)">🔓 Reveal Answer</button>
+    <div class="answer-reveal">
+      <div class="step"><div class="step-num">1</div><div>The three lines of defense: <strong>(1) Continuous (non-fenestrated) capillary endothelium</strong> — no gaps for large molecules. <strong>(2) Thick basement membrane</strong> — physical barrier around the capillary. <strong>(3) Astrocyte feet (neuroglial processes)</strong> — tightly enwrap the basement membrane.</div></div>
+      <div class="step"><div class="step-num">2</div><div>The endothelium is <strong>continuous and non-fenestrated</strong>. This is critical — fenestrations would allow substances to leak into the tissue. ⚠️ This is a classic MCQ trap: the answer is CONTINUOUS, not fenestrated.</div></div>
+      <div class="step"><div class="step-num">3</div><div>Loss of astrocyte feet would compromise the third layer of the BBB, allowing <strong>toxins, bacteria, and drugs</strong> to enter the highly sensitive CNS tissue, disrupting the constant metabolic environment neurons require.</div></div>
+    </div>
+  </div>
+
+  <!-- CASE 3 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-icon">⚡</div>
+      <div><div class="case-title">Case 3 — The Silver Mystery</div><div class="case-subtitle">Neuronal LM structure</div></div>
+    </div>
+    <div class="case-body">A histology slide of the spinal cord anterior horn is stained with a silver impregnation technique. Under the microscope, a network of thin, black, thread-like fibrils is visible within the cytoplasm of large multipolar cells. A neighboring slide stained with H&E shows the same cells with a rounded, pale nucleus and dark blue granular material throughout the cytoplasm.</div>
+    <div class="case-question">❓ Q1: Identify the two specific intracellular structures highlighted by each stain.</div>
+    <div class="case-question">❓ Q2: What does the rounded, pale-staining nucleus indicate about the metabolic state of these cells?</div>
+    <div class="case-question">❓ Q3: What type of neuron (Golgi classification) are these large anterior horn cells?</div>
+    <button class="reveal-btn" onclick="reveal(this)">🔓 Reveal Answer</button>
+    <div class="answer-reveal">
+      <div class="step"><div class="step-num">1</div><div><strong>Silver stain</strong> → highlights <strong>Neurofibrils</strong> (the cytoskeletal network maintaining neuronal shape). <strong>H&E stain</strong> → highlights <strong>Nissl granules</strong> (rough ER; responsible for protein synthesis).</div></div>
+      <div class="step"><div class="step-num">2</div><div>The rounded, pale (euchromatic) nucleus indicates <strong>HIGH metabolic and synthetic activity</strong>. Euchromatin = uncoiled DNA = actively transcribing genes. This makes sense as motor neurons have very high metabolic demands.</div></div>
+      <div class="step"><div class="step-num">3</div><div>These are <strong>Golgi Type I</strong> neurons — large cells with <strong>long axons</strong> grouped in nuclei, projecting long distances out of the spinal cord via ventral roots to innervate muscles.</div></div>
+    </div>
+  </div>
+
+  <!-- CASE 4 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-icon">💧</div>
+      <div><div class="case-title">Case 4 — Still Waters</div><div class="case-subtitle">CSF circulation failure</div></div>
+    </div>
+    <div class="case-body">A patient presents with headaches and signs of raised intracranial pressure. An MRI reveals dilation of the central canal (syringomyelia). A histological biopsy of the central canal lining shows cells with a columnar morphology. Electron microscopy reveals that the apical surface of these cells lacks the normal hair-like projections seen in a healthy specimen.</div>
+    <div class="case-question">❓ Q1: What cells line the central canal and what is absent on their apical surface?</div>
+    <div class="case-question">❓ Q2: What other apical structure remains and what is its function?</div>
+    <div class="case-question">❓ Q3: What is unique about the BASAL aspect of these cells compared to all other epithelial cells?</div>
+    <button class="reveal-btn" onclick="reveal(this)">🔓 Reveal Answer</button>
+    <div class="answer-reveal">
+      <div class="step"><div class="step-num">1</div><div><strong>Ependymal cells</strong> line the central canal. The missing apical structures are <strong>cilia</strong>, which normally beat rhythmically to propel and circulate CSF through the canal. Loss of cilia → CSF stagnation.</div></div>
+      <div class="step"><div class="step-num">2</div><div>The remaining apical structures are <strong>long microvilli</strong>, which function in <strong>absorption and modification of CSF</strong> composition (not propulsion — that's the cilia's job).</div></div>
+      <div class="step"><div class="step-num">3</div><div>Ependymal cells are unique in that they <strong>do NOT rest on a basement membrane</strong> — a key MCQ fact! Instead, their basal surface has fine processes that extend directly into the underlying nervous tissue for anchoring.</div></div>
+    </div>
+  </div>
+
+  <!-- CASE 5 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-icon">🩻</div>
+      <div><div class="case-title">Case 5 — The Spinal Cross-Section Puzzle</div><div class="case-subtitle">Regional identification</div></div>
+    </div>
+    <div class="case-body">A pathologist examining two cross-sections of spinal cord from an unknown level. Section A: oval outline, very thick ventral horns, thin dorsal horns, large amount of white matter, NO lateral horns. Section B: rounded outline, thin ventral horns, thin dorsal horns, a distinct small lateral horn present between the ventral and dorsal horns.</div>
+    <div class="case-question">❓ Q1: Identify the spinal cord level of each section (A and B).</div>
+    <div class="case-question">❓ Q2: Why does Section A have thicker ventral horns than Section B?</div>
+    <div class="case-question">❓ Q3: What neurons populate the lateral horn in Section B and what are their functional levels?</div>
+    <button class="reveal-btn" onclick="reveal(this)">🔓 Reveal Answer</button>
+    <div class="answer-reveal">
+      <div class="step"><div class="step-num">1</div><div><strong>Section A = Cervical</strong> (oval shape, thick ventral horns for upper limb motor supply, no lateral horn). <strong>Section B = Thoracic</strong> (rounded, thin horns, distinct lateral horn for sympathetic outflow).</div></div>
+      <div class="step"><div class="step-num">2</div><div>The cervical cord supplies motor innervation to the <strong>upper limbs</strong>, which requires a large number of motor neurons → thick ventral (anterior) horns. The thoracic cord only supplies the trunk muscles → fewer motor neurons needed → thin ventral horns.</div></div>
+      <div class="step"><div class="step-num">3</div><div>The lateral horn contains <strong>preganglionic sympathetic neurons</strong> at levels <strong>T1–L2/3</strong> and preganglionic parasympathetic neurons at <strong>S2–S4</strong>. Section B (thoracic) would contain sympathetic preganglionic cells.</div></div>
+    </div>
+  </div>
+
+  <!-- CASE 6 — LONG INTEGRATIVE -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-icon">🚨</div>
+      <div><div class="case-title">Case 6 — Integrative: T4 Spinal Trauma</div><div class="case-subtitle">Long integrative scenario from lecture</div></div>
+    </div>
+    <div class="case-body">A patient suffers traumatic spinal cord injury at T4 after a motor vehicle accident. The initial impact physically disrupts the cord's white and gray matter. Over the next 48 hours, the wound becomes infected. Within weeks, the patient develops complete paralysis below the level of injury. A histological specimen shows loss of Nissl bodies in anterior horn cells, activated microglial cells, and a developing glial scar.</div>
+    <div class="case-question">❓ Q1: Which barrier was disrupted by the trauma, allowing infection to enter?</div>
+    <div class="case-question">❓ Q2: Which cell is the CNS's first responder to the infection and what is its mechanism of action?</div>
+    <div class="case-question">❓ Q3: What does loss of Nissl bodies in anterior horn cells indicate?</div>
+    <div class="case-question">❓ Q4: What do activated astrocytes form in response to chronic damage and what is its consequence?</div>
+    <button class="reveal-btn" onclick="reveal(this)">🔓 Reveal Answer</button>
+    <div class="answer-reveal">
+      <div class="step"><div class="step-num">1</div><div>The <strong>Blood-Brain Barrier (BBB)</strong> was disrupted — specifically the continuous endothelium and astrocyte feet. Trauma physically tears these structures, opening the CNS to circulating pathogens.</div></div>
+      <div class="step"><div class="step-num">2</div><div><strong>Microglia</strong> — the "policeman" of the CNS. They are activated by injury/infection and perform <strong>phagocytosis</strong> to clear cellular debris, pathogens, and myelin breakdown products.</div></div>
+      <div class="step"><div class="step-num">3</div><div>Loss of Nissl bodies (<strong>chromatolysis</strong>) indicates <strong>severe neuronal stress or injury</strong>. Since Nissl granules = rough ER for protein synthesis, their loss means the motor neuron is metabolically compromised and may be undergoing degeneration → hence the paralysis.</div></div>
+      <div class="step"><div class="step-num">4</div><div>Activated astrocytes proliferate and form a <strong>glial scar</strong>. While initially protective (containing the damage), it ultimately <strong>prevents axon regeneration</strong>, contributing to the permanence of CNS injuries — a key reason the CNS heals poorly compared to the PNS.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ANATOMY / PATHOPHYS ===================== -->
+<section class="tab-panel" id="tab-anatomy">
+  <div class="section-title"><span>🔬</span> Anatomy & Pathophysiology</div>
+  <p class="subtitle">Click any structure to expand detailed information</p>
+
+  <div class="struct-grid">
+    <div class="struct-item" onclick="toggleStruct(this, 'gray')">
+      <div class="struct-icon">🔘</div>
+      <h4>Gray Matter</h4>
+      <p>Central H-core</p>
+    </div>
+    <div class="struct-item" onclick="toggleStruct(this, 'white')">
+      <div class="struct-icon">⚪</div>
+      <h4>White Matter</h4>
+      <p>Peripheral tracts</p>
+    </div>
+    <div class="struct-item" onclick="toggleStruct(this, 'bbb')">
+      <div class="struct-icon">🛡️</div>
+      <h4>BBB</h4>
+      <p>3-layer defense</p>
+    </div>
+    <div class="struct-item" onclick="toggleStruct(this, 'oligo')">
+      <div class="struct-icon">🌀</div>
+      <h4>Oligodendrocytes</h4>
+      <p>CNS myelin cells</p>
+    </div>
+    <div class="struct-item" onclick="toggleStruct(this, 'ependymal')">
+      <div class="struct-icon">🔲</div>
+      <h4>Ependymal Cells</h4>
+      <p>Central canal lining</p>
+    </div>
+    <div class="struct-item" onclick="toggleStruct(this, 'microglia')">
+      <div class="struct-icon">🔵</div>
+      <h4>Microglia</h4>
+      <p>CNS immune cells</p>
+    </div>
+    <div class="struct-item" onclick="toggleStruct(this, 'astro')">
+      <div class="struct-icon">⭐</div>
+      <h4>Astrocytes</h4>
+      <p>Support & BBB</p>
+    </div>
+    <div class="struct-item" onclick="toggleStruct(this, 'neuron')">
+      <div class="struct-icon">⚡</div>
+      <h4>Anterior Horn Neuron</h4>
+      <p>Motor multipolar cell</p>
+    </div>
+  </div>
+
+  <div class="struct-detail" id="detail-gray">
+    <h4 style="font-family:'Syne',sans-serif;margin-bottom:10px;color:var(--accent4);">🔘 Gray Matter — Full Detail</h4>
+    <p style="font-size:0.88rem;color:var(--muted);line-height:1.7;">The central <strong>H-shaped core</strong> of the spinal cord. Components: <strong>multipolar nerve cell bodies</strong> (the defining feature), unmyelinated fibers (beginning/terminations of axons), <strong>protoplasmic astrocytes</strong>, and blood capillaries. Appears gray due to absence of myelin. Divided into: Anterior horn (motor, Golgi I neurons), Posterior horn (sensory), Lateral horn (autonomic, only T1–L2/3 and S2–S4), and Gray Commissure (connects both halves around central canal).</p>
+    <div class="tags" style="margin-top:10px;"><span class="tag exam">🔴 Key Exam Topic</span><span class="tag highyield">⭐ High-Yield</span></div>
+  </div>
+  <div class="struct-detail" id="detail-white">
+    <h4 style="font-family:'Syne',sans-serif;margin-bottom:10px;color:var(--accent4);">⚪ White Matter — Full Detail</h4>
+    <p style="font-size:0.88rem;color:var(--muted);line-height:1.7;">Peripheral region of the spinal cord. Contains <strong>myelinated ascending and descending axons</strong>, oligodendrocytes, and blood capillaries. Appears white due to <strong>myelin lipids</strong>. Divided into: Dorsal funiculus (ascending only), Lateral funiculus (ascending + descending), Anterior funiculus (ascending + descending). Also contains the <strong>anterior white commissure</strong> connecting both sides.</p>
+  </div>
+  <div class="struct-detail" id="detail-bbb">
+    <h4 style="font-family:'Syne',sans-serif;margin-bottom:10px;color:var(--accent4);">🛡️ Blood-Brain Barrier — Full Detail</h4>
+    <p style="font-size:0.88rem;color:var(--muted);line-height:1.7;"><strong>Layer 1:</strong> Continuous (non-fenestrated) capillary endothelium with tight junctions — prevents bulk flow. <strong>Layer 2:</strong> Thick basement membrane — physical molecular sieve. <strong>Layer 3:</strong> Astrocyte feet (neuroglial processes) wrapping the basement membrane. Function: maintains constant metabolic environment; blocks toxins, bacteria, and most drugs. ⚠️ CRITICAL MCQ: endothelium is CONTINUOUS, not fenestrated.</p>
+    <div class="tags" style="margin-top:10px;"><span class="tag exam">🔴 Short Note Question</span><span class="tag mcq">📝 MCQ Trap</span></div>
+  </div>
+  <div class="struct-detail" id="detail-oligo">
+    <h4 style="font-family:'Syne',sans-serif;margin-bottom:10px;color:var(--accent4);">🌀 Oligodendrocytes — Full Detail</h4>
+    <p style="font-size:0.88rem;color:var(--muted);line-height:1.7;">Myelin-forming cells of the <strong>CNS</strong>. One oligodendrocyte extends <strong>multiple processes</strong>, each wrapping a different axon segment — so one cell myelinates multiple axons simultaneously. Compare to PNS: one Schwann cell = one internode of one axon. Clinical relevance: destruction of oligodendrocytes → demyelination → <strong>Multiple Sclerosis</strong>. Also responsible for the white color of white matter.</p>
+  </div>
+  <div class="struct-detail" id="detail-ependymal">
+    <h4 style="font-family:'Syne',sans-serif;margin-bottom:10px;color:var(--accent4);">🔲 Ependymal Cells — Full Detail</h4>
+    <p style="font-size:0.88rem;color:var(--muted);line-height:1.7;">Cuboidal-to-columnar cells lining the central canal. <strong>Apical border:</strong> cilia (move CSF) + long microvilli (absorb CSF). <strong>Basal border:</strong> ⚠️ NO basement membrane — instead, fine processes extend into nervous tissue for anchoring. They circulate and modify CSF. Loss of cilia → CSF stagnation → raised ICP (syringomyelia).</p>
+    <div class="tags" style="margin-top:10px;"><span class="tag mcq">📝 No Basement Membrane — Classic MCQ!</span></div>
+  </div>
+  <div class="struct-detail" id="detail-microglia">
+    <h4 style="font-family:'Syne',sans-serif;margin-bottom:10px;color:var(--accent4);">🔵 Microglia — Full Detail</h4>
+    <p style="font-size:0.88rem;color:var(--muted);line-height:1.7;">The <strong>"policeman" of the CNS</strong>. Small cells with reactive morphology. Function: immune defense via phagocytosis. Activated by injury, infection, or ischemia. In trauma: they clear myelin debris and cellular remnants. Contribute to glial scar formation. Equivalent to macrophages in the periphery. Found throughout both gray and white matter.</p>
+  </div>
+  <div class="struct-detail" id="detail-astro">
+    <h4 style="font-family:'Syne',sans-serif;margin-bottom:10px;color:var(--accent4);">⭐ Astrocytes — Full Detail</h4>
+    <p style="font-size:0.88rem;color:var(--muted);line-height:1.7;"><strong>Protoplasmic astrocytes</strong> (in gray matter): provide metabolic support to neurons. <strong>Fibrous astrocytes</strong> (in white matter): structural support. Key role: their feet enwrap capillaries forming the third layer of the BBB. In injury: they proliferate and form a <strong>glial scar</strong> that prevents regeneration. Also regulate the ionic and metabolic environment.</p>
+  </div>
+  <div class="struct-detail" id="detail-neuron">
+    <h4 style="font-family:'Syne',sans-serif;margin-bottom:10px;color:var(--accent4);">⚡ Anterior Horn Motor Neuron — LM Features (5-point!)</h4>
+    <p style="font-size:0.88rem;color:var(--muted);line-height:1.7;"><strong>1. Multipolar shape</strong> — multiple dendrites + one axon. <strong>2. Rounded euchromatic nucleus</strong> — pale, large, indicating HIGH synthetic activity (open chromatin = active transcription). <strong>3. Prominent Nissl granules</strong> — = rough ER, responsible for protein synthesis. <strong>4. Well-developed Golgi apparatus</strong> — for packaging and secretion. <strong>5. Neurofibrils</strong> — cytoskeletal filaments maintaining shape; requires SILVER STAIN to visualize. ⚠️ Memorize all 5!</p>
+    <div class="tags" style="margin-top:10px;"><span class="tag exam">🔴 5-Point Exam Question</span></div>
+  </div>
+
+  <div class="section-title" style="font-size:1.1rem;margin-top:32px;">🔄 BBB Defense Mechanism Flowchart</div>
+  <div class="flowchart" style="margin-top:12px;">
+    <div class="flow-step"><span class="badge">STEP 1</span>Toxin / bacteria enters the bloodstream</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step"><span class="badge">STEP 2</span>Encounters <strong>continuous non-fenestrated endothelium</strong> — tight junctions block paracellular movement</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step"><span class="badge">STEP 3</span>Encounters <strong>thick basement membrane</strong> — acts as a physical molecular sieve</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step"><span class="badge">STEP 4</span>Encounters <strong>astrocyte feet</strong> — wrap the entire capillary, adding the final barrier layer</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step" style="border-color:var(--accent);color:var(--accent);">✅ Toxin BLOCKED — CNS tissue remains protected</div>
+  </div>
+
+  <div class="section-title" style="font-size:1.1rem;margin-top:32px;">🔄 CSF Circulation Flowchart</div>
+  <div class="flowchart" style="margin-top:12px;">
+    <div class="flow-step">CSF produced in choroid plexus → enters central canal</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step"><strong>Apical cilia</strong> of ependymal cells beat rhythmically → propel CSF movement</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step"><strong>Long microvilli</strong> on apical surface → absorb and modify CSF composition</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step" style="border-color:var(--accent2);color:var(--accent2);">✅ CSF circulated and maintained in chemical balance</div>
+  </div>
+</section>
+
+<!-- ===================== DIAGNOSIS ===================== -->
+<section class="tab-panel" id="tab-diagnosis">
+  <div class="section-title"><span>🧪</span> Diagnosis & Investigations</div>
+  <p class="subtitle">How to identify spinal cord histological structures and their associated pathologies</p>
+
+  <div class="section-title" style="font-size:1rem;margin-bottom:16px;">🔬 Histological Staining — Key Findings</div>
+  <div class="badge-grid" style="margin-bottom:28px;">
+    <div class="finding-badge positive">H&E → Nissl granules (blue)</div>
+    <div class="finding-badge positive">Silver stain → Neurofibrils (black)</div>
+    <div class="finding-badge positive">Osmium → Myelin sheaths</div>
+    <div class="finding-badge neutral">Luxol Fast Blue → Myelin (blue)</div>
+    <div class="finding-badge neutral">Golgi stain → Full neuron shape</div>
+    <div class="finding-badge negative">No stain for BBB endothelium type → Need EM or special immunostains</div>
+  </div>
+
+  <div class="section-title" style="font-size:1rem;margin-bottom:16px;">🗺️ Diagnostic Algorithm: Identify the Spinal Level</div>
+  <div style="margin-bottom:28px;">
+    <div class="algo-step">
+      <div class="algo-num">1</div>
+      <div class="algo-content"><h4>Check overall shape</h4><p>Oval → Cervical. Rounded → Thoracic. Oval/round with large horns → Lumbar/Sacral.</p></div>
+    </div>
+    <div class="algo-step">
+      <div class="algo-num">2</div>
+      <div class="algo-content"><h4>Assess ventral horn size</h4><p>Thick ventral horns = Cervical (upper limb) or Lumbar (lower limb). Thin = Thoracic (trunk only).</p></div>
+    </div>
+    <div class="algo-step">
+      <div class="algo-num">3</div>
+      <div class="algo-content"><h4>Look for lateral horn</h4><p>Present = Thoracic (T1–L2/3) or Sacral (S2–S4). Absent = Cervical below C8, or lower lumbar.</p></div>
+    </div>
+    <div class="algo-step">
+      <div class="algo-num">4</div>
+      <div class="algo-content"><h4>Assess white-to-gray ratio</h4><p>More white matter relative to gray = Higher levels (more descending fibers yet to synapse). Less relative white = Lower levels (most tracts already exited).</p></div>
+    </div>
+  </div>
+
+  <div class="section-title" style="font-size:1rem;margin-bottom:14px;">📊 Comparison: Gray vs White Matter</div>
+  <div style="overflow-x:auto;margin-bottom:28px;">
+    <table class="compare-table">
+      <tr><th>Feature</th><th>Gray Matter</th><th>White Matter</th></tr>
+      <tr><td>Location</td><td>Central H-shaped core</td><td>Peripheral surrounding region</td></tr>
+      <tr><td>Color (fresh)</td><td>Gray — no myelin</td><td>White — myelin lipids</td></tr>
+      <tr><td>Cell bodies</td><td>✅ Multipolar neurons present</td><td>❌ Absent</td></tr>
+      <tr><td>Myelin</td><td>Unmyelinated fibers only</td><td>Myelinated axons in tracts</td></tr>
+      <tr><td>Glial cells</td><td>Protoplasmic astrocytes</td><td>Oligodendrocytes, fibrous astrocytes</td></tr>
+      <tr><td>Function</td><td>Signal processing & integration</td><td>Signal conduction (up/down)</td></tr>
+    </table>
+  </div>
+
+  <div class="section-title" style="font-size:1rem;margin-bottom:14px;">📊 Glial Cells Comparison</div>
+  <div style="overflow-x:auto;">
+    <table class="compare-table">
+      <tr><th>Feature</th><th>Astrocytes</th><th>Oligodendrocytes</th><th>Microglia</th><th>Ependymal</th></tr>
+      <tr><td>Location</td><td>Gray & White</td><td>White matter</td><td>Gray & White</td><td>Central canal</td></tr>
+      <tr><td>Main function</td><td>Support, BBB</td><td>Myelination</td><td>Immune defense</td><td>CSF circulation</td></tr>
+      <tr><td>Unique feature</td><td>Feet on capillaries</td><td>Wraps multiple axons</td><td>Phagocytosis</td><td>No basement membrane</td></tr>
+      <tr><td>Clinical relevance</td><td>BBB disruption</td><td>MS (demyelination)</td><td>Infection response</td><td>Syringomyelia</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ===================== TREATMENT ===================== -->
+<section class="tab-panel" id="tab-treatment">
+  <div class="section-title"><span>💊</span> Clinical Management</div>
+  <p class="subtitle">Conditions arising from spinal cord histology pathology — management overview</p>
+
+  <div class="motivation">
+    <strong>📚 Note:</strong> This section is based on histological principles from the lecture. Management is contextualized from the pathological mechanisms described. For full pharmacology, refer to dedicated pharmacology notes.
+  </div>
+
+  <div class="treat-grid">
+    <div class="treat-card emergency">
+      <h4>🚨 Acute Spinal Trauma — Emergency</h4>
+      <ul>
+        <li>Immobilize spine immediately</li>
+        <li>IV methylprednisolone (reduce inflammation, protect BBB)</li>
+        <li>Surgical decompression if indicated</li>
+        <li>ICU monitoring for autonomic dysreflexia</li>
+        <li>Prevent secondary BBB breakdown</li>
+      </ul>
+    </div>
+    <div class="treat-card emergency">
+      <h4>🦠 BBB Breach + CNS Infection</h4>
+      <ul>
+        <li>IV antibiotics (BBB-penetrating: e.g., cephalosporins)</li>
+        <li>Dexamethasone to reduce neuroinflammation</li>
+        <li>Target: restore astrocyte barrier function</li>
+        <li>Monitor CSF via lumbar puncture</li>
+      </ul>
+    </div>
+    <div class="treat-card primary">
+      <h4>🔵 Multiple Sclerosis (Demyelination)</h4>
+      <ul>
+        <li>Interferon-beta / glatiramer acetate (disease-modifying)</li>
+        <li>Natalizumab (blocks lymphocyte entry through BBB)</li>
+        <li>Acute relapse: IV corticosteroids</li>
+        <li>Goal: protect remaining oligodendrocytes</li>
+        <li>Remyelination research: stem cell therapy</li>
+      </ul>
+    </div>
+    <div class="treat-card primary">
+      <h4>⚡ ALS — Motor Neuron Disease</h4>
+      <ul>
+        <li>Riluzole (reduces glutamate excitotoxicity)</li>
+        <li>Edaravone (antioxidant, slows decline)</li>
+        <li>Multidisciplinary: physio, speech, respiratory</li>
+        <li>No cure — supportive management focus</li>
+      </ul>
+    </div>
+    <div class="treat-card supportive">
+      <h4>💧 Syringomyelia (Ependymal Dysfunction)</h4>
+      <ul>
+        <li>Treat underlying cause (e.g., Chiari malformation)</li>
+        <li>Surgical: syrinx shunting or posterior fossa decompression</li>
+        <li>Physiotherapy for motor deficits</li>
+        <li>Pain management (central neuropathic pain)</li>
+      </ul>
+    </div>
+    <div class="treat-card supportive">
+      <h4>🔧 General Supportive — CNS Injury</h4>
+      <ul>
+        <li>Neuroprotection: minimize secondary injury (hypoxia, hypotension)</li>
+        <li>Rehabilitation: promote neural plasticity</li>
+        <li>Bladder/bowel management if autonomic involvement</li>
+        <li>Prevent pressure sores and DVT</li>
+      </ul>
+    </div>
+    <div class="treat-card research">
+      <h4>🔬 Research / Future Directions</h4>
+      <ul>
+        <li>Oligodendrocyte precursor transplantation for MS</li>
+        <li>BBB-targeted drug delivery systems</li>
+        <li>Nanoparticles to cross BBB for CNS drug delivery</li>
+        <li>Glial scar dissolution (chondroitinase ABC)</li>
+        <li>Exosome therapy for axonal regeneration</li>
+      </ul>
+    </div>
+    <div class="treat-card primary">
+      <h4>🧫 Histological Investigation Tools</h4>
+      <ul>
+        <li>H&E stain → Nissl bodies (neuronal health)</li>
+        <li>Silver stain → Neurofibrils (structural integrity)</li>
+        <li>Luxol Fast Blue → Myelin integrity</li>
+        <li>Immunohistochemistry → Specific glial markers (GFAP for astrocytes, MBP for myelin)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== MNEMONICS ===================== -->
+<section class="tab-panel" id="tab-mnemonics">
+  <div class="section-title"><span>💡</span> Mnemonics</div>
+  <p class="subtitle">Custom-built memory aids from lecture content — click to expand</p>
+
+  <div class="mnem-grid" id="mnemGrid"></div>
+</section>
+
+</main>
+
+<script>
+// ============ DATA ============
+
+const quizData = [
+  {q:"Why does the white matter of the spinal cord appear white in a fresh state?",opts:["High concentration of cell bodies","Presence of protoplasmic astrocytes","Lipids of the myelin sheath","High density of blood capillaries","Presence of ependymal cells"],ans:2,exp:"Myelin is a lipid-rich substance insulating axons, giving white matter its characteristic white color. Cell bodies and astrocytes are in gray matter."},
+  {q:"Which cell is responsible for forming the myelin sheath in the spinal cord (CNS)?",opts:["Schwann cell","Oligodendrocyte","Astrocyte","Microglia","Ependymal cell"],ans:1,exp:"Oligodendrocytes form myelin sheaths around multiple axons in the CNS. Schwann cells do this in the PNS."},
+  {q:"What is the defining characteristic of the capillary endothelium in the Blood-Brain Barrier?",opts:["Highly fenestrated","Discontinuous","Continuous and non-fenestrated","Lacks a basement membrane","Supported by Schwann cells"],ans:2,exp:"The BBB relies on tight, continuous (non-fenestrated) endothelium to prevent toxic substances from leaking into CNS. ⚠️ Classic MCQ trap — it is CONTINUOUS."},
+  {q:"Which structure anchors ependymal cells to the underlying nervous tissue?",opts:["A thick basement membrane","Astrocyte feet","Fine basal processes","Apical cilia","Tight junctions"],ans:2,exp:"Ependymal cells do NOT rest on a basement membrane. Their bases have fine processes extending into the underlying tissue — a key MCQ fact."},
+  {q:"Which cells act as the 'policeman' or immune cells of the CNS?",opts:["Astrocytes","Microglia","Oligodendrocytes","Ependymal cells","Golgi type II cells"],ans:1,exp:"Microglia have an immune function, performing phagocytosis and activated during injury or infection."},
+  {q:"What type of astrocytes are predominantly found in the gray matter?",opts:["Fibrous astrocytes","Protoplasmic astrocytes","Ependymal astrocytes","Oligodendro-astrocytes","Microglial astrocytes"],ans:1,exp:"Protoplasmic astrocytes are the neuroglial cells predominantly found in the gray matter."},
+  {q:"Which structural feature identifies Golgi type I neurons?",opts:["Short axons acting as interneurons","Star shape with no axons","Grouped in tracts with long axons","Presence of apical microvilli","Lack of Nissl granules"],ans:2,exp:"Golgi type I cells have long axons and are grouped in nuclei, projecting signals over long distances."},
+  {q:"Which stain is required to visualize neurofibrils in spinal cord nerve cells?",opts:["H&E","PAS","Silver stain","Golgi stain","Osmium tetroxide"],ans:2,exp:"Neurofibrils maintain the neuron's shape and are specifically stained by silver impregnation techniques. ⚠️ Emphasized by lecturer."},
+  {q:"What is the primary function of the long microvilli on the apical border of ependymal cells?",opts:["Facilitating movement of CSF","Providing structural support","Absorption","Forming the BBB","Myelination"],ans:2,exp:"Apical microvilli are for absorption and modification of CSF. The cilia are responsible for physical movement/propulsion of CSF."},
+  {q:"At which spinal cord level(s) are the lateral gray horns present?",opts:["All cervical and sacral levels","T1-L2/3 and S2,3,4","Cervical only","Lumbar only","Throughout the entire cord"],ans:1,exp:"Lateral horns contain preganglionic sympathetic (T1–L2/3) and parasympathetic (S2–S4) neurons only at these segments."},
+  {q:"The posterior (dorsal) horn of the spinal cord mainly contains:",opts:["Motor neurons","Preganglionic sympathetic fibers","Sensory neurons","Ependymal cells","Ascending tracts only"],ans:2,exp:"The dorsal horn processes sensory input arriving from dorsal root ganglia — pain, temperature, touch."},
+  {q:"The anterior (ventral) horn of the spinal cord mainly contains:",opts:["Sensory neurons","Motor neurons","Interneurons only","Astrocytes only","CSF"],ans:1,exp:"The ventral horn houses motor neuron cell bodies that control muscle movements via ventral roots."},
+  {q:"How does myelination by an oligodendrocyte differ from a Schwann cell?",opts:["Oligodendrocytes only myelinate sensory axons","One Schwann cell myelinates multiple axons","One oligodendrocyte participates in myelination of many axons simultaneously","Oligodendrocytes are found in the PNS","Oligodendrocytes lack a cell body"],ans:2,exp:"A single oligodendrocyte extends multiple processes, each wrapping a different axon. Schwann cells myelinate only one internode of one axon in the PNS."},
+  {q:"The anterior median fissure and posterior median septum divide the spinal cord into:",opts:["Gray and white matter","Three funiculi","Two similar halves","Cervical and thoracic regions","Motor and sensory roots"],ans:2,exp:"These structures physically divide the spinal cord into right and left halves."},
+  {q:"Which tracts are exclusively found in the Dorsal White Column (Posterior Funiculus)?",opts:["Descending tracts only","Motor tracts only","Both ascending and descending","Ascending tracts only","Commissural tracts"],ans:3,exp:"The posterior funiculus contains ascending tracts only (fine touch, vibration, proprioception going to the brain)."},
+  {q:"The gray commissure functions to:",opts:["Produce CSF","Transversely connect the two sides of the gray matter","House motor cell bodies","Myelinate ascending tracts","Form the blood-brain barrier"],ans:1,exp:"The gray commissure acts as a bridge linking the right and left halves of the gray matter around the central canal."},
+  {q:"A rounded euchromatic nucleus in anterior horn cells indicates:",opts:["The cell is inactive","It is stained exclusively by silver","High synthetic activity (open face)","It is located in the axon terminal","It lacks a nucleolus"],ans:2,exp:"Euchromatic (pale, open) nucleus = uncoiled chromatin = active transcription = HIGH metabolic activity. ⚠️ Emphasized by lecturer."},
+  {q:"What connects anterior and posterior gray matter within a single half of the cord?",opts:["There is no separation; it forms a continuous H-shape","The central canal","The anterior white commissure","The pia mater","The dorsal root ganglion"],ans:0,exp:"Within each half, gray matter is a continuous core — the anterior and posterior horns are simply projections of the same continuous structure."},
+  {q:"Which disease is characterized by demyelination of the spinal cord's CNS myelin?",opts:["Meningitis","Amyotrophic Lateral Sclerosis (ALS)","Multiple Sclerosis","Polio","Stroke"],ans:2,exp:"Multiple Sclerosis is caused by loss of myelin (demyelination) in the CNS, specifically targeting oligodendrocyte-formed myelin."},
+  {q:"In a cervical spinal cord cross-section, the characteristic shape is:",opts:["Perfectly round with thin ventral horns","Oval with thick ventral horns and thin dorsal horns","H-shaped with no white matter","Round with thick dorsal horns","Small and purely gray"],ans:1,exp:"Cervical sections are oval with thick ventral horns (motor neurons for upper limb supply)."},
+  {q:"Why are the ventral horns thin in the thoracic spinal cord?",opts:["There are no muscles in the thorax","The thoracic cord only processes sensory information","It only supplies motor innervation to the trunk, requiring fewer motor neurons","It is replaced by the lateral horn","The thoracic cord is demyelinated"],ans:2,exp:"The trunk muscles require fewer motor neurons compared to the massive supply needed for upper/lower limbs. Hence, thin ventral horns in the thoracic cord."},
+  {q:"What characterizes the unmyelinated nerve fibers found in the gray matter?",opts:["Formed by Schwann cells","Consist of beginnings of axons arising from nerve cells and terminations of entering fibers","Are purely supportive fibers","Form the massive ascending tracts","Are the same as neurofibrils"],ans:1,exp:"Gray matter unmyelinated fibers represent axons just starting from cell bodies or incoming axons losing myelin at their terminals."},
+  {q:"What constitutes the 'astrocytic feet' in the BBB?",opts:["The nuclei of astrocytes","Processes of astrocytes that surround the capillary basement membrane","Cilia on the astrocytes","Axons of the astrocytes","Microvilli of the astrocytes"],ans:1,exp:"Astrocyte feet = neuroglial processes that wrap around the thick basement membrane of the capillaries, forming the third layer of the BBB."},
+  {q:"Interneurons in the spinal cord are typically:",opts:["Golgi Type I cells","Golgi Type II cells","Oligodendrocytes","Microglia","Ependymal cells"],ans:1,exp:"Golgi Type II cells have short axons and act as interneurons connecting sensory and motor pathways locally."},
+  {q:"Which condition is associated with neurodegenerative changes in motor neurons of spinal cord histology?",opts:["ALS (Amyotrophic Lateral Sclerosis)","Multiple Sclerosis","Meningitis","Ependymoma","Astrocytoma"],ans:0,exp:"ALS causes neurodegenerative changes specifically targeting motor neurons in the spinal cord's anterior horns."}
+];
+
+const flashData = [
+  {q:"What gives white matter its white color?",a:"Lipids of the myelin sheath surrounding the myelinated axons. Myelin is produced by oligodendrocytes in the CNS."},
+  {q:"Name the 5 LM features of anterior horn cells.",a:"1. Multipolar shape\n2. Rounded euchromatic nucleus\n3. Prominent Nissl granules\n4. Well-developed Golgi apparatus\n5. Neurofibrils (silver stain only)"},
+  {q:"What are the 3 layers of the Blood-Brain Barrier?",a:"1. Continuous (non-fenestrated) capillary endothelium\n2. Thick basement membrane\n3. Astrocyte feet (neuroglial processes)"},
+  {q:"What is unique about the BASAL border of ependymal cells?",a:"They do NOT rest on a basement membrane. Instead, fine processes extend from the base into the underlying nervous tissue. ⚠️ Classic MCQ!"},
+  {q:"What does a euchromatic nucleus indicate?",a:"HIGH metabolic and synthetic activity. Euchromatin = uncoiled DNA = actively transcribing genes. Indicates the neuron has a high energy demand."},
+  {q:"Golgi Type I vs Type II neurons?",a:"Type I: Long axons, grouped in nuclei, form tracts for long-distance projection.\nType II: Short axons, act as interneurons for local/commissural communication."},
+  {q:"Which cell myelinates CNS axons and how?",a:"Oligodendrocytes. One oligodendrocyte extends MULTIPLE processes, each wrapping a DIFFERENT axon. (vs. Schwann cell = 1 internode of 1 axon in PNS)"},
+  {q:"What are microglia and what is their function?",a:"The immune cells of the CNS — called the 'policeman' of the CNS. They perform phagocytosis and are activated by injury or infection."},
+  {q:"What is the function of ependymal cell cilia vs microvilli?",a:"CILIA → Beat rhythmically to MOVE/circulate CSF.\nMICROVILLI → Absorb and modify CSF composition."},
+  {q:"Where are lateral horns found and what do they contain?",a:"Only at T1–L2/3 (sympathetic preganglionic) and S2–S4 (parasympathetic preganglionic). Absence = cervical or lower lumbar."},
+  {q:"What is the functional content of the posterior funiculus?",a:"Ascending tracts ONLY — fine touch, vibration, two-point discrimination, proprioception traveling to the brain."},
+  {q:"What stain visualizes neurofibrils?",a:"Silver stain (silver impregnation). Neurofibrils appear as black thread-like networks within the cytoplasm."},
+  {q:"Why does the cervical cord have thick ventral horns?",a:"It supplies motor innervation to the UPPER LIMBS, requiring a large number of motor neurons. Thoracic = trunk only = thin horns."},
+  {q:"What is chromatolysis and what does it signify?",a:"Loss of Nissl granules (rough ER) in damaged neurons. Indicates severe neuronal stress, injury, or degeneration. Seen in axotomized motor neurons."},
+  {q:"What cells form a glial scar after CNS injury?",a:"Astrocytes. They proliferate and produce a scar that initially contains damage but ultimately PREVENTS axon regeneration — explaining poor CNS recovery."},
+  {q:"What disease results from oligodendrocyte destruction?",a:"Multiple Sclerosis — characterized by plaques of demyelination in CNS white matter, causing various neurological deficits."},
+  {q:"What is the difference between protoplasmic and fibrous astrocytes?",a:"Protoplasmic astrocytes: in GRAY matter, provide neuronal support.\nFibrous astrocytes: in WHITE matter, structural support + BBB feet."},
+  {q:"What does the gray commissure do?",a:"It transversely connects the right and left halves of the gray matter across the midline, allowing bilateral communication."},
+  {q:"How does the thoracic cord differ histologically from the cervical cord?",a:"Thoracic: Rounded outline, thin ventral & dorsal horns, PRESENCE of lateral horn.\nCervical: Oval outline, thick ventral horns, NO lateral horn."},
+  {q:"What happens if the BBB is disrupted?",a:"Toxins, bacteria, and drugs can enter the highly sensitive CNS tissue, disrupting the constant metabolic environment neurons require for survival."}
+];
+
+const mnemonicsData = [
+  {
+    title:"M-N-G-E-N",
+    name:"5 LM Features of Anterior Horn Cells",
+    rows:[
+      {l:"M",mean:"<strong>M</strong>ultipolar shape"},
+      {l:"N",mean:"<strong>N</strong>issl granules (prominent)"},
+      {l:"G",mean:"<strong>G</strong>olgi apparatus (well-developed)"},
+      {l:"E",mean:"<strong>E</strong>uchromatic nucleus (rounded, active)"},
+      {l:"N",mean:"<strong>N</strong>eurofibrils (silver stain only)"}
+    ]
+  },
+  {
+    title:"C-B-A",
+    name:"3 Layers of the Blood-Brain Barrier",
+    rows:[
+      {l:"C",mean:"<strong>C</strong>ontinuous (non-fenestrated) capillary endothelium"},
+      {l:"B",mean:"<strong>B</strong>asement membrane (thick)"},
+      {l:"A",mean:"<strong>A</strong>strocyte feet wrapping the capillary"}
+    ]
+  },
+  {
+    title:"OAM-E",
+    name:"Glial Cells of the Spinal Cord",
+    rows:[
+      {l:"O",mean:"<strong>O</strong>ligodendrocytes → Myelin (CNS)"},
+      {l:"A",mean:"<strong>A</strong>strocytes → BBB + Support"},
+      {l:"M",mean:"<strong>M</strong>icroglia → 'policeMen' (Immune)"},
+      {l:"E",mean:"<strong>E</strong>pendymal cells → CSF canal lining"}
+    ]
+  },
+  {
+    title:"DAMP",
+    name:"White Matter Funiculi & Contents",
+    rows:[
+      {l:"D",mean:"<strong>D</strong>orsal funiculus → Ascending only"},
+      {l:"A",mean:"<strong>A</strong>nterior funiculus → Both (ascending + descending)"},
+      {l:"M",mean:"<strong>M</strong>iddle (lateral) funiculus → Mixed (both directions)"},
+      {l:"P",mean:"<strong>P</strong>osterior = only Proprioception & fine touch going up"}
+    ]
+  },
+  {
+    title:"SMP-LAT",
+    name:"Gray Horn Functions",
+    rows:[
+      {l:"S",mean:"<strong>S</strong>ensory → Posterior (dorsal) horn"},
+      {l:"M",mean:"<strong>M</strong>otor → anterior (ventral) horn"},
+      {l:"P",mean:"<strong>P</strong>reganglionic autonomic → Lateral horn"},
+      {l:"L",mean:"<strong>L</strong>ateral horn only at T1–L2/3"},
+      {l:"A",mean:"And S2–S4 (parasympathetic)"},
+      {l:"T",mean:"<strong>T</strong>horacic = only level with all 3 horns"}
+    ]
+  },
+  {
+    title:"ONE vs ONE-MANY",
+    name:"CNS vs PNS Myelination",
+    rows:[
+      {l:"1",mean:"<strong>1</strong> Schwann cell → 1 axon (PNS — ONE-to-ONE)"},
+      {l:"∞",mean:"<strong>1</strong> Oligodendrocyte → MANY axons (CNS — ONE-to-MANY)"},
+      {l:"📝",mean:"Loss of oligodendrocytes → Multiple Sclerosis (MS)"},
+      {l:"📝",mean:"Loss of Schwann cells → Guillain-Barré (PNS)"}
+    ]
+  }
+];
+
+// ============ STATE ============
+let state = JSON.parse(localStorage.getItem('spinalState') || '{}');
+if(!state.answers) state.answers = {};
+if(!state.flipped) state.flipped = {};
+if(!state.score) state.score = 0;
+if(!state.streak) state.streak = 0;
+if(!state.tab) state.tab = 'overview';
+
+function saveState(){ localStorage.setItem('spinalState', JSON.stringify(state)); }
+
+// ============ HEADER ============
+function updateHeader(){
+  const answered = Object.keys(state.answers).length;
+  const correct = Object.values(state.answers).filter(v=>v).length;
+  document.getElementById('hScore').textContent = correct;
+  document.getElementById('hStreak').textContent = state.streak;
+  document.getElementById('hProgress').textContent = Math.round(answered/quizData.length*100);
+}
+
+// ============ TABS ============
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    const t = btn.dataset.tab;
+    document.getElementById('tab-'+t).classList.add('active');
+    state.tab = t;
+    saveState();
+  });
+});
+
+// restore tab
+if(state.tab && state.tab !== 'overview'){
+  document.querySelector(`[data-tab="${state.tab}"]`)?.click();
+}
+
+// ============ QUIZ ============
+function buildQuiz(){
+  const c = document.getElementById('quizContainer');
+  c.innerHTML = '';
+  quizData.forEach((q,i)=>{
+    const saved = state.answers[i];
+    const answered = saved !== undefined;
+    const div = document.createElement('div');
+    div.className = 'question-card' + (answered ? (saved ? ' correct-glow' : ' wrong-glow') : '');
+    div.innerHTML = `<div class="q-num">Question ${i+1} of ${quizData.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options">
+        ${q.opts.map((o,j)=>`<button class="option-btn ${answered && j===q.ans ? 'correct' : answered && j===saved && j!==q.ans ? 'wrong' : ''}" 
+          onclick="selectAnswer(${i},${j},this)" ${answered?'disabled':''}>
+          <span class="opt-letter">${'ABCDE'[j]}</span>${o}
+        </button>`).join('')}
+      </div>
+      <div class="explanation ${answered?'show':''}" id="exp-${i}">
+        ${answered ? `<strong>${saved===q.ans ? '✅ Correct!' : '❌ Incorrect.'}</strong> ${q.exp}` : q.exp}
+      </div>`;
+    c.appendChild(div);
+  });
+  updateQuizHeader();
+}
+
+function selectAnswer(qi,choice,btn){
+  const q = quizData[qi];
+  const correct = choice === q.ans;
+  state.answers[qi] = choice;
+  if(correct){ state.score++; state.streak++; }
+  else { state.streak = 0; }
+  saveState();
+  // update UI
+  const card = btn.closest('.question-card');
+  card.querySelectorAll('.option-btn').forEach((b,j)=>{
+    b.disabled = true;
+    if(j===q.ans) b.classList.add('correct');
+    else if(j===choice && !correct) b.classList.add('wrong');
+  });
+  card.classList.add(correct?'correct-glow':'wrong-glow');
+  const exp = card.querySelector('.explanation');
+  exp.innerHTML = `<strong>${correct ? '✅ Correct!' : '❌ Incorrect.'}</strong> ${q.exp}`;
+  exp.classList.add('show');
+  updateQuizHeader();
+  updateHeader();
+}
+
+function updateQuizHeader(){
+  const answered = Object.keys(state.answers).length;
+  const correct = Object.values(state.answers).filter(v=>v===quizData[Object.keys(state.answers).find(k=>state.answers[k]===quizData[k]?.ans)]).length;
+  const rightCount = Object.entries(state.answers).filter(([k,v])=>Number(v)===quizData[k].ans).length;
+  document.getElementById('quizScore').textContent = rightCount;
+  document.getElementById('quizStreak').textContent = state.streak;
+  const pct = Math.round(answered/quizData.length*100);
+  document.getElementById('quizProgress').style.width = pct+'%';
+}
+
+function resetQuiz(){
+  state.answers = {};
+  state.score = 0;
+  state.streak = 0;
+  saveState();
+  buildQuiz();
+  updateHeader();
+}
+
+// ============ FLASHCARDS ============
+function buildFlash(){
+  const g = document.getElementById('flashGrid');
+  g.innerHTML = '';
+  flashData.forEach((f,i)=>{
+    const div = document.createElement('div');
+    div.className = 'flash-card' + (state.flipped[i] ? ' flipped' : '');
+    div.innerHTML = `<div class="flash-inner">
+      <div class="flash-face flash-front">
+        <div class="flash-label">❓ QUESTION</div>
+        <div class="flash-q">${f.q}</div>
+        <div class="flash-hint">tap to flip →</div>
+      </div>
+      <div class="flash-face flash-back">
+        <div class="flash-label">✅ ANSWER</div>
+        <div class="flash-a">${f.a.replace(/\n/g,'<br>')}</div>
+      </div>
+    </div>`;
+    div.addEventListener('click',()=>{
+      div.classList.toggle('flipped');
+      state.flipped[i] = div.classList.contains('flipped');
+      saveState();
+    });
+    g.appendChild(div);
+  });
+}
+
+// ============ MNEMONICS ============
+function buildMnemonics(){
+  const g = document.getElementById('mnemGrid');
+  g.innerHTML = '';
+  mnemonicsData.forEach(m=>{
+    const div = document.createElement('div');
+    div.className = 'mnem-card';
+    div.innerHTML = `<div class="mnem-title">${m.title}</div>
+      <div class="mnem-name">${m.name}</div>
+      <div class="mnem-list">
+        ${m.rows.map(r=>`<div class="mnem-row"><div class="mnem-letter">${r.l}</div><div class="mnem-meaning">${r.mean}</div></div>`).join('')}
+      </div>`;
+    g.appendChild(div);
+  });
+}
+
+// ============ ANATOMY TOGGLE ============
+function toggleStruct(el, id){
+  document.querySelectorAll('.struct-item').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.struct-detail').forEach(e=>e.classList.remove('show'));
+  el.classList.add('active');
+  document.getElementById('detail-'+id).classList.add('show');
+}
+
+// ============ REVEAL ============
+function reveal(btn){
+  const ans = btn.nextElementSibling;
+  ans.classList.toggle('show');
+  btn.textContent = ans.classList.contains('show') ? '🔒 Hide Answer' : '🔓 Reveal Answer';
+}
+
+// ============ SEARCH ============
+const allContent = [
+  ...quizData.map(q=>({text:q.q, tag:'Quiz', exp:q.exp})),
+  ...flashData.map(f=>({text:f.q, tag:'Flashcard', exp:f.a})),
+  {text:'Blood-Brain Barrier components', tag:'Anatomy', exp:'Continuous endothelium + thick basement membrane + astrocyte feet'},
+  {text:'Oligodendrocyte myelination', tag:'Anatomy', exp:'One oligo wraps multiple axons. Loss → Multiple Sclerosis'},
+  {text:'Ependymal cells no basement membrane', tag:'Pearl', exp:'Ependymal cells uniquely lack a basement membrane. Fine basal processes instead.'},
+  {text:'Golgi type I vs type II neurons', tag:'Concept', exp:'Type I: long axons, tracts. Type II: short axons, interneurons.'},
+  {text:'Cervical vs thoracic cross section', tag:'Diagnosis', exp:'Cervical: oval, thick ventral horns, no lateral horn. Thoracic: round, thin horns, lateral horn present.'},
+  {text:'LM structure anterior horn cells', tag:'Exam', exp:'Multipolar, euchromatic nucleus, Nissl granules, Golgi, neurofibrils (silver stain)'},
+];
+
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+searchInput.addEventListener('input', ()=>{
+  const val = searchInput.value.toLowerCase().trim();
+  if(!val){ searchResults.style.display='none'; return; }
+  const hits = allContent.filter(c=>c.text.toLowerCase().includes(val)||c.exp.toLowerCase().includes(val)).slice(0,8);
+  if(!hits.length){ searchResults.style.display='none'; return; }
+  searchResults.innerHTML = hits.map(h=>`<div class="search-item"><span class="tag">${h.tag}</span>${h.text}</div>`).join('');
+  searchResults.style.display='block';
+  searchResults.querySelectorAll('.search-item').forEach((el,i)=>{
+    el.addEventListener('click',()=>{
+      searchInput.value = hits[i].text;
+      searchResults.innerHTML = `<div class="search-item" style="color:var(--accent);">${hits[i].exp.replace(/\n/g,'<br>')}</div>`;
+    });
+  });
+});
+document.addEventListener('click', e=>{ if(!e.target.closest('.search-wrap')) searchResults.style.display='none'; });
+
+// ============ INIT ============
+buildQuiz();
+buildFlash();
+buildMnemonics();
+updateHeader();
+updateQuizHeader();
+</script>
+</body>
+</html>

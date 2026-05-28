@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧠 Cerebellum & 4th Ventricle — Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Syne+Mono&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e1a;
+  --bg2: #0f1628;
+  --bg3: #141e35;
+  --card: #131928;
+  --card2: #192238;
+  --border: rgba(99,179,237,0.12);
+  --border2: rgba(99,179,237,0.22);
+  --text: #e8edf8;
+  --text2: #9baacf;
+  --text3: #64748b;
+  --accent: #63b3ed;
+  --accent2: #90cdf4;
+  --green: #68d391;
+  --red: #fc8181;
+  --yellow: #f6e05e;
+  --purple: #b794f4;
+  --orange: #f6ad55;
+  --teal: #4fd1c5;
+  --glow: 0 0 20px rgba(99,179,237,0.15);
+  --glow2: 0 0 40px rgba(99,179,237,0.2);
+  --radius: 14px;
+  --radius2: 20px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ——— ANIMATED BG ——— */
+.bg-canvas {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+}
+.bg-orb {
+  position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.18; animation: orb-float 12s ease-in-out infinite;
+}
+.bg-orb:nth-child(1) { width:600px;height:600px; background:radial-gradient(circle,#2b6cb0,transparent); top:-150px;left:-150px; animation-delay:0s; }
+.bg-orb:nth-child(2) { width:500px;height:500px; background:radial-gradient(circle,#553c9a,transparent); bottom:-100px;right:-100px; animation-delay:-4s; }
+.bg-orb:nth-child(3) { width:400px;height:400px; background:radial-gradient(circle,#2c7a7b,transparent); top:40%;left:50%; animation-delay:-8s; }
+@keyframes orb-float { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-40px) scale(1.05)} }
+
+/* ——— HEADER ——— */
+header {
+  position: relative; z-index: 10;
+  padding: 32px 24px 0;
+  max-width: 1200px; margin: 0 auto;
+}
+.header-inner {
+  background: linear-gradient(135deg, rgba(19,25,40,0.95), rgba(20,30,53,0.95));
+  border: 1px solid var(--border2);
+  border-radius: var(--radius2);
+  padding: 28px 36px;
+  backdrop-filter: blur(20px);
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;
+  box-shadow: var(--glow2);
+}
+.header-left h1 {
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(1.4rem,3vw,2.1rem);
+  background: linear-gradient(135deg, #90cdf4, #63b3ed, #4fd1c5);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  line-height: 1.2;
+}
+.header-left p { color:var(--text2); font-size:0.88rem; margin-top:6px; font-weight:300; letter-spacing:0.5px; }
+.stats-bar {
+  display: flex; gap: 20px; flex-wrap: wrap;
+}
+.stat-chip {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 10px;
+  padding: 10px 18px; text-align: center; min-width: 80px;
+}
+.stat-chip .val { font-family:'Syne Mono',monospace; font-size:1.4rem; font-weight:700; color:var(--accent); }
+.stat-chip .lbl { font-size:0.7rem; color:var(--text3); text-transform:uppercase; letter-spacing:0.8px; margin-top:2px; }
+
+/* ——— SEARCH ——— */
+.search-wrap {
+  max-width: 1200px; margin: 20px auto 0; padding: 0 24px; position: relative; z-index: 10;
+}
+.search-box {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--card2); border: 1px solid var(--border); border-radius: 12px;
+  padding: 12px 20px; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.search-box:focus-within { border-color: var(--accent); box-shadow: var(--glow); }
+.search-box input {
+  background: transparent; border: none; outline: none; color: var(--text); font-family:'DM Sans',sans-serif;
+  font-size: 0.95rem; flex: 1; width: 100%;
+}
+.search-box input::placeholder { color: var(--text3); }
+.search-icon { color: var(--text3); font-size: 1rem; }
+#searchResults {
+  position: absolute; top: 52px; left: 24px; right: 24px; z-index: 100;
+  background: var(--card2); border: 1px solid var(--border2); border-radius: 12px;
+  max-height: 320px; overflow-y: auto; display: none;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.search-result-item {
+  padding: 14px 20px; border-bottom: 1px solid var(--border); cursor: pointer;
+  transition: background 0.15s;
+}
+.search-result-item:hover { background: var(--bg3); }
+.search-result-item .sr-title { font-weight:600; font-size:0.9rem; color:var(--accent); }
+.search-result-item .sr-body { font-size:0.8rem; color:var(--text2); margin-top:4px; }
+
+/* ——— NAV TABS ——— */
+.nav-wrap {
+  max-width: 1200px; margin: 20px auto 0; padding: 0 24px; position: relative; z-index: 10;
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+}
+.nav-tabs {
+  display: flex; gap: 6px; background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 6px;
+  width: max-content; min-width: 100%;
+}
+.tab-btn {
+  flex: 1; min-width: 90px; padding: 10px 16px;
+  background: transparent; border: none; color: var(--text2);
+  font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:500;
+  border-radius: 8px; cursor: pointer; transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--text); background: var(--bg3); }
+.tab-btn.active {
+  background: linear-gradient(135deg, #1a3a5c, #1e4474);
+  color: var(--accent2); box-shadow: var(--glow);
+  font-weight: 600;
+}
+
+/* ——— MAIN CONTENT ——— */
+main {
+  max-width: 1200px; margin: 24px auto 60px; padding: 0 24px;
+  position: relative; z-index: 10;
+}
+.tab-panel { display:none; animation: fadeIn 0.35s ease; }
+.tab-panel.active { display:block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+/* ——— CARDS ——— */
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; margin-bottom: 16px;
+}
+.card-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
+.section-title {
+  font-family:'Syne',sans-serif; font-weight:700; font-size:1.3rem;
+  color:var(--accent2); margin-bottom:16px; display:flex; align-items:center; gap:10px;
+}
+.badge {
+  display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.7rem; font-weight:600;
+  text-transform:uppercase; letter-spacing:0.5px;
+}
+.badge-exam { background:rgba(252,129,74,0.15); color:#f6ad55; border:1px solid rgba(246,173,85,0.3); }
+.badge-high { background:rgba(252,129,129,0.15); color:#fc8181; border:1px solid rgba(252,129,129,0.3); }
+.badge-pearl { background:rgba(107,213,145,0.15); color:#68d391; border:1px solid rgba(104,211,145,0.3); }
+.badge-tip { background:rgba(99,179,237,0.15); color:#63b3ed; border:1px solid rgba(99,179,237,0.3); }
+
+/* ——— OVERVIEW ——— */
+.overview-hero {
+  background: linear-gradient(135deg, rgba(26,58,92,0.5), rgba(44,31,90,0.4));
+  border: 1px solid var(--border2); border-radius: var(--radius2);
+  padding: 32px; margin-bottom: 24px;
+  position:relative; overflow:hidden;
+}
+.overview-hero::before {
+  content:'🧠'; position:absolute; right:30px; top:20px; font-size:5rem; opacity:0.08;
+}
+.key-fact-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; margin-top:16px; }
+.key-fact {
+  background:var(--bg3); border:1px solid var(--border); border-radius:12px;
+  padding:18px; position:relative; overflow:hidden; transition: border-color 0.2s, transform 0.2s;
+}
+.key-fact:hover { border-color:var(--accent); transform:translateY(-2px); }
+.key-fact .fact-icon { font-size:1.6rem; margin-bottom:8px; }
+.key-fact h4 { font-family:'Syne',sans-serif; font-weight:700; font-size:0.92rem; color:var(--accent2); margin-bottom:6px; }
+.key-fact p { font-size:0.82rem; color:var(--text2); line-height:1.6; }
+.key-fact .badges { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+
+/* Timeline */
+.timeline { position:relative; padding-left:28px; }
+.timeline::before { content:''; position:absolute; left:8px; top:0; bottom:0; width:2px; background:linear-gradient(to bottom,var(--accent),var(--purple)); border-radius:2px; }
+.tl-item { position:relative; margin-bottom:22px; }
+.tl-item::before { content:''; position:absolute; left:-24px; top:6px; width:10px; height:10px; border-radius:50%; background:var(--accent); box-shadow:0 0 10px rgba(99,179,237,0.5); }
+.tl-item h4 { font-weight:600; font-size:0.9rem; color:var(--accent2); }
+.tl-item p { font-size:0.82rem; color:var(--text2); margin-top:4px; line-height:1.6; }
+
+/* Flowchart */
+.flow-wrap { display:flex; flex-direction:column; align-items:flex-start; gap:0; margin-top:12px; }
+.flow-box {
+  background:var(--bg3); border:1px solid var(--border); border-radius:10px;
+  padding:12px 20px; font-size:0.85rem; font-weight:500; color:var(--accent2);
+  position:relative; min-width:200px; text-align:center;
+}
+.flow-arr { text-align:center; color:var(--accent); font-size:1.1rem; padding:4px 0 4px 50px; }
+.flow-row { display:flex; align-items:center; gap:12px; }
+.flow-branch { display:flex; flex-direction:column; gap:8px; align-items:flex-start; padding-left:24px; border-left:2px dashed var(--border2); margin-left:12px; }
+.flow-branch-item {
+  background:rgba(99,179,237,0.08); border:1px solid var(--border); border-radius:8px;
+  padding:8px 16px; font-size:0.8rem; color:var(--text2);
+}
+
+/* TABLE */
+.table-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+th { background:var(--bg3); color:var(--accent2); padding:12px 16px; text-align:left; font-family:'Syne',sans-serif; font-weight:700; border-bottom:2px solid var(--border2); white-space:nowrap; }
+td { padding:11px 16px; border-bottom:1px solid var(--border); color:var(--text2); vertical-align:top; }
+tr:hover td { background:rgba(99,179,237,0.04); }
+
+/* ——— QUIZ ——— */
+.quiz-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:24px; }
+.quiz-progress { flex:1; min-width:200px; }
+.progress-bar { height:8px; background:var(--bg3); border-radius:4px; overflow:hidden; }
+.progress-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--teal)); border-radius:4px; transition:width 0.4s ease; }
+.quiz-meta { display:flex; gap:16px; font-size:0.82rem; color:var(--text2); }
+.quiz-meta span { display:flex; align-items:center; gap:5px; }
+.quiz-meta .val { color:var(--accent2); font-weight:700; font-family:'Syne Mono',monospace; }
+
+.q-card {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:28px; margin-bottom:16px; transition:border-color 0.2s;
+}
+.q-card.answered-correct { border-color:var(--green); }
+.q-card.answered-wrong { border-color:var(--red); }
+.q-number { font-size:0.72rem; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; }
+.q-text { font-size:1rem; font-weight:500; color:var(--text); line-height:1.7; margin-bottom:20px; }
+.q-options { display:flex; flex-direction:column; gap:10px; }
+.q-opt {
+  background:var(--bg3); border:1px solid var(--border); border-radius:10px;
+  padding:12px 18px; cursor:pointer; font-size:0.88rem; color:var(--text2);
+  transition:all 0.2s; display:flex; align-items:center; gap:12px;
+}
+.q-opt:hover:not(.disabled) { border-color:var(--accent); color:var(--text); background:var(--card2); }
+.q-opt.correct { background:rgba(104,211,145,0.1); border-color:var(--green); color:var(--green); }
+.q-opt.wrong { background:rgba(252,129,129,0.1); border-color:var(--red); color:var(--red); }
+.q-opt .opt-letter { width:24px;height:24px; border-radius:6px; background:var(--card2); border:1px solid var(--border2); display:flex;align-items:center;justify-content:center; font-family:'Syne Mono',monospace; font-size:0.75rem; flex-shrink:0; }
+.q-opt.correct .opt-letter { background:var(--green); color:#000; border-color:transparent; }
+.q-opt.wrong .opt-letter { background:var(--red); color:#fff; border-color:transparent; }
+.q-explanation {
+  margin-top:16px; padding:14px 18px; background:rgba(99,179,237,0.07); border-left:3px solid var(--accent);
+  border-radius:0 8px 8px 0; font-size:0.85rem; color:var(--text2); line-height:1.7;
+  display:none;
+}
+.q-explanation.show { display:block; animation:fadeIn 0.3s ease; }
+.q-explanation .correct-note { color:var(--green); font-weight:600; display:block; margin-bottom:6px; }
+.q-explanation .wrong-note { color:var(--red); font-size:0.8rem; }
+
+@keyframes pulse-green { 0%{box-shadow:0 0 0 0 rgba(104,211,145,0.4)} 100%{box-shadow:0 0 0 12px transparent} }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-6px)} 40%,80%{transform:translateX(6px)} }
+.anim-correct { animation:pulse-green 0.5s ease; }
+.anim-wrong { animation:shake 0.4s ease; }
+
+.quiz-score-card {
+  background:linear-gradient(135deg,rgba(26,58,92,0.5),rgba(44,31,90,0.4));
+  border:1px solid var(--border2); border-radius:var(--radius2); padding:40px;
+  text-align:center; margin-bottom:24px; display:none;
+}
+.quiz-score-card h2 { font-family:'Syne',sans-serif; font-size:2rem; color:var(--accent); }
+.quiz-score-card .score-big { font-family:'Syne Mono',monospace; font-size:4rem; font-weight:700; background:linear-gradient(135deg,#63b3ed,#4fd1c5); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.quiz-score-card .msg { color:var(--text2); margin:12px 0 24px; font-size:1rem; }
+.btn {
+  display:inline-flex; align-items:center; gap:8px; padding:12px 28px;
+  background:linear-gradient(135deg,#1a3a5c,#1e4474); color:var(--accent2);
+  border:1px solid var(--border2); border-radius:10px; cursor:pointer;
+  font-family:'DM Sans',sans-serif; font-size:0.9rem; font-weight:600;
+  transition:all 0.2s; text-decoration:none;
+}
+.btn:hover { transform:translateY(-2px); box-shadow:var(--glow); }
+.btn-green { background:linear-gradient(135deg,rgba(104,211,145,0.2),rgba(56,161,105,0.2)); color:var(--green); border-color:rgba(104,211,145,0.3); }
+
+/* ——— FLASHCARDS ——— */
+.fc-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:18px; }
+.fc-card {
+  height:180px; perspective:1000px; cursor:pointer;
+}
+.fc-inner {
+  position:relative; width:100%; height:100%;
+  transform-style:preserve-3d; transition:transform 0.55s cubic-bezier(.4,.2,.2,1);
+  border-radius:var(--radius);
+}
+.fc-card.flipped .fc-inner { transform:rotateY(180deg); }
+.fc-front, .fc-back {
+  position:absolute; inset:0; border-radius:var(--radius);
+  backface-visibility:hidden; -webkit-backface-visibility:hidden;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:20px; text-align:center;
+}
+.fc-front {
+  background:linear-gradient(135deg,var(--card2),var(--bg3));
+  border:1px solid var(--border); 
+}
+.fc-front .fc-q { font-weight:600; font-size:0.9rem; color:var(--text); line-height:1.5; }
+.fc-front .fc-hint { font-size:0.72rem; color:var(--text3); margin-top:12px; }
+.fc-back {
+  background:linear-gradient(135deg,rgba(26,58,92,0.8),rgba(44,31,90,0.6));
+  border:1px solid var(--accent);
+  transform:rotateY(180deg);
+}
+.fc-back .fc-a { font-size:0.85rem; color:var(--accent2); line-height:1.6; font-weight:500; }
+.fc-num { font-family:'Syne Mono',monospace; font-size:0.7rem; color:var(--text3); margin-bottom:8px; }
+
+/* ——— CLINICAL CASES ——— */
+.case-card {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  margin-bottom:20px; overflow:hidden;
+}
+.case-header {
+  padding:20px 24px; background:linear-gradient(135deg,rgba(26,58,92,0.4),rgba(44,31,90,0.3));
+  border-bottom:1px solid var(--border); cursor:pointer;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.case-header h3 { font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; color:var(--accent2); }
+.case-badge { background:rgba(246,173,85,0.15); color:var(--orange); border:1px solid rgba(246,173,85,0.3); border-radius:6px; padding:3px 10px; font-size:0.7rem; font-weight:700; }
+.case-body { padding:24px; display:none; }
+.case-body.show { display:block; animation:fadeIn 0.3s ease; }
+.case-vignette {
+  background:var(--bg3); border-left:4px solid var(--teal); border-radius:0 10px 10px 0;
+  padding:16px 20px; margin-bottom:20px; font-size:0.88rem; color:var(--text2); line-height:1.8;
+}
+.case-q { margin-bottom:20px; }
+.case-q .cq-text { font-weight:600; font-size:0.92rem; color:var(--text); margin-bottom:12px; }
+.reveal-btn {
+  background:rgba(99,179,237,0.1); border:1px solid var(--border2); color:var(--accent);
+  padding:10px 20px; border-radius:8px; cursor:pointer; font-size:0.85rem; font-weight:600;
+  transition:all 0.2s; margin-top:8px;
+}
+.reveal-btn:hover { background:rgba(99,179,237,0.18); box-shadow:var(--glow); }
+.answer-reveal {
+  display:none; margin-top:14px; padding:16px; background:rgba(104,211,145,0.06);
+  border:1px solid rgba(104,211,145,0.2); border-radius:10px;
+  font-size:0.85rem; color:var(--text2); line-height:1.8;
+}
+.answer-reveal.show { display:block; animation:fadeIn 0.4s ease; }
+.answer-reveal strong { color:var(--green); }
+
+/* ——— PATHO TAB ——— */
+.patho-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin-bottom:28px; }
+.patho-item {
+  background:var(--card2); border:1px solid var(--border); border-radius:12px;
+  padding:18px; cursor:pointer; transition:all 0.2s;
+}
+.patho-item:hover, .patho-item.active { border-color:var(--purple); background:rgba(183,148,244,0.06); }
+.patho-item .pi-icon { font-size:1.8rem; margin-bottom:8px; }
+.patho-item h4 { font-weight:700; font-size:0.88rem; color:var(--accent2); }
+.patho-detail {
+  display:none; margin-top:10px; padding-top:10px; border-top:1px solid var(--border);
+  font-size:0.8rem; color:var(--text2); line-height:1.7;
+}
+.patho-detail.show { display:block; animation:fadeIn 0.3s; }
+
+/* ——— DIAGNOSIS TAB ——— */
+.diag-algo {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:24px; margin-bottom:20px;
+}
+.algo-step {
+  display:flex; gap:16px; margin-bottom:18px; align-items:flex-start;
+}
+.algo-num {
+  width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#1a3a5c,#2d5a8e);
+  border:2px solid var(--accent); display:flex; align-items:center; justify-content:center;
+  font-family:'Syne Mono',monospace; font-weight:700; font-size:0.85rem; color:var(--accent); flex-shrink:0;
+}
+.algo-content h4 { font-weight:700; font-size:0.9rem; color:var(--accent2); margin-bottom:4px; }
+.algo-content p { font-size:0.83rem; color:var(--text2); line-height:1.7; }
+.algo-connector { width:2px; height:20px; background:var(--border2); margin-left:17px; }
+.finding-badge {
+  display:inline-block; padding:5px 14px; border-radius:20px; font-size:0.78rem; font-weight:600;
+  margin:4px; cursor:default; transition:transform 0.15s;
+}
+.finding-badge:hover { transform:scale(1.05); }
+
+/* ——— TREATMENT TAB ——— */
+.tx-section { margin-bottom:28px; }
+.tx-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; }
+.tx-card {
+  background:var(--card2); border-left:4px solid var(--border2); border-radius:10px;
+  padding:18px; transition:border-color 0.2s;
+}
+.tx-card.urgent { border-left-color:var(--red); }
+.tx-card.important { border-left-color:var(--yellow); }
+.tx-card.standard { border-left-color:var(--green); }
+.tx-card h4 { font-weight:700; font-size:0.88rem; margin-bottom:8px; }
+.tx-card.urgent h4 { color:var(--red); }
+.tx-card.important h4 { color:var(--yellow); }
+.tx-card.standard h4 { color:var(--green); }
+.tx-card p { font-size:0.82rem; color:var(--text2); line-height:1.7; }
+
+/* ——— MNEMONICS ——— */
+.mnem-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:18px; }
+.mnem-card {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  overflow:hidden; transition:border-color 0.2s, transform 0.2s;
+}
+.mnem-card:hover { border-color:var(--purple); transform:translateY(-3px); }
+.mnem-header {
+  padding:18px 22px; background:linear-gradient(135deg,rgba(183,148,244,0.12),rgba(44,31,90,0.2));
+  border-bottom:1px solid var(--border);
+}
+.mnem-header .mnem-word { font-family:'Syne',sans-serif; font-weight:800; font-size:1.6rem; color:var(--purple); letter-spacing:2px; }
+.mnem-header .mnem-title { font-size:0.78rem; color:var(--text3); margin-top:4px; }
+.mnem-body { padding:20px 22px; }
+.mnem-item {
+  display:flex; gap:12px; margin-bottom:10px; align-items:flex-start;
+}
+.mnem-letter { font-family:'Syne',sans-serif; font-weight:800; font-size:1.2rem; color:var(--purple); width:22px; flex-shrink:0; }
+.mnem-desc { font-size:0.85rem; color:var(--text2); line-height:1.5; padding-top:2px; }
+.mnem-desc strong { color:var(--accent2); }
+
+/* ——— VIVA TAB ——— */
+.viva-card {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  margin-bottom:14px; overflow:hidden;
+}
+.viva-q {
+  padding:18px 22px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:16px;
+  transition:background 0.15s;
+}
+.viva-q:hover { background:var(--bg3); }
+.viva-q-text { font-weight:600; font-size:0.9rem; color:var(--text); }
+.viva-arrow { color:var(--text3); font-size:0.8rem; transition:transform 0.3s; }
+.viva-card.open .viva-arrow { transform:rotate(90deg); }
+.viva-a {
+  display:none; padding:16px 22px 20px; border-top:1px solid var(--border);
+  font-size:0.85rem; color:var(--text2); line-height:1.8;
+}
+.viva-a.show { display:block; animation:fadeIn 0.3s; }
+
+/* ——— RESPONSIVE ——— */
+@media(max-width:640px) {
+  .header-inner { padding:20px; }
+  .q-text { font-size:0.92rem; }
+  .mnem-word { font-size:1.3rem !important; }
+}
+
+/* ——— SCROLLBAR ——— */
+::-webkit-scrollbar { width:6px; height:6px; }
+::-webkit-scrollbar-track { background:var(--bg2); }
+::-webkit-scrollbar-thumb { background:var(--card2); border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="bg-orb"></div><div class="bg-orb"></div><div class="bg-orb"></div>
+</div>
+
+<header>
+  <div class="header-inner">
+    <div class="header-left">
+      <h1>🧠 Cerebellum & 4th Ventricle</h1>
+      <p>Anatomy · Mansoura University · USMLE-Style Study Platform</p>
+    </div>
+    <div class="stats-bar" id="statsBar">
+      <div class="stat-chip"><div class="val" id="statScore">0</div><div class="lbl">Quiz Score</div></div>
+      <div class="stat-chip"><div class="val" id="statStreak">🔥0</div><div class="lbl">Streak</div></div>
+      <div class="stat-chip"><div class="val" id="statProgress">0%</div><div class="lbl">Done</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="search-wrap">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search any concept, structure, or term…" autocomplete="off">
+  </div>
+  <div id="searchResults"></div>
+</div>
+
+<div class="nav-wrap">
+  <div class="nav-tabs" id="navTabs">
+    <button class="tab-btn active" data-tab="overview">📋 Overview</button>
+    <button class="tab-btn" data-tab="quiz">🎯 Quiz</button>
+    <button class="tab-btn" data-tab="flashcards">📇 Flashcards</button>
+    <button class="tab-btn" data-tab="cases">🏥 Clinical Cases</button>
+    <button class="tab-btn" data-tab="patho">🔬 Pathophysiology</button>
+    <button class="tab-btn" data-tab="diagnosis">🔎 Diagnosis</button>
+    <button class="tab-btn" data-tab="treatment">💊 Treatment</button>
+    <button class="tab-btn" data-tab="mnemonics">🧩 Mnemonics</button>
+    <button class="tab-btn" data-tab="viva">🗣️ Viva</button>
+  </div>
+</div>
+
+<main>
+
+<!-- ===== OVERVIEW ===== -->
+<div class="tab-panel active" id="tab-overview">
+
+  <div class="overview-hero">
+    <div class="section-title">📋 Topic Overview</div>
+    <p style="color:var(--text2);font-size:0.92rem;line-height:1.8;max-width:760px">
+      The <strong style="color:var(--accent2)">Cerebellum</strong> is a hindbrain structure in the posterior cranial fossa responsible for equilibrium, muscle tone & coordination, and planning of movement. The <strong style="color:var(--accent2)">Fourth Ventricle</strong> is a diamond-shaped CSF-filled cavity lying between the cerebellum (posteriorly) and the pons/upper medulla (anteriorly).
+    </p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+      <span class="badge badge-exam">⚠️ Facial Colliculus Trap</span>
+      <span class="badge badge-high">High-Yield Anatomy</span>
+      <span class="badge badge-pearl">PICA Clinical Pearl</span>
+      <span class="badge badge-tip">Cerebellar Signs</span>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:8px">⚡ Key Facts Grid</div>
+  <div class="key-fact-grid">
+    <div class="key-fact">
+      <div class="fact-icon">🔷</div>
+      <h4>4th Ventricle Shape</h4>
+      <p>Diamond-shaped (rhomboid fossa). Floor = anterior wall, Roof = posterior wall. Divided by stria medullaris into upper pontine + lower medullary parts.</p>
+      <div class="badges"><span class="badge badge-high">High-Yield</span></div>
+    </div>
+    <div class="key-fact">
+      <div class="fact-icon">🚨</div>
+      <h4>Facial Colliculus Trap</h4>
+      <p>The <strong>facial colliculus</strong> is formed by facial nerve fibers wrapping around the <strong>abducent nucleus</strong>. It does NOT contain the facial nucleus — classic exam trick!</p>
+      <div class="badges"><span class="badge badge-exam">⚠️ EXAM FAV</span></div>
+    </div>
+    <div class="key-fact">
+      <div class="fact-icon">💧</div>
+      <h4>CSF Exits the 4th Ventricle Via</h4>
+      <p>• Foramen of Magendie (median) → subarachnoid space<br>• Foramina of Luschka (×2 lateral) → subarachnoid space<br>• Central canal → spinal cord</p>
+      <div class="badges"><span class="badge badge-high">High-Yield</span></div>
+    </div>
+    <div class="key-fact">
+      <div class="fact-icon">🩸</div>
+      <h4>PICA = 4th Ventricle Artery</h4>
+      <p>Posterior Inferior Cerebellar Artery (PICA) — branch of vertebral artery — supplies choroid plexus of 4th ventricle + posterior inferior cerebellum.</p>
+      <div class="badges"><span class="badge badge-pearl">Clinical Pearl</span></div>
+    </div>
+    <div class="key-fact">
+      <div class="fact-icon">🎭</div>
+      <h4>Intention vs Resting Tremor</h4>
+      <p>Cerebellar lesions → <strong>intention tremors</strong> (appear during movement, absent at rest). Parkinson's → resting tremors (opposite).</p>
+      <div class="badges"><span class="badge badge-exam">⚠️ EXAM</span></div>
+    </div>
+    <div class="key-fact">
+      <div class="fact-icon">🎯</div>
+      <h4>Dysmetria</h4>
+      <p>Inability to judge distance/stop movement at the right point. Tested by finger-to-nose test. Sign of cerebellar (especially neocerebellum) damage.</p>
+      <div class="badges"><span class="badge badge-tip">Clinical Sign</span></div>
+    </div>
+    <div class="key-fact">
+      <div class="fact-icon">🏗️</div>
+      <h4>Cerebellar Peduncles</h4>
+      <p>Superior → midbrain (mainly efferent)<br>Middle → pons (mainly afferent)<br>Inferior → medulla (mixed)</p>
+      <div class="badges"><span class="badge badge-high">High-Yield</span></div>
+    </div>
+    <div class="key-fact">
+      <div class="fact-icon">⚖️</div>
+      <h4>Tentorium Cerebelli</h4>
+      <p>Fold of dura mater that separates the cerebellum from the cerebrum above. The cerebellum sits in the posterior cranial fossa below it.</p>
+      <div class="badges"><span class="badge badge-tip">Anatomy</span></div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:28px">📊 Functional Divisions of the Cerebellum</div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Division</th><th>Old Name</th><th>Connects To</th><th>Zone</th><th>Deep Nucleus</th><th>Function</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>🏺 Archicerebellum</td><td>Vestibulocerebellum</td><td>Vestibular nuclei</td><td>Flocculonodular lobe</td><td>Fastigial (indirect)</td><td>Equilibrium & balance</td></tr>
+          <tr><td>🦴 Paleocerebellum</td><td>Spinocerebellum</td><td>Spinal cord</td><td>Vermal + paravermal</td><td>Fastigial / Globose + Emboliform</td><td>Muscle tone & coordination</td></tr>
+          <tr><td>🧩 Neocerebellum</td><td>Cerebrocerebellum</td><td>Cerebral hemispheres</td><td>Lateral (hemispheres)</td><td>Dentate nucleus</td><td>Planning & automatic movement control</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:28px">🔄 CSF Flow Through 4th Ventricle</div>
+  <div class="card">
+    <div class="flow-wrap">
+      <div class="flow-box" style="background:linear-gradient(135deg,rgba(99,179,237,0.12),rgba(99,179,237,0.05))">3rd Ventricle</div>
+      <div class="flow-arr">↓ via Cerebral Aqueduct of Sylvius</div>
+      <div class="flow-box" style="background:linear-gradient(135deg,rgba(79,209,197,0.12),rgba(79,209,197,0.05));border-color:rgba(79,209,197,0.4)">4th Ventricle (CSF added by Choroid Plexus)</div>
+      <div class="flow-arr">↓ exits via three routes</div>
+      <div class="flow-row" style="flex-wrap:wrap;gap:12px">
+        <div class="flow-box" style="min-width:160px;font-size:0.78rem">Foramen of Magendie<br><span style="color:var(--text3);font-size:0.72rem">(Median) → Subarachnoid</span></div>
+        <div class="flow-box" style="min-width:160px;font-size:0.78rem">Foramina of Luschka (×2)<br><span style="color:var(--text3);font-size:0.72rem">(Lateral) → Subarachnoid</span></div>
+        <div class="flow-box" style="min-width:160px;font-size:0.78rem">Central Canal<br><span style="color:var(--text3);font-size:0.72rem">→ Spinal Cord</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:28px">📐 Longitudinal Zones → Deep Nuclei</div>
+  <div class="card">
+    <div class="flow-wrap">
+      <div class="flow-row" style="gap:16px;flex-wrap:wrap">
+        <div style="text-align:center">
+          <div class="flow-box" style="font-size:0.8rem;background:rgba(99,179,237,0.1)">Vermal Zone</div>
+          <div class="flow-arr">↓</div>
+          <div class="flow-box" style="font-size:0.8rem;background:rgba(104,211,145,0.1);border-color:rgba(104,211,145,0.4)">Fastigial Nucleus</div>
+        </div>
+        <div style="text-align:center">
+          <div class="flow-box" style="font-size:0.8rem;background:rgba(183,148,244,0.1)">Paravermal Zone</div>
+          <div class="flow-arr">↓</div>
+          <div class="flow-box" style="font-size:0.8rem;background:rgba(246,173,85,0.1);border-color:rgba(246,173,85,0.4)">Globose + Emboliform Nuclei</div>
+        </div>
+        <div style="text-align:center">
+          <div class="flow-box" style="font-size:0.8rem;background:rgba(79,209,197,0.1)">Lateral Zone (Hemispheres)</div>
+          <div class="flow-arr">↓</div>
+          <div class="flow-box" style="font-size:0.8rem;background:rgba(252,129,129,0.1);border-color:rgba(252,129,129,0.4)">Dentate Nucleus</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:28px">🕒 Timeline: Cerebellum Anatomy Progression</div>
+  <div class="card">
+    <div class="timeline">
+      <div class="tl-item">
+        <h4>1️⃣ 4th Ventricle Boundaries</h4>
+        <p>Anterior = rhomboid fossa (floor). Posterior = roof (superior + inferior medullary velum + cerebellum). Lateral borders = cerebellar peduncles (SCP superiorly, ICP+gracile+cuneate tubercles inferiorly).</p>
+      </div>
+      <div class="tl-item">
+        <h4>2️⃣ Floor Landmarks</h4>
+        <p>Stria medullaris divides floor into upper pontine part (contains facial colliculus, locus coeruleus, superior fovea) and lower medullary part (hypoglossal, vagal, vestibular trigones).</p>
+      </div>
+      <div class="tl-item">
+        <h4>3️⃣ Cerebellar Lobes</h4>
+        <p>Primary fissure separates anterior from posterior lobe. Posterolateral fissure separates posterior lobe from flocculonodular lobe.</p>
+      </div>
+      <div class="tl-item">
+        <h4>4️⃣ Functional Connections</h4>
+        <p>Archi → vestibular nuclei (equilibrium). Paleo → spinal cord (tone). Neo → cerebrum (planning). All mediated via respective deep cerebellar nuclei.</p>
+      </div>
+      <div class="tl-item">
+        <h4>5️⃣ Vascular Supply</h4>
+        <p>PICA (vertebral artery branch) → inferior cerebellum + 4th ventricle choroid plexus. SCA and AICA from basilar artery → superior/anterior cerebellum.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== QUIZ ===== -->
+<div class="tab-panel" id="tab-quiz">
+  <div class="quiz-score-card" id="quizScoreCard">
+    <h2>🎉 Quiz Complete!</h2>
+    <div class="score-big" id="scoreBig">0/25</div>
+    <div class="msg" id="scoreMsg">Keep going!</div>
+    <button class="btn btn-green" onclick="resetQuiz()">🔁 Try Again</button>
+  </div>
+
+  <div class="quiz-header">
+    <div class="quiz-progress">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:0.82rem;color:var(--text2)">Progress</span>
+        <span style="font-size:0.82rem;color:var(--accent2)" id="qProgressText">0 / 25 answered</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="qProgressBar" style="width:0%"></div></div>
+    </div>
+    <div class="quiz-meta">
+      <span>✅ <span class="val" id="qCorrect">0</span> correct</span>
+      <span>❌ <span class="val" id="qWrong">0</span> wrong</span>
+      <span>🔥 <span class="val" id="qStreak">0</span> streak</span>
+    </div>
+  </div>
+
+  <div id="quizContainer"></div>
+</div>
+
+<!-- ===== FLASHCARDS ===== -->
+<div class="tab-panel" id="tab-flashcards">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+    <div class="section-title" style="margin:0">📇 Flashcards — Click to Flip</div>
+    <div style="font-size:0.82rem;color:var(--text3)">Tap any card to reveal the answer</div>
+  </div>
+  <div class="fc-grid" id="flashcardGrid"></div>
+</div>
+
+<!-- ===== CLINICAL CASES ===== -->
+<div class="tab-panel" id="tab-cases">
+  <div class="section-title">🏥 Clinical Case Studies</div>
+  <div id="casesContainer"></div>
+</div>
+
+<!-- ===== PATHOPHYSIOLOGY ===== -->
+<div class="tab-panel" id="tab-patho">
+  <div class="section-title">🔬 Structures & Pathophysiology — Click to Expand</div>
+  <div class="patho-grid" id="pathoGrid"></div>
+
+  <div class="section-title" style="margin-top:28px">⚙️ Mechanism: Cerebellar Dysfunction → Clinical Signs</div>
+  <div class="card">
+    <div class="flow-wrap">
+      <div class="flow-box" style="background:rgba(252,129,129,0.1);border-color:rgba(252,129,129,0.3)">Cerebellar Lesion</div>
+      <div class="flow-arr">↓ disrupts</div>
+      <div class="flow-row" style="gap:16px;flex-wrap:wrap">
+        <div style="text-align:center">
+          <div class="flow-box" style="font-size:0.78rem">Neocerebellum (Lateral)</div>
+          <div class="flow-arr" style="font-size:0.85rem">↓</div>
+          <div class="flow-box" style="font-size:0.78rem;background:rgba(246,173,85,0.08)">Dysmetria<br>Intention Tremor</div>
+        </div>
+        <div style="text-align:center">
+          <div class="flow-box" style="font-size:0.78rem">Paleocerebellum (Vermal/Paravermal)</div>
+          <div class="flow-arr" style="font-size:0.85rem">↓</div>
+          <div class="flow-box" style="font-size:0.78rem;background:rgba(183,148,244,0.08)">Muscle Tone ↓<br>Coordination Loss</div>
+        </div>
+        <div style="text-align:center">
+          <div class="flow-box" style="font-size:0.78rem">Archicerebellum (Flocculonodular)</div>
+          <div class="flow-arr" style="font-size:0.85rem">↓</div>
+          <div class="flow-box" style="font-size:0.78rem;background:rgba(79,209,197,0.08)">Ataxia<br>Balance Loss</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DIAGNOSIS ===== -->
+<div class="tab-panel" id="tab-diagnosis">
+  <div class="section-title">🔎 Diagnostic Approach to Cerebellar Lesions</div>
+
+  <div class="diag-algo">
+    <div class="section-title" style="font-size:1rem">🧭 Diagnostic Algorithm</div>
+    <div class="algo-step">
+      <div class="algo-num">1</div>
+      <div class="algo-content">
+        <h4>History & Neurological Exam</h4>
+        <p>Look for: onset, associated symptoms (vertigo, diplopia, headache), risk factors. Test: finger-to-nose, heel-to-shin, rapid alternating movements, gait assessment.</p>
+      </div>
+    </div>
+    <div class="algo-connector"></div>
+    <div class="algo-step">
+      <div class="algo-num">2</div>
+      <div class="algo-content">
+        <h4>Identify the Type of Cerebellar Sign</h4>
+        <p>Dysmetria → neocerebellum. Muscle tone/coordination loss → paleocerebellum. Ataxia/balance loss → archicerebellum/flocculonodular lobe.</p>
+      </div>
+    </div>
+    <div class="algo-connector"></div>
+    <div class="algo-step">
+      <div class="algo-num">3</div>
+      <div class="algo-content">
+        <h4>Tremorr Differentiation</h4>
+        <p><strong style="color:var(--green)">Intention tremor (cerebellar)</strong> — appears during goal-directed movement, absent at rest.<br><strong style="color:var(--yellow)">Resting tremor (Parkinson's)</strong> — appears at rest, suppressed by movement.</p>
+      </div>
+    </div>
+    <div class="algo-connector"></div>
+    <div class="algo-step">
+      <div class="algo-num">4</div>
+      <div class="algo-content">
+        <h4>Localise the Lesion</h4>
+        <p>4th ventricle floor lesion → CN palsy (Abducent from facial colliculus, Hypoglossal, Vagal). Aqueduct blockage → hydrocephalus of 3rd + lateral ventricles only (4th intact).</p>
+      </div>
+    </div>
+    <div class="algo-connector"></div>
+    <div class="algo-step">
+      <div class="algo-num">5</div>
+      <div class="algo-content">
+        <h4>Vascular Considerations</h4>
+        <p>PICA occlusion → posterior inferior cerebellar infarct + 4th ventricle choroid plexus ischemia. SCA occlusion → superior cerebellar infarct.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:24px">🏷️ Key Anatomical Landmarks on the 4th Ventricle Floor</div>
+  <div class="card">
+    <div style="margin-bottom:16px;font-size:0.85rem;color:var(--text2)">Click badges to learn more. The floor is divided into pontine (upper) and medullary (lower) by the stria medullaris:</div>
+    <div id="floorBadges" style="margin-bottom:20px"></div>
+    <div id="floorDetail" style="padding:14px;background:var(--bg3);border-radius:10px;font-size:0.85rem;color:var(--text2);line-height:1.8;min-height:50px;display:none"></div>
+  </div>
+
+  <div class="section-title" style="margin-top:24px">📊 Cerebellar Peduncles Comparison</div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Peduncle</th><th>Connects To</th><th>Primary Fiber Type</th><th>Border Role</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>🔵 Superior (SCP)</td><td>Midbrain</td><td>Mainly efferent (output)</td><td>Superior lateral border of 4th ventricle</td></tr>
+          <tr><td>🟢 Middle (MCP)</td><td>Pons</td><td>Mainly afferent (input)</td><td>Massive lateral attachment to brainstem</td></tr>
+          <tr><td>🟠 Inferior (ICP)</td><td>Medulla</td><td>Mixed</td><td>Inferior lateral border of 4th ventricle</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TREATMENT ===== -->
+<div class="tab-panel" id="tab-treatment">
+  <div class="section-title">💊 Clinical Management of Cerebellar & 4th Ventricle Pathologies</div>
+  
+  <div class="tx-section">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <span style="background:rgba(252,129,129,0.15);color:var(--red);border:1px solid rgba(252,129,129,0.3);padding:4px 14px;border-radius:6px;font-size:0.78rem;font-weight:700">🚨 URGENT</span>
+      <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--accent2)">Hydrocephalus (Aqueductal Blockage)</span>
+    </div>
+    <div class="tx-grid">
+      <div class="tx-card urgent">
+        <h4>🧠 Identify the Block</h4>
+        <p>Aqueduct of Sylvius obstruction → dilation of 3rd + lateral ventricles only. 4th ventricle remains normal. This pattern is pathognomonic.</p>
+      </div>
+      <div class="tx-card urgent">
+        <h4>⚡ Raised ICP Management</h4>
+        <p>Head elevation, osmotic therapy (mannitol), and urgent neurosurgical referral. Ventriculoperitoneal (VP) shunt may be required.</p>
+      </div>
+      <div class="tx-card important">
+        <h4>🔍 Investigate Cause</h4>
+        <p>MRI brain for aqueductal stenosis, compressing tumor, or inflammatory cause. Tumor compression (e.g., pineal region) must be excluded.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="tx-section">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <span style="background:rgba(246,173,85,0.15);color:var(--yellow);border:1px solid rgba(246,173,85,0.3);padding:4px 14px;border-radius:6px;font-size:0.78rem;font-weight:700">⚠️ IMPORTANT</span>
+      <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--accent2)">PICA Stroke (Posterior Inferior Cerebellar Artery)</span>
+    </div>
+    <div class="tx-grid">
+      <div class="tx-card important">
+        <h4>🩺 Clinical Features</h4>
+        <p>Cerebellar dysfunction (ipsilateral), impaired CSF secretion (choroid plexus ischemia), and possible Wallenberg syndrome if lateral medulla involved.</p>
+      </div>
+      <div class="tx-card important">
+        <h4>💊 Acute Management</h4>
+        <p>IV tPA within 4.5 hours if ischemic. Aspirin/anticoagulation depending on etiology. Neurology intensive care for monitoring.</p>
+      </div>
+      <div class="tx-card standard">
+        <h4>🔄 Rehabilitation</h4>
+        <p>Vestibular rehabilitation for balance. Physiotherapy for coordination retraining. Occupational therapy for daily function.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="tx-section">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <span style="background:rgba(104,211,145,0.15);color:var(--green);border:1px solid rgba(104,211,145,0.3);padding:4px 14px;border-radius:6px;font-size:0.78rem;font-weight:700">✅ STANDARD</span>
+      <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--accent2)">Flocculonodular Lobe Tumor (Archicerebellum)</span>
+    </div>
+    <div class="tx-grid">
+      <div class="tx-card standard">
+        <h4>🔬 Presentation</h4>
+        <p>Truncal ataxia and equilibrium loss — disruption of vestibular connections. Common in medulloblastoma (children). MRI is key imaging.</p>
+      </div>
+      <div class="tx-card standard">
+        <h4>⚕️ Surgical Resection</h4>
+        <p>Surgical excision is first-line. Posterior fossa craniotomy. Care to preserve peduncles and brainstem structures during surgery.</p>
+      </div>
+      <div class="tx-card standard">
+        <h4>☢️ Adjuvant Therapy</h4>
+        <p>Craniospinal radiation ± chemotherapy for malignant tumors (e.g., medulloblastoma). Follow-up MRI for recurrence monitoring.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:24px">🩺 Symptomatic Management of Cerebellar Signs</div>
+  <div class="tx-grid">
+    <div class="tx-card standard">
+      <h4>🎯 Intention Tremor</h4>
+      <p>Clonazepam, propranolol, or primidone may reduce tremor. Deep brain stimulation (DBS) of thalamus in refractory cases. Weighted utensils for daily living.</p>
+    </div>
+    <div class="tx-card standard">
+      <h4>🚶 Ataxia / Dysmetria</h4>
+      <p>Physiotherapy-guided coordination exercises. Balance training and vestibular exercises for equilibrium deficits. Occupational therapy for independence.</p>
+    </div>
+    <div class="tx-card standard">
+      <h4>👁️ CN VI Palsy (Abducent)</h4>
+      <p>From facial colliculus lesion. Prism glasses for diplopia. Patching for monocular use. Botulinum toxin injection if persistent. Surgical correction if stable.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MNEMONICS ===== -->
+<div class="tab-panel" id="tab-mnemonics">
+  <div class="section-title">🧩 Custom Mnemonics</div>
+  <div class="mnem-grid" id="mnemGrid"></div>
+</div>
+
+<!-- ===== VIVA ===== -->
+<div class="tab-panel" id="tab-viva">
+  <div class="section-title" style="margin-bottom:20px">🗣️ Viva Questions — Click to Reveal Answers</div>
+  <div id="vivaContainer"></div>
+</div>
+
+</main>
+
+<script>
+// =================== DATA ===================
+
+const quizData = [
+  {q:"How does cerebrospinal fluid exit the fourth ventricle into the subarachnoid space?",opts:["Central canal","Cerebral aqueduct of Sylvius","Foramen of Magendie and Foramina of Luschka","Interventricular foramen","Primary fissure"],ans:2,exp:"CSF flows into the subarachnoid space through the single median Foramen of Magendie and two lateral Foramina of Luschka. A connects downwards to the spinal cord; B connects 3rd to 4th ventricle; D connects lateral to 3rd ventricle; E is a cerebellar fissure."},
+  {q:"Which neural pathway mechanism defines the neocerebellum?",opts:["Connections to vestibular nuclei","Connections to the spinal cord","Connections to the cerebral hemispheres","Connections to the fastigial nucleus","Connections to the abducent nucleus"],ans:2,exp:"The neocerebellum (cerebrocerebellum) connects to the cerebrum for planning movements. A is archicerebellum; B is paleocerebellum; D is the vermal zone; E is in the pons."},
+  {q:"What mechanism links the vermal zone to motor output?",opts:["It projects to the dentate nucleus","It projects to the fastigial nucleus","It projects to the globose nucleus","It projects to the emboliform nucleus","It projects to the facial colliculus"],ans:1,exp:"According to longitudinal divisions, the vermis projects to the fastigial nucleus. A is lateral zone; C & D are paravermal zone; E is on the 4th ventricle floor."},
+  {q:"How is the T-shaped choroid plexus of the fourth ventricle structurally anchored?",opts:["To the superior medullary velum","To the inferior medullary velum","To the lateral recess only","To the obex","To the tentorium cerebelli"],ans:1,exp:"The choroid plexus has a stem attached to the inferior medullary velum with arms extending into lateral recesses. A forms the upper roof; C is incomplete; D is the inferior tip; E separates cerebellum from cerebrum."},
+  {q:"How does a lesion in the spinocerebellum primarily present?",opts:["Loss of equilibrium only","Loss of memory","Loss of muscle tone and coordination","Inability to plan movements","Resting tremors"],ans:2,exp:"The paleocerebellum (spinocerebellum) is responsible for muscle tone and coordination. A is archicerebellum; B is unrelated; D is neocerebellum; E is Parkinson's, not cerebellar."},
+  {q:"The superior cerebellar peduncle serves what mechanical function?",opts:["Connects cerebellum to midbrain","Connects cerebellum to pons","Connects cerebellum to medulla","Connects lateral ventricles","Connects 3rd and 4th ventricles"],ans:0,exp:"The superior cerebellar peduncle bridges the midbrain and the cerebellum. B is the middle peduncle; C is the inferior peduncle; D and E relate to CSF pathways."},
+  {q:"During a finger-to-nose test, what physiological function is being assessed?",opts:["The archicerebellum's control of equilibrium","The ability to measure distance (preventing dysmetria)","The abducent nerve's motor control","The hypoglossal nerve's motor control","The vagal nerve's visceral control"],ans:1,exp:"Dysmetria (inability to measure distance/stop movement) is a sign of cerebellar lesion tested by the finger-to-nose test. A relates to balance/posture; C, D, E are cranial nerve functions."},
+  {q:"Which artery provides blood supply to the choroid plexus of the 4th ventricle?",opts:["Superior cerebellar artery","Anterior inferior cerebellar artery (AICA)","Posterior inferior cerebellar artery (PICA)","Basilar artery directly","Vertebral artery directly"],ans:2,exp:"PICA supplies the posterior inferior cerebellum and the 4th ventricle choroid plexus. A and B supply other areas; D and E are parent vessels."},
+  {q:"Intention tremors differ from other tremors because they:",opts:["Occur during sleep","Appear when moving limbs and disappear at rest","Appear at rest and disappear during movement","Are accompanied by facial paralysis","Are caused by 4th ventricle blockage"],ans:1,exp:"Cerebellar intention tremors manifest during active movement towards a target. C describes resting/Parkinsonian tremors; D and E are anatomically distinct pathologies."},
+  {q:"How do fibers from the paravermal zone project?",opts:["To the fastigial nucleus","To the globose and emboliform nuclei","To the dentate nucleus","To the vestibular nuclei","To the red nucleus"],ans:1,exp:"The paravermal region connects to the globose and emboliform deep cerebellar nuclei. A is vermis; C is lateral zone; D is archicerebellum connection."},
+  {q:"What separates the anterior lobe from the posterior lobe of the cerebellum?",opts:["Horizontal fissure","Primary fissure","Posterolateral fissure","Tentorium cerebelli","Sulcus limitans"],ans:1,exp:"The primary fissure extends on the superior surface to divide anterior and posterior lobes. A separates superior/inferior surfaces; C separates flocculonodular lobe; D separates cerebrum/cerebellum; E is in the 4th ventricle floor."},
+  {q:"What defines the shape of the 4th ventricle floor?",opts:["T-shaped","Rhomboid / Diamond shape","Spherical","C-shaped","Square"],ans:1,exp:"The floor (anterior wall) is known as the rhomboid fossa due to its diamond shape. A describes the choroid plexus; C, D, E are incorrect shapes."},
+  {q:"In the medullary part of the 4th ventricle floor, what does the vagal triangle contain?",opts:["Hypoglossal nucleus","Abducent nucleus","Dorsal motor nucleus of vagus","Vestibular nuclei","Facial nerve fibers"],ans:2,exp:"The vagal trigone overlies the dorsal motor nucleus of the vagus nerve. A is in hypoglossal trigone; B is under facial colliculus; D is in vestibular trigone; E wraps the abducent nucleus."},
+  {q:"The horizontal fissure of the cerebellum functions anatomically to:",opts:["Separate vermis from hemispheres","Separate superior and inferior surfaces","Separate the tonsil from the flocculus","House the choroid plexus","Connect to the middle cerebellar peduncle"],ans:1,exp:"The horizontal fissure traverses the margin to split the cerebellum into superior and inferior surfaces. A is incorrect; C is posterolateral fissure; D is in 4th ventricle; E is lateral."},
+  {q:"Through which structure does the 4th ventricle communicate inferiorly?",opts:["Foramen of Monro","Foramen of Luschka","Central canal of spinal cord","Foramen of Magendie","Aqueduct of Sylvius"],ans:2,exp:"The lower angle of the 4th ventricle is continuous with the central canal of the spinal cord. B and D communicate with subarachnoid space; A is lateral ventricle; E is superior communication."},
+  {q:"What forms the superior boundary of the 4th ventricle's lateral border?",opts:["Superior medullary velum","Superior cerebellar peduncle","Inferior cerebellar peduncle","Middle cerebellar peduncle","Gracile tubercle"],ans:1,exp:"The lateral borders are formed superiorly by the superior cerebellar peduncle. A is the roof; C and E are inferior lateral border; D connects pons to cerebellum."},
+  {q:"The stria medullaris of the 4th ventricle divides the floor into:",opts:["Median and lateral zones","Upper pontine and lower medullary parts","Three trigones","Anterior and posterior parts","Dorsal and ventral parts"],ans:1,exp:"The stria medullaris crosses the floor, dividing it into the upper pontine and lower medullary parts. This is a key anatomical landmark on the rhomboid fossa."},
+  {q:"Which cerebellar structure sits within the posterior notch?",opts:["Brainstem","Tentorium cerebelli","Falx cerebelli","Fourth ventricle","Pineal gland"],ans:2,exp:"The posterior notch of the cerebellum contains the falx cerebelli (a dural fold). A is in the anterior notch; B separates cerebellum from cerebrum superiorly; D is anteriorly."},
+  {q:"Which artery arises from the vertebral artery rather than the basilar artery?",opts:["Superior cerebellar artery","Anterior inferior cerebellar artery (AICA)","Posterior inferior cerebellar artery (PICA)","Pontine arteries","Labyrinthine artery"],ans:2,exp:"PICA is a branch of the vertebral artery, while SCA and AICA are from the basilar artery. This is clinically important for understanding posterior circulation strokes."},
+  {q:"Under the facial colliculus lies which specific cranial nerve nucleus?",opts:["Trigeminal","Facial","Vestibular","Abducent","Hypoglossal"],ans:3,exp:"Despite the name 'facial' colliculus, it overlies the abducent nucleus. The facial nerve fibers merely wrap around the abducent nucleus to form this elevation — a classic exam trap!"},
+  {q:"The lateral zone of the cerebellum structurally projects to which deep nucleus?",opts:["Fastigial nucleus","Emboliform nucleus","Archicerebellum","Dentate nucleus","Vestibular nuclei"],ans:3,exp:"The lateral zone (cerebellar hemispheres) corresponds to the neocerebellum and projects to the dentate nucleus for planning movement. A is vermal zone; B is paravermal; E is archicerebellum connection."},
+  {q:"What divides the lower medullary part of the 4th ventricle into 3 trigones?",opts:["Median sulcus","Sulcus limitans (inferior fovea)","Stria medullaris","Obex","Superior fovea"],ans:1,exp:"The sulcus limitans creates an inferior fovea that divides the medullary floor into hypoglossal, vagal, and vestibular trigones. A splits right/left; C divides pontine/medullary; E is in the pontine part."},
+  {q:"The middle cerebellar peduncle connects the cerebellum to the:",opts:["Midbrain","Pons","Medulla","Spinal cord","Thalamus"],ans:1,exp:"The middle cerebellar peduncle is the massive connection strictly between the pons and the cerebellum. A is superior peduncle; C is inferior peduncle."},
+  {q:"The Archicerebellum predominantly receives input from:",opts:["Spinal cord","Cerebral cortex","Vestibular nuclei","Red nucleus","Inferior olive"],ans:2,exp:"The archicerebellum is the vestibulocerebellum, linking with vestibular nuclei for equilibrium control. A is paleocerebellum; B is neocerebellum."},
+  {q:"Which of the following is NOT part of the posterior wall (roof) of the 4th ventricle?",opts:["Superior medullary velum","Inferior medullary velum","Part of the cerebellum","Stria medullaris","All above are roof structures"],ans:3,exp:"Stria medullaris is on the FLOOR (anterior wall), separating the pontine and medullary parts. The roof consists of: superior medullary velum, inferior medullary velum, and part of the cerebellum."}
+];
+
+const flashcards = [
+  {q:"What is the shape of the 4th ventricle's floor?",a:"Rhomboid (diamond-shaped) — known as the rhomboid fossa. It forms the anterior wall of the 4th ventricle."},
+  {q:"What nucleus underlies the facial colliculus?",a:"The ABDUCENT nucleus (CN VI) — NOT the facial nucleus. Facial nerve fibers wrap around the abducent nucleus to form this elevation. Classic trap!"},
+  {q:"Name the three openings through which CSF leaves the 4th ventricle.",a:"1) Foramen of Magendie (median, 1×) → subarachnoid space\n2) Foramina of Luschka (lateral, 2×) → subarachnoid space\n3) Central canal → spinal cord"},
+  {q:"What is the arterial supply to the choroid plexus of the 4th ventricle?",a:"Posterior Inferior Cerebellar Artery (PICA) — a branch of the vertebral artery, NOT the basilar."},
+  {q:"Archicerebellum: other names, connections, function?",a:"= Vestibulocerebellum = Flocculonodular lobe.\nConnects to: vestibular nuclei.\nFunction: Equilibrium & balance."},
+  {q:"Paleocerebellum: other names, connections, function?",a:"= Spinocerebellum = Vermal + paravermal zones.\nConnects to: spinal cord.\nFunction: Muscle tone & coordination."},
+  {q:"Neocerebellum: other names, connections, function?",a:"= Cerebrocerebellum = Lateral zone (hemispheres).\nConnects to: cerebral hemispheres.\nFunction: Planning automatic movement control."},
+  {q:"Vermal zone → which deep cerebellar nucleus?",a:"Fastigial nucleus"},
+  {q:"Paravermal zone → which deep cerebellar nuclei?",a:"Globose nucleus + Emboliform nucleus"},
+  {q:"Lateral zone (hemisphere) → which deep cerebellar nucleus?",a:"Dentate nucleus — the largest deep cerebellar nucleus."},
+  {q:"What is dysmetria and how is it tested?",a:"Dysmetria = inability to accurately measure distance and stop a movement at a desired point. Tested by the finger-to-nose test. Sign of cerebellar (neocerebellum) damage."},
+  {q:"Distinguish intention tremors from resting tremors.",a:"Intention tremors (cerebellar): appear DURING movement toward a target, absent at rest.\nResting tremors (Parkinson's): present at REST, suppressed by movement."},
+  {q:"What separates anterior lobe from posterior lobe of cerebellum?",a:"Primary fissure (on superior cerebellar surface)."},
+  {q:"What separates the posterior lobe from the flocculonodular lobe?",a:"Posterolateral fissure."},
+  {q:"What dural fold separates cerebellum from cerebrum?",a:"Tentorium cerebelli — a horizontal fold of dura mater."},
+  {q:"What structure divides the upper and lower parts of the 4th ventricle floor?",a:"Stria medullaris of the 4th ventricle (horizontal fiber bundles crossing the floor)."},
+  {q:"Name the three trigones in the medullary part of the 4th ventricle floor.",a:"1) Hypoglossal triangle (contains CN XII nucleus)\n2) Vagal triangle (contains dorsal motor nucleus of vagus)\n3) Vestibular triangle (contains vestibular nuclei)"},
+  {q:"Superior cerebellar peduncle: connects to? Main fiber direction?",a:"Connects to MIDBRAIN. Mainly EFFERENT fibers (output from cerebellum). Forms superior lateral border of 4th ventricle."},
+  {q:"Middle cerebellar peduncle: connects to? Main fiber direction?",a:"Connects to PONS. Mainly AFFERENT fibers (input to cerebellum). Largest peduncle."},
+  {q:"Inferior cerebellar peduncle: connects to? Main fiber type?",a:"Connects to MEDULLA. MIXED fibers (both afferent and efferent). Forms inferior lateral border of 4th ventricle."},
+  {q:"What is the falx cerebelli?",a:"A dural fold in the posterior notch of the cerebellum, between the two cerebellar hemispheres."},
+  {q:"A tumor compresses the flocculonodular lobe. What sign results?",a:"Loss of equilibrium (ataxia/truncal ataxia) — because the archicerebellum (flocculonodular lobe) connects to vestibular nuclei for balance control."}
+];
+
+const clinicalCases = [
+  {
+    title:"Case 1: The Fumbling Surgeon",
+    vignette:"A 45-year-old right-handed surgeon notices that during operations, his right hand increasingly overshoots when reaching for instruments. On examination, rapid alternating movements are clumsy and the finger-to-nose test shows his finger consistently landing on his cheek rather than his nose. Reflexes are normal and he has no weakness.",
+    questions:[
+      {q:"Q1: What is the specific cerebellar sign demonstrated?",a:"<strong>Dysmetria</strong> — the inability to accurately measure distance and stop movement at a desired point. This is a hallmark sign of cerebellar (particularly neocerebellum/lateral zone) damage, tested specifically by the finger-to-nose test. The finger overshoots because the cerebellum cannot gauge the exact stopping point."},
+      {q:"Q2: Which functional division of the cerebellum is most likely affected?",a:"The <strong>Neocerebellum (cerebrocerebellum/lateral zone)</strong>, which connects to the cerebral hemispheres via the dentate nucleus → superior cerebellar peduncle → thalamus → cortex pathway. This division is responsible for planning and automatic control of skilled movements."},
+      {q:"Q3: What additional cerebellar sign would you look for on examination?",a:"<strong>Intention tremor</strong> — a tremor that appears specifically during goal-directed movement and disappears at rest. This is distinct from the resting tremor of Parkinson's disease, which is suppressed during movement."}
+    ]
+  },
+  {
+    title:"Case 2: The Vertiginous Student",
+    vignette:"A 22-year-old medical student develops sudden severe vertigo, imbalance, and difficulty walking after what seems to be a viral illness. She stumbles to both sides when walking. She has no limb ataxia on finger-to-nose testing — only truncal unsteadiness. MRI shows a small lesion at the flocculonodular area.",
+    questions:[
+      {q:"Q1: Which functional division of the cerebellum is affected?",a:"The <strong>Archicerebellum (vestibulocerebellum / flocculonodular lobe)</strong>. This division receives input from and projects to the vestibular nuclei, maintaining equilibrium and balance. Note: limb coordination is preserved because the neocerebellum is intact."},
+      {q:"Q2: Why does she have truncal ataxia without limb dysmetria?",a:"The archicerebellum/flocculonodular lobe specifically controls <strong>equilibrium and truncal balance</strong> via vestibular nuclei connections. Limb coordination (dysmetria) is controlled by the neocerebellum (lateral hemispheres). Since the lateral zone is spared, finger-to-nose remains normal while gait/truncal stability is lost."},
+      {q:"Q3: What vascular territory might explain a hemorrhagic cause?",a:"<strong>PICA (Posterior Inferior Cerebellar Artery)</strong> — a branch of the vertebral artery — supplies the inferior cerebellum including the flocculonodular region AND the choroid plexus of the 4th ventricle. PICA infarction is a classic posterior fossa emergency."}
+    ]
+  },
+  {
+    title:"Case 3: The Diplopia Trap",
+    vignette:"A neurology lecturer shows a brain specimen and points to an elevation on the upper pontine part of the 4th ventricle floor. She asks: 'A lesion here causes which cranial nerve palsy?' Most students answer 'facial nerve palsy' because of the name of the structure.",
+    questions:[
+      {q:"Q1: What is the structure she is pointing to?",a:"The <strong>Facial Colliculus</strong> — an elevation on the upper pontine part of the 4th ventricle floor (rhomboid fossa). Despite its name, it is formed by facial nerve (CN VII) fibers wrapping around the abducent nucleus from below."},
+      {q:"Q2: The correct answer to her question — which nerve palsy results?",a:"<strong>Abducent nerve (CN VI) palsy</strong> — resulting in inability to abduct the ipsilateral eye, causing diplopia (double vision on lateral gaze). This is the classic exam trap: the facial colliculus contains the ABDUCENT nucleus, NOT the facial nucleus."},
+      {q:"Q3: Where is the actual facial motor nucleus located?",a:"The facial motor nucleus is located in the pontine tegmentum, <strong>ventrolateral</strong> to the abducent nucleus. Its axons loop dorsally around the abducent nucleus (forming the facial colliculus elevation) before exiting anterolaterally. A lesion at the facial colliculus damages CN VI fibers primarily."}
+    ]
+  },
+  {
+    title:"Case 4: The Blocked Plumber",
+    vignette:"A 10-year-old boy presents with headaches worse in the morning, vomiting, and papilloedema. MRI shows significant dilation of both lateral ventricles and the 3rd ventricle, but the 4th ventricle appears normal in size.",
+    questions:[
+      {q:"Q1: What is the anatomical location of the obstruction?",a:"The obstruction is at the <strong>Cerebral Aqueduct of Sylvius</strong> (aqueduct of Sylvius) — the narrow channel connecting the 3rd ventricle to the 4th ventricle through the midbrain. Blockage here causes upstream dilation (3rd + lateral ventricles) while the 4th ventricle and everything downstream remains normal."},
+      {q:"Q2: What is the type of hydrocephalus?",a:"<strong>Non-communicating (obstructive) hydrocephalus</strong> — the block is within the ventricular system itself. Because CSF cannot pass through, it accumulates in the lateral and 3rd ventricles, raising ICP. The 4th ventricle remains isolated and normal."},
+      {q:"Q3: If this boy also develops cerebellar signs later, what most likely happened?",a:"Secondary compression of the cerebellum by the enlarged 3rd ventricle and expanding posterior fossa pressure, OR direct involvement of the cerebellum by the underlying pathology (e.g., a pineal/midbrain tumor causing the aqueductal block). Signs would include <strong>dysmetria</strong> (neocerebellum) and intention tremors."}
+    ]
+  },
+  {
+    title:"Case 5: The Parkinson's Mimic",
+    vignette:"A 55-year-old retired teacher is referred with tremors. Examination reveals tremors that are ABSENT when his hands rest on his lap, but emerge prominently when he reaches out to pick up a cup. His gait is broad-based and unsteady. Reflexes and strength are normal.",
+    questions:[
+      {q:"Q1: What type of tremor is this, and what is the underlying pathology?",a:"This is an <strong>intention tremor</strong> — a cerebellar sign that appears during goal-directed movement and disappears at rest. This is fundamentally different from Parkinson's resting tremor (which is present at rest and suppressed during movement). The underlying pathology is cerebellar dysfunction."},
+      {q:"Q2: Why is Parkinson's disease less likely here?",a:"In Parkinson's disease: tremors are <strong>resting tremors</strong> (pill-rolling, 4-6 Hz), suppressed by intentional movement, and accompanied by rigidity, bradykinesia, and postural instability WITHOUT cerebellar-type broad-based gait. Cerebellar tremors are kinetic/intention tremors — maximum amplitude at endpoint of movement."},
+      {q:"Q3: Which specific cerebellar zone/division is most responsible for intention tremors?",a:"The <strong>Neocerebellum (lateral zone / cerebrocerebellum)</strong>, which projects to the dentate nucleus → thalamus → motor cortex pathway. This division plans and modulates the automatic control of skilled voluntary movements. Loss of this function causes the uncontrolled intention tremors seen in this patient."}
+    ]
+  }
+];
+
+const pathoItems = [
+  {icon:"🔷",title:"4th Ventricle (Rhomboid Fossa)",detail:"Diamond-shaped cavity. Floor = anterior wall (rhomboid fossa). Roof = posterior wall (superior medullary velum + inferior medullary velum + part of cerebellum). Lateral borders superiorly: superior cerebellar peduncle. Laterally inferiorly: inferior cerebellar peduncle + gracile + cuneate tubercles."},
+  {icon:"🧱",title:"Facial Colliculus",detail:"Elevation in UPPER PONTINE floor. Formed by CN VII fibers wrapping around CN VI (abducent) nucleus. Lesion here = abducent nerve palsy (diplopia), NOT facial palsy. Classic exam trap!"},
+  {icon:"📐",title:"Stria Medullaris",detail:"Horizontal fiber bundles crossing the floor of the 4th ventricle. Divides the rhomboid fossa into upper pontine part (above) and lower medullary part (below). Key landmark for identifying structures."},
+  {icon:"🩺",title:"Hypoglossal Triangle",detail:"In the medullary part of the floor. Located medially. Overlies the hypoglossal nucleus (CN XII). Lesion here → hypoglossal nerve palsy (tongue deviation to affected side)."},
+  {icon:"🌿",title:"Vagal Triangle",detail:"In the medullary part of the floor. Located laterally. Overlies the dorsal motor nucleus of the vagus (CN X). Important for parasympathetic control of thoracoabdominal organs."},
+  {icon:"🌊",title:"Vestibular Triangle",detail:"In the medullary part of the floor. Located furthest laterally. Overlies the vestibular nuclei (CN VIII). Important for coordination with archicerebellum for balance."},
+  {icon:"💧",title:"Choroid Plexus of 4th Ventricle",detail:"T-shaped structure: stem attached to inferior medullary velum, arms extending into lateral recesses. Secretes CSF. Blood supply: PICA (vertebral artery branch). Disruption (PICA stroke) impairs CSF secretion."},
+  {icon:"🌀",title:"Aqueduct of Sylvius",detail:"Narrow channel connecting 3rd ventricle to 4th ventricle through the midbrain. Only 1.5mm wide — easily obstructed. Blockage → non-communicating hydrocephalus (lateral + 3rd ventricle dilate, 4th remains normal)."},
+  {icon:"🧩",title:"Flocculonodular Lobe",detail:"= Archicerebellum = Vestibulocerebellum. Separated from posterior lobe by posterolateral fissure. Connected to vestibular nuclei. Function: equilibrium. Tumor here (e.g., medulloblastoma in children) → truncal ataxia."},
+  {icon:"🏔️",title:"Dentate Nucleus",detail:"Largest and most lateral deep cerebellar nucleus. Receives input from the lateral zone (neocerebellum). Projects via superior cerebellar peduncle to thalamus → motor cortex. Critical for skilled voluntary movement planning."},
+];
+
+const vivaQA = [
+  {q:"What are the three cerebellar peduncles and what do they connect?",a:"Superior cerebellar peduncle → connects to the MIDBRAIN (mainly efferent). Middle cerebellar peduncle → connects to the PONS (mainly afferent). Inferior cerebellar peduncle → connects to the MEDULLA (mixed). They also form the lateral borders of the 4th ventricle."},
+  {q:"Describe the shape and arterial supply of the 4th ventricle's choroid plexus.",a:"T-shaped structure: stem attached to the inferior medullary velum, arms extending into the lateral recesses to protrude through the foramina of Luschka. Blood supply: Posterior Inferior Cerebellar Artery (PICA) — a branch of the vertebral artery."},
+  {q:"What is the significance of the facial colliculus?",a:"It is a swelling in the upper pontine floor of the 4th ventricle. Crucially, it overlies the ABDUCENT nucleus (not the facial nucleus). It is formed by facial nerve (CN VII) fibers wrapping around the underlying abducent (CN VI) nucleus. Lesion here causes abducent nerve palsy."},
+  {q:"Where does the 4th ventricle communicate with the subarachnoid space?",a:"Through one median aperture — the Foramen of Magendie — and two lateral apertures — the Foramina of Luschka — located at the ends of the lateral recesses. It also communicates inferiorly with the spinal cord's central canal."},
+  {q:"What are the anatomical divisions of the cerebellum?",a:"Divided by fissures into three lobes: (1) Anterior lobe — separated from posterior by primary fissure. (2) Posterior lobe — the largest. (3) Flocculonodular lobe — separated from posterior lobe by posterolateral fissure, represents the archicerebellum."},
+  {q:"Differentiate intention tremors from resting tremors regarding the cerebellum.",a:"Cerebellar (intention) tremors: appear when the patient actively moves a limb toward a target, reach maximum amplitude near the endpoint, and DISAPPEAR at rest. Resting tremors (Parkinson's): present when the limb is at rest and SUPPRESSED during voluntary movement. This distinction is clinically vital."},
+  {q:"What does the inferior fovea (sulcus limitans) divide in the medulla?",a:"The sulcus limitans creates the inferior fovea which divides the medullary part of the 4th ventricle floor into three trigones: hypoglossal triangle (medially, overlies CN XII nucleus), vagal triangle (overlies dorsal motor nucleus of vagus), and vestibular triangle (laterally, overlies vestibular nuclei)."},
+  {q:"Name the deep cerebellar nuclei and their longitudinal zone connections.",a:"Vermal zone → Fastigial nucleus. Paravermal zone → Globose + Emboliform nuclei. Lateral zone (hemispheres) → Dentate nucleus (largest). Mnemonic: Vermis-Fastigial, Para-Globe-Embo, Lateral-Dentate."},
+  {q:"What separates the cerebellum from the cerebrum?",a:"A horizontal fold of dura mater called the tentorium cerebelli. The cerebellum sits in the posterior cranial fossa below the tentorium. The falx cerebelli is a vertical fold between the two cerebellar hemispheres in the posterior notch."},
+  {q:"What is the function of the paleocerebellum?",a:"Also known as the spinocerebellum. Connects with the spinal cord (via spinocerebellar tracts in the inferior peduncle). Responsible for regulating muscle tone and muscle coordination during ongoing movements. Includes the vermal and paravermal zones."},
+  {q:"What nuclei are found in the lower medullary part of the 4th ventricle floor?",a:"Three trigones: hypoglossal trigone (CN XII nucleus), vagal trigone (dorsal motor nucleus of vagus, CN X), and vestibular trigone (medullary + pontine vestibular nuclei, CN VIII). These are located below the stria medullaris."},
+  {q:"What defines dysmetria and what is its clinical test?",a:"Dysmetria is a sign of cerebellar damage characterized by inability to accurately measure distance — the patient cannot stop a movement at a desired point. Clinical test: finger-to-nose test (finger overshoots and lands on cheek) and heel-to-shin test. It reflects neocerebellum dysfunction."}
+];
+
+const mnemonics = [
+  {
+    word:"A-P-N",
+    title:"Cerebellar Functional Divisions in Evolutionary Order",
+    items:[
+      {l:"A",d:"Archicerebellum = Equilibrium (vestibular connections) — oldest"},
+      {l:"P",d:"Paleocerebellum = Posture & tone (spinal cord connections)"},
+      {l:"N",d:"Neocerebellum = New movements planning (cerebral connections) — newest"}
+    ]
+  },
+  {
+    word:"VPL",
+    title:"Deep Cerebellar Nuclei from Medial to Lateral",
+    items:[
+      {l:"V",d:"Vermal zone → Fastigial (V = Vermis → F but remember V-P-L for the zones!)"},
+      {l:"P",d:"Paravermal zone → Globose + Emboliform nuclei"},
+      {l:"L",d:"Lateral zone → Dentate nucleus (Largest)"}
+    ]
+  },
+  {
+    word:"SML",
+    title:"Cerebellar Peduncles (Superior, Middle, Inferior) and their brainstem levels",
+    items:[
+      {l:"S",d:"Superior peduncle → Midbrain (mainly efferent output)"},
+      {l:"M",d:"Middle peduncle → Pons (mainly afferent input, Massive)"},
+      {l:"L",d:"Lower (Inferior) peduncle → medulla (Lower = Inferior, mixed)"}
+    ]
+  },
+  {
+    word:"FAKE",
+    title:"The Facial Colliculus Contains… (reminder it's NOT the facial nerve!)",
+    items:[
+      {l:"F",d:"Facial colliculus — the NAME is a FAKE-out"},
+      {l:"A",d:"Abducent nucleus lies UNDERNEATH it"},
+      {l:"K",d:"KNOWS it's really a CN VI zone"},
+      {l:"E",d:"Expect CN VI palsy (not facial palsy) from a lesion here"}
+    ]
+  },
+  {
+    word:"MLM",
+    title:"CSF exits 4th Ventricle — Magendie, Luschka, More (Central Canal)",
+    items:[
+      {l:"M",d:"Magendie (1 median foramen) → subarachnoid space"},
+      {l:"L",d:"Luschka (2 lateral foramina) → subarachnoid space"},
+      {l:"M",d:"More inferior → Central Canal of spinal cord"}
+    ]
+  },
+  {
+    word:"HVV",
+    title:"Medullary Floor Trigones (Medial to Lateral)",
+    items:[
+      {l:"H",d:"Hypoglossal triangle — CN XII nucleus (tongue movement)"},
+      {l:"V",d:"Vagal triangle — Dorsal motor nucleus of Vagus (CN X)"},
+      {l:"V",d:"Vestibular triangle — Vestibular nuclei (CN VIII, balance)"}
+    ]
+  }
+];
+
+const searchIndex = [];
+function buildSearchIndex(){
+  quizData.forEach((q,i)=>{searchIndex.push({title:`Quiz Q${i+1}: ${q.q.substring(0,60)}...`,body:q.exp.substring(0,120),tab:'quiz'})});
+  flashcards.forEach((f,i)=>{searchIndex.push({title:`Flashcard ${i+1}: ${f.q.substring(0,60)}`,body:f.a.substring(0,100),tab:'flashcards'})});
+  vivaQA.forEach((v,i)=>{searchIndex.push({title:`Viva Q${i+1}: ${v.q.substring(0,60)}`,body:v.a.substring(0,100),tab:'viva'})});
+  pathoItems.forEach((p)=>{searchIndex.push({title:`Patho: ${p.title}`,body:p.detail.substring(0,120),tab:'patho'})});
+  mnemonics.forEach((m)=>{searchIndex.push({title:`Mnemonic: ${m.word} — ${m.title}`,body:m.items.map(x=>x.l+': '+x.d).join(' | ').substring(0,120),tab:'mnemonics'})});
+}
+
+// =================== QUIZ ===================
+let quizState = {answered:0, correct:0, wrong:0, streak:0, maxStreak:0};
+
+function initQuiz(){
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = '';
+  quizData.forEach((q,i)=>{
+    const div = document.createElement('div');
+    div.className = 'q-card';
+    div.id = `qcard-${i}`;
+    div.innerHTML = `
+      <div class="q-number">Question ${i+1} of ${quizData.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="q-options">
+        ${q.opts.map((o,j)=>`<div class="q-opt" onclick="answerQ(${i},${j})" id="qopt-${i}-${j}">
+          <span class="opt-letter">${String.fromCharCode(65+j)}</span>${o}
+        </div>`).join('')}
+      </div>
+      <div class="q-explanation" id="qexp-${i}">
+        <span class="correct-note">✅ Correct Answer: ${String.fromCharCode(65+q.ans)} — ${q.opts[q.ans]}</span>
+        ${q.exp}
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+function answerQ(qi, chosen){
+  const card = document.getElementById(`qcard-${qi}`);
+  if(card.classList.contains('answered-correct') || card.classList.contains('answered-wrong')) return;
+  const q = quizData[qi];
+  const isCorrect = chosen === q.ans;
+  card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+  card.classList.add(isCorrect ? 'anim-correct' : 'anim-wrong');
+  // Mark options
+  card.querySelectorAll('.q-opt').forEach((el,j)=>{
+    el.classList.add('disabled');
+    el.style.cursor='default';
+    if(j===q.ans) el.classList.add('correct');
+    else if(j===chosen && !isCorrect) el.classList.add('wrong');
+  });
+  document.getElementById(`qexp-${qi}`).classList.add('show');
+  quizState.answered++;
+  if(isCorrect){quizState.correct++;quizState.streak++;quizState.maxStreak=Math.max(quizState.streak,quizState.maxStreak);}
+  else{quizState.wrong++;quizState.streak=0;}
+  updateQuizUI();
+  saveProgress();
+  if(quizState.answered===quizData.length) showQuizScore();
+}
+
+function updateQuizUI(){
+  const pct = Math.round((quizState.answered/quizData.length)*100);
+  document.getElementById('qProgressBar').style.width=pct+'%';
+  document.getElementById('qProgressText').textContent=`${quizState.answered} / ${quizData.length} answered`;
+  document.getElementById('qCorrect').textContent=quizState.correct;
+  document.getElementById('qWrong').textContent=quizState.wrong;
+  document.getElementById('qStreak').textContent=quizState.streak;
+  document.getElementById('statScore').textContent=`${quizState.correct}/${quizState.answered||1}`;
+  document.getElementById('statStreak').textContent=`🔥${quizState.maxStreak}`;
+  document.getElementById('statProgress').textContent=pct+'%';
+}
+
+function showQuizScore(){
+  const sc = document.getElementById('quizScoreCard');
+  sc.style.display='block';
+  const pct=Math.round((quizState.correct/quizData.length)*100);
+  document.getElementById('scoreBig').textContent=`${quizState.correct}/${quizData.length}`;
+  const msgs=['Keep studying!','Getting there!','Good work!','Great job!','Excellent!','Perfect score! 🏆'];
+  const msgIdx=Math.floor(pct/20);
+  document.getElementById('scoreMsg').textContent=`${pct}% — ${msgs[Math.min(msgIdx,5)]}`;
+  sc.scrollIntoView({behavior:'smooth'});
+}
+
+function resetQuiz(){
+  quizState={answered:0,correct:0,wrong:0,streak:0,maxStreak:0};
+  document.getElementById('quizScoreCard').style.display='none';
+  initQuiz();
+  updateQuizUI();
+}
+
+// =================== FLASHCARDS ===================
+function initFlashcards(){
+  const grid = document.getElementById('flashcardGrid');
+  grid.innerHTML = flashcards.map((f,i)=>`
+    <div class="fc-card" onclick="flipCard(this)">
+      <div class="fc-inner">
+        <div class="fc-front">
+          <div class="fc-num">Card ${i+1} of ${flashcards.length}</div>
+          <div class="fc-q">${f.q}</div>
+          <div class="fc-hint">👆 Tap to flip</div>
+        </div>
+        <div class="fc-back">
+          <div class="fc-num">Answer</div>
+          <div class="fc-a">${f.a.replace(/\n/g,'<br>')}</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function flipCard(el){el.classList.toggle('flipped');}
+
+// =================== CASES ===================
+function initCases(){
+  const c = document.getElementById('casesContainer');
+  c.innerHTML = clinicalCases.map((cs,i)=>`
+    <div class="case-card">
+      <div class="case-header" onclick="toggleCase(${i})">
+        <h3>${cs.title}</h3>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="case-badge">Clinical Vignette</span>
+          <span style="color:var(--text3)">▼</span>
+        </div>
+      </div>
+      <div class="case-body" id="case-body-${i}">
+        <div class="case-vignette">${cs.vignette}</div>
+        ${cs.questions.map((q,j)=>`
+          <div class="case-q">
+            <div class="cq-text">${q.q}</div>
+            <button class="reveal-btn" onclick="revealAnswer(${i},${j},this)">🔍 Reveal Answer</button>
+            <div class="answer-reveal" id="ans-${i}-${j}"><strong>Answer:</strong><br>${q.a}</div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+function toggleCase(i){
+  const body=document.getElementById(`case-body-${i}`);
+  body.classList.toggle('show');
+}
+function revealAnswer(ci,qi,btn){
+  const el=document.getElementById(`ans-${ci}-${qi}`);
+  el.classList.toggle('show');
+  btn.textContent=el.classList.contains('show')?'🔼 Hide Answer':'🔍 Reveal Answer';
+}
+
+// =================== PATHO ===================
+function initPatho(){
+  const g=document.getElementById('pathoGrid');
+  g.innerHTML=pathoItems.map((p,i)=>`
+    <div class="patho-item" onclick="togglePatho(this,${i})">
+      <div class="pi-icon">${p.icon}</div>
+      <h4>${p.title}</h4>
+      <div class="patho-detail" id="pd-${i}">${p.detail}</div>
+    </div>`).join('');
+}
+function togglePatho(el,i){
+  el.classList.toggle('active');
+  document.getElementById(`pd-${i}`).classList.toggle('show');
+}
+
+// =================== DIAGNOSIS ===================
+const floorLandmarks=[
+  {name:"Facial Colliculus",color:"rgba(252,129,129,0.2)",border:"rgba(252,129,129,0.4)",text:"#fc8181",info:"Upper pontine floor. Elevation formed by CN VII fibers wrapping around the abducent (CN VI) nucleus underneath. Lesion = CN VI palsy (diplopia). Classic exam trap — it does NOT contain the facial nucleus!"},
+  {name:"Locus Coeruleus",color:"rgba(99,179,237,0.15)",border:"rgba(99,179,237,0.4)",text:"#63b3ed",info:"Upper pontine floor. Pigmented nucleus in the superior fovea. Contains norepinephrine-producing neurons. Important in arousal, attention, and stress response."},
+  {name:"Superior Fovea",color:"rgba(183,148,244,0.15)",border:"rgba(183,148,244,0.4)",text:"#b794f4",info:"Depression in the upper (pontine) part of the 4th ventricle floor where the sulcus limitans widens. Lateral to the facial colliculus."},
+  {name:"Stria Medullaris",color:"rgba(79,209,197,0.15)",border:"rgba(79,209,197,0.4)",text:"#4fd1c5",info:"Horizontal fiber bundles that cross the floor of the 4th ventricle. Divides the floor into upper pontine and lower medullary parts. Key anatomical landmark."},
+  {name:"Hypoglossal Triangle",color:"rgba(246,173,85,0.15)",border:"rgba(246,173,85,0.4)",text:"#f6ad55",info:"Medullary floor (below stria medullaris). Medial trigone overlying CN XII (hypoglossal) nucleus. Lesion → tongue deviation to ipsilateral side."},
+  {name:"Vagal Triangle",color:"rgba(104,211,145,0.15)",border:"rgba(104,211,145,0.4)",text:"#68d391",info:"Medullary floor. Central trigone overlying the dorsal motor nucleus of the vagus (CN X). Controls parasympathetic innervation of thoracoabdominal organs."},
+  {name:"Vestibular Triangle",color:"rgba(246,173,85,0.15)",border:"rgba(246,173,85,0.35)",text:"#f6e05e",info:"Medullary floor. Lateral trigone overlying vestibular nuclei (CN VIII). Connected to archicerebellum for balance. Damage → nystagmus and vestibular dysfunction."},
+  {name:"Inferior Fovea",color:"rgba(99,179,237,0.1)",border:"rgba(99,179,237,0.3)",text:"#90cdf4",info:"Depression in the medullary part of the 4th ventricle floor. Part of the sulcus limitans. Helps separate the medial (hypoglossal/vagal) from lateral (vestibular) trigones."},
+  {name:"Obex",color:"rgba(252,129,129,0.12)",border:"rgba(252,129,129,0.3)",text:"#fc8181",info:"The inferiormost tip of the 4th ventricle where it tapers to become continuous with the central canal of the spinal cord. Landmark for medullary level."},
+];
+function initDiagnosis(){
+  const fb=document.getElementById('floorBadges');
+  fb.innerHTML=floorLandmarks.map((f,i)=>`<span class="finding-badge" style="background:${f.color};border:1px solid ${f.border};color:${f.text}" onclick="showFloorDetail(${i})">${f.name}</span>`).join('');
+}
+function showFloorDetail(i){
+  const d=document.getElementById('floorDetail');
+  d.style.display='block';
+  d.innerHTML=`<strong style="color:var(--accent2)">${floorLandmarks[i].name}</strong><br>${floorLandmarks[i].info}`;
+  d.style.animation='none';d.offsetHeight;d.style.animation='fadeIn 0.3s ease';
+}
+
+// =================== MNEMONICS ===================
+function initMnemonics(){
+  const g=document.getElementById('mnemGrid');
+  g.innerHTML=mnemonics.map(m=>`
+    <div class="mnem-card">
+      <div class="mnem-header">
+        <div class="mnem-word">${m.word}</div>
+        <div class="mnem-title">${m.title}</div>
+      </div>
+      <div class="mnem-body">
+        ${m.items.map(it=>`<div class="mnem-item">
+          <div class="mnem-letter">${it.l}</div>
+          <div class="mnem-desc">${it.d}</div>
+        </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+// =================== VIVA ===================
+function initViva(){
+  const c=document.getElementById('vivaContainer');
+  c.innerHTML=vivaQA.map((v,i)=>`
+    <div class="viva-card" id="vc-${i}">
+      <div class="viva-q" onclick="toggleViva(${i})">
+        <span class="viva-q-text">Q${i+1}: ${v.q}</span>
+        <span class="viva-arrow">▶</span>
+      </div>
+      <div class="viva-a" id="va-${i}">${v.a}</div>
+    </div>`).join('');
+}
+function toggleViva(i){
+  const card=document.getElementById(`vc-${i}`);
+  const ans=document.getElementById(`va-${i}`);
+  card.classList.toggle('open');
+  ans.classList.toggle('show');
+}
+
+// =================== TABS ===================
+function switchTab(name){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelector(`[data-tab="${name}"]`).classList.add('active');
+  document.getElementById(`tab-${name}`).classList.add('active');
+  localStorage.setItem('cereb_tab',name);
+}
+
+// =================== SEARCH ===================
+function initSearch(){
+  const input=document.getElementById('searchInput');
+  const results=document.getElementById('searchResults');
+  input.addEventListener('input',()=>{
+    const q=input.value.trim().toLowerCase();
+    if(q.length<2){results.style.display='none';return;}
+    const matches=searchIndex.filter(s=>(s.title+s.body).toLowerCase().includes(q)).slice(0,8);
+    if(!matches.length){results.style.display='none';return;}
+    results.innerHTML=matches.map(m=>`<div class="search-result-item" onclick="switchTab('${m.tab}');document.getElementById('searchInput').value='';document.getElementById('searchResults').style.display='none'">
+      <div class="sr-title">${m.title}</div>
+      <div class="sr-body">${m.body}</div>
+    </div>`).join('');
+    results.style.display='block';
+  });
+  document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))results.style.display='none';});
+}
+
+// =================== STORAGE ===================
+function saveProgress(){
+  localStorage.setItem('cereb_quiz',JSON.stringify(quizState));
+}
+function loadProgress(){
+  const qs=localStorage.getItem('cereb_quiz');
+  if(qs){quizState=JSON.parse(qs);updateQuizUI();}
+  const tab=localStorage.getItem('cereb_tab');
+  if(tab)switchTab(tab);
+}
+
+// =================== INIT ===================
+document.querySelectorAll('.tab-btn').forEach(b=>{
+  b.addEventListener('click',()=>switchTab(b.dataset.tab));
+});
+
+buildSearchIndex();
+initQuiz();
+initFlashcards();
+initCases();
+initPatho();
+initDiagnosis();
+initMnemonics();
+initViva();
+initSearch();
+loadProgress();
+</script>
+</body>
+</html>

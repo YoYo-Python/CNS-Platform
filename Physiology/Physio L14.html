@@ -1,0 +1,2003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basal Ganglia - Interactive Study Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --accent: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-hover: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.05;
+        }
+
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--gradient-1);
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .bg-circle:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .bg-circle:nth-child(2) {
+            width: 400px;
+            height: 400px;
+            bottom: -150px;
+            right: -150px;
+            background: var(--gradient-2);
+            animation-delay: 5s;
+        }
+
+        .bg-circle:nth-child(3) {
+            width: 250px;
+            height: 250px;
+            top: 50%;
+            left: 50%;
+            background: var(--gradient-3);
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, -50px) scale(1.1); }
+            50% { transform: translate(-30px, 30px) scale(0.9); }
+            75% { transform: translate(30px, 50px) scale(1.05); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: var(--bg-hover);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .tab-navigation {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            background: var(--bg-card);
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid var(--border);
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: transparent;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .tab-btn:hover {
+            background: var(--bg-hover);
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: var(--gradient-1);
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 5px 20px rgba(99, 102, 241, 0.2);
+        }
+
+        .card-header {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin: 5px 5px 5px 0;
+        }
+
+        .tag-exam { background: #fef3c7; color: #92400e; }
+        .tag-clinical { background: #dbeafe; color: #1e40af; }
+        .tag-high-yield { background: #fecaca; color: #991b1b; }
+        .tag-mechanism { background: #d1fae5; color: #065f46; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .question-card {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 2px solid var(--border);
+        }
+
+        .question-number {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            margin-bottom: 20px;
+            line-height: 1.8;
+            color: var(--text-primary);
+        }
+
+        .option {
+            background: var(--bg-hover);
+            padding: 15px 20px;
+            margin: 10px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .option:hover {
+            background: var(--border);
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .option.correct {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+            animation: pulse 0.5s ease;
+        }
+
+        .option.wrong {
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .option-label {
+            background: var(--primary);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .explanation {
+            background: rgba(99, 102, 241, 0.05);
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .explanation.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; max-height: 0; }
+            to { opacity: 1; max-height: 500px; }
+        }
+
+        .explanation-title {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+        }
+
+        .flashcard {
+            perspective: 1000px;
+            height: 250px;
+            cursor: pointer;
+        }
+
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-weight: 600;
+            border: 2px solid var(--border);
+        }
+
+        .flashcard-front {
+            background: var(--gradient-1);
+            color: white;
+        }
+
+        .flashcard-back {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            transform: rotateY(180deg);
+        }
+
+        .clinical-case {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 5px solid var(--accent);
+        }
+
+        .case-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+
+        .case-presentation {
+            background: var(--bg-hover);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        .case-question {
+            font-weight: 600;
+            color: var(--primary);
+            margin: 15px 0 10px 0;
+        }
+
+        .case-answer {
+            background: rgba(16, 185, 129, 0.05);
+            border-left: 4px solid var(--success);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .case-answer.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-hover);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-1);
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px 20px;
+            background: var(--bg-hover);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .pathway-flow {
+            background: var(--bg-hover);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .pathway-step {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            gap: 15px;
+        }
+
+        .pathway-node {
+            background: var(--gradient-1);
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            flex: 1;
+            text-align: center;
+        }
+
+        .pathway-arrow {
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .mnemonic-card {
+            background: var(--gradient-2);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .mnemonic-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .mnemonic-letters {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 15px 0;
+            letter-spacing: 3px;
+        }
+
+        .mnemonic-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .mnemonic-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .mnemonic-list li:last-child {
+            border-bottom: none;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .comparison-table th {
+            background: var(--gradient-1);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table tr:hover {
+            background: var(--bg-hover);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 3px;
+        }
+
+        .badge-primary { background: rgba(99, 102, 241, 0.2); color: var(--primary); }
+        .badge-success { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .badge-danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .badge-warning { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+            margin: 20px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: var(--gradient-1);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 25px;
+            padding-left: 20px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -36px;
+            top: 5px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 3px solid var(--bg-dark);
+        }
+
+        .interactive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .interactive-item {
+            background: var(--bg-hover);
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .interactive-item:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .interactive-item.expanded {
+            grid-column: 1 / -1;
+            background: var(--gradient-1);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8rem; }
+            .tab-btn { padding: 10px 16px; font-size: 0.85rem; }
+            .grid { grid-template-columns: 1fr; }
+            .pathway-step { flex-direction: column; }
+            .stats-bar { grid-template-columns: 1fr; }
+        }
+
+        .score-display {
+            background: var(--gradient-4);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .score-number {
+            font-size: 3rem;
+            font-weight: 800;
+        }
+
+        .streak-badge {
+            background: var(--warning);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 10px;
+            font-weight: 700;
+        }
+
+        .motivational-message {
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin: 20px 0;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg">
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>🧠 Basal Ganglia Mastery Platform</h1>
+            <p class="subtitle">Comprehensive Interactive Study System for Anatomy, Circuitry & Clinical Disorders</p>
+            
+            <div class="stats-bar">
+                <div class="stat-card">
+                    <div class="stat-label">Overall Progress</div>
+                    <div class="stat-value"><span id="overall-progress">0</span>%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Quiz Score</div>
+                    <div class="stat-value"><span id="quiz-score">0</span>/<span id="total-questions">25</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Current Streak</div>
+                    <div class="stat-value">🔥 <span id="streak">0</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Cards Reviewed</div>
+                    <div class="stat-value"><span id="cards-reviewed">0</span>/20</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="tab-navigation">
+            <button class="tab-btn active" onclick="switchTab('overview')">📋 Overview</button>
+            <button class="tab-btn" onclick="switchTab('quiz')">✅ Quiz Mode</button>
+            <button class="tab-btn" onclick="switchTab('flashcards')">🎴 Flashcards</button>
+            <button class="tab-btn" onclick="switchTab('cases')">👨‍⚕️ Clinical Cases</button>
+            <button class="tab-btn" onclick="switchTab('pathways')">🔄 Pathways</button>
+            <button class="tab-btn" onclick="switchTab('anatomy')">🧬 Anatomy</button>
+            <button class="tab-btn" onclick="switchTab('disorders')">⚕️ Disorders</button>
+            <button class="tab-btn" onclick="switchTab('mnemonics')">💡 Mnemonics</button>
+        </div>
+
+        <!-- OVERVIEW TAB -->
+        <div id="overview" class="tab-content active">
+            <input type="text" class="search-box" id="search-overview" placeholder="🔍 Search across all content..." onkeyup="searchContent()">
+            
+            <div class="card">
+                <div class="card-header">🎯 Quick Summary</div>
+                <div class="grid">
+                    <div class="card" style="background: var(--gradient-1); color: white;">
+                        <h3>Components</h3>
+                        <p>Caudate, Putamen, Globus Pallidus (GPe/GPi), Subthalamic Nucleus, Substantia Nigra (SNc/SNr)</p>
+                    </div>
+                    <div class="card" style="background: var(--gradient-2); color: white;">
+                        <h3>Main Functions</h3>
+                        <p>Movement initiation, pattern execution, muscle tone regulation, posture control</p>
+                    </div>
+                    <div class="card" style="background: var(--gradient-3); color: white;">
+                        <h3>Key Pathways</h3>
+                        <p>Direct (excitatory), Indirect (inhibitory), Nigrostriatal (modulatory)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">⚡ High-Yield Clinical Signs</div>
+                <div class="interactive-grid" id="clinical-signs-grid">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">📊 Disease Timeline & Classification</div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <h4>Parkinson's Disease</h4>
+                        <p>Progressive degeneration of dopaminergic neurons → Akinesia, Static tremors, Rigidity</p>
+                        <span class="tag tag-exam">EXAM FAVORITE</span>
+                        <span class="tag tag-high-yield">HIGH YIELD</span>
+                    </div>
+                    <div class="timeline-item">
+                        <h4>Huntington's Chorea</h4>
+                        <p>Caudate nucleus degeneration → Rapid dancing movements, Hypotonia</p>
+                        <span class="tag tag-clinical">CLINICAL PEARL</span>
+                    </div>
+                    <div class="timeline-item">
+                        <h4>Athetosis (Wilson's Disease)</h4>
+                        <p>Globus pallidus lesion → Slow writhing movements, Hypertonia</p>
+                        <span class="tag tag-mechanism">MECHANISM</span>
+                    </div>
+                    <div class="timeline-item">
+                        <h4>Hemiballismus</h4>
+                        <p>Subthalamic nucleus lesion → Violent flinging movements</p>
+                        <span class="tag tag-high-yield">HIGH YIELD</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="motivational-message">
+                💪 "Success in medicine comes from understanding mechanisms, not just memorizing facts!"
+            </div>
+        </div>
+
+        <!-- QUIZ MODE TAB -->
+        <div id="quiz" class="tab-content">
+            <div class="quiz-container">
+                <div class="score-display">
+                    <div class="score-number"><span id="current-score">0</span> / <span id="max-score">25</span></div>
+                    <div>Correct Answers</div>
+                    <div class="streak-badge">🔥 Streak: <span id="quiz-streak">0</span></div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="quiz-progress" style="width: 0%"></div>
+                </div>
+
+                <div id="quiz-questions">
+                    <!-- Questions will be populated by JavaScript -->
+                </div>
+
+                <button class="btn btn-primary" onclick="resetQuiz()" style="margin-top: 20px;">🔄 Reset Quiz</button>
+            </div>
+        </div>
+
+        <!-- FLASHCARDS TAB -->
+        <div id="flashcards" class="tab-content">
+            <div class="card">
+                <div class="card-header">🎴 Interactive Flashcards - Click to Flip!</div>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Click any card to reveal the answer. Track your progress in the stats above.</p>
+                <div class="grid" id="flashcard-container">
+                    <!-- Flashcards will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- CLINICAL CASES TAB -->
+        <div id="cases" class="tab-content">
+            <div id="clinical-cases-container">
+                <!-- Cases will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- PATHWAYS TAB -->
+        <div id="pathways" class="tab-content">
+            <div class="card">
+                <div class="card-header">🔄 Direct Pathway (Movement Initiation)</div>
+                <span class="tag tag-exam">EXAM CRITICAL</span>
+                <span class="tag tag-high-yield">MOST TESTED</span>
+                <div class="pathway-flow">
+                    <div class="pathway-step">
+                        <div class="pathway-node" style="background: var(--gradient-1);">Motor Cortex<br><small>Glutamate (+)</small></div>
+                        <div class="pathway-arrow">→</div>
+                        <div class="pathway-node" style="background: var(--gradient-2);">Corpus Striatum<br><small>GABA (−)</small></div>
+                        <div class="pathway-arrow">→</div>
+                        <div class="pathway-node" style="background: var(--gradient-3);">GPi/SNr<br><small>↓ GABA (−)</small></div>
+                    </div>
+                    <div class="pathway-step">
+                        <div class="pathway-node" style="background: var(--gradient-4);">Thalamus<br><small>Disinhibited</small></div>
+                        <div class="pathway-arrow">→</div>
+                        <div class="pathway-node" style="background: var(--gradient-1);">Motor Cortex<br><small>Glutamate (+)</small></div>
+                        <div class="pathway-arrow">→</div>
+                        <div class="pathway-node" style="background: #10b981; color: white;">✅ MOVEMENT!</div>
+                    </div>
+                </div>
+                <p style="margin-top: 15px;"><strong>Final Output:</strong> <span class="badge badge-success">EXCITATION</span> → Initiates movement</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">🔄 Indirect Pathway (Movement Inhibition)</div>
+                <span class="tag tag-exam">EXAM CRITICAL</span>
+                <div class="pathway-flow">
+                    <div class="pathway-step">
+                        <div class="pathway-node" style="background: var(--gradient-1);">Motor Cortex<br><small>Glutamate (+)</small></div>
+                        <div class="pathway-arrow">→</div>
+                        <div class="pathway-node" style="background: var(--gradient-2);">Striatum<br><small>GABA (−)</small></div>
+                        <div class="pathway-arrow">→</div>
+                        <div class="pathway-node" style="background: var(--gradient-3);">GPe<br><small>↓ GABA (−)</small></div>
+                    </div>
+                    <div class="pathway-step">
+                        <div class="pathway-node" style="background: var(--gradient-4);">STN<br><small>Disinhibited</small></div>
+                        <div class="pathway-arrow">→</div>
+                        <div class="pathway-node" style="background: #f59e0b; color: white;">GPi/SNr<br><small>Glutamate (+)</small></div>
+                        <div class="pathway-arrow">→</div>
+                        <div class="pathway-node" style="background: #ef4444; color: white;">❌ Inhibits Thalamus</div>
+                    </div>
+                </div>
+                <p style="margin-top: 15px;"><strong>Final Output:</strong> <span class="badge badge-danger">INHIBITION</span> → Prevents unwanted movements</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">🔄 Nigrostriatal Modulatory Pathway</div>
+                <span class="tag tag-mechanism">KEY MECHANISM</span>
+                <div class="pathway-flow">
+                    <div class="pathway-step">
+                        <div class="pathway-node" style="background: #8b5cf6; color: white;">Substantia Nigra (SNc)<br><small>Dopamine</small></div>
+                        <div class="pathway-arrow">⇒</div>
+                        <div class="pathway-node" style="background: var(--gradient-1);">D1 Receptors<br><small>Excites Direct Path</small></div>
+                    </div>
+                    <div class="pathway-step">
+                        <div class="pathway-node" style="background: #8b5cf6; color: white;">Substantia Nigra (SNc)<br><small>Dopamine</small></div>
+                        <div class="pathway-arrow">⇒</div>
+                        <div class="pathway-node" style="background: var(--gradient-2);">D2 Receptors<br><small>Inhibits Indirect Path</small></div>
+                    </div>
+                </div>
+                <p style="margin-top: 15px;"><strong>Net Effect:</strong> <span class="badge badge-success">FACILITATES MOVEMENT</span></p>
+                <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 10px; margin-top: 15px; border-left: 4px solid var(--danger);">
+                    <strong>⚠️ Clinical Correlation:</strong> Loss of dopamine (Parkinson's) → Direct pathway ↓ + Indirect pathway ↑ → Net inhibition → Akinesia/Bradykinesia
+                </div>
+            </div>
+        </div>
+
+        <!-- ANATOMY TAB -->
+        <div id="anatomy" class="tab-content">
+            <div class="card">
+                <div class="card-header">🧬 Basal Ganglia Components</div>
+                <div class="interactive-grid" id="anatomy-grid">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">🎯 Functional Circuits</div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Circuit</th>
+                            <th>Structure</th>
+                            <th>Function</th>
+                            <th>Damage Effect</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Caudate Circuit</strong> <span class="tag tag-exam">MCQ</span></td>
+                            <td>Caudate Nucleus</td>
+                            <td>Planning & Programming (cognitive control)</td>
+                            <td>Inability to plan movements</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Putamen Circuit</strong> <span class="tag tag-exam">MCQ</span></td>
+                            <td>Putamen</td>
+                            <td>Execution of learned patterns (writing, typing)</td>
+                            <td>Crude, unskilled movements</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pallidal Circuit</strong></td>
+                            <td>Globus Pallidus</td>
+                            <td>Muscle tone regulation</td>
+                            <td>Athetosis (writhing movements)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- DISORDERS TAB -->
+        <div id="disorders" class="tab-content">
+            <div class="card">
+                <div class="card-header">⚕️ Parkinson's Disease</div>
+                <span class="tag tag-exam">MOST TESTED</span>
+                <span class="tag tag-high-yield">HIGH YIELD</span>
+                
+                <h3 style="margin-top: 20px; color: var(--primary);">Pathophysiology</h3>
+                <div class="pathway-flow">
+                    <p><strong>Mechanism:</strong> Degeneration of dopaminergic nigrostriatal neurons → ↓↓ Dopamine release</p>
+                    <div class="pathway-step" style="margin-top: 15px;">
+                        <div class="pathway-node" style="background: var(--danger); color: white;">Loss of SNc</div>
+                        <div class="pathway-arrow">→</div>
+                        <div class="pathway-node" style="background: var(--warning); color: white;">Direct Path ↓</div>
+                        <div class="pathway-arrow">→</div>
+                        <div class="pathway-node" style="background: var(--danger); color: white;">Motor Inhibition</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 20px; color: var(--primary);">Clinical Features (Triad)</h3>
+                <div class="grid">
+                    <div class="card" style="border-left: 4px solid var(--danger);">
+                        <h4>🫨 Static Tremors <span class="tag tag-exam">MCQ</span></h4>
+                        <ul>
+                            <li>Occur at <strong>rest</strong></li>
+                            <li>Pill-rolling pattern (thumb + index)</li>
+                            <li>Disappear during movement</li>
+                            <li>Increased by emotional excitement</li>
+                        </ul>
+                    </div>
+                    <div class="card" style="border-left: 4px solid var(--warning);">
+                        <h4>🐌 Akinesia / Bradykinesia</h4>
+                        <ul>
+                            <li>Shuffling gait (short steps)</li>
+                            <li>Mask-like face</li>
+                            <li>Monotonous voice</li>
+                            <li>Loss of automatic movements</li>
+                        </ul>
+                    </div>
+                    <div class="card" style="border-left: 4px solid var(--accent);">
+                        <h4>💪 Rigidity</h4>
+                        <ul>
+                            <li><strong>Lead-pipe</strong> rigidity</li>
+                            <li><strong>Cogwheel</strong> rigidity</li>
+                            <li>Flexors > Extensors</li>
+                            <li>"Gorilla attitude" (flexion posture)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 20px; color: var(--primary);">Non-Idiopathic Causes <span class="tag tag-exam">MCQ</span></h3>
+                <div class="grid">
+                    <span class="badge badge-danger">Stroke</span>
+                    <span class="badge badge-danger">Viral Encephalitis</span>
+                    <span class="badge badge-danger">CO Poisoning</span>
+                    <span class="badge badge-danger">Manganese Poisoning</span>
+                    <span class="badge badge-danger">Repeated Head Trauma</span>
+                    <span class="badge badge-danger">D2-Blocking Tranquilizers</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">💃 Chorea</div>
+                <span class="tag tag-exam">MCQ</span>
+                <table class="comparison-table">
+                    <tr>
+                        <td><strong>Movement Type</strong></td>
+                        <td>Spontaneous, rapid, involuntary <strong>dancing movements</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Muscle Tone</strong></td>
+                        <td><span class="badge badge-primary">Hypotonia</span> (Pendular knee jerk)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Lesion Location</strong></td>
+                        <td><strong>Caudate Nucleus</strong> <span class="tag tag-exam">MCQ</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Common Causes</strong></td>
+                        <td>Huntington's Disease, Rheumatic Chorea (post-Strep)</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card">
+                <div class="card-header">🐍 Athetosis</div>
+                <span class="tag tag-exam">MCQ</span>
+                <table class="comparison-table">
+                    <tr>
+                        <td><strong>Movement Type</strong></td>
+                        <td>Continuous, slow, <strong>snake-like writhing</strong> movements</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Muscle Tone</strong></td>
+                        <td><span class="badge badge-danger">Hypertonia</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Lesion Location</strong></td>
+                        <td><strong>Globus Pallidus</strong> <span class="tag tag-exam">MCQ</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Common Cause</strong></td>
+                        <td>Wilson's Disease (copper accumulation)</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card">
+                <div class="card-header">⚡ Hemiballismus</div>
+                <table class="comparison-table">
+                    <tr>
+                        <td><strong>Movement Type</strong></td>
+                        <td>Violent, involuntary <strong>flinging movements</strong> of large body areas</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Lesion Location</strong></td>
+                        <td><strong>Subthalamic Nucleus (STN)</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mechanism</strong></td>
+                        <td>Loss of STN → ↓ excitation of GPi → Thalamus disinhibited</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Common Cause</strong></td>
+                        <td>Vascular lesions (stroke)</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card">
+                <div class="card-header">📊 Disorder Comparison Chart</div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Disorder</th>
+                            <th>Lesion Site</th>
+                            <th>Movement Pattern</th>
+                            <th>Muscle Tone</th>
+                            <th>Tremor Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Parkinson's</strong></td>
+                            <td>SNc (Dopamine ↓)</td>
+                            <td>Bradykinesia</td>
+                            <td>Hypertonia (rigidity)</td>
+                            <td>Static (rest)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Chorea</strong></td>
+                            <td>Caudate</td>
+                            <td>Dancing</td>
+                            <td>Hypotonia</td>
+                            <td>None</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Athetosis</strong></td>
+                            <td>Globus Pallidus</td>
+                            <td>Writhing</td>
+                            <td>Hypertonia</td>
+                            <td>None</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hemiballismus</strong></td>
+                            <td>Subthalamic N.</td>
+                            <td>Flinging</td>
+                            <td>Variable</td>
+                            <td>None</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- MNEMONICS TAB -->
+        <div id="mnemonics" class="tab-content">
+            <div class="mnemonic-card">
+                <div class="mnemonic-title">🧠 Basal Ganglia Components</div>
+                <div class="mnemonic-letters">CPGSS</div>
+                <ul class="mnemonic-list">
+                    <li><strong>C</strong> - Caudate nucleus</li>
+                    <li><strong>P</strong> - Putamen</li>
+                    <li><strong>G</strong> - Globus Pallidus (external & internal)</li>
+                    <li><strong>S</strong> - Subthalamic nucleus</li>
+                    <li><strong>S</strong> - Substantia nigra</li>
+                </ul>
+            </div>
+
+            <div class="mnemonic-card" style="background: var(--gradient-3);">
+                <div class="mnemonic-title">💊 Parkinson's Triad</div>
+                <div class="mnemonic-letters">TAR</div>
+                <ul class="mnemonic-list">
+                    <li><strong>T</strong> - Tremor (static/resting, pill-rolling)</li>
+                    <li><strong>A</strong> - Akinesia/Bradykinesia (shuffling gait, mask face)</li>
+                    <li><strong>R</strong> - Rigidity (lead-pipe, cogwheel)</li>
+                </ul>
+            </div>
+
+            <div class="mnemonic-card" style="background: var(--gradient-4);">
+                <div class="mnemonic-title">🎯 BG Disorder Lesions</div>
+                <div class="mnemonic-letters">CHAPS</div>
+                <ul class="mnemonic-list">
+                    <li><strong>C</strong> - Caudate → Chorea (dancing)</li>
+                    <li><strong>H</strong> - Hemiballismus → STN (flinging)</li>
+                    <li><strong>A</strong> - Athetosis → Globus Pallidus (writhing)</li>
+                    <li><strong>P</strong> - Parkinson's → Substantia Nigra</li>
+                    <li><strong>S</strong> - SNc specifically (dopamine loss)</li>
+                </ul>
+            </div>
+
+            <div class="mnemonic-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <div class="mnemonic-title">🔄 Direct Pathway Flow</div>
+                <div class="mnemonic-letters">Motor → S-G-T → Motor</div>
+                <ul class="mnemonic-list">
+                    <li><strong>Motor</strong> Cortex (Glutamate +)</li>
+                    <li><strong>S</strong>triatum (GABA -)</li>
+                    <li><strong>G</strong>Pi/SNr (↓ GABA -)</li>
+                    <li><strong>T</strong>halamus (disinhibited, Glutamate +)</li>
+                    <li><strong>Motor</strong> Cortex → <strong>MOVEMENT!</strong></li>
+                </ul>
+            </div>
+
+            <div class="mnemonic-card" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333;">
+                <div class="mnemonic-title">🎪 Movement Patterns</div>
+                <div class="mnemonic-letters">DWRF</div>
+                <ul class="mnemonic-list">
+                    <li><strong>D</strong> - Dancing movements = Chorea</li>
+                    <li><strong>W</strong> - Writhing movements = Athetosis</li>
+                    <li><strong>R</strong> - Resting tremor = Parkinson's</li>
+                    <li><strong>F</strong> - Flinging movements = Hemiballismus</li>
+                </ul>
+            </div>
+
+            <div class="mnemonic-card" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #333;">
+                <div class="mnemonic-title">🧪 Non-Idiopathic Parkinsonism Causes</div>
+                <div class="mnemonic-letters">SCVMT</div>
+                <ul class="mnemonic-list">
+                    <li><strong>S</strong> - Stroke</li>
+                    <li><strong>C</strong> - CO/Carbon monoxide poisoning</li>
+                    <li><strong>V</strong> - Viral encephalitis</li>
+                    <li><strong>M</strong> - Manganese poisoning</li>
+                    <li><strong>T</strong> - Trauma (repeated head) & Tranquilizers (D2 blockers)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // DATA STORAGE
+        // ============================================
+
+        const quizData = [
+            {
+                question: "Which of the following structures functionally constitute the Corpus Striatum?",
+                options: [
+                    "Globus pallidus and Subthalamic nucleus",
+                    "Caudate nucleus and Putamen nucleus",
+                    "Substantia nigra and Thalamus",
+                    "Putamen and Globus pallidus",
+                    "Caudate nucleus and Thalamus"
+                ],
+                correct: 1,
+                explanation: "Functionally, the corpus striatum is formed of the caudate nucleus and putamen nucleus. This is a high-yield MCQ topic."
+            },
+            {
+                question: "What is the final output effect of the Direct Pathway on the motor cortex?",
+                options: ["Inhibition", "Modulation", "Excitation", "Hyperpolarization", "Degeneration"],
+                correct: 2,
+                explanation: "The final output of the direct pathway is EXCITATION, which initiates movements by disinhibiting the thalamus."
+            },
+            {
+                question: "What is the final output effect of the Indirect Pathway on the motor cortex?",
+                options: ["Excitation", "Initiation of movement", "Inhibition", "Facilitation", "Postural stabilization"],
+                correct: 2,
+                explanation: "The final output of the indirect pathway is INHIBITION, which prevents unwanted movements by inhibiting the thalamus."
+            },
+            {
+                question: "In the Direct Pathway, what neurotransmitter is released by the Corpus Striatum to act on the GPi/SNr?",
+                options: ["Glutamate", "Dopamine", "Acetylcholine", "GABA", "Serotonin"],
+                correct: 3,
+                explanation: "The corpus striatum releases GABA (inhibitory) to the GPi/SNr in the direct pathway, reducing their inhibitory output to the thalamus."
+            },
+            {
+                question: "Which receptor does Dopamine act upon to facilitate the Direct Pathway?",
+                options: ["D2 receptors", "GABA receptors", "Glutamate receptors", "D1 receptors", "ACh receptors"],
+                correct: 3,
+                explanation: "Dopamine from SNc acts on D1 receptors to EXCITE the direct pathway, promoting movement initiation."
+            },
+            {
+                question: "What is the primary cause of idiopathic Parkinson's Disease?",
+                options: [
+                    "Caudate nucleus lesion",
+                    "Subthalamic nucleus lesion",
+                    "Degeneration of dopaminergic nigrostriatal neurons",
+                    "Overactivity of D1 receptors",
+                    "Globus pallidus lesion"
+                ],
+                correct: 2,
+                explanation: "Parkinson's is caused by degeneration of dopaminergic nigrostriatal neurons leading to marked ↓ of dopamine release. This is the MOST TESTED concept."
+            },
+            {
+                question: "Which of the following can cause non-idiopathic Parkinsonism?",
+                options: [
+                    "Tranquilizers that block D2 receptors",
+                    "Rheumatic fever",
+                    "Wilson's disease",
+                    "Hyperthyroidism",
+                    "D1 receptor agonists"
+                ],
+                correct: 0,
+                explanation: "Non-idiopathic causes include stroke, viral encephalitis, CO poisoning, and tranquilizers that block D2 receptors (exam favorite MCQ)."
+            },
+            {
+                question: "Which type of tremors are classically seen in Parkinson's disease?",
+                options: ["Intention tremors", "Kinetic tremors", "Static (resting) tremors", "Essential tremors", "Action tremors"],
+                correct: 2,
+                explanation: "Tremors occur at REST (static tremors), showing a pill-rolling pattern. They disappear during movement and increase with emotional excitement."
+            },
+            {
+                question: "In Parkinson's disease, rigidity predominantly affects which muscle groups?",
+                options: [
+                    "Extensors more than flexors",
+                    "Flexors more than extensors",
+                    "Only facial muscles",
+                    "Only distal limb muscles",
+                    "Equal hypertonia causing pendulum limbs"
+                ],
+                correct: 1,
+                explanation: "Rigidity affects FLEXORS more than extensors, leading to a flexion or 'gorilla-like' attitude."
+            },
+            {
+                question: "A lesion in the Caudate Nucleus is most characteristically associated with which disorder?",
+                options: ["Athetosis", "Parkinsonism", "Hemiballismus", "Chorea", "Bradykinesia"],
+                correct: 3,
+                explanation: "Lesion in Caudate Nucleus causes CHOREA (e.g., Huntington's, Rheumatic chorea). High-yield MCQ."
+            },
+            {
+                question: "Continuous slow snake-like writhing movements are characteristic of:",
+                options: ["Chorea", "Parkinsonism", "Athetosis", "Hemiballismus", "Lead-pipe rigidity"],
+                correct: 2,
+                explanation: "Athetosis is characterized by continuous slow snake-like WRITHING movements, caused by Globus Pallidus lesion."
+            },
+            {
+                question: "What structure is lesioned in Hemiballismus?",
+                options: ["Caudate nucleus", "Putamen", "Substantia nigra", "Subthalamic nucleus", "Globus pallidus"],
+                correct: 3,
+                explanation: "Hemiballismus results from a vascular lesion in the SUBTHALAMIC NUCLEUS, causing violent flinging movements."
+            },
+            {
+                question: "Which circuit plays a major role in the cognitive control of motor acts (planning and programming)?",
+                options: ["Putamen circuit", "Nigrostriatal pathway", "Caudate circuit", "Rubrospinal tract", "Reticulospinal tract"],
+                correct: 2,
+                explanation: "Planning and programming (converting thoughts to voluntary acts) is done by the CAUDATE circuit. MCQ favorite."
+            },
+            {
+                question: "The execution of rapidly learned patterns of movements (e.g., typing) is controlled by the:",
+                options: ["Caudate circuit", "Putamen circuit", "Subthalamic nucleus", "Medial motor system", "Association areas"],
+                correct: 1,
+                explanation: "Execution of learned patterns is done by the PUTAMEN circuit. Damage results in crude movements. MCQ topic."
+            },
+            {
+                question: "How does the Basal Ganglia regulate posture?",
+                options: [
+                    "By direct excitation of the corticospinal tract",
+                    "By inhibiting the cerebellum",
+                    "By adjusting trunk tone via reticulospinal tracts",
+                    "By blocking sensory feedback",
+                    "By initiating facial expressions"
+                ],
+                correct: 2,
+                explanation: "BG adjusts tone of trunk and proximal limb muscles via reticulospinal tracts to provide a stable postural background."
+            },
+            {
+                question: "The net final output of the Basal Ganglia on muscle tone is:",
+                options: ["Excitatory", "Modulatory only during sleep", "Inhibitory", "Facilitatory for extensors only", "Non-existent"],
+                correct: 2,
+                explanation: "The net final output of BG is INHIBITORY to muscle tone, which is why BG lesions often cause hypertonia."
+            },
+            {
+                question: "Which of the following is an automatic associative movement initiated by the Basal Ganglia?",
+                options: [
+                    "Typing on a keyboard",
+                    "Writing a letter",
+                    "Swinging arms during walking",
+                    "Consciously deciding where to move",
+                    "Playing a piano"
+                ],
+                correct: 2,
+                explanation: "Automatic associative movements done at subconscious level include swinging arms during walking and facial expressions."
+            },
+            {
+                question: "In the Indirect Pathway, the GPe sends inhibitory GABA signals directly to the:",
+                options: ["Substantia nigra", "Thalamus", "Cerebral cortex", "Subthalamic nucleus", "Putamen"],
+                correct: 3,
+                explanation: "GPe neurons fire GABA to inhibit the SUBTHALAMIC NUCLEUS (STN), which then sends excitatory signals to GPi."
+            },
+            {
+                question: "Which neurotransmitter is responsible for the excitatory projection from the Subthalamic nucleus to the GPi?",
+                options: ["GABA", "Dopamine", "Acetylcholine", "Serotonin", "Glutamate"],
+                correct: 4,
+                explanation: "The STN sends EXCITATORY signals via GLUTAMATE to the GPi in the indirect pathway."
+            },
+            {
+                question: "In the absence of dopamine (as in Parkinson's), what happens to the Thalamus?",
+                options: [
+                    "It is highly excited by the direct pathway",
+                    "It experiences dominant inhibition from the GPi",
+                    "It releases excess GABA to the cortex",
+                    "It completely degenerates",
+                    "It is bypassed entirely"
+                ],
+                correct: 1,
+                explanation: "Degeneration of SNc leads to activation of the INHIBITORY pathway, resulting in dominant inhibition of the thalamus and motor cortex."
+            },
+            {
+                question: "Which muscle tone finding is matched CORRECTLY with its Basal Ganglia disorder?",
+                options: [
+                    "Parkinsonism - Hypotonia",
+                    "Chorea - Hypertonia",
+                    "Athetosis - Hypertonia",
+                    "Chorea - Lead pipe rigidity",
+                    "Athetosis - Pendular knee jerk"
+                ],
+                correct: 2,
+                explanation: "Athetosis exhibits HYPERTONIA. Chorea exhibits hypotonia. Parkinsonism exhibits hypertonia (rigidity)."
+            },
+            {
+                question: "What exacerbates the static tremors seen in Parkinson's disease?",
+                options: ["Sleep", "Voluntary movement", "Emotional excitement", "Muscle relaxants", "Flexion attitude"],
+                correct: 2,
+                explanation: "Static tremors INCREASE with emotional excitement and DISAPPEAR during voluntary movement or sleep."
+            },
+            {
+                question: "Which dopamine receptor is involved in INHIBITING the indirect pathway?",
+                options: ["D1", "D2", "D3", "D4", "D5"],
+                correct: 1,
+                explanation: "Dopamine acts on D2 receptors to INHIBIT the indirect pathway, reducing unwanted movement suppression."
+            },
+            {
+                question: "The 'pill-rolling' tremor in Parkinson's disease involves which fingers?",
+                options: [
+                    "Thumb and middle finger",
+                    "Thumb and index finger",
+                    "Index and middle finger",
+                    "All fingers equally",
+                    "Ring and pinky finger"
+                ],
+                correct: 1,
+                explanation: "The classic pill-rolling tremor involves the THUMB and INDEX FINGER and occurs at rest."
+            },
+            {
+                question: "Which of the following best describes 'lead-pipe rigidity'?",
+                options: [
+                    "Rigidity only in extension",
+                    "Uniform resistance throughout passive movement",
+                    "Ratchet-like resistance",
+                    "Resistance that increases with speed",
+                    "Rigidity only at rest"
+                ],
+                correct: 1,
+                explanation: "Lead-pipe rigidity shows UNIFORM resistance throughout the entire range of passive movement, unlike cogwheel rigidity which is ratchet-like."
+            }
+        ];
+
+        const flashcardData = [
+            { front: "What are the 5 functional components of the Basal Ganglia?", back: "1. Caudate nucleus\n2. Putamen\n3. Globus Pallidus (GPe/GPi)\n4. Subthalamic nucleus\n5. Substantia Nigra (SNc/SNr)" },
+            { front: "What forms the Corpus Striatum?", back: "Caudate nucleus + Putamen\n(High-yield MCQ topic)" },
+            { front: "What is the final output of the DIRECT pathway?", back: "EXCITATION → Initiates movement\n(Disinhibits thalamus)" },
+            { front: "What is the final output of the INDIRECT pathway?", back: "INHIBITION → Prevents unwanted movements\n(Inhibits thalamus)" },
+            { front: "What neurotransmitter does SNc release?", back: "DOPAMINE\n• D1 receptors → Excites direct pathway\n• D2 receptors → Inhibits indirect pathway" },
+            { front: "What is the pathophysiology of Parkinson's Disease?", back: "Degeneration of dopaminergic nigrostriatal neurons → ↓↓ Dopamine\n→ Direct pathway ↓ + Indirect pathway ↑\n→ Net motor INHIBITION" },
+            { front: "What are the 3 cardinal features of Parkinson's (TAR)?", back: "T - Tremor (static/resting)\nA - Akinesia/Bradykinesia\nR - Rigidity (lead-pipe/cogwheel)" },
+            { front: "Characteristics of Parkinsonian tremor?", back: "• Occur at REST (static)\n• Pill-rolling pattern\n• Disappear during movement\n• Increased by emotional excitement" },
+            { front: "Caudate circuit function?", back: "Planning & Programming of voluntary movements\n(Converting thoughts into acts)\nMCQ topic" },
+            { front: "Putamen circuit function?", back: "Execution of learned patterns\n(Writing, typing, skilled movements)\nMCQ topic" },
+            { front: "Lesion in Caudate nucleus causes?", back: "CHOREA\n• Rapid dancing movements\n• Hypotonia\n• Pendular knee jerk\n(Huntington's, Rheumatic)" },
+            { front: "Lesion in Globus Pallidus causes?", back: "ATHETOSIS\n• Slow writhing movements\n• Hypertonia\n(Wilson's disease)" },
+            { front: "Lesion in Subthalamic nucleus causes?", back: "HEMIBALLISMUS\n• Violent flinging movements\n• Usually vascular lesion" },
+            { front: "What is the net output of BG on muscle tone?", back: "INHIBITORY\n(That's why BG lesions often cause hypertonia)" },
+            { front: "Non-idiopathic Parkinsonism causes? (SCVMT)", back: "S - Stroke\nC - CO poisoning\nV - Viral encephalitis\nM - Manganese poisoning\nT - Trauma & Tranquilizers (D2 blockers)" },
+            { front: "Direct pathway neurotransmitter sequence?", back: "Motor Cortex: Glutamate (+)\n→ Striatum: GABA (−)\n→ GPi/SNr: ↓ GABA (−)\n→ Thalamus: Glutamate (+)\n→ MOVEMENT!" },
+            { front: "Indirect pathway neurotransmitter sequence?", back: "Cortex: Glu (+) → Striatum: GABA (−)\n→ GPe: ↓ GABA (−) → STN: Glu (+)\n→ GPi: GABA (−) → Thalamus INHIBITED" },
+            { front: "What happens in Parkinson's when dopamine is lost?", back: "Loss of D1 activation → Direct pathway ↓\nLoss of D2 activation → Indirect pathway ↑\n→ Dominant INHIBITION of movement" },
+            { front: "Movement patterns mnemonic (DWRF)?", back: "D - Dancing = Chorea\nW - Writhing = Athetosis\nR - Resting tremor = Parkinson's\nF - Flinging = Hemiballismus" },
+            { front: "Automatic associative movements examples?", back: "• Swinging arms during walking\n• Facial expressions\n• Postural adjustments\n(Done at subconscious level)" }
+        ];
+
+        const clinicalCases = [
+            {
+                title: "Case 1: The Shuffling Gentleman",
+                presentation: "A 70-year-old male presents with difficulty initiating movement. His family notes his voice has become monotonous and quiet. On examination, you observe a characteristic 'pill-rolling' tremor in his hands when resting, which worsens when he's anxious. Passive movement of his arms reveals increased resistance, more in flexors than extensors. His posture is stooped forward.",
+                questions: [
+                    {
+                        q: "1. What is the most likely diagnosis?",
+                        a: "Parkinson's Disease - based on the classic triad: static tremor, bradykinesia (difficulty initiating movement), and rigidity."
+                    },
+                    {
+                        q: "2. What is the underlying pathophysiology?",
+                        a: "Degeneration of dopaminergic neurons in the Substantia Nigra pars compacta (SNc) → Marked ↓ dopamine release → Loss of D1 receptor activation (↓ direct pathway) AND loss of D2 inhibition (↑ indirect pathway) → Net result: dominant inhibition of thalamus and motor cortex."
+                    },
+                    {
+                        q: "3. Why does the tremor worsen with anxiety?",
+                        a: "Static (resting) tremors in Parkinson's are characteristically INCREASED by emotional excitement or stress, though they disappear during voluntary movement."
+                    },
+                    {
+                        q: "4. What is the significance of flexor predominance in rigidity?",
+                        a: "Parkinson's rigidity affects flexors MORE than extensors, leading to the characteristic 'gorilla attitude' or stooped posture. This can be lead-pipe (uniform) or cogwheel (ratchet-like) rigidity."
+                    }
+                ]
+            },
+            {
+                title: "Case 2: Drug-Induced Movement Disorder",
+                presentation: "A 45-year-old psychiatric patient has been on long-term haloperidol (a typical antipsychotic) for schizophrenia. Over the past 6 months, he has developed tremors at rest, a shuffling gait, and decreased facial expressions. His psychiatrist notes these symptoms appeared gradually after increasing the medication dose.",
+                questions: [
+                    {
+                        q: "1. What condition has developed?",
+                        a: "Non-idiopathic (drug-induced) Parkinsonism secondary to D2 receptor blockade by haloperidol."
+                    },
+                    {
+                        q: "2. What is the mechanism?",
+                        a: "Haloperidol blocks D2 receptors → Prevents dopamine from inhibiting the indirect pathway → Indirect pathway becomes overactive → Excessive inhibition of thalamus → Hypokinesia and rigidity (simulates dopamine loss)."
+                    },
+                    {
+                        q: "3. List other non-idiopathic causes of Parkinsonism (SCVMT):",
+                        a: "S - Stroke, C - CO/Carbon monoxide poisoning, V - Viral encephalitis, M - Manganese poisoning, T - Trauma (repeated head injury) & Tranquilizers (D2 blockers). This is a HIGH-YIELD MCQ topic."
+                    }
+                ]
+            },
+            {
+                title: "Case 3: The Dancing Child",
+                presentation: "A 9-year-old child, 3 weeks after recovering from a sore throat, presents with spontaneous, rapid, jerky movements of the face and limbs that appear dance-like. The movements are involuntary and unpredictable. On examination, muscle tone is decreased, and the knee jerk is pendular. The parents report no family history of neurological disorders.",
+                questions: [
+                    {
+                        q: "1. What is the most likely diagnosis?",
+                        a: "Rheumatic Chorea (Sydenham's chorea) - post-streptococcal autoimmune complication."
+                    },
+                    {
+                        q: "2. What structure is affected?",
+                        a: "CAUDATE NUCLEUS - this is the characteristic lesion site for chorea (HIGH-YIELD MCQ)."
+                    },
+                    {
+                        q: "3. Describe the movement pattern and tone:",
+                        a: "Chorea: Spontaneous, rapid, involuntary DANCING movements with HYPOTONIA (decreased muscle tone) and pendular knee jerk."
+                    },
+                    {
+                        q: "4. What other disease causes chorea?",
+                        a: "Huntington's Disease - genetic neurodegenerative disorder with progressive chorea, cognitive decline, and psychiatric symptoms."
+                    }
+                ]
+            },
+            {
+                title: "Case 4: Wilson's Disease Presentation",
+                presentation: "A 16-year-old presents with continuous, slow, snake-like writhing movements of the hands and arms, particularly noticeable when trying to maintain posture. Examination reveals increased muscle tone (hypertonia). Ophthalmologic exam shows golden-brown Kayser-Fleischer rings around the cornea. Liver function tests are abnormal, and serum ceruloplasmin is low.",
+                questions: [
+                    {
+                        q: "1. What movement disorder is present?",
+                        a: "ATHETOSIS - characterized by continuous slow snake-like writhing movements."
+                    },
+                    {
+                        q: "2. What is the lesion location?",
+                        a: "GLOBUS PALLIDUS - this is the classic lesion site for athetosis (MCQ favorite)."
+                    },
+                    {
+                        q: "3. What is the underlying disease?",
+                        a: "Wilson's Disease - genetic disorder of copper metabolism causing copper accumulation in basal ganglia (especially globus pallidus), liver, and cornea."
+                    },
+                    {
+                        q: "4. How does muscle tone differ from chorea?",
+                        a: "Athetosis: HYPERTONIA (increased tone). Chorea: HYPOTONIA (decreased tone). This is a key distinguishing feature."
+                    }
+                ]
+            },
+            {
+                title: "Case 5: Sudden Violent Movements",
+                presentation: "A 68-year-old diabetic and hypertensive patient suddenly develops violent, involuntary flinging movements of the right arm and leg. The movements are so forceful that the patient risks injury. CT scan reveals a small hemorrhagic stroke in the left hemisphere.",
+                questions: [
+                    {
+                        q: "1. What is the diagnosis?",
+                        a: "HEMIBALLISMUS - violent involuntary flinging movements of large body areas (proximal limbs)."
+                    },
+                    {
+                        q: "2. What structure is lesioned?",
+                        a: "SUBTHALAMIC NUCLEUS (STN) - typically from vascular lesion (stroke)."
+                    },
+                    {
+                        q: "3. Explain the pathophysiologic mechanism:",
+                        a: "Loss of STN → Loss of excitatory (glutamate) input to GPi → GPi under-active → Decreased inhibition of thalamus → Thalamus OVER-excites motor cortex → Excessive involuntary movements."
+                    },
+                    {
+                        q: "4. Why are the movements so violent?",
+                        a: "The subthalamic nucleus normally provides crucial excitatory drive to GPi in the indirect pathway. Its sudden loss causes complete disinhibition of the thalamus, resulting in uncontrolled motor cortex activation."
+                    }
+                ]
+            },
+            {
+                title: "Case 6: Distinguishing the Pathways",
+                presentation: "You are teaching medical students about basal ganglia circuitry. A student asks: 'If dopamine is supposed to facilitate movement, why do Parkinson's patients have rigidity (increased tone) when dopamine is lost? Shouldn't muscle tone DECREASE?'",
+                questions: [
+                    {
+                        q: "1. What is the key concept to explain?",
+                        a: "The NET output of the basal ganglia is normally INHIBITORY to muscle tone. In Parkinson's, this inhibitory output is LOST, resulting in INCREASED tone (rigidity)."
+                    },
+                    {
+                        q: "2. Explain using the pathways:",
+                        a: "Normal: Dopamine → Activates direct pathway (movement) AND inhibits indirect pathway (prevents excess tone). Parkinson's: Loss of dopamine → Direct pathway ↓ (less movement initiation) + Indirect pathway ↑ (excess inhibition dominates) → Motor cortex inhibited → Akinesia AND paradoxically, loss of BG's normal inhibitory regulation → Rigidity."
+                    },
+                    {
+                        q: "3. What is the 'final common pathway' concept?",
+                        a: "Both direct and indirect pathways converge at GPi/SNr → They project to thalamus using GABA (inhibitory). Direct pathway: reduces GPi activity (disinhibits thalamus). Indirect pathway: increases GPi activity (inhibits thalamus). Dopamine normally tilts balance toward direct pathway."
+                    }
+                ]
+            }
+        ];
+
+        const anatomyItems = [
+            { 
+                name: "Caudate Nucleus", 
+                details: "Part of corpus striatum. Functions: Planning & programming of movements (cognitive control). Circuit connects with association cortex. Lesion → CHOREA (dancing movements, hypotonia). MCQ topic.",
+                emoji: "🎯"
+            },
+            { 
+                name: "Putamen", 
+                details: "Part of corpus striatum. Functions: Execution of learned motor patterns (typing, writing). Circuit connects with motor cortex. Lesion → Crude, unskilled movements. MCQ topic.",
+                emoji: "✍️"
+            },
+            { 
+                name: "Globus Pallidus External (GPe)", 
+                details: "Part of indirect pathway. Receives GABA from striatum. Sends GABA to Subthalamic Nucleus (STN). Function: Regulates indirect pathway activity.",
+                emoji: "⚙️"
+            },
+            { 
+                name: "Globus Pallidus Internal (GPi)", 
+                details: "Main OUTPUT nucleus. Projects to thalamus (GABA - inhibitory). Target of both direct (inhibited) and indirect (excited) pathways. Lesion → ATHETOSIS (writhing, hypertonia). MCQ topic.",
+                emoji: "🎛️"
+            },
+            { 
+                name: "Subthalamic Nucleus (STN)", 
+                details: "ONLY excitatory (glutamate) nucleus in BG. Part of indirect pathway. Sends glutamate to GPi. Lesion → HEMIBALLISMUS (violent flinging). Vascular lesions common.",
+                emoji: "⚡"
+            },
+            { 
+                name: "Substantia Nigra pars compacta (SNc)", 
+                details: "DOPAMINE source. Projects to striatum (nigrostriatal pathway). D1 receptors → Excites direct pathway. D2 receptors → Inhibits indirect pathway. Degeneration → PARKINSON'S DISEASE. Most tested.",
+                emoji: "🧪"
+            },
+            { 
+                name: "Substantia Nigra pars reticulata (SNr)", 
+                details: "OUTPUT nucleus (like GPi). Projects to thalamus using GABA. Part of both direct and indirect pathway targets. Functionally grouped with GPi.",
+                emoji: "📤"
+            },
+            { 
+                name: "Thalamus (VA/VL nuclei)", 
+                details: "Relay station. Receives inhibitory GABA from GPi/SNr. Sends excitatory glutamate to motor cortex. Direct pathway: DISINHIBITS (activates) thalamus. Indirect pathway: INHIBITS thalamus.",
+                emoji: "🔄"
+            }
+        ];
+
+        const clinicalSigns = [
+            {
+                sign: "Pill-Rolling Tremor",
+                description: "Thumb + index finger, occurs at REST, disappears with movement",
+                tags: ["exam", "high-yield"],
+                disorder: "Parkinson's Disease"
+            },
+            {
+                sign: "Lead-Pipe Rigidity",
+                description: "Uniform resistance throughout passive movement",
+                tags: ["clinical"],
+                disorder: "Parkinson's Disease"
+            },
+            {
+                sign: "Cogwheel Rigidity",
+                description: "Ratchet-like resistance during passive movement",
+                tags: ["exam"],
+                disorder: "Parkinson's Disease"
+            },
+            {
+                sign: "Shuffling Gait",
+                description: "Short steps, reduced arm swing, bradykinesia",
+                tags: ["clinical", "high-yield"],
+                disorder: "Parkinson's Disease"
+            },
+            {
+                sign: "Mask-Like Face",
+                description: "Reduced facial expressions (hypomimia)",
+                tags: ["clinical"],
+                disorder: "Parkinson's Disease"
+            },
+            {
+                sign: "Dancing Movements",
+                description: "Rapid, involuntary, jerky movements",
+                tags: ["exam", "high-yield"],
+                disorder: "Chorea"
+            },
+            {
+                sign: "Pendular Knee Jerk",
+                description: "Hypotonia causing excessive reflex swing",
+                tags: ["clinical"],
+                disorder: "Chorea"
+            },
+            {
+                sign: "Writhing Movements",
+                description: "Slow, continuous, snake-like movements",
+                tags: ["exam", "high-yield"],
+                disorder: "Athetosis"
+            },
+            {
+                sign: "Flinging Movements",
+                description: "Violent, involuntary, ballistic movements",
+                tags: ["high-yield"],
+                disorder: "Hemiballismus"
+            },
+            {
+                sign: "Gorilla Attitude",
+                description: "Flexion posture (flexors > extensors)",
+                tags: ["clinical"],
+                disorder: "Parkinson's Disease"
+            }
+        ];
+
+        // ============================================
+        // STATE MANAGEMENT
+        // ============================================
+
+        let state = {
+            quizAnswers: [],
+            quizScore: 0,
+            quizStreak: 0,
+            cardsReviewed: 0,
+            lastTab: 'overview'
+        };
+
+        // Load state from localStorage
+        function loadState() {
+            const saved = localStorage.getItem('bgState');
+            if (saved) {
+                state = { ...state, ...JSON.parse(saved) };
+                updateStats();
+            }
+        }
+
+        // Save state to localStorage
+        function saveState() {
+            localStorage.setItem('bgState', JSON.stringify(state));
+        }
+
+        // ============================================
+        // TAB SWITCHING
+        // ============================================
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Save last tab
+            state.lastTab = tabName;
+            saveState();
+        }
+
+        // ============================================
+        // QUIZ FUNCTIONALITY
+        // ============================================
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-questions');
+            container.innerHTML = '';
+            
+            quizData.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-card';
+                questionDiv.innerHTML = `
+                    <div class="question-number">Question ${index + 1} of ${quizData.length}</div>
+                    <div class="question-text">${q.question}</div>
+                    ${q.options.map((opt, i) => `
+                        <div class="option" onclick="selectAnswer(${index}, ${i})">
+                            <div class="option-label">${String.fromCharCode(65 + i)}</div>
+                            <div>${opt}</div>
+                        </div>
+                    `).join('')}
+                    <div class="explanation" id="explanation-${index}">
+                        <div class="explanation-title">✅ Explanation:</div>
+                        <div>${q.explanation}</div>
+                    </div>
+                `;
+                container.appendChild(questionDiv);
+            });
+        }
+
+        function selectAnswer(questionIndex, optionIndex) {
+            const question = quizData[questionIndex];
+            const questionCard = document.querySelectorAll('.question-card')[questionIndex];
+            const options = questionCard.querySelectorAll('.option');
+            
+            // Check if already answered
+            if (state.quizAnswers[questionIndex] !== undefined) return;
+            
+            // Mark answer
+            state.quizAnswers[questionIndex] = optionIndex;
+            
+            // Visual feedback
+            options[optionIndex].classList.add('selected');
+            
+            if (optionIndex === question.correct) {
+                options[optionIndex].classList.add('correct');
+                state.quizScore++;
+                state.quizStreak++;
+            } else {
+                options[optionIndex].classList.add('wrong');
+                options[question.correct].classList.add('correct');
+                state.quizStreak = 0;
+            }
+            
+            // Show explanation
+            document.getElementById(`explanation-${questionIndex}`).classList.add('show');
+            
+            // Update stats
+            updateStats();
+            updateQuizProgress();
+            saveState();
+        }
+
+        function updateQuizProgress() {
+            const answered = state.quizAnswers.filter(a => a !== undefined).length;
+            const percentage = (answered / quizData.length) * 100;
+            document.getElementById('quiz-progress').style.width = percentage + '%';
+            document.getElementById('current-score').textContent = state.quizScore;
+            document.getElementById('quiz-streak').textContent = state.quizStreak;
+        }
+
+        function resetQuiz() {
+            if (confirm('Are you sure you want to reset the quiz? This will clear all your answers.')) {
+                state.quizAnswers = [];
+                state.quizScore = 0;
+                state.quizStreak = 0;
+                saveState();
+                renderQuiz();
+                updateStats();
+                updateQuizProgress();
+            }
+        }
+
+        // ============================================
+        // FLASHCARDS
+        // ============================================
+
+        function renderFlashcards() {
+            const container = document.getElementById('flashcard-container');
+            container.innerHTML = '';
+            
+            flashcardData.forEach((card, index) => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'flashcard';
+                cardDiv.innerHTML = `
+                    <div class="flashcard-inner">
+                        <div class="flashcard-front">
+                            <div>${card.front}</div>
+                        </div>
+                        <div class="flashcard-back">
+                            <div style="white-space: pre-line;">${card.back}</div>
+                        </div>
+                    </div>
+                `;
+                cardDiv.onclick = () => flipCard(cardDiv, index);
+                container.appendChild(cardDiv);
+            });
+        }
+
+        function flipCard(cardElement, index) {
+            cardElement.classList.toggle('flipped');
+            
+            // Track reviewed cards
+            if (cardElement.classList.contains('flipped')) {
+                const reviewed = new Set(state.cardsReviewed || []);
+                reviewed.add(index);
+                state.cardsReviewed = reviewed.size;
+                updateStats();
+                saveState();
+            }
+        }
+
+        // ============================================
+        // CLINICAL CASES
+        // ============================================
+
+        function renderClinicalCases() {
+            const container = document.getElementById('clinical-cases-container');
+            container.innerHTML = '';
+            
+            clinicalCases.forEach((caseData, index) => {
+                const caseDiv = document.createElement('div');
+                caseDiv.className = 'clinical-case';
+                caseDiv.innerHTML = `
+                    <div class="case-title">${caseData.title}</div>
+                    <div class="case-presentation">${caseData.presentation}</div>
+                    ${caseData.questions.map((qa, qIndex) => `
+                        <div class="case-question">${qa.q}</div>
+                        <button class="btn btn-secondary" onclick="toggleCaseAnswer(${index}, ${qIndex})">
+                            💡 Reveal Answer
+                        </button>
+                        <div class="case-answer" id="case-answer-${index}-${qIndex}">
+                            ${qa.a}
+                        </div>
+                    `).join('')}
+                `;
+                container.appendChild(caseDiv);
+            });
+        }
+
+        function toggleCaseAnswer(caseIndex, questionIndex) {
+            const answer = document.getElementById(`case-answer-${caseIndex}-${questionIndex}`);
+            answer.classList.toggle('show');
+        }
+
+        // ============================================
+        // ANATOMY GRID
+        // ============================================
+
+        function renderAnatomyGrid() {
+            const grid = document.getElementById('anatomy-grid');
+            grid.innerHTML = '';
+            
+            anatomyItems.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'interactive-item';
+                itemDiv.innerHTML = `
+                    <h3>${item.emoji} ${item.name}</h3>
+                    <div class="details" style="display: none; margin-top: 10px; line-height: 1.8;">
+                        ${item.details}
+                    </div>
+                `;
+                itemDiv.onclick = function() {
+                    this.classList.toggle('expanded');
+                    const details = this.querySelector('.details');
+                    details.style.display = details.style.display === 'none' ? 'block' : 'none';
+                };
+                grid.appendChild(itemDiv);
+            });
+        }
+
+        // ============================================
+        // CLINICAL SIGNS GRID
+        // ============================================
+
+        function renderClinicalSigns() {
+            const grid = document.getElementById('clinical-signs-grid');
+            grid.innerHTML = '';
+            
+            clinicalSigns.forEach(sign => {
+                const signDiv = document.createElement('div');
+                signDiv.className = 'interactive-item';
+                signDiv.innerHTML = `
+                    <h4>${sign.sign}</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary);">${sign.description}</p>
+                    <div style="margin-top: 10px;">
+                        ${sign.tags.map(tag => `<span class="tag tag-${tag}">${tag.toUpperCase()}</span>`).join('')}
+                    </div>
+                    <div style="margin-top: 10px; font-weight: 600; color: var(--primary);">→ ${sign.disorder}</div>
+                `;
+                grid.appendChild(signDiv);
+            });
+        }
+
+        // ============================================
+        // STATS UPDATE
+        // ============================================
+
+        function updateStats() {
+            document.getElementById('quiz-score').textContent = state.quizScore;
+            document.getElementById('streak').textContent = state.quizStreak;
+            document.getElementById('cards-reviewed').textContent = state.cardsReviewed || 0;
+            
+            // Calculate overall progress
+            const quizProgress = (state.quizScore / quizData.length) * 40;
+            const cardsProgress = ((state.cardsReviewed || 0) / flashcardData.length) * 60;
+            const overallProgress = Math.round(quizProgress + cardsProgress);
+            document.getElementById('overall-progress').textContent = overallProgress;
+        }
+
+        // ============================================
+        // SEARCH FUNCTIONALITY
+        // ============================================
+
+        function searchContent() {
+            const searchTerm = document.getElementById('search-overview').value.toLowerCase();
+            // This is a placeholder - you can expand to actually search through content
+            console.log('Searching for:', searchTerm);
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+
+        window.onload = function() {
+            loadState();
+            renderQuiz();
+            renderFlashcards();
+            renderClinicalCases();
+            renderAnatomyGrid();
+            renderClinicalSigns();
+            updateStats();
+            
+            // Restore last tab
+            if (state.lastTab && state.lastTab !== 'overview') {
+                const tabBtn = Array.from(document.querySelectorAll('.tab-btn')).find(
+                    btn => btn.textContent.toLowerCase().includes(state.lastTab)
+                );
+                if (tabBtn) tabBtn.click();
+            }
+        };
+    </script>
+</body>
+</html>

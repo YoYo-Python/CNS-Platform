@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analgesics Pharmacology — Interactive Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0d14;
+  --bg2: #111520;
+  --bg3: #161b2c;
+  --card: #1a2035;
+  --card2: #1e2540;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #e8eaf2;
+  --text2: #9ba3c0;
+  --text3: #5c6484;
+  --accent: #7c6af7;
+  --accent2: #a855f7;
+  --green: #22d3a0;
+  --red: #f43f5e;
+  --yellow: #fbbf24;
+  --orange: #f97316;
+  --blue: #38bdf8;
+  --teal: #14b8a6;
+  --pink: #ec4899;
+  --glow: rgba(124,106,247,0.18);
+  --glow2: rgba(168,85,247,0.12);
+  --radius: 14px;
+  --radius2: 20px;
+  --shadow: 0 4px 32px rgba(0,0,0,0.45);
+  --shadow2: 0 8px 48px rgba(0,0,0,0.6);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── ANIMATED BACKGROUND ─── */
+.bg-canvas {
+  position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+}
+.orb {
+  position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.35;
+  animation: orbFloat 20s ease-in-out infinite alternate;
+}
+.orb1 { width: 600px; height: 600px; background: radial-gradient(circle, #7c6af7 0%, transparent 70%); top: -200px; left: -200px; animation-delay: 0s; }
+.orb2 { width: 500px; height: 500px; background: radial-gradient(circle, #22d3a0 0%, transparent 70%); bottom: -150px; right: -150px; animation-delay: -7s; }
+.orb3 { width: 400px; height: 400px; background: radial-gradient(circle, #f43f5e 0%, transparent 70%); top: 40%; left: 60%; animation-delay: -13s; }
+@keyframes orbFloat { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(60px,40px) scale(1.1); } }
+
+/* ─── LAYOUT ─── */
+#app { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 16px 80px; }
+
+/* ─── HEADER ─── */
+header {
+  padding: 48px 0 32px;
+  text-align: center;
+  animation: fadeDown 0.7s ease both;
+}
+.badge-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+.badge {
+  font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; padding: 5px 12px; border-radius: 50px;
+  border: 1px solid var(--border2);
+}
+.badge-pharma { background: rgba(124,106,247,0.15); color: var(--accent); border-color: rgba(124,106,247,0.3); }
+.badge-mansoura { background: rgba(56,189,248,0.1); color: var(--blue); border-color: rgba(56,189,248,0.25); }
+.badge-usmle { background: rgba(34,211,160,0.1); color: var(--green); border-color: rgba(34,211,160,0.25); }
+header h1 {
+  font-family: 'DM Serif Display', serif; font-size: clamp(32px, 6vw, 58px);
+  line-height: 1.1; margin-bottom: 12px;
+  background: linear-gradient(135deg, #e8eaf2 0%, #a855f7 60%, #7c6af7 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+header p { color: var(--text2); font-size: 15px; max-width: 520px; margin: 0 auto 28px; line-height: 1.6; }
+
+/* ─── STATS BAR ─── */
+.stats-bar {
+  display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+  margin-bottom: 32px; animation: fadeUp 0.7s 0.2s ease both;
+}
+.stat-chip {
+  display: flex; align-items: center; gap: 8px; background: var(--card);
+  border: 1px solid var(--border); border-radius: 50px; padding: 8px 16px;
+  font-size: 13px; font-weight: 500;
+}
+.stat-chip .s-icon { font-size: 16px; }
+.stat-chip .s-val { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--accent); }
+.stat-chip .s-label { color: var(--text2); }
+
+/* ─── SEARCH ─── */
+.search-wrap {
+  position: relative; max-width: 480px; margin: 0 auto 36px;
+  animation: fadeUp 0.7s 0.3s ease both;
+}
+.search-wrap input {
+  width: 100%; background: var(--card); border: 1.5px solid var(--border2);
+  border-radius: 50px; padding: 12px 20px 12px 46px; color: var(--text);
+  font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.search-wrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--glow); }
+.search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 18px; }
+#searchResults {
+  position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+  background: var(--card2); border: 1px solid var(--border2); border-radius: var(--radius);
+  max-height: 280px; overflow-y: auto; z-index: 100; display: none;
+  box-shadow: var(--shadow2);
+}
+.search-item { padding: 10px 16px; cursor: pointer; border-bottom: 1px solid var(--border); font-size: 13px; line-height: 1.5; }
+.search-item:hover { background: rgba(124,106,247,0.12); }
+.search-item .si-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-right: 6px; }
+
+/* ─── TABS ─── */
+.tab-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 28px; animation: fadeUp 0.7s 0.4s ease both; }
+.tab-scroll::-webkit-scrollbar { height: 3px; } .tab-scroll::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+.tabs {
+  display: flex; gap: 6px; min-width: max-content; background: var(--bg2);
+  border: 1px solid var(--border); border-radius: 50px; padding: 5px;
+  width: fit-content; margin: 0 auto;
+}
+.tab-btn {
+  font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+  padding: 9px 18px; border-radius: 50px; border: none; cursor: pointer;
+  background: transparent; color: var(--text2); transition: all 0.25s; white-space: nowrap;
+}
+.tab-btn:hover { color: var(--text); background: var(--border); }
+.tab-btn.active { background: var(--accent); color: #fff; box-shadow: 0 4px 16px rgba(124,106,247,0.4); }
+
+/* ─── PANELS ─── */
+.panel { display: none; animation: fadeUp 0.4s ease both; }
+.panel.active { display: block; }
+
+/* ─── CARDS GRID ─── */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+
+.card {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius2);
+  padding: 22px; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.card:hover { transform: translateY(-3px); box-shadow: var(--shadow2); border-color: var(--border2); }
+
+.section-title {
+  font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--text3);
+  margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+}
+.section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.card-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.card-body { font-size: 13px; line-height: 1.65; color: var(--text2); }
+
+/* ─── TAGS ─── */
+.tag-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.tag {
+  font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 50px;
+}
+.tag-hy { background: rgba(251,191,36,0.15); color: var(--yellow); border: 1px solid rgba(251,191,36,0.25); }
+.tag-ex { background: rgba(244,63,94,0.15); color: var(--red); border: 1px solid rgba(244,63,94,0.25); }
+.tag-cp { background: rgba(34,211,160,0.15); color: var(--green); border: 1px solid rgba(34,211,160,0.25); }
+.tag-mc { background: rgba(56,189,248,0.15); color: var(--blue); border: 1px solid rgba(56,189,248,0.25); }
+.tag-wq { background: rgba(249,115,22,0.15); color: var(--orange); border: 1px solid rgba(249,115,22,0.25); }
+
+/* ─── OVERVIEW ─── */
+.overview-hero {
+  background: linear-gradient(135deg, rgba(124,106,247,0.18) 0%, rgba(168,85,247,0.1) 50%, rgba(34,211,160,0.08) 100%);
+  border: 1px solid rgba(124,106,247,0.25); border-radius: var(--radius2);
+  padding: 28px; margin-bottom: 24px;
+}
+.overview-hero h2 { font-family: 'DM Serif Display', serif; font-size: 26px; margin-bottom: 8px; }
+.overview-hero p { color: var(--text2); line-height: 1.65; font-size: 14px; }
+
+.mechanism-flow {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 18px; margin-bottom: 24px;
+}
+.flow-step {
+  background: var(--bg3); border: 1px solid var(--border2); border-radius: 10px;
+  padding: 8px 14px; font-size: 12px; font-weight: 600; text-align: center; min-width: 100px;
+}
+.flow-arrow { color: var(--accent); font-size: 18px; font-weight: 700; }
+
+.drug-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.drug-table th { background: var(--bg3); padding: 10px 14px; text-align: left; font-family: 'Syne', sans-serif; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text3); border-bottom: 1px solid var(--border); }
+.drug-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text2); line-height: 1.5; vertical-align: top; }
+.drug-table tr:last-child td { border-bottom: none; }
+.drug-table tr:hover td { background: rgba(124,106,247,0.05); }
+
+/* ─── QUIZ ─── */
+.quiz-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+.quiz-meta { display: flex; gap: 16px; flex-wrap: wrap; }
+.quiz-stat { text-align: center; }
+.quiz-stat .qs-val { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; }
+.quiz-stat .qs-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; }
+.progress-bar-wrap { background: var(--bg3); border-radius: 50px; height: 8px; margin-bottom: 28px; overflow: hidden; }
+.progress-bar { height: 100%; border-radius: 50px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.5s ease; }
+
+.q-card { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius2); padding: 24px; margin-bottom: 20px; }
+.q-num { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+.q-text { font-size: 15px; line-height: 1.6; margin-bottom: 18px; font-weight: 500; }
+.q-options { display: flex; flex-direction: column; gap: 8px; }
+.q-opt {
+  padding: 12px 16px; border-radius: var(--radius); border: 1.5px solid var(--border);
+  cursor: pointer; font-size: 13px; line-height: 1.5; transition: all 0.2s; background: var(--bg3);
+}
+.q-opt:hover:not(.disabled) { border-color: var(--accent); background: var(--glow); }
+.q-opt.correct { border-color: var(--green)!important; background: rgba(34,211,160,0.12)!important; color: var(--green); animation: pulse 0.4s ease; }
+.q-opt.wrong { border-color: var(--red)!important; background: rgba(244,63,94,0.12)!important; color: var(--red); animation: shake 0.35s ease; }
+.q-opt.disabled { cursor: default; }
+.q-explanation { margin-top: 14px; padding: 12px 16px; background: rgba(124,106,247,0.1); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; font-size: 13px; color: var(--text2); line-height: 1.6; display: none; }
+.q-explanation.show { display: block; animation: fadeUp 0.3s ease; }
+
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+.quiz-complete { text-align: center; padding: 40px; }
+.score-ring { width: 120px; height: 120px; margin: 0 auto 20px; position: relative; }
+.score-ring svg { transform: rotate(-90deg); }
+.score-ring .score-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; }
+.reset-btn {
+  margin-top: 20px; padding: 12px 32px; background: var(--accent);
+  border: none; border-radius: 50px; color: #fff; font-family: 'Syne', sans-serif;
+  font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(124,106,247,0.4);
+}
+.reset-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(124,106,247,0.55); }
+
+/* ─── FLASHCARDS ─── */
+.fc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 20px; }
+.fc-card {
+  height: 200px; perspective: 1000px; cursor: pointer;
+}
+.fc-inner {
+  width: 100%; height: 100%; position: relative;
+  transform-style: preserve-3d; transition: transform 0.55s ease;
+  border-radius: var(--radius2);
+}
+.fc-card.flipped .fc-inner { transform: rotateY(180deg); }
+.fc-face {
+  position: absolute; inset: 0; border-radius: var(--radius2);
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  display: flex; flex-direction: column; justify-content: center;
+  align-items: center; padding: 20px; text-align: center;
+}
+.fc-front {
+  background: var(--card); border: 1.5px solid var(--border);
+}
+.fc-back {
+  background: linear-gradient(135deg, rgba(124,106,247,0.25), rgba(168,85,247,0.15));
+  border: 1.5px solid rgba(124,106,247,0.35);
+  transform: rotateY(180deg);
+}
+.fc-q { font-size: 13px; font-weight: 600; line-height: 1.55; color: var(--text); }
+.fc-a { font-size: 13px; line-height: 1.55; color: var(--text); }
+.fc-label {
+  position: absolute; top: 12px; right: 14px;
+  font-size: 9px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--text3);
+}
+.fc-hint { font-size: 11px; color: var(--text3); margin-top: 8px; }
+
+/* ─── CLINICAL CASES ─── */
+.case-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius2); padding: 24px; margin-bottom: 20px;
+}
+.case-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px; }
+.case-num {
+  width: 44px; height: 44px; min-width: 44px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; color: #fff;
+}
+.case-title { font-family: 'DM Serif Display', serif; font-size: 18px; margin-bottom: 4px; }
+.case-subtitle { font-size: 12px; color: var(--text3); }
+.case-body { font-size: 14px; line-height: 1.7; color: var(--text2); background: var(--bg3); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; border-left: 3px solid var(--accent); }
+.case-qs { margin-bottom: 16px; }
+.case-q { font-size: 13px; font-weight: 600; padding: 8px 0; border-bottom: 1px solid var(--border); color: var(--text2); }
+.case-q:last-child { border-bottom: none; }
+.reveal-btn {
+  padding: 10px 22px; background: transparent; border: 1.5px solid var(--accent);
+  border-radius: 50px; color: var(--accent); font-family: 'Syne', sans-serif;
+  font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+  letter-spacing: 0.5px;
+}
+.reveal-btn:hover { background: var(--accent); color: #fff; }
+.case-answer {
+  margin-top: 14px; padding: 16px; background: rgba(34,211,160,0.08);
+  border: 1px solid rgba(34,211,160,0.2); border-radius: var(--radius);
+  font-size: 13px; line-height: 1.65; color: var(--text2);
+  display: none;
+}
+.case-answer.show { display: block; animation: fadeUp 0.35s ease; }
+.case-answer strong { color: var(--green); }
+
+/* ─── PATHOPHYS ─── */
+.moa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.moa-item {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px; cursor: pointer;
+  transition: all 0.2s; position: relative; overflow: hidden;
+}
+.moa-item::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+}
+.moa-item.opioid::before { background: var(--accent); }
+.moa-item.nsaid::before { background: var(--orange); }
+.moa-item.neuro::before { background: var(--teal); }
+.moa-item.para::before { background: var(--yellow); }
+.moa-item:hover { border-color: var(--border2); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+.moa-item.expanded .moa-detail { display: block; }
+.moa-icon { font-size: 24px; margin-bottom: 8px; }
+.moa-name { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.moa-summary { font-size: 12px; color: var(--text3); }
+.moa-detail { display: none; margin-top: 12px; font-size: 12px; color: var(--text2); line-height: 1.6; border-top: 1px solid var(--border); padding-top: 10px; animation: fadeUp 0.3s ease; }
+
+.flowchart {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius2);
+  padding: 24px; margin-bottom: 20px;
+}
+.flowchart-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 20px; }
+.fc-steps { display: flex; flex-direction: column; gap: 0; }
+.fc-step-row { display: flex; align-items: center; gap: 12px; }
+.fc-step-box {
+  flex: 1; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 500;
+  text-align: center; border: 1px solid;
+}
+.fcs-tissue { background: rgba(244,63,94,0.1); border-color: rgba(244,63,94,0.25); color: #fca5a5; }
+.fcs-med { background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.25); color: #fde68a; }
+.fcs-nerve { background: rgba(56,189,248,0.1); border-color: rgba(56,189,248,0.25); color: #bae6fd; }
+.fcs-spinal { background: rgba(124,106,247,0.15); border-color: rgba(124,106,247,0.3); color: #c4b5fd; }
+.fcs-brain { background: rgba(168,85,247,0.15); border-color: rgba(168,85,247,0.3); color: #e879f9; }
+.fcs-tox { background: rgba(249,115,22,0.1); border-color: rgba(249,115,22,0.25); color: #fed7aa; }
+.fcs-danger { background: rgba(244,63,94,0.18); border-color: rgba(244,63,94,0.35); color: #fca5a5; }
+.fcs-good { background: rgba(34,211,160,0.1); border-color: rgba(34,211,160,0.25); color: #6ee7b7; }
+.fc-step-arrow { color: var(--text3); font-size: 20px; flex: 0 0 auto; }
+.fc-step-label { font-size: 11px; color: var(--text3); min-width: 80px; text-align: right; font-style: italic; }
+.fc-vert-arrow { display: flex; justify-content: center; align-items: center; height: 24px; color: var(--text3); font-size: 20px; }
+
+/* ─── DIAGNOSIS ─── */
+.diag-criteria {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius2); padding: 24px; margin-bottom: 20px;
+}
+.criteria-list { display: flex; flex-direction: column; gap: 10px; }
+.criteria-item {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 12px; background: var(--bg3); border-radius: var(--radius); border: 1px solid var(--border);
+}
+.criteria-icon { font-size: 20px; flex: 0 0 auto; margin-top: 2px; }
+.criteria-text { font-size: 13px; line-height: 1.6; color: var(--text2); }
+.criteria-text strong { color: var(--text); }
+
+.inv-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+.inv-badge {
+  padding: 6px 14px; border-radius: 50px; font-size: 12px; font-weight: 600;
+  border: 1px solid;
+}
+.inv-green { background: rgba(34,211,160,0.12); color: var(--green); border-color: rgba(34,211,160,0.25); }
+.inv-blue { background: rgba(56,189,248,0.12); color: var(--blue); border-color: rgba(56,189,248,0.25); }
+.inv-orange { background: rgba(249,115,22,0.12); color: var(--orange); border-color: rgba(249,115,22,0.25); }
+.inv-purple { background: rgba(124,106,247,0.12); color: var(--accent); border-color: rgba(124,106,247,0.25); }
+.inv-red { background: rgba(244,63,94,0.12); color: var(--red); border-color: rgba(244,63,94,0.25); }
+.inv-yellow { background: rgba(251,191,36,0.12); color: var(--yellow); border-color: rgba(251,191,36,0.25); }
+
+/* ─── TREATMENT ─── */
+.tx-section { margin-bottom: 28px; }
+.tx-section-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+  font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
+}
+.tx-dot { width: 10px; height: 10px; border-radius: 50%; }
+.tx-emergency { background: var(--red); }
+.tx-opioid { background: var(--accent); }
+.tx-nsaid { background: var(--orange); }
+.tx-neuro { background: var(--teal); }
+.tx-antidote { background: var(--green); }
+.tx-card-row { display: flex; flex-direction: column; gap: 10px; }
+.tx-card {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px 16px;
+}
+.tx-emoji { font-size: 20px; flex: 0 0 auto; }
+.tx-drug { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.tx-detail { font-size: 12px; color: var(--text2); line-height: 1.5; }
+.tx-card.urgent { border-left: 3px solid var(--red); }
+.tx-card.standard { border-left: 3px solid var(--accent); }
+.tx-card.caution { border-left: 3px solid var(--yellow); }
+.tx-card.safe { border-left: 3px solid var(--green); }
+
+/* ─── MNEMONICS ─── */
+.mnem-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+.mnem-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius2); padding: 22px; position: relative; overflow: hidden;
+}
+.mnem-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+}
+.mnem-card:nth-child(1)::after { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+.mnem-card:nth-child(2)::after { background: linear-gradient(90deg, var(--orange), var(--yellow)); }
+.mnem-card:nth-child(3)::after { background: linear-gradient(90deg, var(--teal), var(--green)); }
+.mnem-card:nth-child(4)::after { background: linear-gradient(90deg, var(--red), var(--pink)); }
+.mnem-card:nth-child(5)::after { background: linear-gradient(90deg, var(--blue), var(--teal)); }
+.mnem-card:nth-child(6)::after { background: linear-gradient(90deg, var(--pink), var(--accent)); }
+.mnem-name { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+.mnem-word { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--accent); margin-bottom: 16px; line-height: 1; }
+.mnem-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.mnem-list li { display: flex; gap: 10px; font-size: 13px; line-height: 1.5; }
+.mnem-letter { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; min-width: 16px; color: var(--accent); }
+.mnem-list li .mnem-detail { color: var(--text2); }
+.mnem-list li .mnem-detail strong { color: var(--text); }
+.expand-btn {
+  margin-top: 14px; background: none; border: 1px solid var(--border);
+  border-radius: 50px; padding: 6px 14px; color: var(--text3); font-size: 12px;
+  cursor: pointer; transition: all 0.2s; font-family: 'Syne', sans-serif; font-weight: 600;
+}
+.expand-btn:hover { color: var(--text); border-color: var(--border2); }
+
+/* ─── VIVA ─── */
+.viva-grid { display: flex; flex-direction: column; gap: 14px; }
+.viva-item {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  overflow: hidden;
+}
+.viva-q {
+  display: flex; align-items: center; gap: 12px; padding: 16px 18px;
+  cursor: pointer; transition: background 0.2s;
+}
+.viva-q:hover { background: rgba(124,106,247,0.07); }
+.viva-q-num {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--bg3); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; color: var(--text3);
+  flex: 0 0 auto;
+}
+.viva-q-text { font-size: 14px; font-weight: 500; flex: 1; }
+.viva-chevron { color: var(--text3); transition: transform 0.25s; flex: 0 0 auto; }
+.viva-item.open .viva-chevron { transform: rotate(90deg); }
+.viva-a {
+  padding: 0 18px; max-height: 0; overflow: hidden;
+  transition: max-height 0.35s ease, padding 0.3s;
+  font-size: 13px; line-height: 1.7; color: var(--text2);
+  border-top: 0px solid var(--border);
+}
+.viva-item.open .viva-a {
+  max-height: 300px; padding: 14px 18px 18px;
+  border-top: 1px solid var(--border);
+}
+.viva-exam { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: var(--red); background: rgba(244,63,94,0.1); border-radius: 50px; padding: 2px 9px; margin-left: 8px; }
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 600px) {
+  header h1 { font-size: 28px; }
+  .tabs { gap: 3px; }
+  .tab-btn { font-size: 11px; padding: 8px 12px; }
+  .card { padding: 16px; }
+  .case-header { flex-direction: column; gap: 8px; }
+}
+
+/* ─── TABLE SCROLL ─── */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+
+/* ─── STREAK ─── */
+.streak-fire { font-size: 20px; animation: fire 0.8s ease infinite alternate; }
+@keyframes fire { from { transform: scale(1) rotate(-3deg); } to { transform: scale(1.15) rotate(3deg); } }
+
+/* ─── MOTIVATIONAL ─── */
+.motivate { text-align: center; padding: 10px 20px; font-size: 13px; color: var(--text3); font-style: italic; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<div id="app">
+  <header>
+    <div class="badge-row">
+      <span class="badge badge-pharma">💊 Pharmacology</span>
+      <span class="badge badge-mansoura">🏛 Mansoura University</span>
+      <span class="badge badge-usmle">🎯 USMLE-Style MCQs</span>
+    </div>
+    <h1>Analgesics<br>Pharmacology</h1>
+    <p>Opioids · NSAIDs · Neuropathic Pain Management — Complete interactive study platform</p>
+  </header>
+
+  <div class="stats-bar">
+    <div class="stat-chip"><span class="s-icon">📝</span><span class="s-val" id="stat-quizScore">0/25</span><span class="s-label">Quiz Score</span></div>
+    <div class="stat-chip"><span class="s-icon streak-fire">🔥</span><span class="s-val" id="stat-streak">0</span><span class="s-label">Streak</span></div>
+    <div class="stat-chip"><span class="s-icon">💡</span><span class="s-val" id="stat-fc">0/22</span><span class="s-label">Cards Seen</span></div>
+    <div class="stat-chip"><span class="s-icon">📊</span><span class="s-val" id="stat-progress">0%</span><span class="s-label">Progress</span></div>
+  </div>
+
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search drugs, mechanisms, concepts..." autocomplete="off">
+    <div id="searchResults"></div>
+  </div>
+
+  <div class="tab-scroll">
+    <div class="tabs" id="tabBar">
+      <button class="tab-btn active" data-tab="overview">🗂 Overview</button>
+      <button class="tab-btn" data-tab="quiz">📝 Quiz</button>
+      <button class="tab-btn" data-tab="flashcards">🃏 Flashcards</button>
+      <button class="tab-btn" data-tab="cases">🏥 Cases</button>
+      <button class="tab-btn" data-tab="pathophys">🔬 Pathophys</button>
+      <button class="tab-btn" data-tab="diagnosis">🧪 Diagnosis</button>
+      <button class="tab-btn" data-tab="treatment">💉 Treatment</button>
+      <button class="tab-btn" data-tab="mnemonics">🧠 Mnemonics</button>
+      <button class="tab-btn" data-tab="viva">🗣 Viva</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════ OVERVIEW ════════════════════ -->
+  <div class="panel active" id="panel-overview">
+    <div class="overview-hero">
+      <h2>Analgesics — The Big Picture 🎯</h2>
+      <p>Pain management pharmacology covers three major pillars: <strong>Opioid analgesics</strong> (μ/κ receptor agonists), <strong>Non-opioid analgesics</strong> (NSAIDs & Paracetamol, COX inhibitors), and <strong>Neuropathic pain agents</strong> (Ca²⁺ channel modulators, SNRIs, Na⁺ channel blockers). Understanding the mechanism of each drug class is fundamental to both clinical application and exam success.</p>
+    </div>
+
+    <div class="section-title">⚡ Pain Transmission Pathway</div>
+    <div class="mechanism-flow">
+      <div class="flow-step">🔥 Tissue Injury</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">💥 Inflammation</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">🧪 Mediator Release<br><small style="font-weight:400;color:var(--text3)">PGs, SubP, BK</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">⚡ Nociceptor Activation</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">🧠 Dorsal Horn</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">📡 Spinothalamic Tract</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">🎯 Thalamus → Cortex</div>
+    </div>
+
+    <div class="section-title">💊 Drug Class Overview</div>
+    <div class="grid-3" style="margin-bottom:24px">
+      <div class="card">
+        <div class="card-title">🟣 Opioid Agonists</div>
+        <div class="card-body">Bind μ (mu) and κ (kappa) receptors. Presynaptic: ↓ Ca²⁺ influx → ↓ transmitter release. Postsynaptic: ↑ K⁺ conductance → hyperpolarization (IPSP). Inhibit ascending pain + augment descending inhibitory pathways.</div>
+        <div class="tag-row"><span class="tag tag-hy">High-Yield</span><span class="tag tag-ex">Exam Fave</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🟠 NSAIDs / COX Inhibitors</div>
+        <div class="card-body">Block COX enzymes → ↓ prostaglandin synthesis. Non-selective (Aspirin, Ibuprofen) block COX-1 + COX-2. Selective COX-2 inhibitors (Celecoxib) spare gastric mucosa but increase thrombotic risk.</div>
+        <div class="tag-row"><span class="tag tag-hy">High-Yield</span><span class="tag tag-cp">Clinical Pearl</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🔵 Neuropathic Agents</div>
+        <div class="card-body">Target aberrantly-firing damaged nerves. Gabapentin/Pregabalin (↓ Ca²⁺ influx), Duloxetine (↑ serotonin + NE), Carbamazepine/Lidocaine (block Na⁺ channels).</div>
+        <div class="tag-row"><span class="tag tag-mc">MCQ</span><span class="tag tag-cp">Clinical Pearl</span></div>
+      </div>
+    </div>
+
+    <div class="section-title">🔑 Key Clinical Signs & Exam Pearls</div>
+    <div class="grid-2" style="margin-bottom:24px">
+      <div class="card">
+        <div class="card-title">📌 Morphine Contraindications</div>
+        <div class="card-body">HEAD INJURY — CO₂ retention → cerebral vasodilation → ↑ ICP → herniation. Also: biliary colic, acute undiagnosed abdomen (masks pain), bronchial asthma (histamine release → bronchospasm), extreme ages, hypotension.</div>
+        <div class="tag-row"><span class="tag tag-ex">Exam-Fave</span><span class="tag tag-wq">Written Q</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🔴 Opioid Toxicity Triad</div>
+        <div class="card-body"><strong>PPP</strong> — Pinpoint pupils (miosis), Pallor/Perspiration, Pulmonary depression. Severe miosis = toxicity (tolerance does NOT develop to miosis or constipation — classic MCQ trap!).</div>
+        <div class="tag-row"><span class="tag tag-hy">High-Yield</span><span class="tag tag-mc">MCQ</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">⚗️ Paracetamol Overdose</div>
+        <div class="card-body">NAPQI (toxic metabolite via CYP450) → glutathione depletion → hepatocellular necrosis. Antidote: N-acetylcysteine (sulfhydryl donor, replenishes glutathione). Give within 8 hours for best efficacy.</div>
+        <div class="tag-row"><span class="tag tag-hy">High-Yield</span><span class="tag tag-ex">Exam Fave</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">👶 Aspirin in Children</div>
+        <div class="card-body">CONTRAINDICATED in children under 12 years with viral infections — risk of <strong>Reye's Syndrome</strong> (hepatic necrosis + encephalopathy). Use Ibuprofen or Paracetamol instead.</div>
+        <div class="tag-row"><span class="tag tag-ex">Exam Fave</span><span class="tag tag-cp">Clinical Pearl</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">💊 Oral vs IV Morphine</div>
+        <div class="card-body">Oral morphine has only <strong>25% bioavailability</strong> due to significant first-pass hepatic metabolism. IV, SC, or epidural routes bypass first-pass and are far more potent. Classic MCQ fact.</div>
+        <div class="tag-row"><span class="tag tag-mc">MCQ</span><span class="tag tag-hy">High-Yield</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🟢 Morphine-6-Glucuronide</div>
+        <div class="card-body">The primary metabolite of morphine conjugation with glucuronic acid. It is a <strong>very potent analgesic</strong> — more potent than morphine itself. Eliminated renally — accumulates in renal failure.</div>
+        <div class="tag-row"><span class="tag tag-mc">MCQ</span><span class="tag tag-hy">High-Yield</span></div>
+      </div>
+    </div>
+
+    <div class="section-title">📊 Drug Comparison Table</div>
+    <div class="table-wrap" style="margin-bottom:24px">
+      <table class="drug-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Non-selective NSAIDs</th>
+            <th>COX-2 Selective</th>
+            <th>Paracetamol</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Example</strong></td><td>Aspirin, Ibuprofen</td><td>Celecoxib</td><td>Acetaminophen</td></tr>
+          <tr><td><strong>Mechanism</strong></td><td>Block COX-1 + COX-2</td><td>Block COX-2 only</td><td>Inhibit COX-3 (CNS)</td></tr>
+          <tr><td><strong>Anti-inflammatory</strong></td><td>✅ Yes</td><td>✅ Yes</td><td>❌ No</td></tr>
+          <tr><td><strong>GI Side Effects</strong></td><td>⚠️ Frequent (COX-1 block)</td><td>✅ Less</td><td>✅ None</td></tr>
+          <tr><td><strong>Thrombotic Risk</strong></td><td>↓ (anti-platelet)</td><td>⬆️ Increased</td><td>Neutral</td></tr>
+          <tr><td><strong>Special Risk</strong></td><td>Reye's (children), Renal</td><td>Cardiovascular</td><td>Hepatotoxicity (overdose)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title">🔗 Opioid Receptor Classification</div>
+    <div class="table-wrap">
+      <table class="drug-table">
+        <thead>
+          <tr><th>Type</th><th>Receptor Action</th><th>Examples</th><th>Key Features</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Pure Agonists</strong></td><td>Full μ + κ activation</td><td>Morphine, Codeine, Methadone, Meperidine, Fentanyl</td><td>High efficacy, full respiratory depression</td></tr>
+          <tr><td><strong>Mixed Agonist-Antagonists</strong></td><td>Partial μ / κ agonism</td><td>Buprenorphine, Nalbuphine, Pentazocine</td><td>Ceiling effect, lower abuse; can precipitate withdrawal in dependent patients ⚠️</td></tr>
+          <tr><td><strong>Pure Antagonists</strong></td><td>Competitive blockade</td><td>Naloxone (IV acute), Naltrexone (oral, relapse prevention)</td><td>No intrinsic activity; life-saving in overdose</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════════════════════ QUIZ ════════════════════ -->
+  <div class="panel" id="panel-quiz">
+    <div class="quiz-header">
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;">📝 Quiz Mode</div>
+        <div style="font-size:13px;color:var(--text3);margin-top:2px">25 USMLE-style questions</div>
+      </div>
+      <div class="quiz-meta">
+        <div class="quiz-stat">
+          <div class="qs-val" id="q-correct" style="color:var(--green)">0</div>
+          <div class="qs-label">Correct</div>
+        </div>
+        <div class="quiz-stat">
+          <div class="qs-val" id="q-wrong" style="color:var(--red)">0</div>
+          <div class="qs-label">Wrong</div>
+        </div>
+        <div class="quiz-stat">
+          <div class="qs-val" id="q-streak-display" style="color:var(--yellow)">0 🔥</div>
+          <div class="qs-label">Streak</div>
+        </div>
+      </div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="quizProgressBar" style="width:0%"></div>
+    </div>
+    <div class="motivate" id="motivateMsg">💪 You've got this! Let's ace these questions.</div>
+    <div id="quizContainer"></div>
+  </div>
+
+  <!-- ════════════════════ FLASHCARDS ════════════════════ -->
+  <div class="panel" id="panel-flashcards">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;">🃏 Flashcards</div>
+        <div style="font-size:13px;color:var(--text3);margin-top:2px">22 cards — click to flip</div>
+      </div>
+      <div style="font-size:13px;color:var(--text2)">Seen: <strong id="fcSeen">0</strong> / 22</div>
+    </div>
+    <div class="fc-grid" id="fcGrid"></div>
+  </div>
+
+  <!-- ════════════════════ CLINICAL CASES ════════════════════ -->
+  <div class="panel" id="panel-cases">
+    <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:6px;">🏥 Clinical Cases</div>
+    <div style="font-size:13px;color:var(--text3);margin-bottom:24px;">6 exam-style vignettes with step-by-step answers</div>
+    <div id="casesContainer"></div>
+  </div>
+
+  <!-- ════════════════════ PATHOPHYSIOLOGY ════════════════════ -->
+  <div class="panel" id="panel-pathophys">
+    <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:6px;">🔬 Pathophysiology</div>
+    <div style="font-size:13px;color:var(--text3);margin-bottom:24px;">Interactive mechanism explorer — click any item to expand</div>
+
+    <div class="section-title">⚙️ Drug Mechanisms (click to expand)</div>
+    <div class="moa-grid" id="moaGrid"></div>
+
+    <div class="section-title">🌊 Pain Transmission Flowchart</div>
+    <div class="flowchart">
+      <div class="flowchart-title">Nociceptive Pain Pathway & Drug Targets</div>
+      <div class="fc-steps">
+        <div class="fc-step-row">
+          <div class="fc-step-box fcs-tissue">🔥 Tissue Injury / Inflammation</div>
+          <div class="fc-step-label">← NSAIDs block PG synthesis here</div>
+        </div>
+        <div class="fc-vert-arrow">↓</div>
+        <div class="fc-step-row">
+          <div class="fc-step-box fcs-med">🧪 Mediator Release (PGs, Bradykinin, Substance P)</div>
+        </div>
+        <div class="fc-vert-arrow">↓</div>
+        <div class="fc-step-row">
+          <div class="fc-step-box fcs-nerve">⚡ Peripheral Nociceptor Activation → Afferent Nerve</div>
+          <div class="fc-step-label">← Lidocaine blocks Na⁺ here</div>
+        </div>
+        <div class="fc-vert-arrow">↓</div>
+        <div class="fc-step-row">
+          <div class="fc-step-box fcs-spinal">🧠 Dorsal Horn (Spinal Cord)</div>
+          <div class="fc-step-label">← Opioids act here (presynaptic ↓Ca²⁺; postsynaptic ↑K⁺)</div>
+        </div>
+        <div class="fc-vert-arrow">↓</div>
+        <div class="fc-step-row">
+          <div class="fc-step-box fcs-spinal">📡 Spinothalamic Tract (Ascending)</div>
+        </div>
+        <div class="fc-vert-arrow">↓</div>
+        <div class="fc-step-row">
+          <div class="fc-step-box fcs-brain">🎯 Thalamus → Somatosensory Cortex (Pain Perception)</div>
+          <div class="fc-step-label">← Opioids suppress here too</div>
+        </div>
+        <div class="fc-vert-arrow">↓</div>
+        <div class="fc-step-row">
+          <div class="fc-step-box fcs-good">⬇️ Descending Inhibitory Pathways (Duloxetine ↑ 5-HT + NE)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">☠️ Paracetamol Toxicity Pathway</div>
+    <div class="flowchart">
+      <div class="flowchart-title">NAPQI Formation & Hepatotoxicity Cascade</div>
+      <div class="fc-steps">
+        <div class="fc-step-row"><div class="fc-step-box fcs-good">💊 Therapeutic Dose → Safe glucuronidation / sulfation</div></div>
+        <div class="fc-vert-arrow">↓ (Overdose)</div>
+        <div class="fc-step-row"><div class="fc-step-box fcs-tox">⚠️ Normal pathways saturated → Shift to CYP450 metabolism</div></div>
+        <div class="fc-vert-arrow">↓</div>
+        <div class="fc-step-row"><div class="fc-step-box fcs-tox">🧪 NAPQI formed (N-acetyl-p-benzoquinone imine)</div></div>
+        <div class="fc-vert-arrow">↓</div>
+        <div class="fc-step-row"><div class="fc-step-box fcs-danger">💀 Glutathione stores depleted (&lt;30% remaining)</div></div>
+        <div class="fc-vert-arrow">↓</div>
+        <div class="fc-step-row"><div class="fc-step-box fcs-danger">🔥 NAPQI covalently binds hepatic proteins → Necrosis</div></div>
+        <div class="fc-vert-arrow">↓</div>
+        <div class="fc-step-row"><div class="fc-step-box fcs-good">✅ ANTIDOTE: N-acetylcysteine → Replenishes glutathione</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ DIAGNOSIS ════════════════════ -->
+  <div class="panel" id="panel-diagnosis">
+    <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:6px;">🧪 Diagnosis</div>
+    <div style="font-size:13px;color:var(--text3);margin-bottom:24px;">Recognition, criteria, and investigation findings</div>
+
+    <div class="section-title">🔴 Opioid Overdose — Recognition</div>
+    <div class="diag-criteria" style="margin-bottom:20px">
+      <div class="criteria-list">
+        <div class="criteria-item"><div class="criteria-icon">👁</div><div class="criteria-text"><strong>Pinpoint miosis (PPP)</strong> — most specific sign; tolerance does NOT develop to this. Classic written Q.</div></div>
+        <div class="criteria-item"><div class="criteria-icon">🫁</div><div class="criteria-text"><strong>Respiratory depression</strong> — RR &lt;12, hypoxia, hypercapnia. Primary cause of death.</div></div>
+        <div class="criteria-item"><div class="criteria-icon">😴</div><div class="criteria-text"><strong>CNS depression</strong> — drowsiness → stupor → coma. GCS often &lt;8.</div></div>
+        <div class="criteria-item"><div class="criteria-icon">💉</div><div class="criteria-text"><strong>Reversal test</strong> — IV Naloxone causes rapid improvement. Diagnostic and therapeutic.</div></div>
+      </div>
+    </div>
+
+    <div class="section-title">🟡 Paracetamol Toxicity Staging</div>
+    <div class="diag-criteria" style="margin-bottom:20px">
+      <div class="criteria-list">
+        <div class="criteria-item"><div class="criteria-icon">1️⃣</div><div class="criteria-text"><strong>0–24h:</strong> Often asymptomatic or mild nausea/vomiting. DO NOT underestimate!</div></div>
+        <div class="criteria-item"><div class="criteria-icon">2️⃣</div><div class="criteria-text"><strong>24–72h:</strong> RUQ pain, raised ALT/AST begin to rise (as in Scenario 1).</div></div>
+        <div class="criteria-item"><div class="criteria-icon">3️⃣</div><div class="criteria-text"><strong>72–96h:</strong> Peak hepatotoxicity — jaundice, coagulopathy, encephalopathy.</div></div>
+        <div class="criteria-item"><div class="criteria-icon">4️⃣</div><div class="criteria-text"><strong>&gt;96h:</strong> Either recovery or fulminant hepatic failure / death.</div></div>
+        <div class="criteria-item"><div class="criteria-icon">✅</div><div class="criteria-text"><strong>Antidote window:</strong> N-acetylcysteine most effective if given within <strong>8 hours</strong> of ingestion.</div></div>
+      </div>
+    </div>
+
+    <div class="section-title">📋 Neuropathic Pain Diagnosis</div>
+    <div class="diag-criteria" style="margin-bottom:24px">
+      <div class="criteria-list">
+        <div class="criteria-item"><div class="criteria-icon">🔥</div><div class="criteria-text"><strong>Burning/tingling quality</strong> — distinguishes from nociceptive pain; often described as "electric".</div></div>
+        <div class="criteria-item"><div class="criteria-icon">👋</div><div class="criteria-text"><strong>Allodynia</strong> — pain from normally non-painful stimuli (e.g., light touch, clothing).</div></div>
+        <div class="criteria-item"><div class="criteria-icon">📍</div><div class="criteria-text"><strong>Underlying cause</strong> — diabetic neuropathy, post-herpetic neuralgia, nerve compression, MS.</div></div>
+        <div class="criteria-item"><div class="criteria-icon">💊</div><div class="criteria-text"><strong>Fails NSAIDs/opioids</strong> — poor response to standard analgesics; requires neuro-modulatory agents.</div></div>
+      </div>
+    </div>
+
+    <div class="section-title">🔬 Investigation Findings Summary</div>
+    <div style="margin-bottom:10px;font-size:13px;color:var(--text3)">Paracetamol overdose investigations:</div>
+    <div class="inv-grid" style="margin-bottom:20px">
+      <span class="inv-badge inv-red">⬆️ ALT / AST elevated</span>
+      <span class="inv-badge inv-orange">⬆️ Bilirubin elevated</span>
+      <span class="inv-badge inv-yellow">⬆️ PT / INR prolonged</span>
+      <span class="inv-badge inv-blue">🩸 Serum Paracetamol level</span>
+      <span class="inv-badge inv-purple">📉 Glucose ↓ (liver failure)</span>
+      <span class="inv-badge inv-green">✅ NAC = treatment</span>
+    </div>
+    <div style="margin-bottom:10px;font-size:13px;color:var(--text3)">Opioid toxicity investigations:</div>
+    <div class="inv-grid">
+      <span class="inv-badge inv-red">⬇️ RR &lt;12/min</span>
+      <span class="inv-badge inv-orange">⬆️ PaCO₂ elevated (ABG)</span>
+      <span class="inv-badge inv-blue">⬇️ SpO₂ desaturation</span>
+      <span class="inv-badge inv-yellow">👁 Pinpoint pupils</span>
+      <span class="inv-badge inv-purple">🔬 Urine toxicology screen</span>
+      <span class="inv-badge inv-green">✅ Naloxone = treatment</span>
+    </div>
+
+    <div class="section-title" style="margin-top:24px">🎯 Diagnostic Algorithm — Which Analgesic?</div>
+    <div class="flowchart">
+      <div class="fc-steps">
+        <div class="fc-step-row"><div class="fc-step-box fcs-spinal">Patient needs pain management</div></div>
+        <div class="fc-vert-arrow">↓</div>
+        <div class="fc-step-row"><div class="fc-step-box fcs-med">Is pain NOCICEPTIVE or NEUROPATHIC?</div></div>
+        <div class="fc-vert-arrow">↓</div>
+        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:start">
+          <div class="fc-step-box fcs-tissue" style="text-align:center">
+            🔥 <strong>Nociceptive</strong><br>
+            <small>Mild-Mod: NSAIDs/Paracetamol<br>Severe: Opioids (Morphine, Meperidine)<br>→Check contraindications!</small>
+          </div>
+          <div style="display:flex;align-items:center;color:var(--text3)">VS</div>
+          <div class="fc-step-box fcs-nerve" style="text-align:center">
+            ⚡ <strong>Neuropathic</strong><br>
+            <small>1st line: Gabapentin/Pregabalin<br>+ Duloxetine (SNRIs)<br>Na⁺ blockers: Carbamazepine</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ TREATMENT ════════════════════ -->
+  <div class="panel" id="panel-treatment">
+    <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:6px;">💉 Treatment</div>
+    <div style="font-size:13px;color:var(--text3);margin-bottom:24px;">Drug-by-drug reference with clinical pearls</div>
+
+    <div class="tx-section">
+      <div class="tx-section-header"><div class="tx-dot tx-emergency"></div> 🚨 Emergency Treatments</div>
+      <div class="tx-card-row">
+        <div class="tx-card urgent">
+          <div class="tx-emoji">💊</div>
+          <div><div class="tx-drug">Naloxone (IV)</div><div class="tx-detail">Pure opioid antagonist. Drug of choice for acute opioid overdose. Competitively displaces opioids from μ receptors. Reverses respiratory depression, miosis, and coma. Short-acting — may need repeat dosing or infusion. Also inject into umbilical cord for neonatal apnea post-maternal morphine.</div></div>
+        </div>
+        <div class="tx-card urgent">
+          <div class="tx-emoji">🧪</div>
+          <div><div class="tx-drug">N-Acetylcysteine (NAC)</div><div class="tx-detail">Antidote for paracetamol overdose. Acts as sulfhydryl donor → replenishes hepatic glutathione → detoxifies NAPQI. Most effective within 8 hours of ingestion. IV or oral. Can still help later but less effective.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tx-section">
+      <div class="tx-section-header"><div class="tx-dot tx-opioid"></div> 🟣 Opioid Analgesics</div>
+      <div class="tx-card-row">
+        <div class="tx-card standard">
+          <div class="tx-emoji">💉</div>
+          <div><div class="tx-drug">Morphine</div><div class="tx-detail">Gold standard for severe pain. IV/SC/epidural preferred (oral bioavailability only 25%). Metabolized to M-6-G (potent). Contraindicated: head injury, bronchial asthma, acute abdomen, biliary colic, hypotension. Causes miosis (PPP), constipation (no tolerance).</div></div>
+        </div>
+        <div class="tx-card standard">
+          <div class="tx-emoji">🏥</div>
+          <div><div class="tx-drug">Meperidine (Pethidine)</div><div class="tx-detail">Preferred in labor (shorter-acting, does not prolong labor). Preferred in biliary colic (weak atropine-like action → less sphincter of Oddi spasm). Preferred in inferior MI with bradycardia (atropine-like → no additional bradycardia). Avoid in renal failure (normeperidine accumulates → seizures).</div></div>
+        </div>
+        <div class="tx-card standard">
+          <div class="tx-emoji">⏳</div>
+          <div><div class="tx-drug">Methadone</div><div class="tx-detail">Long-acting oral μ-agonist. High oral bioavailability. Used for opioid dependence maintenance — stabilizes patient, prevents withdrawal, blocks euphoria of shorter-acting opioids. Slow onset prevents rapid "high".</div></div>
+        </div>
+        <div class="tx-card standard">
+          <div class="tx-emoji">🩹</div>
+          <div><div class="tx-drug">Fentanyl</div><div class="tx-detail">Highly potent (100× morphine). Short duration. Available as transdermal patch for chronic severe pain. Also IV for procedural sedation/anesthesia.</div></div>
+        </div>
+        <div class="tx-card caution">
+          <div class="tx-emoji">🔄</div>
+          <div><div class="tx-drug">Buprenorphine</div><div class="tx-detail">Partial μ-agonist + weak κ-antagonist. Ceiling effect on respiratory depression → lower overdose risk. Used in opioid withdrawal management. ⚠️ Can precipitate withdrawal if given to patients on full agonists.</div></div>
+        </div>
+        <div class="tx-card caution">
+          <div class="tx-emoji">💊</div>
+          <div><div class="tx-drug">Codeine</div><div class="tx-detail">Prodrug → converted to morphine by CYP2D6 in liver. Weak analgesic / antitussive. Variable effect (poor metabolizers get no effect; ultra-rapid metabolizers get toxicity).</div></div>
+        </div>
+        <div class="tx-card standard">
+          <div class="tx-emoji">🔀</div>
+          <div><div class="tx-drug">Tramadol</div><div class="tx-detail">Dual mechanism: μ-opioid receptor agonism + SNRI (inhibits serotonin + norepinephrine reuptake). Moderate pain. Risk of serotonin syndrome if combined with MAOIs or SSRIs.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tx-section">
+      <div class="tx-section-header"><div class="tx-dot tx-nsaid"></div> 🟠 NSAIDs & Non-Opioid Analgesics</div>
+      <div class="tx-card-row">
+        <div class="tx-card safe">
+          <div class="tx-emoji">🌡</div>
+          <div><div class="tx-drug">Paracetamol (Acetaminophen)</div><div class="tx-detail">COX-3 inhibitor (CNS-selective). Analgesic + antipyretic. No anti-inflammatory effect. Drug of choice for fever/pain in children &lt;12 and pregnant women. Safe gastric profile. ⚠️ Overdose = hepatotoxicity via NAPQI.</div></div>
+        </div>
+        <div class="tx-card caution">
+          <div class="tx-emoji">💊</div>
+          <div><div class="tx-drug">Aspirin</div><div class="tx-detail">Non-selective COX-1+2 inhibitor. Anti-inflammatory, analgesic, antipyretic, anti-platelet. Low dose = antiplatelet (irreversible, 7-day washout pre-surgery). ⚠️ Contraindicated in children &lt;12 (Reye's syndrome), peptic ulcer, bleeding disorders.</div></div>
+        </div>
+        <div class="tx-card caution">
+          <div class="tx-emoji">🔥</div>
+          <div><div class="tx-drug">Ibuprofen</div><div class="tx-detail">Non-selective COX inhibitor. Good for mild-moderate pain and inflammation. Better GI tolerance than aspirin (reversible COX inhibition). Safe alternative to aspirin in children for fever.</div></div>
+        </div>
+        <div class="tx-card safe">
+          <div class="tx-emoji">🎯</div>
+          <div><div class="tx-drug">Celecoxib (COX-2 Selective)</div><div class="tx-detail">Selective COX-2 inhibitor. Fewer GI ulcers (spares COX-1). ⚠️ Increased cardiovascular thrombotic risk (prostacyclin ↓, TXA2 unopposed). Avoid in patients with cardiac disease. Used in arthritis.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tx-section">
+      <div class="tx-section-header"><div class="tx-dot tx-neuro"></div> 🔵 Neuropathic Pain</div>
+      <div class="tx-card-row">
+        <div class="tx-card safe">
+          <div class="tx-emoji">⚡</div>
+          <div><div class="tx-drug">Gabapentin / Pregabalin</div><div class="tx-detail">Modulate voltage-gated Ca²⁺ channels (α2δ subunit). ↓ Ca²⁺ influx → ↓ neurotransmitter release from hyperactive neurons. Used in diabetic neuropathy, post-herpetic neuralgia, fibromyalgia, epilepsy.</div></div>
+        </div>
+        <div class="tx-card safe">
+          <div class="tx-emoji">🧠</div>
+          <div><div class="tx-drug">Duloxetine (SNRI)</div><div class="tx-detail">Inhibits reuptake of serotonin + norepinephrine → enhances descending inhibitory pain pathways. FDA-approved for diabetic peripheral neuropathy, fibromyalgia, chronic MSK pain.</div></div>
+        </div>
+        <div class="tx-card caution">
+          <div class="tx-emoji">⚡</div>
+          <div><div class="tx-drug">Carbamazepine</div><div class="tx-detail">Voltage-gated Na⁺ channel blocker. First-line for trigeminal neuralgia. Also used for neuropathic pain, epilepsy, bipolar. Monitor for agranulocytosis, Steven-Johnson syndrome.</div></div>
+        </div>
+        <div class="tx-card safe">
+          <div class="tx-emoji">🩹</div>
+          <div><div class="tx-drug">Lidocaine Patch (5%)</div><div class="tx-detail">Peripheral Na⁺ channel blocker. Topical application over painful area. Used in localized neuropathic pain (e.g., post-herpetic neuralgia). Minimal systemic absorption.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tx-section">
+      <div class="tx-section-header"><div class="tx-dot tx-antidote"></div> 🟢 Dependence & Relapse Prevention</div>
+      <div class="tx-card-row">
+        <div class="tx-card safe">
+          <div class="tx-emoji">🔒</div>
+          <div><div class="tx-drug">Naltrexone (Oral)</div><div class="tx-detail">Pure opioid antagonist, oral formulation. Used for relapse prevention in opioid dependence. Blocks μ-receptors → prevents euphoria if patient takes opioids. No physical dependence risk.</div></div>
+        </div>
+        <div class="tx-card safe">
+          <div class="tx-emoji">🔄</div>
+          <div><div class="tx-drug">Loperamide / Diphenoxylate</div><div class="tx-detail">Selective antidiarrheal opioids. Act on GI μ-receptors → ↓ peristalsis, ↑ sphincter tone. Minimal CNS penetration → no euphoria or dependence at therapeutic doses.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ MNEMONICS ════════════════════ -->
+  <div class="panel" id="panel-mnemonics">
+    <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:6px;">🧠 Mnemonics</div>
+    <div style="font-size:13px;color:var(--text3);margin-bottom:24px;">6 custom mnemonics crafted from your lecture content</div>
+    <div class="mnem-grid" id="mnemGrid"></div>
+  </div>
+
+  <!-- ════════════════════ VIVA ════════════════════ -->
+  <div class="panel" id="panel-viva">
+    <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:6px;">🗣 Viva Questions</div>
+    <div style="font-size:13px;color:var(--text3);margin-bottom:24px;">12 high-yield viva questions with model answers — click to reveal</div>
+    <div class="viva-grid" id="vivaGrid"></div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+// ══════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════
+
+const QUIZ_DATA = [
+  {
+    q: "Which of the following is the primary mechanism of action of morphine at the postsynaptic spinal pain-transmission neuron?",
+    opts: ["Increased Ca²⁺ influx","Decreased K⁺ conductance","Increased K⁺ conductance","Inhibition of cyclooxygenase","Reuptake inhibition of serotonin"],
+    ans: 2,
+    exp: "Morphine binds to μ-receptors postsynaptically, opening K⁺ channels → K⁺ efflux → hyperpolarization (IPSP). Note: Ca²⁺ influx is DECREASED presynaptically (not increased); opioids do NOT inhibit COX."
+  },
+  {
+    q: "How does Gabapentin reduce symptoms of postherpetic neuralgia?",
+    opts: ["Blocks peripheral sodium channels","Modulates calcium channels to reduce neurotransmitter release","Selectively inhibits COX-2","Depletes substance P","Acts as a mu-receptor agonist"],
+    ans: 1,
+    exp: "Gabapentin binds the α2δ subunit of voltage-gated Ca²⁺ channels → ↓ Ca²⁺ influx → ↓ neurotransmitter release from hyperactive neuropathic neurons."
+  },
+  {
+    q: "What is the mechanism by which Aspirin leads to an increased bleeding tendency?",
+    opts: ["Inhibition of vitamin K epoxide reductase","Activation of plasminogen","Non-selective inhibition of COX, decreasing thromboxane A2","Selective inhibition of COX-2, increasing prostacyclin","Direct destruction of platelets"],
+    ans: 2,
+    exp: "Aspirin irreversibly inhibits COX-1 and COX-2 → ↓ thromboxane A2 (potent platelet aggregator) → increased bleeding tendency. Platelet recovery requires 7–10 days of new platelet synthesis."
+  },
+  {
+    q: "Why is morphine contraindicated in a patient with a head injury?",
+    opts: ["It directly dilates cerebral blood vessels","It depresses respiration, leading to CO₂ retention and cerebral vasodilation","It causes intense seizures","It drastically increases blood pressure","It rapidly lowers core body temperature"],
+    ans: 1,
+    exp: "Morphine → respiratory depression → ↑ PaCO₂ → cerebral vasodilation → ↑ ICP → risk of fatal brain herniation. This is an absolute contraindication. Morphine also depresses respiration without directly acting on cerebral vessels."
+  },
+  {
+    q: "Which mechanism explains why paracetamol is safe for the stomach but ineffective for joint inflammation?",
+    opts: ["It is a potent COX-1 inhibitor","It acts only as a prodrug","It selectively inhibits COX-3 in the CNS with minimal peripheral tissue effect","It rapidly metabolizes to aspirin in the gut","It acts on kappa opioid receptors"],
+    ans: 2,
+    exp: "Acetaminophen selectively inhibits COX-3 in the CNS (thermoregulatory center and pain centers) — it lacks significant peripheral activity, hence no gastric side effects and no anti-inflammatory effect."
+  },
+  {
+    q: "Tramadol provides analgesia through mu-receptor agonism and which additional mechanism?",
+    opts: ["NMDA receptor antagonism","Inhibition of serotonin and norepinephrine reuptake","COX-1 inhibition","Dopamine receptor agonism","Peripheral Na⁺ channel blockade"],
+    ans: 1,
+    exp: "Tramadol has dual action: μ-opioid receptor agonism + SNRI activity (inhibits reuptake of 5-HT and NE). This explains its efficacy for both nociceptive and neuropathic pain. Risk of serotonin syndrome with MAOIs."
+  },
+  {
+    q: "How does N-acetylcysteine act as an antidote for acetaminophen toxicity?",
+    opts: ["It competitively blocks COX-3","It acts as a sulfhydryl donor to restore hepatic glutathione","It binds directly to acetaminophen in the gut","It induces CYP450 enzymes to clear the drug","It alkalinizes the urine to enhance excretion"],
+    ans: 1,
+    exp: "NAC is a sulfhydryl donor and glutathione precursor — it replenishes hepatic glutathione stores, allowing the liver to safely detoxify NAPQI. Most effective within 8 hours of ingestion."
+  },
+  {
+    q: "Buprenorphine is used in opioid withdrawal because its mechanism is:",
+    opts: ["Full mu-receptor agonism","Pure mu-receptor antagonism","Partial mu-receptor agonism with weak kappa antagonism","COX-2 selective inhibition","Alpha-2 adrenergic agonism"],
+    ans: 2,
+    exp: "Buprenorphine is a partial μ-agonist and weak κ/δ-antagonist. It reduces cravings/withdrawal symptoms with a CEILING EFFECT on respiratory depression (much safer than full agonists). ⚠️ Can precipitate withdrawal in full-agonist-dependent patients."
+  },
+  {
+    q: "Which mechanism is responsible for morphine-induced bronchospasm?",
+    opts: ["Direct beta-2 receptor blockade","Vagal nerve stimulation","Histamine release from mast cells","Leukotriene overproduction","Inhibition of acetylcholine esterase"],
+    ans: 2,
+    exp: "Morphine triggers histamine release from mast cells → bronchospasm + urticaria. This is why morphine is contraindicated in bronchial asthma. It does NOT directly block beta-2 receptors."
+  },
+  {
+    q: "How do opioids relieve acute pulmonary edema?",
+    opts: ["Increasing cardiac contractility","Bronchodilation via beta-2 agonism","Venodilation reducing preload and decreasing sympathetic overactivity","Potent diuretic action on the loop of Henle","Direct alveolar fluid clearance"],
+    ans: 2,
+    exp: "Morphine relieves acute pulmonary edema by: 1) Venodilation → ↓ venous return → ↓ preload; 2) ↓ anxiety and sympathetic drive. It is NOT a diuretic or inotrope."
+  },
+  {
+    q: "Why is morphine administration combined with atropine for severe biliary colic?",
+    opts: ["To enhance the analgesic effect synergistically","Because morphine increases the tone of the sphincter of Oddi, which atropine relaxes","To prevent respiratory depression","To counteract morphine-induced diarrhea","To increase the half-life of morphine"],
+    ans: 1,
+    exp: "Morphine → spasm of sphincter of Oddi → ↑ intrabiliary pressure → worsens biliary colic. Atropine (antimuscarinic) counteracts this smooth muscle contraction. Meperidine is actually preferred over morphine in biliary colic."
+  },
+  {
+    q: "What is the mechanism of Duloxetine in managing diabetic peripheral neuropathy?",
+    opts: ["Mu-opioid receptor agonism","Increasing serotonin and norepinephrine in descending pain pathways","Non-selective COX inhibition","Decreasing intracellular potassium","Blocking voltage-gated calcium channels"],
+    ans: 1,
+    exp: "Duloxetine is an SNRI — it inhibits reuptake of serotonin and NE → enhances descending inhibitory pain pathways (the brainstem normally sends inhibitory signals back down to the dorsal horn)."
+  },
+  {
+    q: "How does codeine exert its analgesic effect?",
+    opts: ["It acts directly as a full kappa agonist","It is a prodrug that is partially converted to morphine by CYP2D6","It irreversibly binds to COX-1","It acts as a peripheral nerve block","It inhibits spinal substance P release via GABA receptors"],
+    ans: 1,
+    exp: "Codeine (methyl-morphine) is a prodrug requiring CYP2D6 liver conversion to morphine. Poor metabolizers (certain genetic variants) get no effect; ultra-rapid metabolizers risk toxicity."
+  },
+  {
+    q: "What is the cellular effect of presynaptic opioid receptor activation?",
+    opts: ["Increased cAMP","Increased Ca²⁺ influx","Decreased Ca²⁺ influx and decreased transmitter release","Increased K⁺ efflux causing depolarization","Opening of sodium channels"],
+    ans: 2,
+    exp: "Presynaptic μ, δ, and κ receptors → ↓ Ca²⁺ influx (via Gi protein coupling → inhibit adenylyl cyclase) → prevents vesicle fusion and neurotransmitter (e.g., Substance P, glutamate) release."
+  },
+  {
+    q: "Why does selective COX-2 inhibition increase the risk of thrombotic complications?",
+    opts: ["It severely depletes hepatic vitamin K","It increases platelet aggregation by leaving COX-1 (thromboxane A2) unopposed","It directly stimulates the coagulation cascade","It causes profound vasoconstriction of coronary arteries","It destroys red blood cells"],
+    ans: 1,
+    exp: "COX-2 inhibitors block endothelial PGI2 (prostacyclin — vasodilator, anti-aggregator) while leaving platelet COX-1-derived TXA2 (pro-aggregator) intact → tilts the balance toward thrombosis."
+  },
+  {
+    q: "Which of the following defines neuropathic pain?",
+    opts: ["Pain from tissue damage activating peripheral nociceptors","Short-term pain following acute trauma","Pain from damage or disease of the somatosensory nervous system itself","Pain resulting purely from psychological factors","Pain localized to the gastrointestinal tract"],
+    ans: 2,
+    exp: "Neuropathic pain = damage to the somatosensory nervous system ITSELF (not peripheral tissue). Classic causes: diabetic neuropathy, post-herpetic neuralgia. Presents as burning, allodynia, tingling."
+  },
+  {
+    q: "Which of the following is a pure opioid antagonist?",
+    opts: ["Pentazocine","Nalbuphine","Naloxone","Buprenorphine","Methadone"],
+    ans: 2,
+    exp: "Naloxone (IV, short-acting) and Naltrexone (oral, long-acting) are pure competitive opioid antagonists with NO intrinsic activity. Pentazocine, Nalbuphine, Buprenorphine are mixed agonist-antagonists."
+  },
+  {
+    q: "What is the active and highly potent analgesic metabolite of morphine?",
+    opts: ["Morphine-3-glucuronide","Morphine-6-glucuronide","Normorphine","Codeine","NAPQI"],
+    ans: 1,
+    exp: "Morphine-6-glucuronide (M-6-G) is formed by hepatic conjugation — it is MORE potent than morphine itself. It accumulates in renal failure. NAPQI is the toxic metabolite of paracetamol."
+  },
+  {
+    q: "Which opioid receptor is primarily responsible for the side effects of respiratory depression and euphoria?",
+    opts: ["Kappa","Delta","Sigma","Mu","Epsilon"],
+    ans: 3,
+    exp: "The μ (mu) receptor mediates: supraspinal analgesia, respiratory depression, euphoria, constipation (no tolerance), miosis. The κ (kappa) receptor mediates: spinal analgesia, sedation, dysphoria."
+  },
+  {
+    q: "What is 'allodynia' as described in the context of neuropathic pain?",
+    opts: ["Complete loss of sensation","Pain from a stimulus that does not normally provoke pain (e.g., light touch)","Extreme sensitivity to bright lights","Muscle spasms following nerve injury","Phantom limb sensation"],
+    ans: 1,
+    exp: "Allodynia = pain from normally non-painful stimuli (e.g., light touch, clothing). Characteristic feature of neuropathic pain due to central sensitization. Loss of sensation = anesthesia; increased sensitivity = hyperalgesia."
+  },
+  {
+    q: "Which of the following drugs is a highly potent opioid commonly formulated as a transdermal patch for severe pain?",
+    opts: ["Methadone","Fentanyl","Ibuprofen","Naltrexone","Codeine"],
+    ans: 1,
+    exp: "Fentanyl is ~100× more potent than morphine. Available as transdermal patch (Duragesic) for chronic severe pain, IV for procedural anesthesia. Methadone is oral long-acting."
+  },
+  {
+    q: "Compare the gastrointestinal side effects of non-selective NSAIDs vs selective COX-2 inhibitors.",
+    opts: ["Selective COX-2 inhibitors cause more frequent gastric ulcers.","Non-selective NSAIDs cause less frequent gastric ulcers.","Non-selective NSAIDs cause more frequent gastric ulcers due to COX-1 inhibition.","Both cause equal rates of gastric bleeding.","Neither causes gastric side effects."],
+    ans: 2,
+    exp: "Non-selective NSAIDs inhibit COX-1 (cytoprotective — produces gastric mucus and bicarbonate) → frequent gastric ulcers/bleeding. COX-2 selective inhibitors spare COX-1 → less GI toxicity but more cardiovascular risk."
+  },
+  {
+    q: "In comparing Methadone and Morphine, what is the most important pharmacokinetic feature of Methadone?",
+    opts: ["It cannot be given orally","It has a high oral:parenteral activity ratio and long duration of action","It has a half-life of 1 hour","It undergoes 100% first-pass metabolism","It acts strictly peripherally"],
+    ans: 1,
+    exp: "Methadone key features: high oral bioavailability (unlike morphine's 25%), long duration of action (tissue binding), used for maintenance therapy in opioid dependence."
+  },
+  {
+    q: "Which of the following compares Meperidine (Pethidine) favorably against Morphine for use in labor?",
+    opts: ["Meperidine has a longer duration and prolongs labor more","Meperidine does not prolong labor and has a shorter duration","Meperidine causes severe bradycardia","Meperidine is a stronger antitussive","Meperidine induces severe miosis"],
+    ans: 1,
+    exp: "Meperidine is preferred in labor because: 1) Shorter-acting (morphine prolongs labor), 2) Weak atropine-like effect (tachycardia, not bradycardia), 3) Preferred in inferior MI with bradycardia for the same reason."
+  },
+  {
+    q: "Which side effect occurs with chronic morphine use but does NOT develop tolerance?",
+    opts: ["Analgesia","Euphoria","Miosis and Constipation","Respiratory depression","Sedation"],
+    ans: 2,
+    exp: "Tolerance develops to: analgesia, euphoria, sedation, respiratory depression. Tolerance does NOT develop to: miosis and constipation. This is a classic exam trap. Severe miosis is always a sign of toxicity regardless of chronic use."
+  }
+];
+
+const FLASHCARD_DATA = [
+  { q: "What are the TWO ion channel effects of opioids at the synapse?", a: "PRESYNAPTIC: ↓ Ca²⁺ influx → ↓ neurotransmitter release. POSTSYNAPTIC: ↑ K⁺ conductance → hyperpolarization (IPSP). Both reduce pain transmission." },
+  { q: "Morphine oral bioavailability — why is it low?", a: "Only 25% — significant first-pass hepatic metabolism. IV/SC/epidural routes are far more potent. Classic MCQ!" },
+  { q: "What is Morphine-6-glucuronide and why does it matter?", a: "A major hepatic metabolite of morphine. MORE potent than morphine itself as analgesic. Accumulates in renal failure → prolonged effect/toxicity." },
+  { q: "Name 6 contraindications to morphine", a: "HEAD INJURY (↑ICP via CO₂ retention), Bronchial asthma (histamine release), Acute undiagnosed abdomen, Biliary colic (sphincter of Oddi spasm), Extreme ages, Hypotension." },
+  { q: "Why is morphine absolutely contraindicated in head injury?", a: "Respiratory depression → ↑ PaCO₂ → cerebral vasodilation → ↑ ICP → risk of fatal brain herniation. Always remember the CO₂ link!" },
+  { q: "What is NAPQI and how does it cause liver damage?", a: "N-acetyl-p-benzoquinone imine — toxic CYP450 metabolite of paracetamol in overdose. Glutathione depleted → NAPQI covalently binds hepatic proteins → hepatocellular necrosis." },
+  { q: "Antidote for paracetamol overdose — name and mechanism", a: "N-Acetylcysteine (NAC) — sulfhydryl donor that replenishes hepatic glutathione, detoxifying NAPQI. Best within 8 hours of ingestion." },
+  { q: "Why are COX-2 inhibitors (e.g., Celecoxib) prothrombotic?", a: "Block endothelial prostacyclin (PGI2 — anti-aggregation) but leave platelet TXA2 (COX-1-derived, pro-aggregation) intact → thrombotic cardiovascular risk." },
+  { q: "Why is aspirin contraindicated in children under 12?", a: "Risk of Reye's Syndrome — hepatic necrosis + encephalopathy in children with viral infections. Use Ibuprofen or Paracetamol instead." },
+  { q: "What is allodynia?", a: "Pain elicited by normally non-painful stimuli (e.g., light touch, clothing). Hallmark of neuropathic pain due to central sensitization." },
+  { q: "Gabapentin mechanism in neuropathic pain", a: "Binds α2δ subunit of voltage-gated Ca²⁺ channels → ↓ Ca²⁺ influx → ↓ neurotransmitter release from hyperactive neuropathic neurons." },
+  { q: "Duloxetine mechanism in neuropathic pain", a: "SNRI — inhibits reuptake of serotonin (5-HT) and norepinephrine (NE) → enhances descending inhibitory pain pathways from brainstem to dorsal horn." },
+  { q: "Carbamazepine and Lidocaine: common mechanism", a: "Both block Na⁺ channels. Carbamazepine = voltage-gated Na⁺ channels (CNS, used in trigeminal neuralgia). Lidocaine patch = peripheral Na⁺ channels (topical, localized neuropathic pain)." },
+  { q: "Naloxone vs Naltrexone — how do they differ?", a: "Naloxone = IV, short-acting, pure antagonist → acute overdose reversal. Naltrexone = oral, long-acting, pure antagonist → relapse prevention in dependence." },
+  { q: "Why is Meperidine preferred in labor over Morphine?", a: "Shorter-acting (doesn't prolong labor), weak atropine-like effect (less bradycardia). Also preferred in inferior MI + bradycardia and in biliary colic (less sphincter of Oddi spasm)." },
+  { q: "Which opioid effects have NO tolerance?", a: "Miosis and Constipation. All other effects (analgesia, euphoria, respiratory depression, sedation) develop tolerance. Severe miosis = toxicity marker at any dose." },
+  { q: "What is the primary cause of death in acute opioid poisoning?", a: "Respiratory center depression → profound hypoxia → respiratory arrest. Immediate treatment: IV Naloxone." },
+  { q: "Methadone pharmacokinetics — key feature", a: "High oral bioavailability (unlike morphine 25%). Long duration of action (firm tissue protein binding). Used for opioid dependence maintenance." },
+  { q: "How does Aspirin affect platelet COX irreversibly?", a: "Aspirin irreversibly acetylates COX-1 in platelets (which have no nucleus to make new COX). Effect lasts 7–10 days (platelet lifespan). Must stop 7 days before surgery." },
+  { q: "Codeine: prodrug mechanism", a: "Codeine = methylmorphine. Converted to morphine in liver by CYP2D6. Poor metabolizers = no effect. Ultra-rapid metabolizers = toxicity. Also antitussive." },
+  { q: "What is the PPP triad of opioid toxicity?", a: "Pinpoint pupils (miosis), Pallor/Perspiration, Pulmonary depression (respiratory depression). PPP = classic triad for opioid overdose. Severe miosis is specific and doesn't show tolerance." },
+  { q: "Buprenorphine: why does it have lower overdose risk?", a: "Partial μ-agonist → ceiling effect on respiratory depression. Even at high doses, maximal respiratory depression is limited. Also used in opioid dependence but ⚠️ can precipitate withdrawal in full-agonist users." }
+];
+
+const CASES_DATA = [
+  {
+    num: 1,
+    title: "The Paracetamol Overdose",
+    subtitle: "23-year-old female, 6 hours post-ingestion",
+    body: "A 23-year-old female presents to the ED 6 hours after ingesting a large amount of paracetamol (acetaminophen) during a period of emotional distress. She is conscious but nauseated. Serum ALT and AST are mildly elevated. She reports she 'just wanted to sleep.'",
+    questions: [
+      "What toxic mechanism is responsible for the hepatotoxicity?",
+      "Which specific molecule is accumulating and causing damage?",
+      "What is the definitive treatment and its mechanism?"
+    ],
+    answer: "Mechanism: At toxic doses, normal glucuronidation and sulfation pathways are saturated. Metabolism shifts to CYP450, producing NAPQI (N-acetyl-p-benzoquinone imine), a highly reactive metabolite. Glutathione stores are depleted — when <30% remain, NAPQI covalently binds hepatic proteins → hepatocellular necrosis.\n\n✅ Treatment: N-Acetylcysteine (NAC) IV or oral. Acts as sulfhydryl donor → replenishes glutathione → safely neutralizes NAPQI. Best efficacy within 8 hours; still useful up to 24h. Also check serum paracetamol level on Rumack-Matthew nomogram."
+  },
+  {
+    num: 2,
+    title: "The Inferior MI Dilemma",
+    subtitle: "63-year-old male, bradycardia + chest pain",
+    body: "A 63-year-old male presents with severe crushing chest pain. ECG confirms inferior-wall STEMI. HR is 46 bpm (sinus bradycardia). The patient is in severe pain and requests analgesia. A junior doctor begins drawing up IV Morphine.",
+    questions: [
+      "Why is Morphine potentially problematic in THIS specific patient?",
+      "What is the superior opioid choice for this presentation and why?"
+    ],
+    answer: "Problem: Morphine increases vagal tone → worsens bradycardia, which is already a complication of inferior MI (involving the SA/AV node via RCA). This hemodynamic deterioration could cause cardiogenic shock.\n\n✅ Superior choice: Meperidine (Pethidine) — it has weak ATROPINE-LIKE (antimuscarinic) actions → counteracts the vagal bradycardia. Also provides equivalent analgesia. Note: Morphine is also useful here for venodilation (reducing preload in LV failure) but the bradycardia is the key consideration in inferior MI."
+  },
+  {
+    num: 3,
+    title: "Fever in a Child",
+    subtitle: "6-year-old, viral sore throat + fever",
+    body: "A 6-year-old boy presents with fever of 38.9°C and a sore throat. Throat examination shows erythema without exudate. Rapid Strep test is negative. Diagnosis is viral pharyngitis. The child's parent asks for 'the best medicine for fever.'",
+    questions: [
+      "Which common analgesic/antipyretic is absolutely contraindicated in this child and why?",
+      "What are the appropriate alternatives?"
+    ],
+    answer: "Contraindicated: ASPIRIN — contraindicated in children under 12 with viral infections due to risk of REYE'S SYNDROME (hepatic microvesicular steatosis + mitochondrial dysfunction → encephalopathy + hepatic failure). Mortality can be 20–40%.\n\n✅ Appropriate: Ibuprofen (non-selective COX inhibitor, also anti-inflammatory) OR Paracetamol (COX-3 inhibitor, antipyretic + analgesic, very safe). Ibuprofen is preferred when anti-inflammatory effect is also needed."
+  },
+  {
+    num: 4,
+    title: "The Burning Feet",
+    subtitle: "62-year-old diabetic with peripheral neuropathy",
+    body: "A 62-year-old woman with type 2 diabetes for 18 years presents with a 3-year history of burning, tingling, and 'electric shock' sensations in both feet, especially at night. She describes pain from bedsheets touching her feet (allodynia). Neurological examination reveals ↓ sensation in a 'stocking' distribution. Previous trial of Ibuprofen gave no relief.",
+    questions: [
+      "Why did NSAIDs fail in this patient?",
+      "Name two appropriate drug classes with mechanisms.",
+      "What is the first-line pharmacological choice?"
+    ],
+    answer: "Why NSAIDs fail: This is NEUROPATHIC pain (not nociceptive/inflammatory). The pain originates from damaged nerve fibers firing abnormally, not from prostaglandin-mediated tissue inflammation. NSAIDs have no effect on aberrant neuronal firing.\n\n✅ Treatment options:\n1. Gabapentin/Pregabalin — block α2δ Ca²⁺ channels → ↓ neurotransmitter release from hyperactive nerves (FIRST-LINE for diabetic neuropathy)\n2. Duloxetine (SNRI) — enhances descending inhibitory serotonin/NE pathways (also FDA-approved first-line)\n3. Carbamazepine — Na⁺ channel blocker\n\nFirst-line: Pregabalin or Duloxetine for diabetic peripheral neuropathy."
+  },
+  {
+    num: 5,
+    title: "The Comatose Patient",
+    subtitle: "30-year-old male, unconscious at home",
+    body: "A 30-year-old male is found unconscious at home by a friend. He has a respiratory rate of 6/min, GCS 5, and strikingly pinpoint pupils bilaterally. Empty drug packaging is found nearby. No other injuries noted. SpO₂ is 84% on room air.",
+    questions: [
+      "What is the diagnosis and what is the classic triad confirming it?",
+      "What is the immediate drug treatment and its mechanism?",
+      "What does the pinpoint miosis specifically indicate pharmacologically?"
+    ],
+    answer: "Diagnosis: ACUTE OPIOID POISONING. Classic triad (PPP): Pinpoint pupils, Pallor/Perspiration, Pulmonary depression (RR 6/min).\n\n✅ Treatment: Naloxone IV (0.4–2mg, repeated/infused as needed). Pure competitive μ-receptor antagonist → rapidly reverses respiratory depression, CNS depression, and miosis.\n\nMiosis significance: Opioid-induced miosis is mediated by Edinger-Westphal nucleus (parasympathetic). TOLERANCE DOES NOT DEVELOP to this effect — pinpoint miosis is diagnostic of opioid toxicity regardless of whether the patient is a chronic user."
+  },
+  {
+    num: 6,
+    title: "The Construction Worker — Integrative Case",
+    subtitle: "45-year-old, head injury + femur fracture",
+    body: "A 45-year-old construction worker sustained a traumatic head injury (GCS 13) and fractured femur following a fall from scaffolding. In the ED, he is agitated and in severe pain. A junior doctor suggests IV Morphine for analgesia. His BP is 110/70 mmHg.",
+    questions: [
+      "Should morphine be given? Explain the mechanism of your concern.",
+      "What investigations would guide management?",
+      "What is the broader pharmacological principle illustrated?"
+    ],
+    answer: "DO NOT GIVE MORPHINE (at least without securing the airway): Morphine → respiratory depression → ↑ PaCO₂ → cerebral vasodilation → ↑ ICP → risk of herniation. The patient already has compromised intracranial dynamics from head trauma.\n\n⚠️ The agitation could be from: pain, hypoxia, or ↑ ICP — morphine would worsen the latter two.\n\nInvestigations: ABG (assess PaCO₂ and SpO₂) + CT Head (assess for epidural/subdural hematoma, cerebral edema, midline shift).\n\n✅ Principle: Morphine is ABSOLUTELY CONTRAINDICATED in head injury. If pain management is essential and patient is intubated on mechanical ventilation (maintaining normocapnia), opioids can be used under controlled conditions. Otherwise use non-opioid alternatives."
+  }
+];
+
+const MOA_DATA = [
+  {
+    icon: "💜", name: "Morphine / Pure Mu-Agonists", cls: "opioid",
+    summary: "μ + κ receptor agonism → dual ion channel effects",
+    detail: "PRESYNAPTIC: Bind μ-receptors → inhibit adenylyl cyclase (↓ cAMP) → block Ca²⁺ influx → vesicle fusion fails → ↓ release of Substance P, glutamate. POSTSYNAPTIC: Bind μ-receptors → open K⁺ channels → K⁺ efflux → hyperpolarization → IPSP. Net result: Inhibit ascending pain pathways, augment descending inhibitory pathways."
+  },
+  {
+    icon: "🟠", name: "Non-Selective NSAIDs (Aspirin, Ibuprofen)", cls: "nsaid",
+    summary: "Block COX-1 + COX-2 → ↓ prostaglandin synthesis",
+    detail: "Arachidonic acid → (COX-1/2) → prostaglandins, TXA2, PGI2. COX-1 (constitutive): Gastric protection, platelet aggregation (TXA2), renal blood flow. COX-2 (inducible): Inflammation, pain, fever. Non-selective inhibition → effective analgesia/anti-inflammatory BUT gastric ulcers, ↓ platelet aggregation, renal effects."
+  },
+  {
+    icon: "🎯", name: "Selective COX-2 Inhibitors (Celecoxib)", cls: "nsaid",
+    summary: "Block only COX-2 (inducible) → less GI side effects",
+    detail: "Selectively block COX-2 (inducible in inflammation) → ↓ inflammatory prostaglandins. SPARE COX-1 → less gastric damage. But: Blocking endothelial PGI2 (COX-2 derived, anti-aggregatory/vasodilatory) while leaving platelet TXA2 (COX-1 derived, pro-aggregatory) unopposed → ↑ thrombotic cardiovascular risk."
+  },
+  {
+    icon: "🌡", name: "Paracetamol / Acetaminophen", cls: "para",
+    summary: "Selective CNS COX-3 inhibition — no peripheral activity",
+    detail: "Inhibits COX-3 isoform in CNS (thermoregulatory center + pain pathways). Little peripheral activity → No anti-inflammatory effect, no GI injury, no platelet effect. In overdose: CYP450 produces NAPQI → depletes glutathione → hepatocellular necrosis. Antidote: N-acetylcysteine."
+  },
+  {
+    icon: "⚡", name: "Gabapentin / Pregabalin", cls: "neuro",
+    summary: "α2δ Ca²⁺ channel modulation → ↓ neurotransmitter release",
+    detail: "Bind α2δ subunit of voltage-gated Ca²⁺ channels on hyperactive neuropathic neurons. ↓ Ca²⁺ influx → ↓ release of excitatory neurotransmitters (glutamate, Substance P, CGRP) from abnormally firing afferent neurons. Effective in diabetic neuropathy, post-herpetic neuralgia, fibromyalgia, epilepsy."
+  },
+  {
+    icon: "🧠", name: "Duloxetine (SNRI)", cls: "neuro",
+    summary: "↑ serotonin + NE → enhance descending pain inhibition",
+    detail: "Inhibits reuptake transporters for both serotonin (5-HT) and norepinephrine (NE) in CNS. ↑ synaptic 5-HT and NE → activates descending inhibitory pathways (from PAG / brainstem → dorsal horn → blocks further pain signal ascending). FDA-approved: diabetic neuropathy, fibromyalgia, chronic MSK pain."
+  },
+  {
+    icon: "🔌", name: "Carbamazepine / Lidocaine", cls: "neuro",
+    summary: "Na⁺ channel blockade → ↓ ectopic nerve firing",
+    detail: "Both block Na⁺ channels: Carbamazepine = voltage-gated Na⁺ channels (CNS + peripheral) → stabilizes neuronal membranes → prevents action potential propagation. 1st-line trigeminal neuralgia. Lidocaine (patch) = peripheral Na⁺ channels locally → minimal systemic effect → localized neuropathic pain (post-herpetic neuralgia)."
+  },
+  {
+    icon: "🔄", name: "Buprenorphine (Partial Agonist)", cls: "opioid",
+    summary: "Partial μ-agonism → ceiling on respiratory depression",
+    detail: "Partial agonist at μ-receptors + weak κ-antagonist. Activates μ-receptors enough to prevent withdrawal/cravings but with a CEILING EFFECT — cannot produce full respiratory depression even at high doses → much safer than full agonists. ⚠️ In patients on full agonists: partial agonism = functional antagonism → precipitates withdrawal."
+  }
+];
+
+const MNEMONICS_DATA = [
+  {
+    name: "Morphine Contraindications",
+    word: "BAHHEM",
+    items: [
+      { l: "B", w: "Bronchial Asthma", d: "histamine release → bronchospasm" },
+      { l: "A", w: "Acute Abdomen", d: "masks diagnostic pain" },
+      { l: "H", w: "Head Injury", d: "↑CO₂ → ↑ICP → herniation" },
+      { l: "H", w: "Hypotension", d: "opioids cause vasodilation" },
+      { l: "E", w: "Extreme Ages", d: "neonates + elderly: sensitive respiratory center" },
+      { l: "M", w: "Myxedema / Biliary colic", d: "both sensitive to CNS depression / sphincter of Oddi spasm" }
+    ]
+  },
+  {
+    name: "Opioid Overdose Triad",
+    word: "PPP",
+    items: [
+      { l: "P", w: "Pinpoint pupils", d: "miosis — most specific, no tolerance" },
+      { l: "P", w: "Pulmonary depression", d: "low RR, hypoxia — cause of death" },
+      { l: "P", w: "Prostration (CNS depression)", d: "drowsiness → coma, GCS ↓" }
+    ]
+  },
+  {
+    name: "NAPQI Toxicity Pathway",
+    word: "SONIC",
+    items: [
+      { l: "S", w: "Saturation", d: "normal metabolic pathways saturate in overdose" },
+      { l: "O", w: "Overflow to CYP450", d: "alternative toxic pathway activated" },
+      { l: "N", w: "NAPQI formed", d: "highly reactive toxic metabolite" },
+      { l: "I", w: "Into glutathione stores", d: "glutathione depleted below 30%" },
+      { l: "C", w: "Cell death (necrosis)", d: "covalent binding to hepatic proteins" }
+    ]
+  },
+  {
+    name: "COX-2 Inhibitor Adverse Effects",
+    word: "CART",
+    items: [
+      { l: "C", w: "Cardiovascular thrombosis ↑", d: "TXA2 unopposed, PGI2 blocked" },
+      { l: "A", w: "Atherosclerosis risk elevated", d: "long-term COX-2 inhibition" },
+      { l: "R", w: "Renal effects (mild)", d: "some COX-2 at macula densa" },
+      { l: "T", w: "Thrombotic events (MI, stroke)", d: "net pro-thrombotic state" }
+    ]
+  },
+  {
+    name: "Neuropathic Pain Drug Targets",
+    word: "GLAD",
+    items: [
+      { l: "G", w: "Gabapentin/Pregabalin", d: "Ca²⁺ channel α2δ subunit modulators" },
+      { l: "L", w: "Lidocaine / Carbamazepine", d: "Na⁺ channel blockers" },
+      { l: "A", w: "Anti-depressants (SNRIs)", d: "Duloxetine — ↑5-HT + NE descending pathways" },
+      { l: "D", w: "Duloxetine / TCAs", d: "descending pain inhibition enhancement" }
+    ]
+  },
+  {
+    name: "Opioid Receptor Mediated Effects",
+    word: "MEDUSA",
+    items: [
+      { l: "M", w: "Miosis (μ, no tolerance)", d: "Edinger-Westphal nucleus activation" },
+      { l: "E", w: "Euphoria (μ)", d: "reward pathway activation" },
+      { l: "D", w: "Decreased respiration (μ)", d: "brainstem respiratory center depression" },
+      { l: "U", w: "Urinary retention", d: "detrusor relaxation, sphincter contraction" },
+      { l: "S", w: "Sedation (μ + κ)", d: "CNS depression" },
+      { l: "A", w: "Analgesia + constipation (μ)", d: "both central and peripheral effects" }
+    ]
+  }
+];
+
+const VIVA_DATA = [
+  { q: "Why is oral morphine far less potent than intravenous morphine?", a: "Morphine has only 25% oral bioavailability due to significant first-pass hepatic metabolism. IV, SC, or epidural routes bypass this metabolism, delivering much higher drug concentrations to receptors.", exam: true },
+  { q: "A patient with an undiagnosed acute abdomen presents with severe pain. Why shouldn't you give them morphine?", a: "Morphine masks the pain that is the primary diagnostic indicator. Conditions like appendicitis rupturing would be delayed in diagnosis, potentially causing fatal complications. Pain is a symptom serving a protective function.", exam: true },
+  { q: "What is the primary cause of death in acute opioid poisoning?", a: "Respiratory center depression in the brainstem leading to severe hypoxia and respiratory arrest. The mu-receptor in the brainstem is responsible.", exam: false },
+  { q: "How does Celecoxib differ from Ibuprofen regarding the arachidonic acid pathway?", a: "Celecoxib selectively inhibits only COX-2 (inducible enzyme in inflammation), sparing COX-1 (constitutive, protective in stomach). Ibuprofen non-selectively inhibits both COX-1 and COX-2.", exam: false },
+  { q: "A newborn is apneic after the mother received morphine during labor. What is the treatment of choice?", a: "Naloxone injection (into the umbilical cord or IV). Pure opioid antagonist that rapidly reverses mu-receptor-mediated respiratory depression.", exam: false },
+  { q: "Why must low-dose aspirin be stopped 7 days prior to surgery?", a: "Aspirin irreversibly acetylates and inactivates platelet COX-1. Since platelets have no nucleus (cannot synthesize new proteins), the antiplatelet effect lasts for the entire platelet lifespan — approximately 7–10 days. New functional platelets must be generated.", exam: false },
+  { q: "What dictates the use of Diphenoxylate or Loperamide?", a: "Selective antidiarrheal opioids — they act on peripheral GI μ-receptors to decrease peristalsis and increase sphincter tone. Poorly absorbed into CNS at therapeutic doses, so no significant euphoria or systemic opioid effects.", exam: true },
+  { q: "Explain the rationale for Methadone maintenance in heroin addiction.", a: "Methadone is a long-acting oral μ-agonist. It prevents withdrawal symptoms (satisfies receptor dependence), blocks the euphoria of shorter-acting heroin (receptor occupancy), has slow onset (no 'rush'), and high oral bioavailability allows once-daily dosing. This allows social rehabilitation.", exam: false },
+  { q: "Which clinical sign definitively points to opioid toxicity in a comatose patient?", a: "Severe bilateral pinpoint miosis (pupillary constriction). Critically, tolerance does NOT develop to opioid-induced miosis — so even a chronic opioid user with pinpoint pupils in a coma indicates toxicity.", exam: true },
+  { q: "Name two drugs used to manage neuropathic pain and state their mechanisms.", a: "1. Gabapentin — modulates α2δ subunit of voltage-gated Ca²⁺ channels, reducing Ca²⁺ influx and neurotransmitter release from hyperactive neurons. 2. Duloxetine — SNRI that increases synaptic serotonin and NE, enhancing descending inhibitory pain pathways.", exam: false },
+  { q: "What is the risk of giving Pentazocine or Nalbuphine to a patient dependent on full mu-agonists?", a: "These are mixed agonist-antagonists. Their weak mu-antagonist activity competitively displaces the full agonist from receptors → acute withdrawal precipitation. This can occur within minutes in dependent patients.", exam: false },
+  { q: "How does Paracetamol cause hepatotoxicity in overdose?", a: "At toxic doses: normal glucuronidation/sulfation pathways saturate → overflow to CYP450 → formation of NAPQI. Glutathione stores are depleted below 30% → NAPQI covalently binds and destroys hepatic proteins → hepatocellular necrosis. Zone 3 (centrilobular) is most affected.", exam: false }
+];
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+let state = JSON.parse(localStorage.getItem('analgesics_state') || 'null') || {
+  quizAnswers: {},
+  quizCorrect: 0,
+  quizWrong: 0,
+  streak: 0,
+  fcSeen: new Set(),
+  activeTab: 'overview'
+};
+// Re-hydrate Set
+state.fcSeen = new Set(state.fcSeen);
+
+function saveState() {
+  const s = {...state, fcSeen: [...state.fcSeen]};
+  localStorage.setItem('analgesics_state', JSON.stringify(s));
+}
+
+// ══════════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════════
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + tab).classList.add('active');
+    state.activeTab = tab;
+    saveState();
+    if (tab === 'flashcards') renderFlashcards();
+    if (tab === 'pathophys') renderMOAGrid();
+  });
+});
+
+// ══════════════════════════════════════════
+//  QUIZ
+// ══════════════════════════════════════════
+const MOTIVATIONS = [
+  "💪 You've got this! Let's ace these questions.",
+  "🔥 On a roll! Keep going!",
+  "🎯 Focus mode activated. You're doing great.",
+  "⚡ Answer fast and trust your training!",
+  "🌟 Every correct answer = one step closer to passing!",
+  "🏆 Champions practice until they can't get it wrong!",
+  "🧠 Your future patients are counting on your knowledge!"
+];
+
+function renderQuiz() {
+  const container = document.getElementById('quizContainer');
+  const answeredCount = Object.keys(state.quizAnswers).length;
+  const pct = Math.round((answeredCount / QUIZ_DATA.length) * 100);
+
+  document.getElementById('quizProgressBar').style.width = pct + '%';
+  document.getElementById('q-correct').textContent = state.quizCorrect;
+  document.getElementById('q-wrong').textContent = state.quizWrong;
+  document.getElementById('q-streak-display').textContent = state.streak + ' 🔥';
+  document.getElementById('stat-quizScore').textContent = state.quizCorrect + '/25';
+  document.getElementById('stat-streak').textContent = state.streak;
+  document.getElementById('stat-progress').textContent = pct + '%';
+  document.getElementById('motivateMsg').textContent = MOTIVATIONS[Math.min(Math.floor(state.streak / 3), MOTIVATIONS.length - 1)];
+
+  if (answeredCount === QUIZ_DATA.length) {
+    const pct2 = Math.round((state.quizCorrect / QUIZ_DATA.length) * 100);
+    const msg = pct2 >= 80 ? '🏆 Outstanding!' : pct2 >= 60 ? '👍 Good work!' : '📚 Keep reviewing!';
+    container.innerHTML = `
+      <div class="quiz-complete">
+        <div class="score-ring">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--border)" stroke-width="10"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--accent)" stroke-width="10"
+              stroke-dasharray="${2 * Math.PI * 50}" stroke-dashoffset="${2 * Math.PI * 50 * (1 - pct2/100)}"
+              stroke-linecap="round"/>
+          </svg>
+          <div class="score-text">${pct2}%</div>
+        </div>
+        <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;margin-bottom:10px">${msg}</div>
+        <div style="color:var(--text2)">You scored <strong style="color:var(--accent)">${state.quizCorrect}</strong> out of 25 questions</div>
+        <div style="color:var(--text3);font-size:13px;margin-top:8px">Peak streak: <strong style="color:var(--yellow)">${state.streak} 🔥</strong></div>
+        <button class="reset-btn" onclick="resetQuiz()">↺ Retake Quiz</button>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = QUIZ_DATA.map((q, i) => {
+    const answered = state.quizAnswers[i];
+    const disabled = answered !== undefined;
+    return `
+      <div class="q-card" id="qcard-${i}">
+        <div class="q-num">Q${i + 1} of ${QUIZ_DATA.length}</div>
+        <div class="q-text">${q.q}</div>
+        <div class="q-options">
+          ${q.opts.map((opt, j) => {
+            let cls = '';
+            if (disabled) {
+              if (j === q.ans) cls = 'correct disabled';
+              else if (j === answered) cls = 'wrong disabled';
+              else cls = 'disabled';
+            }
+            return `<div class="q-opt ${cls}" ${!disabled ? `onclick="answerQ(${i}, ${j})"` : ''}><strong>${['A','B','C','D','E'][j]}.</strong> ${opt}</div>`;
+          }).join('')}
+        </div>
+        <div class="q-explanation ${disabled ? 'show' : ''}" id="qexp-${i}">
+          ${disabled ? `<strong>${answered === q.ans ? '✅ Correct!' : '❌ Incorrect.'}</strong> ${q.exp}` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function answerQ(qi, choiceIdx) {
+  const q = QUIZ_DATA[qi];
+  if (state.quizAnswers[qi] !== undefined) return;
+  state.quizAnswers[qi] = choiceIdx;
+
+  if (choiceIdx === q.ans) {
+    state.quizCorrect++;
+    state.streak++;
+  } else {
+    state.quizWrong++;
+    state.streak = 0;
+  }
+  saveState();
+  renderQuiz();
+  // Scroll to next unanswered
+  const next = QUIZ_DATA.findIndex((_, i) => i > qi && state.quizAnswers[i] === undefined);
+  if (next !== -1) {
+    setTimeout(() => {
+      document.getElementById('qcard-' + next)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 600);
+  }
+}
+
+function resetQuiz() {
+  state.quizAnswers = {};
+  state.quizCorrect = 0;
+  state.quizWrong = 0;
+  state.streak = 0;
+  saveState();
+  renderQuiz();
+}
+
+// ══════════════════════════════════════════
+//  FLASHCARDS
+// ══════════════════════════════════════════
+function renderFlashcards() {
+  const grid = document.getElementById('fcGrid');
+  grid.innerHTML = FLASHCARD_DATA.map((fc, i) => `
+    <div class="fc-card ${state.fcSeen.has(i) ? 'seen' : ''}" onclick="flipCard(this, ${i})">
+      <div class="fc-inner">
+        <div class="fc-face fc-front">
+          <span class="fc-label">Question</span>
+          <div class="fc-q">${fc.q}</div>
+          <div class="fc-hint">tap to reveal ↓</div>
+        </div>
+        <div class="fc-face fc-back">
+          <span class="fc-label">Answer</span>
+          <div class="fc-a">${fc.a}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('fcSeen').textContent = state.fcSeen.size;
+  document.getElementById('stat-fc').textContent = state.fcSeen.size + '/22';
+}
+
+function flipCard(el, i) {
+  el.classList.toggle('flipped');
+  if (!state.fcSeen.has(i)) {
+    state.fcSeen.add(i);
+    saveState();
+    document.getElementById('fcSeen').textContent = state.fcSeen.size;
+    document.getElementById('stat-fc').textContent = state.fcSeen.size + '/22';
+  }
+}
+
+// ══════════════════════════════════════════
+//  CASES
+// ══════════════════════════════════════════
+function renderCases() {
+  document.getElementById('casesContainer').innerHTML = CASES_DATA.map((c, i) => `
+    <div class="case-card">
+      <div class="case-header">
+        <div class="case-num">${c.num}</div>
+        <div>
+          <div class="case-title">${c.title}</div>
+          <div class="case-subtitle">${c.subtitle}</div>
+        </div>
+      </div>
+      <div class="case-body">${c.body}</div>
+      <div class="case-qs">
+        ${c.questions.map((q, j) => `<div class="case-q">❓ ${q}</div>`).join('')}
+      </div>
+      <button class="reveal-btn" onclick="revealCase(${i})">🔍 Reveal Answer</button>
+      <div class="case-answer" id="case-ans-${i}"><strong>💡 Model Answer:</strong><br><br>${c.answer.replace(/\n/g, '<br>')}</div>
+    </div>
+  `).join('');
+}
+
+function revealCase(i) {
+  const el = document.getElementById('case-ans-' + i);
+  el.classList.toggle('show');
+}
+
+// ══════════════════════════════════════════
+//  MOA GRID
+// ══════════════════════════════════════════
+function renderMOAGrid() {
+  const grid = document.getElementById('moaGrid');
+  if (grid.innerHTML) return;
+  grid.innerHTML = MOA_DATA.map((m, i) => `
+    <div class="moa-item ${m.cls}" onclick="toggleMOA(${i})">
+      <div class="moa-icon">${m.icon}</div>
+      <div class="moa-name">${m.name}</div>
+      <div class="moa-summary">${m.summary}</div>
+      <div class="moa-detail">${m.detail}</div>
+    </div>
+  `).join('');
+}
+
+function toggleMOA(i) {
+  const items = document.querySelectorAll('.moa-item');
+  items[i].classList.toggle('expanded');
+}
+
+// ══════════════════════════════════════════
+//  MNEMONICS
+// ══════════════════════════════════════════
+function renderMnemonics() {
+  document.getElementById('mnemGrid').innerHTML = MNEMONICS_DATA.map((m, i) => `
+    <div class="mnem-card">
+      <div class="mnem-name">${m.name}</div>
+      <div class="mnem-word">${m.word}</div>
+      <ul class="mnem-list">
+        ${m.items.map(item => `
+          <li>
+            <span class="mnem-letter">${item.l}</span>
+            <span class="mnem-detail"><strong>${item.w}</strong> — ${item.d}</span>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════════════
+//  VIVA
+// ══════════════════════════════════════════
+function renderViva() {
+  document.getElementById('vivaGrid').innerHTML = VIVA_DATA.map((v, i) => `
+    <div class="viva-item" id="viva-${i}">
+      <div class="viva-q" onclick="toggleViva(${i})">
+        <div class="viva-q-num">V${i + 1}</div>
+        <div class="viva-q-text">${v.q}${v.exam ? '<span class="viva-exam">⚠️ EXAM</span>' : ''}</div>
+        <span class="viva-chevron">›</span>
+      </div>
+      <div class="viva-a">${v.a}</div>
+    </div>
+  `).join('');
+}
+
+function toggleViva(i) {
+  document.getElementById('viva-' + i).classList.toggle('open');
+}
+
+// ══════════════════════════════════════════
+//  SEARCH
+// ══════════════════════════════════════════
+const SEARCH_INDEX = [
+  ...QUIZ_DATA.map((q, i) => ({ tag: 'MCQ', text: q.q, detail: q.exp, action: () => switchTab('quiz') })),
+  ...FLASHCARD_DATA.map((f, i) => ({ tag: 'Flashcard', text: f.q, detail: f.a, action: () => switchTab('flashcards') })),
+  ...VIVA_DATA.map((v, i) => ({ tag: 'Viva', text: v.q, detail: v.a, action: () => switchTab('viva') })),
+  ...MOA_DATA.map((m, i) => ({ tag: 'Mechanism', text: m.name + ' — ' + m.summary, detail: m.detail, action: () => switchTab('pathophys') })),
+  ...MNEMONICS_DATA.map((m, i) => ({ tag: 'Mnemonic', text: m.word + ': ' + m.name, detail: m.items.map(it => it.l + ' = ' + it.w).join(', '), action: () => switchTab('mnemonics') }))
+];
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
+}
+
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim().toLowerCase();
+  if (q.length < 2) { searchResults.style.display = 'none'; return; }
+  const matches = SEARCH_INDEX.filter(item =>
+    item.text.toLowerCase().includes(q) || item.detail.toLowerCase().includes(q)
+  ).slice(0, 8);
+  if (!matches.length) { searchResults.style.display = 'none'; return; }
+  searchResults.innerHTML = matches.map((m, i) => `
+    <div class="search-item" onclick="handleSearch(${SEARCH_INDEX.indexOf(m)})">
+      <span class="si-tag">${m.tag}</span>${m.text.slice(0, 80)}${m.text.length > 80 ? '...' : ''}
+    </div>
+  `).join('');
+  searchResults.style.display = 'block';
+});
+
+function handleSearch(idx) {
+  SEARCH_INDEX[idx].action();
+  searchResults.style.display = 'none';
+  searchInput.value = '';
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap')) searchResults.style.display = 'none';
+});
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+function init() {
+  renderQuiz();
+  renderCases();
+  renderMnemonics();
+  renderViva();
+  renderFlashcards();
+  renderMOAGrid();
+  // Restore tab
+  if (state.activeTab && state.activeTab !== 'overview') {
+    const btn = document.querySelector(`[data-tab="${state.activeTab}"]`);
+    if (btn) btn.click();
+  }
+}
+
+init();
+</script>
+</body>
+</html>

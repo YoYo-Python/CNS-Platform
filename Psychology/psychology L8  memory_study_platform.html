@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧠 Memory & Learning — Interactive Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080d1a;
+  --surface: #0f1829;
+  --surface2: #162035;
+  --surface3: #1c2a44;
+  --border: #243050;
+  --accent: #00c2ff;
+  --accent2: #7b5ea7;
+  --accent3: #00e5a0;
+  --gold: #ffc844;
+  --red: #ff4d6d;
+  --orange: #ff8c42;
+  --text: #e8edf8;
+  --text2: #8fa3c8;
+  --text3: #4d6080;
+  --font-head: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --glow: 0 0 30px rgba(0,194,255,0.15);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── BG ORBS ── */
+.bg-orbs { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: .18; animation: orbFloat 12s ease-in-out infinite; }
+.orb1 { width: 500px; height: 500px; background: #00c2ff; top: -150px; left: -150px; animation-delay: 0s; }
+.orb2 { width: 400px; height: 400px; background: #7b5ea7; bottom: -100px; right: -100px; animation-delay: -5s; }
+.orb3 { width: 300px; height: 300px; background: #00e5a0; top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: -3s; }
+@keyframes orbFloat { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(20px,-20px) scale(1.05)} }
+
+/* ── HEADER ── */
+header {
+  position: relative; z-index: 10;
+  padding: 28px 32px 0;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+}
+.logo { display: flex; align-items: center; gap: 12px; }
+.logo-icon { font-size: 2rem; }
+.logo-text h1 { font-family: var(--font-head); font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
+.logo-text p { font-size: .78rem; color: var(--text2); font-weight: 300; letter-spacing: .5px; text-transform: uppercase; }
+.stats-bar { display: flex; gap: 12px; flex-wrap: wrap; }
+.stat-chip {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 30px; padding: 6px 14px;
+  font-size: .78rem; font-weight: 500; display: flex; align-items: center; gap: 6px;
+}
+.stat-chip span { color: var(--accent); font-weight: 700; }
+
+/* ── SEARCH ── */
+.search-bar-wrap { position: relative; z-index: 10; padding: 16px 32px 0; }
+.search-bar {
+  width: 100%; max-width: 520px; display: flex; align-items: center; gap: 10px;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 40px;
+  padding: 10px 20px; transition: border-color .2s;
+}
+.search-bar:focus-within { border-color: var(--accent); box-shadow: var(--glow); }
+.search-bar input { background: none; border: none; outline: none; color: var(--text); font-family: var(--font-body); font-size: .9rem; flex: 1; }
+.search-bar input::placeholder { color: var(--text3); }
+
+/* ── TABS ── */
+.tabs-wrap { position: relative; z-index: 10; padding: 20px 32px 0; overflow-x: auto; }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); width: max-content; min-width: 100%; }
+.tab-btn {
+  background: none; border: none; cursor: pointer;
+  font-family: var(--font-head); font-size: .82rem; font-weight: 600;
+  color: var(--text3); padding: 10px 18px; border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  border-bottom: 2px solid transparent; transition: all .2s; white-space: nowrap; letter-spacing: .3px;
+}
+.tab-btn:hover { color: var(--text); background: var(--surface2); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: var(--surface2); }
+
+/* ── MAIN ── */
+main { position: relative; z-index: 10; padding: 28px 32px 60px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeIn .3s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── SECTION TITLE ── */
+.section-title {
+  font-family: var(--font-head); font-size: 1.6rem; font-weight: 800;
+  letter-spacing: -0.5px; margin-bottom: 6px;
+}
+.section-sub { color: var(--text2); font-size: .9rem; margin-bottom: 28px; }
+
+/* ── CARD BASE ── */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 22px;
+  transition: border-color .2s, transform .2s, box-shadow .2s;
+}
+.card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--glow); }
+
+/* ── GRID ── */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 16px; }
+
+/* ──────────────────────────────────────────
+   TAB 1 — OVERVIEW
+──────────────────────────────────────────── */
+.overview-hero {
+  background: linear-gradient(135deg, #0d1f3c 0%, #0f2040 50%, #12162d 100%);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 32px; margin-bottom: 28px; position: relative; overflow: hidden;
+}
+.overview-hero::before {
+  content:''; position:absolute; inset:0;
+  background: radial-gradient(circle at 80% 50%, rgba(0,194,255,.08) 0%, transparent 60%);
+}
+.hero-label { font-size: .72rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+.hero-title { font-family: var(--font-head); font-size: 2rem; font-weight: 800; line-height: 1.2; margin-bottom: 12px; }
+.hero-desc { color: var(--text2); max-width: 560px; line-height: 1.7; }
+.hero-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.chip {
+  padding: 5px 12px; border-radius: 20px; font-size: .75rem; font-weight: 600;
+  border: 1px solid; white-space: nowrap;
+}
+.chip-blue { background: rgba(0,194,255,.1); border-color: rgba(0,194,255,.3); color: var(--accent); }
+.chip-green { background: rgba(0,229,160,.1); border-color: rgba(0,229,160,.3); color: var(--accent3); }
+.chip-gold { background: rgba(255,200,68,.1); border-color: rgba(255,200,68,.3); color: var(--gold); }
+.chip-red { background: rgba(255,77,109,.1); border-color: rgba(255,77,109,.3); color: var(--red); }
+.chip-purple { background: rgba(123,94,167,.1); border-color: rgba(123,94,167,.3); color: #b48be0; }
+
+/* summary cards */
+.summary-card { border-radius: var(--radius); padding: 20px; border: 1px solid var(--border); }
+.summary-card .icon { font-size: 1.8rem; margin-bottom: 10px; }
+.summary-card .label { font-size: .72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); margin-bottom: 6px; }
+.summary-card h3 { font-family: var(--font-head); font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+.summary-card p { font-size: .84rem; color: var(--text2); line-height: 1.6; }
+.sc-blue { background: linear-gradient(135deg, rgba(0,194,255,.12), rgba(0,194,255,.04)); border-color: rgba(0,194,255,.25); }
+.sc-green { background: linear-gradient(135deg, rgba(0,229,160,.12), rgba(0,229,160,.04)); border-color: rgba(0,229,160,.25); }
+.sc-gold { background: linear-gradient(135deg, rgba(255,200,68,.12), rgba(255,200,68,.04)); border-color: rgba(255,200,68,.25); }
+.sc-purple { background: linear-gradient(135deg, rgba(123,94,167,.12), rgba(123,94,167,.04)); border-color: rgba(123,94,167,.25); }
+
+/* timeline */
+.timeline { position: relative; padding-left: 28px; margin: 20px 0; }
+.timeline::before { content:''; position:absolute; left:8px; top:0; bottom:0; width:2px; background: linear-gradient(to bottom, var(--accent), var(--accent2)); }
+.tl-item { position: relative; margin-bottom: 20px; }
+.tl-item::before { content:''; position:absolute; left:-24px; top:6px; width:12px; height:12px; border-radius:50%; background: var(--accent); border: 2px solid var(--bg); box-shadow: 0 0 0 2px var(--accent); }
+.tl-item:last-child::before { background: var(--accent3); box-shadow: 0 0 0 2px var(--accent3); }
+.tl-title { font-family: var(--font-head); font-size: .9rem; font-weight: 700; }
+.tl-desc { font-size: .82rem; color: var(--text2); line-height: 1.6; margin-top: 4px; }
+
+/* key signs */
+.sign-item {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 14px; display: flex; flex-direction: column; gap: 8px;
+}
+.sign-title { font-weight: 600; font-size: .9rem; }
+.sign-desc { font-size: .8rem; color: var(--text2); line-height: 1.5; }
+
+/* search highlight */
+.highlight { background: rgba(255,200,68,.25); border-radius: 3px; padding: 1px 2px; }
+
+/* ──────────────────────────────────────────
+   TAB 2 — QUIZ
+──────────────────────────────────────────── */
+.quiz-header {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+  gap: 16px; margin-bottom: 24px;
+}
+.quiz-meta { display: flex; gap: 16px; flex-wrap: wrap; }
+.quiz-stat { text-align: center; }
+.quiz-stat .num { font-family: var(--font-head); font-size: 1.6rem; font-weight: 800; }
+.quiz-stat .lbl { font-size: .72rem; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; }
+.progress-bar-outer { height: 6px; background: var(--surface3); border-radius: 3px; margin-bottom: 24px; overflow: hidden; }
+.progress-bar-inner { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); transition: width .4s ease; }
+.q-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 28px; margin-bottom: 20px;
+}
+.q-number { font-size: .72rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text3); margin-bottom: 10px; }
+.q-text { font-size: 1.05rem; font-weight: 500; line-height: 1.6; margin-bottom: 20px; }
+.q-options { display: flex; flex-direction: column; gap: 10px; }
+.q-option {
+  background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  padding: 12px 16px; cursor: pointer; display: flex; align-items: center; gap: 12px;
+  transition: all .2s; font-size: .9rem; text-align: left;
+  color: var(--text);
+}
+.q-option:hover:not(.disabled) { border-color: var(--accent); background: rgba(0,194,255,.07); }
+.q-option.correct { border-color: var(--accent3)!important; background: rgba(0,229,160,.1)!important; animation: pulse .4s ease; }
+.q-option.wrong { border-color: var(--red)!important; background: rgba(255,77,109,.1)!important; animation: shake .3s ease; }
+.q-option.disabled { cursor: default; }
+.opt-letter {
+  width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: var(--surface3); font-weight: 700; font-size: .8rem; flex-shrink: 0;
+}
+.q-explanation {
+  margin-top: 16px; padding: 14px 16px; border-radius: var(--radius-sm);
+  background: rgba(0,229,160,.06); border: 1px solid rgba(0,229,160,.2);
+  font-size: .85rem; color: var(--text2); line-height: 1.6; display: none;
+}
+.q-explanation.show { display: block; animation: fadeIn .3s ease; }
+.q-explanation strong { color: var(--accent3); }
+@keyframes pulse { 0%{transform:scale(1)} 50%{transform:scale(1.02)} 100%{transform:scale(1)} }
+@keyframes shake { 0%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} 100%{transform:translateX(0)} }
+.quiz-nav { display: flex; gap: 12px; margin-top: 20px; }
+.btn {
+  padding: 10px 22px; border-radius: 30px; border: none; cursor: pointer;
+  font-family: var(--font-body); font-weight: 600; font-size: .88rem; transition: all .2s;
+}
+.btn-primary { background: var(--accent); color: #000; }
+.btn-primary:hover { background: #33cfff; transform: translateY(-1px); }
+.btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-success { background: var(--accent3); color: #000; }
+.score-screen {
+  text-align: center; padding: 48px 24px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+}
+.score-big { font-family: var(--font-head); font-size: 5rem; font-weight: 800; }
+.score-grade { font-size: 1.3rem; color: var(--text2); margin: 8px 0 24px; }
+
+/* ──────────────────────────────────────────
+   TAB 3 — FLASHCARDS
+──────────────────────────────────────────── */
+.fc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 20px; }
+.fc-card {
+  height: 180px; cursor: pointer; perspective: 1000px;
+  border-radius: var(--radius); position: relative;
+}
+.fc-inner {
+  width: 100%; height: 100%; transition: transform .5s ease;
+  transform-style: preserve-3d; position: relative; border-radius: var(--radius);
+}
+.fc-card.flipped .fc-inner { transform: rotateY(180deg); }
+.fc-front, .fc-back {
+  position: absolute; inset: 0; backface-visibility: hidden;
+  border-radius: var(--radius); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 20px; text-align: center;
+  border: 1px solid var(--border);
+}
+.fc-front { background: var(--surface2); }
+.fc-back { background: linear-gradient(135deg, #0e1f38, #132845); border-color: rgba(0,194,255,.3); transform: rotateY(180deg); }
+.fc-q-label { font-size: .65rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text3); margin-bottom: 8px; }
+.fc-q-text { font-size: .9rem; font-weight: 500; line-height: 1.5; color: var(--text); }
+.fc-a-text { font-size: .85rem; color: var(--accent); line-height: 1.5; font-weight: 500; }
+.fc-counter { text-align: center; color: var(--text2); font-size: .85rem; margin-bottom: 16px; }
+
+/* ──────────────────────────────────────────
+   TAB 4 — CLINICAL CASES
+──────────────────────────────────────────── */
+.case-card { margin-bottom: 24px; }
+.case-header {
+  background: linear-gradient(135deg, #0d1f3c, #12162d);
+  border: 1px solid var(--border); border-radius: var(--radius) var(--radius) 0 0;
+  padding: 22px 24px;
+}
+.case-num { font-size: .72rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); margin-bottom: 8px; }
+.case-title { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; }
+.case-vignette { font-size: .9rem; color: var(--text2); line-height: 1.7; margin-top: 10px; }
+.case-body {
+  background: var(--surface); border: 1px solid var(--border); border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius); padding: 22px 24px;
+}
+.case-q { font-size: .9rem; font-weight: 600; margin-bottom: 12px; padding: 12px; background: var(--surface2); border-radius: var(--radius-sm); border-left: 3px solid var(--gold); }
+.reveal-btn {
+  background: none; border: 1.5px solid var(--accent); border-radius: 30px;
+  color: var(--accent); font-family: var(--font-body); font-weight: 600; font-size: .85rem;
+  padding: 8px 20px; cursor: pointer; transition: all .2s;
+}
+.reveal-btn:hover { background: var(--accent); color: #000; }
+.case-answer {
+  margin-top: 14px; padding: 16px; background: rgba(0,229,160,.05);
+  border: 1px solid rgba(0,229,160,.2); border-radius: var(--radius-sm);
+  font-size: .85rem; color: var(--text2); line-height: 1.7; display: none;
+}
+.case-answer.show { display: block; animation: fadeIn .3s ease; }
+.case-answer strong { color: var(--accent3); }
+.case-divider { height: 1px; background: var(--border); margin: 18px 0; }
+
+/* ──────────────────────────────────────────
+   TAB 5 — BRAIN / PATHOPHYSIOLOGY
+──────────────────────────────────────────── */
+.brain-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 14px;
+  margin-bottom: 32px;
+}
+.brain-item {
+  background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--radius);
+  padding: 18px; cursor: pointer; transition: all .2s; position: relative;
+}
+.brain-item:hover, .brain-item.active { border-color: var(--accent); background: rgba(0,194,255,.06); }
+.brain-item .bi-icon { font-size: 1.6rem; margin-bottom: 8px; }
+.brain-item .bi-name { font-family: var(--font-head); font-size: .9rem; font-weight: 700; }
+.brain-item .bi-role { font-size: .75rem; color: var(--text3); margin-top: 4px; }
+.brain-detail {
+  background: var(--surface); border: 1px solid rgba(0,194,255,.3); border-radius: var(--radius);
+  padding: 24px; margin-bottom: 32px; display: none;
+}
+.brain-detail.show { display: block; animation: fadeIn .3s ease; }
+.brain-detail h3 { font-family: var(--font-head); font-size: 1.15rem; font-weight: 700; margin-bottom: 10px; color: var(--accent); }
+.brain-detail p { font-size: .88rem; color: var(--text2); line-height: 1.7; }
+
+/* flowchart */
+.flowchart { display: flex; flex-direction: column; gap: 0; align-items: center; margin-bottom: 32px; }
+.flow-row { display: flex; align-items: center; gap: 0; }
+.flow-box {
+  background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  padding: 12px 20px; font-size: .85rem; font-weight: 600; text-align: center;
+  min-width: 140px; position: relative;
+}
+.flow-box.highlight-box { border-color: var(--accent); background: rgba(0,194,255,.08); color: var(--accent); }
+.flow-box.danger-box { border-color: var(--red); background: rgba(255,77,109,.08); color: var(--red); }
+.flow-box.success-box { border-color: var(--accent3); background: rgba(0,229,160,.08); color: var(--accent3); }
+.flow-arrow { color: var(--text3); font-size: 1.2rem; padding: 0 4px; }
+.flow-down { display: flex; justify-content: center; align-items: center; height: 30px; color: var(--text3); font-size: 1.3rem; }
+.flow-label { font-size: .7rem; color: var(--text3); background: var(--surface3); border-radius: 4px; padding: 2px 8px; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); white-space: nowrap; border: 1px solid var(--border); }
+
+/* ──────────────────────────────────────────
+   TAB 6 — MEMORY TYPES (Diagnosis)
+──────────────────────────────────────────── */
+.compare-table { width: 100%; border-collapse: collapse; margin-bottom: 28px; font-size: .84rem; }
+.compare-table th {
+  background: var(--surface3); padding: 12px 16px; text-align: left;
+  font-family: var(--font-head); font-size: .8rem; text-transform: uppercase; letter-spacing: .5px;
+  color: var(--text2); border-bottom: 1px solid var(--border);
+}
+.compare-table td { padding: 12px 16px; border-bottom: 1px solid rgba(36,48,80,.5); vertical-align: top; line-height: 1.5; }
+.compare-table tr:hover td { background: var(--surface2); }
+.compare-table .col-head { font-weight: 600; color: var(--accent); }
+.tree-wrap { margin-bottom: 28px; }
+.tree-node {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 12px 16px; display: inline-block; font-weight: 600; font-size: .85rem; text-align: center;
+}
+.tree-root { border-color: var(--accent); color: var(--accent); }
+.tree-branch { display: flex; justify-content: center; gap: 40px; margin: 0; }
+.tree-col { display: flex; flex-direction: column; align-items: center; }
+.tree-vline { width: 2px; height: 20px; background: var(--border); }
+.tree-hline-wrap { display: flex; align-items: center; justify-content: center; position: relative; }
+.tree-section { text-align: center; }
+
+/* ──────────────────────────────────────────
+   TAB 7 — STUDY STRATEGIES
+──────────────────────────────────────────── */
+.strategy-card {
+  border-radius: var(--radius); padding: 22px; border: 1px solid var(--border);
+  position: relative; overflow: hidden;
+}
+.strategy-card::before { content:''; position:absolute; top:0; left:0; width:4px; height:100%; border-radius:2px; }
+.sc-1::before { background: var(--accent); }
+.sc-2::before { background: var(--accent3); }
+.sc-3::before { background: var(--gold); }
+.sc-4::before { background: var(--accent2); }
+.sc-5::before { background: var(--orange); }
+.strategy-card h3 { font-family: var(--font-head); font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+.strategy-card .priority { font-size: .7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
+.strategy-card ul { padding-left: 18px; }
+.strategy-card li { font-size: .85rem; color: var(--text2); line-height: 1.7; }
+.urgency-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: .7rem; font-weight: 600;
+}
+.urg-high { background: rgba(255,77,109,.15); color: var(--red); }
+.urg-med { background: rgba(255,200,68,.15); color: var(--gold); }
+.urg-low { background: rgba(0,229,160,.15); color: var(--accent3); }
+
+/* ──────────────────────────────────────────
+   TAB 8 — MNEMONICS
+──────────────────────────────────────────── */
+.mnemonic-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  overflow: hidden; margin-bottom: 20px;
+}
+.mn-header {
+  padding: 18px 22px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+  transition: background .2s;
+}
+.mn-header:hover { background: var(--surface2); }
+.mn-title { font-family: var(--font-head); font-size: 1.05rem; font-weight: 700; }
+.mn-acronym { font-size: 1.3rem; font-weight: 800; letter-spacing: 4px; color: var(--accent); margin-top: 4px; }
+.mn-expand { font-size: 1.2rem; color: var(--text3); transition: transform .3s; }
+.mn-header.open .mn-expand { transform: rotate(180deg); }
+.mn-body { padding: 0 22px 22px; display: none; animation: fadeIn .3s ease; }
+.mn-body.show { display: block; }
+.mn-letter { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 12px; }
+.mn-l { font-family: var(--font-head); font-size: 1.4rem; font-weight: 800; color: var(--accent); width: 30px; flex-shrink: 0; }
+.mn-r strong { font-size: .95rem; }
+.mn-r p { font-size: .82rem; color: var(--text2); line-height: 1.5; margin-top: 2px; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:680px){
+  header, .search-bar-wrap, .tabs-wrap, main { padding-left: 16px; padding-right: 16px; }
+  .hero-title { font-size: 1.4rem; }
+  .tabs { gap: 0; }
+  .tab-btn { padding: 10px 12px; font-size: .75rem; }
+  .flow-row { flex-wrap: wrap; justify-content: center; }
+  .compare-table { font-size: .75rem; }
+  .compare-table th, .compare-table td { padding: 8px 10px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">🧠</div>
+    <div class="logo-text">
+      <h1>Memory &amp; Learning</h1>
+      <p>Physiology / Psychiatry — Mansoura University</p>
+    </div>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-chip">🎯 Quiz Score: <span id="hdr-score">0%</span></div>
+    <div class="stat-chip">🔥 Streak: <span id="hdr-streak">0</span></div>
+    <div class="stat-chip">📊 Progress: <span id="hdr-progress">0%</span></div>
+  </div>
+</header>
+
+<!-- SEARCH -->
+<div class="search-bar-wrap">
+  <div class="search-bar">
+    <span>🔍</span>
+    <input type="text" id="searchInput" placeholder="Search all content (e.g. hippocampus, chunking, STM…)" oninput="doSearch(this.value)">
+    <span id="searchClear" style="cursor:pointer;color:var(--text3);display:none" onclick="clearSearch()">✕</span>
+  </div>
+</div>
+
+<!-- SEARCH RESULTS -->
+<div id="searchResults" style="display:none;position:relative;z-index:10;padding:12px 32px 0">
+  <div id="searchList" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;max-height:300px;overflow-y:auto;font-size:.88rem;line-height:1.8;color:var(--text2)"></div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-wrap">
+  <div class="tabs" id="tabBar">
+    <button class="tab-btn active" onclick="switchTab('overview',this)">📋 Overview</button>
+    <button class="tab-btn" onclick="switchTab('quiz',this)">🎯 Quiz Mode</button>
+    <button class="tab-btn" onclick="switchTab('flashcards',this)">🃏 Flashcards</button>
+    <button class="tab-btn" onclick="switchTab('cases',this)">🩺 Clinical Cases</button>
+    <button class="tab-btn" onclick="switchTab('brain',this)">🧬 Brain &amp; Pathophys</button>
+    <button class="tab-btn" onclick="switchTab('types',this)">🗂️ Memory Types</button>
+    <button class="tab-btn" onclick="switchTab('strategies',this)">📚 Study Strategies</button>
+    <button class="tab-btn" onclick="switchTab('mnemonics',this)">💡 Mnemonics</button>
+  </div>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════
+     TAB 1 — OVERVIEW
+═══════════════════════════════════════ -->
+<div class="tab-panel active" id="tab-overview">
+  <div class="overview-hero">
+    <div class="hero-label">📖 Mansoura Faculty of Medicine</div>
+    <div class="hero-title">Memory &amp; Learning<br>Complete Study Platform</div>
+    <div class="hero-desc">Master all key concepts from encoding to retrieval, brain anatomy, forgetting theories, and evidence-based study strategies. Fully sourced from official lectures.</div>
+    <div class="hero-chips">
+      <span class="chip chip-blue">🧠 4 Core Topics</span>
+      <span class="chip chip-green">✅ 25 MCQs</span>
+      <span class="chip chip-gold">🃏 22 Flashcards</span>
+      <span class="chip chip-red">🩺 6 Clinical Cases</span>
+      <span class="chip chip-purple">💡 5 Mnemonics</span>
+    </div>
+  </div>
+
+  <div class="section-title">⚡ Quick Summary Cards</div>
+  <div class="section-sub">The four foundational topics — master these first</div>
+  <div class="grid-2" style="margin-bottom:32px">
+    <div class="summary-card sc-blue">
+      <div class="icon">🔄</div>
+      <div class="label">Topic 1</div>
+      <h3>Information Processing Model</h3>
+      <p>Memory has 3 processes: <strong>Encoding</strong> (input), <strong>Storage/Consolidation</strong> (retain), and <strong>Retrieval</strong> (recall/recognition/relearning). All information flows: Environment → Sensory → STM → LTM.</p>
+    </div>
+    <div class="summary-card sc-green">
+      <div class="icon">⏱️</div>
+      <div class="label">Topic 2</div>
+      <h3>Sensory &amp; Short-Term Memory</h3>
+      <p><strong>Sensory:</strong> &lt;1 second, unlimited capacity. Types: iconic (visual), echoic (auditory). <strong>STM (Working Memory):</strong> 15-30 seconds, 7±2 items. Extended via rehearsal. Used for problem-solving.</p>
+    </div>
+    <div class="summary-card sc-gold">
+      <div class="icon">♾️</div>
+      <div class="label">Topic 3</div>
+      <h3>Long-Term Memory &amp; Brain Areas</h3>
+      <p>Unlimited duration &amp; capacity. <strong>Explicit:</strong> Semantic (facts) + Episodic (events) — hippocampus. <strong>Implicit/Procedural:</strong> Skills — cerebellum/motor cortex. Amygdala = emotional memories.</p>
+    </div>
+    <div class="summary-card sc-purple">
+      <div class="icon">🚫</div>
+      <div class="label">Topic 4</div>
+      <h3>Forgetting &amp; Study Economy</h3>
+      <p>3 theories: <strong>Interference</strong> (new disrupts old), <strong>Repression</strong> (painful memories blocked), <strong>Disuse Atrophy</strong> (unused fades). Fix with: spaced repetition, chunking, mnemonics, recitation, sleep.</p>
+    </div>
+  </div>
+
+  <div class="section-title">🕐 Memory Timeline</div>
+  <div class="section-sub">The journey of information through your brain</div>
+  <div class="card" style="margin-bottom:32px">
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-title">🌍 Environmental Input</div>
+        <div class="tl-desc">Light, sound, touch, smell enter the senses simultaneously — all raw data.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-title">👁️ Sensory Memory (&lt;1 second)</div>
+        <div class="tl-desc">Iconic (visual) or echoic (auditory) impression retained briefly. Vast majority lost immediately without attention. Gateway filter of the brain.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-title">🎯 Attention Filter</div>
+        <div class="tl-desc">Only attended information moves forward. This is why focusing during lectures is critical — inattention = loss at this stage.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-title">💭 Short-Term Memory / Working Memory (15–30 sec)</div>
+        <div class="tl-desc">Capacity: 7±2 items. Used for active problem-solving, oral exams, calculations. Fragile — distraction causes loss. Prefrontal cortex.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-title">🔁 Rehearsal / Consolidation</div>
+        <div class="tl-desc">Verbal repetition, recitation, spaced review. The hippocampus converts STM → LTM. Sleep enhances this process.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-title">🏛️ Long-Term Memory (Lifelong)</div>
+        <div class="tl-desc">Semantic (facts), Episodic (events), Procedural (skills). Unlimited capacity. Subject to disuse atrophy and interference if not reviewed.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">⚠️ High-Yield Clinical Signs</div>
+  <div class="section-sub">Exam-favorite facts — know these cold</div>
+  <div class="grid-3" id="signsGrid">
+    <div class="sign-item" data-content="hippocampus lesion anterograde amnesia consolidation">
+      <div><span class="chip chip-red">🔴 Exam Favourite</span></div>
+      <div class="sign-title">🏛️ Hippocampus Lesion</div>
+      <div class="sign-desc">Prevents STM → LTM consolidation. Patient cannot form NEW declarative memories = anterograde amnesia (e.g., blackout, dementia pattern).</div>
+    </div>
+    <div class="sign-item" data-content="7 plus minus 2 STM capacity chunking working memory">
+      <div><span class="chip chip-gold">⭐ High-Yield</span></div>
+      <div class="sign-title">7 ± 2 Rule</div>
+      <div class="sign-desc">STM holds exactly 7 ± 2 items (5-9). Chunking groups items to beat this limit (e.g., phone number 1485-0385 = 2 chunks, not 8 digits).</div>
+    </div>
+    <div class="sign-item" data-content="recall recognition relearning retrieval oral written practical">
+      <div><span class="chip chip-blue">💎 Clinical Pearl</span></div>
+      <div class="sign-title">Recall vs Recognition</div>
+      <div class="sign-desc">Recall = info NOT present (written/oral exam). Recognition = info present to senses (MCQ, practical anatomy). Recall is harder.</div>
+    </div>
+    <div class="sign-item" data-content="spaced repetition massed cramming study efficiency">
+      <div><span class="chip chip-green">📚 Study Tip</span></div>
+      <div class="sign-title">Spaced &gt; Massed Repetition</div>
+      <div class="sign-desc">Spaced repetition requires fewer trials than cramming. Take 10-15 min breaks, switch subjects to avoid interference.</div>
+    </div>
+    <div class="sign-item" data-content="sensory memory iconic echoic visual auditory">
+      <div><span class="chip chip-gold">⭐ High-Yield</span></div>
+      <div class="sign-title">Iconic &amp; Echoic Memory</div>
+      <div class="sign-desc">Iconic = visual sensory memory. Echoic = auditory sensory memory. Both last &lt;1 second. Part of sensory stage, not STM.</div>
+    </div>
+    <div class="sign-item" data-content="amygdala emotional memory repression painful fear joy">
+      <div><span class="chip chip-red">🔴 Exam Favourite</span></div>
+      <div class="sign-title">🔮 Amygdala &amp; Emotion</div>
+      <div class="sign-desc">Amygdala = emotional memories. Drives repression of painful experiences. Lesion = blunted emotional recall, cannot associate memories with fear/joy.</div>
+    </div>
+    <div class="sign-item" data-content="procedural memory cerebellum motor cortex skills riding bike driving unconscious">
+      <div><span class="chip chip-blue">💎 Clinical Pearl</span></div>
+      <div class="sign-title">🚴 Procedural Memory</div>
+      <div class="sign-desc">Riding a bike, driving a car = procedural (implicit). Stored in cerebellum + motor cortex. Unconscious — does NOT require hippocampus.</div>
+    </div>
+    <div class="sign-item" data-content="sleep interference forgetting consolidation LTM slower">
+      <div><span class="chip chip-green">📚 Study Tip</span></div>
+      <div class="sign-title">💤 Sleep &amp; Memory</div>
+      <div class="sign-desc">Forgetting slows during sleep — no new interference. Sleep is active processing time for consolidating LTM. Never sacrifice sleep before exams.</div>
+    </div>
+    <div class="sign-item" data-content="disuse atrophy forgetting unused memory fades athlete">
+      <div><span class="chip chip-gold">⭐ High-Yield</span></div>
+      <div class="sign-title">💪 Disuse Atrophy</div>
+      <div class="sign-desc">Memory traces weaken if unused — like a muscle. Retired athlete loses sport skills after years of inactivity. Regular review prevents this.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TAB 2 — QUIZ
+═══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-quiz">
+  <div class="section-title">🎯 Quiz Mode</div>
+  <div class="section-sub">25 exam-style questions — test yourself now</div>
+  <div class="quiz-header">
+    <div class="quiz-meta">
+      <div class="quiz-stat"><div class="num" id="q-correct">0</div><div class="lbl">Correct</div></div>
+      <div class="quiz-stat"><div class="num" id="q-wrong">0</div><div class="lbl">Wrong</div></div>
+      <div class="quiz-stat"><div class="num" id="q-streak">0</div><div class="lbl">🔥 Streak</div></div>
+      <div class="quiz-stat"><div class="num" id="q-pct">0%</div><div class="lbl">Score</div></div>
+    </div>
+    <button class="btn btn-secondary" onclick="resetQuiz()">↺ Reset Quiz</button>
+  </div>
+  <div class="progress-bar-outer"><div class="progress-bar-inner" id="quizProgress" style="width:0%"></div></div>
+  <div id="quizContainer"></div>
+  <div id="scoreScreen" class="score-screen" style="display:none">
+    <div style="font-size:3rem">🎉</div>
+    <div class="score-big" id="finalScore"></div>
+    <div class="score-grade" id="finalGrade"></div>
+    <button class="btn btn-primary" onclick="resetQuiz()" style="margin-top:16px">🔄 Retake Quiz</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TAB 3 — FLASHCARDS
+═══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-flashcards">
+  <div class="section-title">🃏 Flashcards</div>
+  <div class="section-sub">Click any card to reveal the answer — 22 cards total</div>
+  <div class="fc-counter">Flipped: <span id="fcFlipped">0</span> / 22</div>
+  <div class="fc-grid" id="fcGrid"></div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TAB 4 — CLINICAL CASES
+═══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-cases">
+  <div class="section-title">🩺 Clinical Cases</div>
+  <div class="section-sub">6 exam-style vignettes — apply your knowledge</div>
+  <div id="casesContainer"></div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TAB 5 — BRAIN & PATHOPHYSIOLOGY
+═══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-brain">
+  <div class="section-title">🧬 Brain Structures &amp; Memory</div>
+  <div class="section-sub">Click any structure to reveal its role in memory</div>
+  <div class="brain-grid">
+    <div class="brain-item" onclick="showBrainDetail('hippocampus', this)">
+      <div class="bi-icon">🏛️</div>
+      <div class="bi-name">Hippocampus</div>
+      <div class="bi-role">LTM Consolidation</div>
+    </div>
+    <div class="brain-item" onclick="showBrainDetail('amygdala', this)">
+      <div class="bi-icon">❤️</div>
+      <div class="bi-name">Amygdala</div>
+      <div class="bi-role">Emotional Memory</div>
+    </div>
+    <div class="brain-item" onclick="showBrainDetail('prefrontal', this)">
+      <div class="bi-icon">🧠</div>
+      <div class="bi-name">Prefrontal Cortex</div>
+      <div class="bi-role">STM &amp; Decision Making</div>
+    </div>
+    <div class="brain-item" onclick="showBrainDetail('cerebellum', this)">
+      <div class="bi-icon">⚙️</div>
+      <div class="bi-name">Cerebellum</div>
+      <div class="bi-role">Procedural Memory</div>
+    </div>
+    <div class="brain-item" onclick="showBrainDetail('motor', this)">
+      <div class="bi-icon">🦿</div>
+      <div class="bi-name">Motor Cortex</div>
+      <div class="bi-role">Skill Execution</div>
+    </div>
+    <div class="brain-item" onclick="showBrainDetail('frontal', this)">
+      <div class="bi-icon">💡</div>
+      <div class="bi-name">Frontal Cortex</div>
+      <div class="bi-role">Semantic &amp; Episodic LTM</div>
+    </div>
+  </div>
+  <div class="brain-detail" id="brainDetail">
+    <h3 id="bdTitle"></h3>
+    <p id="bdText"></p>
+  </div>
+
+  <div class="section-title">🔄 Information Processing Flowchart</div>
+  <div class="section-sub">The complete memory pathway — step by step</div>
+  <div class="card" style="padding:32px;margin-bottom:32px;overflow-x:auto">
+    <div class="flowchart">
+      <div class="flow-row"><div class="flow-box highlight-box">🌍 Environment Input</div></div>
+      <div class="flow-down">↓</div>
+      <div class="flow-row">
+        <div class="flow-box" style="min-width:180px">👁️ Sensory Memory<br><small style="color:var(--text3)">Iconic / Echoic — &lt;1 sec</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box danger-box">🗑️ Forgotten<br><small>(if not attended)</small></div>
+      </div>
+      <div class="flow-down">↓ <small style="color:var(--accent);font-size:.7rem">Attention</small></div>
+      <div class="flow-row">
+        <div class="flow-box" style="min-width:180px">💭 Short-Term Memory<br><small style="color:var(--text3)">15–30s / 7±2 items</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box danger-box">🗑️ Forgotten<br><small>(if not rehearsed)</small></div>
+      </div>
+      <div class="flow-down">↓ <small style="color:var(--accent);font-size:.7rem">Rehearsal + Consolidation (Hippocampus)</small></div>
+      <div class="flow-row"><div class="flow-box success-box">🏛️ Long-Term Memory<br><small>(Lifelong — unlimited)</small></div></div>
+      <div class="flow-down">↓ <small style="color:var(--accent);font-size:.7rem">Retrieval</small></div>
+      <div class="flow-row"><div class="flow-box highlight-box">💭 STM (Active Use)</div></div>
+    </div>
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:10px;justify-content:center">
+      <span class="chip chip-red">⚠️ Hippocampus lesion = STM never reaches LTM</span>
+      <span class="chip chip-gold">⭐ Alcohol disrupts hippocampus → blackouts</span>
+      <span class="chip chip-green">💤 Sleep reduces interference → better consolidation</span>
+    </div>
+  </div>
+
+  <div class="section-title">💊 Forgetting Mechanisms</div>
+  <div class="section-sub">Three theories of why we forget</div>
+  <div class="grid-3">
+    <div class="card" style="border-color:rgba(255,77,109,.3)">
+      <div style="font-size:1.8rem;margin-bottom:10px">🔀</div>
+      <h3 style="font-family:var(--font-head);font-size:1rem;font-weight:700;margin-bottom:8px;color:var(--red)">Interference Theory</h3>
+      <p style="font-size:.84rem;color:var(--text2);line-height:1.6">New learning disrupts and overwrites older memory traces. Studying too many subjects consecutively without breaks causes interference. <em>Solution: subject-switching + breaks.</em></p>
+    </div>
+    <div class="card" style="border-color:rgba(123,94,167,.3)">
+      <div style="font-size:1.8rem;margin-bottom:10px">🔒</div>
+      <h3 style="font-family:var(--font-head);font-size:1rem;font-weight:700;margin-bottom:8px;color:#b48be0">Repression Theory</h3>
+      <p style="font-size:.84rem;color:var(--text2);line-height:1.6">The brain actively blocks painful or distressing memories, removing them from conscious access. Driven by the amygdala. Example: forgetting traumatic event details.</p>
+    </div>
+    <div class="card" style="border-color:rgba(255,200,68,.3)">
+      <div style="font-size:1.8rem;margin-bottom:10px">⏳</div>
+      <h3 style="font-family:var(--font-head);font-size:1rem;font-weight:700;margin-bottom:8px;color:var(--gold)">Disuse Atrophy</h3>
+      <p style="font-size:.84rem;color:var(--text2);line-height:1.6">Memory traces biologically weaken if not used over time — just like muscle atrophy. Example: retired athlete losing sport skill after 5 years. <em>Solution: regular review.</em></p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TAB 6 — MEMORY TYPES
+═══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-types">
+  <div class="section-title">🗂️ Memory Classification</div>
+  <div class="section-sub">All memory types, mechanisms, and brain regions</div>
+
+  <!-- Tree -->
+  <div class="card tree-wrap" style="padding:28px;margin-bottom:28px;text-align:center">
+    <div style="display:flex;justify-content:center;margin-bottom:0">
+      <div class="tree-node tree-root">🧠 Long-Term Memory</div>
+    </div>
+    <div style="display:flex;justify-content:center"><div style="width:2px;height:24px;background:var(--border)"></div></div>
+    <div style="display:flex;justify-content:center;gap:60px">
+      <div class="tree-col">
+        <div class="tree-node" style="border-color:var(--accent);color:var(--accent)">📖 Explicit (Declarative)<br><small style="font-weight:400;color:var(--text2);font-size:.72rem">Conscious recall</small></div>
+        <div style="width:2px;height:18px;background:var(--border);margin:0 auto"></div>
+        <div style="display:flex;gap:16px">
+          <div class="tree-node" style="font-size:.8rem">📚 Semantic<br><small style="color:var(--text2)">Facts/knowledge</small></div>
+          <div class="tree-node" style="font-size:.8rem">🗓️ Episodic<br><small style="color:var(--text2)">Personal events</small></div>
+        </div>
+      </div>
+      <div class="tree-col">
+        <div class="tree-node" style="border-color:var(--accent3);color:var(--accent3)">🚴 Implicit (Procedural)<br><small style="font-weight:400;color:var(--text2);font-size:.72rem">Unconscious skills</small></div>
+        <div style="width:2px;height:18px;background:var(--border);margin:0 auto"></div>
+        <div class="tree-node" style="font-size:.8rem">🏋️ Motor Skills<br><small style="color:var(--text2)">Bike, driving, sports</small></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title" style="font-size:1.2rem">📊 Memory Comparison Table</div>
+  <div class="section-sub">Sensory vs STM vs LTM</div>
+  <div style="overflow-x:auto;margin-bottom:28px">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>👁️ Sensory Memory</th>
+          <th>💭 Short-Term Memory</th>
+          <th>🏛️ Long-Term Memory</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="col-head">Duration</td><td>&lt;1 second</td><td>15–30 seconds</td><td>Lifelong (unlimited)</td></tr>
+        <tr><td class="col-head">Capacity</td><td>Very large (all sensory input)</td><td><strong style="color:var(--gold)">7 ± 2 items</strong></td><td>Unlimited</td></tr>
+        <tr><td class="col-head">Types</td><td>Iconic (visual), Echoic (auditory)</td><td>Working memory</td><td>Semantic, Episodic, Procedural</td></tr>
+        <tr><td class="col-head">Brain Region</td><td>Primary sensory cortices</td><td>Prefrontal cortex</td><td>Hippocampus, Frontal, Cerebellum</td></tr>
+        <tr><td class="col-head">Lost by</td><td>Inattention (immediately)</td><td>Distraction, time (15-30s)</td><td>Disuse atrophy, interference</td></tr>
+        <tr><td class="col-head">Extended by</td><td>Attention → STM</td><td>Active rehearsal</td><td>Repeated review</td></tr>
+        <tr><td class="col-head">Exam Role</td><td>Initial gateway</td><td><strong style="color:var(--accent)">Oral exams, problem-solving</strong></td><td>Written essays, long-term knowledge</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title" style="font-size:1.2rem">📊 LTM Subtypes Table</div>
+  <div style="overflow-x:auto;margin-bottom:28px">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>📚 Semantic</th>
+          <th>🗓️ Episodic</th>
+          <th>🚴 Procedural</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="col-head">Definition</td><td>General knowledge &amp; facts</td><td>Personal experiences/events</td><td>Unconscious skills/how-to</td></tr>
+        <tr><td class="col-head">Type</td><td>Explicit / Conscious</td><td>Explicit / Conscious</td><td>Implicit / <strong style="color:var(--accent3)">Unconscious</strong></td></tr>
+        <tr><td class="col-head">Brain Regions</td><td>Hippocampus, Frontal lobe</td><td>Hippocampus, Frontal lobe</td><td><strong style="color:var(--accent3)">Cerebellum, Motor cortex</strong></td></tr>
+        <tr><td class="col-head">Example</td><td>Street names, medical facts</td><td>First day of medical school</td><td>Driving a car, riding a bike</td></tr>
+        <tr><td class="col-head">Strengthened by</td><td>Study, repetition</td><td>Emotion, significance</td><td>Physical practice</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title" style="font-size:1.2rem">📊 Retrieval Types Table</div>
+  <div style="overflow-x:auto;margin-bottom:28px">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>📝 Recall</th>
+          <th>👁️ Recognition</th>
+          <th>📖 Relearning</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="col-head">Definition</td><td>Accessing info not present</td><td>Remembering info presented to senses</td><td>Re-acquiring forgotten knowledge</td></tr>
+        <tr><td class="col-head">Difficulty</td><td><strong style="color:var(--red)">Hardest</strong></td><td>Easier (has sensory cue)</td><td>Faster than initial learning</td></tr>
+        <tr><td class="col-head">Exam Type</td><td>Written essays, oral answers</td><td>MCQs, practical anatomy</td><td>Reviewing old study material</td></tr>
+        <tr><td class="col-head">Mechanism</td><td>Active brain search (no cues)</td><td>Sensory match to stored trace</td><td>Strengthening weakened traces</td></tr>
+        <tr><td class="col-head">Key Point</td><td>Tests pure storage</td><td>Tests association</td><td>Proves traces not fully erased</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TAB 7 — STUDY STRATEGIES
+═══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-strategies">
+  <div class="section-title">📚 Economy in Memorizing</div>
+  <div class="section-sub">Evidence-based strategies to learn more in less time</div>
+  <div class="grid-2" style="margin-bottom:32px">
+    <div class="strategy-card sc-1">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div class="priority" style="color:var(--accent)">🥇 Most Effective</div>
+        <span class="urgency-badge urg-high">HIGH IMPACT</span>
+      </div>
+      <h3>⏰ Spaced Repetition</h3>
+      <ul>
+        <li>Spread study sessions across multiple days</li>
+        <li>Requires <strong>fewer total trials</strong> than massed repetition</li>
+        <li>Take 10–15 minute breaks between subjects</li>
+        <li>Prevents interference between subjects</li>
+        <li>Sleep between sessions greatly enhances consolidation</li>
+      </ul>
+    </div>
+    <div class="strategy-card sc-2">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div class="priority" style="color:var(--accent3)">⚡ STM Booster</div>
+        <span class="urgency-badge urg-high">HIGH IMPACT</span>
+      </div>
+      <h3>🧩 Chunking</h3>
+      <ul>
+        <li>Group individual items into meaningful units</li>
+        <li>Beats the 7±2 STM capacity limit</li>
+        <li>Phone numbers: 1485-0385 (2 chunks, not 8 digits)</li>
+        <li>Patient IDs, drug doses, anatomy lists all benefit</li>
+        <li>Combine with mnemonics for maximum effect</li>
+      </ul>
+    </div>
+    <div class="strategy-card sc-3">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div class="priority" style="color:var(--gold)">🗣️ Active Recall</div>
+        <span class="urgency-badge urg-med">MEDIUM IMPACT</span>
+      </div>
+      <h3>🔊 Recitation</h3>
+      <ul>
+        <li>Explain the material out loud to yourself</li>
+        <li>Far superior to passive re-reading</li>
+        <li>Forces active retrieval, strengthening memory traces</li>
+        <li>Simulates oral exam conditions</li>
+        <li>Teach-back method: explain as if to another student</li>
+      </ul>
+    </div>
+    <div class="strategy-card sc-4">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div class="priority" style="color:#b48be0">🔗 Association</div>
+        <span class="urgency-badge urg-med">MEDIUM IMPACT</span>
+      </div>
+      <h3>💡 Mnemonics</h3>
+      <ul>
+        <li>Connect new info to existing strong memories</li>
+        <li>Acronyms, rhymes, visual images, stories</li>
+        <li>Example: SPIKES for breaking bad news</li>
+        <li>Works by creating multiple retrieval pathways</li>
+        <li>More pathways = easier recall under exam stress</li>
+      </ul>
+    </div>
+    <div class="strategy-card sc-5">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div class="priority" style="color:var(--orange)">🧘 Focus</div>
+        <span class="urgency-badge urg-low">FOUNDATION</span>
+      </div>
+      <h3>🚫 Preventing Distraction</h3>
+      <ul>
+        <li>Distraction during STM phase = permanent loss</li>
+        <li>Phone-free study sessions protect encoding</li>
+        <li>Internal distraction (hunger, fatigue) also causes loss</li>
+        <li>High-yield topics require undivided attention</li>
+        <li>Environment matters — quiet study space</li>
+      </ul>
+    </div>
+    <div class="strategy-card" style="border-color:rgba(0,194,255,.2);background:rgba(0,194,255,.04)">
+      <div style="padding-left:0">
+        <div class="priority" style="color:var(--accent)">❌ What NOT To Do</div>
+        <h3>Massed Repetition (Cramming)</h3>
+        <ul>
+          <li>Studying same subject for hours without break</li>
+          <li>Creates massive interference — one topic disrupts another</li>
+          <li>Requires MORE total trials for same outcome</li>
+          <li>Poor long-term retention</li>
+          <li>May work for recognition (MCQ) but fails for recall (essays)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title" style="font-size:1.2rem">💤 The Sleep Advantage</div>
+  <div class="card" style="border-color:rgba(123,94,167,.3)">
+    <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center">
+      <div style="font-size:3rem">💤</div>
+      <div style="flex:1;min-width:200px">
+        <h3 style="font-family:var(--font-head);font-size:1.1rem;font-weight:700;margin-bottom:8px">Sleep is Active Memory Processing Time</h3>
+        <p style="font-size:.88rem;color:var(--text2);line-height:1.7">Forgetting slows dramatically during sleep because new sensory input (the main cause of interference) is eliminated. The brain actively consolidates STM → LTM during sleep cycles. Never sacrifice sleep the night before exams — it's when your review sessions get "saved".</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TAB 8 — MNEMONICS
+═══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-mnemonics">
+  <div class="section-title">💡 Memory Mnemonics</div>
+  <div class="section-sub">5 custom mnemonics — click to expand each one</div>
+  <div id="mnemonicsContainer"></div>
+</div>
+
+</main><!-- end main -->
+
+<script>
+// ══════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════
+
+const quizData = [
+  {q:"Which of the following defines the process of retaining information in the brain after the effort of learning?",opts:["Encoding","Storage","Retrieval","Repression","Chunking"],ans:1,exp:"Storage is the persisting after-effort of retaining learnt material in memory. Encoding is inputting data. Retrieval is recalling data. Repression is a forgetting mechanism. Chunking is a study trick."},
+  {q:"What is the approximate duration of short-term memory without active rehearsal?",opts:["< 1 second","15-30 seconds","1-2 hours","24 hours","Lifelong"],ans:1,exp:"STM duration is exactly 15-30 seconds. Less than 1 second is sensory memory. All longer durations describe LTM characteristics."},
+  {q:"The capacity of short-term (working) memory is typically limited to:",opts:["1 ± 1 items","3 ± 1 items","7 ± 2 items","15 ± 5 items","Unlimited"],ans:2,exp:"STM capacity is 7 ± 2 items — this is a key psychological constant. It means between 5 and 9 items can be held simultaneously."},
+  {q:"Which type of memory stores facts, meanings, and general knowledge about the world?",opts:["Episodic","Semantic","Procedural","Iconic","Echoic"],ans:1,exp:"Semantic memory = general knowledge and facts. Episodic = personal events. Procedural = skills. Iconic and Echoic are types of sensory memory."},
+  {q:"Remembering your personal experiences from your first day of medical school relies on:",opts:["Semantic memory","Episodic memory","Procedural memory","Implicit memory","Working memory"],ans:1,exp:"Episodic memory stores personal experiences linked to specific times and places. Your first day is a personal event (not a general fact, and not a skill)."},
+  {q:"Riding a bicycle is an example of which type of memory?",opts:["Explicit","Semantic","Procedural","Episodic","Sensory"],ans:2,exp:"Procedural memory = unconscious memory of skills. It does NOT require conscious recall. Stored in cerebellum and motor cortex, not the hippocampus."},
+  {q:"Which brain structure plays a pivotal role in forming new long-term semantic and episodic memories?",opts:["Cerebellum","Amygdala","Prefrontal cortex","Motor cortex","Hippocampus"],ans:4,exp:"The hippocampus converts STM → LTM for declarative memories. Lesion here = anterograde amnesia. Cerebellum = procedural. Amygdala = emotional."},
+  {q:"Which brain structure is vital to the formation of new emotional memories?",opts:["Hippocampus","Thalamus","Amygdala","Frontal lobe","Cerebellum"],ans:2,exp:"The amygdala forms emotional memories. It drives repression of painful experiences. Hippocampus handles facts and events, not the emotional coloring of memories."},
+  {q:"In a practical anatomy exam, identifying a pinned muscle on a cadaver utilizes which retrieval process?",opts:["Recall","Recognition","Relearning","Repression","Encoding"],ans:1,exp:"Recognition = remembering something present to your senses. The muscle is there in front of you. Recall = information NOT present (like an essay answer)."},
+  {q:"Answering an essay question without any external cues utilizes which retrieval process?",opts:["Recognition","Relearning","Recall","Sensory processing","Chunking"],ans:2,exp:"Recall = remembering information that is not physically present. Written essays and oral exams require pure recall — the hardest form of retrieval."},
+  {q:"The theory that we forget because recently learned material disrupts older memory traces is called:",opts:["Repression","Disuse atrophy","Interference","Amnesia","Chunking"],ans:2,exp:"Interference theory: new learning disrupts existing memory traces. This is why studying multiple subjects back-to-back without breaks causes confusion and forgetting."},
+  {q:"The cerebellum plays an important role in the storage of:",opts:["Semantic memories","Episodic memories","Procedural memories","Short-term memories","Emotional memories"],ans:2,exp:"The cerebellum and motor cortex are responsible for procedural (implicit) memory — skills like walking, cycling, playing an instrument. Hippocampus handles semantic/episodic."},
+  {q:"Organizing a 14-digit number into smaller groups (e.g. 1485-0385-1604) to remember it easier is called:",opts:["Mnemonics","Relearning","Chunking","Repression","Massed repetition"],ans:2,exp:"Chunking = organizing data into manageable units to beat the 7±2 STM limit. Mnemonics use tricks and acronyms, not just numerical grouping."},
+  {q:"Using the acronym 'SPIKES' to remember the steps for breaking bad news is an example of:",opts:["Chunking","Mnemonics","Relearning","Procedural memory","Sensory memory"],ans:1,exp:"Mnemonics = memory tricks connecting info to existing strengths like words, images, or acronyms. SPIKES uses the first letter of each step — classic mnemonic technique."},
+  {q:"Visual sensory memory is specifically referred to as:",opts:["Echoic memory","Iconic memory","Semantic memory","Episodic memory","Working memory"],ans:1,exp:"Iconic memory = visual sensory memory. Echoic = auditory sensory memory. Both last less than 1 second. Named after 'icon' (image) and 'echo' (sound)."},
+  {q:"Auditory sensory memory is specifically referred to as:",opts:["Iconic memory","Episodic memory","Semantic memory","Echoic memory","Working memory"],ans:3,exp:"Echoic memory = auditory sensory memory. It briefly retains sounds after they stop. Iconic memory is the visual equivalent."},
+  {q:"A student who actively studies for 2 hours, takes a break, and studies again the next day is utilizing:",opts:["Massed repetition","Spaced repetition","Repression","Disuse atrophy","Interference"],ans:1,exp:"Spaced repetition = spreading learning across time with breaks. It requires fewer total trials than massed repetition (cramming) and produces better long-term retention."},
+  {q:"Which statement best describes the mechanism of relearning?",opts:["Storing info for the first time","Recognizing a face","Finding it easier to learn a previously forgotten lesson","Forgetting due to pain","Grouping data"],ans:2,exp:"Relearning occurs when you fail to initially recall material but find it much faster and easier to learn again — proving memory traces were not fully erased."},
+  {q:"Sleep helps prevent forgetting primarily by minimizing:",opts:["Disuse atrophy","Interference","Repression","Chunking","Consolidation"],ans:1,exp:"Lack of interference during sleep (no new sensory input) is the primary reason forgetting slows. The brain also actively consolidates memories into LTM during sleep."},
+  {q:"Memory of facts and events that can be consciously recalled is universally categorized as:",opts:["Implicit memory","Declarative memory","Procedural memory","Sensory memory","Working memory"],ans:1,exp:"Declarative (explicit) memory = consciously recallable facts and events. It includes semantic and episodic subtypes. Procedural/implicit memory is unconscious."},
+  {q:"To optimize 'economy in memorizing', a student should do all EXCEPT:",opts:["Prevent internal distraction","Use massed repetition","Use chunking","Use mnemonics","Recite to oneself"],ans:1,exp:"Massed repetition (cramming) is INEFFICIENT — spaced repetition is recommended. All other options (distraction prevention, chunking, mnemonics, recitation) are positive strategies."},
+  {q:"The prefrontal cortex is heavily involved in:",opts:["Storage of procedural memories","Storage of short-term memories and decision making","Visual sensory memory","Emotional memories","Balance"],ans:1,exp:"Prefrontal cortex = STM storage, decision making, problem solving, and contributes to semantic/episodic LTM storage. Cerebellum = procedural. Amygdala = emotional."},
+  {q:"Which memory stage filters out the vast majority of environmental stimuli to prevent brain overload?",opts:["Sensory memory","Short-term memory","Long-term memory","Semantic memory","Procedural memory"],ans:0,exp:"Sensory memory receives ALL input but drops data immediately without attention. This filtering function protects the brain from information overload."},
+  {q:"A patient subconsciously suppresses the memory of a severe car crash. This is driven by:",opts:["Interference","Disuse atrophy","Repression","Encoding failure","Chunking"],ans:2,exp:"Repression = motivated, emotional forgetting. The amygdala drives the brain to block painful memories from conscious recall. This is distinct from interference (timing) or disuse (time + non-use)."},
+  {q:"Studying by repeating material out loud to yourself directly aids in:",opts:["Preventing data from entering sensory memory","Keeping items in STM and moving them to LTM","Increasing implicit memory","Decreasing chunking","Enhancing iconic memory"],ans:1,exp:"Rehearsal (verbal repetition) keeps items active in STM and facilitates their transfer into LTM via consolidation. Iconic memory is visual input — rehearsal doesn't affect it."}
+];
+
+const flashcards = [
+  {q:"What are the 3 stages of the Information Processing Model?", a:"Encoding (input), Storage/Consolidation (retain), Retrieval (recall). Information flows: Environment → Sensory → STM → LTM → STM (active use)."},
+  {q:"What is Sensory Memory? Give its duration.", a:"Brief retention of sensory impressions after stimulus ends. Duration: <1 second. Types: Iconic (visual) and Echoic (auditory). Lost unless attended to."},
+  {q:"What is the capacity and duration of STM?", a:"Capacity: 7 ± 2 items (5-9). Duration: 15-30 seconds without rehearsal. Extended by active verbal repetition. Used in problem-solving and oral exams."},
+  {q:"What is Chunking? Give an example.", a:"Grouping individual items into meaningful units to beat the 7±2 STM limit. Example: 14856143 → 1485-6143 (2 chunks, not 8 digits). Also: using phone number format."},
+  {q:"Differentiate Semantic vs Episodic memory.", a:"Semantic = general knowledge/facts (street names, medical info). Episodic = personal experiences linked to specific time/place (first day of med school). Both are Explicit/Declarative."},
+  {q:"What is Procedural Memory? Where is it stored?", a:"Unconscious memory of skills and automated movements (riding bike, driving). Stored in Cerebellum + Motor Cortex. Does NOT require hippocampus. Implicit memory."},
+  {q:"What is the primary function of the Hippocampus in memory?", a:"Consolidates STM → LTM for declarative (semantic + episodic) memories. Hippocampus lesion = anterograde amnesia (cannot form NEW LTMs). Alcohol disrupts it → blackouts."},
+  {q:"What does the Amygdala do in memory?", a:"Forms and retrieves emotional memories (fear, joy, pain). Drives repression of painful experiences. Lesion = blunted emotional recall, cannot associate events with feelings."},
+  {q:"Explain Recall vs Recognition vs Relearning.", a:"Recall: info not present (essay, oral exam) — HARDEST. Recognition: info present to senses (MCQ, anatomy practical) — easier. Relearning: re-acquiring forgotten material — faster than initial learning."},
+  {q:"What are the 3 theories of forgetting?", a:"1. Interference: new learning disrupts old traces. 2. Repression: brain blocks painful memories (amygdala). 3. Disuse Atrophy: unused traces fade biologically — like muscle atrophy."},
+  {q:"Why is spaced repetition better than massed repetition?", a:"Spaced repetition requires fewer total trials and produces better retention. Massed cramming causes interference between subjects. Breaks and sleep help consolidate memory."},
+  {q:"How does sleep help memory?", a:"Slower forgetting during sleep because NO new sensory interference. Sleep is active consolidation time — STM memories are processed into LTM during sleep cycles."},
+  {q:"What are the 5 methods of 'Economy in Memorizing'?", a:"1. Prevent distraction. 2. Spaced repetition (not massed). 3. Recitation/self-explanation. 4. Chunking. 5. Mnemonics (connecting new to existing knowledge)."},
+  {q:"What brain structure stores STM and supports decision making?", a:"Prefrontal Cortex (PFC). Also contributes to semantic and episodic LTM storage. The 'executive control' center of working memory during exams and problem-solving."},
+  {q:"Why does Short-Term Memory matter for medical exams?", a:"STM = Working Memory. It's what you actively use during oral exams, problem-solving, and MCQs. 7±2 capacity means you must chunk information to handle complex clinical scenarios."},
+  {q:"What happens if the hippocampus is damaged?", a:"Cannot consolidate STM → LTM (anterograde amnesia). OLD long-term memories are intact (pre-lesion). The patient may function normally in real-time but forgets everything minutes later."},
+  {q:"What is Encoding in memory processing?", a:"The entry stage: receiving, processing, and combining sensory information to create a memory trace. Controlled learning with the purpose of retention. The first step in the Information Processing Model."},
+  {q:"What is Relearning and what does it prove?", a:"Relearning = faster re-acquisition of forgotten material. Proves that memory traces were NOT fully erased — a latent trace remains. This is why re-studying old material is much faster."},
+  {q:"Iconic vs Echoic memory — differentiate.", a:"Iconic = visual sensory memory. Echoic = auditory sensory memory. Both last <1 second. Part of Sensory Memory stage, NOT STM. Most information is lost here without attention."},
+  {q:"Which memory system does a medical student use to solve exam problems?", a:"Short-Term Memory (Working Memory). It is the active 'workspace' for problem-solving, calculations, and reasoning during exams. Capacity 7±2 items — chunking helps manage complex problems."},
+  {q:"What role does the Cerebellum play in memory?", a:"Stores Procedural (Implicit) memories — automated motor skills like walking, cycling, typing. Works alongside the Motor Cortex. NOT involved in declarative memories."},
+  {q:"What is Interference Theory of forgetting? Give a study tip.", a:"New learning disrupts existing memory traces. Studying Physiology then Biochemistry back-to-back causes interference. Solution: take 10-15 min breaks, switch subjects, use spaced repetition."}
+];
+
+const casesData = [
+  {
+    num:"Case 01", title:"The Skilled Driver Who Forgot the Street Name",
+    vignette:"A 55-year-old man easily navigates his car to the hospital clinic through complex traffic. However, when asked what street the clinic is on, he cannot recall it.",
+    questions:[
+      {q:"Q1: What type of memory is being used for driving, and which is failing?", btn:"Reveal Memory Types",
+        ans:"<strong>Driving</strong> uses Procedural (Implicit) memory — an unconscious motor skill stored in the Cerebellum and Motor Cortex. <strong>Recalling the street name</strong> requires Semantic (Explicit/Declarative) memory, which relies on the Hippocampus and Frontal Lobe. The procedural system is intact; the semantic retrieval is impaired."},
+      {q:"Q2: If his cerebellum was damaged, what would change?", btn:"Reveal Answer",
+        ans:"He would lose the procedural skill of driving entirely — his coordination, balance, and automated motor execution would fail. He might still know the route (semantic) but be unable to physically execute the driving maneuver."}
+    ]
+  },
+  {
+    num:"Case 02", title:"The 15-Digit Patient ID",
+    vignette:"A medical student is given a 15-digit patient ID number to remember. Despite trying, she forgets it after a few seconds and cannot write it down in time.",
+    questions:[
+      {q:"Q1: Why is she unable to retain this number?", btn:"Reveal Answer",
+        ans:"Short-Term Memory (STM) has a strict capacity of <strong>7 ± 2 items</strong>. A 15-digit number far exceeds this limit, and without active rehearsal, it is lost within 15-30 seconds. The Prefrontal Cortex, which manages STM, cannot hold this volume simultaneously."},
+      {q:"Q2: What strategy should she use, and why does it work?", btn:"Reveal Strategy",
+        ans:"She should use <strong>Chunking</strong> — grouping 15 digits into 3 groups of 5 (e.g., 14850-38510-46211). This reduces 15 individual 'items' into just 3 chunks, well within the 7±2 limit. The total information is the same, but the cognitive load is dramatically reduced."}
+    ]
+  },
+  {
+    num:"Case 03", title:"The Alcoholic Blackout",
+    vignette:"A 30-year-old man with alcohol use disorder attended a party the night before. During the event, witnesses report he was conversational and interactive. The next morning, he has absolutely no recollection of the evening.",
+    questions:[
+      {q:"Q1: What memory mechanism explains this blackout?", btn:"Reveal Mechanism",
+        ans:"Alcohol acutely disrupts <strong>Hippocampal function</strong>, preventing the consolidation of Short-Term Memory into Long-Term Memory. Information entered STM normally (he functioned and spoke), but the hippocampus failed to transfer it into LTM. On waking, there is no LTM trace to retrieve — resulting in a complete blackout."},
+      {q:"Q2: What type of amnesia is this?", btn:"Reveal Diagnosis",
+        ans:"This is <strong>Anterograde Amnesia</strong> — inability to form new LTMs after a specific event/insult. Old memories (before the party) remain intact. This pattern is identical to hippocampal lesion cases, but caused acutely by alcohol's GABAergic/glutamate effects on hippocampal circuits."}
+    ]
+  },
+  {
+    num:"Case 04", title:"The Traumatic Oral Exam",
+    vignette:"A 3rd-year medical student was shouted at aggressively by an examiner during an oral exam. Two days later, when classmates ask what questions the examiner asked, the student cannot remember any of them.",
+    questions:[
+      {q:"Q1: What forgetting theory applies here?", btn:"Reveal Theory",
+        ans:"<strong>Repression Theory</strong> — the brain actively blocks painful or emotionally distressing memories from conscious retrieval. The Amygdala, processing the intense fear/humiliation response, drives suppression of the associated memory content. The information was encoded but is inaccessible due to emotional blockade."},
+      {q:"Q2: What structure primarily mediates this response?", btn:"Reveal Structure",
+        ans:"The <strong>Amygdala</strong> is the key structure. It processes emotional significance of events and can 'tag' memories as threatening. When reactivation of these memory traces triggers a painful emotional response, the brain suppresses retrieval as a protective mechanism."}
+    ]
+  },
+  {
+    num:"Case 05", title:"The Retired Athlete",
+    vignette:"A 58-year-old former professional basketball player retired 5 years ago. He notices that his shooting form has deteriorated significantly, and drills that once felt automatic now feel unfamiliar and awkward.",
+    questions:[
+      {q:"Q1: Which forgetting mechanism is occurring?", btn:"Reveal Mechanism",
+        ans:"<strong>Disuse Atrophy</strong> — memory traces weaken biologically when not actively used over time, analogous to muscle atrophy from disuse. His procedural (motor) memory circuits in the Cerebellum and Motor Cortex have weakened due to 5 years without practice."},
+      {q:"Q2: Will relearning the skills be easier than initial learning? Why?", btn:"Reveal Answer",
+        ans:"Yes — <strong>Relearning</strong> will be faster than initial acquisition. Memory traces are not completely erased by disuse atrophy; latent traces remain. The brain can re-strengthen these circuits much more quickly than when they were first established from scratch."}
+    ]
+  },
+  {
+    num:"Case 06", title:"The Elderly Patient with Selective Amnesia",
+    vignette:"A 70-year-old patient can vividly recall their childhood home address, wedding day, and old friends' names. However, they repeatedly forget what they ate for breakfast, ask the same questions multiple times per hour, and do not remember praying 30 minutes ago.",
+    questions:[
+      {q:"Q1: Which memory system is intact and which is failing?", btn:"Reveal Analysis",
+        ans:"<strong>Intact:</strong> Long-Term Episodic and Semantic memories (formed decades ago) — these are robust and resistant to forgetting. <strong>Failing:</strong> New STM → LTM consolidation. Information enters working memory normally but cannot be consolidated into new LTM. This is the classic pattern of hippocampal/cortical dysfunction (early dementia)."},
+      {q:"Q2: Trace the pathophysiology step by step.", btn:"Reveal Pathophysiology",
+        ans:"Environmental input → Sensory memory ✓ → Attention → STM (working memory) ✓ — <strong>FAILURE POINT</strong> → Consolidation fails (hippocampal/cortical dysfunction) → Information lost. Old LTM is preserved because it was consolidated when the hippocampus was healthy. The patient can function in real-time but forgets minutes later because no new LTMs are being formed."}
+    ]
+  }
+];
+
+const mnemonicsData = [
+  {
+    title:"The 3 Processes of Memory",
+    subtitle:"What memory does in order",
+    acronym:"E-S-R",
+    color:"var(--accent)",
+    letters:[
+      {l:"E", word:"Encoding", desc:"The entry stage — receiving and processing information into the brain. Like taking a photo."},
+      {l:"S", word:"Storage (Consolidation)", desc:"Retaining the encoded information — in sensory, STM, or LTM. Like saving the photo to disk."},
+      {l:"R", word:"Retrieval", desc:"Reactivating stored information for use (Recall, Recognition, or Relearning). Like opening the saved file."}
+    ]
+  },
+  {
+    title:"Types of Long-Term Memory",
+    subtitle:"Remember: 'Doctors Save People'",
+    acronym:"D - S - E - P",
+    color:"var(--accent3)",
+    letters:[
+      {l:"D", word:"Declarative (Explicit)", desc:"The conscious, willful memory category. Umbrella for Semantic and Episodic."},
+      {l:"S", word:"Semantic", desc:"Facts, knowledge, meanings — things you study. 'S for Studying' — your medical school facts."},
+      {l:"E", word:"Episodic", desc:"Events and personal experiences — your life story. 'E for Events' in time and place."},
+      {l:"P", word:"Procedural (Implicit)", desc:"Unconscious skill memory — riding, driving, typing. 'P for Practice makes perfect'."}
+    ]
+  },
+  {
+    title:"Brain Regions & Their Memory Roles",
+    subtitle:"'Happy Ants Play Football Carefully, Mate!'",
+    acronym:"H-A-P-F-C-M",
+    color:"var(--gold)",
+    letters:[
+      {l:"H", word:"Hippocampus", desc:"Consolidates STM → LTM (declarative). Lesion = anterograde amnesia."},
+      {l:"A", word:"Amygdala", desc:"Emotional memories. Drives repression of painful experiences."},
+      {l:"P", word:"Prefrontal Cortex", desc:"STM (working memory), decision making, problem solving."},
+      {l:"F", word:"Frontal Cortex", desc:"Semantic and episodic LTM storage."},
+      {l:"C", word:"Cerebellum", desc:"Procedural memory — motor skills and automated movements."},
+      {l:"M", word:"Motor Cortex", desc:"Execution of procedural/motor skills alongside cerebellum."}
+    ]
+  },
+  {
+    title:"3 Theories of Forgetting",
+    subtitle:"'I Repressed Disuse'",
+    acronym:"I - R - D",
+    color:"var(--red)",
+    letters:[
+      {l:"I", word:"Interference", desc:"New learning disrupts old memory traces. Switch subjects + take breaks to avoid this."},
+      {l:"R", word:"Repression", desc:"Brain blocks painful emotional memories. Amygdala-driven protective forgetting."},
+      {l:"D", word:"Disuse Atrophy", desc:"Unused memory traces fade biologically over time — like unused muscle."}
+    ]
+  },
+  {
+    title:"5 Economy of Memorizing Strategies",
+    subtitle:"'Students Should Regularly Chunk Mnemonics'",
+    acronym:"S - S - R - C - M",
+    color:"#b48be0",
+    letters:[
+      {l:"S", word:"Stop Distractions", desc:"Prevent internal and external distraction. Attentional filter in sensory memory is critical."},
+      {l:"S", word:"Spaced Repetition", desc:"Spread study sessions over time. Fewer trials needed, better retention than cramming."},
+      {l:"R", word:"Recitation", desc:"Explain material out loud to yourself. Active recall > passive re-reading."},
+      {l:"C", word:"Chunking", desc:"Group data into manageable units to beat the 7±2 STM capacity limit."},
+      {l:"M", word:"Mnemonics", desc:"Connect new info to existing memories via acronyms, images, or stories."}
+    ]
+  }
+];
+
+const brainDetails = {
+  hippocampus: {
+    title: "🏛️ Hippocampus — The Memory Consolidator",
+    text: "The hippocampus is the most critical structure for FORMING new long-term declarative memories (semantic + episodic). It acts as the 'gateway' that converts STM into LTM through consolidation. A hippocampal lesion prevents this transfer, causing anterograde amnesia — the patient cannot form new LTMs, though OLD LTMs remain intact. Alcohol acutely disrupts hippocampal function, causing blackouts. Early dementia also often begins with hippocampal dysfunction (forgetting breakfast but remembering childhood)."
+  },
+  amygdala: {
+    title: "❤️ Amygdala — The Emotional Memory Centre",
+    text: "The amygdala forms and retrieves emotional memories — both positive (joy) and negative (fear, pain, trauma). It is the neural driver of Repression: when a memory is intensely painful, the amygdala drives its suppression from conscious retrieval to protect the individual. A patient who is shouted at during an oral exam and later cannot recall the questions is experiencing amygdala-mediated repression. Amygdala lesion = blunted emotional recall, inability to associate events with fear or joy."
+  },
+  prefrontal: {
+    title: "🧠 Prefrontal Cortex — The Working Memory HQ",
+    text: "The prefrontal cortex (PFC) is the brain's executive control center. It is the primary location of Short-Term (Working) Memory — the 7±2 item workspace used during oral exams, problem-solving, calculations, and clinical reasoning. The PFC also contributes to decision making, planning, and the storage of semantic and episodic LTM. Distraction, stress, and fatigue all impair PFC function — which is why conditions during study and exams profoundly affect performance."
+  },
+  cerebellum: {
+    title: "⚙️ Cerebellum — The Skill Memory Store",
+    text: "The cerebellum stores and coordinates procedural (implicit) memories — automated motor skills like riding a bicycle, walking, playing an instrument, typing. It works alongside the motor cortex. Critically, the cerebellum does NOT require the hippocampus to store these memories. A patient with hippocampal damage can still ride a bike (procedural intact) but cannot remember doing it (episodic lost). Cerebellar damage = loss of motor coordination and procedural skills."
+  },
+  motor: {
+    title: "🦿 Motor Cortex — Skill Execution",
+    text: "The primary motor cortex works in conjunction with the cerebellum to execute and store procedural memories. It encodes the precise motor programs needed for skilled movements. Damage here causes difficulty executing learned motor skills. In the memory context, both cerebellum and motor cortex are listed together as the key structures for procedural/implicit memory storage."
+  },
+  frontal: {
+    title: "💡 Frontal Cortex — LTM Hub",
+    text: "The broader frontal cortex (beyond the prefrontal area) is involved in the long-term storage of semantic and episodic memories alongside the hippocampus. Once memories are consolidated from the hippocampus, they are distributed across cortical regions for permanent storage, with frontal areas particularly involved in categorical and autobiographical knowledge. The frontal lobe also contributes to retrieval processes."
+  }
+};
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+let quizAnswered = {}; // {index: wasCorrect}
+let quizCorrect = 0, quizWrong = 0, quizStreak = 0;
+let fcFlipped = new Set();
+
+// ══════════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════════
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  localStorage.setItem('lastTab', id);
+}
+
+// ══════════════════════════════════════════
+//  QUIZ
+// ══════════════════════════════════════════
+function buildQuiz() {
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = '';
+  quizData.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = 'q-card';
+    div.id = 'qcard-' + i;
+    const optHtml = q.opts.map((o, j) => `
+      <button class="q-option" id="opt-${i}-${j}" onclick="selectAnswer(${i},${j})">
+        <span class="opt-letter">${String.fromCharCode(65+j)}</span>${o}
+      </button>`).join('');
+    div.innerHTML = `
+      <div class="q-number">Question ${i+1} of ${quizData.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="q-options">${optHtml}</div>
+      <div class="q-explanation" id="exp-${i}"><strong>💡 Explanation:</strong> ${q.exp}</div>`;
+    container.appendChild(div);
+  });
+  updateQuizStats();
+}
+
+function selectAnswer(qi, oi) {
+  if (quizAnswered[qi] !== undefined) return;
+  const isCorrect = oi === quizData[qi].ans;
+  quizAnswered[qi] = isCorrect;
+
+  document.querySelectorAll(`[id^="opt-${qi}-"]`).forEach(btn => btn.classList.add('disabled'));
+  document.getElementById(`opt-${qi}-${oi}`).classList.add(isCorrect ? 'correct' : 'wrong');
+  if (!isCorrect) document.getElementById(`opt-${qi}-${quizData[qi].ans}`).classList.add('correct');
+  document.getElementById(`exp-${qi}`).classList.add('show');
+
+  if (isCorrect) { quizCorrect++; quizStreak++; } else { quizWrong++; quizStreak = 0; }
+  updateQuizStats();
+  saveProgress();
+
+  if (Object.keys(quizAnswered).length === quizData.length) setTimeout(showScore, 600);
+}
+
+function updateQuizStats() {
+  const total = Object.keys(quizAnswered).length;
+  const pct = total > 0 ? Math.round(quizCorrect / total * 100) : 0;
+  document.getElementById('q-correct').textContent = quizCorrect;
+  document.getElementById('q-wrong').textContent = quizWrong;
+  document.getElementById('q-streak').textContent = quizStreak;
+  document.getElementById('q-pct').textContent = pct + '%';
+  document.getElementById('quizProgress').style.width = (total / quizData.length * 100) + '%';
+  document.getElementById('hdr-score').textContent = pct + '%';
+  document.getElementById('hdr-streak').textContent = quizStreak;
+  document.getElementById('hdr-progress').textContent = Math.round(total / quizData.length * 100) + '%';
+}
+
+function showScore() {
+  const pct = Math.round(quizCorrect / quizData.length * 100);
+  document.getElementById('quizContainer').style.display = 'none';
+  document.getElementById('scoreScreen').style.display = 'block';
+  document.getElementById('finalScore').textContent = pct + '%';
+  let grade, emoji;
+  if (pct >= 90) { grade = '🏆 Outstanding! You have mastered this topic!'; }
+  else if (pct >= 75) { grade = '🎉 Excellent work — exam ready!'; }
+  else if (pct >= 60) { grade = '👍 Good effort — review the explanations!'; }
+  else { grade = '📚 Keep studying — you can do it!'; }
+  document.getElementById('finalGrade').textContent = grade;
+}
+
+function resetQuiz() {
+  quizAnswered = {}; quizCorrect = 0; quizWrong = 0; quizStreak = 0;
+  document.getElementById('quizContainer').style.display = 'block';
+  document.getElementById('scoreScreen').style.display = 'none';
+  buildQuiz();
+}
+
+// ══════════════════════════════════════════
+//  FLASHCARDS
+// ══════════════════════════════════════════
+function buildFlashcards() {
+  const grid = document.getElementById('fcGrid');
+  grid.innerHTML = '';
+  flashcards.forEach((fc, i) => {
+    const div = document.createElement('div');
+    div.className = 'fc-card';
+    div.id = 'fc-' + i;
+    div.innerHTML = `
+      <div class="fc-inner">
+        <div class="fc-front">
+          <div class="fc-q-label">❓ Question</div>
+          <div class="fc-q-text">${fc.q}</div>
+        </div>
+        <div class="fc-back">
+          <div class="fc-q-label">✅ Answer</div>
+          <div class="fc-a-text">${fc.a}</div>
+        </div>
+      </div>`;
+    div.onclick = () => flipCard(i, div);
+    grid.appendChild(div);
+  });
+}
+
+function flipCard(i, div) {
+  div.classList.toggle('flipped');
+  if (div.classList.contains('flipped')) fcFlipped.add(i);
+  else fcFlipped.delete(i);
+  document.getElementById('fcFlipped').textContent = fcFlipped.size;
+}
+
+// ══════════════════════════════════════════
+//  CLINICAL CASES
+// ══════════════════════════════════════════
+function buildCases() {
+  const container = document.getElementById('casesContainer');
+  container.innerHTML = '';
+  casesData.forEach((c, ci) => {
+    const div = document.createElement('div');
+    div.className = 'case-card';
+    const qsHtml = c.questions.map((q, qi) => `
+      <div>
+        <div class="case-q">${q.q}</div>
+        <button class="reveal-btn" onclick="revealCase(${ci},${qi},this)">${q.btn}</button>
+        <div class="case-answer" id="case-${ci}-${qi}">${q.ans}</div>
+        ${qi < c.questions.length-1 ? '<div class="case-divider"></div>' : ''}
+      </div>`).join('');
+    div.innerHTML = `
+      <div class="case-header">
+        <div class="case-num">${c.num}</div>
+        <div class="case-title">${c.title}</div>
+        <div class="case-vignette">${c.vignette}</div>
+      </div>
+      <div class="case-body">${qsHtml}</div>`;
+    container.appendChild(div);
+  });
+}
+
+function revealCase(ci, qi, btn) {
+  const el = document.getElementById(`case-${ci}-${qi}`);
+  el.classList.toggle('show');
+  btn.textContent = el.classList.contains('show') ? '🙈 Hide Answer' : casesData[ci].questions[qi].btn;
+}
+
+// ══════════════════════════════════════════
+//  BRAIN DETAIL
+// ══════════════════════════════════════════
+function showBrainDetail(key, el) {
+  document.querySelectorAll('.brain-item').forEach(i => i.classList.remove('active'));
+  const detail = document.getElementById('brainDetail');
+  if (detail.dataset.key === key && detail.classList.contains('show')) {
+    detail.classList.remove('show');
+    detail.dataset.key = '';
+    return;
+  }
+  el.classList.add('active');
+  document.getElementById('bdTitle').textContent = brainDetails[key].title;
+  document.getElementById('bdText').textContent = brainDetails[key].text;
+  detail.classList.add('show');
+  detail.dataset.key = key;
+  detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ══════════════════════════════════════════
+//  MNEMONICS
+// ══════════════════════════════════════════
+function buildMnemonics() {
+  const container = document.getElementById('mnemonicsContainer');
+  container.innerHTML = '';
+  mnemonicsData.forEach((m, mi) => {
+    const lettersHtml = m.letters.map(l => `
+      <div class="mn-letter">
+        <div class="mn-l" style="color:${m.color}">${l.l}</div>
+        <div class="mn-r"><strong>${l.word}</strong><p>${l.desc}</p></div>
+      </div>`).join('');
+    const div = document.createElement('div');
+    div.className = 'mnemonic-card';
+    div.innerHTML = `
+      <div class="mn-header" onclick="toggleMnemonic(${mi},this)">
+        <div>
+          <div class="mn-title">${m.title}</div>
+          <div style="font-size:.8rem;color:var(--text3);margin-top:2px">${m.subtitle}</div>
+          <div class="mn-acronym" style="color:${m.color}">${m.acronym}</div>
+        </div>
+        <span class="mn-expand">▼</span>
+      </div>
+      <div class="mn-body" id="mn-body-${mi}">${lettersHtml}</div>`;
+    container.appendChild(div);
+  });
+}
+
+function toggleMnemonic(mi, header) {
+  const body = document.getElementById('mn-body-' + mi);
+  header.classList.toggle('open');
+  body.classList.toggle('show');
+}
+
+// ══════════════════════════════════════════
+//  SEARCH
+// ══════════════════════════════════════════
+const searchableContent = [
+  ...quizData.map((q,i) => ({type:'MCQ', text:`${q.q} ${q.opts.join(' ')} ${q.exp}`, display:`<strong>MCQ ${i+1}:</strong> ${q.q}`})),
+  ...flashcards.map((f,i) => ({type:'Flashcard', text:`${f.q} ${f.a}`, display:`<strong>Flashcard ${i+1}:</strong> ${f.q}`})),
+  ...casesData.map((c,i) => ({type:'Case', text:`${c.title} ${c.vignette} ${c.questions.map(q=>q.q+q.ans).join(' ')}`, display:`<strong>Case ${i+1}:</strong> ${c.title}`})),
+  ...Object.entries(brainDetails).map(([k,v]) => ({type:'Brain', text:`${v.title} ${v.text}`, display:`<strong>Brain Structure:</strong> ${v.title}`})),
+];
+
+function doSearch(val) {
+  const cl = document.getElementById('searchClear');
+  const res = document.getElementById('searchResults');
+  const list = document.getElementById('searchList');
+  cl.style.display = val ? 'block' : 'none';
+  if (!val || val.length < 2) { res.style.display = 'none'; return; }
+  const lower = val.toLowerCase();
+  const matches = searchableContent.filter(item => item.text.toLowerCase().includes(lower)).slice(0, 12);
+  if (!matches.length) { list.innerHTML = '<em>No results found.</em>'; }
+  else {
+    list.innerHTML = matches.map(m => `
+      <div style="padding:6px 0;border-bottom:1px solid var(--border)">
+        <span class="chip chip-blue" style="margin-right:8px;font-size:.65rem">${m.type}</span>
+        ${m.display}
+      </div>`).join('');
+  }
+  res.style.display = 'block';
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchResults').style.display = 'none';
+  document.getElementById('searchClear').style.display = 'none';
+}
+
+// ══════════════════════════════════════════
+//  PROGRESS PERSISTENCE
+// ══════════════════════════════════════════
+function saveProgress() {
+  localStorage.setItem('memQuizAnswered', JSON.stringify(quizAnswered));
+  localStorage.setItem('memQuizCorrect', quizCorrect);
+  localStorage.setItem('memQuizWrong', quizWrong);
+  localStorage.setItem('memQuizStreak', quizStreak);
+}
+
+function loadProgress() {
+  try {
+    const saved = localStorage.getItem('memQuizAnswered');
+    if (saved) {
+      quizAnswered = JSON.parse(saved);
+      quizCorrect = parseInt(localStorage.getItem('memQuizCorrect') || 0);
+      quizWrong = parseInt(localStorage.getItem('memQuizWrong') || 0);
+      quizStreak = parseInt(localStorage.getItem('memQuizStreak') || 0);
+      // Re-apply visual state
+      Object.entries(quizAnswered).forEach(([qi, correct]) => {
+        const i = parseInt(qi);
+        const card = document.getElementById('qcard-' + i);
+        if (!card) return;
+        document.querySelectorAll(`[id^="opt-${i}-"]`).forEach(btn => btn.classList.add('disabled'));
+        const ansIdx = quizData[i].ans;
+        document.getElementById(`opt-${i}-${ansIdx}`).classList.add('correct');
+        document.getElementById(`exp-${i}`).classList.add('show');
+        if (!correct) {
+          // find wrong option — we don't store which wrong opt was chosen, skip re-styling
+        }
+      });
+      updateQuizStats();
+    }
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  buildQuiz();
+  buildFlashcards();
+  buildCases();
+  buildMnemonics();
+  loadProgress();
+
+  // Restore last tab
+  const last = localStorage.getItem('lastTab');
+  if (last) {
+    const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick')?.includes(`'${last}'`));
+    if (btn) switchTab(last, btn);
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CN V — Trigeminal Nerve Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --surface3: #1f2d45;
+    --border: rgba(99,179,237,0.15);
+    --teal: #38b2ac;
+    --teal-light: #81e6d9;
+    --teal-dim: rgba(56,178,172,0.12);
+    --gold: #d4a843;
+    --gold-dim: rgba(212,168,67,0.12);
+    --coral: #fc8181;
+    --green: #68d391;
+    --purple: #b794f4;
+    --text: #e2e8f0;
+    --text-muted: #718096;
+    --text-dim: #4a5568;
+    --radius: 14px;
+    --shadow: 0 8px 32px rgba(0,0,0,0.4);
+    --glow: 0 0 24px rgba(56,178,172,0.25);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* BACKGROUND ANIMATION */
+  .bg-canvas {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+  }
+  .orb {
+    position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.07; animation: drift 18s infinite ease-in-out alternate;
+  }
+  .orb1 { width: 600px; height: 600px; background: var(--teal); top: -200px; left: -200px; animation-delay: 0s; }
+  .orb2 { width: 400px; height: 400px; background: var(--gold); bottom: -100px; right: -100px; animation-delay: -6s; }
+  .orb3 { width: 300px; height: 300px; background: var(--purple); top: 40%; left: 60%; animation-delay: -12s; }
+  @keyframes drift { to { transform: translate(60px, 40px) scale(1.1); } }
+
+  /* HEADER */
+  .header {
+    position: relative; z-index: 10;
+    background: linear-gradient(135deg, #0d1526 0%, #111827 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+  }
+  .header-inner {
+    max-width: 1400px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 0;
+    flex-wrap: wrap; gap: 16px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 14px;
+  }
+  .logo-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--teal), #2c7a7b);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; box-shadow: var(--glow);
+  }
+  .logo-text h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem; font-weight: 700; color: var(--text);
+    line-height: 1.1;
+  }
+  .logo-text p { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+  .stats-bar {
+    display: flex; gap: 24px; align-items: center;
+  }
+  .stat-pill {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 40px; padding: 8px 16px; font-size: 0.8rem;
+  }
+  .stat-pill .val { color: var(--teal); font-weight: 600; font-family: 'DM Mono', monospace; }
+
+  /* TABS */
+  .tab-nav {
+    position: relative; z-index: 10;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  .tab-nav::-webkit-scrollbar { height: 3px; }
+  .tab-nav::-webkit-scrollbar-thumb { background: var(--teal-dim); border-radius: 3px; }
+  .tab-list {
+    display: flex; max-width: 1400px; margin: 0 auto; padding: 0 24px;
+    gap: 2px; min-width: max-content;
+  }
+  .tab-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 16px 20px;
+    background: transparent; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--teal); }
+  .tab-btn.active { color: var(--teal); border-bottom-color: var(--teal); }
+  .tab-btn .emoji { font-size: 1rem; }
+
+  /* MAIN */
+  .main { position: relative; z-index: 5; max-width: 1400px; margin: 0 auto; padding: 32px 24px 80px; }
+  .tab-panel { display: none; animation: fadeUp 0.3s ease; }
+  .tab-panel.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CARDS */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .card:hover { border-color: rgba(56,178,172,0.3); box-shadow: var(--glow); }
+  .card-title {
+    font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700;
+    color: var(--teal-light); margin-bottom: 12px;
+  }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+  .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+
+  /* SECTION HEADER */
+  .section-hd {
+    margin-bottom: 28px;
+  }
+  .section-hd h2 {
+    font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900;
+    background: linear-gradient(135deg, var(--teal-light), var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    margin-bottom: 8px;
+  }
+  .section-hd p { color: var(--text-muted); font-size: 0.9rem; }
+
+  /* BADGES */
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .badge-yellow { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(212,168,67,0.3); }
+  .badge-teal { background: var(--teal-dim); color: var(--teal); border: 1px solid rgba(56,178,172,0.3); }
+  .badge-red { background: rgba(252,129,129,0.12); color: var(--coral); border: 1px solid rgba(252,129,129,0.3); }
+  .badge-green { background: rgba(104,211,145,0.12); color: var(--green); border: 1px solid rgba(104,211,145,0.3); }
+  .badge-purple { background: rgba(183,148,244,0.12); color: var(--purple); border: 1px solid rgba(183,148,244,0.3); }
+
+  /* SEARCH */
+  .search-wrap { position: relative; margin-bottom: 28px; }
+  .search-wrap input {
+    width: 100%; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 50px; padding: 14px 20px 14px 48px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--text);
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search-wrap input:focus { border-color: var(--teal); box-shadow: var(--glow); }
+  .search-wrap input::placeholder { color: var(--text-muted); }
+  .search-wrap .icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 1.1rem; pointer-events: none; }
+
+  /* ===== OVERVIEW ===== */
+  .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .concept-card {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 20px; cursor: pointer; transition: all 0.25s ease;
+    position: relative; overflow: hidden;
+  }
+  .concept-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--teal), var(--gold));
+  }
+  .concept-card:hover { transform: translateY(-3px); box-shadow: var(--glow); border-color: var(--teal); }
+  .concept-card .num { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--teal); margin-bottom: 8px; }
+  .concept-card h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 10px; color: var(--text); }
+  .concept-card p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.6; }
+  .concept-card .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+
+  /* FLOW CHART */
+  .flow-wrap { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin: 24px 0; }
+  .flow-node {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 16px;
+    font-size: 0.78rem; text-align: center; color: var(--text); flex: 1; min-width: 120px;
+    transition: all 0.2s;
+  }
+  .flow-node:hover { background: var(--teal-dim); border-color: var(--teal); }
+  .flow-node strong { display: block; color: var(--teal); margin-bottom: 4px; font-size: 0.8rem; }
+  .flow-arrow { color: var(--teal); font-size: 1.3rem; padding: 0 6px; flex-shrink: 0; }
+
+  /* NUCLEUS TABLE */
+  .nucleus-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  .nucleus-table th {
+    background: var(--surface3); color: var(--teal); font-weight: 600; padding: 12px 16px;
+    text-align: left; border-bottom: 2px solid var(--border); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .nucleus-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+  .nucleus-table tr:hover td { background: var(--surface2); }
+
+  /* ===== QUIZ ===== */
+  .quiz-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 28px; flex-wrap: wrap; gap: 16px;
+  }
+  .progress-wrap { flex: 1; max-width: 400px; }
+  .progress-bar-bg {
+    background: var(--surface2); border-radius: 50px; height: 8px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .progress-bar-fill {
+    height: 100%; background: linear-gradient(90deg, var(--teal), var(--teal-light));
+    border-radius: 50px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+  .progress-label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .quiz-score-pills { display: flex; gap: 12px; flex-wrap: wrap; }
+  .score-pill {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 50px;
+    padding: 6px 14px; font-size: 0.8rem; display: flex; gap: 6px; align-items: center;
+  }
+  .score-pill .label { color: var(--text-muted); }
+  .score-pill .val { font-weight: 700; font-family: 'DM Mono', monospace; }
+  .score-pill .val.green { color: var(--green); }
+  .score-pill .val.red { color: var(--coral); }
+  .score-pill .val.gold { color: var(--gold); }
+
+  .question-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 28px; margin-bottom: 20px; position: relative; overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .question-card.correct { border-color: var(--green); box-shadow: 0 0 20px rgba(104,211,145,0.15); }
+  .question-card.wrong { border-color: var(--coral); box-shadow: 0 0 20px rgba(252,129,129,0.15); }
+  .q-num { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--teal); margin-bottom: 10px; }
+  .q-text { font-size: 0.95rem; font-weight: 500; color: var(--text); margin-bottom: 20px; line-height: 1.7; }
+  .options { display: grid; gap: 10px; }
+  .option-btn {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 18px;
+    display: flex; align-items: flex-start; gap: 14px; cursor: pointer;
+    text-align: left; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; color: var(--text);
+    transition: all 0.2s ease;
+  }
+  .option-btn:hover:not(:disabled) { background: var(--teal-dim); border-color: var(--teal); }
+  .option-btn:disabled { cursor: default; }
+  .option-btn.selected-correct { background: rgba(104,211,145,0.12); border-color: var(--green); color: var(--green); }
+  .option-btn.selected-wrong { background: rgba(252,129,129,0.12); border-color: var(--coral); color: var(--coral); }
+  .option-btn.reveal-correct { background: rgba(104,211,145,0.08); border-color: var(--green); color: var(--green); }
+  .option-btn .opt-letter {
+    width: 26px; height: 26px; border-radius: 6px; background: var(--surface3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700; flex-shrink: 0; font-family: 'DM Mono', monospace;
+    transition: all 0.2s;
+  }
+  .option-btn.selected-correct .opt-letter { background: var(--green); color: #fff; }
+  .option-btn.selected-wrong .opt-letter { background: var(--coral); color: #fff; }
+  .option-btn.reveal-correct .opt-letter { background: var(--green); color: #fff; }
+  .explanation {
+    margin-top: 18px; padding: 16px; background: var(--surface2);
+    border-radius: 10px; border-left: 3px solid var(--teal);
+    font-size: 0.83rem; line-height: 1.7; color: var(--text-muted);
+    display: none;
+  }
+  .explanation.show { display: block; animation: fadeUp 0.3s ease; }
+  .explanation strong { color: var(--teal); }
+
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+  .anim-pulse { animation: pulse 0.4s ease; }
+  .anim-shake { animation: shake 0.4s ease; }
+
+  .quiz-controls { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+  .btn {
+    padding: 12px 24px; border-radius: 10px; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  .btn-primary { background: linear-gradient(135deg, var(--teal), #2c7a7b); color: #fff; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--glow); }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+  .btn-gold { background: linear-gradient(135deg, var(--gold), #b7832e); color: #fff; }
+  .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(212,168,67,0.3); }
+
+  /* ===== FLASHCARDS ===== */
+  .fc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+  .fc-card {
+    height: 200px; perspective: 1000px; cursor: pointer;
+  }
+  .fc-inner {
+    width: 100%; height: 100%; position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4,0,0.2,1);
+    border-radius: var(--radius);
+  }
+  .fc-card.flipped .fc-inner { transform: rotateY(180deg); }
+  .fc-front, .fc-back {
+    position: absolute; inset: 0; backface-visibility: hidden;
+    border-radius: var(--radius); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 20px; text-align: center;
+  }
+  .fc-front {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-top: 3px solid var(--teal);
+  }
+  .fc-back {
+    background: linear-gradient(135deg, #1a3a3a, #1a2d2d);
+    border: 1px solid rgba(56,178,172,0.4);
+    border-top: 3px solid var(--gold);
+    transform: rotateY(180deg);
+  }
+  .fc-front .fc-label { font-size: 0.65rem; color: var(--teal); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; }
+  .fc-front .fc-q { font-size: 0.88rem; font-weight: 500; color: var(--text); line-height: 1.6; }
+  .fc-back .fc-label { font-size: 0.65rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; }
+  .fc-back .fc-a { font-size: 0.82rem; color: var(--teal-light); line-height: 1.6; }
+  .fc-hint { font-size: 0.7rem; color: var(--text-dim); margin-top: 12px; }
+  .fc-counter {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+  }
+  .fc-counter p { font-size: 0.85rem; color: var(--text-muted); }
+  .fc-actions { display: flex; gap: 10px; }
+
+  /* ===== CLINICAL CASES ===== */
+  .case-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    overflow: hidden; margin-bottom: 24px;
+  }
+  .case-header {
+    background: linear-gradient(135deg, var(--surface2), var(--surface3));
+    padding: 20px 24px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: flex-start; gap: 16px;
+  }
+  .case-icon {
+    width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--teal), #2c7a7b);
+    display: flex; align-items: center; justify-content: center; font-size: 20px;
+  }
+  .case-header-text { flex: 1; }
+  .case-header-text .case-num { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--teal); margin-bottom: 4px; }
+  .case-header-text h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--text); }
+  .case-body { padding: 24px; }
+  .case-vignette {
+    background: var(--surface2); border-radius: 10px; padding: 18px;
+    border-left: 3px solid var(--gold); font-size: 0.88rem; line-height: 1.8; color: var(--text);
+    margin-bottom: 20px;
+  }
+  .case-question { margin-bottom: 16px; }
+  .case-question p { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 10px; }
+  .case-question strong { color: var(--text); font-weight: 600; }
+  .answer-reveal {
+    background: var(--surface2); border-radius: 10px; border-left: 3px solid var(--green);
+    padding: 16px 20px; font-size: 0.83rem; line-height: 1.7; color: var(--text-muted);
+    display: none;
+  }
+  .answer-reveal.show { display: block; animation: fadeUp 0.3s ease; }
+  .answer-reveal strong { color: var(--green); }
+  .reveal-btn {
+    padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface3); color: var(--teal); cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 600;
+    transition: all 0.2s; margin-top: 8px;
+  }
+  .reveal-btn:hover { background: var(--teal-dim); border-color: var(--teal); }
+
+  /* ===== ANATOMY ===== */
+  .nerve-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .nerve-item {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 18px; cursor: pointer; transition: all 0.25s ease; position: relative;
+  }
+  .nerve-item:hover { border-color: var(--teal); box-shadow: var(--glow); transform: translateY(-2px); }
+  .nerve-item.expanded { border-color: var(--teal); background: var(--surface3); }
+  .nerve-item .ni-head { display: flex; align-items: center; justify-content: space-between; }
+  .nerve-item .ni-title { font-weight: 600; font-size: 0.88rem; color: var(--text); }
+  .nerve-item .ni-icon { font-size: 1.2rem; }
+  .nerve-item .ni-sub { font-size: 0.75rem; color: var(--teal); margin-top: 4px; }
+  .nerve-item .ni-detail {
+    margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--text-muted); line-height: 1.7; display: none;
+  }
+  .nerve-item.expanded .ni-detail { display: block; animation: fadeUp 0.25s ease; }
+  .nerve-item .toggle-arrow { transition: transform 0.2s; color: var(--teal); font-size: 0.8rem; }
+  .nerve-item.expanded .toggle-arrow { transform: rotate(180deg); }
+
+  /* COMPARISON TABLE */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; overflow: hidden; border-radius: 10px; }
+  .compare-table th {
+    background: var(--surface3); color: var(--teal); font-weight: 600;
+    padding: 14px 12px; text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em;
+    border-bottom: 2px solid var(--border);
+  }
+  .compare-table td { padding: 12px 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; line-height: 1.6; }
+  .compare-table tr:hover td { background: var(--surface2); }
+  .compare-table td:first-child { color: var(--teal-light); font-weight: 500; }
+  .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
+
+  /* ===== TREATMENT / CLINICAL APPLICATION ===== */
+  .clin-section { margin-bottom: 32px; }
+  .clin-section h3 {
+    font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700;
+    color: var(--gold); margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+  }
+  .clin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+  .clin-item {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px;
+  }
+  .clin-item.high-yield { border-left: 3px solid var(--coral); }
+  .clin-item.normal { border-left: 3px solid var(--teal); }
+  .clin-item.pearl { border-left: 3px solid var(--gold); }
+  .clin-item h4 { font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+  .clin-item p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.6; }
+
+  /* ALGORITHM */
+  .algo-step {
+    display: flex; gap: 16px; align-items: flex-start; margin-bottom: 12px;
+  }
+  .algo-num {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--teal), #2c7a7b);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.8rem; color: #fff; font-family: 'DM Mono', monospace;
+  }
+  .algo-content { flex: 1; background: var(--surface2); border-radius: 10px; padding: 14px 16px; }
+  .algo-content h4 { font-size: 0.85rem; font-weight: 600; color: var(--teal); margin-bottom: 4px; }
+  .algo-content p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; }
+
+  /* ===== MNEMONICS ===== */
+  .mnem-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    overflow: hidden; margin-bottom: 20px;
+  }
+  .mnem-header {
+    background: linear-gradient(135deg, var(--surface2), var(--surface3));
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .mnem-icon { font-size: 1.5rem; }
+  .mnem-header h3 { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: var(--text); }
+  .mnem-header .sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+  .mnem-body { padding: 20px; }
+  .mnem-word { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 10px; }
+  .mnem-letter {
+    width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+    background: var(--gold-dim); border: 1px solid rgba(212,168,67,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; font-weight: 900; color: var(--gold); font-family: 'Playfair Display', serif;
+  }
+  .mnem-meaning { flex: 1; }
+  .mnem-meaning strong { font-size: 0.88rem; color: var(--text); display: block; }
+  .mnem-meaning span { font-size: 0.78rem; color: var(--text-muted); }
+
+  /* HIGH YIELD BANNER */
+  .hy-banner {
+    background: linear-gradient(135deg, rgba(252,129,129,0.1), rgba(212,168,67,0.08));
+    border: 1px solid rgba(252,129,129,0.25); border-radius: var(--radius);
+    padding: 18px 22px; margin-bottom: 28px;
+    display: flex; align-items: flex-start; gap: 14px;
+  }
+  .hy-banner .icon { font-size: 1.5rem; flex-shrink: 0; }
+  .hy-banner .content h4 { font-size: 0.88rem; font-weight: 700; color: var(--coral); margin-bottom: 6px; }
+  .hy-banner .content p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.7; }
+
+  /* PATHOPHYSIOLOGY FLOW */
+  .patho-flow { display: flex; flex-direction: column; gap: 4px; }
+  .patho-row { display: flex; align-items: stretch; gap: 4px; flex-wrap: wrap; }
+  .patho-box {
+    flex: 1; min-width: 140px; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px; font-size: 0.78rem; color: var(--text);
+    text-align: center; transition: all 0.2s;
+  }
+  .patho-box:hover { background: var(--teal-dim); border-color: var(--teal); }
+  .patho-box strong { display: block; font-size: 0.7rem; color: var(--teal); margin-bottom: 4px; text-transform: uppercase; }
+  .patho-down { text-align: center; color: var(--teal); font-size: 1.2rem; padding: 4px 0; }
+
+  /* SCROLL TO TOP */
+  .scroll-top {
+    position: fixed; bottom: 24px; right: 24px; z-index: 100;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--teal); color: #fff; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+    box-shadow: var(--glow); transition: transform 0.2s;
+  }
+  .scroll-top:hover { transform: translateY(-3px); }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .main { padding: 20px 16px 60px; }
+    .section-hd h2 { font-size: 1.5rem; }
+    .header-inner { padding: 14px 0; }
+    .logo-text h1 { font-size: 1.1rem; }
+    .stats-bar { display: none; }
+    .fc-card { height: 220px; }
+  }
+
+  /* QUIZ NAVIGATION */
+  .quiz-nav {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px;
+  }
+  .qnav-dot {
+    width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text-muted); font-size: 0.72rem;
+    cursor: pointer; transition: all 0.15s; font-family: 'DM Mono', monospace;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qnav-dot:hover { border-color: var(--teal); color: var(--teal); }
+  .qnav-dot.answered-correct { background: rgba(104,211,145,0.2); border-color: var(--green); color: var(--green); }
+  .qnav-dot.answered-wrong { background: rgba(252,129,129,0.2); border-color: var(--coral); color: var(--coral); }
+  .qnav-dot.current { border-color: var(--teal); background: var(--teal-dim); color: var(--teal); }
+
+  .streak-display {
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'DM Mono', monospace; font-size: 1rem; font-weight: 700; color: var(--gold);
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">🧠</div>
+      <div class="logo-text">
+        <h1>Trigeminal Nerve — CN V</h1>
+        <p>Interactive Anatomy Study Platform · Medical School</p>
+      </div>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-pill">📊 <span class="label">Quiz Score</span> <span class="val" id="hdr-score">0/0</span></div>
+      <div class="stat-pill">🔥 <span class="label">Streak</span> <span class="val" id="hdr-streak">0</span></div>
+      <div class="stat-pill">✅ <span class="label">Cards Done</span> <span class="val" id="hdr-cards">0/25</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- TAB NAV -->
+<nav class="tab-nav">
+  <div class="tab-list">
+    <button class="tab-btn active" onclick="switchTab('overview',this)"><span class="emoji">🔭</span> Overview</button>
+    <button class="tab-btn" onclick="switchTab('quiz',this)"><span class="emoji">🎯</span> Quiz Mode</button>
+    <button class="tab-btn" onclick="switchTab('flashcards',this)"><span class="emoji">📇</span> Flashcards</button>
+    <button class="tab-btn" onclick="switchTab('cases',this)"><span class="emoji">🏥</span> Clinical Cases</button>
+    <button class="tab-btn" onclick="switchTab('anatomy',this)"><span class="emoji">🫀</span> Anatomy</button>
+    <button class="tab-btn" onclick="switchTab('ganglia',this)"><span class="emoji">🔬</span> Ganglia</button>
+    <button class="tab-btn" onclick="switchTab('clinical',this)"><span class="emoji">⚡</span> High-Yield</button>
+    <button class="tab-btn" onclick="switchTab('mnemonics',this)"><span class="emoji">🧩</span> Mnemonics</button>
+  </div>
+</nav>
+
+<main class="main">
+
+<!-- ===================== OVERVIEW TAB ===================== -->
+<div class="tab-panel active" id="tab-overview">
+  <div class="section-hd">
+    <h2>Trigeminal Nerve Overview</h2>
+    <p>The largest cranial nerve — complete structural and functional overview</p>
+  </div>
+
+  <div class="search-wrap">
+    <span class="icon">🔍</span>
+    <input type="text" id="overview-search" placeholder="Search concepts, structures, branches..." oninput="filterConcepts()">
+  </div>
+
+  <div class="hy-banner">
+    <div class="icon">⚠️</div>
+    <div class="content">
+      <h4>Exam Power Facts</h4>
+      <p>• Jaw deviates to the <strong>same</strong> side as mandibular nerve injury (unopposed contralateral pterygoids)<br>
+      • Lingual nerve = "dangerous position" behind last molar during 3rd molar extraction<br>
+      • Pterygopalatine fossa communications are a <strong>major exam focus</strong><br>
+      • Trigeminal is the LARGEST cranial nerve with 4 nuclei (3 sensory, 1 motor)</p>
+    </div>
+  </div>
+
+  <!-- NUCLEI TABLE -->
+  <div class="card" style="margin-bottom:28px">
+    <div class="card-title">🧠 Four Trigeminal Nuclei — at a glance</div>
+    <div class="table-wrap" style="border:none">
+      <table class="nucleus-table">
+        <thead><tr><th>Nucleus</th><th>Location</th><th>Function</th><th>Fiber Type</th></tr></thead>
+        <tbody>
+          <tr><td>Mesencephalic</td><td>Midbrain</td><td>Proprioception (jaw position)</td><td>Sensory</td></tr>
+          <tr><td>Main Sensory (Pontine)</td><td>Pons</td><td>Fine touch, pressure</td><td>Sensory</td></tr>
+          <tr><td>Spinal Nucleus</td><td>Medulla → Cervical spinal cord</td><td>Pain & temperature</td><td>Sensory</td></tr>
+          <tr><td>Motor Nucleus</td><td>Pons</td><td>Muscles of 1st pharyngeal arch</td><td>Motor (SVE)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- DIVISIONS PATHWAY FLOW -->
+  <div class="card" style="margin-bottom:28px">
+    <div class="card-title">🛤️ Three Divisions — Exit Pathways</div>
+    <div class="flow-wrap">
+      <div class="flow-node"><strong>V1 Ophthalmic</strong>Pure sensory<br>→ Superior orbital fissure → Orbit</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node"><strong>V2 Maxillary</strong>Pure sensory<br>→ Foramen rotundum → PPF</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node"><strong>V3 Mandibular</strong>Mixed (motor+sensory)<br>→ Foramen ovale + motor root</div>
+    </div>
+  </div>
+
+  <!-- CONCEPT CARDS -->
+  <div class="concept-grid" id="concept-grid">
+  </div>
+</div>
+
+<!-- ===================== QUIZ TAB ===================== -->
+<div class="tab-panel" id="tab-quiz">
+  <div class="section-hd">
+    <h2>Quiz Mode — 35 MCQs</h2>
+    <p>Exam-style questions covering all lecture content. Click an answer to reveal feedback.</p>
+  </div>
+
+  <div class="quiz-header">
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>Progress</span>
+        <span id="prog-text">0 / 35</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="prog-fill" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="quiz-score-pills">
+      <div class="score-pill"><span class="label">✅ Correct</span><span class="val green" id="q-correct">0</span></div>
+      <div class="score-pill"><span class="label">❌ Wrong</span><span class="val red" id="q-wrong">0</span></div>
+      <div class="score-pill"><span class="label">🔥 Streak</span><span class="val gold" id="q-streak">0</span></div>
+    </div>
+    <div>
+      <button class="btn btn-outline" onclick="resetQuiz()">🔄 Reset</button>
+    </div>
+  </div>
+
+  <div class="quiz-nav" id="quiz-nav"></div>
+  <div id="quiz-container"></div>
+</div>
+
+<!-- ===================== FLASHCARDS TAB ===================== -->
+<div class="tab-panel" id="tab-flashcards">
+  <div class="section-hd">
+    <h2>Flashcards — 25 Cards</h2>
+    <p>Click any card to flip it and reveal the answer. Master key concepts fast.</p>
+  </div>
+  <div class="fc-counter">
+    <p>📇 <span id="fc-flipped">0</span> / 25 cards reviewed</p>
+    <div class="fc-actions">
+      <button class="btn btn-outline" onclick="resetFlashcards()">🔄 Reset All</button>
+      <button class="btn btn-primary" onclick="shuffleFlashcards()">🔀 Shuffle</button>
+    </div>
+  </div>
+  <div class="fc-grid" id="fc-grid"></div>
+</div>
+
+<!-- ===================== CLINICAL CASES TAB ===================== -->
+<div class="tab-panel" id="tab-cases">
+  <div class="section-hd">
+    <h2>Clinical Cases</h2>
+    <p>Exam-style vignettes with structured answers. Work through each case before revealing.</p>
+  </div>
+  <div id="cases-container"></div>
+</div>
+
+<!-- ===================== ANATOMY TAB ===================== -->
+<div class="tab-panel" id="tab-anatomy">
+  <div class="section-hd">
+    <h2>Anatomy Deep Dive</h2>
+    <p>Interactive nerve structures — click to expand detailed information.</p>
+  </div>
+
+  <div class="card" style="margin-bottom:28px">
+    <div class="card-title">🗺️ V2 — Pterygopalatine Fossa Communications</div>
+    <div class="patho-flow">
+      <div class="patho-row">
+        <div class="patho-box"><strong>Anterior</strong>Pterygomaxillary fissure → Infratemporal fossa</div>
+        <div class="patho-box"><strong>Medial</strong>Sphenopalatine foramen → Nasal cavity</div>
+        <div class="patho-box"><strong>Superior</strong>Inferior orbital fissure → Orbit</div>
+      </div>
+      <div class="patho-down">⬇</div>
+      <div class="patho-row">
+        <div class="patho-box"><strong>Post/Roof</strong>Foramen rotundum → Middle cranial fossa</div>
+        <div class="patho-box"><strong>Pterygoid canal</strong>→ Middle cranial fossa (Vidian nerve)</div>
+        <div class="patho-box"><strong>Inferior</strong>Greater & lesser palatine canals → Oral cavity</div>
+      </div>
+      <div class="patho-down">⬇</div>
+      <div class="patho-row">
+        <div class="patho-box" style="border-left:3px solid var(--gold)"><strong>Palatovaginal canal</strong>→ Nasopharynx</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:28px">
+    <div class="card-title">🛤️ V3 Mandibular Divisions — Trunk → Anterior → Posterior</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:12px">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-top:3px solid var(--teal);border-radius:10px;padding:16px">
+        <div style="font-size:0.75rem;color:var(--teal);font-weight:700;margin-bottom:10px;text-transform:uppercase">TRUNK (from foramen ovale)</div>
+        <ul style="font-size:0.8rem;color:var(--text-muted);line-height:2;list-style:none">
+          <li>• Nervus spinosus (meningeal → dura)</li>
+          <li>• Nerve to medial pterygoid</li>
+          <li>• Nerve to tensor tympani</li>
+          <li>• Nerve to tensor palati</li>
+        </ul>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:10px;padding:16px">
+        <div style="font-size:0.75rem;color:var(--gold);font-weight:700;margin-bottom:10px;text-transform:uppercase">ANTERIOR (mostly motor)</div>
+        <ul style="font-size:0.8rem;color:var(--text-muted);line-height:2;list-style:none">
+          <li>• Masseteric nerve → masseter</li>
+          <li>• Deep temporal nerves → temporalis</li>
+          <li>• Lateral pterygoid nerve</li>
+          <li>• Buccal nerve (ONLY sensory branch)</li>
+        </ul>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-top:3px solid var(--coral);border-radius:10px;padding:16px">
+        <div style="font-size:0.75rem;color:var(--coral);font-weight:700;margin-bottom:10px;text-transform:uppercase">POSTERIOR (mostly sensory)</div>
+        <ul style="font-size:0.8rem;color:var(--text-muted);line-height:2;list-style:none">
+          <li>• Auriculotemporal nerve</li>
+          <li>• Lingual nerve</li>
+          <li>• Inferior alveolar nerve → mental nerve</li>
+          <li>  (+ nerve to mylohyoid — only motor)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="nerve-grid" id="nerve-detail-grid"></div>
+</div>
+
+<!-- ===================== GANGLIA TAB ===================== -->
+<div class="tab-panel" id="tab-ganglia">
+  <div class="section-hd">
+    <h2>Parasympathetic Ganglia in the Head</h2>
+    <p>Complete comparison of all four parasympathetic ganglia — a classic exam topic</p>
+  </div>
+
+  <div class="card" style="margin-bottom:28px">
+    <div class="card-title">📊 Four Ganglia — Full Comparison Table</div>
+    <div class="table-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Ciliary 👁️</th>
+            <th>Submandibular 💧</th>
+            <th>Otic 👂</th>
+            <th>Pterygopalatine 👃</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Site</td><td>Orbit, lateral to optic nerve</td><td>On hyoglossus muscle</td><td>Infratemporal fossa, below foramen ovale</td><td>Pterygopalatine fossa</td></tr>
+          <tr><td>Sensory Root</td><td>Nasociliary (from V1)</td><td>Lingual nerve (from V3)</td><td>Nerve to medial pterygoid (V3)</td><td>Maxillary nerve (V2)</td></tr>
+          <tr><td>Para. Pre-gangl. Origin</td><td>Edinger-Westphal nucleus (Midbrain)</td><td>Superior salivatory nucleus (Pons)</td><td>Inferior salivatory nucleus (Medulla)</td><td>Special lacrimatory nucleus (Pons)</td></tr>
+          <tr><td>Para. Route</td><td>CN III → oculomotor nerve</td><td>Facial → chorda tympani → lingual</td><td>CN IX → lesser petrosal → otic</td><td>Facial → greater petrosal → vidian</td></tr>
+          <tr><td>Sympathetic Root</td><td>Plexus around ICA</td><td>Plexus around facial artery</td><td>Plexus around middle meningeal artery</td><td>Deep petrosal nerve (ICA plexus)</td></tr>
+          <tr><td>Distribution</td><td>Ciliary muscle + sphincter pupillae</td><td>Submandibular + sublingual glands</td><td>Parotid gland</td><td>Lacrimal, nasal, palatine glands</td></tr>
+          <tr><td>Clinical Pearl</td><td>Adie's tonic pupil</td><td>Lingual nerve injury → dry mouth</td><td>Frey's syndrome post-parotid surgery</td><td>Hay fever (tears + runny nose)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">🔄 Pathway: Lacrimal Gland</div>
+      <div class="patho-flow" style="gap:6px">
+        <div class="patho-box" style="font-size:0.77rem"><strong>Origin</strong>Special Lacrimatory Nucleus (Pons)</div>
+        <div class="patho-down">↓</div>
+        <div class="patho-box" style="font-size:0.77rem"><strong>Nerve</strong>Facial Nerve (CN VII)</div>
+        <div class="patho-down">↓</div>
+        <div class="patho-box" style="font-size:0.77rem"><strong>Branch</strong>Greater Superficial Petrosal N.</div>
+        <div class="patho-down">↓</div>
+        <div class="patho-box" style="font-size:0.77rem"><strong>+ Deep Petrosal</strong>→ Nerve of Pterygoid Canal (Vidian)</div>
+        <div class="patho-down">↓</div>
+        <div class="patho-box" style="border-color:var(--teal);background:var(--teal-dim);font-size:0.77rem"><strong>Synapse</strong>Pterygopalatine Ganglion</div>
+        <div class="patho-down">↓</div>
+        <div class="patho-box" style="font-size:0.77rem"><strong>Route</strong>Zygomatic N. → loop to Lacrimal N.</div>
+        <div class="patho-down">↓</div>
+        <div class="patho-box" style="border-color:var(--gold);background:var(--gold-dim);font-size:0.77rem"><strong>Target</strong>🎯 Lacrimal Gland</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔄 Pathway: Parotid Gland</div>
+      <div class="patho-flow" style="gap:6px">
+        <div class="patho-box" style="font-size:0.77rem"><strong>Origin</strong>Inferior Salivatory Nucleus (Medulla)</div>
+        <div class="patho-down">↓</div>
+        <div class="patho-box" style="font-size:0.77rem"><strong>Nerve</strong>Glossopharyngeal Nerve (CN IX)</div>
+        <div class="patho-down">↓</div>
+        <div class="patho-box" style="font-size:0.77rem"><strong>Branch</strong>Tympanic nerve → Tympanic plexus</div>
+        <div class="patho-down">↓</div>
+        <div class="patho-box" style="font-size:0.77rem"><strong>Exits as</strong>Lesser Petrosal Nerve</div>
+        <div class="patho-down">↓</div>
+        <div class="patho-box" style="border-color:var(--teal);background:var(--teal-dim);font-size:0.77rem"><strong>Synapse</strong>Otic Ganglion</div>
+        <div class="patho-down">↓</div>
+        <div class="patho-box" style="font-size:0.77rem"><strong>Route</strong>Auriculotemporal Nerve (V3)</div>
+        <div class="patho-down">↓</div>
+        <div class="patho-box" style="border-color:var(--gold);background:var(--gold-dim);font-size:0.77rem"><strong>Target</strong>🎯 Parotid Gland</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== HIGH-YIELD CLINICAL TAB ===================== -->
+<div class="tab-panel" id="tab-clinical">
+  <div class="section-hd">
+    <h2>High-Yield Clinical Pearls</h2>
+    <p>Exam-favorite correlations, lesion patterns, and clinical applications</p>
+  </div>
+
+  <div class="hy-banner">
+    <div class="icon">🔥</div>
+    <div class="content">
+      <h4>⚠️ Top 3 Exam Traps</h4>
+      <p>
+        1. <strong>Jaw deviation = SAME side as V3 injury</strong> (right nerve → jaw goes right)<br>
+        2. <strong>Buccal nerve (V3)</strong> is sensory only — buccinator motor = facial nerve (VII)<br>
+        3. <strong>Cavernous sinus lesion</strong> affects V1 + V2 but NOT V3 (mandibular exits directly via foramen ovale)
+      </p>
+    </div>
+  </div>
+
+  <div class="clin-section">
+    <h3>🚨 Must-Know Clinical Conditions</h3>
+    <div class="clin-grid" id="clin-conditions"></div>
+  </div>
+
+  <div class="clin-section">
+    <h3>🔬 Nerve Injury Patterns</h3>
+    <div id="injury-algo"></div>
+  </div>
+
+  <div class="clin-section">
+    <h3>💊 Dental Anesthesia Landmarks</h3>
+    <div class="clin-grid" id="dental-grid"></div>
+  </div>
+</div>
+
+<!-- ===================== MNEMONICS TAB ===================== -->
+<div class="tab-panel" id="tab-mnemonics">
+  <div class="section-hd">
+    <h2>Mnemonics & Memory Tricks</h2>
+    <p>Custom mnemonics crafted from the lecture content for fast recall</p>
+  </div>
+  <div id="mnemonics-container"></div>
+</div>
+
+</main>
+
+<button class="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+
+const conceptData = [
+  { num: "01", title: "CN V — The Largest Cranial Nerve", body: "Emerges from the side of the pons near its upper border. Has a large sensory root and a small motor root that unite at the trigeminal ganglion.", tags: ["high-yield", "overview"], badges: ["badge-teal"] },
+  { num: "02", title: "Mesencephalic Nucleus", body: "Located in the MIDBRAIN. Unique — contains cell bodies of afferent neurons inside the CNS. Mediates proprioception from muscles of mastication, teeth, and periodontal ligaments.", tags: ["sensory", "proprioception"], badges: ["badge-yellow"] },
+  { num: "03", title: "Main Sensory (Pontine) Nucleus", body: "Located in the PONS. Mediates fine touch and pressure — equivalent to the dorsal column nuclei for the face.", tags: ["sensory", "touch"], badges: ["badge-teal"] },
+  { num: "04", title: "Spinal Trigeminal Nucleus", body: "Extends from pons → medulla → C2 spinal cord. Mediates pain and temperature. The 'onion skin' pattern of sensory loss corresponds to lesions at different levels.", tags: ["sensory", "pain"], badges: ["badge-red"] },
+  { num: "05", title: "Motor Nucleus", body: "Located in the PONS. Supplies all muscles of the 1st pharyngeal arch: masseter, temporalis, pterygoids, mylohyoid, anterior belly of digastric, tensor tympani, tensor palati.", tags: ["motor", "exam-fav"], badges: ["badge-yellow"] },
+  { num: "06", title: "V1 Ophthalmic Nerve", body: "PURE SENSORY. Exits via superior orbital fissure → orbit. Branches: Nasociliary, Frontal, Lacrimal. Supplies cornea, upper face, scalp to vertex.", tags: ["sensory", "V1"], badges: ["badge-teal"] },
+  { num: "07", title: "V2 Maxillary Nerve", body: "PURE SENSORY. Exits via foramen rotundum → pterygopalatine fossa → inferior orbital fissure → infraorbital canal → infraorbital foramen. Supplies lower eyelid, cheek, upper lip, upper teeth.", tags: ["sensory", "V2"], badges: ["badge-teal"] },
+  { num: "08", title: "V3 Mandibular Nerve", body: "MIXED (sensory + motor). Exits foramen ovale. Only division with a motor component (joins with motor root). Supplies lower face, tongue, lower teeth, muscles of mastication.", tags: ["mixed", "V3", "exam-fav"], badges: ["badge-yellow"] },
+  { num: "09", title: "Pterygopalatine Fossa", body: "Boundaries: Anterior = maxilla; Medial = palatine bone; Posterior + roof = sphenoid. Contains: maxillary artery, maxillary nerve (V2), pterygopalatine ganglion. 6 communications!", tags: ["PPF", "exam-fav"], badges: ["badge-yellow"] },
+  { num: "10", title: "Pterygopalatine Ganglion", body: "LARGEST parasympathetic ganglion in head and neck. Parasympathetic root = greater petrosal nerve (CN VII). Sympathetic root = deep petrosal nerve (ICA plexus). Together → Nerve of Pterygoid Canal (Vidian nerve).", tags: ["ganglion", "exam-fav"], badges: ["badge-yellow"] },
+  { num: "11", title: "Auriculotemporal Nerve", body: "From posterior division of V3. Wraps around the middle meningeal artery. Carries postganglionic parasympathetic fibers from the OTIC ganglion to the parotid gland. Also sensation to tragus, TMJ, scalp.", tags: ["V3", "parotid"], badges: ["badge-teal"] },
+  { num: "12", title: "Lingual Nerve", body: "From posterior division of V3. General sensation anterior 2/3 tongue. Joined by chorda tympani (taste + preganglionic parasympathetics). Suspends submandibular ganglion. DANGEROUS: passes behind last molar!", tags: ["lingual", "exam-fav", "clinical-pearl"], badges: ["badge-red"] },
+  { num: "13", title: "Inferior Alveolar Nerve", body: "From posterior division of V3. Enters mandibular foramen. Gives nerve to mylohyoid (motor) before entering canal. Supplies all lower teeth. Exits as mental nerve at mental foramen → chin + lower lip.", tags: ["V3", "dental"], badges: ["badge-teal"] },
+  { num: "14", title: "Buccal Nerve", body: "The ONLY sensory branch of the anterior division of V3. Supplies skin over buccinator and buccal mucosa. NOTE: motor supply to buccinator = facial nerve (CN VII)!", tags: ["V3", "sensory", "clinical-pearl"], badges: ["badge-red"] },
+  { num: "15", title: "Nervus Spinosus", body: "Meningeal branch from the TRUNK of V3. Re-enters cranial cavity through foramen spinosum (alongside middle meningeal artery). Supplies dura mater of middle cranial fossa.", tags: ["meningeal", "V3"], badges: ["badge-teal"] },
+  { num: "16", title: "Frey's Syndrome", body: "After parotid surgery, regenerating parasympathetic fibers of the auriculotemporal nerve misdirect to skin sweat glands → gustatory sweating (sweating and flushing over cheek during eating).", tags: ["clinical-pearl", "exam-fav"], badges: ["badge-yellow"] },
+  { num: "17", title: "Superior Alveolar Nerves", body: "Posterior superior alveolar → upper 3 molars. Middle superior alveolar → upper 2 premolars (descends on lateral wall of maxillary sinus). Anterior superior alveolar → canine + incisors (descends on anterior wall).", tags: ["dental", "V2"], badges: ["badge-teal"] },
+  { num: "18", title: "Tongue Innervation Summary", body: "Anterior 2/3: General sensation = lingual nerve (V3). Taste = chorda tympani (VII). Motor = hypoglossal (XII). Posterior 1/3: Sensation + taste = glossopharyngeal (IX). Motor = vagus (X).", tags: ["tongue", "exam-fav"], badges: ["badge-yellow"] },
+  { num: "19", title: "Cavernous Sinus Content", body: "Lateral wall (inside to out): CN III, CN IV, V1 (ophthalmic), V2 (maxillary). INSIDE sinus: CN VI, ICA with sympathetic plexus. V3 does NOT pass through cavernous sinus — exits via foramen ovale directly!", tags: ["cranial", "exam-fav"], badges: ["badge-red"] },
+  { num: "20", title: "Nerve of Pterygoid Canal", body: "Formed by: Greater superficial petrosal (parasympathetic from CN VII) + Deep petrosal nerve (sympathetic from ICA plexus). Runs through pterygoid canal → pterygopalatine ganglion.", tags: ["autonomic", "PPF"], badges: ["badge-teal"] },
+];
+
+const quizData = [
+  { q:"Which of the following is the largest cranial nerve?", opts:["Facial","Vagus","Trigeminal","Glossopharyngeal","Optic"], ans:2, exp:"The trigeminal nerve (CN V) is explicitly the largest cranial nerve, with the widest sensory and motor distribution in the head." },
+  { q:"The mesencephalic nucleus of the trigeminal nerve is primarily responsible for:", opts:["Touch","Pain and temperature","Motor supply to mastication muscles","Proprioception","Secretomotor output"], ans:3, exp:"The mesencephalic nucleus, uniquely located in the midbrain, mediates proprioception — sense of jaw position and muscle tension. Main sensory = touch; Spinal = pain/temp." },
+  { q:"The maxillary nerve exits the middle cranial fossa through which structure?", opts:["Foramen ovale","Foramen rotundum","Foramen spinosum","Superior orbital fissure","Pterygomaxillary fissure"], ans:1, exp:"V2 passes through the foramen rotundum to enter the pterygopalatine fossa. V3 uses foramen ovale; V1 uses superior orbital fissure." },
+  { q:"The anterior wall of the pterygopalatine fossa is formed by the:", opts:["Sphenoid bone","Palatine bone","Maxilla","Ramus of the mandible","Zygomatic arch"], ans:2, exp:"Maxilla = anterior wall. Palatine bone = medial wall. Sphenoid = posterior wall and roof of the pterygopalatine fossa." },
+  { q:"Which nerve provides postganglionic parasympathetic secretomotor fibers to the parotid gland?", opts:["Lingual nerve","Auriculotemporal nerve","Buccal nerve","Zygomatic nerve","Greater palatine nerve"], ans:1, exp:"Auriculotemporal nerve carries postganglionic parasympathetic fibers from the otic ganglion to the parotid gland. Lingual nerve goes to submandibular gland." },
+  { q:"A lesion of the mandibular nerve trunk just below the foramen ovale would directly paralyze which muscle?", opts:["Masseter","Temporalis","Lateral pterygoid","Medial pterygoid","Buccinator"], ans:3, exp:"The nerve to the medial pterygoid arises directly from the TRUNK of the mandibular nerve. Masseter, temporalis, and lateral pterygoid are from the anterior division." },
+  { q:"Which branch of the mandibular nerve re-enters the cranial cavity to supply the dura mater?", opts:["Auriculotemporal nerve","Deep temporal nerve","Nervus spinosus","Inferior alveolar nerve","Masseteric nerve"], ans:2, exp:"Nervus spinosus (meningeal branch) re-enters through the foramen spinosum alongside the middle meningeal artery to supply the dura of the middle cranial fossa." },
+  { q:"The buccal branch of the mandibular nerve is:", opts:["Purely motor","Purely sensory","Mixed motor and sensory","Parasympathetic","Sympathetic"], ans:1, exp:"V3's buccal nerve is PURELY SENSORY to skin over buccinator and buccal mucosa. The facial nerve (VII) provides motor supply to the buccinator muscle." },
+  { q:"Which parasympathetic ganglion is suspended from the lingual nerve?", opts:["Ciliary","Pterygopalatine","Otic","Submandibular","Geniculate"], ans:3, exp:"The submandibular ganglion is physically suspended from the lingual nerve. It relays parasympathetics to the submandibular and sublingual glands." },
+  { q:"Frey's syndrome involves aberrant regeneration of which nerve fibers?", opts:["Sympathetic to facial skin","Parasympathetic of the auriculotemporal nerve","Motor fibers of the facial nerve","Sensory fibers of the lingual nerve","Parasympathetic of the chorda tympani"], ans:1, exp:"After parotid surgery, regenerating parasympathetic fibers of the ATN misdirect to sweat glands → sweating during eating (gustatory sweating)." },
+  { q:"The pterygopalatine fossa communicates with the infratemporal fossa via the:", opts:["Inferior orbital fissure","Sphenopalatine foramen","Pterygomaxillary fissure","Foramen rotundum","Palatovaginal canal"], ans:2, exp:"Pterygomaxillary fissure connects the PTF laterally to the infratemporal fossa. Inferior orbital fissure connects to orbit; sphenopalatine foramen to nasal cavity." },
+  { q:"What roots form the nerve of the pterygoid canal?", opts:["Greater superficial petrosal and deep petrosal","Lesser petrosal and deep petrosal","Chorda tympani and auriculotemporal","Lingual and chorda tympani","Nervus spinosus and deep petrosal"], ans:0, exp:"Greater superficial petrosal nerve (parasympathetic from CN VII) + deep petrosal nerve (sympathetic from ICA plexus) = nerve of the pterygoid canal (Vidian nerve)." },
+  { q:"The nerve to the mylohyoid muscle is a branch of the:", opts:["Lingual nerve","Inferior alveolar nerve","Auriculotemporal nerve","Facial nerve","Anterior division of mandibular nerve"], ans:1, exp:"The inferior alveolar nerve gives a motor branch to the mylohyoid before entering the mandibular canal. This is the ONLY motor branch of the posterior division." },
+  { q:"Sensory innervation to the central part of the upper eyelid is supplied by the:", opts:["Supraorbital nerve (Frontal)","Palpebral branch of Lacrimal","Infraorbital nerve","Infratrochlear nerve","Zygomaticofacial nerve"], ans:0, exp:"Central upper eyelid = supraorbital nerve. Lateral upper eyelid = lacrimal nerve. Medial upper = supratrochlear. Lower eyelid = palpebral branch of infraorbital (V2)." },
+  { q:"The sensory root of the ciliary ganglion derives from the:", opts:["Maxillary nerve","Nasociliary nerve (from ophthalmic)","Lingual nerve","Zygomatic nerve","Frontal nerve"], ans:1, exp:"Nasociliary nerve (branch of V1/ophthalmic) provides the sensory root to the ciliary ganglion. These fibers pass through without synapsing." },
+  { q:"The parasympathetic root for the otic ganglion comes from the:", opts:["Edinger-Westphal nucleus","Superior salivatory nucleus","Inferior salivatory nucleus","Special lacrimatory nucleus","Main sensory nucleus"], ans:2, exp:"Inferior salivatory nucleus (medulla) → CN IX → lesser petrosal nerve → otic ganglion. Edinger-Westphal → ciliary; Superior salivatory → submandibular." },
+  { q:"Which nerve branches end as the mental nerve?", opts:["Lingual nerve","Buccal nerve","Inferior alveolar nerve","Auriculotemporal nerve","Masseteric nerve"], ans:2, exp:"The inferior alveolar nerve enters the mandibular canal, supplies lower teeth, then exits at the mental foramen as the mental nerve → chin and lower lip." },
+  { q:"The superior orbital fissure connects the cranial cavity to the:", opts:["Orbit","Pterygopalatine fossa","Infratemporal fossa","Nasal cavity","Pharynx"], ans:0, exp:"The superior orbital fissure opens into the orbit. It transmits CN III, IV, V1 (ophthalmic), VI, and ophthalmic veins." },
+  { q:"Which ganglion is associated with the phenomenon of 'hay fever' (tears and runny nose)?", opts:["Otic ganglion","Ciliary ganglion","Submandibular ganglion","Pterygopalatine ganglion","Geniculate ganglion"], ans:3, exp:"Pterygopalatine ganglion provides secretomotor fibers to BOTH lacrimal glands AND nasal glands — explaining simultaneous tearing and rhinorrhea in hay fever." },
+  { q:"General sensation to the anterior 2/3 of the tongue is carried by the:", opts:["Chorda tympani","Glossopharyngeal nerve","Lingual nerve","Hypoglossal nerve","Vagus nerve"], ans:2, exp:"Lingual nerve (V3) carries general somatic sensation from the anterior 2/3 of the tongue. Chorda tympani carries TASTE from the same region." },
+  { q:"Taste from the anterior 2/3 of the tongue is carried by the:", opts:["Lingual nerve","Chorda tympani of the facial nerve","Glossopharyngeal nerve","Auriculotemporal nerve","Nasopalatine nerve"], ans:1, exp:"Taste fibers from anterior 2/3 tongue travel with chorda tympani (CN VII), which hitchhikes on the lingual nerve after joining it in the infratemporal fossa." },
+  { q:"The sympathetic root to the submandibular ganglion originates from:", opts:["Plexus around the middle meningeal artery","Plexus around the internal carotid artery","Plexus around the facial artery","Plexus around the maxillary artery","Nervus spinosus"], ans:2, exp:"Sympathetic fibers from the Superior Cervical Ganglion travel via the plexus around the facial artery to reach the submandibular ganglion." },
+  { q:"Which structure forms the roof of the infratemporal fossa?", opts:["Maxilla","Ramus of the mandible","Sphenoid","Lateral pterygoid plate","Palatine bone"], ans:2, exp:"The infratemporal surface of the greater wing of the sphenoid bone forms the roof of the infratemporal fossa." },
+  { q:"The zygomatic nerve enters the orbit through the:", opts:["Superior orbital fissure","Inferior orbital fissure","Pterygomaxillary fissure","Foramen rotundum","Sphenopalatine foramen"], ans:1, exp:"The zygomatic nerve (from V2) passes from the pterygopalatine fossa to the orbit via the inferior orbital fissure. Superior orbital fissure = CN III, IV, V1, VI." },
+  { q:"The posterior superior lateral nasal wall is supplied by the:", opts:["Long sphenopalatine nerve","Short sphenopalatine nerve","Anterior ethmoidal nerve","Greater palatine nerve","Infratrochlear nerve"], ans:1, exp:"Short sphenopalatine nerves = posterior superior LATERAL nasal wall. Long sphenopalatine (nasopalatine) = nasal SEPTUM." },
+  { q:"Which teeth are supplied by the posterior superior alveolar nerve?", opts:["Upper canine and incisors","Upper 2 premolars","Upper 3 molar teeth","Lower 3 molar teeth","Lower incisors"], ans:2, exp:"Posterior superior alveolar → upper 3 molars. Middle superior alveolar → upper 2 premolars. Anterior superior alveolar → canine + incisors." },
+  { q:"The deep petrosal nerve carries what type of fibers?", opts:["Postganglionic parasympathetic","Preganglionic parasympathetic","Sympathetic","General sensory","Somatic motor"], ans:2, exp:"The deep petrosal nerve carries SYMPATHETIC fibers from the internal carotid plexus. The greater petrosal nerve carries the parasympathetics." },
+  { q:"The functional root (causing a relay synapse) of the otic ganglion is the:", opts:["Sympathetic plexus","Auriculotemporal nerve","Lesser petrosal nerve","Chorda tympani","Deep petrosal nerve"], ans:2, exp:"Parasympathetic ganglia only allow SYNAPSE of parasympathetic fibers. The lesser petrosal nerve (CN IX) is the only fiber type that synapses in the otic ganglion." },
+  { q:"Sensation to the upper lip is provided by the:", opts:["Mental nerve","Labial branch of the infraorbital (maxillary) nerve","Buccal nerve","Infraorbital palpebral branch","Zygomaticofacial nerve"], ans:1, exp:"The labial branch of the infraorbital nerve (V2) supplies the upper lip. The mental nerve (V3) supplies the lower lip and chin." },
+  { q:"The middle superior alveolar nerve descends along the:", opts:["Anterior wall of the maxillary sinus","Lateral wall of the maxillary sinus","Floor of the orbit","Medial wall of the nasal cavity","Hard palate"], ans:1, exp:"Middle superior alveolar nerve descends along the LATERAL wall of the maxillary sinus to supply the upper 2 premolars. Anterior superior alveolar descends on the anterior wall." },
+  { q:"The trigeminal motor nucleus is located in the:", opts:["Midbrain","Pons","Medulla","Spinal cord","Cerebellum"], ans:1, exp:"Motor nucleus = Pons. Mesencephalic nucleus = Midbrain. Spinal nucleus = Medulla extending into cervical spinal cord." },
+  { q:"The pharyngeal branch of the pterygopalatine ganglion runs through the:", opts:["Pterygoid canal","Palatovaginal canal","Sphenopalatine foramen","Greater palatine canal","Pterygomaxillary fissure"], ans:1, exp:"The pharyngeal branch runs through the palatovaginal canal to reach and supply the mucosa of the nasopharynx." },
+  { q:"The upper dorsum of the nose receives sensory innervation from the:", opts:["Infratrochlear of nasociliary","Anterior ethmoidal of nasociliary","Nasal branch of infraorbital","Supratrochlear","Zygomatic"], ans:0, exp:"Upper dorsum of nose = infratrochlear nerve (from nasociliary). The TIP of nose (lower dorsum) = external nasal branch of anterior ethmoidal nerve." },
+  { q:"Secretion for the submandibular gland is regulated by the:", opts:["Auriculotemporal nerve","Glossopharyngeal nerve","Chorda tympani","Deep petrosal nerve","Vagus nerve"], ans:2, exp:"Chorda tympani (CN VII) carries preganglionic parasympathetics → relays in submandibular ganglion → postganglionic fibers to submandibular and sublingual glands." },
+  { q:"A lesion inside the cavernous sinus lateral wall could directly damage which two trigeminal divisions?", opts:["Ophthalmic & Maxillary","Maxillary & Mandibular","Ophthalmic & Mandibular","All three divisions","None of the divisions"], ans:0, exp:"V1 (ophthalmic) and V2 (maxillary) run in the lateral wall of the cavernous sinus. V3 exits the skull via foramen ovale directly and does NOT pass through the cavernous sinus." },
+];
+
+const flashcardData = [
+  { q:"What are the 4 nuclei of CN V and their locations?", a:"Mesencephalic (midbrain) = proprioception; Main sensory/Pontine (pons) = touch; Spinal (medulla→C2) = pain/temp; Motor (pons) = muscles of 1st pharyngeal arch" },
+  { q:"Through what foramen does V1 exit and what does it supply?", a:"Superior orbital fissure → orbit. Supplies: cornea, upper eyelid, forehead, scalp to vertex. Branches: nasociliary, frontal, lacrimal. PURE SENSORY." },
+  { q:"Through what foramen does V2 exit and where does it go?", a:"Foramen rotundum → pterygopalatine fossa → inferior orbital fissure → infraorbital canal → infraorbital foramen → face. PURE SENSORY." },
+  { q:"Through what foramen does V3 exit and what is unique about it?", a:"Foramen ovale. ONLY MIXED division — motor root joins sensory root before passing through. Supplies lower face + muscles of mastication." },
+  { q:"Name the 6 communications of the pterygopalatine fossa", a:"1) Foramen rotundum (middle cranial fossa), 2) Pterygoid canal (middle cranial fossa), 3) Sphenopalatine foramen (nasal cavity), 4) Inferior orbital fissure (orbit), 5) Pterygomaxillary fissure (infratemporal fossa), 6) Palatine canals (oral cavity), 7) Palatovaginal canal (nasopharynx)" },
+  { q:"What forms the nerve of the pterygoid canal (Vidian nerve)?", a:"Greater superficial petrosal nerve (parasympathetic from CN VII/lacrimatory nucleus) + Deep petrosal nerve (sympathetic from ICA plexus) → unite → Nerve of pterygoid canal → pterygopalatine ganglion" },
+  { q:"What is the 'dangerous position' of the lingual nerve?", a:"The lingual nerve passes immediately behind and below the last lower molar tooth as it enters the floor of the mouth — making it vulnerable to injury during 3rd molar extraction." },
+  { q:"If the right mandibular nerve is injured, which way does the jaw deviate?", a:"To the RIGHT (same side as the lesion). The healthy left lateral pterygoid pushes the jaw toward the paralyzed right side unopposed." },
+  { q:"What are the contents of the trunk of V3 (directly from foramen ovale)?", a:"1) Nervus spinosus → re-enters cranium via foramen spinosum to supply dura. 2) Nerve to medial pterygoid (+ tensor tympani + tensor palati)" },
+  { q:"What branches arise from the ANTERIOR division of V3?", a:"MOSTLY MOTOR: masseteric nerve, 2 deep temporal nerves, lateral pterygoid nerve. ONE SENSORY: buccal nerve (skin over buccinator + buccal mucosa)" },
+  { q:"What branches arise from the POSTERIOR division of V3?", a:"MOSTLY SENSORY: auriculotemporal nerve, lingual nerve. ONE MIXED: inferior alveolar nerve (motor branch = nerve to mylohyoid; sensory = lower teeth, mental nerve)" },
+  { q:"What does the auriculotemporal nerve carry?", a:"General sensation: tragus, TMJ, scalp over temple. Autonomic: postganglionic PARASYMPATHETIC from OTIC ganglion to parotid gland. Wraps around middle meningeal artery." },
+  { q:"What information does the lingual nerve carry?", a:"General sensation: anterior 2/3 tongue (V3). Taste: via chorda tympani (VII, joins lingual in infratemporal fossa). Parasympathetics: to submandibular ganglion (from chorda tympani)." },
+  { q:"What is Frey's syndrome? What causes it?", a:"Gustatory sweating (sweating + flushing over cheek during eating). Caused by misdirected regenerating parasympathetic fibers of auriculotemporal nerve → innervate sweat glands instead of parotid, after parotid surgery." },
+  { q:"What is the sensory root of the ciliary ganglion and where does it come from?", a:"Nasociliary nerve (branch of V1/ophthalmic). These fibers PASS THROUGH without synapsing. The ganglion synapse is ONLY for the parasympathetic root (CN III/Edinger-Westphal)." },
+  { q:"Where is the submandibular ganglion? What does it supply?", a:"Suspended from the lingual nerve on the lateral surface of hyoglossus muscle. Postganglionic fibers supply the submandibular and sublingual salivary glands." },
+  { q:"Which structures run in the LATERAL WALL of the cavernous sinus?", a:"From superior to inferior: CN III (oculomotor), CN IV (trochlear), V1 (ophthalmic), V2 (maxillary). INSIDE the sinus: CN VI and ICA with sympathetic plexus." },
+  { q:"Anterior 2/3 of tongue: what provides (a) general sensation, (b) taste, (c) motor?", a:"(a) General sensation = Lingual nerve (V3). (b) Taste = Chorda tympani (CN VII). (c) Motor = Hypoglossal nerve (CN XII)" },
+  { q:"What are the 3 roots of the otic ganglion?", a:"1) Sensory root: nerve to medial pterygoid (V3). 2) Parasympathetic root: lesser petrosal nerve (CN IX) — the FUNCTIONAL root that synapses. 3) Sympathetic root: plexus around middle meningeal artery." },
+  { q:"Which teeth does each superior alveolar nerve supply?", a:"Posterior superior alveolar → upper 3 MOLARS. Middle superior alveolar → upper 2 PREMOLARS (on lateral wall of maxillary sinus). Anterior superior alveolar → CANINE + INCISORS." },
+  { q:"What type of nerve is the buccal nerve (V3) and what does it supply?", a:"PURELY SENSORY. Supplies the skin overlying the buccinator muscle and the mucous membrane lining the cheeks. Motor to buccinator = facial nerve (VII). This is a common exam trick!" },
+  { q:"What is the parasympathetic pathway to the lacrimal gland?", a:"Special lacrimatory nucleus → CN VII → greater superficial petrosal → + deep petrosal = Vidian nerve → pterygopalatine ganglion (synapse) → zygomatic nerve → communicating branch → lacrimal nerve → lacrimal gland" },
+  { q:"What is the parasympathetic pathway to the parotid gland?", a:"Inferior salivatory nucleus → CN IX → tympanic nerve → tympanic plexus → lesser petrosal nerve → otic ganglion (synapse) → auriculotemporal nerve → parotid gland" },
+  { q:"What is the largest parasympathetic ganglion in the head and neck?", a:"Pterygopalatine ganglion. Located in the pterygopalatine fossa. Supplies lacrimal gland, nasal glands, and palatine glands with secretomotor parasympathetic fibers." },
+  { q:"Name all muscles supplied by the motor nucleus of CN V", a:"Masseter, temporalis, lateral pterygoid, medial pterygoid (all 4 muscles of mastication), plus: mylohyoid, anterior belly of digastric, tensor tympani, tensor palati. All are 1st pharyngeal arch derivatives." },
+];
+
+const casesData = [
+  {
+    icon:"🦷", num:"CASE 01",
+    title:"Impacted Third Molar Extraction",
+    vignette:"A 28-year-old male undergoes extraction of an impacted lower right wisdom tooth. Post-operatively he reports loss of sensation over the right side of his tongue and decreased salivation. His taste perception and facial expressions are completely normal.",
+    questions:[
+      { q:"Q1: Which nerve was most likely injured during this procedure?", hint:"Think about what nerve is in a 'dangerous position' near the last molar...", a:"<strong>Lingual nerve</strong> (right side). It passes dangerously close behind and below the last lower molar tooth as it enters the floor of the mouth — directly in the surgical field during 3rd molar extraction." },
+      { q:"Q2: Explain why taste is preserved despite tongue numbness.", hint:"General sensation and taste travel on DIFFERENT nerves...", a:"General sensation of the anterior 2/3 of tongue = <strong>lingual nerve (V3)</strong>. Taste = <strong>chorda tympani (CN VII)</strong>, which joins the lingual nerve further proximally. If the lingual nerve is injured at the floor of the mouth, the chorda tympani (joining higher up) may be spared — preserving taste while losing general sensation." },
+      { q:"Q3: Why is salivation decreased?", hint:"What ganglion does the lingual nerve suspend?", a:"The lingual nerve suspends the <strong>submandibular ganglion</strong>. The injured nerve disrupts the postganglionic parasympathetic fibers relayed through this ganglion to the submandibular and sublingual glands → reduced salivation from these glands." },
+      { q:"Q4: Which gland can compensate for the reduced salivation?", hint:"Think which other salivary gland has independent innervation...", a:"The <strong>parotid gland</strong> — innervated by the auriculotemporal nerve (V3) via the otic ganglion from CN IX — is entirely unaffected and continues to produce saliva, as does the contralateral submandibular gland." },
+    ]
+  },
+  {
+    icon:"🧠", num:"CASE 02",
+    title:"Skull Base Fracture — Dry Eye & Nasal Dryness",
+    vignette:"A 35-year-old woman sustains a basilar skull fracture. She develops dry eyes and absence of nasal secretions but has no deficit in jaw movement or facial muscle function.",
+    questions:[
+      { q:"Q1: Which structure is most likely damaged?", hint:"Think about which ganglion supplies BOTH lacrimal and nasal glands...", a:"The <strong>pterygopalatine ganglion</strong> (or the greater superficial petrosal nerve leading to it). This is the largest parasympathetic ganglion in the head and neck, providing secretomotor supply to both the lacrimal and nasal glands." },
+      { q:"Q2: What nerve carries the parasympathetic root to this ganglion?", hint:"Which cranial nerve has a 'special lacrimatory nucleus'?", a:"The <strong>greater superficial petrosal nerve</strong> (from CN VII / facial nerve), originating from the special lacrimatory nucleus in the pons. It unites with the deep petrosal nerve to form the Vidian nerve → pterygopalatine ganglion." },
+      { q:"Q3: Why is jaw movement preserved?", hint:"Chewing is a V3/mandibular function...", a:"Jaw movement (mastication) is controlled by the <strong>motor nucleus of V3 (mandibular nerve)</strong>, which exits via foramen ovale — a separate pathway from the pterygopalatine fossa. The injury to the pterygopalatine ganglion does not affect this motor pathway." },
+    ]
+  },
+  {
+    icon:"⚡", num:"CASE 03",
+    title:"Mandibular Nerve Injury — Jaw Deviation",
+    vignette:"A 45-year-old man sustains a penetrating injury damaging the right mandibular nerve at the level of the foramen ovale. On examination, when he opens his mouth, his jaw deviates.",
+    questions:[
+      { q:"Q1: To which side does the jaw deviate and why?", hint:"Think about which muscles open the jaw and push it forward...", a:"The jaw deviates to the <strong>RIGHT</strong> (same side as the lesion). The lateral pterygoid muscles are responsible for pushing the mandible forward/contralateral. With right V3 injured, the right lateral pterygoid is paralyzed; the healthy LEFT lateral pterygoid pushes the chin to the right (injured side) unopposed." },
+      { q:"Q2: Which specific muscle is directly paralyzed first from the nerve trunk?", hint:"Which muscle gets its nerve from the TRUNK of V3 (not a division)?", a:"The <strong>medial pterygoid</strong> — its nerve arises directly from the undivided trunk of V3 at foramen ovale, before the anterior/posterior divisions split." },
+      { q:"Q3: What other deficit would you expect?", hint:"V3 carries both motor AND sensory fibers...", a:"Loss of general sensation over: lower lip and chin (mental nerve), cheek skin over buccinator (buccal nerve), anterior 2/3 of tongue general sensation (lingual nerve), lower teeth and gums, and skin over the temporomandibular joint and ear." },
+    ]
+  },
+  {
+    icon:"👁️", num:"CASE 04",
+    title:"Cavernous Sinus Syndrome",
+    vignette:"A 55-year-old man presents with diplopia, ptosis, and loss of sensation over the forehead and cheek. Examination reveals he has an intact ability to open his mouth and no deviation of the jaw.",
+    questions:[
+      { q:"Q1: Which trigeminal divisions are most likely affected?", hint:"Which divisions pass through the cavernous sinus lateral wall?", a:"<strong>V1 (ophthalmic)</strong> and <strong>V2 (maxillary)</strong> — they run in the lateral wall of the cavernous sinus. V3 (mandibular) exits the skull via foramen ovale DIRECTLY and does NOT pass through the cavernous sinus, which explains preserved jaw movement." },
+      { q:"Q2: Which motor nerves are also likely damaged in cavernous sinus syndrome?", hint:"Which cranial nerves travel through or within the cavernous sinus?", a:"CN III (oculomotor) → ptosis + downward/outward gaze; CN IV (trochlear) → vertical diplopia; CN VI (abducens) → horizontal diplopia. These + V1/V2 = classic cavernous sinus syndrome." },
+    ]
+  },
+  {
+    icon:"🦷", num:"CASE 05",
+    title:"Infraorbital Nerve Block",
+    vignette:"A dentist injects local anesthetic at the infraorbital foramen to perform a dental procedure. The patient reports numbness in several facial areas.",
+    questions:[
+      { q:"Q1: Which structures will become numb?", hint:"What are the branches of the infraorbital nerve at the foramen?", a:"The infraorbital nerve exits the foramen and divides into: <strong>Palpebral branches</strong> (lower eyelid), <strong>Nasal branches</strong> (side of nose), <strong>Labial branches</strong> (upper lip and adjacent cheek). Therefore: lower eyelid, side of nose, and upper lip become numb." },
+      { q:"Q2: Which upper teeth will also be anesthetized?", hint:"The infraorbital nerve also carries anterior superior alveolar branches...", a:"The <strong>anterior superior alveolar nerve</strong> branches from the infraorbital nerve within the infraorbital canal and supplies the upper central incisor, lateral incisor, and canine teeth." },
+      { q:"Q3: Through which division of the trigeminal nerve does the infraorbital nerve originate?", a:"The infraorbital nerve is the terminal branch of the <strong>maxillary nerve (V2)</strong>, which enters the orbit through the inferior orbital fissure, runs along the floor of the orbit, then enters the infraorbital canal." },
+    ]
+  },
+  {
+    icon:"💧", num:"CASE 06",
+    title:"Parotid Surgery Complication",
+    vignette:"A 40-year-old woman undergoes parotidectomy for a benign parotid tumor. Six months later, she reports that whenever she eats, she notices sweating and flushing over her right cheek.",
+    questions:[
+      { q:"Q1: What syndrome is this?", a:"<strong>Frey's Syndrome</strong> (auriculotemporal nerve syndrome / gustatory sweating). Misdirected regenerating parasympathetic nerve fibers innervate sweat glands in the skin instead of the parotid gland." },
+      { q:"Q2: Which nerve is responsible and what normally happens?", a:"The <strong>auriculotemporal nerve</strong> (branch of V3) normally carries postganglionic parasympathetic fibers from the otic ganglion to stimulate the parotid gland to secrete saliva during eating. After parotidectomy, regenerating fibers misdirect to local eccrine sweat glands." },
+      { q:"Q3: Which nucleus provides the original pre-ganglionic parasympathetic fibers?", a:"The <strong>inferior salivatory nucleus</strong> in the medulla oblongata → CN IX → tympanic nerve → tympanic plexus → lesser petrosal nerve → otic ganglion (synapse) → auriculotemporal nerve." },
+    ]
+  },
+];
+
+const nerveDetailData = [
+  { title:"Nasociliary Nerve", icon:"👁️", sub:"Branch of V1 Ophthalmic", detail:"Branches: Long ciliary nerves (carry sympathetics to dilator pupillae; sensory to eyeball), Short ciliary nerves (via ciliary ganglion — but sensory fibers pass through without synapse), Posterior ethmoidal nerve, Anterior ethmoidal nerve (continues as external nasal nerve to TIP of nose), Infratrochlear nerve (upper dorsum of nose + skin near medial canthus)." },
+  { title:"Frontal Nerve", icon:"🧠", sub:"Largest branch of V1", detail:"Divides into: Supraorbital nerve → exits supraorbital notch/foramen → central upper eyelid, forehead, scalp to vertex. Supratrochlear nerve → medial upper eyelid, glabella, lower forehead." },
+  { title:"Lacrimal Nerve", icon:"💧", sub:"Smallest branch of V1", detail:"Enters orbit via SOF. Receives a communicating branch from zygomatic nerve (carrying postganglionic parasympathetics from pterygopalatine ganglion). Supplies lateral upper eyelid skin and lacrimal gland with secretomotor fibers." },
+  { title:"Zygomatic Nerve", icon:"🔲", sub:"From V2 in pterygopalatine fossa", detail:"Enters orbit through inferior orbital fissure. Divides into: Zygomaticofacial nerve → penetrates zygomatic bone → lateral cheek over zygoma. Zygomaticotemporal nerve → temporal fossa → skin over temple. Communicates with lacrimal nerve to relay parasympathetics to lacrimal gland." },
+  { title:"Greater Palatine Nerve", icon:"🦷", sub:"From pterygopalatine ganglion", detail:"Descends through greater palatine canal. Supplies: Hard palate mucosa and gums. Also gives posterior inferior lateral nasal branches inside the canal." },
+  { title:"Lesser Palatine Nerve", icon:"🦷", sub:"From pterygopalatine ganglion", detail:"Emerges through lesser palatine foramen. Supplies: soft palate mucosa and tonsil area. Carries both sensory (from V2) and secretomotor (from pterygopalatine ganglion) fibers." },
+  { title:"Nasopalatine Nerve", icon:"👃", sub:"Long sphenopalatine nerve", detail:"Passes through sphenopalatine foramen → nasal septum → palatine canal → emerges at incisive foramen. Supplies: nasal septum posteriorly and anterior hard palate (incisive area), upper incisor gum." },
+  { title:"Inferior Alveolar Nerve", icon:"🦷", sub:"From posterior division V3", detail:"Gives off nerve to mylohyoid (motor to mylohyoid + anterior belly of digastric) before entering mandibular foramen. Runs through mandibular canal supplying all lower teeth. Terminal branch = mental nerve → exits mental foramen → lower lip + chin skin." },
+  { title:"Auriculotemporal Nerve", icon:"👂", sub:"From posterior division V3", detail:"Arises by TWO ROOTS encircling the middle meningeal artery. Carries: general sensation to tragus, EAM, TMJ, scalp over temple. Postganglionic parasympathetics from otic ganglion → parotid gland. After parotidectomy: Frey's syndrome." },
+  { title:"Chorda Tympani", icon:"👅", sub:"Branch of CN VII joining lingual nerve", detail:"Passes through middle ear → petrotympanic fissure → joins lingual nerve in infratemporal fossa. Carries: Taste from anterior 2/3 tongue (special afferent). Preganglionic parasympathetics → submandibular ganglion → submandibular + sublingual glands." },
+  { title:"Trigeminal Ganglion (Gasserian)", icon:"🧩", sub:"Located in Meckel's Cave", detail:"Sits in a dural cave (Meckel's cave) on the apex of petrous temporal bone in the middle cranial fossa. Contains cell bodies of all primary sensory neurons of CN V. Three divisions emerge from its anterior convex border." },
+  { title:"Sphenopalatine Foramen", icon:"🔲", sub:"Key communication of PPF", detail:"Located in the medial wall of the pterygopalatine fossa. Connects PPF to the NASAL CAVITY. Transmits: short sphenopalatine nerves (lateral nasal wall), nasopalatine nerve (medial = septum), nasal branches of maxillary nerve." },
+];
+
+const clinicalConditions = [
+  { type:"high-yield", title:"Trigeminal Neuralgia (Tic Douloureux)", body:"Severe lancinating unilateral facial pain in V2/V3 distribution. Triggered by light touch (shaving, eating, cold air). Associated with aberrant vascular loop compressing CN V at brainstem." },
+  { type:"high-yield", title:"Jaw Deviation — V3 Injury", body:"Jaw deviates to SAME side as lesion. Right V3 injury → jaw goes right on opening. Unopposed left lateral pterygoid pushes mandible to the injured side." },
+  { type:"pearl", title:"Frey's Syndrome", body:"Gustatory sweating after parotidectomy. Auriculotemporal nerve (parasympathetic) fibers misdirect to sweat glands. Treatment: Botulinum toxin injection." },
+  { type:"high-yield", title:"Lingual Nerve at Risk During Extraction", body:"3rd molar extraction can damage lingual nerve → loss of general sensation anterior 2/3 tongue + decreased submandibular/sublingual salivation. Taste via chorda tympani may be spared." },
+  { type:"normal", title:"Cavernous Sinus Lesion", body:"Affects V1 + V2 in lateral wall. V3 spared (exits via foramen ovale before cavernous sinus). Also affects CN III, IV, VI → diplopia + ptosis." },
+  { type:"pearl", title:"Herpes Zoster Ophthalmicus", body:"Reactivation of VZV in the trigeminal ganglion affecting the ophthalmic division (V1). Vesicular rash on forehead + tip of nose (Hutchinson's sign = nasociliary involvement → cornea at risk)." },
+  { type:"normal", title:"Inferior Alveolar Nerve Block", body:"Injection into mandibular foramen. Anesthetizes all lower teeth + mental nerve territory (lower lip/chin). The lingual nerve is often also anesthetized (close proximity)." },
+  { type:"pearl", title:"Pterygomaxillary Fissure — Tumor Spread", body:"Tumors of the infratemporal fossa can spread into pterygopalatine fossa and vice versa via the pterygomaxillary fissure — explaining perineural spread patterns." },
+];
+
+const injuryAlgo = [
+  { num:"1", title:"V1 (Ophthalmic) Injury", body:"Loss of: corneal sensation (absent corneal reflex → risk of corneal ulceration), forehead/scalp sensation, upper eyelid sensation. Herpes zoster here = tip of nose → eye involved." },
+  { num:"2", title:"V2 (Maxillary) Injury", body:"Loss of: upper cheek, lower eyelid, upper lip, upper teeth, hard palate sensation. Absent sneeze reflex if bilateral. Infraorbital nerve at risk in zygomatic fractures." },
+  { num:"3", title:"V3 (Mandibular) Injury at Foramen Ovale", body:"Loss of: all of the above V3 sensory territory + PARALYSIS of all 4 mastication muscles + mylohyoid + anterior digastric + tensor tympani + tensor palati." },
+  { num:"4", title:"Mandibular Nerve — Anterior Division Lesion", body:"Motor loss: masseter, temporalis, lateral pterygoid. Sensory preserved except buccal nerve territory (cheek skin numbness). Minimal jaw deviation compared to complete V3 injury." },
+  { num:"5", title:"Lingual Nerve Injury at Floor of Mouth", body:"Loss of: general sensation anterior 2/3 tongue (ipsilateral). Decreased submandibular + sublingual salivation. Taste often preserved (chorda tympani joins more proximally)." },
+];
+
+const dentalGrid = [
+  { type:"normal", title:"Inferior Alveolar Block", body:"Injection at mandibular foramen. Effect: all lower teeth + lower lip/chin. Also anesthetizes lingual nerve (adjacent). Indications: lower molar extraction, mandibular surgery." },
+  { type:"normal", title:"Infraorbital Block (V2)", body:"Injection at infraorbital foramen. Effect: lower eyelid, side of nose, upper lip + anterior upper teeth. Used for: upper incisor/canine/premolar procedures." },
+  { type:"pearl", title:"Mental Nerve Block", body:"Injection at mental foramen (between premolars). Effect: lower lip, chin, lower anterior teeth. Useful for: minor procedures of chin and lower lip." },
+  { type:"pearl", title:"Greater Palatine Block", body:"Injection at greater palatine foramen. Effect: hard palate mucosa and gums posteriorly. Combined with nasopalatine block for full palate anesthesia." },
+  { type:"normal", title:"Posterior Superior Alveolar Block", body:"Injection near posterior maxilla (tuberosity). Effect: upper 3 molars + buccal gingiva. Avoids infraorbital injection site for posterior molars." },
+  { type:"high-yield", title:"Lingual Nerve Risk — Wisdom Tooth", body:"The lingual nerve in the floor of the mouth runs behind/below the last molar. During 3rd molar extraction, traction with retractors can stretch or lacerate this nerve." },
+];
+
+const mnemonicsData = [
+  {
+    title:"S.M.M.M — The Four Trigeminal Nuclei",
+    icon:"🧠",
+    sub:"Remember the 4 nuclei from top to bottom",
+    words:[
+      { letter:"S", strong:"Spinal nucleus", span:"Medulla → C2 cord — Pain & Temperature" },
+      { letter:"M", strong:"Main sensory (Pontine)", span:"Pons — Touch & Pressure" },
+      { letter:"M", strong:"Motor nucleus", span:"Pons — Muscles of mastication" },
+      { letter:"M", strong:"Mesencephalic", span:"Midbrain — Proprioception" },
+    ],
+    note:"Or think: 'Some Men Must Memorize' — from inferior to superior: Spinal, Main, Motor, Mesencephalic"
+  },
+  {
+    title:"V1 V2 V3 — Division Exit Routes",
+    icon:"🛤️",
+    sub:"Where each division exits the skull",
+    words:[
+      { letter:"S", strong:"Superior orbital fissure", span:"V1 Ophthalmic leaves here" },
+      { letter:"R", strong:"Rotundum (foramen)", span:"V2 Maxillary — 'Round' like the foramen" },
+      { letter:"O", strong:"Ovale (foramen)", span:"V3 Mandibular + motor root here" },
+    ],
+    note:"Remember: 'Standing Room Only' → Superior, Rotundum, Ovale — from V1 to V3!"
+  },
+  {
+    title:"PPF — 'My SIPP for the ROAD' (6 communications)",
+    icon:"🗺️",
+    sub:"Pterygopalatine Fossa communications",
+    words:[
+      { letter:"M", strong:"Middle cranial fossa", span:"via Foramen rotundum + Pterygoid canal" },
+      { letter:"S", strong:"Sphenopalatine foramen", span:"→ Nasal cavity (medially)" },
+      { letter:"I", strong:"Inferior orbital fissure", span:"→ Orbit (superiorly)" },
+      { letter:"P", strong:"Palatine canal", span:"→ Oral cavity (inferiorly)" },
+      { letter:"P", strong:"Pterygomaxillary fissure", span:"→ Infratemporal fossa (laterally)" },
+      { letter:"R", strong:"Route via palatovaginal canal", span:"→ Nasopharynx" },
+    ],
+    note:"The pterygopalatine fossa is a critical crossroads — lesions here can affect lacrimal, nasal, palatine, and oral structures simultaneously."
+  },
+  {
+    title:"V3 TRUNK branches: 'MM TT'",
+    icon:"🌿",
+    sub:"What comes off the mandibular nerve TRUNK (before dividing)",
+    words:[
+      { letter:"M", strong:"Meningeal branch", span:"= Nervus spinosus (re-enters cranium)" },
+      { letter:"M", strong:"Medial pterygoid nerve", span:"Supplies medial pterygoid" },
+      { letter:"T", strong:"Tensor tympani nerve", span:"Supplied from nerve to medial pterygoid" },
+      { letter:"T", strong:"Tensor palati nerve", span:"Supplied from nerve to medial pterygoid" },
+    ],
+    note:"'MM TT' — from the TRUNK before it splits into anterior (mostly motor) and posterior (mostly sensory) divisions"
+  },
+  {
+    title:"GANGLIA Parasympathetic Route — 'ILSC OSMA'",
+    icon:"🔬",
+    sub:"Each ganglion's parasympathetic NUCLEUS → NERVE",
+    words:[
+      { letter:"E-W", strong:"Edinger-Westphal → CN III", span:"→ Ciliary ganglion → sphincter pupillae + ciliary muscle" },
+      { letter:"SSN", strong:"Superior Salivatory Nucleus → Chorda Tympani (VII)", span:"→ Submandibular ganglion → submandibular + sublingual glands" },
+      { letter:"ISN", strong:"Inferior Salivatory Nucleus → Lesser Petrosal (IX)", span:"→ Otic ganglion → parotid gland" },
+      { letter:"SLN", strong:"Special Lacrimatory Nucleus → Greater Petrosal (VII)", span:"→ Pterygopalatine ganglion → lacrimal + nasal + palatine glands" },
+    ],
+    note:"Remember: ONLY the parasympathetic root synapses in the ganglion. Sensory and sympathetic roots PASS THROUGH without synapsing!"
+  },
+  {
+    title:"Tongue Innervation — 'GLITCH'",
+    icon:"👅",
+    sub:"Nerves of the tongue anterior 2/3",
+    words:[
+      { letter:"G", strong:"General sensation", span:"= Lingual nerve (V3)" },
+      { letter:"L", strong:"Lingual nerve carries it", span:"to CNS via trigeminal pathway" },
+      { letter:"I", strong:"Impaired = no taste if only VII affected", span:"Lingual nerve damage → sensation gone, taste may stay" },
+      { letter:"T", strong:"Taste = Chorda Tympani (CN VII)", span:"joins lingual nerve from petrotympanic fissure" },
+      { letter:"C", strong:"Chorda tympani + Lingual nerve", span:"travel together to tongue" },
+      { letter:"H", strong:"Hypoglossal (XII)", span:"motor to ALL tongue muscles (except palatoglossus = X)" },
+    ],
+    note:"In summary: V3 = FEEL, VII = TASTE, XII = MOVE"
+  },
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let quizState = { answers: new Array(35).fill(null), correct: 0, wrong: 0, streak: 0, bestStreak: 0 };
+let fcState = { flipped: new Set(), order: [...Array(25).keys()] };
+let statsState = JSON.parse(localStorage.getItem('cnv_stats') || '{"quizCorrect":0,"quizWrong":0,"streak":0,"cardsFlipped":0}');
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  localStorage.setItem('cnv_last_tab', id);
+}
+
+// ============================================================
+// OVERVIEW
+// ============================================================
+function renderConcepts(filter = '') {
+  const grid = document.getElementById('concept-grid');
+  const filtered = conceptData.filter(c =>
+    !filter || c.title.toLowerCase().includes(filter) || c.body.toLowerCase().includes(filter) || c.tags.join(' ').includes(filter)
+  );
+  grid.innerHTML = filtered.map(c => `
+    <div class="concept-card">
+      <div class="num">CONCEPT ${c.num}</div>
+      <h3>${c.title}</h3>
+      <p>${c.body}</p>
+      <div class="tags">
+        ${c.tags.map(t => `<span class="badge badge-teal">${t}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterConcepts() {
+  const val = document.getElementById('overview-search').value.toLowerCase();
+  renderConcepts(val);
+}
+
+// ============================================================
+// QUIZ
+// ============================================================
+function renderQuiz() {
+  const nav = document.getElementById('quiz-nav');
+  nav.innerHTML = quizData.map((q, i) => {
+    let cls = 'qnav-dot';
+    if (quizState.answers[i] !== null) {
+      cls += quizState.answers[i] === q.ans ? ' answered-correct' : ' answered-wrong';
+    }
+    return `<button class="${cls}" onclick="scrollToQ(${i})" id="nav-${i}">${i+1}</button>`;
+  }).join('');
+
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = quizData.map((q, qi) => `
+    <div class="question-card" id="qcard-${qi}">
+      <div class="q-num">Question ${qi + 1} of ${quizData.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options">
+        ${q.opts.map((opt, oi) => `
+          <button class="option-btn" id="opt-${qi}-${oi}" onclick="selectAnswer(${qi}, ${oi})" ${quizState.answers[qi] !== null ? 'disabled' : ''}>
+            <span class="opt-letter">${'ABCDE'[oi]}</span>
+            <span>${opt}</span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="explanation" id="exp-${qi}">
+        <strong>${quizState.answers[qi] === q.ans ? '✅ Correct!' : '❌ Incorrect'}</strong><br>
+        ${q.exp}
+      </div>
+    </div>
+  `).join('');
+
+  // Restore answered state
+  quizData.forEach((q, qi) => {
+    if (quizState.answers[qi] !== null) {
+      restoreQuestionState(qi);
+    }
+  });
+
+  updateQuizHeader();
+}
+
+function selectAnswer(qi, oi) {
+  if (quizState.answers[qi] !== null) return;
+  const q = quizData[qi];
+  quizState.answers[qi] = oi;
+
+  const card = document.getElementById('qcard-' + qi);
+  const isCorrect = oi === q.ans;
+
+  if (isCorrect) {
+    quizState.correct++;
+    quizState.streak++;
+    if (quizState.streak > quizState.bestStreak) quizState.bestStreak = quizState.streak;
+    card.classList.add('correct');
+    card.classList.add('anim-pulse');
+  } else {
+    quizState.wrong++;
+    quizState.streak = 0;
+    card.classList.add('wrong');
+    card.classList.add('anim-shake');
+  }
+
+  setTimeout(() => { card.classList.remove('anim-pulse', 'anim-shake'); }, 450);
+
+  restoreQuestionState(qi);
+  updateQuizHeader();
+  saveStats();
+}
+
+function restoreQuestionState(qi) {
+  const q = quizData[qi];
+  const userAns = quizState.answers[qi];
+  if (userAns === null) return;
+
+  q.opts.forEach((_, oi) => {
+    const btn = document.getElementById(`opt-${qi}-${oi}`);
+    if (!btn) return;
+    btn.disabled = true;
+    if (oi === userAns && oi === q.ans) btn.classList.add('selected-correct');
+    else if (oi === userAns && oi !== q.ans) btn.classList.add('selected-wrong');
+    else if (oi === q.ans) btn.classList.add('reveal-correct');
+  });
+
+  const exp = document.getElementById(`exp-${qi}`);
+  if (exp) {
+    exp.innerHTML = `<strong>${userAns === q.ans ? '✅ Correct!' : '❌ Incorrect — correct answer: ' + 'ABCDE'[q.ans]}</strong><br>${q.exp}`;
+    exp.classList.add('show');
+  }
+
+  const navDot = document.getElementById('nav-' + qi);
+  if (navDot) {
+    navDot.classList.remove('answered-correct', 'answered-wrong');
+    navDot.classList.add(userAns === q.ans ? 'answered-correct' : 'answered-wrong');
+  }
+}
+
+function updateQuizHeader() {
+  const answered = quizState.answers.filter(a => a !== null).length;
+  document.getElementById('prog-text').textContent = `${answered} / ${quizData.length}`;
+  document.getElementById('prog-fill').style.width = (answered / quizData.length * 100) + '%';
+  document.getElementById('q-correct').textContent = quizState.correct;
+  document.getElementById('q-wrong').textContent = quizState.wrong;
+  document.getElementById('q-streak').textContent = quizState.streak;
+  document.getElementById('hdr-score').textContent = `${quizState.correct}/${answered}`;
+  document.getElementById('hdr-streak').textContent = quizState.streak;
+}
+
+function resetQuiz() {
+  if (!confirm('Reset all quiz progress?')) return;
+  quizState = { answers: new Array(35).fill(null), correct: 0, wrong: 0, streak: 0, bestStreak: 0 };
+  renderQuiz();
+}
+
+function scrollToQ(i) {
+  const el = document.getElementById('qcard-' + i);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ============================================================
+// FLASHCARDS
+// ============================================================
+function renderFlashcards() {
+  const grid = document.getElementById('fc-grid');
+  grid.innerHTML = fcState.order.map(i => {
+    const fc = flashcardData[i];
+    const isFlipped = fcState.flipped.has(i);
+    return `
+      <div class="fc-card ${isFlipped ? 'flipped' : ''}" onclick="flipCard(${i})" id="fc-${i}">
+        <div class="fc-inner">
+          <div class="fc-front">
+            <div class="fc-label">❓ Question</div>
+            <div class="fc-q">${fc.q}</div>
+            <div class="fc-hint">Click to reveal answer</div>
+          </div>
+          <div class="fc-back">
+            <div class="fc-label">💡 Answer</div>
+            <div class="fc-a">${fc.a}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('fc-flipped').textContent = fcState.flipped.size;
+}
+
+function flipCard(i) {
+  const card = document.getElementById('fc-' + i);
+  card.classList.toggle('flipped');
+  if (card.classList.contains('flipped')) {
+    fcState.flipped.add(i);
+  } else {
+    fcState.flipped.delete(i);
+  }
+  document.getElementById('fc-flipped').textContent = fcState.flipped.size;
+  document.getElementById('hdr-cards').textContent = `${fcState.flipped.size}/25`;
+  saveStats();
+}
+
+function resetFlashcards() {
+  fcState.flipped.clear();
+  renderFlashcards();
+}
+
+function shuffleFlashcards() {
+  fcState.order = [...Array(flashcardData.length).keys()].sort(() => Math.random() - 0.5);
+  renderFlashcards();
+}
+
+// ============================================================
+// CLINICAL CASES
+// ============================================================
+function renderCases() {
+  const container = document.getElementById('cases-container');
+  container.innerHTML = casesData.map((c, ci) => `
+    <div class="case-card">
+      <div class="case-header">
+        <div class="case-icon">${c.icon}</div>
+        <div class="case-header-text">
+          <div class="case-num">${c.num}</div>
+          <h3>${c.title}</h3>
+        </div>
+      </div>
+      <div class="case-body">
+        <div class="case-vignette">${c.vignette}</div>
+        ${c.questions.map((cq, qi) => `
+          <div class="case-question">
+            <p><strong>${cq.q}</strong></p>
+            ${cq.hint ? `<p><em>Hint: ${cq.hint}</em></p>` : ''}
+            <button class="reveal-btn" onclick="revealAnswer('ans-${ci}-${qi}', this)">🔍 Reveal Answer</button>
+            <div class="answer-reveal" id="ans-${ci}-${qi}">${cq.a}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function revealAnswer(id, btn) {
+  const el = document.getElementById(id);
+  el.classList.toggle('show');
+  btn.textContent = el.classList.contains('show') ? '🙈 Hide Answer' : '🔍 Reveal Answer';
+}
+
+// ============================================================
+// NERVE DETAIL
+// ============================================================
+function renderNerveGrid() {
+  const grid = document.getElementById('nerve-detail-grid');
+  grid.innerHTML = nerveDetailData.map((n, i) => `
+    <div class="nerve-item" id="ni-${i}" onclick="toggleNerve(${i})">
+      <div class="ni-head">
+        <div>
+          <div class="ni-title">${n.icon} ${n.title}</div>
+          <div class="ni-sub">${n.sub}</div>
+        </div>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="ni-detail">${n.detail}</div>
+    </div>
+  `).join('');
+}
+
+function toggleNerve(i) {
+  const el = document.getElementById('ni-' + i);
+  el.classList.toggle('expanded');
+}
+
+// ============================================================
+// CLINICAL TAB
+// ============================================================
+function renderClinical() {
+  document.getElementById('clin-conditions').innerHTML = clinicalConditions.map(c => `
+    <div class="clin-item ${c.type}">
+      <h4>${c.title}</h4>
+      <p>${c.body}</p>
+    </div>
+  `).join('');
+
+  document.getElementById('injury-algo').innerHTML = injuryAlgo.map(a => `
+    <div class="algo-step">
+      <div class="algo-num">${a.num}</div>
+      <div class="algo-content">
+        <h4>${a.title}</h4>
+        <p>${a.body}</p>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('dental-grid').innerHTML = dentalGrid.map(d => `
+    <div class="clin-item ${d.type}">
+      <h4>${d.title}</h4>
+      <p>${d.body}</p>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// MNEMONICS
+// ============================================================
+function renderMnemonics() {
+  const container = document.getElementById('mnemonics-container');
+  container.innerHTML = mnemonicsData.map((m, i) => `
+    <div class="mnem-card">
+      <div class="mnem-header">
+        <div class="mnem-icon">${m.icon}</div>
+        <div>
+          <h3>${m.title}</h3>
+          <div class="sub">${m.sub}</div>
+        </div>
+      </div>
+      <div class="mnem-body">
+        ${m.words.map(w => `
+          <div class="mnem-word">
+            <div class="mnem-letter">${w.letter}</div>
+            <div class="mnem-meaning">
+              <strong>${w.strong}</strong>
+              <span>${w.span}</span>
+            </div>
+          </div>
+        `).join('')}
+        ${m.note ? `<div style="margin-top:16px;padding:14px;background:var(--teal-dim);border-radius:8px;font-size:0.8rem;color:var(--teal-light);line-height:1.7">💡 ${m.note}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// STATS / PERSISTENCE
+// ============================================================
+function saveStats() {
+  statsState.quizCorrect = quizState.correct;
+  statsState.quizWrong = quizState.wrong;
+  statsState.streak = quizState.streak;
+  statsState.cardsFlipped = fcState.flipped.size;
+  try { localStorage.setItem('cnv_stats', JSON.stringify(statsState)); } catch(e) {}
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  renderConcepts();
+  renderQuiz();
+  renderFlashcards();
+  renderCases();
+  renderNerveGrid();
+  renderClinical();
+  renderMnemonics();
+
+  // Restore quiz stats from storage
+  if (statsState.quizCorrect || statsState.quizWrong) {
+    updateQuizHeader();
+  }
+
+  // Restore last tab
+  const lastTab = localStorage.getItem('cnv_last_tab');
+  if (lastTab) {
+    const btn = [...document.querySelectorAll('.tab-btn')].find(b => b.getAttribute('onclick').includes(`'${lastTab}'`));
+    if (btn) switchTab(lastTab, btn);
+  }
+
+  document.getElementById('hdr-cards').textContent = `${fcState.flipped.size}/25`;
+});
+</script>
+</body>
+</html>

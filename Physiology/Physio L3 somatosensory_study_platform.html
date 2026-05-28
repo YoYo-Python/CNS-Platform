@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧠 Somatosensory Physiology — Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Lora:ital,wght@0,400;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --surface3: #1e2d42;
+    --border: rgba(99,179,237,0.15);
+    --accent1: #38bdf8;
+    --accent2: #818cf8;
+    --accent3: #34d399;
+    --accent4: #fb923c;
+    --accent5: #f472b6;
+    --danger: #f87171;
+    --success: #4ade80;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --faint: #475569;
+    --glow1: rgba(56,189,248,0.15);
+    --glow2: rgba(129,140,248,0.12);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ANIMATED BACKGROUND */
+  .bg-canvas {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    overflow: hidden;
+  }
+  .bg-orb {
+    position: absolute; border-radius: 50%;
+    filter: blur(80px); opacity: 0.18;
+    animation: float 18s infinite ease-in-out;
+  }
+  .bg-orb:nth-child(1) { width: 500px; height: 500px; background: var(--accent1); top: -10%; left: -5%; animation-delay: 0s; }
+  .bg-orb:nth-child(2) { width: 400px; height: 400px; background: var(--accent2); top: 40%; right: -10%; animation-delay: -6s; }
+  .bg-orb:nth-child(3) { width: 350px; height: 350px; background: var(--accent3); bottom: -10%; left: 30%; animation-delay: -12s; }
+  @keyframes float {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(30px,-20px) scale(1.05); }
+    66% { transform: translate(-20px,30px) scale(0.95); }
+  }
+
+  /* HEADER */
+  .site-header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,14,26,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 1.5rem;
+  }
+  .header-inner {
+    max-width: 1400px; margin: 0 auto;
+    display: flex; align-items: center; gap: 1rem;
+    padding: 0.75rem 0;
+    flex-wrap: wrap;
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.1rem;
+    color: var(--accent1);
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .logo span { color: var(--accent2); }
+  .search-bar {
+    flex: 1; min-width: 160px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.45rem 0.75rem;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search-bar::placeholder { color: var(--faint); }
+  .search-bar:focus { border-color: var(--accent1); box-shadow: 0 0 0 3px var(--glow1); }
+  .stats-row {
+    display: flex; gap: 0.75rem; align-items: center; flex-shrink: 0;
+    font-size: 0.72rem;
+  }
+  .stat-pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 0.3rem 0.7rem;
+    display: flex; align-items: center; gap: 0.35rem;
+    color: var(--muted);
+  }
+  .stat-pill .val { color: var(--accent1); font-weight: 600; }
+  .stat-pill.streak .val { color: var(--accent4); }
+  .stat-pill.prog .val { color: var(--accent3); }
+
+  /* TABS NAV */
+  .tabs-nav {
+    background: rgba(10,14,26,0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 64px; z-index: 90;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs-nav::-webkit-scrollbar { display: none; }
+  .tabs-list {
+    display: flex; max-width: 1400px; margin: 0 auto;
+    padding: 0 1.5rem;
+    gap: 0;
+  }
+  .tab-btn {
+    flex-shrink: 0;
+    background: none; border: none;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.73rem;
+    padding: 0.85rem 1.1rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active {
+    color: var(--accent1);
+    border-bottom-color: var(--accent1);
+  }
+
+  /* MAIN LAYOUT */
+  .main {
+    max-width: 1400px; margin: 0 auto;
+    padding: 2rem 1.5rem;
+    position: relative; z-index: 1;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; animation: fadeUp 0.3s ease; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SECTION HEADERS */
+  .section-head {
+    margin-bottom: 2rem;
+  }
+  .section-head h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: clamp(1.4rem, 3vw, 2rem);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  .section-head p {
+    color: var(--muted); font-size: 0.8rem;
+    margin-top: 0.4rem;
+    font-family: 'Lora', serif; font-style: italic;
+  }
+  .accent-line {
+    height: 2px; width: 48px;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2));
+    margin: 0.6rem 0;
+    border-radius: 2px;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .card:hover { border-color: rgba(99,179,237,0.35); transform: translateY(-1px); }
+  .card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem; font-weight: 700;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+  }
+  .card p { font-size: 0.78rem; color: var(--muted); line-height: 1.7; }
+
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.65rem; font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin: 0.15rem;
+  }
+  .tag-exam { background: rgba(251,146,60,0.15); color: var(--accent4); border: 1px solid rgba(251,146,60,0.3); }
+  .tag-yield { background: rgba(52,211,153,0.12); color: var(--accent3); border: 1px solid rgba(52,211,153,0.25); }
+  .tag-pearl { background: rgba(56,189,248,0.12); color: var(--accent1); border: 1px solid rgba(56,189,248,0.25); }
+  .tag-trp { background: rgba(244,114,182,0.12); color: var(--accent5); border: 1px solid rgba(244,114,182,0.25); }
+
+  /* ===== OVERVIEW ===== */
+  .overview-hero {
+    background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    position: relative; overflow: hidden;
+  }
+  .overview-hero::before {
+    content: '🧠';
+    position: absolute; right: 1.5rem; top: 1rem;
+    font-size: 4rem; opacity: 0.12;
+  }
+  .overview-hero h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.3rem; font-weight: 800;
+    color: var(--accent1); margin-bottom: 0.6rem;
+  }
+  .overview-hero p { font-size: 0.8rem; color: var(--muted); line-height: 1.8; max-width: 680px; }
+
+  .topic-timeline {
+    display: flex; flex-direction: column; gap: 0;
+    position: relative; padding-left: 2rem;
+    margin: 1.5rem 0;
+  }
+  .topic-timeline::before {
+    content: '';
+    position: absolute; left: 0.55rem; top: 0; bottom: 0;
+    width: 2px; background: linear-gradient(180deg, var(--accent1), var(--accent2), var(--accent3));
+  }
+  .timeline-item {
+    position: relative; padding: 1rem 1rem 1rem 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 1rem;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute; left: -1.85rem; top: 1.2rem;
+    width: 10px; height: 10px;
+    border-radius: 50%; background: var(--accent1);
+    box-shadow: 0 0 8px var(--accent1);
+  }
+  .timeline-item h4 { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--accent1); }
+  .timeline-item p { font-size: 0.76rem; color: var(--muted); margin-top: 0.3rem; line-height: 1.6; }
+
+  .key-signs-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.9rem;
+  }
+  .sign-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px; padding: 1rem;
+    border-left: 3px solid var(--accent1);
+  }
+  .sign-card.warm { border-left-color: var(--accent4); }
+  .sign-card.cold { border-left-color: var(--accent1); }
+  .sign-card.path { border-left-color: var(--accent2); }
+  .sign-card.cortex { border-left-color: var(--accent3); }
+  .sign-card h4 { font-size: 0.82rem; font-weight: 600; margin-bottom: 0.35rem; }
+  .sign-card p { font-size: 0.74rem; color: var(--muted); line-height: 1.6; }
+
+  /* ===== QUIZ ===== */
+  .quiz-container { max-width: 760px; }
+  .quiz-progress-bar {
+    height: 6px; background: var(--surface2);
+    border-radius: 3px; margin-bottom: 1.5rem; overflow: hidden;
+  }
+  .quiz-progress-fill {
+    height: 100%; border-radius: 3px;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2));
+    transition: width 0.4s ease;
+  }
+  .quiz-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1.2rem;
+    font-size: 0.75rem; color: var(--muted);
+  }
+  .quiz-q-num { color: var(--accent1); font-weight: 600; }
+  .question-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.8rem;
+    margin-bottom: 1rem;
+  }
+  .question-text {
+    font-family: 'Lora', serif;
+    font-size: 1rem; line-height: 1.7;
+    color: var(--text); margin-bottom: 1.4rem;
+  }
+  .options-list { display: flex; flex-direction: column; gap: 0.6rem; }
+  .option-btn {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.85rem 1rem;
+    color: var(--text); text-align: left;
+    font-family: 'DM Mono', monospace; font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.18s;
+    display: flex; align-items: flex-start; gap: 0.6rem;
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--accent1); background: var(--surface3); }
+  .option-btn .opt-letter {
+    flex-shrink: 0;
+    width: 22px; height: 22px;
+    border-radius: 4px;
+    background: var(--surface3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-weight: 700;
+    color: var(--muted);
+    transition: all 0.18s;
+  }
+  .option-btn.correct { border-color: var(--success); background: rgba(74,222,128,0.07); }
+  .option-btn.correct .opt-letter { background: var(--success); color: #000; }
+  .option-btn.wrong { border-color: var(--danger); background: rgba(248,113,113,0.07); }
+  .option-btn.wrong .opt-letter { background: var(--danger); color: #000; }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+  .option-btn.pulse-anim { animation: pulse 0.4s ease; }
+  .option-btn.shake-anim { animation: shake 0.35s ease; }
+
+  .explanation-box {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.1rem; margin-top: 0.8rem;
+    font-size: 0.77rem; color: var(--muted); line-height: 1.7;
+    display: none;
+  }
+  .explanation-box.show { display: block; animation: fadeUp 0.3s ease; }
+  .explanation-box .correct-label { color: var(--success); font-weight: 600; }
+  .explanation-box .wrong-label { color: var(--danger); font-weight: 600; }
+
+  .quiz-controls { display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap; }
+  .btn {
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    border: none; border-radius: 8px;
+    padding: 0.65rem 1.3rem;
+    color: #fff; font-family: 'DM Mono', monospace;
+    font-size: 0.78rem; font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+  }
+  .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn-outline {
+    background: none; border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.65rem 1.3rem;
+    color: var(--muted); font-family: 'DM Mono', monospace;
+    font-size: 0.78rem; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-outline:hover { border-color: var(--accent1); color: var(--accent1); }
+
+  .score-board {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 2rem; text-align: center;
+    display: none;
+  }
+  .score-board.show { display: block; animation: fadeUp 0.4s ease; }
+  .score-big {
+    font-family: 'Syne', sans-serif; font-size: 3.5rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .score-board p { color: var(--muted); font-size: 0.82rem; margin-top: 0.5rem; }
+  .motivational { font-family: 'Lora', serif; font-style: italic; color: var(--accent3); font-size: 0.9rem; margin-top: 0.8rem; }
+
+  /* ===== FLASHCARDS ===== */
+  .flashcards-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.2rem;
+  }
+  .flip-card {
+    height: 190px; perspective: 1000px; cursor: pointer;
+  }
+  .flip-card-inner {
+    width: 100%; height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+  .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+  .flip-card-front, .flip-card-back {
+    position: absolute; inset: 0;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    padding: 1.4rem;
+    display: flex; flex-direction: column; justify-content: center;
+    border: 1px solid var(--border);
+  }
+  .flip-card-front {
+    background: linear-gradient(135deg, var(--surface), var(--surface2));
+  }
+  .flip-card-back {
+    background: linear-gradient(135deg, var(--surface2), var(--surface3));
+    transform: rotateY(180deg);
+    border-color: rgba(56,189,248,0.3);
+  }
+  .fc-label {
+    font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--faint); margin-bottom: 0.5rem;
+  }
+  .flip-card-front .fc-label { color: var(--accent2); }
+  .flip-card-back .fc-label { color: var(--accent3); }
+  .fc-text {
+    font-family: 'Lora', serif; font-size: 0.85rem; line-height: 1.6;
+    color: var(--text);
+  }
+  .flip-card-back .fc-text { font-size: 0.78rem; color: var(--muted); }
+  .fc-hint { font-size: 0.62rem; color: var(--faint); margin-top: auto; text-align: right; }
+
+  /* ===== CLINICAL CASES ===== */
+  .case-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden; margin-bottom: 1.5rem;
+  }
+  .case-header {
+    background: var(--surface2); padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .case-num {
+    width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 800; color: #000;
+  }
+  .case-title { font-family: 'Syne', sans-serif; font-size: 0.92rem; font-weight: 700; }
+  .case-body { padding: 1.5rem; }
+  .vignette-text {
+    background: var(--surface2); border-left: 3px solid var(--accent1);
+    border-radius: 0 8px 8px 0; padding: 1rem 1.2rem;
+    font-family: 'Lora', serif; font-size: 0.85rem; line-height: 1.8;
+    color: var(--text); margin-bottom: 1.2rem;
+  }
+  .case-questions { display: flex; flex-direction: column; gap: 0.8rem; }
+  .case-q { font-size: 0.8rem; color: var(--muted); }
+  .case-q strong { color: var(--text); }
+  .reveal-btn {
+    background: none; border: 1px solid var(--accent1);
+    border-radius: 6px; padding: 0.5rem 1rem;
+    color: var(--accent1); font-family: 'DM Mono', monospace;
+    font-size: 0.73rem; cursor: pointer;
+    transition: all 0.2s; margin-top: 0.5rem;
+  }
+  .reveal-btn:hover { background: var(--glow1); }
+  .case-answer {
+    display: none; margin-top: 0.8rem;
+    background: var(--surface3); border-radius: 8px;
+    padding: 1rem; font-size: 0.77rem; color: var(--muted); line-height: 1.7;
+    border: 1px solid rgba(52,211,153,0.2);
+  }
+  .case-answer.show { display: block; animation: fadeUp 0.3s ease; }
+  .case-answer .ans-step { color: var(--accent3); font-weight: 600; }
+
+  /* ===== PATHOPHYSIOLOGY ===== */
+  .pathway-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.8rem; margin-bottom: 1.5rem;
+  }
+  .pathway-box h3 {
+    font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700;
+    color: var(--accent1); margin-bottom: 1.2rem;
+  }
+  .flow-chain {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem;
+  }
+  .flow-node {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.55rem 0.9rem;
+    font-size: 0.74rem; line-height: 1.4; text-align: center;
+    cursor: pointer; transition: all 0.2s;
+    min-width: 100px;
+    position: relative;
+  }
+  .flow-node:hover { border-color: var(--accent1); background: var(--surface3); }
+  .flow-node.active { border-color: var(--accent1); background: rgba(56,189,248,0.1); color: var(--accent1); }
+  .flow-arrow {
+    color: var(--faint); font-size: 0.9rem; flex-shrink: 0;
+  }
+  .node-detail {
+    display: none; position: fixed;
+    background: var(--surface2); border: 1px solid var(--accent1);
+    border-radius: 10px; padding: 1rem 1.2rem;
+    max-width: 300px; font-size: 0.75rem; line-height: 1.6; color: var(--muted);
+    z-index: 200; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    pointer-events: none;
+  }
+  .node-detail.visible { display: block; }
+  .node-detail h4 { color: var(--accent1); font-size: 0.82rem; margin-bottom: 0.4rem; }
+
+  .trp-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.9rem;
+    margin-top: 1rem;
+  }
+  .trp-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1rem; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .trp-card:hover { border-color: var(--accent5); background: var(--surface3); }
+  .trp-card h4 { color: var(--accent5); font-size: 0.82rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .trp-card p { font-size: 0.73rem; color: var(--muted); line-height: 1.5; }
+  .trp-card .trp-temp { color: var(--accent4); font-size: 0.8rem; font-weight: 600; margin-top: 0.3rem; }
+
+  /* ===== COMPARISON/DIAGNOSIS ===== */
+  .compare-table {
+    width: 100%; border-collapse: collapse; margin-bottom: 2rem;
+    font-size: 0.75rem;
+  }
+  .compare-table th {
+    background: var(--surface2); padding: 0.75rem 1rem;
+    text-align: left; font-family: 'Syne', sans-serif;
+    font-size: 0.75rem; font-weight: 700; color: var(--accent1);
+    border-bottom: 2px solid var(--border);
+  }
+  .compare-table td {
+    padding: 0.7rem 1rem; border-bottom: 1px solid var(--border);
+    color: var(--muted); line-height: 1.5;
+    vertical-align: top;
+  }
+  .compare-table tr:hover td { background: var(--surface2); }
+  .compare-table .feature-col { color: var(--text); font-weight: 600; }
+
+  .algo-flow {
+    display: flex; flex-direction: column; align-items: center; gap: 0;
+    max-width: 500px; margin: 1.5rem auto;
+  }
+  .algo-node {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 0.9rem 1.4rem;
+    font-size: 0.78rem; text-align: center; width: 100%;
+    transition: all 0.2s;
+  }
+  .algo-node.start { border-color: var(--accent1); color: var(--accent1); font-weight: 600; }
+  .algo-node.decision { border-color: var(--accent2); background: rgba(129,140,248,0.08); }
+  .algo-node.action { border-color: var(--accent3); background: rgba(52,211,153,0.05); }
+  .algo-arrow {
+    width: 2px; height: 28px; background: var(--border);
+    margin: 0 auto; position: relative;
+  }
+  .algo-arrow::after {
+    content: '▼'; position: absolute; bottom: -8px; left: 50%;
+    transform: translateX(-50%); color: var(--faint); font-size: 0.6rem;
+  }
+
+  /* ===== TREATMENT ===== */
+  .treatment-section { margin-bottom: 2rem; }
+  .treatment-section h3 {
+    font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700;
+    margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;
+  }
+  .urgency-badge {
+    font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700;
+  }
+  .urgency-critical { background: rgba(248,113,113,0.15); color: var(--danger); border: 1px solid rgba(248,113,113,0.3); }
+  .urgency-moderate { background: rgba(251,146,60,0.15); color: var(--accent4); border: 1px solid rgba(251,146,60,0.3); }
+  .urgency-supportive { background: rgba(52,211,153,0.1); color: var(--accent3); border: 1px solid rgba(52,211,153,0.2); }
+  .urgency-concept { background: rgba(56,189,248,0.1); color: var(--accent1); border: 1px solid rgba(56,189,248,0.2); }
+
+  .treatment-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.9rem;
+  }
+  .treatment-item {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1rem;
+  }
+  .treatment-item h4 { font-size: 0.82rem; font-weight: 600; margin-bottom: 0.35rem; }
+  .treatment-item p { font-size: 0.74rem; color: var(--muted); line-height: 1.6; }
+
+  /* ===== MNEMONICS ===== */
+  .mnemonic-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden; margin-bottom: 1.2rem;
+  }
+  .mnemonic-head {
+    background: linear-gradient(135deg, var(--surface2), var(--surface3));
+    padding: 1.2rem 1.5rem;
+    display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer; border-bottom: 1px solid var(--border);
+  }
+  .mnemonic-head h3 {
+    font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700;
+  }
+  .mnemonic-acronym {
+    font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .mnemonic-body { padding: 1.5rem; display: none; }
+  .mnemonic-body.open { display: block; animation: fadeUp 0.25s ease; }
+  .mnemonic-rows { display: flex; flex-direction: column; gap: 0.6rem; }
+  .mnemonic-row {
+    display: flex; align-items: flex-start; gap: 1rem;
+    background: var(--surface2); border-radius: 8px; padding: 0.75rem 1rem;
+  }
+  .mnemonic-letter {
+    font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800;
+    min-width: 30px; line-height: 1;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .mnemonic-meaning { font-size: 0.78rem; line-height: 1.6; color: var(--muted); }
+  .mnemonic-meaning strong { color: var(--text); }
+
+  /* ===== VIVA ===== */
+  .viva-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden; margin-bottom: 1rem;
+  }
+  .viva-question {
+    padding: 1.2rem 1.5rem;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    cursor: pointer; gap: 1rem;
+    background: var(--surface2);
+  }
+  .viva-question p {
+    font-family: 'Lora', serif; font-size: 0.88rem; line-height: 1.6; flex: 1;
+  }
+  .viva-toggle { color: var(--faint); transition: transform 0.25s; flex-shrink: 0; }
+  .viva-toggle.open { transform: rotate(180deg); }
+  .viva-answer { display: none; padding: 1.2rem 1.5rem; font-size: 0.78rem; color: var(--muted); line-height: 1.8; }
+  .viva-answer.open { display: block; animation: fadeUp 0.25s ease; }
+
+  /* SEARCH HIGHLIGHT */
+  .search-highlight { background: rgba(251,191,36,0.25); color: var(--text); border-radius: 2px; }
+
+  /* MOBILE */
+  @media(max-width: 600px) {
+    .main { padding: 1.2rem 0.9rem; }
+    .section-head h1 { font-size: 1.3rem; }
+    .question-text { font-size: 0.9rem; }
+    .flip-card { height: 210px; }
+    .stats-row { gap: 0.4rem; }
+    .stat-pill { padding: 0.25rem 0.55rem; }
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+
+  .hidden-search { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+</div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo">neuro<span>sense</span>.study</div>
+    <input class="search-bar" type="text" id="globalSearch" placeholder="🔍  search content..." oninput="handleSearch(this.value)">
+    <div class="stats-row">
+      <div class="stat-pill">Score <span class="val" id="scoreDisplay">0</span></div>
+      <div class="stat-pill streak">🔥 <span class="val" id="streakDisplay">0</span></div>
+      <div class="stat-pill prog">⚡ <span class="val" id="progressDisplay">0%</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- TABS NAV -->
+<nav class="tabs-nav">
+  <div class="tabs-list">
+    <button class="tab-btn active" onclick="switchTab('overview',this)">🏠 Overview</button>
+    <button class="tab-btn" onclick="switchTab('quiz',this)">🎯 Quiz</button>
+    <button class="tab-btn" onclick="switchTab('flashcards',this)">📇 Flashcards</button>
+    <button class="tab-btn" onclick="switchTab('cases',this)">🩺 Clinical Cases</button>
+    <button class="tab-btn" onclick="switchTab('pathophysiology',this)">🔬 Pathophysiology</button>
+    <button class="tab-btn" onclick="switchTab('diagnosis',this)">📊 Comparison</button>
+    <button class="tab-btn" onclick="switchTab('treatment',this)">💊 Applied</button>
+    <button class="tab-btn" onclick="switchTab('mnemonics',this)">🧩 Mnemonics</button>
+    <button class="tab-btn" onclick="switchTab('viva',this)">🗣️ Viva</button>
+  </div>
+</nav>
+
+<main class="main">
+
+<!-- ===== OVERVIEW ===== -->
+<section class="tab-panel active" id="tab-overview">
+  <div class="section-head">
+    <h1>Somatosensory Physiology</h1>
+    <div class="accent-line"></div>
+    <p>Thermoceptive sensations · Somatic pathways · Somatosensory cortex — Mansoura University</p>
+  </div>
+
+  <div class="overview-hero">
+    <h2>🌡️ Topic Overview</h2>
+    <p>Somatic sensations arise from the skin, skeletal muscle, joints, and periosteum. Thermal sensation is the conscious awareness produced by cutaneous thermoreceptors (warm & cold). Signals travel via the Anterolateral (spinothalamic) system, relay in the thalamus (the "gate"), and project to the primary somatosensory cortex where they are perceived, localized, and integrated.</p>
+  </div>
+
+  <!-- Timeline -->
+  <div class="section-head" style="margin-bottom:1rem;margin-top:2rem;">
+    <h1 style="font-size:1.1rem">📍 Topic Progression</h1>
+  </div>
+  <div class="topic-timeline">
+    <div class="timeline-item">
+      <h4>Topic 1 — Thermoreceptors</h4>
+      <p>Cold (A-δ, 10–35°C, max 24°C) vs Warm (C fibers, 25–45°C, max 37°C) receptors. TRP channel mechanism. Paradoxical cold at 45°C. Anesthesia at 0°C.</p>
+    </div>
+    <div class="timeline-item" style="--accent1:var(--accent2)">
+      <h4>Topic 2 — Somatic Sensory Pathways</h4>
+      <p>Anterolateral System (ALS): DRG → Dorsal Horn → decussate via Anterior White Commissure → VPLN (Thalamus) → SI Cortex. Trigeminal variant for the head.</p>
+    </div>
+    <div class="timeline-item" style="--accent1:var(--accent3)">
+      <h4>Topic 3 — Somatosensory Cortex</h4>
+      <p>SI (Areas 3,1,2) post-central gyrus. SII (Area 40). Association Cortex (Areas 5,7). Homunculus. Lesion syndromes: Astereognosis, Parietal Neglect.</p>
+    </div>
+  </div>
+
+  <!-- Key Signs Grid -->
+  <div class="section-head" style="margin-bottom:1rem;margin-top:2rem;">
+    <h1 style="font-size:1.1rem">⚡ High-Yield Clinical Signs</h1>
+  </div>
+  <div class="key-signs-grid">
+    <div class="sign-card cold">
+      <h4>❄️ Paradoxical Cold Sensation</h4>
+      <p>Occurs at <strong>45°C</strong> — cold receptors fire a brisk burst despite high temp. Cold receptor A-δ fibers excited paradoxically.</p>
+      <div style="margin-top:0.5rem"><span class="tag tag-exam">⚠️ Exam</span><span class="tag tag-yield">High-yield</span></div>
+    </div>
+    <div class="sign-card cold">
+      <h4>🧊 Anesthesia at 0°C</h4>
+      <p>Halts Na⁺/K⁺ ATPase pump → prevents repolarization → blocks all action potentials. Basis for cold local anesthesia.</p>
+      <div style="margin-top:0.5rem"><span class="tag tag-exam">⚠️ Exam</span><span class="tag tag-pearl">Clinical Pearl</span></div>
+    </div>
+    <div class="sign-card warm">
+      <h4>🌡️ TRP Channel Cascade</h4>
+      <p>Temp changes → ↑ metabolite concentration → TRP channel activation → Ca²⁺ & Na⁺ influx → receptor potential → AP.</p>
+      <div style="margin-top:0.5rem"><span class="tag tag-trp">TRP</span><span class="tag tag-yield">Mechanism</span></div>
+    </div>
+    <div class="sign-card path">
+      <h4>🎯 Thalamus as Gate</h4>
+      <p><em>"All somatic sensations must pass through the thalamus to reach the cortex"</em> — VPLN for body, PMVN for head (trigeminal).</p>
+      <div style="margin-top:0.5rem"><span class="tag tag-exam">⚠️ Exam</span></div>
+    </div>
+    <div class="sign-card cortex">
+      <h4>🧠 Parietal Lobe Neglect</h4>
+      <p>Lesion in Areas 5 & 7 → patient ignores contralateral body half. Also called <em>Amorphosynthesis</em>. Cannot coordinate motor feedback.</p>
+      <div style="margin-top:0.5rem"><span class="tag tag-exam">⚠️ Exam</span><span class="tag tag-yield">High-yield</span></div>
+    </div>
+    <div class="sign-card cortex">
+      <h4>🖐️ Astereognosis</h4>
+      <p>Inability to recognize shape/form/texture by touch. Lesion in SI (Areas 3,1,2) or Association Cortex (5,7). Test: blindfold + key.</p>
+      <div style="margin-top:0.5rem"><span class="tag tag-pearl">Clinical Pearl</span><span class="tag tag-yield">High-yield</span></div>
+    </div>
+    <div class="sign-card warm">
+      <h4>🔁 Phasic → Tonic Firing</h4>
+      <p>Thermoreceptors show rapid <em>phasic</em> burst on stimulus onset, then settle to a slow <em>tonic</em> discharge. They are slowly adapting.</p>
+      <div style="margin-top:0.5rem"><span class="tag tag-yield">Mechanism</span></div>
+    </div>
+    <div class="sign-card path">
+      <h4>📍 Decussation Level</h4>
+      <p>ALS crosses <strong>at the spinal cord level</strong> (anterior white commissure). DCML crosses in the <strong>medulla</strong>. Always distinguish!</p>
+      <div style="margin-top:0.5rem"><span class="tag tag-exam">⚠️ Exam</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== QUIZ ===== -->
+<section class="tab-panel" id="tab-quiz">
+  <div class="section-head">
+    <h1>🎯 Quiz Mode</h1>
+    <div class="accent-line"></div>
+    <p>25 MCQs — Egyptian Faculty of Medicine style</p>
+  </div>
+  <div class="quiz-container">
+    <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quizProgressFill" style="width:0%"></div></div>
+    <div class="quiz-header">
+      <span class="quiz-q-num" id="qCounter">Question 1 of 25</span>
+      <span>Score: <strong id="liveScore">0</strong> | Streak: 🔥 <strong id="liveStreak">0</strong></span>
+    </div>
+    <div id="quizArea"></div>
+    <div class="quiz-controls" id="quizControls">
+      <button class="btn" id="nextBtn" onclick="nextQuestion()" style="display:none">Next Question →</button>
+      <button class="btn-outline" onclick="restartQuiz()">↺ Restart</button>
+    </div>
+    <div class="score-board" id="scoreBoard">
+      <div class="score-big" id="finalScore">0/25</div>
+      <p>Quiz Complete! 🎉</p>
+      <div class="motivational" id="motivMsg"></div>
+      <button class="btn" style="margin-top:1.2rem" onclick="restartQuiz()">↺ Try Again</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FLASHCARDS ===== -->
+<section class="tab-panel" id="tab-flashcards">
+  <div class="section-head">
+    <h1>📇 Flashcards</h1>
+    <div class="accent-line"></div>
+    <p>Click any card to flip • 24 key concepts</p>
+  </div>
+  <div class="flashcards-grid" id="flashcardsGrid"></div>
+</section>
+
+<!-- ===== CLINICAL CASES ===== -->
+<section class="tab-panel" id="tab-cases">
+  <div class="section-head">
+    <h1>🩺 Clinical Cases</h1>
+    <div class="accent-line"></div>
+    <p>Exam-style vignettes with step-by-step reasoning</p>
+  </div>
+  <div id="casesContainer"></div>
+</section>
+
+<!-- ===== PATHOPHYSIOLOGY ===== -->
+<section class="tab-panel" id="tab-pathophysiology">
+  <div class="section-head">
+    <h1>🔬 Pathophysiology & Pathways</h1>
+    <div class="accent-line"></div>
+    <p>Interactive flowcharts and receptor mechanisms • Hover nodes for details</p>
+  </div>
+
+  <div class="pathway-box">
+    <h3>⚡ Lateral Spinothalamic (ALS) Pathway</h3>
+    <div class="flow-chain" id="alsFlow"></div>
+  </div>
+
+  <div class="pathway-box">
+    <h3>🧠 Trigeminal Sensory Pathway (Head)</h3>
+    <div class="flow-chain" id="trigFlow"></div>
+  </div>
+
+  <div class="pathway-box">
+    <h3>🌡️ TRP Channel Subtypes — Click to expand</h3>
+    <div class="trp-grid" id="trpGrid"></div>
+  </div>
+
+  <div class="pathway-box" style="margin-top:1.5rem">
+    <h3>🔑 Receptor Mechanism: Temperature → Action Potential</h3>
+    <div class="flow-chain" id="mechFlow"></div>
+  </div>
+</section>
+
+<!-- ===== COMPARISON/DIAGNOSIS ===== -->
+<section class="tab-panel" id="tab-diagnosis">
+  <div class="section-head">
+    <h1>📊 Comparison Tables</h1>
+    <div class="accent-line"></div>
+    <p>Warm vs Cold receptors · ALS vs DCML · SI vs Association Cortex</p>
+  </div>
+
+  <h3 style="font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:700;margin-bottom:0.8rem;color:var(--accent1)">🌡️ Warm vs Cold Receptors</h3>
+  <div style="overflow-x:auto;margin-bottom:2rem">
+  <table class="compare-table">
+    <tr><th>Feature</th><th>Warm Receptors</th><th>Cold Receptors</th></tr>
+    <tr><td class="feature-col">Ending type</td><td>Free nerve endings</td><td>Encapsulated nerve endings</td></tr>
+    <tr><td class="feature-col">Fiber type</td><td>Type C (unmyelinated, slow)</td><td>Type A-δ (myelinated, fast)</td></tr>
+    <tr><td class="feature-col">Range</td><td>25–45°C</td><td>10–35°C</td></tr>
+    <tr><td class="feature-col">Max discharge</td><td>37°C</td><td>24°C</td></tr>
+    <tr><td class="feature-col">TRP channels</td><td>TRPV3 (32–40°C), TRPV4 (27–34°C)</td><td>TRPM8, TRPA1, TRPC5</td></tr>
+    <tr><td class="feature-col">Relative number</td><td>Fewer (reference)</td><td>3–10× more numerous</td></tr>
+    <tr><td class="feature-col">Special phenomenon</td><td>—</td><td>Paradoxical cold at 45°C</td></tr>
+    <tr><td class="feature-col">Noxious heat channel</td><td>TRPV1 >43°C, TRPV2 >52°C</td><td>TRPA1 for noxious cold</td></tr>
+  </table>
+  </div>
+
+  <h3 style="font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:700;margin-bottom:0.8rem;color:var(--accent2)">🛤️ ALS (Spinothalamic) vs DCML Pathways</h3>
+  <div style="overflow-x:auto;margin-bottom:2rem">
+  <table class="compare-table">
+    <tr><th>Feature</th><th>ALS (Spinothalamic)</th><th>DCML Pathway</th></tr>
+    <tr><td class="feature-col">Modalities</td><td>Pain, temperature, crude touch</td><td>Fine touch, vibration, pressure, proprioception</td></tr>
+    <tr><td class="feature-col">Fiber types</td><td>A-δ and C fibers (slow)</td><td>A-β fibers (fast, myelinated)</td></tr>
+    <tr><td class="feature-col">Crossing level</td><td>Spinal cord (anterior white commissure)</td><td>Medulla (gracile/cuneate nuclei)</td></tr>
+    <tr><td class="feature-col">Ascent</td><td>Contralateral lateral spinothalamic tract</td><td>Ipsilateral dorsal columns first</td></tr>
+    <tr><td class="feature-col">Thalamic relay</td><td>VPLN (body)</td><td>VPLN (body)</td></tr>
+    <tr><td class="feature-col">Brainstem name</td><td>Spinal Lemniscus</td><td>Medial Lemniscus</td></tr>
+    <tr><td class="feature-col">Quality</td><td>Protopathic (crude)</td><td>Epicritic (discriminative)</td></tr>
+  </table>
+  </div>
+
+  <h3 style="font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:700;margin-bottom:0.8rem;color:var(--accent3)">🧠 Cortical Areas Comparison</h3>
+  <div style="overflow-x:auto;margin-bottom:2rem">
+  <table class="compare-table">
+    <tr><th>Feature</th><th>Primary SI (3,1,2)</th><th>Secondary SII (Area 40)</th><th>Association (5,7)</th></tr>
+    <tr><td class="feature-col">Location</td><td>Post-central gyrus</td><td>Behind/lateral to face area of SI</td><td>Parietal cortex behind SI</td></tr>
+    <tr><td class="feature-col">Input from</td><td>3rd order neurons, VPLN thalamus</td><td>SI and VPLN directly</td><td>SI, thalamus, visual, auditory</td></tr>
+    <tr><td class="feature-col">Function</td><td>Modality, intensity, localization</td><td>Gives meaning to sensations</td><td>Complex integration; kinesthetic → motor</td></tr>
+    <tr><td class="feature-col">Lesion effect</td><td>Astereognosis, ↓ localization, ↓ fine touch</td><td>Impaired tactile learning</td><td>Parietal Neglect, Astereognosis</td></tr>
+    <tr><td class="feature-col">Lateralization</td><td>Contralateral body, inverted map</td><td>Bilateral input</td><td>Contralateral neglect if lesioned</td></tr>
+  </table>
+  </div>
+
+  <h3 style="font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:700;margin-bottom:0.8rem;color:var(--accent4)">🔀 Diagnostic Algorithm: Sensory Loss Localization</h3>
+  <div class="algo-flow">
+    <div class="algo-node start">Sensory Deficit Identified</div>
+    <div class="algo-arrow"></div>
+    <div class="algo-node decision">Pain + Temp loss WITH fine touch preserved?</div>
+    <div class="algo-arrow"></div>
+    <div class="algo-node action">→ ALS lesion (contralateral to deficit, at cord level)</div>
+    <div class="algo-arrow"></div>
+    <div class="algo-node decision">Ipsilateral or Contralateral to lesion?</div>
+    <div class="algo-arrow"></div>
+    <div class="algo-node action">Deficit is CONTRALATERAL to ALS lesion (crosses in cord)</div>
+    <div class="algo-arrow"></div>
+    <div class="algo-node decision">Astereognosis present?</div>
+    <div class="algo-arrow"></div>
+    <div class="algo-node action">→ Lesion in SI (Areas 3,1,2) or Association Cortex (5,7)</div>
+    <div class="algo-arrow"></div>
+    <div class="algo-node decision">Patient ignores contralateral body half?</div>
+    <div class="algo-arrow"></div>
+    <div class="algo-node action">→ Parietal Lobe Neglect — Lesion Areas 5 & 7</div>
+  </div>
+</section>
+
+<!-- ===== TREATMENT/APPLIED ===== -->
+<section class="tab-panel" id="tab-treatment">
+  <div class="section-head">
+    <h1>💊 Applied Physiology & Concepts</h1>
+    <div class="accent-line"></div>
+    <p>Clinical applications of somatosensory physiology</p>
+  </div>
+
+  <div class="treatment-section">
+    <h3>🚨 Critical Mechanisms <span class="urgency-badge urgency-critical">Exam-critical</span></h3>
+    <div class="treatment-grid">
+      <div class="treatment-item" style="border-left:3px solid var(--danger)">
+        <h4>Cold Anesthesia (0°C)</h4>
+        <p>Arrests Na⁺/K⁺ ATPase pump → no repolarization → no AP generation. Blocks all sensory and motor transmission. Surgical application: tissue cooling before incision.</p>
+      </div>
+      <div class="treatment-item" style="border-left:3px solid var(--accent4)">
+        <h4>Paradoxical Cold at 45°C</h4>
+        <p>Cold A-δ fibers paradoxically discharge at 45°C. Clinical implication: patients may misinterpret a warm stimulus as cold initially. Hot water = cold flash sensation at first.</p>
+      </div>
+      <div class="treatment-item" style="border-left:3px solid var(--accent1)">
+        <h4>TRPV1 Pharmacology</h4>
+        <p>TRPV1 activated >43°C and by capsaicin. Capsaicin desensitizes TRPV1 → topical analgesic action. Basis for capsaicin pain creams.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="treatment-section">
+    <h3>🧠 Cortical Lesion Syndromes <span class="urgency-badge urgency-moderate">Clinically important</span></h3>
+    <div class="treatment-grid">
+      <div class="treatment-item" style="border-left:3px solid var(--accent2)">
+        <h4>Parietal Lobe Neglect</h4>
+        <p><strong>Lesion:</strong> Areas 5 & 7 (right hemisphere dominant). <strong>Result:</strong> Patient ignores left body half — doesn't dress left arm, doesn't acknowledge left-sided stimuli. Also called Amorphosynthesis.</p>
+      </div>
+      <div class="treatment-item" style="border-left:3px solid var(--accent3)">
+        <h4>Astereognosis</h4>
+        <p><strong>Lesion:</strong> SI (Areas 3,1,2) or Association Cortex. <strong>Test:</strong> Place key in patient's hand with eyes closed — cannot identify object. Fine touch still present but complex recognition lost.</p>
+      </div>
+      <div class="treatment-item" style="border-left:3px solid var(--accent5)">
+        <h4>Tactile Learning Defect</h4>
+        <p><strong>Lesion:</strong> SII (Area 40). <strong>Result:</strong> Cannot form tactile memories. Cannot learn new object recognition by touch. Direct input from VPLN and SI needed for meaning assignment.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="treatment-section">
+    <h3>⚗️ Receptor Physiology Pearls <span class="urgency-badge urgency-supportive">Physiology</span></h3>
+    <div class="treatment-grid">
+      <div class="treatment-item" style="border-left:3px solid var(--accent3)">
+        <h4>Why Glasses Are "Forgotten"</h4>
+        <p>Touch receptors for glasses are <strong>rapidly adapting</strong> → stop firing quickly. But thermoreceptors are <strong>slowly adapting</strong> → maintain tonic discharge for hot cup. Key distinguishing principle.</p>
+      </div>
+      <div class="treatment-item" style="border-left:3px solid var(--accent1)">
+        <h4>Temperature Grading by Brain</h4>
+        <p>Brain discriminates temperature grades by evaluating the <strong>relative ratio of discharge</strong> from cold vs warm receptors simultaneously. Neither alone is sufficient for fine grading.</p>
+      </div>
+      <div class="treatment-item" style="border-left:3px solid var(--accent4)">
+        <h4>Sensory Feedback → Motor Control</h4>
+        <p>Areas 5 & 7 transmit pre-analyzed kinesthetic data to motor cortex. Without this feedback loop, movement becomes uncoordinated (ataxia-like). The sensory system directly drives accurate motor output.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="treatment-section">
+    <h3>📍 Pathway Decussation — Clinical Application <span class="urgency-badge urgency-concept">Concept</span></h3>
+    <div class="treatment-grid">
+      <div class="treatment-item" style="border-left:3px solid var(--accent2)">
+        <h4>Brown-Séquard Physiology Basis</h4>
+        <p>ALS crosses at cord level → pain/temp loss <strong>contralateral</strong> to spinal lesion. DCML crosses at medulla → fine touch loss <strong>ipsilateral</strong> to spinal lesion. Dissociated sensory loss = spinal cord pathology.</p>
+      </div>
+      <div class="treatment-item" style="border-left:3px solid var(--accent1)">
+        <h4>Cortical Representation</h4>
+        <p>Left cortex → right body (contralateral). Cortical area ∝ receptor density, not physical size. Hands + lips = large cortical area. Trunk = small cortical area. This is the Homunculus principle.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MNEMONICS ===== -->
+<section class="tab-panel" id="tab-mnemonics">
+  <div class="section-head">
+    <h1>🧩 Mnemonics</h1>
+    <div class="accent-line"></div>
+    <p>Custom memory aids built from lecture content • Click to expand</p>
+  </div>
+  <div id="mnemonicsContainer"></div>
+</section>
+
+<!-- ===== VIVA ===== -->
+<section class="tab-panel" id="tab-viva">
+  <div class="section-head">
+    <h1>🗣️ Viva Questions</h1>
+    <div class="accent-line"></div>
+    <p>12 model-answer essay questions • Click to reveal answer</p>
+  </div>
+  <div id="vivaContainer"></div>
+</section>
+
+</main>
+
+<!-- NODE DETAIL TOOLTIP -->
+<div class="node-detail" id="nodeDetail"></div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const quizData = [
+  { q:"How do temperature changes stimulate cutaneous thermal receptors?", opts:["Direct physical alteration of nerve endings","Altering the metabolic activity and metabolite concentration in skin cells","Mechanical stretching of the skin","Directly generating an action potential","Inhibiting the Na-K pump at 37°C"], ans:1, exp:"Temperature changes alter metabolic activity → change metabolite concentration → chemically stimulate TRP receptors. Not a direct physical change." },
+  { q:"Which nerve fibers primarily transmit signals from cold receptors?", opts:["Type C fibers","Type A-β fibers","Type A-δ fibers","Type B fibers","Somatic motor fibers"], ans:2, exp:"Cold receptors are encapsulated endings transmitting via myelinated A-δ fibers. Type C fibers carry warmth." },
+  { q:"What physiological phenomenon occurs when cold receptors are exposed to 45°C?", opts:["Immediate tissue necrosis","Paradoxical cold sensation","Maximal firing rate","Absolute adaptation","Local anesthesia"], ans:1, exp:"At 45°C cold receptors show a brisk discharge → false perception of cold = paradoxical cold. Max cold firing is at 24°C." },
+  { q:"Upon sudden exposure to a thermal stimulus, what describes the initial firing pattern?", opts:["Tonic response only","Rapid adaptation to zero","Phasic response with high discharge rate","Delayed onset of APs","No change until threshold"], ans:2, exp:"Thermoreceptors show a phasic burst (high) at onset then settle to a lower tonic rate. They are slowly adapting." },
+  { q:"Which TRP channels detect non-noxious heat (27–40°C)?", opts:["TRPA1 and TRPM8","TRPV3 and TRPV4","TRPV1 and TRPV2","TRPC5 only","TRPA1 only"], ans:1, exp:"TRPV4 (27–34°C) and TRPV3 (32–40°C) detect non-noxious warmth. TRPA1/M8 detect cold. TRPV1/V2 detect noxious heat." },
+  { q:"Where is the cell body of the 1st-order neuron for the lateral spinothalamic tract?", opts:["Dorsal horn of spinal cord","Medulla oblongata","Dorsal root ganglion (DRG)","Thalamus","Post-central gyrus"], ans:2, exp:"The DRG is the 'mother cell' for the 1st order neuron. The dorsal horn is where the 1st order synapses onto the 2nd order." },
+  { q:"In the lateral spinothalamic tract, where does the 2nd-order neuron cross?", opts:["Medulla oblongata","Anterior white commissure of spinal cord","Thalamus","Midbrain","Dorsal root ganglion"], ans:1, exp:"2nd order neuron starts in dorsal horn and decussates via the anterior white commissure. The DCML crosses in the medulla." },
+  { q:"Which thalamic nucleus receives input from the spinal lemniscus (ALS)?", opts:["Ventral posteromedial nucleus (PMVN)","Anterior thalamic nucleus","Ventral posterolateral nucleus (VPLN)","Lateral geniculate body","Medial geniculate body"], ans:2, exp:"VPLN handles body sensations from the ALS. PMVN handles head sensations via the trigeminal pathway." },
+  { q:"Damage to Primary Somatosensory Cortex (SI) results in all of the following EXCEPT:", opts:["Inability to accurately localize stimuli","Astereognosis","Loss of fine touch discrimination","Complete total loss of pain awareness","Inability to perceive minute intensity differences"], ans:3, exp:"SI lesions impair fine discrimination, localization, stereognosis, and fine touch. Complete pain loss requires deeper/subcortical involvement." },
+  { q:"A lesion in Brodmann areas 5 and 7 most likely causes:", opts:["Loss of crude touch ipsilaterally","Parietal lobe neglect","Intractable pain","Complete paralysis","Inability to feel temperature"], ans:1, exp:"Areas 5 & 7 are the association cortex. Their lesion causes parietal lobe neglect — the brain ignores the opposite body half." },
+  { q:"What is the comparative distribution of cold vs warm receptors?", opts:["Warm 10× more than cold","Cold 3–10× more than warm","Equally distributed","Cold only in viscera","Insensitive areas do not exist"], ans:1, exp:"Cold receptors outnumber warm receptors 3–10 to 1, distributed in a punctate (non-uniform) pattern." },
+  { q:"What mechanism prevents AP generation when tissue is cooled to 0°C?", opts:["Hyper-activation of TRPV1","Stoppage of Na⁺/K⁺ pump","Massive Ca²⁺ influx","Denaturation of nerve endings","Vasodilation"], ans:1, exp:"At 0°C the Na⁺/K⁺ ATPase stops → no repolarization → no action potentials → local anesthesia." },
+  { q:"How does the brain interpret the grade of thermal stimulus (cool vs warm)?", opts:["Solely by cold receptor firing rate","By comparing relative ratio of discharge from cold & warm receptors","By absolute number of TRPA1 channels","By alternating ALS and DCML signals","By pain receptor firing alone"], ans:1, exp:"Temperature grading requires the RATIO of cold-to-warm receptor discharge. Both populations contribute to fine discrimination." },
+  { q:"The representation of the body in the primary somatosensory cortex is:", opts:["Ipsilateral and upright","Contralateral and upside down","Bilateral and scattered","Uniform by organ size","Ipsilateral and inverted"], ans:1, exp:"SI represents the body contralaterally (crossed) and inverted (upside down). Size ∝ receptor density, not physical size." },
+  { q:"Why do hands & lips have disproportionately large cortical representation?", opts:["They are physically larger","Greater specialized receptors, less convergence","Use DCML pathway exclusively","Lack cold receptors","Closer to the brain"], ans:1, exp:"Cortical map size ∝ receptor density with little convergence (high acuity). Hands and lips require fine discrimination." },
+  { q:"The trigeminal pathway for pain & temperature from the face relays in which thalamic nucleus?", opts:["VPLN","PMVN (posteromedial ventral nucleus)","Lateral geniculate nucleus","Medial geniculate nucleus","Anterior nucleus"], ans:1, exp:"Head/trigeminal → PMVN. Body/spinal → VPLN. This distinction is frequently tested." },
+  { q:"Which modality is NOT carried by the DCML pathway?", opts:["Fine touch","Pressure","Vibration","Proprioception","Thermal sensation"], ans:4, exp:"Thermal sensation is carried by ALS (spinothalamic), not DCML. DCML = fine touch, vibration, pressure, proprioception." },
+  { q:"'The gate through which all somatic sensations must pass to reach the cortex' refers to:", opts:["Medulla","Pons","Thalamus","Basal ganglia","Hypothalamus"], ans:2, exp:"The thalamus is the mandatory relay station (gate) for all somatic sensations traveling to the cerebral cortex." },
+  { q:"Which TRP channel is activated by noxious heat > 52°C?", opts:["TRPA1","TRPM8","TRPV4","TRPV2","TRPC5"], ans:3, exp:"TRPV2 threshold is 52°C (noxious heat). TRPV1 activates at >43°C. TRPA1/M8 are cold channels." },
+  { q:"At what temperature do warm receptors show maximal discharge?", opts:["24°C","37°C","45°C","10°C","52°C"], ans:1, exp:"Warm receptors: range 25–45°C, max at 37°C. Cold receptors: range 10–35°C, max at 24°C." },
+  { q:"What characterizes the adaptation rate of thermoreceptors?", opts:["Complete adaptation to zero in seconds","They do not adapt at all","Slowly adapting — maintain steady low tonic discharge","Adapt faster than touch receptors","Only cold adapts"], ans:2, exp:"Thermoreceptors are slowly adapting (tonic). They maintain a low discharge unlike touch receptors (e.g., for clothing) which rapidly adapt to zero." },
+  { q:"What role do Ca²⁺ and Na⁺ play in thermoreceptor activation?", opts:["Block TRP channels","Efflux → hyperpolarization","Influx through TRP channels → receptor potential","Actively pumped out by TRP","Destroy receptor at extreme temps"], ans:2, exp:"TRP channels are non-selective cation channels. Metabolite stimulation opens them → Ca²⁺/Na⁺ influx → depolarizing receptor potential." },
+  { q:"Secondary Somatic Sensory Cortex (SII) is located in which Brodmann area?", opts:["Area 4","Areas 3, 1, 2","Area 40","Areas 5, 7","Area 17"], ans:2, exp:"SII = Brodmann Area 40, behind and lateral to the face area of SI. SI = 3,1,2. Association = 5,7." },
+  { q:"A blindfolded person who cannot identify a coin by touch has:", opts:["Analgesia","Anesthesia","Astereognosis","Hyperalgesia","Parietal neglect"], ans:2, exp:"Astereognosis = inability to recognize shape/form/texture by touch. Different from neglect (which ignores a whole side)." },
+  { q:"'Sensory feedback control of motor activity' is primarily a function of:", opts:["Medulla oblongata","Areas 3, 1, 2","Area 40","Areas 5 and 7","Thalamus"], ans:3, exp:"Areas 5 & 7 integrate sensory inputs and relay pre-analyzed kinesthetic information to motor centers for coordinated movement." }
+];
+
+const flashcardsData = [
+  { q:"What type of nerve fiber carries cold sensation?", a:"Type A-δ (myelinated, fast). Cold receptors are encapsulated nerve endings." },
+  { q:"What type of nerve fiber carries warm sensation?", a:"Type C fibers (unmyelinated, slow). Warm receptors are free nerve endings." },
+  { q:"Temperature range of cold receptors (with max)?", a:"10–35°C, maximal discharge at 24°C." },
+  { q:"Temperature range of warm receptors (with max)?", a:"25–45°C, maximal discharge at 37°C." },
+  { q:"What is paradoxical cold sensation?", a:"False perception of cold at 45°C — cold receptors (A-δ) fire a brisk burst at high temperatures." },
+  { q:"How does cooling to 0°C produce anesthesia?", a:"Halts Na⁺/K⁺ ATPase pump → no repolarization → no action potentials → blocks all sensory transmission." },
+  { q:"Which TRP channels detect cold?", a:"TRPM8 (cool–cold), TRPA1 (noxious cold), TRPC5." },
+  { q:"Which TRP channels detect heat?", a:"TRPV4 (27–34°C), TRPV3 (32–40°C), TRPV1 (>43°C), TRPV2 (>52°C)." },
+  { q:"Where is the 1st-order neuron cell body in the spinothalamic pathway?", a:"Dorsal Root Ganglion (DRG) — the 'mother cell'." },
+  { q:"Where does the ALS 2nd-order neuron decussate?", a:"Anterior white commissure of the spinal cord (immediately)." },
+  { q:"Which thalamic nucleus relays body sensations from ALS?", a:"Ventral Posterolateral Nucleus (VPLN)." },
+  { q:"Which thalamic nucleus relays head sensations from trigeminal?", a:"Posterior Medial Ventral Nucleus (PMVN)." },
+  { q:"Where is the Primary Somatosensory Cortex (SI)?", a:"Post-central gyrus (Brodmann Areas 3, 1, 2) of parietal lobe." },
+  { q:"How is the body represented in SI?", a:"Contralateral (crossed) and upside-down (inverted). Size ∝ receptor density." },
+  { q:"What is astereognosis?", a:"Inability to recognize shape/form/texture by touch. Lesion: SI (3,1,2) or Association Cortex (5,7)." },
+  { q:"What is Parietal Lobe Neglect?", a:"Ignoring the contralateral body half. Lesion: Somatic Sensory Association Cortex (Areas 5 & 7). Also called Amorphosynthesis." },
+  { q:"What is the function of SII (Area 40)?", a:"Gives meaning to sensations received from SI. Lesion → impaired tactile-based learning." },
+  { q:"What is the function of Areas 5 & 7?", a:"Complex sensory integration; sensory feedback control of motor activity; pre-analyzed kinesthetic data → motor cortex." },
+  { q:"What modalities does the DCML carry?", a:"Fine touch, vibration, pressure, proprioception (epicritic sensations). Uses A-β fibers." },
+  { q:"Where does the DCML cross to the opposite side?", a:"In the medulla (at gracile/cuneate nuclei). Contrast with ALS which crosses in the spinal cord." },
+  { q:"How does the brain grade temperature?", a:"By comparing the relative ratio of discharge from cold and warm receptors simultaneously." },
+  { q:"Why are thermoreceptors slowly adapting?", a:"They maintain a tonic low discharge after an initial phasic burst. This keeps the brain aware of persistent thermal stimuli (e.g., hot cup)." },
+  { q:"What is the mechanism of TRP channel activation?", a:"Temp change → altered metabolic activity → ↑ metabolite concentration → opens TRP cation channels → Ca²⁺/Na⁺ influx → receptor potential → AP." },
+  { q:"Cold receptors are how many times more numerous than warm?", a:"3–10 times more numerous than warm receptors. Distributed in a punctate pattern with insensitive areas between." }
+];
+
+const casesData = [
+  {
+    title: "Surgical Cooling Anesthesia",
+    icon: "🧊",
+    vignette: "During an operation, a surgeon applies cold packs to cool the patient's peripheral tissue to 0°C to achieve local anesthesia before making an incision.",
+    questions: [
+      { q:"1. What physiological mechanism underlies this anesthesia?", a:"Cooling to 0°C arrests the Na⁺/K⁺ ATPase pump on neuronal membranes. Without active pumping, the resting membrane potential cannot be restored after depolarization, preventing repolarization and subsequent action potential generation." },
+      { q:"2. Which ion pump is implicated?", a:"Na⁺/K⁺ ATPase (sodium-potassium pump). It requires ATP to function and is temperature-sensitive. At 0°C its activity drops to zero." },
+      { q:"3. What is the broader implication for local anesthesia techniques?", a:"Cold anesthesia blocks all sensory transmission (and motor if deep enough) by globally halting AP generation. This is why ice packs are used for minor procedures and why cooling tissues limits pain perception during certain surgeries." }
+    ]
+  },
+  {
+    title: "Paradoxical Cold at the Hot Spring",
+    icon: "🌡️",
+    vignette: "A 28-year-old researcher places her hand in 45°C water and reports briefly feeling a cold sensation before it transitions to a burning feeling. She has intact nervous system function.",
+    questions: [
+      { q:"1. What phenomenon explains the initial cold sensation?", a:"Paradoxical cold sensation. At 45°C, cold receptors (A-δ fibers) fire a brisk burst of action potentials. The brain interprets this A-δ discharge as cold despite the actual temperature being high." },
+      { q:"2. If the cold receptors were selectively destroyed, what would change?", a:"The patient would lose the initial paradoxical cold flash and would go directly to heat/pain sensation. The brain would no longer receive A-δ discharge to interpret as cool." },
+      { q:"3. At what temperature do cold receptors reach THEIR actual maximum discharge?", a:"At 24°C is the maximum discharge of cold receptors (range: 10–35°C). At 45°C they show a paradoxical secondary burst." }
+    ]
+  },
+  {
+    title: "The Ignored Left Arm",
+    icon: "🧠",
+    vignette: "A 55-year-old man with a right parietal lobe stroke is admitted. During morning rounds, nurses note he never dresses his left arm, ignores touch applied to his left side, and when asked to draw a clock, he only draws numbers on the right half.",
+    questions: [
+      { q:"1. What is this syndrome called?", a:"Parietal Lobe Neglect (also called Amorphosynthesis or hemispatial neglect). It results from damage to the Somatic Sensory Association Cortex — Brodmann Areas 5 & 7 — in the right hemisphere." },
+      { q:"2. What is the mechanism?", a:"Areas 5 & 7 integrate multiple sensory streams (somatic, visual, auditory) to build a coherent body map and direct motor feedback. Damage severs the brain's ability to process and acknowledge sensory input from the contralateral (left) side." },
+      { q:"3. Why is it the RIGHT hemisphere lesion causing LEFT-sided neglect?", a:"The right hemisphere is dominant for spatial attention and body awareness. Furthermore, the sensory cortex is contralateral — the right hemisphere processes left-body sensations. Damage to the right Association Cortex leaves the left body unrepresented." }
+    ]
+  },
+  {
+    title: "Mystery Object Test",
+    icon: "🔑",
+    vignette: "A 40-year-old woman with a parietal lesion is asked to close her eyes. A key is placed in her right hand. She can feel its pressure and surface but cannot identify what it is. Her basic touch sensation and motor function are intact.",
+    questions: [
+      { q:"1. What is this sign called?", a:"Astereognosis — inability to recognize the shape, form, or texture of an object by touch alone despite intact primary sensation." },
+      { q:"2. Which cortical areas are implicated?", a:"Primary Somatosensory Cortex SI (Areas 3, 1, 2) or the Sensory Association Cortex (Areas 5 & 7). Both are needed for higher-level somatosensory discrimination and object recognition." },
+      { q:"3. How does this differ from anesthesia?", a:"In astereognosis, primary sensation (touch, pressure) is intact — the peripheral nerves and basic thalamic relay work fine. The deficit is in cortical synthesis/integration of these inputs into meaningful object recognition." }
+    ]
+  },
+  {
+    title: "TRPA1 Channel Mutation",
+    icon: "🧬",
+    vignette: "A researcher identifies a patient with a loss-of-function mutation in the TRPA1 channel in their sensory neurons. The patient reports being unable to detect noxious cold stimuli reliably.",
+    questions: [
+      { q:"1. What is the normal role of TRPA1?", a:"TRPA1 is a non-selective TRP cation channel on cold receptor nerve endings. It is activated by noxious cold temperatures. Stimulation opens the channel, allowing Ca²⁺ and Na⁺ influx to generate a receptor potential → action potential." },
+      { q:"2. What is the functional consequence of its loss?", a:"The patient cannot generate receptor potentials in response to noxious cold because Ca²⁺/Na⁺ cannot influx. No receptor potential → no action potential → no cold signal transmitted to the CNS." },
+      { q:"3. Would warm sensation be affected?", a:"No. Warm sensation uses different TRP channels (TRPV3, TRPV4 for non-noxious; TRPV1 for noxious heat). TRPA1 is specific to cold transduction." }
+    ]
+  },
+  {
+    title: "Hemisensory Loss After Spinal Injury",
+    icon: "🏥",
+    vignette: "A 55-year-old patient presents after a left-sided thoracic spinal cord injury. Examination shows: right-sided loss of pain and temperature sensation; left-sided loss of fine touch, vibration, and proprioception.",
+    questions: [
+      { q:"1. How is it explained that pain/temp loss is CONTRALATERAL to the lesion?", a:"The ALS (spinothalamic) 2nd-order neuron crosses immediately at the spinal cord level via the anterior white commissure. So a LEFT cord lesion disrupts the already-crossed (now ascending right-sided) spinothalamic fibers → right-sided pain/temp loss." },
+      { q:"2. Why is fine touch loss IPSILATERAL to the lesion?", a:"DCML fibers ascend ipsilaterally in the spinal cord and only cross at the medulla. A left cord lesion damages the left dorsal columns BEFORE they cross → left-sided fine touch loss." },
+      { q:"3. What is this clinical pattern called?", a:"Brown-Séquard Syndrome — a hemisection of the spinal cord. It demonstrates the different decussation levels of ALS vs DCML pathways." }
+    ]
+  }
+];
+
+const pathNodes = {
+  als: [
+    { label:"Thermal/Pain Receptor", detail:"Detects temperature changes via TRP channel activation. Metabolite-mediated chemical stimulus." },
+    { label:"A-δ / C Fibers", detail:"A-δ for cold and sharp pain (myelinated, fast). C fibers for warmth and dull pain (unmyelinated, slow)." },
+    { label:"DRG (1st Order Cell Body)", detail:"Dorsal Root Ganglion — 'mother cell'. Pseudounipolar neuron." },
+    { label:"Dorsal Horn Synapse", detail:"1st order neuron synapses onto 2nd order neuron in the dorsal horn of spinal cord." },
+    { label:"Anterior White Commissure", detail:"Decussation point. 2nd order neuron crosses here to opposite side of cord." },
+    { label:"Lateral Spinothalamic Tract", detail:"2nd order axon ascends contralaterally. Forms the Spinal Lemniscus in the brainstem." },
+    { label:"VPLN Thalamus (3rd Order)", detail:"Ventral Posterolateral Nucleus. The gate. All somatic body sensations relay here." },
+    { label:"Primary SI Cortex (Areas 3,1,2)", detail:"Post-central gyrus. Contralateral, inverted body map (Homunculus). Localizes, identifies modality and intensity." }
+  ],
+  trig: [
+    { label:"Face Receptors", detail:"Thermoreceptors in skin of face, scalp, and mucous membranes." },
+    { label:"Trigeminal Nerve (CN V)", detail:"Main sensory nerve of the face. Three divisions: ophthalmic, maxillary, mandibular." },
+    { label:"Trigeminal Ganglion", detail:"Equivalent to the DRG for the face. Contains 1st order cell bodies." },
+    { label:"Spinal Trigeminal Nucleus", detail:"For pain and temperature. Extends into upper cervical cord." },
+    { label:"Trigeminal Lemniscus", detail:"Crossed fibers ascending to thalamus. Analogous to spinal lemniscus." },
+    { label:"PMVN Thalamus", detail:"Posterior Medial Ventral Nucleus — handles head/face sensations from trigeminal." },
+    { label:"Primary SI Cortex (Face Area)", detail:"Inferior portion of post-central gyrus. Face has large representation due to high receptor density." }
+  ],
+  mech: [
+    { label:"Temperature Change", detail:"Temperature itself does not directly stimulate receptors. It acts via a chemical intermediate." },
+    { label:"↑ Metabolic Activity", detail:"Temperature alters rate of enzymatic activity and cellular metabolism in skin cells." },
+    { label:"↑ Metabolite Concentration", detail:"Metabolites accumulate and act as chemical stimuli on receptor membranes." },
+    { label:"TRP Channel Opens", detail:"Transient Receptor Potential (TRP) cation channels are opened by these metabolites." },
+    { label:"Ca²⁺ / Na⁺ Influx", detail:"Non-selective cation influx → membrane depolarization." },
+    { label:"Receptor Potential Generated", detail:"Graded depolarization. Size proportional to stimulus intensity." },
+    { label:"Action Potential Fired", detail:"When receptor potential reaches threshold, AP is generated and travels to CNS." }
+  ]
+};
+
+const trpData = [
+  { name:"TRPM8", range:"<25°C (cool–cold)", modality:"Non-noxious cold", color:"var(--accent1)" },
+  { name:"TRPA1", range:"<17°C (noxious cold)", modality:"Noxious cold; also menthol", color:"#60a5fa" },
+  { name:"TRPC5", range:"<37°C", modality:"Cold sensation", color:"var(--accent2)" },
+  { name:"TRPV4", range:"27–34°C", modality:"Non-noxious warmth", color:"var(--accent4)" },
+  { name:"TRPV3", range:"32–40°C", modality:"Mild/warm heat", color:"#f59e0b" },
+  { name:"TRPV1", range:">43°C", modality:"Noxious heat; capsaicin", color:"var(--danger)" },
+  { name:"TRPV2", range:">52°C", modality:"Extreme noxious heat", color:"#dc2626" }
+];
+
+const mnemonicsData = [
+  {
+    title:"TRP Channels for HEAT",
+    acronym:"3-4 → 1 → 2",
+    subtitle:"Non-noxious → Noxious → Extreme",
+    rows:[
+      { letter:"TRPV3", meaning:"<strong>3</strong>2–40°C → Warm (non-noxious heat)" },
+      { letter:"TRPV4", meaning:"<strong>4</strong>= 27–34°C → Comfortable warmth" },
+      { letter:"TRPV1", meaning:"<strong>1</strong> = >43°C → Burns! (+ capsaicin)" },
+      { letter:"TRPV2", meaning:"<strong>2</strong> = >52°C → Extreme noxious heat" }
+    ],
+    tip:"Numbers go 3-4-1-2 — like skipping in a sequence. Warmth before pain. 4 < 3 in order but 4 activates lower temp."
+  },
+  {
+    title:"TRP Channels for COLD",
+    acronym:"M-A-C",
+    subtitle:"M8 → A1 → C5",
+    rows:[
+      { letter:"M", meaning:"<strong>M8</strong> = TRPM8 → Cool/cold (<25°C) — most common cold receptor" },
+      { letter:"A", meaning:"<strong>A1</strong> = TRPA1 → Noxious cold (<17°C)" },
+      { letter:"C", meaning:"<strong>C5</strong> = TRPC5 → Cold sensation (<37°C)" }
+    ],
+    tip:"MAC is cold — like a MAC (apple) left in the cold! M8, A1, C5."
+  },
+  {
+    title:"Spinothalamic Pathway Sequence",
+    acronym:"D-D-C-V-S",
+    subtitle:"DRG → Dorsal Horn → Cross → VPLN → SI",
+    rows:[
+      { letter:"D", meaning:"<strong>D</strong>RG — 1st order cell body ('mother cell')" },
+      { letter:"D", meaning:"<strong>D</strong>orsal Horn — 1st order synapses here" },
+      { letter:"C", meaning:"<strong>C</strong>rosses via Anterior White Commissure" },
+      { letter:"V", meaning:"<strong>V</strong>PLN (thalamus) — 3rd order origin" },
+      { letter:"S", meaning:"<strong>S</strong>I Cortex (Areas 3,1,2) — perception" }
+    ],
+    tip:"'Don't Drop Cold VaSeline' — DRG, Dorsal horn, Cross, VPLN, SI cortex."
+  },
+  {
+    title:"Cortical Area Functions",
+    acronym:"3-1-2 / 40 / 5-7",
+    subtitle:"SI / SII / Association",
+    rows:[
+      { letter:"3,1,2", meaning:"<strong>Primary SI</strong> — post-central gyrus — detects, localizes, grades sensation" },
+      { letter:"40", meaning:"<strong>SII</strong> — gives <em>meaning</em> to sensation (tactile learning)" },
+      { letter:"5,7", meaning:"<strong>Association</strong> — integrates for <em>motor feedback</em>; lesion = Neglect" }
+    ],
+    tip:"'312 gets the signal, 40 finds the meaning, 57 tells the muscles.' Think phone keypad: 312 / 40 / 57."
+  },
+  {
+    title:"Decussation Levels",
+    acronym:"ALS-Cord, DCML-Medulla",
+    subtitle:"Where each pathway crosses",
+    rows:[
+      { letter:"ALS", meaning:"<strong>A</strong>nterolateral System crosses at the <strong>S</strong>pinal cord (anterior white commissure) — 'AS soon as it enters'" },
+      { letter:"DCML", meaning:"<strong>D</strong>orsal Column crosses at the <strong>M</strong>edulla — 'D stays ipsilateral for a long way'" }
+    ],
+    tip:"ALS = Army Sprints (crosses immediately). DCML = Delayed Medullary Crossing. ALS-Cord = 'A Cord Crosses'. DCML-Medulla = 'D Medulla'."
+  },
+  {
+    title:"Lesion Syndromes",
+    acronym:"A-P-T",
+    subtitle:"Astereognosis, Parietal Neglect, Tactile learning",
+    rows:[
+      { letter:"A", meaning:"<strong>A</strong>stereognosis — cannot recognize objects by touch → SI (3,1,2) or Association (5,7) lesion" },
+      { letter:"P", meaning:"<strong>P</strong>arietal Lobe Neglect — ignores contralateral body half → Areas 5 & 7 lesion" },
+      { letter:"T", meaning:"<strong>T</strong>actile learning loss — cannot learn by touch → SII (Area 40) lesion" }
+    ],
+    tip:"'APT lesion': Astereognosis→Primary cortex, Parietal neglect→Areas 5,7, Tactile learning→Area 40. 'APT' like an apartment — different floors, different functions."
+  }
+];
+
+const vivaData = [
+  { q:"Define somatic sensation.", a:"Conscious awareness of feelings produced by stimulation of receptors widely distributed over the body (skin, skeletal muscle, joints, periosteum). Includes mechanoceptive, thermoceptive, and pain sensations." },
+  { q:"Explain the mechanism by which thermal receptors detect temperature changes.", a:"Temperature changes do not act directly. They alter the metabolic activity and metabolite concentration of skin cells. This chemical change activates TRP ion channels, causing Na⁺ and Ca²⁺ influx, generating a graded receptor potential which triggers action potentials when threshold is reached." },
+  { q:"What is 'paradoxical cold sensation'?", a:"A false feeling of cold when the skin is exposed to 45°C. Cold receptors (A-δ fibers) exhibit a brisk secondary burst of discharge at this temperature, sending signals the brain interprets as cold despite the heat." },
+  { q:"How does tissue cooling to 0°C function as local anesthesia?", a:"Cooling halts the Na⁺/K⁺ ATPase pump. Without active pumping, the membrane cannot repolarize after depolarization. No repolarization → no subsequent action potentials → complete block of sensory (and motor) transmission." },
+  { q:"Differentiate between fibers carrying cold vs warm sensations.", a:"Cold: Type A-δ (myelinated, faster, 3–30 m/s). Warm: Type C (unmyelinated, slower, 0.5–2 m/s). Cold receptors are encapsulated; warm receptors are free nerve endings." },
+  { q:"Describe the phasic and tonic responses of thermoreceptors.", a:"On sudden temperature change, thermoreceptors fire rapidly (phasic response — high discharge rate). Over seconds, this settles to a sustained lower rate (tonic response). This means they are slowly adapting — they never fully stop firing as long as a thermal stimulus persists." },
+  { q:"Outline the lateral spinothalamic pathway for temperature.", a:"1st order: DRG (cell body) → dorsal horn (synapse). 2nd order: crosses via anterior white commissure → ascends ipsilateral spinothalamic tract (contralateral after crossing) → medulla/midbrain as Spinal Lemniscus → VPLN of thalamus. 3rd order: VPLN → Primary Somatosensory Cortex (Areas 3,1,2)." },
+  { q:"How is the somatotopic map organized in SI?", a:"Body is represented contralaterally (left hemisphere = right body) and upside-down (legs at top, face at bottom). The size of cortical territory for a body part is proportional to its receptor density, not physical size. Hands and lips have very large areas; trunk has small." },
+  { q:"What is astereognosis?", a:"Inability to recognize shapes, forms, or textures of objects by touch alone, despite intact primary tactile sensation. Results from lesions in Primary SI (Areas 3,1,2) or the Sensory Association Cortex (Areas 5,7)." },
+  { q:"What is Parietal Lobe Neglect?", a:"Condition from damage to Somatic Sensory Association Cortex (Areas 5 & 7) — patient ignores sensory information from the contralateral body half, forgets to use that side, and may not acknowledge its existence. Also called Amorphosynthesis." },
+  { q:"What is the role of the Secondary Somatosensory Cortex (SII / Area 40)?", a:"Located behind and lateral to the face area of SI. Receives direct input from VPLN and SI. Gives meaning to sensations received. Lesions impair tactile-based learning — the patient cannot learn to identify new objects by touch alone." },
+  { q:"Why do individuals 'forget' they are wearing glasses but remain aware of holding a hot cup?", a:"Touch receptors (pressure/contact) are rapidly adapting — they stop firing after constant stimulation (adapted to glasses). Thermoreceptors are slowly adapting — they maintain tonic discharge as long as the thermal stimulus (hot cup) persists, keeping the brain continuously aware of temperature." }
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let currentQ = 0;
+let score = 0;
+let streak = 0;
+let answered = false;
+let completedQuestions = 0;
+const totalItems = quizData.length + flashcardsData.length;
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('neuroSense_state');
+    if (s) {
+      const d = JSON.parse(s);
+      score = d.score || 0;
+      streak = d.streak || 0;
+      completedQuestions = d.completed || 0;
+      updateStatsDisplay();
+    }
+  } catch(e) {}
+}
+function saveState() {
+  try {
+    localStorage.setItem('neuroSense_state', JSON.stringify({ score, streak, completed: completedQuestions }));
+  } catch(e) {}
+}
+function updateStatsDisplay() {
+  document.getElementById('scoreDisplay').textContent = score;
+  document.getElementById('streakDisplay').textContent = streak;
+  const pct = Math.round((completedQuestions / totalItems) * 100);
+  document.getElementById('progressDisplay').textContent = pct + '%';
+  document.getElementById('liveScore').textContent = score;
+  document.getElementById('liveStreak').textContent = streak;
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+  localStorage.setItem('neuroSense_lastTab', name);
+  clearSearch();
+}
+
+// ============================================================
+// QUIZ
+// ============================================================
+function renderQuestion() {
+  if (currentQ >= quizData.length) {
+    showFinalScore();
+    return;
+  }
+  const d = quizData[currentQ];
+  document.getElementById('qCounter').textContent = `Question ${currentQ + 1} of ${quizData.length}`;
+  document.getElementById('quizProgressFill').style.width = ((currentQ / quizData.length) * 100) + '%';
+  answered = false;
+  document.getElementById('nextBtn').style.display = 'none';
+
+  const letters = ['A','B','C','D','E'];
+  const optsHTML = d.opts.map((o,i) =>
+    `<button class="option-btn" onclick="selectAnswer(${i})" id="opt${i}">
+      <span class="opt-letter">${letters[i]}</span>${o}
+    </button>`
+  ).join('');
+
+  document.getElementById('quizArea').innerHTML = `
+    <div class="question-card">
+      <div class="question-text">${d.q}</div>
+      <div class="options-list">${optsHTML}</div>
+      <div class="explanation-box" id="expBox"></div>
+    </div>`;
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+  const d = quizData[currentQ];
+  const correct = idx === d.ans;
+  const opts = document.querySelectorAll('.option-btn');
+  opts.forEach(o => o.disabled = true);
+
+  const selected = document.getElementById('opt' + idx);
+  const correctBtn = document.getElementById('opt' + d.ans);
+
+  if (correct) {
+    selected.classList.add('correct', 'pulse-anim');
+    score++; streak++;
+    completedQuestions = Math.min(completedQuestions + 1, totalItems);
+  } else {
+    selected.classList.add('wrong', 'shake-anim');
+    correctBtn.classList.add('correct');
+    streak = 0;
+  }
+
+  updateStatsDisplay();
+  saveState();
+
+  const expBox = document.getElementById('expBox');
+  expBox.innerHTML = `<span class="${correct ? 'correct-label' : 'wrong-label'}">${correct ? '✅ Correct!' : '❌ Incorrect'}</span> ${d.exp}`;
+  expBox.classList.add('show');
+
+  document.getElementById('nextBtn').style.display = 'inline-flex';
+}
+
+function nextQuestion() {
+  currentQ++;
+  renderQuestion();
+}
+
+function restartQuiz() {
+  currentQ = 0; score = 0; streak = 0;
+  document.getElementById('scoreBoard').classList.remove('show');
+  document.getElementById('quizArea').innerHTML = '';
+  document.getElementById('quizControls').style.display = 'flex';
+  updateStatsDisplay();
+  renderQuestion();
+}
+
+function showFinalScore() {
+  document.getElementById('quizArea').innerHTML = '';
+  document.getElementById('nextBtn').style.display = 'none';
+  const pct = Math.round((score / quizData.length) * 100);
+  const msgs = ['Keep reviewing! You\'ve got this. 💪', 'Good effort! Review the explanations. 📚', 'Solid performance! Almost there. 🎯', 'Great job! High-yield mastery. 🔥', 'Excellent! Exam-ready performance! 🏆'];
+  const msgIdx = Math.floor(pct / 20);
+  document.getElementById('finalScore').textContent = `${score}/${quizData.length}`;
+  document.getElementById('motivMsg').textContent = msgs[Math.min(msgIdx, 4)];
+  document.getElementById('scoreBoard').classList.add('show');
+}
+
+// ============================================================
+// FLASHCARDS
+// ============================================================
+function renderFlashcards() {
+  const grid = document.getElementById('flashcardsGrid');
+  grid.innerHTML = flashcardsData.map((fc, i) => `
+    <div class="flip-card" onclick="this.classList.toggle('flipped')">
+      <div class="flip-card-inner">
+        <div class="flip-card-front">
+          <div class="fc-label">❓ Question</div>
+          <div class="fc-text">${fc.q}</div>
+          <div class="fc-hint">tap to reveal →</div>
+        </div>
+        <div class="flip-card-back">
+          <div class="fc-label">✅ Answer</div>
+          <div class="fc-text">${fc.a}</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ============================================================
+// CASES
+// ============================================================
+function renderCases() {
+  const container = document.getElementById('casesContainer');
+  container.innerHTML = casesData.map((c, ci) => `
+    <div class="case-card">
+      <div class="case-header">
+        <div class="case-num">${c.icon}</div>
+        <div>
+          <div class="case-title">Case ${ci+1}: ${c.title}</div>
+        </div>
+      </div>
+      <div class="case-body">
+        <div class="vignette-text">${c.vignette}</div>
+        <div class="case-questions">
+          ${c.questions.map((q, qi) => `
+            <div class="case-q">
+              <strong>${q.q}</strong><br>
+              <button class="reveal-btn" onclick="toggleAnswer(this)">Reveal Answer</button>
+              <div class="case-answer">
+                ${q.a}
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleAnswer(btn) {
+  const ans = btn.nextElementSibling;
+  const isOpen = ans.classList.contains('show');
+  ans.classList.toggle('show');
+  btn.textContent = isOpen ? 'Reveal Answer' : 'Hide Answer';
+}
+
+// ============================================================
+// PATHOPHYSIOLOGY
+// ============================================================
+function renderPathophysiology() {
+  renderFlowChain('alsFlow', pathNodes.als);
+  renderFlowChain('trigFlow', pathNodes.trig);
+  renderFlowChain('mechFlow', pathNodes.mech);
+  renderTRPGrid();
+}
+
+function renderFlowChain(elId, nodes) {
+  const el = document.getElementById(elId);
+  el.innerHTML = nodes.map((n, i) =>
+    `<div class="flow-node" onmouseenter="showNodeDetail(event,'${n.label}','${escStr(n.detail)}')" onmouseleave="hideNodeDetail()">${n.label}</div>${i < nodes.length - 1 ? '<span class="flow-arrow">→</span>' : ''}`
+  ).join('');
+}
+
+function renderTRPGrid() {
+  const grid = document.getElementById('trpGrid');
+  grid.innerHTML = trpData.map(t => `
+    <div class="trp-card" style="border-color:${t.color}33">
+      <h4 style="color:${t.color}">${t.name}</h4>
+      <div class="trp-temp">${t.range}</div>
+      <p>${t.modality}</p>
+    </div>`).join('');
+}
+
+function escStr(s) { return s.replace(/'/g, "&#39;").replace(/"/g, '&quot;'); }
+
+const nodeDetail = document.getElementById('nodeDetail');
+function showNodeDetail(e, title, detail) {
+  nodeDetail.innerHTML = `<h4>${title}</h4>${detail}`;
+  nodeDetail.classList.add('visible');
+  const x = Math.min(e.clientX + 12, window.innerWidth - 320);
+  const y = Math.min(e.clientY + 12, window.innerHeight - 120);
+  nodeDetail.style.left = x + 'px';
+  nodeDetail.style.top = y + 'px';
+}
+function hideNodeDetail() { nodeDetail.classList.remove('visible'); }
+document.addEventListener('mousemove', e => {
+  if (nodeDetail.classList.contains('visible')) {
+    const x = Math.min(e.clientX + 12, window.innerWidth - 320);
+    const y = Math.min(e.clientY + 12, window.innerHeight - 120);
+    nodeDetail.style.left = x + 'px';
+    nodeDetail.style.top = y + 'px';
+  }
+});
+
+// ============================================================
+// MNEMONICS
+// ============================================================
+function renderMnemonics() {
+  const container = document.getElementById('mnemonicsContainer');
+  container.innerHTML = mnemonicsData.map((m, i) => `
+    <div class="mnemonic-card">
+      <div class="mnemonic-head" onclick="toggleMnemonic(${i})">
+        <div>
+          <h3>${m.title}</h3>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:0.2rem">${m.subtitle}</div>
+        </div>
+        <div class="mnemonic-acronym">${m.acronym}</div>
+      </div>
+      <div class="mnemonic-body" id="mnem${i}">
+        <div class="mnemonic-rows">
+          ${m.rows.map(r => `
+            <div class="mnemonic-row">
+              <div class="mnemonic-letter">${r.letter}</div>
+              <div class="mnemonic-meaning">${r.meaning}</div>
+            </div>`).join('')}
+        </div>
+        <div style="margin-top:1rem;padding:0.75rem 1rem;background:rgba(56,189,248,0.06);border-radius:8px;font-size:0.74rem;color:var(--muted);border-left:3px solid var(--accent1)">
+          💡 <strong style="color:var(--accent1)">Memory tip:</strong> ${m.tip}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleMnemonic(i) {
+  const body = document.getElementById('mnem' + i);
+  body.classList.toggle('open');
+}
+
+// ============================================================
+// VIVA
+// ============================================================
+function renderViva() {
+  const container = document.getElementById('vivaContainer');
+  container.innerHTML = vivaData.map((v, i) => `
+    <div class="viva-card">
+      <div class="viva-question" onclick="toggleViva(${i})">
+        <p><strong>V${i+1}:</strong> ${v.q}</p>
+        <span class="viva-toggle" id="vtog${i}">▼</span>
+      </div>
+      <div class="viva-answer" id="vans${i}">${v.a}</div>
+    </div>`).join('');
+}
+
+function toggleViva(i) {
+  const ans = document.getElementById('vans' + i);
+  const tog = document.getElementById('vtog' + i);
+  ans.classList.toggle('open');
+  tog.classList.toggle('open');
+}
+
+// ============================================================
+// SEARCH
+// ============================================================
+function handleSearch(val) {
+  if (!val.trim()) { clearSearch(); return; }
+  const v = val.toLowerCase();
+  // Search through visible tab
+  const activeTab = document.querySelector('.tab-panel.active');
+  const cards = activeTab.querySelectorAll('.card, .sign-card, .case-card, .viva-card, .mnemonic-card, .treatment-item, .flip-card, .timeline-item');
+  cards.forEach(card => {
+    const text = card.textContent.toLowerCase();
+    if (text.includes(v)) {
+      card.classList.remove('hidden-search');
+    } else {
+      card.classList.add('hidden-search');
+    }
+  });
+}
+function clearSearch() {
+  document.querySelectorAll('.hidden-search').forEach(el => el.classList.remove('hidden-search'));
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('load', () => {
+  loadState();
+  renderFlashcards();
+  renderCases();
+  renderPathophysiology();
+  renderMnemonics();
+  renderViva();
+  renderQuestion();
+
+  const lastTab = localStorage.getItem('neuroSense_lastTab');
+  if (lastTab && lastTab !== 'overview') {
+    const btn = document.querySelector(`.tab-btn[onclick*="'${lastTab}'"]`);
+    if (btn) switchTab(lastTab, btn);
+  }
+});
+</script>
+</body>
+</html>

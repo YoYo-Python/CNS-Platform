@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CNS Infections — Medical Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c10;
+  --surface: #12151c;
+  --surface2: #1a1f2a;
+  --surface3: #222839;
+  --border: rgba(255,255,255,0.07);
+  --accent: #4f9ef8;
+  --accent2: #a78bfa;
+  --accent3: #34d399;
+  --accent4: #fb923c;
+  --accent5: #f472b6;
+  --danger: #f87171;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --glow: rgba(79,158,248,0.15);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* Animated BG */
+.bg-orbs{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.12;animation:float 18s ease-in-out infinite}
+.orb1{width:600px;height:600px;background:radial-gradient(circle,#4f9ef8,transparent);top:-200px;left:-200px;animation-duration:20s}
+.orb2{width:500px;height:500px;background:radial-gradient(circle,#a78bfa,transparent);bottom:-150px;right:-150px;animation-duration:25s;animation-delay:-8s}
+.orb3{width:400px;height:400px;background:radial-gradient(circle,#34d399,transparent);top:40%;left:50%;animation-duration:18s;animation-delay:-4s}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,-30px) scale(1.05)}66%{transform:translate(-20px,20px) scale(0.97)}}
+
+/* Layout */
+#app{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 16px}
+
+/* Header */
+header{padding:32px 0 20px;text-align:center}
+.header-badge{display:inline-block;background:rgba(79,158,248,0.1);border:1px solid rgba(79,158,248,0.3);color:var(--accent);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:6px 16px;border-radius:20px;margin-bottom:16px}
+header h1{font-family:'Playfair Display',serif;font-size:clamp(28px,5vw,48px);font-weight:700;background:linear-gradient(135deg,#e2e8f0 0%,#94a3b8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+header p{color:var(--text2);font-size:14px}
+.stats-bar{display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+.stat-chip{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px}
+.stat-chip span{color:var(--accent);font-weight:600;font-family:'DM Mono',monospace}
+
+/* Search */
+.search-bar{position:relative;margin:16px 0}
+.search-bar input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 16px 12px 44px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.search-bar input:focus{border-color:var(--accent)}
+.search-bar::before{content:'🔍';position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px}
+#search-results{background:var(--surface2);border:1px solid var(--border);border-radius:12px;margin-top:8px;display:none;max-height:300px;overflow-y:auto}
+.sr-item{padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;font-size:13px;transition:background .15s}
+.sr-item:hover{background:var(--surface3)}
+.sr-item strong{color:var(--accent);font-size:11px;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:2px}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;overflow-x:auto;padding:4px;background:var(--surface);border-radius:14px;margin-bottom:24px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:10px 16px;border:none;background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border-radius:10px;transition:all .2s;white-space:nowrap}
+.tab-btn.active{background:var(--accent);color:#fff;box-shadow:0 0 20px rgba(79,158,248,0.4)}
+.tab-btn:hover:not(.active){background:var(--surface2);color:var(--text)}
+
+/* Tab Panels */
+.tab-panel{display:none;animation:fadeIn .3s ease}
+.tab-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;transition:border-color .2s,transform .2s}
+.card:hover{border-color:rgba(79,158,248,0.3);transform:translateY(-2px)}
+.card-grid{display:grid;gap:12px}
+.card-grid-2{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+.card-grid-3{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+
+/* Tags */
+.tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.tag-exam{background:rgba(251,146,60,0.15);color:var(--accent4);border:1px solid rgba(251,146,60,0.3)}
+.tag-pearl{background:rgba(52,211,153,0.15);color:var(--accent3);border:1px solid rgba(52,211,153,0.3)}
+.tag-yield{background:rgba(167,139,250,0.15);color:var(--accent2);border:1px solid rgba(167,139,250,0.3)}
+.tag-danger{background:rgba(248,113,113,0.15);color:var(--danger);border:1px solid rgba(248,113,113,0.3)}
+
+/* Section titles */
+.section-title{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.sub-title{font-size:12px;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
+
+/* === OVERVIEW === */
+.overview-hero{background:linear-gradient(135deg,rgba(79,158,248,0.1),rgba(167,139,250,0.1));border:1px solid rgba(79,158,248,0.2);border-radius:16px;padding:24px;margin-bottom:20px}
+.overview-hero h2{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:8px}
+.overview-hero p{color:var(--text2);font-size:14px;line-height:1.7}
+.route-timeline{display:flex;flex-direction:column;gap:0;margin:16px 0}
+.route-step{display:flex;gap:16px;align-items:flex-start;padding:12px 0}
+.route-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;margin-top:2px}
+.route-content h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.route-content p{font-size:13px;color:var(--text2);line-height:1.6}
+.age-table{width:100%;border-collapse:collapse;font-size:13px}
+.age-table th{background:var(--surface2);padding:10px 14px;text-align:left;font-weight:600;color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:1px}
+.age-table td{padding:10px 14px;border-top:1px solid var(--border)}
+.age-table tr:hover td{background:var(--surface2)}
+
+/* === QUIZ === */
+.quiz-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:gap}
+.quiz-progress{flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;margin:0 16px}
+.quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width .4s}
+.quiz-score{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent3)}
+.question-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px}
+.q-number{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);margin-bottom:8px}
+.q-text{font-size:15px;line-height:1.6;margin-bottom:20px}
+.options{display:flex;flex-direction:column;gap:8px}
+.option{padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;cursor:pointer;font-size:14px;transition:all .2s;display:flex;align-items:center;gap:10px}
+.option:hover:not(.disabled){border-color:var(--accent);background:rgba(79,158,248,0.08)}
+.option.correct{background:rgba(52,211,153,0.1);border-color:var(--accent3);animation:pulse-green .4s}
+.option.wrong{background:rgba(248,113,113,0.1);border-color:var(--danger);animation:shake .3s}
+.option.disabled{cursor:default}
+.option-letter{width:28px;height:28px;border-radius:6px;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.explanation{background:rgba(52,211,153,0.05);border:1px solid rgba(52,211,153,0.2);border-radius:10px;padding:14px;margin-top:14px;font-size:13px;color:var(--text2);line-height:1.6;display:none}
+.explanation.wrong-exp{background:rgba(248,113,113,0.05);border-color:rgba(248,113,113,0.2)}
+.explanation strong{color:var(--accent3)}
+.next-btn{margin-top:16px;padding:10px 24px;background:var(--accent);border:none;border-radius:10px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;display:none}
+.next-btn:hover{background:#3b8fe8;transform:translateY(-1px)}
+@keyframes pulse-green{0%{transform:scale(1)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.quiz-complete{text-align:center;padding:40px 20px}
+.quiz-complete .score-big{font-family:'Playfair Display',serif;font-size:64px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.streak-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(251,146,60,0.15);border:1px solid rgba(251,146,60,0.3);color:var(--accent4);padding:6px 14px;border-radius:20px;font-size:13px;margin:8px}
+.restart-btn{margin-top:20px;padding:12px 32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:12px;color:#fff;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s}
+.restart-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(79,158,248,0.3)}
+
+/* === FLASHCARDS === */
+.flashcard-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.flashcard{height:200px;perspective:1000px;cursor:pointer}
+.flashcard-inner{position:relative;width:100%;height:100%;transition:transform .6s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d}
+.flashcard.flipped .flashcard-inner{transform:rotateY(180deg)}
+.flashcard-front,.flashcard-back{position:absolute;inset:0;border-radius:16px;padding:20px;backface-visibility:hidden;display:flex;flex-direction:column;justify-content:center}
+.flashcard-front{background:var(--surface);border:1px solid var(--border)}
+.flashcard-front .fc-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.flashcard-front .fc-q{font-size:14px;line-height:1.5;font-weight:500}
+.flashcard-back{background:linear-gradient(135deg,rgba(79,158,248,0.1),rgba(167,139,250,0.1));border:1px solid rgba(79,158,248,0.3);transform:rotateY(180deg)}
+.flashcard-back .fc-a{font-size:13px;line-height:1.6;color:var(--text2)}
+.flashcard-back .fc-label{color:var(--accent);font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.fc-hint{text-align:center;color:var(--text3);font-size:11px;margin-top:16px}
+
+/* === CLINICAL CASES === */
+.case-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px}
+.case-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.case-num{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0}
+.case-title{font-family:'Playfair Display',serif;font-size:17px}
+.vignette{background:var(--surface2);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:16px;margin-bottom:16px;font-size:14px;line-height:1.7;color:var(--text2)}
+.case-question{padding:12px 0;border-top:1px solid var(--border)}
+.case-question h4{font-size:14px;font-weight:600;margin-bottom:10px}
+.reveal-btn{padding:8px 20px;background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s}
+.reveal-btn:hover{background:rgba(79,158,248,0.1)}
+.case-answer{background:rgba(52,211,153,0.05);border:1px solid rgba(52,211,153,0.2);border-radius:10px;padding:14px;margin-top:10px;font-size:13px;color:var(--text2);line-height:1.6;display:none}
+.case-answer.shown{display:block;animation:fadeIn .3s ease}
+.case-answer strong{color:var(--accent3)}
+
+/* === PATHOPHYSIOLOGY === */
+.patho-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:24px}
+.patho-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:all .2s}
+.patho-item:hover,.patho-item.active{border-color:var(--accent);background:rgba(79,158,248,0.05)}
+.patho-item .pi-icon{font-size:24px;margin-bottom:6px}
+.patho-item .pi-name{font-size:13px;font-weight:600;margin-bottom:3px}
+.patho-item .pi-sub{font-size:11px;color:var(--text3)}
+.patho-detail{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:24px;display:none;animation:fadeIn .3s ease}
+.patho-detail.active{display:block}
+.patho-detail h3{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:10px}
+.patho-detail p{font-size:14px;color:var(--text2);line-height:1.7}
+.flowchart{display:flex;flex-direction:column;align-items:center;gap:0}
+.flow-step{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 20px;text-align:center;font-size:13px;max-width:340px;width:100%;position:relative}
+.flow-arrow{color:var(--accent);font-size:20px;margin:4px 0;line-height:1}
+.flow-step.highlight{border-color:var(--accent);background:rgba(79,158,248,0.08)}
+.flow-step.danger{border-color:var(--danger);background:rgba(248,113,113,0.05)}
+
+/* === DIAGNOSIS === */
+.diag-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px}
+.diag-table th{background:var(--surface2);padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)}
+.diag-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+.diag-table tr:hover td{background:var(--surface2)}
+.badge{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;margin:2px}
+.badge-blue{background:rgba(79,158,248,0.15);color:var(--accent)}
+.badge-green{background:rgba(52,211,153,0.15);color:var(--accent3)}
+.badge-red{background:rgba(248,113,113,0.15);color:var(--danger)}
+.badge-purple{background:rgba(167,139,250,0.15);color:var(--accent2)}
+.badge-orange{background:rgba(251,146,60,0.15);color:var(--accent4)}
+.algo-step{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.algo-num{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:2px}
+.algo-content h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.algo-content p{font-size:13px;color:var(--text2)}
+
+/* === TREATMENT === */
+.treatment-section{margin-bottom:24px}
+.treatment-section h3{font-size:15px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.drug-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.drug-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px}
+.drug-card .drug-name{font-size:14px;font-weight:600;margin-bottom:4px}
+.drug-card .drug-use{font-size:12px;color:var(--text2);margin-bottom:6px}
+.urgency-high{border-left:3px solid var(--danger)}
+.urgency-med{border-left:3px solid var(--accent4)}
+.urgency-low{border-left:3px solid var(--accent3)}
+
+/* === MNEMONICS === */
+.mnemonic-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px}
+.mnemonic-title{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:4px}
+.mnemonic-word{font-family:'DM Mono',monospace;font-size:24px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:10px 0}
+.mnemonic-letters{display:flex;flex-direction:column;gap:4px;margin-top:10px}
+.mnemonic-letter{display:flex;align-items:center;gap:10px;font-size:14px}
+.mnemonic-letter .letter{font-family:'DM Mono',monospace;font-size:18px;font-weight:700;color:var(--accent);width:24px}
+.mnemonic-letter .meaning{color:var(--text2)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--surface)}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--text3)}
+
+/* Mobile */
+@media(max-width:640px){
+  .card-grid-2,.card-grid-3{grid-template-columns:1fr}
+  .flashcard-grid{grid-template-columns:1fr}
+  .patho-grid{grid-template-columns:repeat(2,1fr)}
+  .drug-grid{grid-template-columns:1fr}
+}
+
+.highlight-box{background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.25);border-radius:12px;padding:14px;margin:12px 0}
+.highlight-box p{font-size:13px;color:var(--text2);line-height:1.6}
+.highlight-box strong{color:var(--accent4)}
+</style>
+</head>
+<body>
+<div class="bg-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<div id="app">
+  <header>
+    <div class="header-badge">Pathology · CNS Infections 2026</div>
+    <h1>CNS Infections Study Platform</h1>
+    <p>Meningitis · Encephalitis · Abscesses · Prions · Viruses</p>
+    <div class="stats-bar">
+      <div class="stat-chip">📊 Quiz Score: <span id="score-display">0/25</span></div>
+      <div class="stat-chip">🔥 Streak: <span id="streak-display">0</span></div>
+      <div class="stat-chip">📈 Progress: <span id="progress-display">0%</span></div>
+      <div class="stat-chip">🃏 Cards: <span id="card-display">0/22</span></div>
+    </div>
+  </header>
+
+  <div class="search-bar">
+    <input type="text" id="search-input" placeholder="Search any topic, organism, or term…" autocomplete="off">
+    <div id="search-results"></div>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" onclick="switchTab('overview')">🏠 Overview</button>
+    <button class="tab-btn" onclick="switchTab('quiz')">🧠 Quiz</button>
+    <button class="tab-btn" onclick="switchTab('flashcards')">🃏 Flashcards</button>
+    <button class="tab-btn" onclick="switchTab('cases')">🩺 Cases</button>
+    <button class="tab-btn" onclick="switchTab('patho')">⚙️ Pathophysiology</button>
+    <button class="tab-btn" onclick="switchTab('diagnosis')">🔬 Diagnosis</button>
+    <button class="tab-btn" onclick="switchTab('treatment')">💊 Treatment</button>
+    <button class="tab-btn" onclick="switchTab('mnemonics')">✨ Mnemonics</button>
+  </div>
+
+  <!-- ======================== OVERVIEW ======================== -->
+  <div id="tab-overview" class="tab-panel active">
+    <div class="overview-hero">
+      <h2>🧬 CNS Infections — High-Yield Overview</h2>
+      <p>The central nervous system is protected by the blood-brain barrier, yet pathogens breach it via three main routes. This lecture covers bacterial meningitis (age-specific organisms!), brain abscess, viral encephalitis including Rabies and Polio, and the unique world of prion diseases.</p>
+    </div>
+
+    <div class="section-title">Routes of CNS Infection</div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="route-timeline">
+        <div class="route-step">
+          <div class="route-dot" style="background:rgba(79,158,248,0.2)">🩸</div>
+          <div class="route-content">
+            <h4>Hematogenous Spread</h4>
+            <p>Via arterial circulation or <strong>retrograde venous spread from veins of the face</strong>. Most common route for bacteria. Causes meningitis and encephalitis.</p>
+          </div>
+        </div>
+        <div class="route-step">
+          <div class="route-dot" style="background:rgba(167,139,250,0.2)">🔪</div>
+          <div class="route-content">
+            <h4>Direct Spread / Implantation</h4>
+            <p>Trauma, iatrogenic (lumbar puncture), adjacent structures (sinuses, middle ear, teeth, vertebrae), or congenital defects (meningomyelocele).</p>
+          </div>
+        </div>
+        <div class="route-step">
+          <div class="route-dot" style="background:rgba(52,211,153,0.2)">🧠</div>
+          <div class="route-content">
+            <h4>Nerve Spread</h4>
+            <p><strong>Retrograde axonal transport</strong> along peripheral nerves — bypasses blood-brain barrier. Key examples: <span class="tag tag-exam">Rabies</span> <span class="tag tag-exam">Herpes Zoster</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Age-Specific Organisms ⚠️ EXAM FAVORITE</div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="highlight-box"><p><strong>⭐ Must Memorize:</strong> Every age group has a specific organism for bacterial meningitis. This is a guaranteed exam topic!</p></div>
+      <table class="age-table">
+        <thead><tr><th>Age Group</th><th>Key Organisms</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>🍼 Neonates</td><td><span class="tag tag-exam">E. coli</span> <span class="tag tag-exam">Group B Streptococci</span></td><td>Vertical transmission from mother</td></tr>
+          <tr><td>👶 Children</td><td><span class="tag tag-yield">Haemophilus influenzae</span></td><td>Now rare with vaccination</td></tr>
+          <tr><td>🧑 Young Adults</td><td><span class="tag tag-exam">Neisseria meningitidis</span></td><td>Causes Waterhouse-Friderichsen</td></tr>
+          <tr><td>👴 Elderly</td><td><span class="tag tag-yield">Listeria monocytogenes</span> <span class="tag tag-yield">S. pneumoniae</span></td><td>Also immunocompromised</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Key Clinical Concepts</div>
+    <div class="card-grid card-grid-2" style="margin-bottom:20px">
+      <div class="card">
+        <div style="font-size:24px;margin-bottom:8px">🧫</div>
+        <h3 style="font-size:15px;margin-bottom:6px">Waterhouse-Friderichsen Syndrome</h3>
+        <p style="font-size:13px;color:var(--text2);line-height:1.6">Meningococcal septicemia → massive toxin release → bilateral adrenal hemorrhage → fatal shock</p>
+        <div style="margin-top:10px"><span class="tag tag-exam">⚠️ EXAM</span> <span class="tag tag-danger">FATAL</span></div>
+      </div>
+      <div class="card">
+        <div style="font-size:24px;margin-bottom:8px">🧪</div>
+        <h3 style="font-size:15px;margin-bottom:6px">Brain Abscess vs Meningitis</h3>
+        <p style="font-size:13px;color:var(--text2);line-height:1.6">Both ↑ neutrophils & protein in CSF. KEY DIFFERENCE: Brain abscess has <strong>normal glucose</strong> (bacteria not in CSF)</p>
+        <div style="margin-top:10px"><span class="tag tag-pearl">💡 Clinical Pearl</span></div>
+      </div>
+      <div class="card">
+        <div style="font-size:24px;margin-bottom:8px">🦠</div>
+        <h3 style="font-size:15px;margin-bottom:6px">PML (Progressive Multifocal Leukoencephalopathy)</h3>
+        <p style="font-size:13px;color:var(--text2);line-height:1.6">JC polyomavirus → destroys oligodendrocytes → white matter demyelination. Common in AIDS/immunocompromised</p>
+        <div style="margin-top:10px"><span class="tag tag-yield">HIGH YIELD</span></div>
+      </div>
+      <div class="card">
+        <div style="font-size:24px;margin-bottom:8px">🐺</div>
+        <h3 style="font-size:15px;margin-bottom:6px">Negri Bodies in Rabies</h3>
+        <p style="font-size:13px;color:var(--text2);line-height:1.6">Eosinophilic intracytoplasmic viral RNA inclusions. Found in hippocampal pyramidal cells and cerebellar Purkinje cells</p>
+        <div style="margin-top:10px"><span class="tag tag-exam">⚠️ EXAM</span></div>
+      </div>
+      <div class="card">
+        <div style="font-size:24px;margin-bottom:8px">🧟</div>
+        <h3 style="font-size:15px;margin-bottom:6px">Prion Diseases</h3>
+        <p style="font-size:13px;color:var(--text2);line-height:1.6">Misfolded protein (PrP) — heat and acid resistant. Examples: CJD, Mad Cow Disease. No DNA/RNA involved</p>
+        <div style="margin-top:10px"><span class="tag tag-yield">UNIQUE MECHANISM</span></div>
+      </div>
+      <div class="card">
+        <div style="font-size:24px;margin-bottom:8px">🦷</div>
+        <h3 style="font-size:15px;margin-bottom:6px">Polio — AHC Destruction</h3>
+        <p style="font-size:13px;color:var(--text2);line-height:1.6">Fecal-oral → viremia → anterior horn cells → permanent flaccid paralysis. Post-polio syndrome 15-40 yrs later</p>
+        <div style="margin-top:10px"><span class="tag tag-pearl">💡 Motor Only</span></div>
+      </div>
+    </div>
+
+    <div class="section-title">AIDS Effects on CNS ⚠️ Enumerate Question</div>
+    <div class="card">
+      <div class="highlight-box"><p><strong>⭐ Exam Tip:</strong> "Enumerate the effects of AIDS on the brain" — this is a classic exam question!</p></div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px">
+        <div class="badge badge-red">Opportunistic Infections</div>
+        <div class="badge badge-purple">CNS Lymphoma</div>
+        <div class="badge badge-blue">Leukoencephalopathy</div>
+        <div class="badge badge-orange">Meningitis</div>
+        <div class="badge badge-green">Encephalitis</div>
+        <div class="badge badge-red">Microcephaly (neonates)</div>
+        <div class="badge badge-blue">PML (via JC virus)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== QUIZ ======================== -->
+  <div id="tab-quiz" class="tab-panel">
+    <div id="quiz-container"></div>
+  </div>
+
+  <!-- ======================== FLASHCARDS ======================== -->
+  <div id="tab-flashcards" class="tab-panel">
+    <div class="section-title">Flashcards — Click to Flip</div>
+    <p class="fc-hint" style="margin-bottom:16px">🖱️ Click any card to reveal the answer · <span id="fc-flipped">0</span> of 22 explored</p>
+    <div class="flashcard-grid" id="flashcard-grid"></div>
+  </div>
+
+  <!-- ======================== CLINICAL CASES ======================== -->
+  <div id="tab-cases" class="tab-panel">
+    <div class="section-title">Clinical Vignettes</div>
+    <div id="cases-container"></div>
+  </div>
+
+  <!-- ======================== PATHOPHYSIOLOGY ======================== -->
+  <div id="tab-patho" class="tab-panel">
+    <div class="section-title">Key Structures & Cells</div>
+    <div class="patho-grid" id="patho-grid"></div>
+    <div id="patho-detail-box" class="patho-detail"></div>
+
+    <div class="section-title">Pathogenesis Flowcharts</div>
+    <div class="card-grid card-grid-2">
+      <div class="card">
+        <h3 style="font-size:16px;margin-bottom:16px">🦠 Poliomyelitis</h3>
+        <div class="flowchart">
+          <div class="flow-step">Ingestion of Poliovirus (fecal-oral)</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step">Mild gastroenteritis · Intestinal replication</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step">Viremia (bloodstream)</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step highlight">CNS invasion · Anterior Horn Cells targeted</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step">Neuronophagia of motor neurons</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step danger">Permanent Flaccid Paralysis (0.5-1%)</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="font-size:16px;margin-bottom:16px">🐺 Rabies</h3>
+        <div class="flowchart">
+          <div class="flow-step">Animal bite (infected saliva)</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step">Replication in skeletal muscle</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step">Uptake into peripheral nerve endings</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step highlight">Retrograde axonal transport to CNS</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step">Negri body formation (hippocampus, cerebellum)</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step danger">Hydrophobia → Coma → Death</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="font-size:16px;margin-bottom:16px">🧟 Prion Disease</h3>
+        <div class="flowchart">
+          <div class="flow-step">Ingestion of infected meat / Iatrogenic</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step">Introduction of misfolded PrPsc protein</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step highlight">PrPsc induces normal PrP to misfold (chain reaction)</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step">Aggregation accumulates in neurons</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step danger">Fatal neurodegeneration (CJD, Mad Cow)</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="font-size:16px;margin-bottom:16px">💀 Waterhouse-Friderichsen</h3>
+        <div class="flowchart">
+          <div class="flow-step">Neisseria meningitidis septicemia</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step">Massive toxin/endotoxin release</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step highlight">DIC + vascular damage</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step danger">Bilateral adrenal hemorrhage & failure</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step danger">Loss of cortisol/aldosterone → Fatal shock</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== DIAGNOSIS ======================== -->
+  <div id="tab-diagnosis" class="tab-panel">
+    <div class="section-title">CSF Analysis Comparison ⚠️ EXAM</div>
+    <div class="card" style="margin-bottom:20px;overflow-x:auto">
+      <table class="diag-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Bacterial Meningitis</th>
+            <th>Viral Meningitis</th>
+            <th>Brain Abscess</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Dominant Cell</strong></td>
+            <td><span class="badge badge-red">Neutrophils ↑↑</span></td>
+            <td><span class="badge badge-blue">Lymphocytes ↑</span></td>
+            <td><span class="badge badge-red">Neutrophils ↑</span></td>
+          </tr>
+          <tr>
+            <td><strong>Glucose</strong></td>
+            <td><span class="badge badge-red">Markedly LOW ↓↓</span></td>
+            <td><span class="badge badge-green">NORMAL</span></td>
+            <td><span class="badge badge-green">NORMAL ⭐</span></td>
+          </tr>
+          <tr>
+            <td><strong>Protein</strong></td>
+            <td><span class="badge badge-orange">Markedly HIGH ↑↑</span></td>
+            <td><span class="badge badge-orange">Mildly HIGH ↑</span></td>
+            <td><span class="badge badge-orange">HIGH ↑</span></td>
+          </tr>
+          <tr>
+            <td><strong>Pressure</strong></td>
+            <td><span class="badge badge-red">HIGH ↑</span></td>
+            <td><span class="badge badge-orange">Normal/High</span></td>
+            <td><span class="badge badge-red">HIGH ↑</span></td>
+          </tr>
+          <tr>
+            <td><strong>Appearance</strong></td>
+            <td><span class="badge badge-orange">Turbid/Purulent</span></td>
+            <td><span class="badge badge-blue">Clear</span></td>
+            <td><span class="badge badge-blue">Clear/Turbid</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Viral Inclusion Bodies — Key Identifiers</div>
+    <div class="card-grid card-grid-3" style="margin-bottom:20px">
+      <div class="card">
+        <div style="font-size:20px;margin-bottom:8px">🔴</div>
+        <h4 style="font-size:14px;margin-bottom:4px">Negri Bodies</h4>
+        <p style="font-size:12px;color:var(--text2)">Eosinophilic, intracytoplasmic. Viral RNA inclusions. Found in hippocampus and cerebellum</p>
+        <div style="margin-top:8px"><span class="badge badge-red">Rabies</span></div>
+      </div>
+      <div class="card">
+        <div style="font-size:20px;margin-bottom:8px">🟡</div>
+        <h4 style="font-size:14px;margin-bottom:4px">Cowdry Type A</h4>
+        <p style="font-size:12px;color:var(--text2)">Intranuclear eosinophilic inclusions. Temporal & inferior frontal lobes</p>
+        <div style="margin-top:8px"><span class="badge badge-blue">HSV-1</span></div>
+      </div>
+      <div class="card">
+        <div style="font-size:20px;margin-bottom:8px">🟢</div>
+        <h4 style="font-size:14px;margin-bottom:4px">Periventricular Calcification</h4>
+        <p style="font-size:12px;color:var(--text2)">Calcifications around ventricles. Microcephaly in neonates</p>
+        <div style="margin-top:8px"><span class="badge badge-purple">CMV</span></div>
+      </div>
+    </div>
+
+    <div class="section-title">Diagnostic Algorithm — Suspected Meningitis</div>
+    <div class="card">
+      <div class="algo-step">
+        <div class="algo-num">1</div>
+        <div class="algo-content">
+          <h4>History & Clinical Features</h4>
+          <p>Fever, headache, neck stiffness, photophobia. Check Kernig's sign and Brudzinski's sign (meningeal irritation). Note age of patient!</p>
+        </div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-num">2</div>
+        <div class="algo-content">
+          <h4>Urgency Assessment</h4>
+          <p>Look for papilledema or focal neuro deficits — if present, CT FIRST before LP to rule out raised ICP and herniation risk</p>
+        </div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-num">3</div>
+        <div class="algo-content">
+          <h4>Lumbar Puncture (CSF Analysis)</h4>
+          <p>Cell count, glucose, protein, culture. Key differentiator: <strong>Glucose level</strong> — low = bacterial; normal = viral or abscess</p>
+        </div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-num">4</div>
+        <div class="algo-content">
+          <h4>Imaging (MRI/CT)</h4>
+          <p>For abscess: ring-enhancing lesion. HSV-1: temporal lobe changes. PML: multifocal white matter lesions</p>
+        </div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-num">5</div>
+        <div class="algo-content">
+          <h4>Culture / PCR / Serology</h4>
+          <p>Blood cultures (bacteria), viral PCR (HSV, enteroviruses), specific antibody testing as indicated by suspected organism</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== TREATMENT ======================== -->
+  <div id="tab-treatment" class="tab-panel">
+    <div class="highlight-box" style="margin-bottom:20px">
+      <p><strong>⚠️ Note:</strong> This platform covers pathology, not pharmacology. Treatment concepts are based on the lecture content's clinical context. Always consult current guidelines for management decisions.</p>
+    </div>
+
+    <div class="treatment-section">
+      <h3>🚨 Emergency Priorities — Bacterial Meningitis</h3>
+      <div class="drug-grid">
+        <div class="drug-card urgency-high">
+          <div class="drug-name">Empirical Antibiotics</div>
+          <div class="drug-use">Immediate broad-spectrum coverage based on age group before organism identified</div>
+          <span class="badge badge-red">URGENT</span>
+        </div>
+        <div class="drug-card urgency-high">
+          <div class="drug-name">Raised ICP Management</div>
+          <div class="drug-use">Risk of herniation — avoid LP without CT if papilledema present</div>
+          <span class="badge badge-red">URGENT</span>
+        </div>
+        <div class="drug-card urgency-high">
+          <div class="drug-name">Waterhouse-Friderichsen</div>
+          <div class="drug-use">Bilateral adrenal failure → corticosteroid replacement + intensive care</div>
+          <span class="badge badge-red">LIFE-THREATENING</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="treatment-section">
+      <h3>🧪 Organism-Specific Principles</h3>
+      <div class="drug-grid">
+        <div class="drug-card urgency-med">
+          <div class="drug-name">Neonatal Meningitis</div>
+          <div class="drug-use">E. coli / Group B Strep → aminoglycosides + beta-lactams</div>
+          <span class="badge badge-orange">Age-Guided</span>
+        </div>
+        <div class="drug-card urgency-med">
+          <div class="drug-name">Meningococcal (N. meningitidis)</div>
+          <div class="drug-use">Penicillin/Cephalosporins. Prophylaxis for contacts. Vaccination prevention</div>
+          <span class="badge badge-orange">Young Adults</span>
+        </div>
+        <div class="drug-card urgency-med">
+          <div class="drug-name">HSV Encephalitis</div>
+          <div class="drug-use">Antiviral therapy (acyclovir). Temporal lobe target makes rapid treatment critical</div>
+          <span class="badge badge-orange">Antiviral</span>
+        </div>
+        <div class="drug-card urgency-low">
+          <div class="drug-name">Brain Abscess</div>
+          <div class="drug-use">Surgical drainage + antibiotics. Monitor for rupture into ventricles — catastrophic complication</div>
+          <span class="badge badge-green">Surgical + Medical</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="treatment-section">
+      <h3>⚠️ Complications to Prevent/Treat</h3>
+      <div style="overflow-x:auto">
+        <table class="diag-table">
+          <thead><tr><th>Complication</th><th>Mechanism</th><th>Management Focus</th></tr></thead>
+          <tbody>
+            <tr><td>Hydrocephalus</td><td>Post-meningitis adhesions obstructing CSF flow</td><td><span class="badge badge-blue">CSF drainage / shunt</span></td></tr>
+            <tr><td>CN Paresis (III, IV, VI)</td><td>Increased ICP compressing nerves at brain base</td><td><span class="badge badge-orange">ICP reduction</span></td></tr>
+            <tr><td>Brain Herniation</td><td>↑ICP → downward displacement</td><td><span class="badge badge-red">Emergency ICP management</span></td></tr>
+            <tr><td>Thrombophlebitis</td><td>Venous inflammation → hemorrhagic infarction</td><td><span class="badge badge-purple">Anticoagulation</span></td></tr>
+            <tr><td>Adrenal Failure (W-F)</td><td>Bilateral adrenal hemorrhage</td><td><span class="badge badge-red">Steroid replacement</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="treatment-section">
+      <h3>🚫 Prion Diseases — No Cure</h3>
+      <div class="card">
+        <p style="font-size:14px;color:var(--text2);line-height:1.7">Prion diseases (CJD, Mad Cow) have <strong>no effective treatment</strong>. They are uniformly fatal. The misfolded PrP protein resists heat, acid, and standard sterilization methods. Prevention focuses on: avoiding infected meat, using proper surgical instrument sterilization, and screening blood/organ donors.</p>
+        <div style="margin-top:12px"><span class="badge badge-red">Uniformly Fatal</span> <span class="badge badge-orange">Prevention Only</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== MNEMONICS ======================== -->
+  <div id="tab-mnemonics" class="tab-panel">
+    <div class="section-title">Memory Tricks & Mnemonics</div>
+    <div id="mnemonics-container"></div>
+  </div>
+
+</div><!-- end #app -->
+
+<script>
+// =================== DATA ===================
+const quizData = [
+  {q:"Which pathogen most commonly causes acute pyogenic meningitis in neonates?",opts:["Haemophilus influenzae","Neisseria meningitidis","Listeria monocytogenes","Escherichia coli","Streptococcus pneumoniae"],ans:3,exp:"E. coli and Group B Streptococci are the primary pathogens in neonates. H. influenzae = children; N. meningitidis = young adults; Listeria/S. pneumoniae = elderly."},
+  {q:"What CSF finding most strongly differentiates a brain abscess from bacterial meningitis?",opts:["Increased neutrophils","Increased protein","Normal glucose","Increased pressure","Turbid appearance"],ans:2,exp:"In brain abscess, bacteria are walled off in brain tissue and NOT in the CSF — so CSF glucose is not consumed and remains normal. Both conditions share elevated neutrophils, protein, and pressure."},
+  {q:"Cowdry type A intranuclear inclusions in the temporal lobes are characteristic of which infection?",opts:["Rabies Virus","Herpes Simplex Virus type 1","Cytomegalovirus","JC polyomavirus","Poliovirus"],ans:1,exp:"HSV-1 specifically affects the temporal and inferior frontal lobes with Cowdry type A inclusion bodies. Rabies = Negri bodies; CMV = periventricular calcification; JC = PML."},
+  {q:"Which morphological zone immediately surrounds the central liquefactive necrosis of a brain abscess?",opts:["Reactive gliosis","Pus and meningeal exudate","Vascularized granulation tissue","Microglial nodules","Fibroblast capsule"],ans:2,exp:"The three zones outward from center: (1) Liquefactive necrosis, (2) Vascularized granulation tissue, (3) Reactive gliosis. Note: fibroblast capsule does NOT form in CNS — gliosis occurs instead."},
+  {q:"How does the Rabies virus travel from a bite wound to the CNS?",opts:["Hematogenous arterial spread","Lymphatic spread","Retrograde axonal transport","Anterograde axonal transport","Macrophage-mediated delivery"],ans:2,exp:"Rabies travels via RETROGRADE axonal transport (from periphery toward CNS). Anterograde = wrong direction (CNS to periphery). This is why early post-exposure prophylaxis works — intercepting before CNS arrival."},
+  {q:"Waterhouse-Friderichsen syndrome is primarily associated with which organism?",opts:["Viral encephalitis","Brain abscess rupture","Poliovirus viremia","Meningococcal septicaemia","Fungal meningitis"],ans:3,exp:"Neisseria meningitidis septicemia releases massive toxins causing bilateral adrenal hemorrhage and failure. The loss of cortisol and aldosterone leads to fatal shock."},
+  {q:"Progressive multifocal leukoencephalopathy (PML) is caused by destruction of which cell type?",opts:["Anterior horn cells","Purkinje cells","Microglia","Oligodendrocytes","Astrocytes"],ans:3,exp:"JC polyomavirus infects oligodendrocytes, which produce myelin. Their destruction causes white matter demyelination. Polio targets anterior horn cells; Rabies affects Purkinje cells."},
+  {q:"Which microscopic feature represents phagocytic cells consuming a virus-infected dying neuron?",opts:["Negri bodies","Neuronophagia","Perivascular cuffing","Reactive gliosis","Cowdry type A inclusions"],ans:1,exp:"Neuronophagia = phagocytes (microglial cells + macrophages) attacking and consuming virus-infected neurons. Negri bodies and Cowdry are inclusion bodies (viral). Perivascular cuffing = immune cells around blood vessels."},
+  {q:"Prion diseases cause neurodegeneration through which mechanism?",opts:["Intracellular viral replication with cell lysis","Release of bacterial endotoxins","Accumulation of misfolded cellular protein","Autoimmune myelin destruction","Fungal vascular invasion"],ans:2,exp:"Prions are infectious misfolded proteins (PrPsc) that induce normal cellular PrP proteins to misfold — a chain reaction similar to amyloidosis. No DNA or RNA involved. Uniquely heat and acid resistant."},
+  {q:"Kernig's sign and Brudzinski's sign indicate which pathological process?",opts:["Rabies encephalopathy","Anterior horn cell destruction","Meningeal irritation","Adrenal failure","Brain abscess"],ans:2,exp:"Both signs are caused by inflamed, irritated spinal nerve roots. Kernig = inability to extend knee when hip flexed. Brudzinski = neck flexion causes hip/knee flexion. Both = meningeal irritation."},
+  {q:"What is the composition of Negri bodies in Rabies infection?",opts:["Misfolded PrP proteins","Calcified granular debris","Viral ribonucleoprotein (RNA)","Phagocytosed myelin","Neutrophil exudate"],ans:2,exp:"Negri bodies are round-to-oval eosinophilic intracytoplasmic inclusions composed of viral ribonucleoprotein (RNA). Found in pyramidal cells of hippocampus and Purkinje cells of cerebellum."},
+  {q:"What is the dominant cell type in CSF during acute aseptic (viral) meningitis?",opts:["Neutrophil","Lymphocyte","Erythrocyte","Eosinophil","Macrophage"],ans:1,exp:"Viral meningitis = lymphocytosis in CSF. Bacterial meningitis = neutrophils. This is a key differentiating feature on CSF analysis."},
+  {q:"The Poliovirus primarily enters the body via which route?",opts:["Aerosol droplets","Animal bites","Fecal-oral ingestion","Iatrogenic inoculation","Sexual contact"],ans:2,exp:"Polio is an enterovirus transmitted by fecal-oral ingestion, initially causing mild gastroenteritis before viremia and CNS invasion. Rabies = animal bites."},
+  {q:"Post-meningitis hydrocephalus is caused by which mechanism?",opts:["Destruction of arachnoid villi by virus","Post-meningitis adhesions obstructing CSF flow","Overproduction of CSF by choroid plexus","Brainstem herniation","Ventricular fungal infection"],ans:1,exp:"Healing of purulent exudate leads to meningeal fibrosis and adhesions that mechanically obstruct normal CSF flow pathways, causing obstructive hydrocephalus."},
+  {q:"Why are prions not destroyed by normal cooking or gastric digestion?",opts:["They have a thick lipid envelope","They are heat-resistant and acid-resistant proteins","They replicate inside gastric macrophages","They are protected by bacterial spores","They immediately enter the bloodstream on ingestion"],ans:1,exp:"Prion proteins (PrPsc) are uniquely heat-resistant and acid-resistant, surviving standard sterilization and gastric digestion. This is what makes them so dangerous — they resist normal decontamination methods."},
+  {q:"Which of the following is NOT a direct effect of AIDS on the central nervous system?",opts:["Leukoencephalopathy","Microcephaly in newborns","CNS lymphoma","PML risk (via JC virus)","Waterhouse-Friderichsen syndrome"],ans:4,exp:"Waterhouse-Friderichsen is caused by Neisseria meningitidis septicemia — it is a complication of bacterial meningitis, not directly caused by HIV/AIDS. The other four are all recognized AIDS-related CNS effects."},
+  {q:"Which cranial nerves are most commonly compressed by purulent exudate at the base of the brain in meningitis?",opts:["I, II, VIII","V, VII, IX","III, IV, VI","X, XI, XII","II, V, X"],ans:2,exp:"Cranial nerves III, IV, and VI control eye movements and are compressed by the purulent exudate accumulating at the base of the brain, causing cranial nerve paresis (diplopia, ptosis, etc.)."},
+  {q:"Microglial nodules in viral encephalitis represent accumulation of which cells?",opts:["Perivascular lymphocytes","Phagocytic microglia (CNS macrophages)","Viral inclusion bodies","Reactive astrocytes","Neutrophil collections"],ans:1,exp:"Microglia are the resident phagocytes of the CNS, equivalent to macrophages. They aggregate to clean up viral necrosis, forming microglial nodules — a hallmark of viral encephalitis."},
+  {q:"CMV infection in neonates classically presents with which findings?",opts:["Temporal lobe necrosis","Microcephaly and periventricular calcification","Flaccid lower limb paralysis","Purulent exudate at brain base","Cowdry type A inclusions"],ans:1,exp:"CMV is the classic cause of microcephaly with periventricular (around ventricles) calcification in neonates, often acquired transplacentally. Temporal lobe + Cowdry = HSV-1; Flaccid paralysis = Polio."},
+  {q:"Retrograde venous spread of infection to the CNS typically originates from which site?",opts:["The lungs","Veins of the face","The intestinal tract","The genitourinary tract","Skeletal muscles"],ans:1,exp:"Hematogenous spread can occur via retrograde venous drainage from the veins of the face, which communicate with intracranial venous sinuses — this is why facial infections (e.g., boils) can cause dangerous intracranial spread."},
+  {q:"A neonate born by vaginal delivery to a mother with active genital infection develops encephalitis. Most likely cause?",opts:["HSV type 1","HSV type 2","JC polyomavirus","Rabies virus","Poliovirus"],ans:1,exp:"HSV-2 is the genital herpes virus, transmitted to neonates during vaginal delivery, causing severe neonatal encephalitis. HSV-1 is typically oral/facial and causes temporal lobe encephalitis in adults."},
+  {q:"Post-polio syndrome is characterized by which feature?",opts:["Sudden cardiac arrest","Progressive muscle weakness years after initial attack","Brain abscess development","Acute aseptic meningitis","Hydrophobia"],ans:1,exp:"Post-polio syndrome occurs 15-40 years after initial paralytic polio, presenting with progressive muscle weakness, decreased muscle mass, and pain — due to overloading of remaining surviving motor neurons."},
+  {q:"What defines the 'gliosis' zone in a brain abscess?",opts:["Area of liquefied dead tissue","Layer of new blood capillaries","Repair using glial cells instead of fibroblasts","Accumulation of viral RNA","Cluster of phagocytic microglia"],ans:2,exp:"In the CNS, healing occurs via gliosis (proliferation of astrocytes/glial cells) rather than traditional fibrosis (fibroblasts), because fibroblasts don't exist in CNS parenchyma. Gliosis = CNS equivalent of scarring."},
+  {q:"Toxoplasmosis, Cysticercosis, and Amebiasis are examples of which CNS infection category?",opts:["Viral encephalitis","Fungal encephalitis","Prion diseases","Parasitic infections","Pyogenic meningitis"],ans:3,exp:"These are all parasitic infections of the CNS. Fungal infections include Candida and Mucormycosis. Viral = enteroviruses, HSV, Rabies, etc."},
+  {q:"Why does the Rabies patient experience hydrophobia (fear of water)?",opts:["Virus destroys the hypothalamic thirst center","Pharyngeal muscle spasms make swallowing intensely painful","Virus replicates in salivary glands causing dry mouth","Temporal lobe necrosis abolishes water desire","Excess CSF production causes water repulsion"],ans:1,exp:"CNS excitability from Rabies causes violent spasms of the pharyngeal muscles when the patient attempts to swallow — making drinking water trigger severe pain and spasm, hence 'hydrophobia.' It's a motor spasm, not fear."}
+];
+
+const flashcardData = [
+  {q:"What are the three routes of CNS infection?",a:"1) Hematogenous (arterial or retrograde venous from face veins) 2) Direct spread/implantation (trauma, iatrogenic, adjacent sinuses, congenital) 3) Nerve spread (retrograde axonal transport — Rabies, Herpes zoster)"},
+  {q:"Which organisms cause meningitis in NEONATES?",a:"E. coli and Group B Streptococci — transmitted vertically from mother during delivery"},
+  {q:"Which organism causes meningitis in CHILDREN?",a:"Haemophilus influenzae (now rare due to vaccination)"},
+  {q:"Which organism causes meningitis in YOUNG ADULTS?",a:"Neisseria meningitidis — the same organism that causes Waterhouse-Friderichsen syndrome"},
+  {q:"Which organisms cause meningitis in THE ELDERLY?",a:"Listeria monocytogenes and Streptococcus pneumoniae — also common in immunocompromised"},
+  {q:"What is Waterhouse-Friderichsen Syndrome?",a:"Fatal complication of meningococcal (N. meningitidis) septicemia → massive toxin release → bilateral adrenal gland hemorrhage and failure → loss of cortisol/aldosterone → fatal shock"},
+  {q:"What are the three morphological zones of a brain abscess?",a:"1) Central liquefactive necrosis (hydrolytic enzyme breakdown) 2) Surrounding rim of vascularized granulation tissue (repair attempt) 3) Outer zone of reactive gliosis (astrocyte barrier)"},
+  {q:"Why is CSF glucose NORMAL in brain abscess but LOW in bacterial meningitis?",a:"In brain abscess, bacteria are walled off within brain parenchyma — they never reach the CSF, so they cannot consume its glucose. In meningitis, bacteria replicate freely in the CSF and consume glucose directly."},
+  {q:"What are the four microscopic hallmarks of viral encephalitis?",a:"1) Focal necrosis of grey/white matter 2) Perivascular mononuclear infiltrates (lymphocytes) 3) Microglial nodules (phagocyte aggregation) 4) Neuronophagia (phagocytes consuming infected neurons). Bonus: Intracellular viral inclusion bodies"},
+  {q:"What are Negri Bodies? Where are they found?",a:"Round-to-oval eosinophilic INTRACYTOPLASMIC viral RNA inclusions. Found in: Pyramidal cells of the hippocampus AND Purkinje cells of the cerebellum. Pathognomonic for RABIES"},
+  {q:"What cell does JC polyomavirus infect? What disease results?",a:"JC virus infects OLIGODENDROCYTES (myelin-producing cells) → loss of myelin maintenance → Progressive Multifocal Leukoencephalopathy (PML) — widespread white matter destruction"},
+  {q:"What is the specific target of Poliovirus in the CNS?",a:"Anterior Horn Cells (AHCs) of the spinal cord — specifically the motor neurons. Results in permanent FLACCID paralysis in 0.5-1% of infected patients"},
+  {q:"What is the route of Poliovirus transmission?",a:"Fecal-oral ingestion → GI replication → viremia → CNS invasion → AHC destruction"},
+  {q:"What are Cowdry Type A inclusions? Which virus causes them?",a:"Intranuclear eosinophilic inclusions found in temporal and inferior frontal lobes. Caused by Herpes Simplex Virus Type 1 (HSV-1)"},
+  {q:"What is post-polio syndrome?",a:"Progressive muscle weakness, pain, and wasting occurring 15-40 years AFTER initial paralytic poliomyelitis — caused by overloading of surviving motor neurons"},
+  {q:"How do prions cause neurodegeneration? What makes them unique?",a:"Misfolded PrPsc protein induces normal PrP proteins to misfold (chain reaction). Unique: NO DNA or RNA involved. Heat-resistant AND acid-resistant — survive cooking and gastric digestion"},
+  {q:"What is neuronophagia?",a:"Process where phagocytic cells (microglia/macrophages) attack and consume virus-infected neurons — a hallmark microscopic finding in viral encephalitis"},
+  {q:"What are the cranial nerve complications of bacterial meningitis?",a:"Cranial nerves III, IV, and VI are compressed by purulent exudate at the base of the brain → cranial nerve paresis (eye movement problems)"},
+  {q:"List the CNS effects of AIDS (enumerate!)",a:"1) Opportunistic infections 2) CNS lymphoma 3) Leukoencephalopathy 4) PML (via JC virus) 5) Meningitis 6) Encephalitis 7) Microcephaly (in neonates of infected mothers)"},
+  {q:"What is the difference between HSV-1 and HSV-2 in CNS disease?",a:"HSV-1: Adults → temporal/frontal lobe encephalitis, Cowdry type A inclusions. HSV-2: Immunocompromised + NEONATES (vaginal delivery) → severe neonatal encephalitis"},
+  {q:"What congenital/iatrogenic factors allow direct CNS implantation?",a:"Congenital: meningomyelocele (open neural tube defect). Iatrogenic: lumbar puncture, neurosurgical procedures — physical breach of protective meningeal barriers"},
+  {q:"What CMV causes in neonates vs. AIDS patients?",a:"Neonates: Microcephaly + periventricular calcification (transplacental infection). AIDS patients: Opportunistic CNS infection — encephalitis, retinitis"}
+];
+
+const casesData = [
+  {
+    title:"The Neonatal Emergency",num:1,
+    vignette:"A 6-day-old neonate born by normal vaginal delivery presents with fever, irritability, bulging fontanelle, and seizures. The mother had a history of a treated urinary tract infection during pregnancy. Lumbar puncture reveals: high pressure, excess neutrophils, markedly elevated protein, and very low glucose.",
+    questions:[
+      {q:"What is the most likely diagnosis and causative organism?",a:"<strong>Neonatal bacterial meningitis</strong> caused most likely by <strong>E. coli</strong> or Group B Streptococcus. Age is the critical clue — in neonates, E. coli and Group B Strep are the dominant organisms. The low CSF glucose + neutrophilia confirms bacterial etiology."},
+      {q:"What does the low CSF glucose tell you mechanistically?",a:"Bacteria are <strong>replicating directly in the CSF</strong> and consuming its glucose. This contrasts with brain abscess where bacteria are walled off and CSF glucose remains normal. Low glucose = bacteria are IN the CSF = meningitis (not abscess)."},
+      {q:"What complications should you anticipate?",a:"1) Raised ICP → brain herniation 2) Cranial nerve paresis (III, IV, VI) from basal exudate 3) Post-meningitis <strong>hydrocephalus</strong> (adhesions obstructing CSF flow) 4) Spread to ventricles (ventriculitis) 5) Thrombophlebitis → hemorrhagic infarction"}
+    ]
+  },
+  {
+    title:"The Ring-Enhancing Mystery",num:2,
+    vignette:"A 35-year-old known HIV-positive patient presents with fever, headache, focal right arm weakness, and drowsiness. MRI shows a ring-enhancing lesion in the left parietal lobe. Lumbar puncture reveals: elevated pressure, excess neutrophils, elevated protein, but NORMAL glucose.",
+    questions:[
+      {q:"What is the most likely diagnosis? What is the key differentiating CSF finding?",a:"<strong>Brain abscess</strong>. The KEY finding is <strong>normal CSF glucose</strong>. Despite neutrophilia and elevated protein (reactive inflammation from nearby abscess), the bacteria are walled off in the parenchyma and do NOT enter the CSF → glucose not consumed. Ring-enhancing lesion on MRI is classic for abscess."},
+      {q:"Describe the three layers of the abscess you would see microscopically.",a:"From inside outward: 1) <strong>Central liquefactive necrosis</strong> — pus broken down by hydrolytic enzymes from bacteria and dead tissue 2) <strong>Rim of vascularized granulation tissue</strong> — new capillaries, repair attempt 3) <strong>Outer reactive gliosis</strong> — astrocytes proliferating as the CNS equivalent of fibroblasts/scarring"},
+      {q:"What catastrophic event occurs if the abscess ruptures?",a:"Rupture into the ventricles or subarachnoid space → direct bacterial contamination of CSF → <strong>true bacterial meningitis</strong> → glucose now falls (bacteria enter CSF) → ventriculitis → extremely high mortality."}
+    ]
+  },
+  {
+    title:"The Rash and Collapse",num:3,
+    vignette:"A 19-year-old university student develops sudden severe headache, fever, and neck stiffness. Within hours, a non-blanching petechial rash spreads across the trunk and limbs. He rapidly deteriorates into hypotension and shock. Post-mortem examination reveals massive bilateral adrenal hemorrhage.",
+    questions:[
+      {q:"Name this syndrome and its underlying cause.",a:"<strong>Waterhouse-Friderichsen Syndrome</strong> caused by <strong>Neisseria meningitidis</strong> (meningococcal) septicemia. N. meningitidis targets young adults. The non-blanching rash represents meningococcemia with DIC/vascular damage."},
+      {q:"Explain the mechanism of the bilateral adrenal hemorrhage.",a:"Massive release of meningococcal <strong>endotoxins</strong> into circulation → systemic inflammatory response → DIC (disseminated intravascular coagulation) and direct vascular damage → hemorrhage into bilateral adrenal glands → adrenal cortex destruction → loss of <strong>cortisol and aldosterone</strong> → circulatory collapse and death."},
+      {q:"Why are CNs III, IV, and VI particularly vulnerable in bacterial meningitis?",a:"Purulent exudate accumulates at the <strong>base of the brain</strong> (basal cisterns) where these cranial nerves run. The increased ICP and direct inflammatory compression of these nerves causes <strong>cranial nerve paresis</strong> → diplopia, ptosis, and loss of eye movement coordination."}
+    ]
+  },
+  {
+    title:"The Progressive Paralysis",num:4,
+    vignette:"A 4-year-old child develops fever and meningeal irritation. Several days later, they develop complete inability to move the right leg with absent reflexes (hyporeflexia) and progressive muscle wasting. Subsequent CSF shows lymphocytosis with normal glucose.",
+    questions:[
+      {q:"Identify the virus and its specific CNS target.",a:"<strong>Poliovirus</strong> (Picornavirus/Enterovirus). Specific CNS target: <strong>Anterior Horn Cells (AHCs)</strong> of the spinal cord. The fecal-oral virus causes GI illness first, then viremia, then selective tropism for motor neurons → destruction of motor innervation."},
+      {q:"Why is the CSF glucose normal?",a:"Poliovirus causes <strong>viral (aseptic) meningitis</strong> — viral etiologies cause lymphocytosis and mildly elevated protein, but glucose remains normal (viruses do not consume glucose at the same rate as bacteria in CSF). This is a critical differentiator from bacterial meningitis."},
+      {q:"What long-term sequelae can occur?",a:"1) <strong>Permanent flaccid paralysis</strong> and muscle wasting from AHC destruction (0.5-1% of infections). 2) <strong>Post-polio syndrome</strong> — 15-40 years later, progressive weakness and pain as overworked surviving neurons begin to fail from years of compensatory overload."}
+    ]
+  },
+  {
+    title:"The Autopsy Finding",num:5,
+    vignette:"Autopsy of a farmer who died of severe encephalomyelitis reveals eosinophilic intracytoplasmic inclusions within Purkinje cells of the cerebellum and pyramidal neurons of the hippocampus. The patient had a history of being bitten by a stray dog 6 weeks before symptom onset and experienced hydrophobia before death.",
+    questions:[
+      {q:"Name the inclusion bodies and their composition.",a:"<strong>Negri bodies</strong> — round-to-oval eosinophilic <strong>intracytoplasmic</strong> viral RNA inclusions. They consist of viral ribonucleoprotein (the RNA genome of the Rabies virus packaged with nucleoproteins). Their presence in Purkinje and hippocampal cells is pathognomonic for Rabies."},
+      {q:"Trace the virus from bite to brain.",a:"1) Dog bite → infected saliva enters wound 2) Virus replicates in <strong>skeletal muscle</strong> near bite site 3) Taken up by <strong>peripheral nerve endings</strong> 4) <strong>Retrograde axonal transport</strong> along peripheral nerves to spinal cord and brain (bypasses blood-brain barrier) 5) Severe encephalomyelitis → Negri body formation 6) Spread via cranial nerves to salivary glands (for transmission)"},
+      {q:"Explain the mechanism of hydrophobia.",a:"CNS excitability and neuronal damage causes <strong>violent spasms of the pharyngeal muscles</strong> when the patient attempts to swallow. Water ingestion triggers these painful spasms → the patient becomes terrified of drinking → hydrophobia. It is a <strong>motor spasm response</strong>, not psychological fear of water."}
+    ]
+  },
+  {
+    title:"The Immunocompromised Brain",num:6,
+    vignette:"A 40-year-old AIDS patient (CD4 count 45 cells/µL) presents with progressive cognitive decline, visual problems, and focal neurological deficits over 3 months. MRI shows multifocal, asymmetric white matter lesions without mass effect or contrast enhancement. Brain biopsy shows demyelination with enlarged oligodendrocytes.",
+    questions:[
+      {q:"What is the diagnosis and causative agent?",a:"<strong>Progressive Multifocal Leukoencephalopathy (PML)</strong> caused by <strong>JC polyomavirus</strong>. The JC virus reactivates in severely immunocompromised patients (AIDS, CD4 <200). MRI shows multifocal white matter changes — non-enhancing distinguishes it from toxoplasmosis (which ring-enhances)."},
+      {q:"Explain why oligodendrocyte destruction causes white matter disease.",a:"Oligodendrocytes produce and maintain the <strong>myelin sheath</strong> around axons in the CNS. JC virus infects and kills oligodendrocytes → myelin cannot be maintained → progressive <strong>demyelination</strong> of white matter tracts → loss of nerve conduction → progressive neurological deficits."},
+      {q:"Enumerate other CNS effects of AIDS seen in this population.",a:"In addition to PML: 1) <strong>Opportunistic infections</strong> (Toxoplasma, Cryptococcus, CMV) 2) <strong>Primary CNS lymphoma</strong> 3) <strong>HIV leukoencephalopathy</strong> (direct HIV white matter damage) 4) <strong>HIV encephalitis</strong> 5) <strong>Meningitis</strong> (bacterial, fungal, viral) 6) Microcephaly in HIV-positive neonates"}
+    ]
+  }
+];
+
+const pathoItems = [
+  {icon:"🧠",name:"Anterior Horn Cells",sub:"Motor neurons",detail:"Anterior Horn Cells (AHCs) are the motor neurons of the spinal cord's ventral horn. They are the ONLY target of Poliovirus. Their destruction leads to permanent lower motor neuron (flaccid) paralysis with hyporeflexia, muscle wasting, and fasciculations."},
+  {icon:"🔵",name:"Oligodendrocytes",sub:"Myelin producers",detail:"Oligodendrocytes wrap axons in myelin sheaths, enabling fast nerve conduction in the CNS. JC polyomavirus selectively infects oligodendrocytes → their destruction = PML. Unlike Schwann cells (PNS), oligodendrocytes cannot regenerate effectively."},
+  {icon:"🟡",name:"Microglia",sub:"CNS macrophages",detail:"Microglia are the resident immune cells of the CNS, equivalent to macrophages. In viral encephalitis, they aggregate to form MICROGLIAL NODULES and engage in NEURONOPHAGIA (consuming infected neurons). They are the first line of CNS immune defense."},
+  {icon:"🔴",name:"Purkinje Cells",sub:"Cerebellar neurons",detail:"Large neurons in the cerebellar cortex. Site of NEGRI BODIES (viral RNA inclusions) in Rabies encephalitis. Their destruction causes ataxia and motor coordination problems."},
+  {icon:"🟣",name:"Hippocampal Pyramidal Cells",sub:"Memory neurons",detail:"Pyramidal neurons in the CA regions of the hippocampus. Also contain NEGRI BODIES in Rabies. The hippocampus mediates memory formation — its damage contributes to the behavioral changes seen in Rabies."},
+  {icon:"⚪",name:"Suprarenal (Adrenal) Glands",sub:"Hormonal regulation",detail:"Bilateral adrenal glands are destroyed in Waterhouse-Friderichsen syndrome via hemorrhagic necrosis. They produce cortisol (stress response) and aldosterone (blood pressure). Their loss causes refractory hypotension and death in meningococcal septicemia."},
+  {icon:"🔶",name:"Peripheral Nerves",sub:"Viral highways",detail:"Peripheral nerves serve as the transport route for neurotropic viruses like Rabies and Herpes Zoster via RETROGRADE axonal transport (from periphery to CNS). This bypasses the blood-brain barrier, making it harder to intercept with systemic treatment."},
+  {icon:"🟢",name:"Granulation Tissue (Abscess)",sub:"Repair attempt",detail:"The middle zone of a brain abscess. Composed of newly formed blood vessels (angiogenesis) and fibroblast-like cells attempting to wall off the infection. This vascular rim is seen as the 'ring' on contrast-enhanced MRI scans of brain abscesses."}
+];
+
+const mnemonicsData = [
+  {title:"Age-Specific Meningitis Organisms",word:"NHALE",sub:"From Neonates → Elderly",letters:[{l:"N",m:"Neonates → E. coli, Group B Strep (Neonatal bugs)"},{"l":"H","m":"Haemophilus influenzae → Children"},{"l":"A","m":"Adults (young) → Neisseria meningitidis"},{"l":"L","m":"Listeria + Late life → Elderly"},{"l":"E","m":"Elderly → S. pneumoniae (also Listeria)"}]},
+  {title:"Complications of Pyogenic Meningitis",word:"HI-BREATH",sub:"⚠️ Enumerate Question!",letters:[{"l":"H","m":"Hydrocephalus (post-meningitis adhesions)"},{"l":"I","m":"Increased ICP → herniation"},{"l":"B","m":"Brain spread → encephalitis"},{"l":"R","m":"Raised CN pressure → III, IV, VI paresis"},{"l":"E","m":"Empyema (subdural)"},{"l":"A","m":"Adrenal failure (Waterhouse-Friderichsen)"},{"l":"T","m":"Thrombophlebitis → hemorrhagic infarction"},{"l":"H","m":"Hearing loss (cochlear nerve damage)"}]},
+  {title:"Brain Abscess Morphological Zones",word:"NaGO",sub:"From center outward",letters:[{"l":"N","m":"Necrosis — central liquefactive necrosis (pus)"},{"l":"a","m":"(and)"},{"l":"G","m":"Granulation tissue — vascularized repair rim"},{"l":"O","m:"Out → Gliosis — reactive astrocyte barrier"}]},
+  {title:"AIDS CNS Effects",word:"MELLOW",sub:"Enumerate AIDS brain effects",letters:[{"l":"M","m":"Meningitis (bacterial, fungal, viral)"},{"l":"E","m":"Encephalitis"},{"l":"L","m":"Leukoencephalopathy (white matter)"},{"l":"L","m":"Lymphoma (primary CNS)"},{"l":"O","m":"Opportunistic infections (Toxoplasma, CMV)"},{"l":"W","m":"White matter → PML (JC virus)"}]},
+  {title:"Viral Encephalitis Hallmarks",word:"MINI-P",sub:"4 microscopic hallmarks",letters:[{"l":"M","m":"Microglial nodules (phagocyte aggregation)"},{"l":"I","m":"Inclusions — intracellular viral inclusion bodies"},{"l":"N","m":"Neuronophagia (phagocytes eating infected neurons)"},{"l":"I","m":"Infiltrate — perivascular mononuclear infiltrate"},{"l":"P","m":"(P = peri-vascular = around the vessels = lymphocytes)"}]}
+];
+
+// =================== STATE ===================
+let quizState = {current:0,score:0,streak:0,answered:false,complete:false};
+let fcFlipped = new Set();
+let stats = JSON.parse(localStorage.getItem('cns_stats')||'{"quizScore":0,"quizTotal":0,"streak":0,"fcFlipped":0}');
+
+function saveStats(){localStorage.setItem('cns_stats',JSON.stringify(stats));}
+function updateStatDisplay(){
+  document.getElementById('score-display').textContent=`${stats.quizScore}/${quizData.length}`;
+  document.getElementById('streak-display').textContent=stats.streak;
+  document.getElementById('progress-display').textContent=Math.round((stats.quizTotal/quizData.length)*100)+'%';
+  document.getElementById('card-display').textContent=`${stats.fcFlipped}/${flashcardData.length}`;
+}
+
+// =================== TABS ===================
+function switchTab(name){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+  localStorage.setItem('cns_last_tab',name);
+}
+
+// =================== SEARCH ===================
+const searchIndex = [];
+quizData.forEach((q,i)=>searchIndex.push({type:'Quiz Q'+(i+1),text:q.q+' '+q.exp,topic:q.q.substring(0,60)}));
+flashcardData.forEach((f,i)=>searchIndex.push({type:'Flashcard',text:f.q+' '+f.a,topic:f.q}));
+casesData.forEach((c)=>searchIndex.push({type:'Clinical Case',text:c.title+' '+c.vignette,topic:c.title}));
+pathoItems.forEach(p=>searchIndex.push({type:'Pathophysiology',text:p.name+' '+p.detail,topic:p.name+': '+p.sub}));
+mnemonicsData.forEach(m=>searchIndex.push({type:'Mnemonic',text:m.title+' '+m.letters.map(l=>l.m).join(' '),topic:m.title}));
+
+document.getElementById('search-input').addEventListener('input',function(){
+  const q=this.value.trim().toLowerCase();
+  const box=document.getElementById('search-results');
+  if(q.length<2){box.style.display='none';return;}
+  const results=searchIndex.filter(i=>i.text.toLowerCase().includes(q)).slice(0,8);
+  if(!results.length){box.style.display='none';return;}
+  box.innerHTML=results.map(r=>`<div class="sr-item"><strong>${r.type}</strong>${r.topic}</div>`).join('');
+  box.style.display='block';
+});
+document.addEventListener('click',e=>{if(!e.target.closest('.search-bar'))document.getElementById('search-results').style.display='none';});
+
+// =================== QUIZ ===================
+function renderQuiz(){
+  const c=document.getElementById('quiz-container');
+  if(quizState.complete){renderQuizComplete();return;}
+  const q=quizData[quizState.current];
+  const letters=['A','B','C','D','E'];
+  c.innerHTML=`
+    <div class="quiz-header">
+      <span style="font-size:13px;color:var(--text2)">${quizState.current+1} / ${quizData.length}</span>
+      <div class="quiz-progress"><div class="quiz-progress-fill" style="width:${(quizState.current/quizData.length)*100}%"></div></div>
+      <span class="quiz-score">Score: ${quizState.score} 🔥${quizState.streak}</span>
+    </div>
+    <div class="question-card">
+      <div class="q-number">Question ${quizState.current+1}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options">
+        ${q.opts.map((o,i)=>`<div class="option" id="opt-${i}" onclick="selectAnswer(${i})">
+          <span class="option-letter">${letters[i]}</span>${o}
+        </div>`).join('')}
+      </div>
+      <div class="explanation" id="explanation"></div>
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()">
+        ${quizState.current===quizData.length-1?'See Results →':'Next Question →'}
+      </button>
+    </div>`;
+}
+
+function selectAnswer(idx){
+  if(quizState.answered)return;
+  quizState.answered=true;
+  const q=quizData[quizState.current];
+  const isCorrect=idx===q.ans;
+  const opts=document.querySelectorAll('.option');
+  opts.forEach(o=>o.classList.add('disabled'));
+  opts[idx].classList.add(isCorrect?'correct':'wrong');
+  if(!isCorrect)opts[q.ans].classList.add('correct');
+  const expEl=document.getElementById('explanation');
+  expEl.style.display='block';
+  if(isCorrect){
+    quizState.score++;quizState.streak++;
+    expEl.innerHTML=`<strong>✅ Correct!</strong> ${q.exp}`;
+  }else{
+    quizState.streak=0;
+    expEl.innerHTML=`<strong>❌ Incorrect.</strong> The correct answer was <strong>${['A','B','C','D','E'][q.ans]}) ${q.opts[q.ans]}</strong>. ${q.exp}`;
+    expEl.classList.add('wrong-exp');
+  }
+  document.getElementById('next-btn').style.display='inline-block';
+  stats.quizTotal=Math.max(stats.quizTotal,quizState.current+1);
+  stats.quizScore=quizState.score;
+  stats.streak=quizState.streak;
+  saveStats();updateStatDisplay();
+}
+
+function nextQuestion(){
+  quizState.current++;
+  quizState.answered=false;
+  if(quizState.current>=quizData.length){quizState.complete=true;}
+  renderQuiz();
+}
+
+function renderQuizComplete(){
+  const pct=Math.round((quizState.score/quizData.length)*100);
+  const msg=pct>=80?'🏆 Outstanding! You\'re exam-ready!':pct>=60?'📚 Good effort! Review the missed topics.':'💪 Keep studying — you\'ve got this!';
+  document.getElementById('quiz-container').innerHTML=`
+    <div class="quiz-complete">
+      <div class="score-big">${pct}%</div>
+      <h2 style="font-family:Playfair Display,serif;margin:8px 0">${quizState.score} / ${quizData.length} Correct</h2>
+      <p style="color:var(--text2);margin-bottom:16px">${msg}</p>
+      <div>
+        <span class="streak-badge">🔥 Peak Streak: ${quizState.streak}</span>
+        <span class="streak-badge" style="background:rgba(79,158,248,0.15);color:var(--accent);border-color:rgba(79,158,248,0.3)">📊 Score: ${quizState.score}/${quizData.length}</span>
+      </div>
+      <button class="restart-btn" onclick="restartQuiz()">🔄 Restart Quiz</button>
+    </div>`;
+}
+
+function restartQuiz(){
+  quizState={current:0,score:0,streak:0,answered:false,complete:false};
+  renderQuiz();
+}
+
+// =================== FLASHCARDS ===================
+function renderFlashcards(){
+  const grid=document.getElementById('flashcard-grid');
+  grid.innerHTML=flashcardData.map((f,i)=>`
+    <div class="flashcard" id="fc-${i}" onclick="flipCard(${i})">
+      <div class="flashcard-inner">
+        <div class="flashcard-front">
+          <div class="fc-label">Question ${i+1}</div>
+          <div class="fc-q">${f.q}</div>
+          <div style="margin-top:12px;font-size:11px;color:var(--text3)">Click to reveal answer</div>
+        </div>
+        <div class="flashcard-back">
+          <div class="fc-label">Answer</div>
+          <div class="fc-a">${f.a}</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function flipCard(i){
+  const card=document.getElementById('fc-'+i);
+  card.classList.toggle('flipped');
+  if(card.classList.contains('flipped')&&!fcFlipped.has(i)){
+    fcFlipped.add(i);
+    stats.fcFlipped=fcFlipped.size;
+    saveStats();updateStatDisplay();
+    document.getElementById('fc-flipped').textContent=fcFlipped.size;
+  }
+}
+
+// =================== CASES ===================
+function renderCases(){
+  const c=document.getElementById('cases-container');
+  c.innerHTML=casesData.map((cas,ci)=>`
+    <div class="case-card">
+      <div class="case-header">
+        <div class="case-num">${cas.num}</div>
+        <div class="case-title">${cas.title}</div>
+      </div>
+      <div class="vignette">${cas.vignette}</div>
+      ${cas.questions.map((cq,qi)=>`
+        <div class="case-question">
+          <h4>❓ ${cq.q}</h4>
+          <button class="reveal-btn" onclick="revealAnswer(${ci},${qi})">Reveal Answer</button>
+          <div class="case-answer" id="ans-${ci}-${qi}">${cq.a}</div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function revealAnswer(ci,qi){
+  const el=document.getElementById(`ans-${ci}-${qi}`);
+  el.classList.add('shown');
+  event.target.style.display='none';
+}
+
+// =================== PATHO ===================
+function renderPatho(){
+  const grid=document.getElementById('patho-grid');
+  grid.innerHTML=pathoItems.map((p,i)=>`
+    <div class="patho-item" onclick="showPathoDetail(${i})" id="pi-${i}">
+      <div class="pi-icon">${p.icon}</div>
+      <div class="pi-name">${p.name}</div>
+      <div class="pi-sub">${p.sub}</div>
+    </div>`).join('');
+}
+
+function showPathoDetail(i){
+  document.querySelectorAll('.patho-item').forEach(el=>el.classList.remove('active'));
+  document.getElementById('pi-'+i).classList.add('active');
+  const box=document.getElementById('patho-detail-box');
+  const p=pathoItems[i];
+  box.innerHTML=`<h3>${p.icon} ${p.name}</h3><p>${p.detail}</p>`;
+  box.classList.add('active');
+}
+
+// =================== MNEMONICS ===================
+function renderMnemonics(){
+  const c=document.getElementById('mnemonics-container');
+  c.innerHTML=mnemonicsData.map(m=>`
+    <div class="mnemonic-card">
+      <div class="sub-title">${m.sub}</div>
+      <div class="mnemonic-title">${m.title}</div>
+      <div class="mnemonic-word">${m.word}</div>
+      <div class="mnemonic-letters">
+        ${m.letters.map(l=>`<div class="mnemonic-letter"><span class="letter">${l.l}</span><span class="meaning">${l.m}</span></div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+// =================== INIT ===================
+renderQuiz();
+renderFlashcards();
+renderCases();
+renderPatho();
+renderMnemonics();
+updateStatDisplay();
+
+// Restore last tab
+const lastTab=localStorage.getItem('cns_last_tab');
+if(lastTab){
+  const btn=Array.from(document.querySelectorAll('.tab-btn')).find(b=>b.getAttribute('onclick')===`switchTab('${lastTab}')`);
+  if(btn)btn.click();
+}
+</script>
+</body>
+</html>

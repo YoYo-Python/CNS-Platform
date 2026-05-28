@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CNS Tumors | Pathology Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0e1a;
+  --surface: #111827;
+  --surface2: #1a2236;
+  --surface3: #1e2d45;
+  --accent: #38bdf8;
+  --accent2: #818cf8;
+  --accent3: #34d399;
+  --danger: #f87171;
+  --warn: #fbbf24;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --border: rgba(255,255,255,0.07);
+  --glow: rgba(56,189,248,0.15);
+  --radius: 14px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* BACKGROUND */
+.bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.12;
+  animation: drift 18s ease-in-out infinite alternate;
+}
+.orb1 { width: 500px; height: 500px; background: #38bdf8; top: -120px; left: -100px; animation-delay: 0s; }
+.orb2 { width: 400px; height: 400px; background: #818cf8; bottom: -80px; right: -80px; animation-delay: -6s; }
+.orb3 { width: 300px; height: 300px; background: #34d399; top: 40%; left: 50%; animation-delay: -12s; }
+
+@keyframes drift {
+  from { transform: translate(0,0) scale(1); }
+  to { transform: translate(40px, 30px) scale(1.08); }
+}
+
+/* LAYOUT */
+.app { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+/* HEADER */
+header {
+  padding: 28px 32px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.logo-block { flex: 1; }
+.eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(22px, 4vw, 38px);
+  font-weight: 900;
+  line-height: 1.1;
+  background: linear-gradient(135deg, #e2e8f0 30%, #38bdf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.subtitle { color: var(--text-muted); font-size: 13px; margin-top: 6px; }
+
+.stats-bar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.stat-pill {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.stat-pill span { color: var(--accent); font-weight: 700; }
+
+/* SEARCH */
+.search-wrap { padding: 18px 32px 0; }
+.search-input {
+  width: 100%;
+  max-width: 500px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 16px 10px 40px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 12px center;
+}
+.search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--glow); }
+
+/* TABS */
+.tabs-wrap { padding: 20px 32px 0; overflow-x: auto; }
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+  min-width: max-content;
+}
+.tab-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 18px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* CONTENT AREA */
+.content { padding: 28px 32px 60px; flex: 1; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* CARDS */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: var(--text);
+}
+.section-title small {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-left: 8px;
+}
+.tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin: 2px;
+}
+.tag-exam { background: rgba(248,113,113,0.15); color: var(--danger); border: 1px solid rgba(248,113,113,0.3); }
+.tag-hiyield { background: rgba(56,189,248,0.15); color: var(--accent); border: 1px solid rgba(56,189,248,0.3); }
+.tag-pearl { background: rgba(52,211,153,0.15); color: var(--accent3); border: 1px solid rgba(52,211,153,0.3); }
+
+/* OVERVIEW CARDS */
+.overview-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.overview-card:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.5); border-color: rgba(56,189,248,0.3); }
+.oc-icon { font-size: 28px; margin-bottom: 10px; }
+.oc-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+.oc-subtitle { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+.oc-body { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+.oc-body strong { color: var(--text); }
+
+/* GRADE PROGRESSION */
+.grade-track {
+  display: flex;
+  gap: 0;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+.grade-step {
+  flex: 1;
+  min-width: 120px;
+  padding: 16px;
+  position: relative;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.grade-step:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+.grade-step:last-child { border-radius: 0 var(--radius) var(--radius) 0; }
+.grade-step::after {
+  content: '→';
+  position: absolute;
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  z-index: 1;
+  font-size: 18px;
+}
+.grade-step:last-child::after { display: none; }
+.gs-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.gs-name { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+.gs-key { font-size: 12px; color: var(--text-muted); }
+.grade-step.g1 { border-top: 3px solid var(--accent3); }
+.grade-step.g1 .gs-label { color: var(--accent3); }
+.grade-step.g2 { border-top: 3px solid var(--accent); }
+.grade-step.g2 .gs-label { color: var(--accent); }
+.grade-step.g3 { border-top: 3px solid var(--warn); }
+.grade-step.g3 .gs-label { color: var(--warn); }
+.grade-step.g4 { border-top: 3px solid var(--danger); }
+.grade-step.g4 .gs-label { color: var(--danger); }
+
+/* QUIZ */
+.quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: gap; gap: 12px; }
+.progress-outer { height: 6px; background: var(--surface2); border-radius: 3px; margin-bottom: 24px; overflow: hidden; }
+.progress-inner { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 3px; transition: width 0.4s ease; }
+.q-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+.q-num { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+.q-text { font-size: 16px; font-weight: 500; line-height: 1.6; margin-bottom: 20px; }
+.options { display: flex; flex-direction: column; gap: 10px; }
+.opt-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.opt-btn:hover:not(:disabled) { border-color: var(--accent); background: rgba(56,189,248,0.06); }
+.opt-btn.correct { border-color: var(--accent3); background: rgba(52,211,153,0.1); animation: pulse 0.4s; }
+.opt-btn.wrong { border-color: var(--danger); background: rgba(248,113,113,0.1); animation: shake 0.4s; }
+.opt-btn:disabled { cursor: default; }
+.opt-letter { font-weight: 700; color: var(--text-muted); flex-shrink: 0; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+.explanation {
+  margin-top: 16px;
+  padding: 14px;
+  background: rgba(56,189,248,0.06);
+  border: 1px solid rgba(56,189,248,0.2);
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+  display: none;
+}
+.explanation.show { display: block; animation: fadeIn 0.3s; }
+.quiz-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+.btn {
+  background: var(--accent);
+  color: #0b0e1a;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn-ghost {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.score-badge {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent3);
+}
+.streak-badge { font-size: 13px; font-weight: 600; color: var(--warn); }
+
+/* FLASHCARDS */
+.fc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.fc-wrap { perspective: 1000px; height: 180px; cursor: pointer; }
+.fc-inner {
+  position: relative;
+  width: 100%; height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(.4,2,.6,1);
+}
+.fc-wrap.flipped .fc-inner { transform: rotateY(180deg); }
+.fc-front, .fc-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+.fc-front { background: var(--surface); }
+.fc-back { background: var(--surface3); transform: rotateY(180deg); border-color: rgba(56,189,248,0.25); }
+.fc-q { font-size: 13px; color: var(--text); font-weight: 500; line-height: 1.5; }
+.fc-a { font-size: 13px; color: var(--accent); font-weight: 500; line-height: 1.5; }
+.fc-hint { font-size: 10px; color: var(--text-muted); margin-top: 8px; letter-spacing: 1px; text-transform: uppercase; }
+.fc-icon { font-size: 22px; margin-bottom: 10px; }
+
+/* CLINICAL CASES */
+.case-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.case-header { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; }
+.case-num {
+  background: var(--accent);
+  color: #0b0e1a;
+  font-weight: 900;
+  font-size: 13px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.case-title { font-weight: 700; font-size: 15px; }
+.case-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.case-vignette {
+  background: var(--surface2);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+.case-questions { display: flex; flex-direction: column; gap: 12px; }
+.case-q { font-weight: 600; font-size: 14px; margin-bottom: 8px; }
+.reveal-btn {
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  padding: 10px 16px;
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  width: 100%;
+}
+.reveal-btn:hover { border-color: var(--accent); color: var(--accent); }
+.case-answer {
+  background: rgba(52,211,153,0.06);
+  border: 1px solid rgba(52,211,153,0.2);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  line-height: 1.6;
+  display: none;
+  color: var(--accent3);
+}
+.case-answer.show { display: block; animation: fadeIn 0.3s; }
+
+/* PATHOPHYSIOLOGY */
+.patho-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-bottom: 28px; }
+.patho-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.patho-item:hover { border-color: var(--accent2); background: var(--surface2); }
+.patho-item.expanded { border-color: var(--accent2); background: var(--surface3); }
+.pi-title { font-weight: 700; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
+.pi-body {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-top: 10px;
+  display: none;
+}
+.pi-body.show { display: block; animation: fadeIn 0.2s; }
+
+/* FLOWCHART */
+.flow-wrap { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.flow-node {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 13px;
+  text-align: center;
+  max-width: 340px;
+  width: 100%;
+}
+.flow-arrow { color: var(--text-muted); font-size: 20px; margin: 4px 0; }
+.flow-fork { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; width: 100%; }
+.flow-node.danger-node { border-color: rgba(248,113,113,0.4); background: rgba(248,113,113,0.06); }
+.flow-node.warn-node { border-color: rgba(251,191,36,0.4); background: rgba(251,191,36,0.06); }
+.flow-node.ok-node { border-color: rgba(52,211,153,0.4); background: rgba(52,211,153,0.06); }
+.flow-node.accent-node { border-color: rgba(56,189,248,0.4); background: rgba(56,189,248,0.06); }
+
+/* COMPARISON TABLE */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+th {
+  background: var(--surface2);
+  padding: 12px 14px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  line-height: 1.5;
+  vertical-align: top;
+}
+tr:hover td { background: rgba(255,255,255,0.02); }
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 20px; overflow-x: auto; }
+
+/* MNEMONICS */
+.mnem-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.mnem-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.mnem-header { padding: 16px 20px 12px; border-bottom: 1px solid var(--border); }
+.mnem-word { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 500; color: var(--accent); letter-spacing: 2px; }
+.mnem-title { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.mnem-body { padding: 16px 20px; }
+.mnem-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-start; }
+.mnem-letter { font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 700; color: var(--accent2); width: 22px; flex-shrink: 0; }
+.mnem-text { font-size: 13px; line-height: 1.5; }
+.mnem-text strong { color: var(--text); }
+.mnem-text span { color: var(--text-muted); }
+
+/* SEARCH RESULTS HIGHLIGHT */
+.highlight { background: rgba(251,191,36,0.25); color: var(--warn); border-radius: 2px; padding: 0 2px; }
+
+/* SCORE MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); z-index: 100; display: none; align-items: center; justify-content: center; }
+.modal-overlay.show { display: flex; }
+.modal { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 40px; max-width: 400px; width: 90%; text-align: center; animation: fadeIn 0.3s; }
+.modal-score { font-family: 'Playfair Display', serif; font-size: 60px; font-weight: 900; color: var(--accent); }
+.modal-label { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; }
+.modal-msg { font-size: 15px; margin-bottom: 24px; }
+
+/* SEARCH RESULTS PANEL */
+.search-results {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-top: 16px;
+  display: none;
+}
+.search-results.show { display: block; }
+.sr-item { padding: 12px; border-bottom: 1px solid var(--border); font-size: 14px; line-height: 1.6; cursor: pointer; }
+.sr-item:last-child { border-bottom: none; }
+.sr-item:hover { background: var(--surface2); border-radius: 8px; }
+.sr-cat { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 4px; }
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  header, .search-wrap, .tabs-wrap, .content { padding-left: 16px; padding-right: 16px; }
+  .grade-track { flex-direction: column; }
+  .grade-step { border-radius: var(--radius) !important; }
+  .grade-step::after { display: none; }
+}
+
+/* UTIL */
+.flex { display: flex; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+.gap-8 { gap: 8px; }
+.mt-16 { margin-top: 16px; }
+.mt-24 { margin-top: 24px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+.text-muted { color: var(--text-muted); }
+.text-sm { font-size: 13px; }
+.text-xs { font-size: 11px; }
+.font-bold { font-weight: 700; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+
+/* Diagnosis badges */
+.badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.badge:hover { transform: scale(1.05); }
+.badge-blue { background: rgba(56,189,248,0.12); color: var(--accent); border: 1px solid rgba(56,189,248,0.25); }
+.badge-green { background: rgba(52,211,153,0.12); color: var(--accent3); border: 1px solid rgba(52,211,153,0.25); }
+.badge-red { background: rgba(248,113,113,0.12); color: var(--danger); border: 1px solid rgba(248,113,113,0.25); }
+.badge-yellow { background: rgba(251,191,36,0.12); color: var(--warn); border: 1px solid rgba(251,191,36,0.25); }
+.badge-purple { background: rgba(129,140,248,0.12); color: var(--accent2); border: 1px solid rgba(129,140,248,0.25); }
+
+/* tooltip */
+[data-tip] { position: relative; }
+[data-tip]:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 10;
+  max-width: 260px;
+  white-space: normal;
+  text-align: center;
+  pointer-events: none;
+}
+</style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<div class="app">
+
+  <header>
+    <div class="logo-block">
+      <div class="eyebrow">🧠 Pathology — Nervous System</div>
+      <h1>CNS Tumors Study Platform</h1>
+      <div class="subtitle">25 MCQs · 22 Flashcards · 5 Clinical Cases · Mnemonics · Pathophysiology</div>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-pill">Quiz Score <span id="hdr-score">0/25</span></div>
+      <div class="stat-pill">🔥 Streak <span id="hdr-streak">0</span></div>
+      <div class="stat-pill">✅ Progress <span id="hdr-progress">0%</span></div>
+    </div>
+  </header>
+
+  <div class="search-wrap">
+    <input class="search-input" type="text" id="search-box" placeholder="Search topics, diagnoses, findings…" oninput="doSearch(this.value)">
+  </div>
+  <div id="search-panel" class="search-results content"></div>
+
+  <div class="tabs-wrap">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="openTab('overview',this)">🏠 Overview</button>
+      <button class="tab-btn" onclick="openTab('quiz',this)">🎯 Quiz</button>
+      <button class="tab-btn" onclick="openTab('flashcards',this)">🃏 Flashcards</button>
+      <button class="tab-btn" onclick="openTab('cases',this)">🩺 Clinical Cases</button>
+      <button class="tab-btn" onclick="openTab('patho',this)">🔬 Pathophysiology</button>
+      <button class="tab-btn" onclick="openTab('compare',this)">📊 Compare</button>
+      <button class="tab-btn" onclick="openTab('mnemonics',this)">🧩 Mnemonics</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ===== OVERVIEW ===== -->
+    <div id="tab-overview" class="tab-panel active">
+      <div class="section-title">🧠 CNS Tumor Categories <small>Core Concepts</small></div>
+      <div class="card-grid mb-24">
+        <div class="overview-card">
+          <div class="oc-icon">⭐</div>
+          <div class="oc-title">Gliomas (Neuroepithelial)</div>
+          <div class="oc-subtitle">Astrocytoma · Oligodendroglioma · Ependymoma</div>
+          <div class="oc-body"><strong>Most common primary CNS tumors.</strong> Astrocytoma is #1. Graded I–IV by progression. Located in cerebellum (children) or cerebrum (adults).</div>
+          <div class="mt-16"><span class="tag tag-exam">⚠️ EXAM FAV</span><span class="tag tag-hiyield">HIGH YIELD</span></div>
+        </div>
+        <div class="overview-card">
+          <div class="oc-icon">🧒</div>
+          <div class="oc-title">Embryonal Tumors</div>
+          <div class="oc-subtitle">Medulloblastoma</div>
+          <div class="oc-body"><strong>Children.</strong> "Small blue round cell tumor." High proliferation rate. 4th ventricle. Can spread trans-coelomically via subarachnoid space.</div>
+          <div class="mt-16"><span class="tag tag-exam">⚠️ EXAM FAV</span></div>
+        </div>
+        <div class="overview-card">
+          <div class="oc-icon">🎗️</div>
+          <div class="oc-title">Meningioma</div>
+          <div class="oc-subtitle">Meningothelial Tumor</div>
+          <div class="oc-body"><strong>From arachnoid villi endothelial cells.</strong> Dura-based. Whorls + Psammoma bodies. Estrogen-sensitive — grows in pregnancy. Benign but compresses brain.</div>
+          <div class="mt-16"><span class="tag tag-exam">⚠️ EXAM FAV</span><span class="tag tag-pearl">💎 PEARL</span></div>
+        </div>
+        <div class="overview-card">
+          <div class="oc-icon">🧵</div>
+          <div class="oc-title">Peripheral Nerve Tumors</div>
+          <div class="oc-subtitle">Schwannoma · Neurofibroma</div>
+          <div class="oc-body"><strong>Schwannoma:</strong> capsulated, one side of nerve. <strong>Neurofibroma:</strong> uncapsulated, nerve passes through. NF1 (Von Recklinghausen) → malignant risk.</div>
+          <div class="mt-16"><span class="tag tag-hiyield">HIGH YIELD</span></div>
+        </div>
+        <div class="overview-card">
+          <div class="oc-icon">🔴</div>
+          <div class="oc-title">Metastatic Tumors</div>
+          <div class="oc-subtitle">Most common malignant brain tumor (30%)</div>
+          <div class="oc-body"><strong>Sources:</strong> Lung, breast, kidney. Multiple nodules at grey-white matter junction. Surrounded by edema. NOT a primary CNS tumor.</div>
+          <div class="mt-16"><span class="tag tag-exam">⚠️ EXAM FAV</span></div>
+        </div>
+        <div class="overview-card">
+          <div class="oc-icon">📈</div>
+          <div class="oc-title">Raised ICP Effects</div>
+          <div class="oc-subtitle">Universal Complication</div>
+          <div class="oc-body">Headache · Papilledema (retinal vein compression) · Hemiplegia · Brain herniation. Caused by tumor mass + edema + CSF obstruction.</div>
+          <div class="mt-16"><span class="tag tag-pearl">💎 PEARL</span></div>
+        </div>
+      </div>
+
+      <div class="section-title">📈 Astrocytoma Grading Progression <small>High-Yield</small></div>
+      <div class="grade-track">
+        <div class="grade-step g1">
+          <div class="gs-label">Grade I</div>
+          <div class="gs-name">Pilocytic</div>
+          <div class="gs-key">Rosenthal fibers · Cerebellum/children · Best prognosis</div>
+        </div>
+        <div class="grade-step g2">
+          <div class="gs-label">Grade II</div>
+          <div class="gs-name">Diffuse Fibrillary</div>
+          <div class="gs-key">Pleomorphism + Hypercellularity only · Adult cerebrum</div>
+        </div>
+        <div class="grade-step g3">
+          <div class="gs-label">Grade III</div>
+          <div class="gs-name">Anaplastic</div>
+          <div class="gs-key">+ Excess mitosis · No necrosis yet</div>
+        </div>
+        <div class="grade-step g4">
+          <div class="gs-label">Grade IV</div>
+          <div class="gs-name">Glioblastoma</div>
+          <div class="gs-key">+ Necrosis + Glomeruloid vessels · Worst prognosis</div>
+        </div>
+      </div>
+
+      <div class="section-title mt-24">🔑 Key Clinical Pearls</div>
+      <div class="card-grid">
+        <div class="card"><div class="tag tag-exam">⚠️ EXAM</div><div class="mt-16 text-sm">Psammoma bodies + dura-based tumor = <strong>Meningioma</strong></div></div>
+        <div class="card"><div class="tag tag-exam">⚠️ EXAM</div><div class="mt-16 text-sm">Capsulated on one side of nerve = <strong>Schwannoma</strong>; nerve passes through = <strong>Neurofibroma</strong></div></div>
+        <div class="card"><div class="tag tag-exam">⚠️ EXAM</div><div class="mt-16 text-sm">Small blue round cell tumor in child's 4th ventricle = <strong>Medulloblastoma</strong></div></div>
+        <div class="card"><div class="tag tag-pearl">💎 PEARL</div><div class="mt-16 text-sm">Grade IV distinguished by <strong>necrosis + glomeruloid vascular proliferation</strong> (Grade III has mitosis without necrosis)</div></div>
+        <div class="card"><div class="tag tag-pearl">💎 PEARL</div><div class="mt-16 text-sm">Cafe au lait spots = <strong>Von Recklinghausen disease</strong> = risk of malignant peripheral nerve sheath tumor</div></div>
+        <div class="card"><div class="tag tag-hiyield">HIGH YIELD</div><div class="mt-16 text-sm">Most common malignant brain tumor overall = <strong>Metastatic</strong> (not astrocytoma). Common sources: lung, breast, kidney</div></div>
+      </div>
+    </div>
+
+    <!-- ===== QUIZ ===== -->
+    <div id="tab-quiz" class="tab-panel">
+      <div class="quiz-header">
+        <div class="section-title" style="margin:0">🎯 Quiz Mode <small id="q-counter">Q 1 of 25</small></div>
+        <div style="display:flex;gap:16px;align-items:center">
+          <span class="score-badge">✅ <span id="quiz-score">0</span> correct</span>
+          <span class="streak-badge">🔥 Streak: <span id="quiz-streak">0</span></span>
+        </div>
+      </div>
+      <div class="progress-outer"><div class="progress-inner" id="quiz-progress" style="width:4%"></div></div>
+      <div id="quiz-area"></div>
+      <div class="quiz-nav mt-16">
+        <button class="btn btn-ghost" onclick="prevQ()">← Prev</button>
+        <button class="btn" onclick="nextQ()" id="next-btn">Next →</button>
+      </div>
+    </div>
+
+    <!-- ===== FLASHCARDS ===== -->
+    <div id="tab-flashcards" class="tab-panel">
+      <div class="flex-between mb-24">
+        <div class="section-title" style="margin:0">🃏 Flashcards <small>Click to flip</small></div>
+        <button class="btn btn-ghost" onclick="resetFlashcards()">Reset All</button>
+      </div>
+      <div class="fc-grid" id="fc-grid"></div>
+    </div>
+
+    <!-- ===== CLINICAL CASES ===== -->
+    <div id="tab-cases" class="tab-panel">
+      <div class="section-title">🩺 Clinical Cases</div>
+      <div id="cases-area"></div>
+    </div>
+
+    <!-- ===== PATHO ===== -->
+    <div id="tab-patho" class="tab-panel">
+      <div class="section-title">🔬 Key Structures & Mechanisms <small>Click to expand</small></div>
+      <div class="patho-grid" id="patho-grid"></div>
+
+      <div class="section-title mt-24">⬇️ Raised ICP — Pathophysiology Flowchart</div>
+      <div class="card" style="padding:24px">
+        <div class="flow-wrap">
+          <div class="flow-node accent-node">🧠 Intracranial Tumor / Space-Occupying Lesion</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-node">3 contributors to raised pressure:<br><strong>① Tumor mass ② Cerebral edema ③ CSF obstruction (hydrocephalus)</strong></div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-node warn-node">📦 Increased Contents Inside Closed Cranial Vault</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-node danger-node">⬆️ Increased Intracranial Tension (ICT)</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-fork">
+            <div>
+              <div class="flow-node" style="margin-bottom:8px">👁️ Compression of Retinal Veins</div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-node warn-node">Papilledema (Optic Disc Edema) — Blurred Vision</div>
+            </div>
+            <div>
+              <div class="flow-node" style="margin-bottom:8px">🧩 Compression of Functional Structures</div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-node warn-node">Hemiplegia / Focal Neurological Deficits</div>
+            </div>
+            <div>
+              <div class="flow-node" style="margin-bottom:8px">💀 Severe / Untreated</div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-node danger-node">⚠️ Brain Herniation → Fatal Outcome</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== COMPARE ===== -->
+    <div id="tab-compare" class="tab-panel">
+      <div class="section-title">📊 Astrocytoma Grading Table <small>Core Classification</small></div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Feature</th><th>Grade I (Pilocytic)</th><th>Grade II (Diffuse)</th><th>Grade III (Anaplastic)</th><th>Grade IV (GBM)</th></tr>
+          <tr><td><strong>Key finding</strong></td><td>Rosenthal fibers</td><td>Pleomorphism + hypercellularity</td><td>+ Excess mitosis</td><td>+ Necrosis + Glomeruloid vessels</td></tr>
+          <tr><td><strong>Location/Age</strong></td><td>Cerebellum / Children</td><td>Cerebrum / Adults</td><td>Cerebrum / Adults</td><td>Cerebrum / Adults</td></tr>
+          <tr><td><strong>Cellularity</strong></td><td>Mild, mature bipolar</td><td>Hypercellular</td><td>Highly pleomorphic</td><td>Primitive, giant cells</td></tr>
+          <tr><td><strong>Mitosis</strong></td><td>None</td><td>None</td><td>Present (excess)</td><td>Present</td></tr>
+          <tr><td><strong>Necrosis</strong></td><td>None</td><td>None</td><td>None</td><td>Present (palisaded)</td></tr>
+          <tr><td><strong>Vascular change</strong></td><td>None</td><td>None</td><td>None</td><td>Glomeruloid endothelial proliferation</td></tr>
+          <tr><td><strong>Prognosis</strong></td><td>✅ Best</td><td>Intermediate</td><td>Poor</td><td>❌ Very poor / Rapidly fatal</td></tr>
+        </table>
+      </div>
+
+      <div class="section-title mt-24">📊 Schwannoma vs. Neurofibroma</div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Feature</th><th>Schwannoma (Neurilemmoma)</th><th>Neurofibroma</th></tr>
+          <tr><td><strong>Origin</strong></td><td>Schwann cells only</td><td>Schwann cells + fibroblasts</td></tr>
+          <tr><td><strong>Capsule</strong></td><td>✅ Capsulated</td><td>❌ Uncapsulated</td></tr>
+          <tr><td><strong>Nerve relation</strong></td><td>Pushes nerve to one side</td><td>Nerve passes through it</td></tr>
+          <tr><td><strong>Microscopy</strong></td><td>Palisading nuclei (Antoni A/B)</td><td>Fibrous stroma + neurofibers</td></tr>
+          <tr><td><strong>Common site</strong></td><td>CN8 — Cerebellopontine angle</td><td>Cutaneous nerves (skin)</td></tr>
+          <tr><td><strong>Malignant risk</strong></td><td>Low</td><td>High (esp. in NF1/Von Recklinghausen)</td></tr>
+          <tr><td><strong>Genetics</strong></td><td>—</td><td>Autosomal dominant (NF1)</td></tr>
+        </table>
+      </div>
+
+      <div class="section-title mt-24">📊 All CNS Tumors — Quick Reference</div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Tumor</th><th>Origin</th><th>Key Microscopy</th><th>Key Demographics</th></tr>
+          <tr><td><strong>Pilocytic Astrocytoma</strong></td><td>Astrocytes</td><td>Rosenthal fibers, bipolar cells</td><td>Children, cerebellum</td></tr>
+          <tr><td><strong>Oligodendroglioma</strong></td><td>Oligodendroglia</td><td>Swollen nuclei, clear cytoplasm, calcification</td><td>Middle-aged, cerebrum</td></tr>
+          <tr><td><strong>Ependymoma</strong></td><td>Ependymal cells</td><td>Perivascular pseudorosettes</td><td>Children/young adults, 4th ventricle</td></tr>
+          <tr><td><strong>Medulloblastoma</strong></td><td>Primitive cells</td><td>Small dark cells, rosettes</td><td>Children, 4th ventricle</td></tr>
+          <tr><td><strong>Meningioma</strong></td><td>Arachnoid villi</td><td>Whorls + Psammoma bodies</td><td>Adults, female, dura-based</td></tr>
+          <tr><td><strong>GBM (Grade IV)</strong></td><td>Astrocytes</td><td>Necrosis + glomeruloid vessels + giant cells</td><td>Adults, cerebrum</td></tr>
+          <tr><td><strong>Schwannoma</strong></td><td>Schwann cells</td><td>Palisading nuclei</td><td>CN8 / cerebellopontine angle</td></tr>
+          <tr><td><strong>Metastatic</strong></td><td>Lung/Breast/Kidney</td><td>Multiple nodules, grey-white junction</td><td>Adults, known primary</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== MNEMONICS ===== -->
+    <div id="tab-mnemonics" class="tab-panel">
+      <div class="section-title">🧩 Memory Aids & Mnemonics</div>
+      <div class="mnem-grid" id="mnem-grid"></div>
+    </div>
+
+  </div><!-- end content -->
+</div><!-- end app -->
+
+<!-- Score Modal -->
+<div class="modal-overlay" id="score-modal">
+  <div class="modal">
+    <div style="font-size:40px;margin-bottom:10px">🎉</div>
+    <div class="modal-score" id="modal-score-num">0</div>
+    <div class="modal-label">out of 25 questions</div>
+    <div class="modal-msg" id="modal-msg"></div>
+    <button class="btn" onclick="restartQuiz()">Retake Quiz</button>
+    <button class="btn btn-ghost" style="margin-left:10px" onclick="document.getElementById('score-modal').classList.remove('show')">Close</button>
+  </div>
+</div>
+
+<script>
+// ==================== DATA ====================
+
+const QUESTIONS = [
+  { q: "Which of the following defines a Grade I Pilocytic Astrocytoma?", opts: ["Hypercellular with pleomorphism only","Mitosis without necrosis","Primitive astrocytes with glomeruloid vascular proliferation","Mildly cellular, mature astrocytes with Rosenthal fibers","Small dark cells in rosettes"], ans: 3, exp: "Grade I is localized, mildly cellular with mature bipolar cells and Rosenthal fibers. Grade II = pleomorphism. Grade III = mitosis. Grade IV = necrosis + vascular proliferation. The dark cells in rosettes describe Medulloblastoma." },
+  { q: "The presence of necrosis and vascular endothelial proliferation in an astrocytoma specifically indicates which grade?", opts: ["Grade I","Grade II","Grade III","Grade IV","Grade V"], ans: 3, exp: "Glioblastoma Multiforme (Grade IV) is uniquely distinguished by palisaded necrosis AND glomeruloid vascular endothelial proliferation. Grade V does not exist in this classification." },
+  { q: "Anaplastic astrocytoma (Grade III) is differentiated from diffuse fibrillary astrocytoma (Grade II) by the presence of:", opts: ["Rosenthal fibers","Excess mitosis","Palisaded necrosis","Psammoma bodies","Clear cytoplasm"], ans: 1, exp: "Grade III adds excess mitosis to the pleomorphism/hypercellularity of Grade II. Necrosis (palisaded) appears only in Grade IV. Psammoma bodies are in Meningioma. Clear cytoplasm is in Oligodendroglioma." },
+  { q: "Which tumor is most likely to present with a 'whorly appearance' and Psammoma bodies?", opts: ["Ependymoma","Oligodendroglioma","Meningioma","Schwannoma","Medulloblastoma"], ans: 2, exp: "Meningioma consists of spindle cells in concentric layers (whorls) with calcified centers — Psammoma bodies. Ependymoma has pseudorosettes. Oligodendroglioma has clear cytoplasm. Schwannoma has palisading nuclei." },
+  { q: "A tumor in the roof of the 4th ventricle in a child, with small dark stained cells in rosettes, is a:", opts: ["Medulloblastoma","Pilocytic astrocytoma","Meningioma","Neurofibroma","Ependymoma"], ans: 0, exp: "Medulloblastoma is a common childhood embryonal tumor in the 4th ventricle — small dark blue round cell tumor forming rosettes. Pilocytic is cerebellar but has mature cells and Rosenthal fibers. Meningioma is adult/dura-based." },
+  { q: "What is the most common primary CNS tumor?", opts: ["Meningioma","Glioma (Astrocytoma)","Medulloblastoma","Schwannoma","Metastatic carcinoma"], ans: 1, exp: "Astrocytomas (gliomas) are the commonest PRIMARY CNS tumors. Note: metastatic carcinoma is the most common MALIGNANT brain tumor overall (30%), but it is NOT a primary CNS tumor." },
+  { q: "Which tumor originates from oligodendroglia cells and typically shows calcification with 'swollen nuclei and clear cytoplasm'?", opts: ["Schwannoma","Medulloblastoma","Ependymoma","Oligodendroglioma","Glioblastoma"], ans: 3, exp: "Oligodendroglioma's hallmark is rounded cells with uniform swollen nuclei and clear cytoplasm (fried-egg appearance) plus focal calcification. No other CNS tumor shows this combination." },
+  { q: "A peripheral nerve tumor that is encapsulated and located completely on one side of the compressed nerve is most likely a:", opts: ["Neurofibroma","Schwannoma","Malignant peripheral nerve sheath tumor","Lipoma","Meningioma"], ans: 1, exp: "Schwannoma is a solitary, capsulated tumor that pushes the nerve to one side — it does NOT incorporate nerve fibers. Neurofibroma is uncapsulated and the nerve passes directly through it." },
+  { q: "Which feature strongly differentiates a Neurofibroma from a Schwannoma?", opts: ["Originates from Schwann cells","Shows palisading of nuclei","Is un-capsulated and the nerve passes through it","Usually occurs in the cerebello-pontine angle","Has a grey-white cut surface"], ans: 2, exp: "Neurofibromas are uncapsulated fusiform expansions through which the nerve fibers pass. Palisading nuclei and cerebellopontine angle location are features of Schwannoma." },
+  { q: "Von-Reckling-Hausen disease (NF1) carries a high risk of developing into:", opts: ["Glioblastoma Multiforme","Malignant peripheral nerve sheath tumors","Medulloblastoma","Meningioma","Oligodendroglioma"], ans: 1, exp: "Most cases of malignant peripheral nerve sheath tumors complicate multiple neurofibromatosis (NF1). The disease affects peripheral nerves, not astrocytes, embryonal cells, or meninges." },
+  { q: "The most common malignant tumor found in the brain overall (30% of brain tumors) is:", opts: ["Astrocytoma","Glioblastoma Multiforme","Metastatic carcinoma","Medulloblastoma","Meningioma"], ans: 2, exp: "Metastatic tumors are the most common malignant tumors in the brain (~30%), reaching it via arterial or vertebral venous systems. Astrocytomas and GBM are common PRIMARY tumors, not the overall most common malignancy." },
+  { q: "Metastatic brain tumors classically present macroscopically as:", opts: ["A single dura-based mass","Multiple nodules at the junction of grey and white matter","A diffuse gelatinous mass in the cerebellum","A solitary mass in the 4th ventricle","Cysts along the spinal cord"], ans: 1, exp: "Metastatic tumors characteristically form MULTIPLE nodules at the grey-white matter junction with surrounding edema. A single dura-based mass suggests Meningioma. A solitary 4th ventricle mass suggests Medulloblastoma/Ependymoma." },
+  { q: "Papilledema in the context of an intracranial tumor is caused by:", opts: ["Direct tumor invasion of the optic nerve","Edema of the optic disc due to compression of retinal veins from raised ICT","Hemorrhage into the anterior chamber","Inflammatory optic neuritis","Metastasis to the retina"], ans: 1, exp: "Increased intracranial tension compresses retinal veins, causing venous congestion and edema of the optic disc (papilledema). This manifests clinically as blurred vision and is NOT due to direct tumor invasion." },
+  { q: "Hydrocephalus secondary to an intracranial tumor is mechanistically due to:", opts: ["Destruction of arachnoid villi","Overproduction of CSF","Obstruction of the CSF pathway by the tumor mass","Ischemia of the choroid plexus","Subarachnoid hemorrhage"], ans: 2, exp: "Hydrocephalus occurs because the tumor mass obstructs the normal CSF pathway, preventing drainage. This is a direct mechanical obstruction, not overproduction." },
+  { q: "Which subtype of Grade II diffuse astrocytoma is characterized by large astrocytes with excess eosinophilic cytoplasm and eccentric nuclei?", opts: ["Pilocytic astrocytoma","Gemistocytic astrocytoma","Anaplastic astrocytoma","Glioblastoma","Fibrillary astrocytoma"], ans: 1, exp: "Gemistocytic astrocytoma is a Grade II subtype specifically defined by large astrocytes with abundant eosinophilic cytoplasm and eccentrically placed nuclei — quite distinctive on microscopy." },
+  { q: "Estrogen receptors in some cases of which tumor cause rapid growth during pregnancy?", opts: ["Ependymoma","Schwannoma","Meningioma","Neurofibroma","Medulloblastoma"], ans: 2, exp: "Meningiomas are more common in females and some have estrogen receptors, which is why they can grow rapidly during pregnancy. This is a high-yield clinical pearl — estrogen sensitivity differentiates Meningioma." },
+  { q: "Which peripheral nerve tumor frequently presents at the cerebellopontine angle involving the 8th cranial nerve?", opts: ["Neurofibroma","Meningioma","Ependymoma","Schwannoma (Acoustic Neuroma)","Medulloblastoma"], ans: 3, exp: "Acoustic neuroma is a Schwannoma of the 8th cranial nerve — the commonest tumor at the base of the brain/cerebellopontine angle. It presents with hearing loss, tinnitus, and vertigo." },
+  { q: "'Cafe au lait' skin patches are clinical markers for:", opts: ["Glioblastoma Multiforme","Metastatic Carcinoma","Meningioma","Von-Reckling-Hausen disease (NF1)","Pilocytic Astrocytoma"], ans: 3, exp: "Cafe au lait patches (hyperpigmented skin spots) are pathognomonic clinical markers for Multiple Neurofibromatosis (NF1/Von Recklinghausen disease), along with cutaneous neurofibromas." },
+  { q: "Which tumor shows a microscopic pattern of cells arranged perivascularly in 'pseudorosettes'?", opts: ["Ependymoma","Medulloblastoma","Schwannoma","Meningioma","Astrocytoma"], ans: 0, exp: "Ependymomas characteristically feature elongated cells arranged perivascularly in pseudorosettes — cells radiate around blood vessels. Medulloblastoma has TRUE rosettes. Meningioma has whorls. Schwannoma has palisades." },
+  { q: "What is a key indicator of trans-coelomic spread in Medulloblastoma?", opts: ["Spread through the vertebral venous system","Projections from 4th ventricle penetrating to reach the subarachnoid space","Hematogenous spread to the lungs","Lymphatic spread to cervical nodes","Extension into peripheral nerves"], ans: 1, exp: "Trans-coelomic spread in Medulloblastoma occurs when the tumor projections from the 4th ventricle penetrate the brain parenchyma to reach the subarachnoid space, allowing spread through the CSF." },
+  { q: "Hemangioblastoma is classified under which category of tumors?", opts: ["Neuroepithelial tissue","Peripheral nerves","Meningothelial tumors","Mesenchymal (non-meningothelial) tumors of the meninges","Embryonal tumors"], ans: 3, exp: "Hemangioblastoma is a benign vascular tumor classified under Mesenchymal (non-meningothelial) tumors of the meninges — distinct from Meningioma which is meningothelial." },
+  { q: "Glioblastoma Multiforme demonstrates cells proliferating in a pattern specifically compared to which organ's microscopic structure?", opts: ["Hepatic lobules","Pulmonary alveoli","Renal glomeruli (glomeruloid manner)","Thyroid follicles","Splenic sinusoids"], ans: 2, exp: "GBM's vascular endothelial proliferation is described as 'glomeruloid' — resembling renal glomeruli. This is a specific and memorable exam term." },
+  { q: "Which brain tumor typically manifests in the cerebellum of children?", opts: ["Meningioma","Pilocytic astrocytoma","Glioblastoma Multiforme","Diffuse fibrillary astrocytoma","Oligodendroglioma"], ans: 1, exp: "Pilocytic astrocytoma (Grade I) specifically occurs in the cerebellum of children and is the most common PRIMARY brain tumor in children. It has the best prognosis. GBM and diffuse astrocytoma occur in adult cerebrum." },
+  { q: "A microscopic finding of 'spindle shaped cells in bundles, with rod-shaped nuclei side by side in palisade manner' defines:", opts: ["Meningioma","Schwannoma","Ependymoma","Medulloblastoma","Astrocytoma"], ans: 1, exp: "This is the exact morphological hallmark of Schwannoma — nuclear palisading (Antoni A areas). Meningioma has whorls. Ependymoma has pseudorosettes. Medulloblastoma has dark round cells in rosettes." },
+  { q: "Cerebral edema surrounding an intracranial tumor contributes to increased intracranial tension by:", opts: ["Decreasing CSF production","Shrinking the brain parenchyma","Compressing veins and obstructing the CSF pathway","Inducing necrosis","Directly destroying the optic disc"], ans: 2, exp: "Cerebral edema adds volume to the closed cranial vault, compressing veins and obstructing CSF drainage, thus raising intracranial pressure. It does NOT shrink the brain." }
+];
+
+const FLASHCARDS = [
+  { q: "What are Rosenthal fibers?", a: "Eosinophilic elongated comma-shaped fibers seen in Grade I Pilocytic Astrocytoma" },
+  { q: "What is Glioblastoma Multiforme (GBM)?", a: "Grade IV Astrocytoma — defined by necrosis (palisaded) + glomeruloid vascular endothelial proliferation + giant cells" },
+  { q: "Describe the 'fried egg' appearance in CNS tumors", a: "Oligodendroglioma — rounded cells with swollen nuclei and clear cytoplasm, often with focal calcification" },
+  { q: "What are Psammoma bodies?", a: "Calcified concentric centers of whorls — pathognomonic for Meningioma" },
+  { q: "What is nuclear palisading?", a: "Rod-shaped nuclei lined up side-by-side in parallel rows — characteristic of Schwannoma" },
+  { q: "How do Schwannoma and Neurofibroma differ in relation to the nerve?", a: "Schwannoma pushes nerve to one side (capsulated); Neurofibroma — nerve passes through it (uncapsulated)" },
+  { q: "What is trans-coelomic spread in CNS tumors?", a: "Medulloblastoma projections from 4th ventricle penetrate to reach subarachnoid space, spreading via CSF" },
+  { q: "Where do metastatic brain tumors classically appear?", a: "Multiple nodules at the grey-white matter junction with surrounding edema" },
+  { q: "Why does raised ICP cause papilledema?", a: "Raised ICT compresses retinal veins → venous congestion → optic disc edema (papilledema)" },
+  { q: "What is Von Recklinghausen disease?", a: "NF1 — autosomal dominant, multiple neurofibromas + cafe au lait spots → high risk malignant PNST" },
+  { q: "Where is Ependymoma commonly found?", a: "4th ventricle (children/young adults) and lower spinal cord — forms perivascular pseudorosettes" },
+  { q: "What distinguishes Grade III from Grade II astrocytoma?", a: "Grade III adds excess mitosis; Grade II has only pleomorphism + hypercellularity (no mitosis, no necrosis)" },
+  { q: "Why does Meningioma grow faster during pregnancy?", a: "Some Meningiomas express estrogen receptors — estrogen stimulates growth" },
+  { q: "What are the clinical features of raised ICP?", a: "Headache + Papilledema (blurred vision) + Hemiplegia + potentially fatal brain herniation" },
+  { q: "What is an acoustic neuroma?", a: "Schwannoma of CN8 — commonest tumor at cerebellopontine angle; presents with hearing loss, tinnitus, vertigo" },
+  { q: "What does 'glomeruloid vascular proliferation' mean in GBM?", a: "Endothelial cells proliferate in a pattern resembling renal glomeruli — exclusive to Grade IV astrocytoma" },
+  { q: "What is the key feature of Medulloblastoma on microscopy?", a: "Small blue round cell tumor — primitive dark-stained cells arranged in rosettes, high nuclear:cytoplasmic ratio" },
+  { q: "Where does Pilocytic Astrocytoma typically arise?", a: "Cerebellum of children — Grade I, mildly cellular, best prognosis among astrocytomas" },
+  { q: "What are the three sources of raised intracranial pressure from a tumor?", a: "① Tumor mass itself ② Surrounding cerebral edema ③ CSF pathway obstruction (hydrocephalus)" },
+  { q: "What are Gemistocytic astrocytes?", a: "Large astrocytes with excess eosinophilic cytoplasm and eccentric nuclei — a Grade II astrocytoma subtype" },
+  { q: "What is the most common malignant brain tumor overall?", a: "Metastatic carcinoma (~30%) from lung, breast, kidney — NOT a primary CNS tumor" },
+  { q: "What does the CNS tumor classification 'embryonal' indicate?", a: "High proliferation rate, primitive cells, occurs in children — e.g., Medulloblastoma (small blue round cell tumor)" }
+];
+
+const CASES = [
+  {
+    num: 1, title: "Middle-aged with cerebral mass", meta: "55-year-old male | Cerebrum",
+    vignette: "A 45-year-old male presents with progressive cognitive decline over 6 months. MRI shows a cerebral mass. Biopsy reveals rounded cells with uniform swollen nuclei, clear cytoplasm, and areas of focal calcification.",
+    qs: [
+      { q: "What is the most likely diagnosis?", a: "Oligodendroglioma — the hallmark triad is: rounded cells + swollen nuclei + clear cytoplasm (fried-egg appearance) + calcification." },
+      { q: "What cells are this tumor derived from?", a: "Oligodendroglia cells (myelin-producing support cells of the CNS). Affects the cerebrum in middle-aged adults." },
+      { q: "What is the gross appearance?", a: "Pink gelatinous cystic mass in the cerebrum, with focal calcification often visible on CT/plain film." }
+    ]
+  },
+  {
+    num: 2, title: "Child with cerebellar mass", meta: "8-year-old girl | Cerebellum",
+    vignette: "An 8-year-old girl presents with 3 months of ataxia and headaches. MRI shows a well-circumscribed cystic lesion in the cerebellum. Biopsy shows mildly cellular mature cells with eosinophilic elongated comma-shaped fibers.",
+    qs: [
+      { q: "What is the diagnosis and grade?", a: "Pilocytic Astrocytoma — Grade I. The 'comma-shaped eosinophilic fibers' are Rosenthal fibers, pathognomonic for this tumor." },
+      { q: "What is the prognosis?", a: "Excellent (best prognosis among astrocytomas). Grade I is localized and well-circumscribed — surgical resection is often curative." },
+      { q: "How does this differ from Medulloblastoma?", a: "Pilocytic: mature cells, Rosenthal fibers, cystic, good prognosis. Medulloblastoma: small dark primitive cells, rosettes, 4th ventricle (not purely cerebellar), poor prognosis." }
+    ]
+  },
+  {
+    num: 3, title: "Adult female with dura-based mass", meta: "55-year-old female | Superior sagittal sinus",
+    vignette: "A 55-year-old female presents with worsening headaches and blurring of vision for 2 months. She is 16 weeks pregnant. MRI shows a solid, capsulated mass firmly attached to the superior sagittal sinus, compressing but not invading the brain parenchyma.",
+    qs: [
+      { q: "What is the diagnosis and why is the pregnancy relevant?", a: "Meningioma — dura-based, capsulated, compresses but does not invade brain. Pregnancy is relevant because some Meningiomas express estrogen receptors and grow rapidly during pregnancy." },
+      { q: "What microscopic features confirm this?", a: "Spindle-shaped cells in concentric layers forming whorls, with calcified centers (Psammoma bodies). This is the defining microscopic hallmark." },
+      { q: "Explain the blurred vision mechanistically.", a: "The tumor mass raises ICP → compresses retinal veins → venous congestion → optic disc edema (papilledema) → blurred vision. This is NOT direct invasion of the optic nerve." }
+    ]
+  },
+  {
+    num: 4, title: "Rapidly growing cerebral mass in adult", meta: "60-year-old male | Cerebrum",
+    vignette: "A 60-year-old male presents with rapidly worsening headaches and focal neurological deficits over 3 weeks. MRI shows a large necrotic mass in the cerebrum. Biopsy reveals extreme pleomorphism, bizarre giant cells, abundant mitosis, palisaded necrosis, and glomeruloid vascular endothelial proliferation.",
+    qs: [
+      { q: "What is the diagnosis?", a: "Glioblastoma Multiforme (GBM) — Grade IV Astrocytoma. Defined by necrosis (palisaded) + glomeruloid vascular endothelial proliferation." },
+      { q: "What does 'glomeruloid' vascular proliferation mean?", a: "Endothelial cells proliferate in a pattern resembling renal glomeruli. This occurs because the rapidly growing tumor outstrips its blood supply, triggering abnormal angiogenesis." },
+      { q: "What is the prognosis?", a: "Very poor — rapidly fatal. Median survival even with treatment is ~15 months. It is the most malignant primary brain tumor." }
+    ]
+  },
+  {
+    num: 5, title: "Child with 4th ventricle mass", meta: "7-year-old boy | 4th ventricle",
+    vignette: "A 7-year-old boy presents with vomiting, ataxia, and raised ICP. MRI shows a mass in the roof of the 4th ventricle. Biopsy reveals small dark-stained primitive cells arranged in rosettes with a very high proliferation rate.",
+    qs: [
+      { q: "What is the diagnosis and tumor category?", a: "Medulloblastoma — an embryonal tumor (small blue round cell tumor). Common childhood brain tumor in the 4th ventricle." },
+      { q: "What is trans-coelomic spread and why is it relevant here?", a: "Medulloblastoma projections from the 4th ventricle can penetrate the brain parenchyma to reach the subarachnoid space, allowing spread via CSF throughout the neuraxis — this is trans-coelomic spread." },
+      { q: "Why is proliferation rate important?", a: "High proliferation rate = rapid growth = rapidly progressive symptoms. It also means the tumor responds well to radiation/chemotherapy (rapidly dividing cells are more radiosensitive)." }
+    ]
+  }
+];
+
+const PATHO_ITEMS = [
+  { icon: "🧠", title: "Astrocytes", body: "Most abundant glial cells. Provide structural support, maintain BBB, regulate neurotransmitters. When neoplastic → astrocytoma. Graded I-IV based on hypercellularity, pleomorphism, mitosis, and necrosis." },
+  { icon: "🧅", title: "Oligodendrocytes", body: "Produce and maintain myelin sheaths in the CNS. Neoplastic proliferation → Oligodendroglioma. Distinctive 'fried egg' appearance due to processing artifact (clear cytoplasm, swollen nuclei)." },
+  { icon: "💧", title: "Ependymal Cells", body: "Line the ventricles and central canal of spinal cord. Regulate CSF composition. Tumors (Ependymoma) form pseudorosettes — elongated cells around blood vessels. Most common in 4th ventricle." },
+  { icon: "🧬", title: "Primitive Neuroepithelial Cells", body: "Embryonal remnants with high proliferative capacity. In children → Medulloblastoma. Small blue round cells (high nuclear:cytoplasmic ratio = dark blue staining). Arranged in rosettes. High mitotic rate." },
+  { icon: "🕸️", title: "Arachnoid Villi Endothelial Cells", body: "Specialized cells projecting into dural sinuses facilitating CSF absorption. Origin of Meningioma. Spindle cells form concentric whorls. Psammoma bodies = calcium deposits in whorled centers." },
+  { icon: "⚡", title: "Schwann Cells", body: "Myelinate peripheral nerves. Schwannoma = benign tumor, capsulated, pushes nerve aside, palisading nuclei. Also contribute to Neurofibroma along with fibroblasts — but here the nerve is engulfed." },
+  { icon: "🩸", title: "Glomeruloid Vascular Proliferation", body: "Abnormal endothelial proliferation in GBM resembling renal glomeruli. Occurs due to hypoxia from rapid tumor growth exceeding blood supply. VEGF-driven. Pathognomonic for Grade IV." },
+  { icon: "💀", title: "Palisaded Necrosis", body: "In GBM, tumor cells surround areas of necrosis in a palisading pattern — cells line up around dead zones. Results from vascular occlusion outpaced by tumor growth. Distinguishes Grade IV from Grade III." },
+  { icon: "👁️", title: "Papilledema Mechanism", body: "Raised ICP → compression of central retinal veins → impaired venous return → edema of optic disc → blurring of vision. Seen on fundoscopy. Key sign of raised ICP. NOT direct invasion." },
+  { icon: "🔴", title: "Grey-White Junction Metastases", body: "Metastatic cells in arterial blood preferentially lodge at the grey-white matter junction where vessel caliber abruptly narrows (grey matter arterioles). Multiple nodules, surrounded by vasogenic edema." }
+];
+
+const MNEMONICS = [
+  {
+    word: "PHAN",
+    title: "Astrocytoma Grade Features (cumulative)",
+    rows: [
+      { l: "P", strong: "Pleomorphism", span: "— Grade II adds pleomorphism + hypercellularity" },
+      { l: "H", strong: "Hypercellularity", span: "— Grade II (diffuse fibrillary astrocytoma)" },
+      { l: "A", strong: "Anaplasia (Mitosis)", span: "— Grade III adds excess mitosis" },
+      { l: "N", strong: "Necrosis + Neovascularity", span: "— Grade IV (GBM): palisaded necrosis + glomeruloid vessels" }
+    ]
+  },
+  {
+    word: "WARP",
+    title: "Meningioma Features",
+    rows: [
+      { l: "W", strong: "Whorls", span: "— spindle cells in concentric layers" },
+      { l: "A", strong: "Arachnoid villi origin", span: "— endothelial cells of arachnoid" },
+      { l: "R", strong: "Rounded, firm, capsulated", span: "— gross appearance" },
+      { l: "P", strong: "Psammoma bodies", span: "— calcified whorled centers" }
+    ]
+  },
+  {
+    word: "CUBS",
+    title: "Medulloblastoma Key Features",
+    rows: [
+      { l: "C", strong: "Children", span: "— most common malignant brain tumor in children" },
+      { l: "U", strong: "Undifferentiated / primitive cells", span: "— high proliferation rate" },
+      { l: "B", strong: "Blue small round cells", span: "— dark-stained with rosettes" },
+      { l: "S", strong: "Subarachnoid spread", span: "— trans-coelomic via CSF from 4th ventricle" }
+    ]
+  },
+  {
+    word: "COPE",
+    title: "Schwannoma vs Neurofibroma",
+    rows: [
+      { l: "C", strong: "Capsulated = Schwannoma", span: "— encapsulated, one side of nerve" },
+      { l: "O", strong: "One side (nerve compressed)", span: "— Schwannoma pushes nerve aside" },
+      { l: "P", strong: "Passes through = Neurofibroma", span: "— nerve fibers run through it" },
+      { l: "E", strong: "Eight (CN VIII)", span: "— Schwannoma at cerebellopontine angle" }
+    ]
+  },
+  {
+    word: "MECCA",
+    title: "Sources of Metastatic Brain Tumors",
+    rows: [
+      { l: "M", strong: "Melanoma", span: "— skin melanoma" },
+      { l: "E", strong: "Endometrial/GI", span: "— less common" },
+      { l: "C", strong: "Colon & Colorectal", span: "— GI primaries" },
+      { l: "C", strong: "Cancer of Chest (Lung)", span: "— most common source!" },
+      { l: "A", strong: "Anatomical breast", span: "— 2nd most common source" }
+    ]
+  },
+  {
+    word: "FOCAL",
+    title: "Effects of Raised Intracranial Pressure",
+    rows: [
+      { l: "F", strong: "Fatal herniation", span: "— if untreated: tonsillar herniation" },
+      { l: "O", strong: "Optic disc edema (Papilledema)", span: "— blurred vision" },
+      { l: "C", strong: "CSF obstruction → Hydrocephalus", span: "— mass blocks CSF flow" },
+      { l: "A", strong: "Agonizing headache", span: "— classical presentation" },
+      { l: "L", strong: "Loss of function (Hemiplegia)", span: "— compression of motor areas" }
+    ]
+  }
+];
+
+// ==================== STATE ====================
+let currentQ = 0;
+let answered = new Array(QUESTIONS.length).fill(null);
+let score = 0;
+let streak = 0;
+let maxStreak = 0;
+
+// ==================== INIT ====================
+window.onload = () => {
+  buildFlashcards();
+  buildCases();
+  buildPatho();
+  buildMnemonics();
+  renderQuestion();
+  loadProgress();
+};
+
+function loadProgress() {
+  const saved = localStorage.getItem('cns_quiz_progress');
+  if (saved) {
+    const d = JSON.parse(saved);
+    answered = d.answered || new Array(QUESTIONS.length).fill(null);
+    score = d.score || 0;
+    streak = d.streak || 0;
+    currentQ = d.currentQ || 0;
+    updateStats();
+  }
+}
+
+function saveProgress() {
+  localStorage.setItem('cns_quiz_progress', JSON.stringify({ answered, score, streak, currentQ }));
+}
+
+function updateStats() {
+  document.getElementById('hdr-score').textContent = score + '/' + QUESTIONS.length;
+  document.getElementById('hdr-streak').textContent = streak;
+  const pct = Math.round((answered.filter(a => a !== null).length / QUESTIONS.length) * 100);
+  document.getElementById('hdr-progress').textContent = pct + '%';
+  document.getElementById('quiz-score').textContent = score;
+  document.getElementById('quiz-streak').textContent = streak;
+}
+
+// ==================== TABS ====================
+function openTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('search-panel').classList.remove('show');
+  document.getElementById('search-box').value = '';
+  localStorage.setItem('cns_last_tab', id);
+}
+
+// ==================== QUIZ ====================
+function renderQuestion() {
+  const q = QUESTIONS[currentQ];
+  const letters = ['A','B','C','D','E'];
+  const isAnswered = answered[currentQ] !== null;
+  const userAns = answered[currentQ];
+
+  document.getElementById('q-counter').textContent = 'Q ' + (currentQ + 1) + ' of ' + QUESTIONS.length;
+  const pct = ((currentQ + 1) / QUESTIONS.length) * 100;
+  document.getElementById('quiz-progress').style.width = pct + '%';
+
+  let html = `<div class="q-card">
+    <div class="q-num">Question ${currentQ + 1} of ${QUESTIONS.length}</div>
+    <div class="q-text">${q.q}</div>
+    <div class="options">`;
+
+  q.opts.forEach((opt, i) => {
+    let cls = '';
+    if (isAnswered) {
+      if (i === q.ans) cls = 'correct';
+      else if (i === userAns && userAns !== q.ans) cls = 'wrong';
+    }
+    html += `<button class="opt-btn ${cls}" ${isAnswered ? 'disabled' : ''} onclick="selectAnswer(${i})">
+      <span class="opt-letter">${letters[i]}</span>
+      <span>${opt}</span>
+    </button>`;
+  });
+
+  html += `</div>
+    <div class="explanation ${isAnswered ? 'show' : ''}" id="explanation">
+      <strong>${userAns === q.ans ? '✅ Correct!' : userAns !== null ? '❌ Incorrect' : ''}</strong> ${q.exp}
+    </div>
+  </div>`;
+
+  document.getElementById('quiz-area').innerHTML = html;
+  updateStats();
+}
+
+function selectAnswer(i) {
+  if (answered[currentQ] !== null) return;
+  const q = QUESTIONS[currentQ];
+  answered[currentQ] = i;
+  if (i === q.ans) {
+    score++;
+    streak++;
+    maxStreak = Math.max(maxStreak, streak);
+  } else {
+    streak = 0;
+  }
+  updateStats();
+  saveProgress();
+  renderQuestion();
+}
+
+function nextQ() {
+  if (currentQ < QUESTIONS.length - 1) {
+    currentQ++;
+    renderQuestion();
+    saveProgress();
+  } else {
+    showScore();
+  }
+}
+
+function prevQ() {
+  if (currentQ > 0) {
+    currentQ--;
+    renderQuestion();
+  }
+}
+
+function showScore() {
+  const pct = Math.round((score / QUESTIONS.length) * 100);
+  document.getElementById('modal-score-num').textContent = score;
+  let msg = pct >= 90 ? "🏆 Outstanding! You've mastered CNS tumors!" :
+            pct >= 75 ? "🎉 Great work! Review the ones you missed." :
+            pct >= 60 ? "📚 Good effort — revise the weak areas." :
+                        "💪 Keep studying — you'll get there!";
+  document.getElementById('modal-msg').textContent = msg;
+  document.getElementById('score-modal').classList.add('show');
+}
+
+function restartQuiz() {
+  answered = new Array(QUESTIONS.length).fill(null);
+  score = 0; streak = 0; currentQ = 0;
+  saveProgress();
+  updateStats();
+  renderQuestion();
+  document.getElementById('score-modal').classList.remove('show');
+}
+
+// ==================== FLASHCARDS ====================
+function buildFlashcards() {
+  const grid = document.getElementById('fc-grid');
+  grid.innerHTML = FLASHCARDS.map((fc, i) => `
+    <div class="fc-wrap" id="fc-${i}" onclick="flipCard(${i})">
+      <div class="fc-inner">
+        <div class="fc-front">
+          <div class="fc-icon">❓</div>
+          <div class="fc-q">${fc.q}</div>
+          <div class="fc-hint">tap to reveal</div>
+        </div>
+        <div class="fc-back">
+          <div class="fc-icon">💡</div>
+          <div class="fc-a">${fc.a}</div>
+          <div class="fc-hint">tap to flip back</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function flipCard(i) {
+  document.getElementById('fc-' + i).classList.toggle('flipped');
+}
+
+function resetFlashcards() {
+  document.querySelectorAll('.fc-wrap').forEach(fc => fc.classList.remove('flipped'));
+}
+
+// ==================== CASES ====================
+function buildCases() {
+  const area = document.getElementById('cases-area');
+  area.innerHTML = CASES.map(c => `
+    <div class="case-card">
+      <div class="case-header">
+        <div class="case-num">${c.num}</div>
+        <div>
+          <div class="case-title">${c.title}</div>
+          <div class="case-meta">🏥 ${c.meta}</div>
+        </div>
+      </div>
+      <div class="case-vignette">${c.vignette}</div>
+      <div class="case-questions">
+        ${c.qs.map((cq, qi) => `
+          <div>
+            <div class="case-q">Q${qi+1}: ${cq.q}</div>
+            <button class="reveal-btn" onclick="revealAnswer(this)">👁️ Reveal Answer</button>
+            <div class="case-answer">${cq.a}</div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function revealAnswer(btn) {
+  const ans = btn.nextElementSibling;
+  ans.classList.toggle('show');
+  btn.textContent = ans.classList.contains('show') ? '🙈 Hide Answer' : '👁️ Reveal Answer';
+}
+
+// ==================== PATHO ====================
+function buildPatho() {
+  const grid = document.getElementById('patho-grid');
+  grid.innerHTML = PATHO_ITEMS.map((item, i) => `
+    <div class="patho-item" id="pi-${i}" onclick="togglePatho(${i})">
+      <div class="pi-title">
+        <span>${item.icon} ${item.title}</span>
+        <span style="color:var(--text-muted);font-weight:400;font-size:16px" id="pi-arrow-${i}">+</span>
+      </div>
+      <div class="pi-body" id="pi-body-${i}">${item.body}</div>
+    </div>`).join('');
+}
+
+function togglePatho(i) {
+  const item = document.getElementById('pi-' + i);
+  const body = document.getElementById('pi-body-' + i);
+  const arrow = document.getElementById('pi-arrow-' + i);
+  item.classList.toggle('expanded');
+  body.classList.toggle('show');
+  arrow.textContent = body.classList.contains('show') ? '−' : '+';
+}
+
+// ==================== MNEMONICS ====================
+function buildMnemonics() {
+  const grid = document.getElementById('mnem-grid');
+  grid.innerHTML = MNEMONICS.map(m => `
+    <div class="mnem-card">
+      <div class="mnem-header">
+        <div class="mnem-word">${m.word}</div>
+        <div class="mnem-title">${m.title}</div>
+      </div>
+      <div class="mnem-body">
+        ${m.rows.map(r => `
+          <div class="mnem-row">
+            <div class="mnem-letter">${r.l}</div>
+            <div class="mnem-text"><strong>${r.strong}</strong> <span>${r.span}</span></div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+// ==================== SEARCH ====================
+const ALL_CONTENT = [
+  ...QUESTIONS.map(q => ({ cat: 'Quiz', text: q.q + ' ' + q.opts.join(' ') + ' ' + q.exp, preview: q.q })),
+  ...FLASHCARDS.map(f => ({ cat: 'Flashcard', text: f.q + ' ' + f.a, preview: f.q })),
+  ...CASES.flatMap(c => c.qs.map(q => ({ cat: 'Clinical Case', text: c.vignette + ' ' + q.q + ' ' + q.a, preview: c.title + ': ' + q.q }))),
+  ...PATHO_ITEMS.map(p => ({ cat: 'Pathophysiology', text: p.title + ' ' + p.body, preview: p.title + ': ' + p.body.substring(0, 80) + '…' }))
+];
+
+function doSearch(val) {
+  const panel = document.getElementById('search-panel');
+  if (!val.trim()) { panel.classList.remove('show'); return; }
+  const q = val.toLowerCase();
+  const results = ALL_CONTENT.filter(item => item.text.toLowerCase().includes(q)).slice(0, 12);
+  if (!results.length) { panel.innerHTML = '<p class="text-muted text-sm">No results found.</p>'; panel.classList.add('show'); return; }
+  panel.innerHTML = `<div class="section-title" style="font-size:15px;margin-bottom:12px">🔍 Search Results for "${val}"</div>` +
+    results.map(r => `<div class="sr-item"><div class="sr-cat">${r.cat}</div>${highlight(r.preview, q)}</div>`).join('');
+  panel.classList.add('show');
+}
+
+function highlight(text, q) {
+  const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi');
+  return text.replace(re, '<span class="highlight">$1</span>');
+}
+</script>
+</body>
+</html>

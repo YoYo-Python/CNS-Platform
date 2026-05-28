@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CNS Reflex Action — Physiology Study Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #070d1f;
+  --bg2: #0d1530;
+  --bg3: #111e3a;
+  --glass: rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.08);
+  --cyan: #00d4ff;
+  --cyan-dim: rgba(0,212,255,0.15);
+  --amber: #f59e0b;
+  --amber-dim: rgba(245,158,11,0.15);
+  --emerald: #10b981;
+  --emerald-dim: rgba(16,185,129,0.15);
+  --rose: #f43f5e;
+  --rose-dim: rgba(244,63,94,0.15);
+  --violet: #8b5cf6;
+  --violet-dim: rgba(139,92,246,0.15);
+  --text: #e2e8f0;
+  --text-dim: #94a3b8;
+  --text-muted: #4a5568;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.5);
+  --glow-cyan: 0 0 24px rgba(0,212,255,0.25);
+  --glow-amber: 0 0 24px rgba(245,158,11,0.25);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ---- ANIMATED BACKGROUND ---- */
+.bg-orbs {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+}
+.orb {
+  position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.12;
+  animation: float 12s ease-in-out infinite;
+}
+.orb1 { width: 500px; height: 500px; background: var(--cyan); top: -150px; left: -100px; animation-delay: 0s; }
+.orb2 { width: 400px; height: 400px; background: var(--violet); top: 40%; right: -100px; animation-delay: 4s; }
+.orb3 { width: 300px; height: 300px; background: var(--amber); bottom: 0; left: 30%; animation-delay: 8s; }
+@keyframes float {
+  0%,100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-30px) scale(1.05); }
+}
+
+/* ---- HEADER ---- */
+header {
+  position: relative; z-index: 10;
+  background: linear-gradient(135deg, rgba(0,212,255,0.08) 0%, rgba(139,92,246,0.06) 100%);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 28px 24px 20px;
+  text-align: center;
+}
+header .badge {
+  display: inline-block;
+  background: var(--cyan-dim);
+  border: 1px solid rgba(0,212,255,0.3);
+  color: var(--cyan);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 14px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+header h1 {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(22px, 5vw, 38px);
+  font-weight: 700;
+  background: linear-gradient(135deg, #fff 30%, var(--cyan) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+header p {
+  color: var(--text-dim);
+  font-size: 14px;
+  font-weight: 500;
+}
+.stats-bar {
+  display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+  margin-top: 16px;
+}
+.stat-chip {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.3s;
+}
+.stat-chip span { color: var(--cyan); }
+.search-wrap {
+  margin-top: 16px; display: flex; justify-content: center;
+}
+#searchBar {
+  width: 100%; max-width: 400px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 30px;
+  padding: 10px 20px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: 'Nunito', sans-serif;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+#searchBar:focus { border-color: var(--cyan); box-shadow: var(--glow-cyan); }
+#searchBar::placeholder { color: var(--text-muted); }
+
+/* ---- TABS ---- */
+.tab-nav {
+  position: sticky; top: 0; z-index: 20;
+  background: rgba(7,13,31,0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 0 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tab-nav::-webkit-scrollbar { display: none; }
+.tab-list {
+  display: flex; gap: 0; min-width: max-content;
+}
+.tab-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-dim);
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px; font-weight: 700;
+  padding: 14px 18px;
+  border-bottom: 2px solid transparent;
+  transition: all 0.25s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+/* ---- MAIN CONTENT ---- */
+main { position: relative; z-index: 5; padding: 24px 16px; max-width: 1100px; margin: 0 auto; }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ---- CARDS ---- */
+.card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+  backdrop-filter: blur(10px);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.card.cyan-accent { border-color: rgba(0,212,255,0.25); }
+.card.amber-accent { border-color: rgba(245,158,11,0.25); }
+.card.emerald-accent { border-color: rgba(16,185,129,0.25); }
+.card.rose-accent { border-color: rgba(244,63,94,0.25); }
+.card.violet-accent { border-color: rgba(139,92,246,0.25); }
+
+.section-title {
+  font-family: 'Cinzel', serif;
+  font-size: 18px; font-weight: 600;
+  color: var(--cyan);
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-title::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, rgba(0,212,255,0.3), transparent);
+}
+
+.tag {
+  display: inline-block;
+  font-size: 10px; font-weight: 800; letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin: 3px;
+}
+.tag-exam { background: rgba(244,63,94,0.2); color: var(--rose); border: 1px solid rgba(244,63,94,0.3); }
+.tag-pearl { background: rgba(245,158,11,0.2); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+.tag-yield { background: rgba(0,212,255,0.15); color: var(--cyan); border: 1px solid rgba(0,212,255,0.3); }
+.tag-key { background: rgba(139,92,246,0.2); color: var(--violet); border: 1px solid rgba(139,92,246,0.3); }
+
+h3 { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+p, li { font-size: 14px; line-height: 1.7; color: var(--text-dim); }
+li { margin-bottom: 6px; }
+ul { padding-left: 18px; }
+strong { color: var(--text); }
+
+/* ---- OVERVIEW GRID ---- */
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.summary-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  padding: 18px;
+  text-align: center;
+  transition: transform 0.2s;
+}
+.summary-card:hover { transform: translateY(-3px); }
+.summary-card .icon { font-size: 32px; margin-bottom: 8px; }
+.summary-card .label { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+.summary-card .value { font-size: 16px; font-weight: 800; color: var(--cyan); }
+
+.key-signs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.sign-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+}
+.sign-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+
+/* ---- FLOW CHART ---- */
+.flowchart {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  padding: 20px; background: var(--glass); border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border); margin: 12px 0;
+}
+.flow-node {
+  background: var(--bg3);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.flow-node:hover { border-color: var(--cyan); color: var(--cyan); box-shadow: var(--glow-cyan); }
+.flow-arrow { color: var(--cyan); font-size: 18px; flex-shrink: 0; }
+
+/* ---- QUIZ ---- */
+.quiz-header {
+  background: linear-gradient(135deg, var(--cyan-dim), var(--violet-dim));
+  border: 1px solid rgba(0,212,255,0.2);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 24px;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: gap;
+}
+.quiz-meta { display: flex; gap: 20px; flex-wrap: wrap; }
+.quiz-meta-item { text-align: center; }
+.quiz-meta-item .qval { font-size: 28px; font-weight: 800; color: var(--cyan); }
+.quiz-meta-item .qlabel { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+.progress-bar-wrap { margin: 12px 0; background: var(--bg3); border-radius: 20px; height: 8px; overflow: hidden; }
+.progress-bar { height: 100%; background: linear-gradient(90deg, var(--cyan), var(--violet)); border-radius: 20px; transition: width 0.5s ease; }
+
+.quiz-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 20px;
+  transition: all 0.3s;
+}
+.quiz-q-num { font-size: 11px; font-weight: 800; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+.quiz-q-text { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 18px; line-height: 1.6; }
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-opt {
+  background: var(--bg3);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dim);
+  transition: all 0.2s;
+  display: flex; align-items: center; gap: 12px;
+  text-align: left;
+}
+.quiz-opt:hover:not(.disabled) { border-color: var(--cyan); color: var(--text); background: var(--cyan-dim); }
+.quiz-opt.correct { border-color: var(--emerald); background: var(--emerald-dim); color: var(--emerald); animation: pulse 0.4s; }
+.quiz-opt.wrong { border-color: var(--rose); background: var(--rose-dim); color: var(--rose); animation: shake 0.4s; }
+.quiz-opt.disabled { cursor: default; }
+.opt-letter {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  background: var(--glass); border: 1px solid var(--glass-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800;
+}
+.explanation {
+  margin-top: 14px; padding: 14px;
+  background: rgba(0,212,255,0.06);
+  border-left: 3px solid var(--cyan);
+  border-radius: 0 8px 8px 0;
+  font-size: 13px; color: var(--text-dim); line-height: 1.6;
+  display: none;
+}
+.explanation.show { display: block; animation: fadeIn 0.3s; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+/* ---- FLASHCARDS ---- */
+.fc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.fc-card {
+  height: 190px; cursor: pointer;
+  perspective: 1000px;
+}
+.fc-inner {
+  width: 100%; height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+.fc-card.flipped .fc-inner { transform: rotateY(180deg); }
+.fc-front, .fc-back {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex; flex-direction: column; justify-content: center;
+  border: 1px solid var(--glass-border);
+}
+.fc-front {
+  background: linear-gradient(135deg, var(--bg2), var(--bg3));
+  border-color: rgba(0,212,255,0.2);
+}
+.fc-back {
+  background: linear-gradient(135deg, rgba(0,212,255,0.08), rgba(139,92,246,0.08));
+  border-color: rgba(139,92,246,0.3);
+  transform: rotateY(180deg);
+}
+.fc-side-label { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+.fc-front .fc-side-label { color: var(--cyan); }
+.fc-back .fc-side-label { color: var(--violet); }
+.fc-question { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.5; }
+.fc-answer { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+.fc-flip-hint { font-size: 10px; color: var(--text-muted); margin-top: auto; }
+
+/* ---- CLINICAL CASES ---- */
+.case-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.case-header {
+  background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(0,212,255,0.05));
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--glass-border);
+  display: flex; align-items: center; gap: 14px;
+}
+.case-num {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--amber), #f97316);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cinzel', serif; font-size: 15px; font-weight: 700;
+  color: #fff; flex-shrink: 0;
+}
+.case-body { padding: 20px; }
+.vignette-box {
+  background: var(--bg3);
+  border-left: 3px solid var(--amber);
+  border-radius: 0 8px 8px 0;
+  padding: 16px;
+  margin-bottom: 18px;
+  font-size: 14px; line-height: 1.7; color: var(--text-dim);
+}
+.case-questions { margin-bottom: 16px; }
+.case-q { margin-bottom: 12px; }
+.case-q p { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.reveal-btn {
+  background: linear-gradient(135deg, var(--amber), #f97316);
+  border: none; border-radius: 8px;
+  padding: 10px 22px;
+  color: #fff; font-family: 'Nunito', sans-serif;
+  font-size: 13px; font-weight: 800;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.reveal-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+.case-answer {
+  background: rgba(16,185,129,0.06);
+  border: 1px solid rgba(16,185,129,0.2);
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 14px;
+  display: none;
+  animation: fadeIn 0.4s;
+}
+.case-answer.show { display: block; }
+.case-answer h4 { color: var(--emerald); font-size: 13px; font-weight: 800; margin-bottom: 10px; }
+
+/* ---- PATHOPHYSIOLOGY ---- */
+.path-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.path-item {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.path-item:hover { border-color: var(--violet); box-shadow: 0 0 20px rgba(139,92,246,0.2); transform: translateY(-2px); }
+.path-item.selected { border-color: var(--violet); background: var(--violet-dim); }
+.path-item .pi-icon { font-size: 26px; margin-bottom: 8px; }
+.path-item h4 { font-size: 13px; font-weight: 800; margin-bottom: 4px; }
+.path-item p { font-size: 12px; }
+.path-detail {
+  background: var(--glass);
+  border: 1px solid rgba(139,92,246,0.3);
+  border-radius: var(--radius-sm);
+  padding: 18px;
+  animation: fadeIn 0.3s;
+  margin-bottom: 20px;
+}
+.path-detail h3 { color: var(--violet); margin-bottom: 10px; }
+
+/* ---- COMPARISON TABLE ---- */
+.table-wrap { overflow-x: auto; border-radius: var(--radius-sm); border: 1px solid var(--glass-border); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead { background: linear-gradient(135deg, var(--bg2), var(--bg3)); }
+thead th {
+  padding: 12px 16px; text-align: left;
+  font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--cyan);
+  border-bottom: 1px solid var(--glass-border);
+}
+tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.2s; }
+tbody tr:hover { background: var(--cyan-dim); }
+tbody td { padding: 12px 16px; color: var(--text-dim); }
+tbody td:first-child { color: var(--text); font-weight: 700; }
+
+/* ---- MNEMONICS ---- */
+.mn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.mn-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.mn-head {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--glass-border);
+}
+.mn-acronym {
+  font-family: 'Cinzel', serif;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  margin-bottom: 4px;
+}
+.mn-meaning { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+.mn-body { padding: 16px 18px; }
+.mn-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 10px; font-size: 13px;
+}
+.mn-letter {
+  width: 26px; height: 26px; border-radius: 6px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 13px;
+}
+.mn-desc { color: var(--text-dim); line-height: 1.4; }
+.mn-desc strong { color: var(--text); }
+.mn-card:nth-child(1) .mn-acronym { color: var(--cyan); }
+.mn-card:nth-child(1) .mn-letter { background: var(--cyan-dim); color: var(--cyan); }
+.mn-card:nth-child(2) .mn-acronym { color: var(--amber); }
+.mn-card:nth-child(2) .mn-letter { background: var(--amber-dim); color: var(--amber); }
+.mn-card:nth-child(3) .mn-acronym { color: var(--violet); }
+.mn-card:nth-child(3) .mn-letter { background: var(--violet-dim); color: var(--violet); }
+.mn-card:nth-child(4) .mn-acronym { color: var(--emerald); }
+.mn-card:nth-child(4) .mn-letter { background: var(--emerald-dim); color: var(--emerald); }
+.mn-card:nth-child(5) .mn-acronym { color: var(--rose); }
+.mn-card:nth-child(5) .mn-letter { background: var(--rose-dim); color: var(--rose); }
+
+/* ---- DIAGNOSIS / TREATMENT ---- */
+.algo-step {
+  display: flex; align-items: flex-start; gap: 14px;
+  background: var(--glass); border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 8px;
+  transition: all 0.2s;
+}
+.algo-step:hover { border-color: var(--cyan); }
+.step-num {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--cyan), var(--violet));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800; color: #fff;
+}
+.step-content h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+
+/* ---- APPLIED PHYSIOLOGY ---- */
+.app-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+
+/* ---- SEARCH HIGHLIGHT ---- */
+.highlight { background: rgba(245,158,11,0.3); color: var(--amber); border-radius: 3px; padding: 0 2px; }
+
+/* ---- SCORE MODAL ---- */
+.score-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100; display: none;
+  animation: fadeIn 0.3s;
+}
+.score-modal-overlay.show { display: flex; }
+.score-modal {
+  background: var(--bg2);
+  border: 1px solid rgba(0,212,255,0.3);
+  border-radius: 20px;
+  padding: 36px;
+  text-align: center; max-width: 360px; width: 90%;
+  box-shadow: var(--glow-cyan);
+}
+.score-modal .big-score { font-size: 64px; font-weight: 800; color: var(--cyan); }
+.score-modal h2 { font-family: 'Cinzel', serif; font-size: 20px; margin: 10px 0; }
+.score-modal p { color: var(--text-dim); font-size: 14px; margin-bottom: 20px; }
+.btn-primary {
+  background: linear-gradient(135deg, var(--cyan), var(--violet));
+  border: none; border-radius: 10px; padding: 12px 28px;
+  color: #fff; font-family: 'Nunito', sans-serif;
+  font-size: 14px; font-weight: 800; cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 600px) {
+  main { padding: 16px 12px; }
+  .quiz-header { flex-direction: column; gap: 12px; }
+  .fc-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="bg-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<!-- SCORE MODAL -->
+<div class="score-modal-overlay" id="scoreModal">
+  <div class="score-modal">
+    <div style="font-size:48px">🎉</div>
+    <div class="big-score" id="modalScore">0/25</div>
+    <h2>Quiz Complete!</h2>
+    <p id="modalMsg">Great effort! Review your answers and try again.</p>
+    <button class="btn-primary" onclick="resetQuiz()">🔄 Try Again</button>
+    <button class="btn-primary" style="margin-left:8px; background: var(--amber);" onclick="closeModal()">📖 Review</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="badge">🧠 Physiology · CNS Module</div>
+  <h1>Reflex Action</h1>
+  <p>Mansoura University · Faculty of Medicine · Interactive Study Platform</p>
+  <div class="stats-bar">
+    <div class="stat-chip">🎯 Quiz Score: <span id="headerScore">0/25</span></div>
+    <div class="stat-chip">🔥 Streak: <span id="headerStreak">0</span></div>
+    <div class="stat-chip">✅ Progress: <span id="headerProgress">0%</span></div>
+    <div class="stat-chip">📚 <span>8 Sections</span></div>
+  </div>
+  <div class="search-wrap">
+    <input type="text" id="searchBar" placeholder="🔍  Search concepts, mechanisms, terms...">
+  </div>
+</header>
+
+<!-- TABS -->
+<nav class="tab-nav">
+  <div class="tab-list">
+    <button class="tab-btn active" onclick="showTab('overview',this)">📋 Overview</button>
+    <button class="tab-btn" onclick="showTab('quiz',this)">🎯 Quiz (25 MCQs)</button>
+    <button class="tab-btn" onclick="showTab('flashcards',this)">📇 Flashcards</button>
+    <button class="tab-btn" onclick="showTab('cases',this)">🏥 Clinical Cases</button>
+    <button class="tab-btn" onclick="showTab('pathophys',this)">🔬 Pathophysiology</button>
+    <button class="tab-btn" onclick="showTab('classification',this)">📊 Classifications</button>
+    <button class="tab-btn" onclick="showTab('applied',this)">⚡ Applied Physiology</button>
+    <button class="tab-btn" onclick="showTab('mnemonics',this)">🧩 Mnemonics</button>
+  </div>
+</nav>
+
+<main>
+
+<!-- ===== OVERVIEW ===== -->
+<div id="tab-overview" class="tab-content active">
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="icon">⚡</div>
+      <div class="label">Reflex Arc</div>
+      <div class="value">5 Components</div>
+    </div>
+    <div class="summary-card">
+      <div class="icon">🧬</div>
+      <div class="label">Reflex Types</div>
+      <div class="value">Conditioned vs Unconditioned</div>
+    </div>
+    <div class="summary-card">
+      <div class="icon">🔗</div>
+      <div class="label">Circuits</div>
+      <div class="value">4 Interneuronal Types</div>
+    </div>
+    <div class="summary-card">
+      <div class="icon">💊</div>
+      <div class="label">Only Monosynaptic</div>
+      <div class="value">Stretch Reflex ⚠️</div>
+    </div>
+  </div>
+
+  <div class="section-title">⚠️ High-Yield Exam Pearls</div>
+  <div class="key-signs-grid" id="pearlsGrid">
+    <div class="sign-card amber-accent card">
+      <span class="tag tag-exam">EXAM ⭐</span>
+      <h4>Only Monosynaptic Reflex</h4>
+      <p>The <strong>stretch reflex</strong> is the ONLY monosynaptic reflex in the body. All others are polysynaptic (have interneurons).</p>
+    </div>
+    <div class="sign-card rose-accent card">
+      <span class="tag tag-exam">EXAM ⭐</span>
+      <h4>Renshaw Cells → Glycine</h4>
+      <p>Renshaw cells release <strong>glycine</strong> (inhibitory) to limit α-motor neuron discharge — both the original and neighboring neurons.</p>
+    </div>
+    <div class="sign-card cyan-accent card">
+      <span class="tag tag-yield">High Yield</span>
+      <h4>Divergence → Irradiation</h4>
+      <p><strong>Divergence</strong> = one interneuron → many efferents → irradiation (multi-segmental reflex, e.g., limb withdrawal from pinprick).</p>
+    </div>
+    <div class="sign-card violet-accent card">
+      <span class="tag tag-yield">High Yield</span>
+      <h4>Convergence → Spatial Summation</h4>
+      <p><strong>Convergence</strong> = many interneurons → fewer efferents → enables spatial summation of signals.</p>
+    </div>
+    <div class="sign-card emerald-accent card">
+      <span class="tag tag-pearl">Clinical Pearl</span>
+      <h4>α vs ɣ Motor Neurons</h4>
+      <p><strong>α-motor neurons</strong>: large, 70% of AHCs, extrafusal fibers. <strong>ɣ-motor neurons</strong>: small, 30% of AHCs, intrafusal (spindle) fibers.</p>
+    </div>
+    <div class="sign-card card">
+      <span class="tag tag-pearl">Clinical Pearl</span>
+      <h4>RAS Uses Reverberating Circuits</h4>
+      <p>The <strong>RAS</strong> maintains wakefulness for 16–18 hours via closed-chain (reverberating) circuits. Respiratory center uses them for <em>life</em>.</p>
+    </div>
+    <div class="sign-card card">
+      <span class="tag tag-key">Key Concept</span>
+      <h4>Afferent Neurons = Pseudo-unipolar</h4>
+      <p>Cell bodies in <strong>Dorsal Root Ganglion (DRG)</strong>. Peripheral branch → receptors; central branch → spinal cord via dorsal roots.</p>
+    </div>
+    <div class="sign-card card">
+      <span class="tag tag-key">Key Concept</span>
+      <h4>Lateral Inhibition → Sharpens Sense</h4>
+      <p>Active neurons inhibit adjacent less-active neurons → focuses sensory input → sharpens perception of location.</p>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:28px">⚡ Reflex Arc — Basic Pathway</div>
+  <div class="flowchart">
+    <div class="flow-node">🎯 Receptor<br><small>Skin/Muscle</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">📡 Afferent Neuron<br><small>Pseudo-unipolar<br>DRG cell body</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">⚙️ Interneuron<br><small>Gray Matter<br>(absent in stretch)</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">🔌 Efferent Neuron<br><small>AHC/LHC<br>α or ɣ</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">💪 Effector<br><small>Muscle/Gland</small></div>
+  </div>
+
+  <div class="section-title" style="margin-top:28px">🏛️ Centers of Unconditioned Reflexes</div>
+  <div class="key-signs-grid">
+    <div class="sign-card card">
+      <div style="font-size:24px; margin-bottom:6px">🌡️</div>
+      <h4 style="color:var(--cyan)">Hypothalamus</h4>
+      <p>Temperature regulation, food intake</p>
+    </div>
+    <div class="sign-card card">
+      <div style="font-size:24px; margin-bottom:6px">👁️</div>
+      <h4 style="color:var(--violet)">Midbrain</h4>
+      <p>Light reflex</p>
+    </div>
+    <div class="sign-card card">
+      <div style="font-size:24px; margin-bottom:6px">💧</div>
+      <h4 style="color:var(--amber)">Pons</h4>
+      <p>Salivary reflex</p>
+    </div>
+    <div class="sign-card card">
+      <div style="font-size:24px; margin-bottom:6px">❤️</div>
+      <h4 style="color:var(--rose)">Medulla</h4>
+      <p>CVS & Respiratory reflexes</p>
+    </div>
+    <div class="sign-card card">
+      <div style="font-size:24px; margin-bottom:6px">🦴</div>
+      <h4 style="color:var(--emerald)">Spinal Cord</h4>
+      <p>Somatic: stretch, flexion, scratch<br>Autonomic: micturition, defecation</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== QUIZ ===== -->
+<div id="tab-quiz" class="tab-content">
+  <div class="quiz-header">
+    <div>
+      <div style="font-family:'Cinzel',serif; font-size:20px; font-weight:700; color:var(--cyan); margin-bottom:4px">🎯 MCQ Challenge</div>
+      <div style="font-size:13px; color:var(--text-muted)">25 exam-style questions · Select an option to see feedback</div>
+    </div>
+    <div class="quiz-meta">
+      <div class="quiz-meta-item">
+        <div class="qval" id="qScore">0</div><div class="qlabel">Correct</div>
+      </div>
+      <div class="quiz-meta-item">
+        <div class="qval" id="qStreak">0</div><div class="qlabel">Streak 🔥</div>
+      </div>
+      <div class="quiz-meta-item">
+        <div class="qval" id="qDone">0/25</div><div class="qlabel">Done</div>
+      </div>
+    </div>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="quizProgress" style="width:0%"></div></div>
+  <div id="quizContainer"></div>
+</div>
+
+<!-- ===== FLASHCARDS ===== -->
+<div id="tab-flashcards" class="tab-content">
+  <div class="section-title">📇 Flip Cards — Click to Reveal Answer</div>
+  <p style="margin-bottom:20px; font-size:13px; color:var(--text-muted)">Tap any card to flip it. Test yourself before revealing!</p>
+  <div class="fc-grid" id="fcGrid"></div>
+</div>
+
+<!-- ===== CLINICAL CASES ===== -->
+<div id="tab-cases" class="tab-content">
+  <div class="section-title">🏥 Clinical Vignettes</div>
+  <p style="margin-bottom:20px; font-size:13px; color:var(--text-muted)">Exam-style applied scenarios from your lecture notes. Read the case, answer the questions mentally, then reveal.</p>
+  <div id="casesContainer"></div>
+</div>
+
+<!-- ===== PATHOPHYSIOLOGY ===== -->
+<div id="tab-pathophys" class="tab-content">
+  <div class="section-title">🔬 Mechanisms & Circuits</div>
+  <p style="margin-bottom:16px; font-size:13px; color:var(--text-muted)">Click on any circuit type to view its detailed explanation.</p>
+  <div class="path-grid" id="pathGrid"></div>
+  <div class="path-detail" id="pathDetail" style="display:none"></div>
+
+  <div class="section-title" style="margin-top:28px">🔄 Renshaw Cell Negative Feedback Loop</div>
+  <div class="flowchart" style="flex-direction: column; align-items: flex-start; gap:6px;">
+    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+      <div class="flow-node" style="background:var(--cyan-dim); border-color:var(--cyan)">Afferent Signal</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">Excites α-Motor Neuron</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">Axon fires + gives collateral</div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-left: 40px">
+      <div class="flow-arrow">↓</div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+      <div class="flow-node" style="background:var(--violet-dim); border-color:var(--violet)">Renshaw Cell activated</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node" style="background:var(--rose-dim); border-color:var(--rose)">Releases Glycine 🧪</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node" style="background:var(--rose-dim)">Inhibits original α-MN (−ve feedback) AND neighboring α-MNs</div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:28px">⛓️ After-Discharge Circuits Compared</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Feature</th><th>Open Chain (Parallel)</th><th>Closed Chain (Reverberating)</th></tr></thead>
+      <tbody>
+        <tr><td>Mechanism</td><td>Direct + indirect interneuron routes</td><td>Principal interneuron loops back to re-stimulate itself</td></tr>
+        <tr><td>Synaptic delay</td><td>0.5 ms per synapse</td><td>Continuous until fatigue</td></tr>
+        <tr><td>Duration</td><td>Short after-discharge</td><td>Prolonged (minutes to hours/lifetime)</td></tr>
+        <tr><td>Termination</td><td>Successive impulses exhaust</td><td>Synaptic fatigue OR external inhibition</td></tr>
+        <tr><td>Example</td><td>Simple polysynaptic reflexes</td><td>RAS (16–18h wakefulness), Respiratory center (lifetime)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== CLASSIFICATION ===== -->
+<div id="tab-classification" class="tab-content">
+  <div class="section-title">📊 Reflex Classification Comparison</div>
+  <div class="table-wrap" style="margin-bottom:24px">
+    <table>
+      <thead><tr><th>Feature</th><th>Conditioned Reflexes</th><th>Unconditioned Reflexes</th></tr></thead>
+      <tbody>
+        <tr><td>Inheritance</td><td>Acquired (NOT inherited)</td><td>Inherited (innate)</td></tr>
+        <tr><td>Training required?</td><td>✅ Yes — needs previous experience</td><td>❌ No — present from birth</td></tr>
+        <tr><td>Cerebral cortex?</td><td>✅ Required — intact cortex needed</td><td>❌ Not required</td></tr>
+        <tr><td>Regulation</td><td>Cortical integration</td><td>Lower centers (hypothalamus, brainstem, spinal cord)</td></tr>
+        <tr><td>Example</td><td>Salivating at smell/sight of food</td><td>Light reflex, stretch reflex, micturition</td></tr>
+        <tr><td>Significance</td><td>Regulates GIT, respiratory, CVS to learned stimuli</td><td>Baseline survival functions</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">⚡ α vs ɣ Motor Neurons</div>
+  <div class="table-wrap" style="margin-bottom:24px">
+    <table>
+      <thead><tr><th>Feature</th><th>α-Motor Neurons</th><th>ɣ-Motor Neurons</th></tr></thead>
+      <tbody>
+        <tr><td>Size</td><td>Large</td><td>Small</td></tr>
+        <tr><td>% of AHCs</td><td>70%</td><td>30%</td></tr>
+        <tr><td>Target fibers</td><td>Extrafusal (skeletal muscle)</td><td>Intrafusal (muscle spindles)</td></tr>
+        <tr><td>Function</td><td>Mediates skeletal muscle contraction (somatic reflexes)</td><td>Adjusts spindle sensitivity; co-activated with α neurons</td></tr>
+        <tr><td>Clinical relevance</td><td>Damaged in ALS/polio → weakness + areflexia</td><td>Lesion → impaired stretch reflex sensitivity</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">📍 Motor Unit vs. Motor Pool</div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:24px">
+    <div class="card cyan-accent">
+      <h3 style="color:var(--cyan)">🔌 Motor Unit</h3>
+      <p>One anterior horn cell (AHC) + its efferent terminals + ALL muscle fibers it supplies.</p>
+      <div class="tag tag-pearl" style="margin-top:10px">Distal muscles: fewer fibers/unit → finer control</div>
+    </div>
+    <div class="card violet-accent">
+      <h3 style="color:var(--violet)">🏊 Motor Neuron Pool</h3>
+      <p>The TOTAL number of AHCs that supply a single entire muscle.</p>
+      <div class="tag tag-yield" style="margin-top:10px">Lateral AHCs → distal | Medial AHCs → axial</div>
+    </div>
+  </div>
+
+  <div class="section-title">🗺️ AHC Localization in Spinal Cord</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>AHC Location</th><th>Muscle Supplied</th><th>Motor Unit Size</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td>Lateral AHCs</td><td>Distal muscles (e.g., hand, foot)</td><td>Fewer muscle fibers</td><td>Fine motor control</td></tr>
+        <tr><td>Medial AHCs</td><td>Axial muscles (e.g., trunk, back)</td><td>More muscle fibers</td><td>Gross/postural movements</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== APPLIED PHYSIOLOGY ===== -->
+<div id="tab-applied" class="tab-content">
+  <div class="section-title">⚡ Clinical Applications of Reflex Mechanisms</div>
+
+  <div class="card amber-accent" style="margin-bottom:20px">
+    <span class="tag tag-exam">🏥 Integrative Case</span>
+    <h3 style="margin-top:8px">Spinal Cord Injury at T5–8</h3>
+    <div class="vignette-box">A 24-year-old male sustains a car accident with complete spinal cord transaction at T5–8. Examination shows loss of all motor activity and all spinal reflexes below the injury.</div>
+    <div class="algo-step"><div class="step-num">1</div><div class="step-content"><h4>Structure Involved</h4><p>Complete transaction of spinal cord at T5–8 — severs all ascending & descending tracts and destroys local reflex arcs.</p></div></div>
+    <div class="algo-step"><div class="step-num">2</div><div class="step-content"><h4>Mechanism</h4><p>Loss of higher center modulation + local structural damage → all spinal reflexes below injury level fail immediately (spinal shock).</p></div></div>
+    <div class="algo-step"><div class="step-num">3</div><div class="step-content"><h4>Investigation</h4><p>CT scan reveals fracture/dislocation at T5–8.</p></div></div>
+    <div class="algo-step"><div class="step-num">4</div><div class="step-content"><h4>Consequence</h4><p>Intact reflex arc pathway (Receptor→Afferent→Interneuron→Efferent→Effector) within the cord is destroyed → no reflex possible.</p></div></div>
+  </div>
+
+  <div class="section-title">🔬 Spinal Reflex Classification by Effector</div>
+  <div class="app-grid">
+    <div class="card cyan-accent">
+      <h3 style="color:var(--cyan)">🦴 Somatic Spinal Reflexes</h3>
+      <ul>
+        <li>Stretch reflex (monosynaptic)</li>
+        <li>Flexion withdrawal reflex</li>
+        <li>Crossed extensor reflex</li>
+        <li>Scratch reflex</li>
+        <li>Plantar reflex</li>
+      </ul>
+      <p style="margin-top:10px"><strong>Efferent:</strong> α & ɣ motor neurons → skeletal muscle</p>
+    </div>
+    <div class="card violet-accent">
+      <h3 style="color:var(--violet)">🫀 Autonomic Spinal Reflexes</h3>
+      <ul>
+        <li>Micturition reflex</li>
+        <li>Defecation reflex</li>
+        <li>Erection reflex</li>
+        <li>Reflex vasoconstriction of blood vessels</li>
+      </ul>
+      <p style="margin-top:10px"><strong>Efferent:</strong> Autonomic (sympathetic/parasympathetic) → smooth muscle/glands</p>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:28px">💡 Physiological Examples per Circuit</div>
+  <div class="app-grid">
+    <div class="card">
+      <div style="font-size:22px; margin-bottom:8px">🌊 Divergence → Irradiation</div>
+      <p>A pinprick to the foot → simultaneous contraction of thigh, leg, and hip flexors (multi-segmental withdrawal). Signal spreads through multiple spinal levels via interneuronal divergence.</p>
+    </div>
+    <div class="card">
+      <div style="font-size:22px; margin-bottom:8px">🔁 Reverberating → RAS</div>
+      <p>One waking stimulus in the morning activates the Reticular Activating System, which sustains wakefulness for 16–18 hours via closed-chain reverberating circuits in the brainstem.</p>
+    </div>
+    <div class="card">
+      <div style="font-size:22px; margin-bottom:8px">🫁 Reverberating → Breathing</div>
+      <p>The medullary respiratory center maintains rhythmic breathing for life using reverberating circuits. These stop only by severe synaptic fatigue or inhibition.</p>
+    </div>
+    <div class="card">
+      <div style="font-size:22px; margin-bottom:8px">🎯 Lateral Inhibition → Touch Localization</div>
+      <p>When you touch a point on the skin, lateral inhibitory circuits suppress surrounding neurons → sharpens the perceived location of the stimulus.</p>
+    </div>
+    <div class="card">
+      <div style="font-size:22px; margin-bottom:8px">🍕 Conditioned → Salivation</div>
+      <p>Seeing/smelling food → salivation response via cortical conditioned reflex pathways (requires intact cerebral cortex and previous experience of the food).</p>
+    </div>
+    <div class="card">
+      <div style="font-size:22px; margin-bottom:8px">⚡ Stretch Reflex → Knee Jerk</div>
+      <p>Only monosynaptic reflex: muscle stretch → 1a afferent → directly synapses on α-motor neuron → muscle contraction. No interneuron involved.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MNEMONICS ===== -->
+<div id="tab-mnemonics" class="tab-content">
+  <div class="section-title">🧩 Custom Mnemonics</div>
+  <p style="margin-bottom:20px; font-size:13px; color:var(--text-muted)">5 custom-crafted memory aids from your lecture content.</p>
+  <div class="mn-grid" id="mnGrid"></div>
+</div>
+
+</main>
+
+<script>
+// ============ DATA ============
+
+const quizData = [
+  { q:"Which of the following best describes the phenomenon of divergence in the spinal cord?",
+    opts:["Multiple interneurons projecting to a single efferent neuron","A single interneuron dividing into multiple collaterals to reach many efferent neurons","Prolonged discharge after stimulus cessation","Recurrent inhibition of the original motor neuron","Inhibition of adjacent sensory neurons"],
+    ans:1, exp:"Divergence occurs when ONE interneuron divides (via collaterals) to reach MANY efferent neurons, causing irradiation. Option A is convergence. C is after-discharge. D is recurrent inhibition. E is lateral inhibition." },
+  { q:"What is the functional significance of convergence in the spinal cord?",
+    opts:["Irradiation","Lateral inhibition","Spatial summation","Negative feedback control","Monosynaptic transmission"],
+    ans:2, exp:"Convergence = multiple collaterals → fewer efferent neurons → signals ADD together = spatial summation. Irradiation results from divergence." },
+  { q:"In a parallel (open chain) circuit, how long is the impulse delayed at each synapse?",
+    opts:["0.1 ms","0.5 ms","1.0 ms","2.0 ms","5.0 ms"],
+    ans:1, exp:"Each synapse in an open-chain (parallel) circuit delays the impulse by exactly 0.5 ms, allowing successive volleys of impulses to reach the efferent neuron." },
+  { q:"Which reflex is an example of an AUTONOMIC spinal reflex?",
+    opts:["Flexion withdrawal reflex","Stretch reflex","Defecation reflex","Scratch reflex","Plantar reflex"],
+    ans:2, exp:"Defecation, micturition, and erection are mediated by AUTONOMIC efferent neurons. All other options are SOMATIC spinal reflexes." },
+  { q:"How do Renshaw cells exert their inhibitory effect?",
+    opts:["By releasing Acetylcholine","By releasing Glycine","By releasing Substance P","By releasing Glutamate","By absorbing calcium"],
+    ans:1, exp:"Renshaw cells release GLYCINE — an inhibitory neurotransmitter — to inhibit both the originally stimulated α-motor neuron AND neighboring α-motor neurons." },
+  { q:"What stops a reverberating (closed-chain) circuit from discharging indefinitely?",
+    opts:["Lateral inhibition","Spatial summation","Fatigue in the synapse or inhibition from other neurons","Activation of gamma-motor neurons","Loss of myelination"],
+    ans:2, exp:"Reverberating circuits continue until stopped by SYNAPTIC FATIGUE or INHIBITION FROM OTHER NEURONS — these are the two stated termination mechanisms." },
+  { q:"Which reflex arc does NOT contain an interneuron?",
+    opts:["Micturition reflex","Flexion withdrawal reflex","Scratch reflex","Stretch reflex","Light reflex"],
+    ans:3, exp:"⭐ EXAM FAVORITE: The STRETCH REFLEX is the ONLY monosynaptic reflex — afferent directly synapses on efferent. ALL other reflexes are polysynaptic and contain interneurons." },
+  { q:"Which of the following neurons innervate the INTRAFUSAL muscle fibers?",
+    opts:["α-motor neurons","ɣ-motor neurons","Afferent pseudo-unipolar neurons","Renshaw cells","Lateral inhibitory neurons"],
+    ans:1, exp:"ɣ (gamma) motor neurons are small-sized, constitute 30% of AHCs, and EXCLUSIVELY supply intrafusal fibers (muscle spindles). α neurons supply extrafusal fibers." },
+  { q:"Where are the cell bodies of the afferent neurons of spinal reflexes located?",
+    opts:["Anterior horn","Lateral horn","Dorsal Root Ganglia (DRG)","Thalamus","Cerebral cortex"],
+    ans:2, exp:"Afferent neurons are pseudo-unipolar neurons whose cell bodies are in the DORSAL ROOT GANGLION (DRG). Their peripheral branch goes to receptors; central branch enters via dorsal roots." },
+  { q:"Which system relies on reverberating circuits to maintain wakefulness for 16–18 hours?",
+    opts:["Respiratory center","Corticospinal tract","Reticular activating system (RAS)","Autonomic nervous system","Gastrointestinal tract"],
+    ans:2, exp:"The RAS uses reverberating circuits → 16–18 hours of wakefulness from a single stimulus. The respiratory center also uses reverberating circuits but maintains discharge for LIFE." },
+  { q:"The term 'motor neuron pool' refers to:",
+    opts:["One AHC and all muscle fibers it supplies","The number of AHCs supplying a certain muscle","The collection of ɣ-motor neurons only","All interneurons in the spinal cord","The group of DRG cells for a dermatome"],
+    ans:1, exp:"Motor Neuron Pool = TOTAL number of AHCs supplying a single entire muscle. A Motor UNIT is one AHC + all fibers it supplies (smaller concept)." },
+  { q:"Conditioned reflexes require which anatomical structure to be intact?",
+    opts:["Spinal cord only","Hypothalamus","Reticular activating system","Cerebral cortex","Brainstem only"],
+    ans:3, exp:"Conditioned reflexes are ACQUIRED and require an INTACT CEREBRAL CORTEX + previous experience. Unconditioned reflexes do NOT need the cortex." },
+  { q:"Lateral inhibitory circuits serve to:",
+    opts:["Increase the irradiation of reflexes","Facilitate after-discharge","Sharpen or focus sensory perception","Increase spatial summation","Activate ɣ-motor neurons"],
+    ans:2, exp:"Lateral inhibition → active neurons inhibit surrounding less-active neurons → SHARPENS the sensation → allows precise sensory localization." },
+  { q:"α-motor neurons constitute what percentage of anterior horn cells (AHCs)?",
+    opts:["30%","50%","60%","70%","90%"],
+    ans:3, exp:"α-motor neurons are LARGE and make up 70% of AHCs. ɣ-motor neurons are SMALL and make up the remaining 30%." },
+  { q:"Conditioned reflexes play a role in regulating which body systems?",
+    opts:["Only the musculoskeletal system","GIT, respiratory, and cardiovascular systems","Only the nervous system","Only the endocrine system","Exclusively the reproductive system"],
+    ans:1, exp:"Conditioned reflexes regulate GIT, respiratory, and CVS functions in response to learned stimuli (e.g., salivation at smell of food → prepares GIT)." },
+  { q:"Salivary reflexes are an example of an unconditioned reflex located in the:",
+    opts:["Hypothalamus","Midbrain","Pons","Medulla","Spinal Cord"],
+    ans:2, exp:"PONTINE reflexes include the salivary reflex. Memory aid: Hypothalamus=temperature, Midbrain=light, Pons=salivary, Medulla=CVS+respiratory." },
+  { q:"Which branch of the afferent neuron enters the spinal cord through the dorsal roots?",
+    opts:["Peripheral branch","Central branch","Efferent branch","Collateral branch","Gamma branch"],
+    ans:1, exp:"The CENTRAL branch of the pseudo-unipolar afferent neuron enters the spinal cord via dorsal roots. The PERIPHERAL branch terminates in sensory receptors in tissues." },
+  { q:"The light reflex has its integrating center in the:",
+    opts:["Spinal cord","Medulla","Pons","Midbrain","Hypothalamus"],
+    ans:3, exp:"MIDBRAIN reflexes include the light reflex. This is a high-yield unconditioned reflex classification fact." },
+  { q:"Which of the following is NOT an unconditioned SPINAL reflex?",
+    opts:["Scratch reflex","Reflex regulating body temperature","Flexion withdrawal reflex","Defecation reflex","Stretch reflex"],
+    ans:1, exp:"Temperature-regulating reflexes are HYPOTHALAMIC, not spinal. Scratch, flexion withdrawal, defecation, and stretch are all explicitly listed as spinal reflexes." },
+  { q:"Medially situated Anterior Horn Cells (AHCs) generally supply:",
+    opts:["Distal muscles","Axial muscles","Smooth muscles of blood vessels","Glands","Intrafusal muscle fibers only"],
+    ans:1, exp:"MEDIAL AHCs → axial/trunk muscles. LATERAL AHCs → distal muscles (fewer fibers per unit → finer control). This somatotopic organization is key." },
+  { q:"Motor units of DISTAL muscles differ from those of axial muscles because they:",
+    opts:["Contain a larger number of muscle fibers per unit","Contain fewer muscle fibers per unit","Lack alpha motor neurons","Do not use Renshaw cells","Are controlled entirely by the autonomic nervous system"],
+    ans:1, exp:"Distal motor units contain FEWER muscle fibers per unit → allows FINER motor control (e.g., fingertip movements). Axial muscles have more fibers per unit for gross movement." },
+  { q:"An example of prolonged efferent discharge continuing 'for life' via reverberating circuits is:",
+    opts:["The Reticular Activating System","The Micturition reflex","The Respiratory center","The Stretch reflex","The Light reflex"],
+    ans:2, exp:"The RESPIRATORY CENTER discharges for LIFE via reverberating circuits. The RAS is only 16–18 hours. Critical distinction between the two examples!" },
+  { q:"Which part of the reflex arc directly links the afferent to the efferent neuron in a polysynaptic reflex?",
+    opts:["Receptor","DRG","Interneuron","Effector organ","Muscle spindle"],
+    ans:2, exp:"INTERNEURONS are the linking neurons between afferent (sensory) and efferent (motor) neurons. They are absent ONLY in the stretch reflex (monosynaptic)." },
+  { q:"In the lecture example of salivating upon smelling food at home, which reflex is demonstrated?",
+    opts:["Somatic spinal reflex","Unconditioned midbrain reflex","Conditioned reflex","Monosynaptic stretch reflex","Local axon reflex"],
+    ans:2, exp:"Smelling/seeing food → salivating is a CONDITIONED reflex. It requires previous experience with the food AND an intact cerebral cortex to process the learned association." },
+  { q:"What type of neurons mediate reflex vasoconstriction of blood vessels?",
+    opts:["Somatic efferent neurons","Autonomic efferent neurons","ɣ-motor neurons","Interneurons","α-motor neurons"],
+    ans:1, exp:"Blood vessels are innervated by AUTONOMIC efferent neurons (sympathetic). Somatic efferents (α & ɣ) supply skeletal muscle only." }
+];
+
+const flashcards = [
+  { q:"Define a reflex action.", a:"An involuntary, programmed response to a stimulus. It does not require conscious thought." },
+  { q:"What are the 5 components of a spinal reflex arc?", a:"1) Receptor, 2) Afferent neuron, 3) Interneuron, 4) Efferent neuron, 5) Effector organ." },
+  { q:"What is the ONLY monosynaptic reflex in the body?", a:"The STRETCH REFLEX. All other reflexes are polysynaptic (contain interneurons). ⭐ EXAM CLASSIC" },
+  { q:"Where are the cell bodies of afferent (sensory) neurons?", a:"In the Dorsal Root Ganglia (DRG). They are pseudo-unipolar neurons with a peripheral branch (→ receptors) and a central branch (→ spinal cord via dorsal roots)." },
+  { q:"What neurotransmitter do Renshaw cells release?", a:"GLYCINE — an inhibitory neurotransmitter. Used for recurrent inhibition (negative feedback) of α-motor neurons." },
+  { q:"Divergence leads to which functional phenomenon?", a:"IRRADIATION — spreading of a reflex response across multiple spinal segments. E.g., pinprick to foot → whole-limb withdrawal." },
+  { q:"Convergence leads to which functional phenomenon?", a:"SPATIAL SUMMATION — multiple signals from different sources sum together on fewer efferent neurons to produce a response." },
+  { q:"What are the two types of after-discharge circuits?", a:"1) Open-chain (parallel): multiple interneuron routes, 0.5 ms delay per synapse.\n2) Closed-chain (reverberating): interneuron loops back to re-stimulate itself." },
+  { q:"What stops a reverberating circuit?", a:"Synaptic fatigue OR inhibition from other neurons. Without these, the circuit would continue indefinitely." },
+  { q:"α-motor neurons: size, % of AHCs, target?", a:"LARGE neurons. 70% of AHCs. Supply EXTRAFUSAL skeletal muscle fibers. Mediate somatic reflexes including stretch reflex." },
+  { q:"ɣ-motor neurons: size, % of AHCs, target?", a:"SMALL neurons. 30% of AHCs. Supply INTRAFUSAL muscle fibers (muscle spindles). Co-activated with α neurons." },
+  { q:"Distinguish motor unit from motor neuron pool.", a:"Motor UNIT: 1 AHC + all its terminals + all muscle fibers it supplies.\nMotor POOL: Total number of AHCs supplying an entire muscle." },
+  { q:"Which reflex center is in the hypothalamus?", a:"Temperature regulation reflex and food intake regulation." },
+  { q:"Lateral inhibition: mechanism and function?", a:"Active neurons send collaterals to inhibit surrounding LESS active neurons. Result: sharpens and focuses sensory perception." },
+  { q:"What does 'conditioned reflex' require that unconditioned does NOT?", a:"1) Intact cerebral cortex, 2) Previous experience/training. Unconditioned reflexes are innate and do not need the cortex." },
+  { q:"What are examples of unconditioned brain stem reflexes?", a:"Midbrain: light reflex. Pons: salivary reflex. Medulla: cardiovascular and respiratory reflexes." },
+  { q:"What is the significance of lateral AHCs vs. medial AHCs?", a:"LATERAL AHCs → distal muscles (fewer fibers/unit, fine control). MEDIAL AHCs → axial muscles (more fibers/unit, gross control)." },
+  { q:"Name 2 autonomic spinal reflexes.", a:"Micturition (urination) reflex, Defecation reflex. Also: erection reflex, reflex vasoconstriction." },
+  { q:"RAS uses which circuit type? For how long?", a:"Reverberating (closed-chain) circuits. Maintains wakefulness for 16–18 HOURS after a single activating stimulus." },
+  { q:"What happens if Renshaw cells are lost?", a:"Loss of recurrent inhibition → excessive, uncontrolled firing of α-motor neurons without self-limitation." },
+  { q:"Conditioned reflexes regulate which organ systems?", a:"GIT (e.g., gastric secretion), Respiratory system, and Cardiovascular system — all in response to learned/environmental stimuli." },
+  { q:"What is irradiation and which circuit causes it?", a:"Irradiation = reflex spreads to multiple spinal segments. Caused by DIVERGENCE (one interneuron → many efferents)." }
+];
+
+const cases = [
+  { num:"01", title:"The Persistent Discharge", scenario:"A reflex response continues for a prolonged period even after the initial sensory stimulus has been completely removed. The patient's muscle group keeps contracting rhythmically.",
+    qs:["What mechanism is responsible for the continued response after stimulus removal?","What circuits are involved — and what would normally terminate them?","Give a physiological example of this phenomenon."],
+    ans:`<h4>✅ Mechanism: After-Discharge via Reverberating Circuit</h4>
+<p><strong>Step 1:</strong> After the stimulus is removed, the interneuron continues to fire because its collateral branches loop back (closed chain) to re-stimulate the principal interneuron.</p>
+<p><strong>Step 2:</strong> This creates a reverberating (closed-chain) circuit — the key mechanism for prolonged efferent discharge after stimulus cessation.</p>
+<p><strong>Termination:</strong> Stopped by synaptic fatigue OR inhibition from other neurons.</p>
+<p><strong>Physiological examples:</strong> The Reticular Activating System (RAS) maintains wakefulness for 16–18 hours; the respiratory center uses this to breathe for life.</p>` },
+  { num:"02", title:"The Whole-Limb Withdrawal", scenario:"A patient receives a localized pinprick to the foot. Instead of a single muscle twitch, the entire lower limb (hip, knee, and ankle flexors) simultaneously withdraws from the stimulus.",
+    qs:["What neurological mechanism explains this multi-segmental response?","Which component of the reflex arc makes this possible?","What would happen if this circuit were disrupted?"],
+    ans:`<h4>✅ Mechanism: Divergence → Irradiation</h4>
+<p><strong>Circuit:</strong> Divergence — a single interneuron divides into multiple collaterals that reach efferent neurons across several spinal segments simultaneously.</p>
+<p><strong>Anatomy:</strong> Afferent central terminals diverge in the gray matter, and interneurons fan out to activate efferents at multiple levels (multi-segmental).</p>
+<p><strong>If disrupted:</strong> The reflex would be strictly localized to a single muscle, failing to achieve protective whole-limb withdrawal — potentially leading to inadequate escape from harmful stimuli.</p>` },
+  { num:"03", title:"The Runaway Motor Neuron", scenario:"Following an experimental lesion, motor neurons begin firing excessively and without self-limitation after an initial stimulus. The firing pattern is chaotic and does not stop even after the stimulus ends.",
+    qs:["Which inhibitory mechanism has been lost?","What molecule is no longer being released?","Which interneuron is responsible for this circuit?"],
+    ans:`<h4>✅ Mechanism: Loss of Recurrent Inhibition (Renshaw Cell Circuit)</h4>
+<p><strong>Lost mechanism:</strong> Recurrent inhibition (negative feedback control of α-motor neurons).</p>
+<p><strong>Missing molecule:</strong> GLYCINE — released by Renshaw cells to inhibit the firing α-motor neuron.</p>
+<p><strong>Circuit:</strong> α-motor neuron → fires axon → gives OFF collateral branch → activates Renshaw cell → Renshaw releases Glycine → inhibits ORIGINAL α-MN AND neighboring α-MNs.</p>
+<p><strong>Consequence without Renshaw cells:</strong> Uncontrolled, continuous α-motor discharge → could manifest as spasticity or tetanic contraction.</p>` },
+  { num:"04", title:"The Diffuse Touch", scenario:"After a hypothetical experimental manipulation, a patient can no longer precisely localize tactile stimuli on the skin. Touch on one point is perceived as spread over a wide area.",
+    qs:["What inhibitory mechanism has been abolished?","What is the normal function of this mechanism?","Which neurons are involved?"],
+    ans:`<h4>✅ Mechanism: Failure of Lateral Inhibitory Circuits</h4>
+<p><strong>Lost function:</strong> Lateral inhibition — active neurons normally send collaterals to inhibit LESS active surrounding neurons, sharpening the perceived location.</p>
+<p><strong>Without it:</strong> All surrounding neurons remain active → sensation is diffuse and poorly localized → cannot distinguish where exactly the touch occurred.</p>
+<p><strong>Neurons involved:</strong> Inhibitory interneurons stimulated by collaterals of the most actively firing neurons. They suppress neighbors → "contrast enhancement" of sensory input.</p>` },
+  { num:"05", title:"The Spindle-Blind Muscle", scenario:"A patient is diagnosed with a selective lesion that destroys the small anterior horn cells while sparing the large ones. Neurological examination reveals preserved gross motor strength but abnormal stretch reflex findings.",
+    qs:["Which specific neuron type is destroyed?","What functional consequence does this have on the stretch reflex?","Why are the large anterior horn cells spared?"],
+    ans:`<h4>✅ Diagnosis: Selective ɣ-Motor Neuron Lesion</h4>
+<p><strong>Destroyed:</strong> ɣ-motor neurons (small, 30% of AHCs) — which supply INTRAFUSAL fibers of muscle spindles.</p>
+<p><strong>Spared:</strong> α-motor neurons (large, 70% of AHCs) — which supply extrafusal fibers → gross muscle strength preserved.</p>
+<p><strong>Consequence on stretch reflex:</strong> Without ɣ innervation, muscle spindles cannot maintain their tension. Spindles become slack and unable to detect stretch properly → impaired/absent stretch reflex despite intact α-motor system.</p>` },
+  { num:"06", title:"The T5–8 Accident", scenario:"A 24-year-old male is brought to A&E after a high-speed collision. On examination: complete loss of motor activity below the waist and TOTAL loss of all spinal reflexes below the injury level. CT reveals fracture-dislocation at T5–T8.",
+    qs:["Explain step-by-step why ALL spinal reflexes are absent below the injury.","What happens to the reflex arc components?","What broader principle of reflex physiology does this illustrate?"],
+    ans:`<h4>✅ Complete Spinal Cord Transaction at T5–T8</h4>
+<p><strong>Step 1:</strong> Fracture-dislocation severs ALL ascending and descending spinal cord tracts.</p>
+<p><strong>Step 2:</strong> Local spinal reflex arcs in the thoracic-lumbar region are structurally destroyed.</p>
+<p><strong>Step 3:</strong> Higher center modulation is lost (no descending facilitation from brainstem/cortex).</p>
+<p><strong>Step 4:</strong> Local trauma causes immediate suppression of remaining intact segments (spinal shock).</p>
+<p><strong>Reflex arc failure:</strong> The pathway Receptor→Afferent→Interneuron→Efferent→Effector requires an INTACT spinal cord bridge. Structural destruction = no reflex possible.</p>
+<p><strong>Principle:</strong> Both the neural pathway AND the physical continuity of the spinal cord are necessary for reflex function below the injury level.</p>` }
+];
+
+const pathItems = [
+  { icon:"🌿", name:"Divergence", short:"One → Many efferents", detail:`<h3>🌿 Divergence</h3><p><strong>Mechanism:</strong> A single interneuron divides into multiple collateral branches that each synapse on a DIFFERENT efferent neuron.</p><p><strong>Consequence (Irradiation):</strong> One sensory input produces responses across multiple spinal segments simultaneously.</p><p><strong>Classic example:</strong> A pinprick to the toe activates hip flexors, knee flexors, AND ankle dorsiflexors — an entire limb withdrawal — through multi-segmental divergence.</p><p style="margin-top:10px"><strong>Also from afferent neurons:</strong> Afferent central terminals themselves diverge into wider areas of the spinal cord, making reflexes inherently multi-segmental.</p>` },
+  { icon:"🎯", name:"Convergence", short:"Many → Fewer efferents", detail:`<h3>🎯 Convergence</h3><p><strong>Mechanism:</strong> Multiple collateral branches from DIFFERENT interneurons converge onto a smaller number of efferent neurons.</p><p><strong>Consequence (Spatial Summation):</strong> Sub-threshold inputs from multiple sources add together at the efferent neuron to produce a threshold-level response.</p><p><strong>Significance:</strong> Allows the CNS to integrate information from multiple sensory modalities and produce a stronger, unified motor output.</p>` },
+  { icon:"🔄", name:"After-Discharge", short:"Response outlasts stimulus", detail:`<h3>🔄 After-Discharge Circuits</h3><p><strong>Definition:</strong> Prolonged efferent discharge that continues AFTER the afferent stimulus has completely stopped.</p><p><strong>Two types:</strong></p><p>① <strong>Open-chain (Parallel):</strong> Afferent → efferent directly AND via 1 or more interneurons. Each synapse adds 0.5 ms delay → successive volleys reach the efferent.</p><p>② <strong>Closed-chain (Reverberating):</strong> Interneuron gives off a collateral that loops BACK to re-stimulate the original interneuron → self-sustaining discharge.</p><p><strong>Termination:</strong> Synaptic fatigue OR inhibition from other neurons.</p><p><strong>Examples:</strong> RAS (16–18h wakefulness) and Respiratory center (lifetime) use closed-chain reverberating circuits.</p>` },
+  { icon:"🚧", name:"Inhibitory Circuits", short:"Controls & focuses output", detail:`<h3>🚧 Inhibitory Circuits</h3><p><strong>Two main types:</strong></p><p>① <strong>Lateral Inhibition:</strong> Active neurons send collaterals to inhibit surrounding LESS active neurons → sharpens sensory perception → allows precise localization of touch, pain, etc.</p><p>② <strong>Recurrent Inhibition (Renshaw Cells):</strong> α-motor neuron fires → axon collateral → activates Renshaw cell → Renshaw releases GLYCINE → inhibits the ORIGINAL α-MN (negative feedback) AND neighboring α-MNs (focusing).</p><p><strong>Key neurotransmitter:</strong> Glycine (inhibitory). Strychnine (antagonist of glycine) → uncontrolled motor firing (tetany).</p>` },
+  { icon:"🔌", name:"Stretch Reflex (Monosynaptic)", short:"Only monosynaptic reflex", detail:`<h3>🔌 Stretch Reflex — The Only Monosynaptic Reflex</h3><p><strong>Arc:</strong> Muscle stretch → 1a afferent neuron → DIRECTLY synapses on α-motor neuron → muscle contraction (no interneuron!).</p><p><strong>Why important:</strong> All other reflex arcs include at least one interneuron (polysynaptic). The stretch reflex is the SOLE exception.</p><p><strong>Clinical use:</strong> Testing deep tendon reflexes (knee jerk, ankle jerk) assesses the integrity of both afferent and efferent limbs of this monosynaptic arc, as well as the spinal cord segment.</p><p><strong>⭐ EXAM:</strong> "All reflexes are polysynaptic EXCEPT the stretch reflex."</p>` },
+  { icon:"🧠", name:"α vs ɣ Motor Neurons", short:"Extrafusal vs Intrafusal", detail:`<h3>🧠 α vs ɣ Motor Neurons</h3><p><strong>α-Motor Neurons:</strong> Large; 70% of AHCs; supply EXTRAFUSAL muscle fibers; mediate all somatic reflexes including the stretch reflex; axons conduct rapidly.</p><p><strong>ɣ-Motor Neurons:</strong> Small; 30% of AHCs; supply INTRAFUSAL fibers (muscle spindles); adjust spindle sensitivity; co-activated with α neurons during voluntary movement to maintain spindle sensitivity even as the muscle shortens.</p><p><strong>Clinical significance:</strong> Selective γ lesion → spindles become slack → reduced stretch reflex sensitivity. Selective α lesion → weakness + absent reflexes (lower motor neuron signs).</p>` }
+];
+
+const mnemonics = [
+  { acronym:"RAIFE", meaning:"The 5 Components of a Spinal Reflex Arc",
+    color:"var(--cyan)",
+    items:[
+      { l:"R", t:"Receptor", d:"Detects the stimulus (e.g., nociceptors in skin, muscle spindle)" },
+      { l:"A", t:"Afferent Neuron", d:"Pseudo-unipolar, cell body in DRG, conducts signal to spinal cord" },
+      { l:"I", t:"Interneuron", d:"Links afferent → efferent (ABSENT in stretch reflex!)" },
+      { l:"F", t:"(E)fferent Neuron", d:"AHC or LHC — carries command to the periphery" },
+      { l:"E", t:"Effector organ", d:"Muscle (contracts) or gland (secretes)" }
+    ]
+  },
+  { acronym:"DISC", meaning:"4 Interneuronal Circuit Types",
+    color:"var(--amber)",
+    items:[
+      { l:"D", t:"Divergence", d:"One interneuron → many efferents = IRRADIATION (e.g., limb withdrawal)" },
+      { l:"I", t:"Inhibitory circuits", d:"Lateral inhibition (sharpens sense) + Renshaw (recurrent inhibition with Glycine)" },
+      { l:"S", t:"Spatial Summation", d:"Via CONVERGENCE — many → few = signals summate" },
+      { l:"C", t:"Closed-chain After-discharge", d:"Reverberating circuits → sustained activity (RAS: 16–18h; breathing: lifetime)" }
+    ]
+  },
+  { acronym:"CUP", meaning:"Conditioned vs Unconditioned Reflexes",
+    color:"var(--violet)",
+    items:[
+      { l:"C", t:"Cortex needed for Conditioned", d:"Conditioned reflexes require an INTACT cerebral cortex + prior experience" },
+      { l:"U", t:"Unconditioned = Unlearned (innate)", d:"Hardwired in hypothalamus, brainstem, spinal cord — no training needed" },
+      { l:"P", t:"Previous experience (Conditioned only)", d:"Pavlovian learning — salivating at sight/smell of food is a classic example" }
+    ]
+  },
+  { acronym:"BIG α / small ɣ", meaning:"Motor Neuron Quick Reference",
+    color:"var(--emerald)",
+    items:[
+      { l:"B", t:"Big = α (Alpha)", d:"Large neurons, 70% of AHCs → Extrafusal fibers → Big contractions" },
+      { l:"I", t:"Intrafusal = ɣ (Gamma)", d:"Small neurons, 30% of AHCs → Intrafusal (spindle) fibers → tune sensitivity" },
+      { l:"G", t:"Glycine from Renshaw", d:"Renshaw cells release Glycine to inhibit α-MNs (negative feedback loop)" }
+    ]
+  },
+  { acronym:"RAS-16 RESP-∞", meaning:"Examples of Reverberating Circuits",
+    color:"var(--rose)",
+    items:[
+      { l:"R", t:"RAS = 16–18 hours", d:"Reticular Activating System → wakefulness via reverberating circuits for 16–18h" },
+      { l:"A", t:"After-discharge type", d:"Closed-chain (reverberating) circuit — interneuron loops back to re-fire itself" },
+      { l:"S", t:"Stopped by...", d:"Synaptic fatigue OR inhibition from other neurons" },
+      { l:"∞", t:"Respiratory Center = Lifetime", d:"The respiratory center uses reverberating circuits to fire CONTINUOUSLY for life — a critical distinction from RAS!" }
+    ]
+  }
+];
+
+// ============ STATE ============
+let quizState = { score: 0, done: 0, streak: 0, answered: {} };
+let quizLoaded = false;
+
+function loadState() {
+  const s = localStorage.getItem('reflexQuizState');
+  if (s) quizState = JSON.parse(s);
+}
+function saveState() {
+  localStorage.setItem('reflexQuizState', JSON.stringify(quizState));
+  updateHeader();
+}
+function updateHeader() {
+  document.getElementById('headerScore').textContent = quizState.score + '/25';
+  document.getElementById('headerStreak').textContent = quizState.streak;
+  const pct = Math.round((quizState.done / 25) * 100);
+  document.getElementById('headerProgress').textContent = pct + '%';
+  document.getElementById('qScore').textContent = quizState.score;
+  document.getElementById('qStreak').textContent = quizState.streak;
+  document.getElementById('qDone').textContent = quizState.done + '/25';
+  document.getElementById('quizProgress').style.width = pct + '%';
+}
+
+// ============ TABS ============
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  localStorage.setItem('lastTab', id);
+  if (id === 'quiz' && !quizLoaded) { buildQuiz(); quizLoaded = true; }
+}
+
+// ============ BUILD QUIZ ============
+function buildQuiz() {
+  const c = document.getElementById('quizContainer');
+  c.innerHTML = '';
+  quizData.forEach((q, i) => {
+    const answered = quizState.answered[i];
+    const div = document.createElement('div');
+    div.className = 'quiz-card' + (answered ? ' answered' : '');
+    div.id = 'qcard-' + i;
+    div.innerHTML = `
+      <div class="quiz-q-num">Question ${i + 1} of 25</div>
+      <div class="quiz-q-text">${q.q}</div>
+      <div class="quiz-options" id="qopts-${i}">
+        ${q.opts.map((opt, j) => `
+          <button class="quiz-opt${answered !== undefined ? ' disabled' + (j === q.ans ? ' correct' : answered === j ? ' wrong' : '') : ''}"
+            onclick="selectOpt(${i}, ${j})" id="qopt-${i}-${j}">
+            <span class="opt-letter">${'ABCDE'[j]}</span>${opt}
+          </button>`).join('')}
+      </div>
+      <div class="explanation${answered !== undefined ? ' show' : ''}" id="qexp-${i}">
+        💡 <strong>${answered === q.ans ? '✅ Correct!' : '❌ The correct answer is ' + 'ABCDE'[q.ans] + '.'}</strong> ${q.exp}
+      </div>`;
+    c.appendChild(div);
+  });
+  updateHeader();
+}
+
+function selectOpt(qi, oi) {
+  if (quizState.answered[qi] !== undefined) return;
+  const q = quizData[qi];
+  quizState.answered[qi] = oi;
+  quizState.done++;
+  if (oi === q.ans) { quizState.score++; quizState.streak++; } else { quizState.streak = 0; }
+  saveState();
+
+  // Update UI
+  document.querySelectorAll(`#qopts-${qi} .quiz-opt`).forEach((btn, j) => {
+    btn.classList.add('disabled');
+    if (j === q.ans) btn.classList.add('correct');
+    else if (j === oi) btn.classList.add('wrong');
+  });
+  const exp = document.getElementById(`qexp-${qi}`);
+  exp.innerHTML = `💡 <strong>${oi === q.ans ? '✅ Correct!' : '❌ The correct answer is ' + 'ABCDE'[q.ans] + '.'}</strong> ${q.exp}`;
+  exp.classList.add('show');
+
+  if (quizState.done === 25) {
+    setTimeout(() => {
+      document.getElementById('modalScore').textContent = quizState.score + '/25';
+      const pct = Math.round(quizState.score / 25 * 100);
+      let msg = pct >= 90 ? '🏆 Outstanding! You\'ve mastered Reflex Action!' :
+                pct >= 70 ? '💪 Great job! Review the missed ones.' :
+                pct >= 50 ? '📖 Good effort! Keep studying and retry.' :
+                '🔄 Keep practising — you\'ve got this!';
+      document.getElementById('modalMsg').textContent = msg;
+      document.getElementById('scoreModal').classList.add('show');
+    }, 600);
+  }
+}
+
+function resetQuiz() {
+  quizState = { score: 0, done: 0, streak: 0, answered: {} };
+  saveState();
+  closeModal();
+  buildQuiz();
+}
+function closeModal() {
+  document.getElementById('scoreModal').classList.remove('show');
+}
+
+// ============ BUILD FLASHCARDS ============
+function buildFlashcards() {
+  const grid = document.getElementById('fcGrid');
+  flashcards.forEach((fc, i) => {
+    const card = document.createElement('div');
+    card.className = 'fc-card';
+    card.innerHTML = `
+      <div class="fc-inner">
+        <div class="fc-front">
+          <div class="fc-side-label">❓ Question</div>
+          <div class="fc-question">${fc.q}</div>
+          <div class="fc-flip-hint">👆 Tap to reveal</div>
+        </div>
+        <div class="fc-back">
+          <div class="fc-side-label">✅ Answer</div>
+          <div class="fc-answer">${fc.a}</div>
+        </div>
+      </div>`;
+    card.addEventListener('click', () => card.classList.toggle('flipped'));
+    grid.appendChild(card);
+  });
+}
+
+// ============ BUILD CASES ============
+function buildCases() {
+  const c = document.getElementById('casesContainer');
+  cases.forEach(ca => {
+    c.innerHTML += `
+      <div class="case-card">
+        <div class="case-header">
+          <div class="case-num">${ca.num}</div>
+          <div>
+            <div style="font-family:'Cinzel',serif; font-size:16px; font-weight:700">Case ${ca.num}: ${ca.title}</div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:2px">Applied Physiology Scenario</div>
+          </div>
+        </div>
+        <div class="case-body">
+          <div class="vignette-box">📋 ${ca.scenario}</div>
+          <div class="case-questions">
+            ${ca.qs.map((q, i) => `<div class="case-q"><p>${i + 1}. ${q}</p></div>`).join('')}
+          </div>
+          <button class="reveal-btn" onclick="revealCase('ca${ca.num}')">🔍 Reveal Detailed Answer</button>
+          <div class="case-answer" id="ca${ca.num}">${ca.ans}</div>
+        </div>
+      </div>`;
+  });
+}
+function revealCase(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('show');
+}
+
+// ============ BUILD PATHOPHYS ============
+function buildPath() {
+  const grid = document.getElementById('pathGrid');
+  pathItems.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'path-item';
+    div.innerHTML = `<div class="pi-icon">${item.icon}</div><h4>${item.name}</h4><p>${item.short}</p>`;
+    div.addEventListener('click', () => {
+      document.querySelectorAll('.path-item').forEach(p => p.classList.remove('selected'));
+      div.classList.add('selected');
+      const det = document.getElementById('pathDetail');
+      det.style.display = 'block';
+      det.innerHTML = item.detail;
+      det.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+    grid.appendChild(div);
+  });
+}
+
+// ============ BUILD MNEMONICS ============
+function buildMnemonics() {
+  const grid = document.getElementById('mnGrid');
+  mnemonics.forEach(mn => {
+    grid.innerHTML += `
+      <div class="mn-card">
+        <div class="mn-head">
+          <div class="mn-acronym">${mn.acronym}</div>
+          <div class="mn-meaning">${mn.meaning}</div>
+        </div>
+        <div class="mn-body">
+          ${mn.items.map(it => `
+            <div class="mn-item">
+              <div class="mn-letter">${it.l}</div>
+              <div class="mn-desc"><strong>${it.t}</strong> — ${it.d}</div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  });
+}
+
+// ============ SEARCH ============
+document.getElementById('searchBar').addEventListener('input', function() {
+  const term = this.value.trim().toLowerCase();
+  if (!term) {
+    document.querySelectorAll('.sign-card, .summary-card, .fc-card').forEach(el => {
+      el.style.display = '';
+      el.innerHTML = el.innerHTML.replace(/<mark class="highlight">(.*?)<\/mark>/gi, '$1');
+    });
+    return;
+  }
+  // Highlight in overview cards
+  document.querySelectorAll('.sign-card').forEach(card => {
+    const text = card.textContent.toLowerCase();
+    card.style.display = text.includes(term) ? '' : 'none';
+  });
+});
+
+// ============ INIT ============
+loadState();
+buildFlashcards();
+buildCases();
+buildPath();
+buildMnemonics();
+updateHeader();
+
+// Restore last tab
+const lastTab = localStorage.getItem('lastTab');
+if (lastTab && lastTab !== 'overview') {
+  const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick')?.includes(`'${lastTab}'`));
+  if (btn) showTab(lastTab, btn);
+}
+</script>
+</body>
+</html>

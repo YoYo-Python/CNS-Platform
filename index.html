@@ -1,0 +1,280 @@
+<html lang="en">
+    <!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 CNS Master Command Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #040612;
+            --surface: #0a0e24;
+            --surface-card: #12183a;
+            --border: rgba(99, 140, 255, 0.15);
+            --border-hover: rgba(56, 189, 248, 0.4);
+            --accent: #38bdf8;
+            --accent-purple: #a78bfa;
+            --accent-green: #34d399;
+            --accent-rose: #f43f5e;
+            --accent-gold: #fbbf24;
+            --text-primary: #f1f5f9;
+            --text-secondary: #64748b;
+            --text-muted: #475569;
+            --radius: 16px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 50px 24px 100px;
+            overflow-y: scroll;
+        }
+
+        /* ── BACKGROUND ORBS ── */
+        .bg-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+        .orb { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.12; animation: drift 25s ease-in-out infinite alternate; }
+        .orb-1 { width: 650px; height: 650px; background: var(--accent2); top: -150px; left: -100px; }
+        .orb-2 { width: 550px; height: 550px; background: var(--accent); bottom: -150px; right: -100px; animation-delay: -6s; }
+        @keyframes drift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(50px,40px) scale(1.08); } }
+
+        .container { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; }
+
+        /* ── HEADER ── */
+        header { text-align: center; margin-bottom: 50px; }
+        .hub-badge {
+            display: inline-block; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25);
+            color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 11px;
+            letter-spacing: 2px; padding: 6px 18px; border-radius: 100px; margin-bottom: 18px; text-transform: uppercase;
+        }
+        header h1 {
+            font-family: 'Syne', sans-serif; font-size: clamp(30px, 5vw, 48px); font-weight: 800; line-height: 1.15;
+            background: linear-gradient(135deg, #ffffff 20%, var(--accent) 60%, var(--accent-purple) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        header p { color: var(--text-secondary); margin-top: 12px; font-size: 16px; max-width: 600px; margin-left: auto; margin-right: auto; }
+
+        /* ── SYSTEM CONTROLS & STATS ── */
+        .control-bar { display: flex; flex-direction: column; align-items: center; gap: 24px; margin-bottom: 60px; }
+        .search-wrap { position: relative; width: 100%; max-width: 550px; }
+        .search-input {
+            width: 100%; padding: 16px 24px 16px 54px; background: var(--surface);
+            border: 1px solid var(--border); border-radius: 100px; color: var(--text-primary);
+            font-size: 15px; outline: none; transition: var(--transition);
+        }
+        .search-input:focus { border-color: var(--accent); box-shadow: 0 0 25px rgba(56, 189, 248, 0.2); }
+        .search-wrap::before { content: '🔍'; position: absolute; left: 22px; top: 50%; transform: translateY(-50%); font-size: 16px; opacity: 0.6; }
+
+        .stats-strip { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+        .stat-pill {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 100px;
+            padding: 8px 20px; font-size: 13px; display: flex; align-items: center; gap: 8px;
+        }
+        .stat-pill .num { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--accent); }
+        .stat-pill .lbl { color: var(--text-secondary); }
+
+        /* ── HUB DIRECTORY GRID ── */
+        .directory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        /* ── SUBJECT CARDS ── */
+        .subject-card {
+            background: var(--surface-card); border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 28px; transition: var(--transition); display: flex; flex-direction: column;
+            text-decoration: none; color: inherit; position: relative; overflow: hidden;
+        }
+        .subject-card:hover { transform: translateY(-5px); border-color: var(--border-hover); box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
+        
+        .card-header-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .subject-tag {
+            font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; text-transform: uppercase;
+            padding: 3px 10px; border-radius: 6px; letter-spacing: 0.5px;
+        }
+        
+        /* Contextual colorings */
+        .tag-anatomy { background: rgba(56, 189, 248, 0.08); color: var(--accent); }
+        .tag-physio { background: rgba(167, 139, 250, 0.08); color: var(--accent-purple); }
+        .tag-patho { background: rgba(244, 63, 94, 0.08); color: var(--accent-rose); }
+        .tag-histo { background: rgba(52, 211, 153, 0.08); color: var(--accent-green); }
+        .tag-pharma { background: rgba(251, 191, 36, 0.08); color: var(--accent-gold); }
+
+        .folder-path { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-secondary); }
+
+        .subject-title { font-family: 'Syne', sans-serif; font-size: 19px; font-weight: 700; line-height: 1.3; margin-bottom: 10px; color: #ffffff; }
+        .subject-desc { font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 28px; flex: 1; }
+        
+        .card-footer {
+            display: flex; justify-content: space-between; align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.04); padding-top: 16px; font-size: 12px;
+        }
+        .file-name { font-family: 'JetBrains Mono', monospace; color: var(--text-secondary); opacity: 0.8; }
+        .enter-hub { color: var(--accent); font-weight: 700; transition: var(--transition); }
+        .subject-card:hover .enter-hub { transform: translateX(4px); }
+
+        .no-results { grid-column: 1 / -1; text-align: center; padding: 60px; color: var(--text-secondary); font-size: 15px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="bg-canvas"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+
+    <div class="container">
+        <header>
+            <div class="hub-badge">Systemic Curriculum Engine</div>
+            <h1>CNS Master Hub</h1>
+            <p>Central gateway accessing all localized neuroanatomy, systemic physiology, and clinical pathology dashboards</p>
+        </header>
+
+        <div class="control-bar">
+            <div class="search-wrap">
+                <input type="text" class="search-input" id="globalSearch" placeholder="Filter subjects, files, directory paths or modules...">
+            </div>
+            <div class="stats-strip">
+                <div class="stat-pill"><span class="lbl">Total Subject Hubs:</span><span class="num">8 Databases</span></div>
+                <div class="stat-pill"><span class="lbl">Environment:</span><span class="num" style="color:var(--accent-green)">Sandbox Active</span></div>
+            </div>
+        </div>
+
+        <div class="directory-grid">
+            <a href="Anatomy/anatomy.html" class="subject-card">
+                <div class="card-header-meta">
+                    <span class="subject-tag tag-anatomy">Anatomy</span>
+                    <span class="folder-path">📁 /Anatomy</span>
+                </div>
+                <h3 class="subject-title">Neuroanatomy</h3>
+                <p class="subject-desc">18 comprehensive interactive tracking nodes exploring structural development, spinal tracts, cross-sectional brainstem layers, and cranial system enclaves.</p>
+                <div class="card-footer">
+                    <!-- <span class="file-name">📄 anatomy.html</span> -->
+                    <span class="enter-hub">Launch Space ↗</span>
+                </div>
+            </a>
+
+            <a href="Physiology/dashboard.html" class="subject-card">
+                <div class="card-header-meta">
+                    <span class="subject-tag tag-physio">Physiology</span>
+                    <span class="folder-path">📁 /Physiology</span>
+                </div>
+                <h3 class="subject-title">CNS Physiology and Special Sense</h3>
+                <p class="subject-desc">25 structural study modules diving into sensory transduction mechanics, stretch reflexes, analgesia command pathways, and central loop integrations.</p>
+                <div class="card-footer">
+                    <!-- <span class="file-name">📄 dashboard.html</span> -->
+                    <span class="enter-hub">Launch Space ↗</span>
+                </div>
+            </a>
+
+            <a href="Pathology/pathology.html" class="subject-card">
+                <div class="card-header-meta">
+                    <span class="subject-tag tag-patho">Pathology</span>
+                    <span class="folder-path">📁 /Pathology</span>
+                </div>
+                <h3 class="subject-title">CNS Pathology</h3>
+                <p class="subject-desc">Specialized tracking platforms targeting congenital neural tube anomalies, viral inclusions, intracranial cerebrovascular trauma, and neural neoplasia arrays.</p>
+                <div class="card-footer">
+                    <!-- <span class="file-name">📄 pathology.html</span> -->
+                    <span class="enter-hub">Launch Space ↗</span>
+                </div>
+            </a>
+
+            <a href="Histology/histology dashboard.html" class="subject-card">
+                <div class="card-header-meta">
+                    <span class="subject-tag tag-histo">Histology</span>
+                    <span class="folder-path">📁 /Histology</span>
+                </div>
+                <h3 class="subject-title">CNS Histology</h3>
+                <p class="subject-desc">Cellular staining grids profiling silver-stained neurofibril sheets, cerebellar layer architectures, inner ear structures, and 10-layer retinas.</p>
+                <div class="card-footer">
+                    <!-- <span class="file-name">📄 histology dashboard.html</span> -->
+                    <span class="enter-hub">Launch Space ↗</span>
+                </div>
+            </a>
+
+            <a href="Micro and Para/micro and para.html" class="subject-card">
+                <div class="card-header-meta">
+                    <span class="subject-tag tag-anatomy">Micro &amp; Para</span>
+                    <span class="folder-path">📁 /Micro and Para</span>
+                </div>
+                <h3 class="subject-title">Microbiology &amp; Parasitology</h3>
+                <p class="subject-desc">Strictly isolated, tabbed navigation decks tracing acute bacterial capsule virulence, aseptic viral transport streams, and parasitic meningoencephalitis vectors.</p>
+                <div class="card-footer">
+                    <!-- <span class="file-name">📄 micro and para.html</span> -->
+                    <span class="enter-hub">Launch Space ↗</span>
+                </div>
+            </a>
+
+            <a href="Pharma/dashboard.html" class="subject-card">
+                <div class="card-header-meta">
+                    <span class="subject-tag tag-pharma">Pharmacology</span>
+                    <span class="folder-path">📁 /Pharma</span>
+                </div>
+                <h3 class="subject-title">CNS Neuropharmacology</h3>
+                <p class="subject-desc">Tab-free master array tracking opioid receptor alignments, anticonvulsant voltage-gated metrics, anti-parkinsonism precursors, and psychopharmacological kinetics.</p>
+                <div class="card-footer">
+                    <!-- <span class="file-name">📄 dashboard.html</span> -->
+                    <span class="enter-hub">Launch Space ↗</span>
+                </div>
+            </a>
+
+            <a href="Behavior/behavior-dashboard.html" class="subject-card">
+                <div class="card-header-meta">
+                    <span class="subject-tag tag-physio">Behavior</span>
+                    <span class="folder-path">📁 /Behavior</span>
+                </div>
+                <h3 class="subject-title">Behavioral Sciences</h3>
+                <p class="subject-desc">Psychological drive metrics exploring homeostatic drive feedback models, HPA axis stress tracking systems, cognitive IQ models, and personality matrices.</p>
+                <div class="card-footer">
+                    <!-- <span class="file-name">📄 behavior-dashboard.html</span> -->
+                    <span class="enter-hub">Launch Space ↗</span>
+                </div>
+            </a>
+
+            <a href="Psychology/psychology-dashboard.html" class="subject-card">
+                <div class="card-header-meta">
+                    <span class="subject-tag tag-patho">Psychology</span>
+                    <span class="folder-path">📁 /Physio</span>
+                </div>
+                <h3 class="subject-title">Medical Psychology</h3>
+                <p class="subject-desc">Foundational dashboards mapping unconscious defense structures, Pavlovian schemas, lifespans developmental vulnerabilities, and diagnostic cognitive biases.</p>
+                <div class="card-footer">
+                    <!-- <span class="file-name">📄 psychology-dashboard.html</span> -->
+                    <span class="enter-hub">Launch Space ↗</span>
+                </div>
+            </a>
+
+            <div class="no-results" id="emptyFeedback">No subjects, files, or directory nodes match your current search query.</div>
+        </div>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('globalSearch');
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim().toLowerCase();
+            const cards = document.querySelectorAll('.subject-card');
+            const emptyNotice = document.getElementById('emptyFeedback');
+            let matchCounter = 0;
+
+            cards.forEach(card => {
+                const title = card.querySelector('.subject-title').textContent.toLowerCase();
+                const desc = card.querySelector('.subject-desc').textContent.toLowerCase();
+                const tag = card.querySelector('.subject-tag').textContent.toLowerCase();
+                const path = card.querySelector('.folder-path').textContent.toLowerCase();
+                const file = card.querySelector('.file-name').textContent.toLowerCase();
+
+                if (title.includes(query) || desc.includes(query) || tag.includes(query) || path.includes(query) || file.includes(query)) {
+                    card.style.display = 'flex';
+                    matchCounter++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            emptyNotice.style.display = matchCounter === 0 ? 'block' : 'none';
+        });
+    </script>
+</body>
+</html>

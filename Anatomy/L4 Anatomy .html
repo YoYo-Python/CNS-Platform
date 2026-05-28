@@ -1,0 +1,2188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diencephalon & Third Ventricle - Interactive Study Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 25px rgba(0,0,0,0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-animation span {
+            position: absolute;
+            display: block;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 25s infinite;
+            border-radius: 50%;
+        }
+
+        .bg-animation span:nth-child(1) { left: 25%; animation-delay: 0s; }
+        .bg-animation span:nth-child(2) { left: 10%; animation-delay: 2s; animation-duration: 12s; }
+        .bg-animation span:nth-child(3) { left: 70%; animation-delay: 4s; }
+        .bg-animation span:nth-child(4) { left: 40%; animation-delay: 0s; animation-duration: 18s; }
+        .bg-animation span:nth-child(5) { left: 65%; animation-delay: 0s; }
+        .bg-animation span:nth-child(6) { left: 75%; animation-delay: 3s; }
+        .bg-animation span:nth-child(7) { left: 35%; animation-delay: 7s; }
+        .bg-animation span:nth-child(8) { left: 50%; animation-delay: 15s; animation-duration: 45s; }
+        .bg-animation span:nth-child(9) { left: 20%; animation-delay: 2s; animation-duration: 35s; }
+        .bg-animation span:nth-child(10) { left: 85%; animation-delay: 0s; animation-duration: 11s; }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-lg);
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: var(--gradient-1);
+            border-radius: 12px;
+            color: white;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        /* Search Bar */
+        .search-container {
+            width: 100%;
+            max-width: 500px;
+            margin: 1rem 0;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: white;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: transparent;
+            color: var(--gray);
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .tab:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+
+        .tab.active {
+            background: var(--gradient-1);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .card-content {
+            color: var(--gray);
+            line-height: 1.8;
+        }
+
+        /* Grid Layouts */
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .grid-4 {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        /* Summary Cards */
+        .summary-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateX(5px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .summary-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .summary-card p {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        /* Tags */
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin: 0.25rem;
+        }
+
+        .tag-high-yield {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .tag-exam {
+            background: #fecaca;
+            color: #991b1b;
+        }
+
+        .tag-clinical {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        /* Quiz Styles */
+        .question-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .question-number {
+            display: inline-block;
+            background: var(--gradient-1);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+        }
+
+        .option {
+            background: var(--light);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .option:hover {
+            background: #e0e7ff;
+            border-color: var(--primary);
+        }
+
+        .option.selected {
+            background: #dbeafe;
+            border-color: var(--info);
+        }
+
+        .option.correct {
+            background: #d1fae5;
+            border-color: var(--success);
+            animation: pulse 0.5s ease;
+        }
+
+        .option.incorrect {
+            background: #fee2e2;
+            border-color: var(--danger);
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .option-letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            margin-right: 1rem;
+        }
+
+        .explanation {
+            background: #f0f9ff;
+            border-left: 4px solid var(--info);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .explanation.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .explanation-title {
+            font-weight: 700;
+            color: var(--info);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Flashcards */
+        .flashcard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .flashcard {
+            perspective: 1000px;
+            height: 250px;
+            cursor: pointer;
+        }
+
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .flashcard-front {
+            background: var(--gradient-1);
+            color: white;
+        }
+
+        .flashcard-back {
+            background: white;
+            color: var(--dark);
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-label {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .flashcard-content {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* Clinical Cases */
+        .case-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .case-header {
+            background: var(--gradient-2);
+            color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .case-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .case-presentation {
+            background: var(--light);
+            border-left: 4px solid var(--secondary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .case-question {
+            font-weight: 600;
+            color: var(--primary);
+            margin: 1rem 0;
+        }
+
+        .reveal-btn {
+            background: var(--gradient-1);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .reveal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .case-answer {
+            background: #ecfdf5;
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .case-answer.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            height: 10px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--gradient-4);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--light);
+            color: var(--dark);
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        /* Tables */
+        .comparison-table {
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 2rem;
+        }
+
+        .comparison-table th {
+            background: var(--gradient-1);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--light);
+        }
+
+        .comparison-table tr:hover {
+            background: var(--light);
+        }
+
+        /* Flowchart */
+        .flowchart {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 2rem;
+        }
+
+        .flow-step {
+            background: var(--light);
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .flow-step::after {
+            content: '↓';
+            position: absolute;
+            bottom: -1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .flow-step:last-child::after {
+            display: none;
+        }
+
+        .flow-step-title {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Mnemonics */
+        .mnemonic-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            border-top: 4px solid var(--warning);
+        }
+
+        .mnemonic-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--warning);
+            margin-bottom: 1rem;
+        }
+
+        .mnemonic-letters {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            letter-spacing: 0.5rem;
+        }
+
+        .mnemonic-list {
+            list-style: none;
+        }
+
+        .mnemonic-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--light);
+        }
+
+        .mnemonic-list li:last-child {
+            border-bottom: none;
+        }
+
+        .mnemonic-letter {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: var(--gradient-1);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: 700;
+            margin-right: 1rem;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 0.25rem;
+        }
+
+        .badge-primary { background: #dbeafe; color: #1e40af; }
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.3rem;
+            }
+
+            .stats-bar {
+                gap: 0.5rem;
+            }
+
+            .stat-item {
+                padding: 0.5rem;
+            }
+
+            .stat-value {
+                font-size: 1.2rem;
+            }
+
+            .tabs {
+                gap: 0.25rem;
+            }
+
+            .tab {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Tooltips */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 0.5rem;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Highlighted Text */
+        .highlight {
+            background: linear-gradient(120deg, #fef3c7 0%, #fef3c7 100%);
+            background-repeat: no-repeat;
+            background-size: 100% 40%;
+            background-position: 0 85%;
+            font-weight: 600;
+        }
+
+        /* Alert Boxes */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            border-left: 4px solid;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            border-color: #3b82f6;
+            color: #1e40af;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <h1>🧠 Diencephalon & Third Ventricle Study Platform</h1>
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-value" id="progress-stat">0%</div>
+                    <div class="stat-label">Progress</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="score-stat">0</div>
+                    <div class="stat-label">Score</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="streak-stat">0</div>
+                    <div class="stat-label">Streak 🔥</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Search Bar -->
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search all content...">
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('overview')">📋 Overview</button>
+            <button class="tab" onclick="showTab('quiz')">📝 Quiz Mode</button>
+            <button class="tab" onclick="showTab('flashcards')">🎴 Flashcards</button>
+            <button class="tab" onclick="showTab('cases')">🏥 Clinical Cases</button>
+            <button class="tab" onclick="showTab('anatomy')">🔬 Anatomy</button>
+            <button class="tab" onclick="showTab('diagnosis')">🩺 Diagnosis</button>
+            <button class="tab" onclick="showTab('treatment')">💊 Treatment</button>
+            <button class="tab" onclick="showTab('mnemonics')">🎯 Mnemonics</button>
+        </div>
+
+        <!-- OVERVIEW TAB -->
+        <div id="overview" class="tab-content active">
+            <div class="alert alert-info">
+                <strong>📚 Welcome to the ultimate study guide!</strong> This platform covers everything about the diencephalon and third ventricle. Use the tabs to navigate between different study modes.
+            </div>
+
+            <h2 style="color: white; margin-bottom: 1rem;">Quick Summary</h2>
+            <div class="grid grid-3">
+                <div class="summary-card">
+                    <h3>🧩 Diencephalon Components</h3>
+                    <p>Four main parts: Thalamus (4/5), Hypothalamus, Subthalamus, and Epithalamus</p>
+                    <span class="tag tag-high-yield">High Yield</span>
+                </div>
+                <div class="summary-card">
+                    <h3>🎯 Thalamus Function</h3>
+                    <p>Receives ALL sensations EXCEPT olfaction and relays them to sensory cortex</p>
+                    <span class="tag tag-exam">Exam Favorite</span>
+                </div>
+                <div class="summary-card">
+                    <h3>🌙 Pineal Gland</h3>
+                    <p>Secretes melatonin in complete darkness - regulates sleep-wake cycle</p>
+                    <span class="tag tag-clinical">Clinical Pearl</span>
+                </div>
+                <div class="summary-card">
+                    <h3>⚠️ Hemiballismus</h3>
+                    <p>Violent involuntary movements from subthalamic nucleus lesion</p>
+                    <span class="tag tag-exam">Exam Favorite</span>
+                </div>
+                <div class="summary-card">
+                    <h3>👁️ Parinaud's Syndrome</h3>
+                    <p>Pinealoma → Posterior commissure damage → Upward gaze paralysis</p>
+                    <span class="tag tag-high-yield">High Yield</span>
+                </div>
+                <div class="summary-card">
+                    <h3>💧 Hydrocephalus</h3>
+                    <p>Foramen of Monro → Lateral ventricle only; Aqueduct → Lateral + 3rd</p>
+                    <span class="tag tag-clinical">Clinical Pearl</span>
+                </div>
+            </div>
+
+            <h2 style="color: white; margin: 2rem 0 1rem 0;">Visual Timeline: CSF Flow</h2>
+            <div class="flowchart">
+                <div class="flow-step">
+                    <div class="flow-step-title">1️⃣ Lateral Ventricles</div>
+                    <p>CSF produced by choroid plexus in lateral ventricles</p>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-step-title">2️⃣ Interventricular Foramen (Monro)</div>
+                    <p>CSF flows through foramen of Monro into third ventricle</p>
+                    <span class="badge badge-danger">Obstruction → Isolated lateral ventricle hydrocephalus</span>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-step-title">3️⃣ Third Ventricle</div>
+                    <p>Narrow cavity between two thalami - contains choroid plexus</p>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-step-title">4️⃣ Cerebral Aqueduct (Sylvius)</div>
+                    <p>CSF flows through aqueduct of midbrain</p>
+                    <span class="badge badge-danger">Obstruction → Lateral + 3rd ventricle hydrocephalus</span>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-step-title">5️⃣ Fourth Ventricle</div>
+                    <p>CSF reaches fourth ventricle and exits to subarachnoid space</p>
+                </div>
+            </div>
+
+            <h2 style="color: white; margin: 2rem 0 1rem 0;">Key Clinical Signs Grid</h2>
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="card-title">🎪 Hemiballismus</div>
+                    <div class="card-content">
+                        <p><strong>Lesion:</strong> Subthalamic nucleus</p>
+                        <p><strong>Mechanism:</strong> Loss of extrapyramidal motor control</p>
+                        <p><strong>Presentation:</strong> Sudden violent involuntary limb movements (one side)</p>
+                        <span class="tag tag-exam">Exam Favorite</span>
+                        <span class="tag tag-high-yield">High Yield</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">👁️ Parinaud's Syndrome</div>
+                    <div class="card-content">
+                        <p><strong>Lesion:</strong> Posterior commissure (from pinealoma)</p>
+                        <p><strong>Mechanism:</strong> Disrupted oculomotor/pretectal connections</p>
+                        <p><strong>Presentation:</strong> Paralysis of upward gaze + abnormal bilateral light reflex</p>
+                        <span class="tag tag-exam">Exam Favorite</span>
+                        <span class="tag tag-clinical">Clinical Pearl</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">💧 Hydrocephalus Patterns</div>
+                    <div class="card-content">
+                        <p><strong>Monro obstruction:</strong> Lateral ventricle ONLY enlarges</p>
+                        <p><strong>Aqueduct obstruction:</strong> Lateral + 3rd ventricle enlarge</p>
+                        <p><strong>Cause:</strong> Aneurysm, tumor, congenital stenosis</p>
+                        <span class="tag tag-high-yield">High Yield</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">😴 Sleep Disorders</div>
+                    <div class="card-content">
+                        <p><strong>Lesion:</strong> Pineal gland damage</p>
+                        <p><strong>Mechanism:</strong> Loss of melatonin secretion</p>
+                        <p><strong>Clinical tip:</strong> Room must be COMPLETELY dark for melatonin release</p>
+                        <span class="tag tag-clinical">Clinical Pearl</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- QUIZ MODE TAB -->
+        <div id="quiz" class="tab-content">
+            <div class="alert alert-warning">
+                <strong>⚡ Quiz Mode Activated!</strong> Answer all questions to track your progress. Immediate feedback provided!
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="quiz-progress" style="width: 0%"></div>
+            </div>
+
+            <div id="quiz-container"></div>
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <button class="btn btn-primary" onclick="resetQuiz()">🔄 Reset Quiz</button>
+            </div>
+        </div>
+
+        <!-- FLASHCARDS TAB -->
+        <div id="flashcards" class="tab-content">
+            <div class="alert alert-info">
+                <strong>🎴 Flashcard Mode!</strong> Click any card to flip it. Test your recall!
+            </div>
+
+            <div class="flashcard-grid" id="flashcard-container"></div>
+        </div>
+
+        <!-- CLINICAL CASES TAB -->
+        <div id="cases" class="tab-content">
+            <div class="alert alert-success">
+                <strong>🏥 Clinical Vignettes!</strong> Work through these exam-style cases step by step.
+            </div>
+
+            <div id="cases-container"></div>
+        </div>
+
+        <!-- ANATOMY TAB -->
+        <div id="anatomy" class="tab-content">
+            <h2 style="color: white; margin-bottom: 1rem;">Diencephalon Structure</h2>
+            
+            <div class="card">
+                <div class="card-title">📍 Boundaries of the Diencephalon</div>
+                <div class="grid grid-2">
+                    <div>
+                        <h4>Anterior:</h4>
+                        <p>• Lamina terminalis<br>• Anterior commissure</p>
+                    </div>
+                    <div>
+                        <h4>Posterior:</h4>
+                        <p>• Pineal gland<br>• Posterior commissure</p>
+                    </div>
+                    <div>
+                        <h4>Superior:</h4>
+                        <p>• Tela choroidea of 3rd ventricle<br>• Body of fornix<br>• Lateral ventricle</p>
+                    </div>
+                    <div>
+                        <h4>Inferior:</h4>
+                        <p>• Structures in interpeduncular fossa<br>• Hypothalamus</p>
+                    </div>
+                    <div>
+                        <h4>Lateral:</h4>
+                        <p>• Posterior limb of internal capsule</p>
+                    </div>
+                    <div>
+                        <h4>Medial:</h4>
+                        <p>• 3rd ventricle cavity</p>
+                    </div>
+                </div>
+            </div>
+
+            <h2 style="color: white; margin: 2rem 0 1rem 0;">Third Ventricle Anatomy</h2>
+            
+            <div class="comparison-table">
+                <table style="width: 100%">
+                    <thead>
+                        <tr>
+                            <th>Wall/Boundary</th>
+                            <th>Structures</th>
+                            <th>Clinical Significance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Anterior Wall</strong></td>
+                            <td>Lamina terminalis, Anterior commissure, Columns of fornix</td>
+                            <td>Contains optic recess at junction with optic chiasma</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Posterior Wall</strong></td>
+                            <td>Posterior commissure, Pineal body, Habenular nucleus</td>
+                            <td>Pinealoma damages posterior commissure → Parinaud's</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Lateral Wall</strong></td>
+                            <td>Thalamus (above), Hypothalamus (below), Hypothalamic sulcus</td>
+                            <td>Interthalamic adhesion crosses through 3rd ventricle</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Floor</strong></td>
+                            <td>Optic chiasma, Tuber cinereum, Mammillary bodies, Posterior perforated substance</td>
+                            <td>Forms interpeduncular fossa structures</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Roof</strong></td>
+                            <td>Ependyma + Tela choroidea (contains choroid plexuses & internal cerebral veins)</td>
+                            <td>CSF production site; veins unite to form great cerebral vein</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h2 style="color: white; margin: 2rem 0 1rem 0;">Epithalamus Components</h2>
+            
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="card-title">1️⃣ Posterior Commissure</div>
+                    <div class="card-content">
+                        <p><strong>Connects:</strong> Two superior colliculi, Pretectal nuclei, Edinger-Westphal nuclei, Oculomotor nuclei</p>
+                        <p><strong>Function:</strong> Bilateral light reflex + Upward gaze coordination</p>
+                        <span class="badge badge-danger">Lesion → Parinaud's syndrome</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">2️⃣ Pineal Gland</div>
+                    <div class="card-content">
+                        <p><strong>Cells:</strong> Pinealocytes</p>
+                        <p><strong>Secretes:</strong> Melatonin (in darkness)</p>
+                        <p><strong>Innervation:</strong> Sympathetic supply</p>
+                        <span class="badge badge-warning">Requires complete darkness!</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">3️⃣ Habenular Nucleus</div>
+                    <div class="card-content">
+                        <p><strong>Location:</strong> Above pineal gland</p>
+                        <p><strong>System:</strong> Part of limbic system</p>
+                        <p><strong>Connection:</strong> Receives stria medullaris thalami</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">4️⃣ Stria Medullaris Thalami</div>
+                    <div class="card-content">
+                        <p><strong>Origin:</strong> Septal area</p>
+                        <p><strong>Ends:</strong> Habenular nucleus</p>
+                        <p><strong>System:</strong> Limbic pathway</p>
+                    </div>
+                </div>
+            </div>
+
+            <h2 style="color: white; margin: 2rem 0 1rem 0;">Pathophysiology Flowchart</h2>
+            
+            <div class="flowchart">
+                <h3>Pinealoma Cascade</h3>
+                <div class="flow-step">
+                    <div class="flow-step-title">Step 1: Tumor Growth</div>
+                    <p>Pinealoma develops in pineal gland</p>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-step-title">Step 2: Compression</div>
+                    <p>Tumor compresses adjacent posterior commissure</p>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-step-title">Step 3: Neural Disruption</div>
+                    <p>Fibers connecting oculomotor nuclei interrupted</p>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-step-title">Step 4: Clinical Manifestation</div>
+                    <p>⚠️ Parinaud's Syndrome: Upward gaze paralysis + Bilateral light reflex loss</p>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-step-title">Step 5: Secondary Effects</div>
+                    <p>If tumor grows further → Aqueduct compression → Hydrocephalus</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- DIAGNOSIS TAB -->
+        <div id="diagnosis" class="tab-content">
+            <h2 style="color: white; margin-bottom: 1rem;">Diagnostic Approach</h2>
+
+            <div class="card">
+                <div class="card-title">🔍 Clinical Localization</div>
+                <div class="comparison-table">
+                    <table style="width: 100%">
+                        <thead>
+                            <tr>
+                                <th>Structure</th>
+                                <th>Key Clinical Signs</th>
+                                <th>Diagnostic Features</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Thalamus</strong></td>
+                                <td>Loss of all sensation EXCEPT smell</td>
+                                <td>Touch, vibration, temperature, pain affected on opposite side</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hypothalamus</strong></td>
+                                <td>Autonomic dysfunction, Endocrine abnormalities</td>
+                                <td>Connects to pituitary via infundibulum</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Subthalamic Nucleus</strong></td>
+                                <td>Hemiballismus</td>
+                                <td>Sudden violent involuntary movements (extrapyramidal)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Epithalamus (Pineal)</strong></td>
+                                <td>Parinaud's syndrome, Sleep disorder</td>
+                                <td>Upward gaze paralysis + abnormal pupils</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3rd Ventricle</strong></td>
+                                <td>Hydrocephalus pattern</td>
+                                <td>Location of obstruction determines which ventricles dilate</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <h2 style="color: white; margin: 2rem 0 1rem 0;">Investigation Findings</h2>
+            
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="card-title">🧲 MRI Findings</div>
+                    <div class="card-content">
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Pinealoma:</strong>
+                            <div>
+                                <span class="badge badge-primary">Mass in pineal region</span>
+                                <span class="badge badge-primary">Compressed posterior commissure</span>
+                                <span class="badge badge-danger">Dilated lateral + 3rd ventricles if aqueduct involved</span>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Hydrocephalus:</strong>
+                            <div>
+                                <span class="badge badge-warning">Foramen of Monro → Lateral only</span>
+                                <span class="badge badge-danger">Aqueduct → Lateral + 3rd</span>
+                            </div>
+                        </div>
+                        <div>
+                            <strong>Stroke/Infarct:</strong>
+                            <div>
+                                <span class="badge badge-danger">Thalamic lesion</span>
+                                <span class="badge badge-primary">Loss of sensory relay</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔬 Functional Tests</div>
+                    <div class="card-content">
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Sensory Testing:</strong>
+                            <p>• Touch, vibration, temperature on both sides<br>
+                            • Olfaction should be PRESERVED in thalamic lesions<br>
+                            • Pain sensation assessment</p>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Pupillary Reflex:</strong>
+                            <p>• Light in one eye → Both pupils constrict (bilateral)<br>
+                            • Posterior commissure lesion → Abnormal bilateral response<br>
+                            • Test with pretectal/Edinger-Westphal pathway</p>
+                        </div>
+                        <div>
+                            <strong>Eye Movement:</strong>
+                            <p>• Upward gaze testing<br>
+                            • Parinaud's → Cannot look up voluntarily<br>
+                            • Oculomotor nerve pathway assessment</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h2 style="color: white; margin: 2rem 0 1rem 0;">Diagnostic Algorithm</h2>
+            
+            <div class="flowchart">
+                <h3>Diencephalic Lesion Workup</h3>
+                <div class="flow-step">
+                    <div class="flow-step-title">Clinical Presentation</div>
+                    <p>Document: Motor symptoms, Sensory loss, Eye movements, Pupillary reflexes, Sleep patterns</p>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-step-title">Localization</div>
+                    <p>
+                        • Sensory loss (not smell) → <strong>Thalamus</strong><br>
+                        • Violent movements → <strong>Subthalamus</strong><br>
+                        • Upward gaze paralysis → <strong>Epithalamus/Posterior commissure</strong><br>
+                        • Enlarged head/ventricles → <strong>Ventricular obstruction</strong>
+                    </p>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-step-title">Imaging</div>
+                    <p>MRI brain with focus on diencephalon, ventricular system, pineal region</p>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-step-title">Specific Tests</div>
+                    <p>Endocrine panel (hypothalamus), Melatonin levels (pineal), CSF analysis if hydrocephalus</p>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-step-title">Treatment Decision</div>
+                    <p>Based on etiology: Tumor → Surgery/radiation; Vascular → Medical; Hydrocephalus → Shunt</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TREATMENT TAB -->
+        <div id="treatment" class="tab-content">
+            <h2 style="color: white; margin-bottom: 1rem;">Management Strategies</h2>
+
+            <div class="alert alert-warning">
+                <strong>⚠️ Note:</strong> Source materials focus on anatomy and pathophysiology. Treatment details are limited. Upload additional clinical management resources for comprehensive treatment protocols.
+            </div>
+
+            <div class="card">
+                <div class="card-title">🎯 Condition-Specific Management</div>
+                <div class="grid grid-2">
+                    <div>
+                        <h4 style="color: var(--danger);">🚨 Pinealoma</h4>
+                        <p><strong>Emergency:</strong> If causing acute hydrocephalus → Immediate neurosurgical consult</p>
+                        <p><strong>Definitive:</strong> Surgical resection or radiation therapy</p>
+                        <p><strong>Monitoring:</strong> Serial imaging for tumor growth and ventricular size</p>
+                        <span class="badge badge-danger">High Priority</span>
+                    </div>
+                    <div>
+                        <h4 style="color: var(--warning);">💧 Hydrocephalus</h4>
+                        <p><strong>Acute:</strong> Ventriculostomy if raised ICP</p>
+                        <p><strong>Chronic:</strong> Ventriculoperitoneal (VP) shunt placement</p>
+                        <p><strong>Monitoring:</strong> Head circumference (infants), neurological status</p>
+                        <span class="badge badge-warning">Urgent</span>
+                    </div>
+                    <div>
+                        <h4 style="color: var(--info);">🎪 Hemiballismus</h4>
+                        <p><strong>Symptomatic:</strong> Dopamine-depleting agents or antipsychotics</p>
+                        <p><strong>Severe:</strong> Deep brain stimulation may be considered</p>
+                        <p><strong>Supportive:</strong> Physical therapy, safety measures</p>
+                        <span class="badge badge-primary">Symptomatic</span>
+                    </div>
+                    <div>
+                        <h4 style="color: var(--success);">😴 Sleep Disorders (Pineal)</h4>
+                        <p><strong>Melatonin replacement:</strong> If pineal dysfunction confirmed</p>
+                        <p><strong>Sleep hygiene:</strong> Complete darkness during sleep</p>
+                        <p><strong>Timing:</strong> Evening administration to mimic natural cycle</p>
+                        <span class="badge badge-success">Supportive</span>
+                    </div>
+                </div>
+            </div>
+
+            <h2 style="color: white; margin: 2rem 0 1rem 0;">Symptomatic Management Grid</h2>
+
+            <div class="grid grid-3">
+                <div class="card">
+                    <div class="card-title">👁️ Parinaud's Syndrome</div>
+                    <div class="card-content">
+                        <p><strong>Primary:</strong> Treat underlying pinealoma</p>
+                        <p><strong>Vision:</strong> Prism glasses may help with diplopia</p>
+                        <p><strong>Safety:</strong> Avoid activities requiring upward gaze</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">🧠 Thalamic Stroke</div>
+                    <div class="card-content">
+                        <p><strong>Acute:</strong> Standard stroke protocol (within window)</p>
+                        <p><strong>Pain:</strong> Central pain syndrome management</p>
+                        <p><strong>Rehab:</strong> Sensory retraining therapy</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">🔄 Rehabilitation</div>
+                    <div class="card-content">
+                        <p><strong>PT/OT:</strong> For motor deficits</p>
+                        <p><strong>Sensory:</strong> Compensatory strategies</p>
+                        <p><strong>Cognitive:</strong> If thalamic involvement affects attention</p>
+                    </div>
+                </div>
+            </div>
+
+            <h2 style="color: white; margin: 2rem 0 1rem 0;">Emergency vs. Elective Interventions</h2>
+
+            <div class="comparison-table">
+                <table style="width: 100%">
+                    <thead>
+                        <tr>
+                            <th>Condition</th>
+                            <th>Emergency Intervention</th>
+                            <th>Elective/Planned Treatment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Acute Hydrocephalus</strong></td>
+                            <td>External ventricular drain (EVD), Emergency shunt</td>
+                            <td>VP shunt revision, Endoscopic third ventriculostomy</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Large Pinealoma</strong></td>
+                            <td>Decompression if mass effect, CSF diversion</td>
+                            <td>Planned surgical resection, Stereotactic radiation</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Thalamic Hemorrhage</strong></td>
+                            <td>BP control, ICP management, Possible evacuation</td>
+                            <td>Rehabilitation, Secondary stroke prevention</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hemiballismus</strong></td>
+                            <td>Sedation if severe injury risk</td>
+                            <td>Medication titration, Consider DBS</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- MNEMONICS TAB -->
+        <div id="mnemonics" class="tab-content">
+            <div class="alert alert-success">
+                <strong>🎯 Memory Masters!</strong> Use these mnemonics to ace your exams!
+            </div>
+
+            <div class="mnemonic-card">
+                <div class="mnemonic-title">🧩 Diencephalon Components</div>
+                <div class="mnemonic-letters">T-H-E-S</div>
+                <ul class="mnemonic-list">
+                    <li><span class="mnemonic-letter">T</span> <strong>T</strong>halamus (4/5 of diencephalon - the BIG one!)</li>
+                    <li><span class="mnemonic-letter">H</span> <strong>H</strong>ypothalamus (Below thalamus, controls autonomic/endocrine)</li>
+                    <li><span class="mnemonic-letter">E</span> <strong>E</strong>pithalamus (Above - has pineal gland)</li>
+                    <li><span class="mnemonic-letter">S</span> <strong>S</strong>ubthalamus (Below thalamus, near midbrain)</li>
+                </ul>
+                <span class="tag tag-high-yield">Master This First!</span>
+            </div>
+
+            <div class="mnemonic-card">
+                <div class="mnemonic-title">📍 Epithalamus Parts</div>
+                <div class="mnemonic-letters">P-P-H-S</div>
+                <ul class="mnemonic-list">
+                    <li><span class="mnemonic-letter">P</span> <strong>P</strong>osterior commissure (connects superior colliculi)</li>
+                    <li><span class="mnemonic-letter">P</span> <strong>P</strong>ineal gland (melatonin maker)</li>
+                    <li><span class="mnemonic-letter">H</span> <strong>H</strong>abenular nucleus (limbic connection)</li>
+                    <li><span class="mnemonic-letter">S</span> <strong>S</strong>tria medullaris thalami (septal → habenular)</li>
+                </ul>
+                <span class="tag tag-exam">Exam Favorite!</span>
+            </div>
+
+            <div class="mnemonic-card">
+                <div class="mnemonic-title">🏢 Third Ventricle Floor (Anterior → Posterior)</div>
+                <div class="mnemonic-letters">O-T-M-P</div>
+                <ul class="mnemonic-list">
+                    <li><span class="mnemonic-letter">O</span> <strong>O</strong>ptic chiasma (front)</li>
+                    <li><span class="mnemonic-letter">T</span> <strong>T</strong>uber cinereum (with infundibulum)</li>
+                    <li><span class="mnemonic-letter">M</span> <strong>M</strong>ammillary bodies (two bumps)</li>
+                    <li><span class="mnemonic-letter">P</span> <strong>P</strong>osterior perforated substance (back)</li>
+                </ul>
+                <span class="tag tag-high-yield">Draw This!</span>
+            </div>
+
+            <div class="mnemonic-card">
+                <div class="mnemonic-title">👃 Thalamus Sensory Exception</div>
+                <div class="mnemonic-letters" style="font-size: 1.5rem;">"All Senses Through Thalamus... EXCEPT SMELL!"</div>
+                <p style="margin-top: 1rem; color: var(--gray);">
+                    <strong>Why?</strong> Olfaction has a direct pathway to cortex (bypasses thalamus)<br>
+                    <strong>What's relayed?</strong> Touch, vibration, temperature, pain, vision, hearing<br>
+                    <strong>Clinical:</strong> Thalamic stroke → lose everything EXCEPT smell
+                </p>
+                <span class="tag tag-exam">Board Favorite!</span>
+                <span class="tag tag-clinical">Clinical Pearl</span>
+            </div>
+
+            <div class="mnemonic-card">
+                <div class="mnemonic-title">💧 Hydrocephalus Localization</div>
+                <div class="mnemonic-letters" style="font-size: 1.3rem;">"MONRO = 1 (lateral only)"</div>
+                <div class="mnemonic-letters" style="font-size: 1.3rem;">"AQUEDUCT = 2+ (lateral + 3rd)"</div>
+                <ul class="mnemonic-list">
+                    <li><span class="mnemonic-letter">M</span> <strong>M</strong>onro obstruction → <strong>L</strong>ateral ventricle <strong>ALONE</strong></li>
+                    <li><span class="mnemonic-letter">A</span> <strong>A</strong>queduct obstruction → <strong>L</strong>ateral <strong>AND</strong> 3rd ventricle</li>
+                </ul>
+                <span class="tag tag-high-yield">Imaging Correlation!</span>
+            </div>
+
+            <div class="mnemonic-card">
+                <div class="mnemonic-title">🎪 Subthalamic Nucleus Lesion</div>
+                <div class="mnemonic-letters" style="font-size: 1.5rem;">"BALLISTIC Movements"</div>
+                <p style="margin-top: 1rem; color: var(--gray);">
+                    <strong>SUB</strong>thalamic → <strong>HEMI</strong>ballismus<br>
+                    Think: Movements like throwing a <strong>BALL</strong> - sudden, violent, uncontrolled<br>
+                    Mechanism: Loss of extrapyramidal motor control
+                </p>
+                <span class="tag tag-exam">Classic Board Question!</span>
+            </div>
+
+            <div class="mnemonic-card">
+                <div class="mnemonic-title">🌙 Pineal Gland Function</div>
+                <div class="mnemonic-letters" style="font-size: 1.5rem;">"DARK Room = Melatonin SPARK"</div>
+                <ul class="mnemonic-list">
+                    <li><strong>D</strong>arkness required (complete!)</li>
+                    <li><strong>A</strong>utonomic (sympathetic innervation)</li>
+                    <li><strong>R</strong>egulates sleep</li>
+                    <li><strong>K</strong>ey: Pinealocytes secrete melatonin</li>
+                </ul>
+                <p style="margin-top: 1rem; color: var(--gray);">
+                    <em>"المجال تبقى ضلمه ضلمه خالص" - Room must be completely dark!</em>
+                </p>
+                <span class="tag tag-clinical">Clinical Pearl</span>
+            </div>
+
+            <div class="mnemonic-card">
+                <div class="mnemonic-title">👁️ Parinaud's Syndrome Triad</div>
+                <div class="mnemonic-letters">U-P-L</div>
+                <ul class="mnemonic-list">
+                    <li><span class="mnemonic-letter">U</span> <strong>U</strong>pward gaze paralysis (can't look UP!)</li>
+                    <li><span class="mnemonic-letter">P</span> <strong>P</strong>osterior commissure lesion (pinealoma compression)</li>
+                    <li><span class="mnemonic-letter">L</span> <strong>L</strong>ight reflex bilateral abnormality</li>
+                </ul>
+                <p style="margin-top: 1rem; color: var(--gray);">
+                    <strong>Pathway:</strong> Tumor → Compresses posterior commissure → Disrupts oculomotor/pretectal fibers
+                </p>
+                <span class="tag tag-exam">High Yield!</span>
+            </div>
+
+            <h2 style="color: white; margin: 2rem 0 1rem 0;">🎨 Visual Memory Aids</h2>
+
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="card-title">🌊 CSF Flow Memory</div>
+                    <div class="card-content">
+                        <p style="font-size: 1.2rem; line-height: 2;">
+                            <strong>L</strong>ateral ventricles<br>
+                            ↓ (via <strong>M</strong>onro)<br>
+                            <strong>3rd</strong> ventricle<br>
+                            ↓ (via <strong>A</strong>queduct)<br>
+                            <strong>4th</strong> ventricle
+                        </p>
+                        <p style="margin-top: 1rem; color: var(--info);">
+                            <strong>Think:</strong> "L-M-3-A-4" - Like counting down a rocket launch! 🚀
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🎯 Quick Associations</div>
+                    <div class="card-content">
+                        <p><strong>Thalamus</strong> = "The Relay" 📡<br>
+                        <em>All senses relay through here (except smell)</em></p>
+                        
+                        <p><strong>Hypothalamus</strong> = "The Boss" 👔<br>
+                        <em>Controls autonomic + endocrine (pituitary connection)</em></p>
+                        
+                        <p><strong>Pineal</strong> = "The Clock" 🕐<br>
+                        <em>Melatonin = sleep timing</em></p>
+                        
+                        <p><strong>Subthalamus</strong> = "The Brake" 🛑<br>
+                        <em>Stops wild movements (lesion → hemiballismus)</em></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== DATA STRUCTURES ====================
+        
+        const quizData = [
+            {
+                question: "Which sensation is NOT relayed through the thalamus?",
+                options: ["Touch", "Vibration", "Temperature", "Olfaction", "Pain"],
+                correct: 3,
+                explanation: "The thalamus receives all sensations EXCEPT olfaction before projecting them to sensory areas. Olfaction has a direct pathway to the cortex."
+            },
+            {
+                question: "What structure forms the lateral boundary of the diencephalon?",
+                options: ["3rd ventricle", "Posterior limb of internal capsule", "Subthalamus", "Fornix", "Corpus callosum"],
+                correct: 1,
+                explanation: "The posterior limb of the internal capsule is strictly lateral to the diencephalon (thalamus and hypothalamus)."
+            },
+            {
+                question: "A lesion in the subthalamic nucleus results in which of the following?",
+                options: ["Paralysis of upward gaze", "Hydrocephalus", "Hemiballismus", "Loss of smell", "Loss of temperature sensation"],
+                correct: 2,
+                explanation: "The subthalamic nucleus is an extrapyramidal motor nucleus; its disruption causes sudden violent involuntary movements called hemiballismus."
+            },
+            {
+                question: "The posterior commissure connects which structures?",
+                options: ["Two thalami", "Two lateral ventricles", "Two superior colliculi", "Mammillary bodies to fornix", "Pineal gland to habenular nucleus"],
+                correct: 2,
+                explanation: "The posterior commissure is a band of fibers connecting the two superior colliculi, pretectal nuclei, and oculomotor nuclei for bilateral light reflex and upward gaze."
+            },
+            {
+                question: "Which condition is caused by a pinealoma damaging the posterior commissure?",
+                options: ["Hemiballismus", "Parinaud's syndrome", "Hydrocephalus of lateral ventricle only", "Loss of light reflex in one eye only", "Anosmia"],
+                correct: 1,
+                explanation: "Damage to the posterior commissure paralyzes upward gaze and disrupts bilateral light reflexes, known clinically as Parinaud's syndrome."
+            },
+            {
+                question: "Obstruction of the interventricular foramen of Monro causes hydrocephalus in which structure(s)?",
+                options: ["3rd ventricle only", "4th ventricle only", "Lateral ventricle only", "Lateral and 3rd ventricles", "Entire ventricular system"],
+                correct: 2,
+                explanation: "Blockage at the foramen of Monro prevents CSF drainage from the lateral ventricle into the 3rd ventricle, causing isolated lateral ventricle hydrocephalus."
+            },
+            {
+                question: "What structure forms the roof of the third ventricle?",
+                options: ["Lamina terminalis", "Tela choroidea and ependyma", "Optic chiasma", "Interthalamic adhesion", "Mammillary bodies"],
+                correct: 1,
+                explanation: "The roof is formed by a layer of ependyma stretched between the thalami and the overlying tela choroidea containing choroid plexuses and internal cerebral veins."
+            },
+            {
+                question: "Which of the following is NOT a component of the epithalamus?",
+                options: ["Posterior commissure", "Subthalamic nucleus", "Pineal gland", "Habenular nucleus", "Stria medullaris thalami"],
+                correct: 1,
+                explanation: "The subthalamic nucleus belongs to the subthalamus, not the epithalamus. The epithalamus has 4 components: posterior commissure, pineal gland, habenular nucleus, and stria medullaris thalami."
+            },
+            {
+                question: "The stria medullaris thalami originates in which area?",
+                options: ["Thalamus", "Habenular nucleus", "Septal area", "Pineal gland", "Subthalamus"],
+                correct: 2,
+                explanation: "It is a band of fibers that originates in the septal area and ends in the habenular nucleus as part of the limbic system."
+            },
+            {
+                question: "What structure separates the thalamus from the hypothalamus in the lateral wall of the 3rd ventricle?",
+                options: ["Stria medullaris thalami", "Anterior commissure", "Hypothalamic sulcus", "Interthalamic adhesion", "Tela choroidea"],
+                correct: 2,
+                explanation: "The hypothalamic sulcus extends from the interventricular foramen to the cerebral aqueduct, separating thalamus (above) from hypothalamus (below)."
+            },
+            {
+                question: "The zona incerta is located in the subthalamus and is an extension of what structure?",
+                options: ["Cerebellum", "Reticular formation of the midbrain", "Fornix", "Septum pellucidum", "Corpus callosum"],
+                correct: 1,
+                explanation: "The zona incerta is described anatomically as an extension of the reticular formation of the midbrain."
+            },
+            {
+                question: "What structure forms the anterior boundary of the diencephalon?",
+                options: ["Pineal gland", "Midbrain tegmentum", "Lamina terminalis and anterior commissure", "Corpus callosum", "Posterior commissure"],
+                correct: 2,
+                explanation: "The anterior boundaries of the diencephalon are the lamina terminalis and anterior commissure."
+            },
+            {
+                question: "The choroid plexus of the 3rd ventricle receives its arterial supply from which artery?",
+                options: ["Middle cerebral artery", "Anterior cerebral artery", "Posterior choroidal artery", "Basilar artery", "Internal carotid artery"],
+                correct: 2,
+                explanation: "The arterial supply to the 3rd ventricle's choroid plexus is the posterior choroidal artery (branch of posterior cerebral artery)."
+            },
+            {
+                question: "The internal cerebral veins run inside which structure in the 3rd ventricle roof?",
+                options: ["Ependyma", "Tela choroidea", "Corpus callosum", "Stria medullaris thalami", "Fornix"],
+                correct: 1,
+                explanation: "The two internal cerebral veins are located inside the tela choroidea, where they unite to form the great cerebral vein."
+            },
+            {
+                question: "Which structure forms the most posterior free end of the thalamus?",
+                options: ["Metathalamus", "Pulvinar", "Tuber cinereum", "Mammillary body", "Septum pellucidum"],
+                correct: 1,
+                explanation: "The thalamus projects backwards forming a free posterior end called the pulvinar that overhangs the superior colliculus."
+            },
+            {
+                question: "The infundibular recess is a funnel-shaped recess located where?",
+                options: ["In the stalk of the pineal body", "At the junction of lamina terminalis and optic chiasma", "Just above the pineal body", "In the infundibulum", "Interventricular foramen"],
+                correct: 3,
+                explanation: "The infundibular recess is anatomically located within the infundibulum of the hypothalamus, connecting to the pituitary gland."
+            },
+            {
+                question: "Which cranial nerve nuclei are connected by the posterior commissure for upward gaze?",
+                options: ["Optic nuclei", "Trigeminal nuclei", "Oculomotor nuclei", "Abducens nuclei", "Trochlear nuclei"],
+                correct: 2,
+                explanation: "The posterior commissure connects the two oculomotor nuclei to coordinate bilateral upward gaze."
+            },
+            {
+                question: "Where is the habenular nucleus located?",
+                options: ["Below the subthalamus", "Above the pineal gland", "Anterior to the lamina terminalis", "In the floor of the 3rd ventricle", "Within the internal capsule"],
+                correct: 1,
+                explanation: "The habenular nucleus (part of epithalamus) is located directly above the pineal gland."
+            },
+            {
+                question: "The two columns of the fornix descend to end in which structures?",
+                options: ["Pineal gland", "Optic chiasma", "Mammillary bodies", "Anterior commissure", "Subthalamic nucleus"],
+                correct: 2,
+                explanation: "The columns of the fornix descend just behind the anterior commissure and terminate in the two mammillary bodies."
+            },
+            {
+                question: "What function does the pineal gland serve via pinealocytes?",
+                options: ["Secretes cerebrospinal fluid", "Regulates muscle movement", "Relays sensory information", "Secretes melatonin", "Generates bilateral light reflex"],
+                correct: 3,
+                explanation: "Pinealocytes are the secretory cells of the pineal gland responsible for producing the hormone melatonin, which regulates sleep."
+            },
+            {
+                question: "Which structure forms the inferior boundary of the diencephalon?",
+                options: ["Tela choroidea", "Corpus callosum", "Structures in the interpeduncular fossa", "Posterior limb of internal capsule", "Lateral ventricle"],
+                correct: 2,
+                explanation: "The inferior boundary of the overall diencephalon consists of structures in the interpeduncular fossa."
+            },
+            {
+                question: "The 3rd ventricle communicates with the 4th ventricle through what opening?",
+                options: ["Foramen of Monro", "Interventricular foramen", "Central canal", "Cerebral aqueduct of Sylvius", "Suprapineal recess"],
+                correct: 3,
+                explanation: "The 3rd ventricle connects with the 4th ventricle below via the cerebral aqueduct of the midbrain (aqueduct of Sylvius)."
+            },
+            {
+                question: "Which of the following is part of the limbic system?",
+                options: ["Subthalamic nucleus", "Habenular nucleus", "Posterior commissure", "Zona incerta", "Pulvinar"],
+                correct: 1,
+                explanation: "Both the habenular nucleus and the stria medullaris thalami (which ends in it) are explicitly part of the limbic system."
+            },
+            {
+                question: "What forms the anterior wall of the 3rd ventricle?",
+                options: ["Posterior commissure and pineal body", "Optic chiasma and tuber cinereum", "Thalamus and hypothalamus", "Lamina terminalis, anterior commissure, and columns of fornix", "Tela choroidea"],
+                correct: 3,
+                explanation: "The anterior wall is formed by the lamina terminalis, the anterior commissure, and the two columns of the fornix."
+            },
+            {
+                question: "Where do the Pretectal and Edinger-Westphal nuclei receive/send bilateral connections from?",
+                options: ["Anterior commissure", "Interthalamic adhesion", "Posterior commissure", "Stria medullaris thalami", "Fornix"],
+                correct: 2,
+                explanation: "The posterior commissure connects the Pretectal and Edinger-Westphal nuclei bilaterally for the pupillary light reflex pathway."
+            }
+        ];
+
+        const flashcards = [
+            { front: "What are the 4 components of the diencephalon?", back: "1. Thalamus (4/5)<br>2. Hypothalamus<br>3. Subthalamus<br>4. Epithalamus" },
+            { front: "What is the primary function of the thalamus?", back: "Sensory relay station - receives ALL sensations EXCEPT olfaction and projects them to sensory cortex" },
+            { front: "What are the 4 components of the epithalamus?", back: "1. Posterior commissure<br>2. Pineal gland<br>3. Habenular nucleus<br>4. Stria medullaris thalami" },
+            { front: "What is hemiballismus and what causes it?", back: "Sudden violent involuntary movements caused by SUBTHALAMIC NUCLEUS lesion (extrapyramidal motor dysfunction)" },
+            { front: "What is Parinaud's syndrome?", back: "Paralysis of upward gaze + abnormal bilateral light reflex caused by POSTERIOR COMMISSURE damage (often from pinealoma)" },
+            { front: "List the floor of 3rd ventricle anterior to posterior", back: "1. Optic chiasma<br>2. Tuber cinereum<br>3. Mammillary bodies<br>4. Posterior perforated substance" },
+            { front: "Foramen of Monro obstruction causes?", back: "Hydrocephalus of LATERAL VENTRICLE ONLY (isolated)" },
+            { front: "Cerebral aqueduct obstruction causes?", back: "Hydrocephalus of BOTH lateral + 3rd ventricles" },
+            { front: "What does the pineal gland secrete?", back: "MELATONIN (in complete darkness) via pinealocytes with sympathetic innervation → regulates sleep" },
+            { front: "What separates thalamus from hypothalamus?", back: "HYPOTHALAMIC SULCUS in the lateral wall of 3rd ventricle" },
+            { front: "What forms the roof of 3rd ventricle?", back: "Ependyma + Tela choroidea (contains choroid plexuses & internal cerebral veins)" },
+            { front: "What connects the two superior colliculi?", back: "POSTERIOR COMMISSURE (also connects pretectal, Edinger-Westphal, and oculomotor nuclei)" },
+            { front: "Where does stria medullaris thalami go?", back: "Originates: Septal area → Ends: Habenular nucleus (limbic pathway)" },
+            { front: "What is the zona incerta?", back: "Extension of reticular formation of midbrain located in the SUBTHALAMUS" },
+            { front: "What percentage of diencephalon is thalamus?", back: "4/5 (80%) - it's the LARGEST component!" },
+            { front: "Anterior boundary of diencephalon?", back: "Lamina terminalis + Anterior commissure" },
+            { front: "Posterior boundary of diencephalon?", back: "Pineal gland + Posterior commissure" },
+            { front: "What is the pulvinar?", back: "Free posterior end of thalamus that overhangs the superior colliculus" },
+            { front: "What supplies blood to 3rd ventricle choroid plexus?", back: "Posterior choroidal artery (from posterior cerebral artery)" },
+            { front: "Where do internal cerebral veins run?", back: "Inside the TELA CHOROIDEA of 3rd ventricle roof (unite to form great cerebral vein)" },
+            { front: "What is the infundibular recess?", back: "Funnel-shaped recess in the INFUNDIBULUM of hypothalamus (connects to pituitary)" },
+            { front: "Clinical significance of hypothalamus?", back: "Principal AUTONOMIC & ENDOCRINE center - connects to pituitary via infundibulum" }
+        ];
+
+        const clinicalCases = [
+            {
+                title: "Case 1: Sudden Violent Movements",
+                presentation: "A 68-year-old patient with hypertension presents to the emergency department. Family reports that the patient suddenly developed violent, uncontrolled throwing movements of the right arm and leg. Movements are continuous, random, and non-purposeful. Patient is conscious but distressed.",
+                questions: [
+                    {
+                        q: "What is the most likely diagnosis?",
+                        a: "Hemiballismus - characterized by sudden violent involuntary movements affecting one side of the body."
+                    },
+                    {
+                        q: "What anatomical structure is affected?",
+                        a: "Subthalamic nucleus - an extrapyramidal motor nucleus that normally regulates muscle movement. Its lesion removes the 'brake' on movements."
+                    },
+                    {
+                        q: "What is the most likely underlying pathology in this patient?",
+                        a: "Stroke (hemorrhagic or ischemic) affecting the subthalamic nucleus, given the patient's age and hypertension risk factors."
+                    }
+                ]
+            },
+            {
+                title: "Case 2: Can't Look Up",
+                presentation: "A 25-year-old presents with a 3-month history of progressively worsening headaches and inability to look upward voluntarily. On examination, pupillary light reflex testing shows that shining light in one eye fails to adequately constrict the opposite pupil. MRI shows a mass in the pineal region.",
+                questions: [
+                    {
+                        q: "What is this clinical syndrome called?",
+                        a: "Parinaud's syndrome - characterized by paralysis of upward gaze and abnormal bilateral pupillary light reflexes."
+                    },
+                    {
+                        q: "What structure is being compressed by the tumor?",
+                        a: "Posterior commissure - the pinealoma is compressing this structure which normally connects the oculomotor nuclei and pretectal/Edinger-Westphal nuclei."
+                    },
+                    {
+                        q: "If the tumor continues to grow, what additional complication might develop?",
+                        a: "Obstructive hydrocephalus - the tumor could compress the cerebral aqueduct below it, blocking CSF flow and causing dilation of both lateral and 3rd ventricles."
+                    }
+                ]
+            },
+            {
+                title: "Case 3: Enlarged Baby Head",
+                presentation: "A 4-month-old infant is brought to clinic with abnormally rapid head growth. Parents report increasing irritability and poor feeding. On examination, the fontanelle is bulging and tense. CT scan shows massively dilated lateral ventricles, but the 3rd and 4th ventricles appear normal in size.",
+                questions: [
+                    {
+                        q: "At what anatomical location is the obstruction?",
+                        a: "Interventricular foramen (Foramen of Monro) - obstruction here causes isolated lateral ventricle hydrocephalus while 3rd and 4th ventricles remain normal."
+                    },
+                    {
+                        q: "Why are the 3rd and 4th ventricles not enlarged?",
+                        a: "Because the obstruction is BEFORE the 3rd ventricle. CSF cannot drain FROM the lateral ventricles INTO the 3rd ventricle, so only the lateral ventricles back up."
+                    },
+                    {
+                        q: "What might cause this pattern of obstruction?",
+                        a: "Possible causes: Congenital stenosis of foramen of Monro, aneurysm compressing the foramen, or tumor at this location."
+                    }
+                ]
+            },
+            {
+                title: "Case 4: Lost All Sensation Except Smell",
+                presentation: "A 72-year-old patient suddenly develops complete loss of touch, temperature, vibration, and pain sensation on the left side of the body. However, on detailed neurological examination, the patient's sense of smell is completely intact bilaterally. MRI shows an acute infarct.",
+                questions: [
+                    {
+                        q: "Which structure is most likely affected?",
+                        a: "Right thalamus - it is the primary sensory relay station that receives all sensations EXCEPT olfaction."
+                    },
+                    {
+                        q: "Why is olfaction spared?",
+                        a: "The olfactory pathway bypasses the thalamus and projects directly to the cortex. All other sensory modalities must relay through the thalamus first."
+                    },
+                    {
+                        q: "Which specific thalamic nuclei relay touch/vibration/temperature?",
+                        a: "Ventral posterior nuclei (VPM for face, VPL for body) - these relay somatosensory information to the primary sensory cortex."
+                    }
+                ]
+            },
+            {
+                title: "Case 5: Can't Sleep Despite Darkness",
+                presentation: "A 35-year-old patient complains of severe insomnia for 6 months. Despite sleeping in complete darkness and maintaining good sleep hygiene, the patient cannot fall asleep or stay asleep. MRI reveals a small lesion in the posterior diencephalon, above the superior colliculi.",
+                questions: [
+                    {
+                        q: "What structure is likely damaged?",
+                        a: "Pineal gland - located in the epithalamus, above the superior colliculi."
+                    },
+                    {
+                        q: "What is the mechanism of the sleep disorder?",
+                        a: "Loss of melatonin secretion. The pineal gland contains pinealocytes that normally secrete melatonin in response to darkness (via sympathetic innervation), regulating the sleep-wake cycle."
+                    },
+                    {
+                        q: "What treatment might help this patient?",
+                        a: "Exogenous melatonin supplementation in the evening to replace the lost endogenous production and help regulate the sleep cycle."
+                    }
+                ]
+            },
+            {
+                title: "Case 6: Progressive Hydrocephalus Pattern",
+                presentation: "An 8-year-old child develops headaches and vomiting over 2 months. CT scan shows dilation of BOTH lateral ventricles AND the 3rd ventricle, but the 4th ventricle is normal size. No mass is visible on initial imaging, but repeat MRI shows narrowing at the midbrain level.",
+                questions: [
+                    {
+                        q: "Where is the obstruction located?",
+                        a: "Cerebral aqueduct of Sylvius (aqueduct of the midbrain) - this connects the 3rd ventricle to the 4th ventricle."
+                    },
+                    {
+                        q: "Why are both lateral and 3rd ventricles enlarged?",
+                        a: "Because CSF flows: Lateral → (Monro) → 3rd → (Aqueduct) → 4th. Blocking the aqueduct causes backup in everything BEFORE it (lateral + 3rd), while the 4th ventricle downstream remains normal."
+                    },
+                    {
+                        q: "What are possible causes of aqueduct stenosis?",
+                        a: "Congenital narrowing (most common in children), tumor compression, inflammation/infection (aqueductal gliosis), or hemorrhage causing scarring."
+                    }
+                ]
+            }
+        ];
+
+        // ==================== STATE MANAGEMENT ====================
+        
+        let quizState = {
+            answered: new Array(quizData.length).fill(false),
+            selectedAnswers: new Array(quizData.length).fill(null),
+            score: 0,
+            streak: 0
+        };
+
+        // ==================== INITIALIZATION ====================
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            renderQuiz();
+            renderFlashcards();
+            renderClinicalCases();
+            updateStats();
+            
+            // Remember last tab
+            const lastTab = localStorage.getItem('lastTab') || 'overview';
+            showTab(lastTab);
+
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('input', handleSearch);
+        });
+
+        // ==================== TAB MANAGEMENT ====================
+        
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active from all tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Activate corresponding button
+            event?.target?.classList.add('active');
+            
+            // Save to localStorage
+            localStorage.setItem('lastTab', tabName);
+        }
+
+        // ==================== QUIZ FUNCTIONS ====================
+        
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+            
+            quizData.forEach((q, index) => {
+                const questionCard = document.createElement('div');
+                questionCard.className = 'question-card';
+                questionCard.innerHTML = `
+                    <div class="question-number">Question ${index + 1} of ${quizData.length}</div>
+                    <div class="question-text">${q.question}</div>
+                    ${q.options.map((option, optIndex) => `
+                        <div class="option ${quizState.answered[index] ? (optIndex === q.correct ? 'correct' : (quizState.selectedAnswers[index] === optIndex ? 'incorrect' : '')) : ''}" 
+                             onclick="selectAnswer(${index}, ${optIndex})">
+                            <span class="option-letter">${String.fromCharCode(65 + optIndex)}</span>
+                            ${option}
+                        </div>
+                    `).join('')}
+                    <div class="explanation ${quizState.answered[index] ? 'show' : ''}">
+                        <div class="explanation-title">💡 Explanation:</div>
+                        ${q.explanation}
+                    </div>
+                `;
+                container.appendChild(questionCard);
+            });
+            
+            updateQuizProgress();
+        }
+
+        function selectAnswer(questionIndex, answerIndex) {
+            if (quizState.answered[questionIndex]) return; // Already answered
+            
+            quizState.selectedAnswers[questionIndex] = answerIndex;
+            quizState.answered[questionIndex] = true;
+            
+            // Check if correct
+            const isCorrect = answerIndex === quizData[questionIndex].correct;
+            
+            if (isCorrect) {
+                quizState.score++;
+                quizState.streak++;
+            } else {
+                quizState.streak = 0;
+            }
+            
+            saveState();
+            renderQuiz();
+            updateStats();
+        }
+
+        function resetQuiz() {
+            if (confirm('Are you sure you want to reset the quiz? All progress will be lost.')) {
+                quizState = {
+                    answered: new Array(quizData.length).fill(false),
+                    selectedAnswers: new Array(quizData.length).fill(null),
+                    score: 0,
+                    streak: 0
+                };
+                saveState();
+                renderQuiz();
+                updateStats();
+            }
+        }
+
+        function updateQuizProgress() {
+            const answered = quizState.answered.filter(a => a).length;
+            const percentage = (answered / quizData.length) * 100;
+            document.getElementById('quiz-progress').style.width = percentage + '%';
+        }
+
+        // ==================== FLASHCARD FUNCTIONS ====================
+        
+        function renderFlashcards() {
+            const container = document.getElementById('flashcard-container');
+            container.innerHTML = '';
+            
+            flashcards.forEach((card, index) => {
+                const flashcardDiv = document.createElement('div');
+                flashcardDiv.className = 'flashcard';
+                flashcardDiv.innerHTML = `
+                    <div class="flashcard-inner">
+                        <div class="flashcard-front">
+                            <div class="flashcard-label">Question</div>
+                            <div class="flashcard-content">${card.front}</div>
+                        </div>
+                        <div class="flashcard-back">
+                            <div class="flashcard-label">Answer</div>
+                            <div class="flashcard-content">${card.back}</div>
+                        </div>
+                    </div>
+                `;
+                
+                flashcardDiv.addEventListener('click', function() {
+                    this.classList.toggle('flipped');
+                });
+                
+                container.appendChild(flashcardDiv);
+            });
+        }
+
+        // ==================== CLINICAL CASES FUNCTIONS ====================
+        
+        function renderClinicalCases() {
+            const container = document.getElementById('cases-container');
+            container.innerHTML = '';
+            
+            clinicalCases.forEach((clinicalCase, caseIndex) => {
+                const caseCard = document.createElement('div');
+                caseCard.className = 'case-card';
+                
+                let questionsHTML = '';
+                clinicalCase.questions.forEach((question, qIndex) => {
+                    questionsHTML += `
+                        <div class="case-question">❓ ${question.q}</div>
+                        <button class="reveal-btn" onclick="toggleAnswer(${caseIndex}, ${qIndex})">
+                            <span id="reveal-text-${caseIndex}-${qIndex}">Reveal Answer</span>
+                        </button>
+                        <div class="case-answer" id="answer-${caseIndex}-${qIndex}">
+                            <strong>✅ Answer:</strong> ${question.a}
+                        </div>
+                    `;
+                });
+                
+                caseCard.innerHTML = `
+                    <div class="case-header">
+                        <div class="case-title">${clinicalCase.title}</div>
+                    </div>
+                    <div class="case-presentation">
+                        <strong>📋 Presentation:</strong><br>
+                        ${clinicalCase.presentation}
+                    </div>
+                    ${questionsHTML}
+                `;
+                
+                container.appendChild(caseCard);
+            });
+        }
+
+        function toggleAnswer(caseIndex, questionIndex) {
+            const answer = document.getElementById(`answer-${caseIndex}-${questionIndex}`);
+            const revealText = document.getElementById(`reveal-text-${caseIndex}-${questionIndex}`);
+            
+            if (answer.classList.contains('show')) {
+                answer.classList.remove('show');
+                revealText.textContent = 'Reveal Answer';
+            } else {
+                answer.classList.add('show');
+                revealText.textContent = 'Hide Answer';
+            }
+        }
+
+        // ==================== STATS & STATE MANAGEMENT ====================
+        
+        function updateStats() {
+            const answered = quizState.answered.filter(a => a).length;
+            const progress = Math.round((answered / quizData.length) * 100);
+            
+            document.getElementById('progress-stat').textContent = progress + '%';
+            document.getElementById('score-stat').textContent = quizState.score + '/' + answered;
+            document.getElementById('streak-stat').textContent = quizState.streak;
+        }
+
+        function saveState() {
+            localStorage.setItem('quizState', JSON.stringify(quizState));
+        }
+
+        function loadState() {
+            const saved = localStorage.getItem('quizState');
+            if (saved) {
+                quizState = JSON.parse(saved);
+            }
+        }
+
+        // ==================== SEARCH FUNCTIONALITY ====================
+        
+        function handleSearch(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            if (!searchTerm) {
+                // Reset all content visibility
+                document.querySelectorAll('.card, .summary-card, .question-card, .case-card, .mnemonic-card').forEach(el => {
+                    el.style.display = '';
+                });
+                return;
+            }
+            
+            // Search through all content
+            document.querySelectorAll('.card, .summary-card, .question-card, .case-card, .mnemonic-card').forEach(el => {
+                const text = el.textContent.toLowerCase();
+                el.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        // ==================== UTILITY FUNCTIONS ====================
+        
+        // Add smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + K for search focus
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
+            
+            // Ctrl/Cmd + R for reset quiz (when on quiz tab)
+            if ((e.ctrlKey || e.metaKey) && e.key === 'r' && document.getElementById('quiz').classList.contains('active')) {
+                e.preventDefault();
+                resetQuiz();
+            }
+        });
+
+        // Add progress celebration
+        function checkProgress() {
+            const answered = quizState.answered.filter(a => a).length;
+            
+            if (answered === quizData.length && quizState.score === quizData.length) {
+                setTimeout(() => {
+                    alert('🎉 Perfect Score! You\'ve mastered this topic! 🎉');
+                }, 500);
+            } else if (answered === quizData.length) {
+                setTimeout(() => {
+                    alert(`✅ Quiz Complete! Your score: ${quizState.score}/${quizData.length}`);
+                }, 500);
+            }
+        }
+
+        // Call checkProgress when quiz state changes
+        const originalSelectAnswer = selectAnswer;
+        selectAnswer = function(...args) {
+            originalSelectAnswer(...args);
+            checkProgress();
+        };
+    </script>
+</body>
+</html>

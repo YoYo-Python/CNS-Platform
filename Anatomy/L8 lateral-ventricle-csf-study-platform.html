@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lateral Ventricle & CSF | Interactive Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #070b14;
+  --surface: #0d1626;
+  --surface2: #111e33;
+  --surface3: #162440;
+  --border: rgba(99,179,237,0.12);
+  --border-bright: rgba(99,179,237,0.3);
+  --accent: #4fc3f7;
+  --accent2: #38bdf8;
+  --accent3: #7dd3fc;
+  --gold: #fbbf24;
+  --green: #34d399;
+  --red: #f87171;
+  --purple: #a78bfa;
+  --pink: #f472b6;
+  --orange: #fb923c;
+  --text: #e2eaf4;
+  --text-muted: #7a96b8;
+  --text-dim: #3d5a7a;
+  --glow: 0 0 30px rgba(79,195,247,0.15);
+  --glow-strong: 0 0 50px rgba(79,195,247,0.3);
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ANIMATED BG */
+.bg-orbs{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.07;animation:orbFloat 12s ease-in-out infinite;}
+.orb1{width:600px;height:600px;background:var(--accent);top:-200px;left:-200px;animation-delay:0s;}
+.orb2{width:500px;height:500px;background:var(--purple);bottom:-150px;right:-100px;animation-delay:-4s;}
+.orb3{width:350px;height:350px;background:var(--green);top:40%;left:60%;animation-delay:-8s;}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(30px,-30px) scale(1.05);}}
+
+/* GRID OVERLAY */
+.bg-grid{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(79,195,247,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(79,195,247,0.03) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+
+/* HEADER */
+header{
+  position:relative;z-index:10;
+  padding:28px 32px 0;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;
+}
+.logo{
+  display:flex;align-items:center;gap:12px;
+}
+.logo-icon{
+  width:44px;height:44px;
+  background:linear-gradient(135deg,var(--accent),var(--purple));
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;
+  box-shadow:0 0 20px rgba(79,195,247,0.4);
+}
+.logo-text{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--text);}
+.logo-sub{font-size:11px;color:var(--text-muted);font-weight:300;letter-spacing:1px;text-transform:uppercase;}
+
+/* STATS BAR */
+.stats-bar{
+  display:flex;gap:12px;flex-wrap:wrap;align-items:center;
+}
+.stat-chip{
+  display:flex;align-items:center;gap:8px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:40px;
+  padding:6px 14px;
+  font-size:13px;
+  transition:all 0.3s;
+}
+.stat-chip:hover{border-color:var(--border-bright);}
+.stat-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+
+/* SEARCH */
+.search-wrapper{
+  position:relative;z-index:10;
+  max-width:560px;margin:24px auto 0;padding:0 20px;
+}
+.search-bar{
+  width:100%;background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:40px;
+  padding:12px 20px 12px 48px;
+  font-family:'DM Sans',sans-serif;
+  font-size:14px;color:var(--text);
+  outline:none;transition:all 0.3s;
+}
+.search-bar:focus{border-color:var(--accent);box-shadow:var(--glow);}
+.search-bar::placeholder{color:var(--text-dim);}
+.search-icon{position:absolute;left:36px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:16px;}
+#searchResults{
+  display:none;position:absolute;width:calc(100% - 40px);
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius);margin-top:8px;
+  max-height:300px;overflow-y:auto;z-index:100;
+}
+.search-item{padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;font-size:13px;transition:background 0.2s;}
+.search-item:hover{background:var(--surface3);}
+.search-tag{display:inline-block;font-size:10px;padding:2px 6px;border-radius:4px;background:var(--accent);color:#000;font-weight:600;margin-left:8px;}
+
+/* TABS NAV */
+.tabs-container{
+  position:relative;z-index:10;
+  padding:20px 24px 0;
+  display:flex;gap:4px;flex-wrap:wrap;
+  border-bottom:1px solid var(--border);
+  max-width:1200px;margin:0 auto;
+}
+.tab-btn{
+  display:flex;align-items:center;gap:7px;
+  padding:10px 16px;
+  font-family:'DM Sans',sans-serif;
+  font-size:13px;font-weight:500;
+  color:var(--text-muted);
+  background:transparent;
+  border:none;cursor:pointer;
+  border-radius:var(--radius-sm) var(--radius-sm) 0 0;
+  transition:all 0.25s;
+  white-space:nowrap;
+  position:relative;bottom:-1px;
+  border:1px solid transparent;
+  border-bottom:none;
+}
+.tab-btn:hover{color:var(--accent);background:var(--surface);}
+.tab-btn.active{
+  color:var(--accent);
+  background:var(--surface);
+  border-color:var(--border);
+  border-bottom:1px solid var(--surface);
+}
+.tab-emoji{font-size:15px;}
+
+/* MAIN CONTENT */
+main{
+  position:relative;z-index:10;
+  max-width:1200px;margin:0 auto;
+  padding:28px 24px;
+}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;animation:fadeIn 0.4s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* SECTION TITLE */
+.section-title{
+  font-family:'Syne',sans-serif;
+  font-size:26px;font-weight:800;
+  background:linear-gradient(90deg,var(--accent),var(--purple));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:6px;
+}
+.section-sub{color:var(--text-muted);font-size:14px;margin-bottom:24px;}
+
+/* CARDS GRID */
+.cards-grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));}
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+  transition:all 0.3s;
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(79,195,247,0.03),transparent);
+  pointer-events:none;
+}
+.card:hover{border-color:var(--border-bright);transform:translateY(-3px);box-shadow:var(--glow);}
+.card-icon{font-size:28px;margin-bottom:12px;}
+.card-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--accent);margin-bottom:8px;}
+.card-text{font-size:13px;color:var(--text-muted);line-height:1.7;}
+
+/* TAGS */
+.tag{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:10px;font-weight:600;
+  padding:3px 9px;border-radius:20px;
+  text-transform:uppercase;letter-spacing:0.5px;
+  margin:3px 3px 3px 0;
+}
+.tag-high{background:rgba(251,191,36,0.15);color:var(--gold);border:1px solid rgba(251,191,36,0.3);}
+.tag-exam{background:rgba(247,114,113,0.15);color:var(--red);border:1px solid rgba(247,114,113,0.3);}
+.tag-pearl{background:rgba(52,211,153,0.15);color:var(--green);border:1px solid rgba(52,211,153,0.3);}
+
+/* ========================= QUIZ ========================= */
+.quiz-header{
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:12px;margin-bottom:20px;
+}
+.quiz-meta{display:flex;gap:12px;flex-wrap:wrap;}
+.quiz-badge{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:40px;
+  padding:7px 16px;font-size:13px;
+}
+.progress-bar{
+  background:var(--surface2);
+  border-radius:20px;height:6px;
+  overflow:hidden;margin-bottom:24px;
+}
+.progress-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--accent),var(--purple));
+  border-radius:20px;transition:width 0.5s ease;
+}
+.quiz-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:28px;
+  margin-bottom:20px;
+  transition:all 0.3s;
+}
+.quiz-card:hover{border-color:var(--border-bright);}
+.q-number{
+  font-size:11px;font-weight:600;color:var(--text-dim);
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;
+}
+.q-text{font-family:'Syne',sans-serif;font-size:16px;font-weight:600;line-height:1.6;margin-bottom:20px;}
+.options{display:flex;flex-direction:column;gap:10px;}
+.option{
+  display:flex;align-items:flex-start;gap:12px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:13px 16px;
+  cursor:pointer;
+  transition:all 0.25s;
+  font-size:14px;
+}
+.option:hover:not(.disabled){background:var(--surface3);border-color:var(--border-bright);}
+.option-letter{
+  width:26px;height:26px;min-width:26px;
+  background:var(--surface3);
+  border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:var(--text-muted);
+}
+.option.correct{background:rgba(52,211,153,0.1);border-color:var(--green);animation:correctPulse 0.5s ease;}
+.option.correct .option-letter{background:var(--green);color:#000;}
+.option.wrong{background:rgba(248,113,113,0.1);border-color:var(--red);animation:wrongShake 0.5s ease;}
+.option.wrong .option-letter{background:var(--red);color:#000;}
+.option.disabled{pointer-events:none;opacity:0.7;}
+@keyframes correctPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.02);}}
+@keyframes wrongShake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+.explanation{
+  margin-top:14px;
+  padding:14px;
+  background:var(--surface3);
+  border-left:3px solid var(--accent);
+  border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+  font-size:13px;color:var(--text-muted);
+  line-height:1.7;display:none;
+}
+.explanation.show{display:block;animation:fadeIn 0.3s ease;}
+.explanation b{color:var(--green);}
+.explanation .wrong-exp{color:var(--red);}
+
+/* ========================= FLASHCARDS ========================= */
+.flashcards-grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));}
+.flip-card{height:180px;cursor:pointer;perspective:1000px;}
+.flip-inner{
+  position:relative;width:100%;height:100%;
+  transform-style:preserve-3d;
+  transition:transform 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+.flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+.flip-front,.flip-back{
+  position:absolute;inset:0;
+  backface-visibility:hidden;
+  border-radius:var(--radius);
+  padding:20px;
+  display:flex;flex-direction:column;justify-content:center;
+}
+.flip-front{
+  background:var(--surface);
+  border:1px solid var(--border);
+}
+.flip-back{
+  background:var(--surface2);
+  border:1px solid var(--accent);
+  transform:rotateY(180deg);
+}
+.flip-front:hover{border-color:var(--border-bright);}
+.flip-q{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;line-height:1.5;color:var(--accent);}
+.flip-a{font-size:13px;color:var(--text);line-height:1.6;}
+.flip-hint{font-size:10px;color:var(--text-dim);margin-top:8px;text-align:right;}
+
+/* ========================= CLINICAL CASES ========================= */
+.case-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;margin-bottom:24px;
+}
+.case-header{
+  background:linear-gradient(135deg,var(--surface2),var(--surface3));
+  padding:18px 24px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;
+}
+.case-num{
+  font-size:11px;font-weight:700;color:var(--accent);
+  text-transform:uppercase;letter-spacing:1.5px;
+}
+.case-scenario{font-family:'Syne',sans-serif;font-size:15px;font-weight:600;line-height:1.6;margin-top:6px;}
+.case-urgency{
+  padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;
+  background:rgba(251,191,36,0.15);color:var(--gold);border:1px solid rgba(251,191,36,0.3);
+  white-space:nowrap;
+}
+.case-body{padding:20px 24px;}
+.case-q{font-size:14px;font-weight:500;color:var(--text);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.reveal-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,rgba(79,195,247,0.15),rgba(167,139,250,0.15));
+  border:1px solid var(--border-bright);
+  border-radius:var(--radius-sm);
+  padding:10px 18px;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
+  color:var(--accent);cursor:pointer;
+  transition:all 0.3s;margin-top:12px;
+}
+.reveal-btn:hover{background:linear-gradient(135deg,rgba(79,195,247,0.25),rgba(167,139,250,0.25));box-shadow:var(--glow);}
+.case-answer{
+  margin-top:14px;
+  padding:16px;
+  background:var(--surface3);
+  border-radius:var(--radius-sm);
+  border-left:3px solid var(--green);
+  font-size:13px;line-height:1.8;
+  color:var(--text);display:none;
+}
+.case-answer.show{display:block;animation:fadeIn 0.4s ease;}
+.answer-step{
+  display:flex;gap:10px;margin-bottom:8px;align-items:flex-start;
+}
+.step-badge{
+  min-width:22px;height:22px;border-radius:50%;
+  background:var(--green);color:#000;
+  font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* ========================= ANATOMY TAB ========================= */
+.anatomy-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-bottom:32px;}
+.anatomy-item{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:18px;cursor:pointer;
+  transition:all 0.3s;
+  position:relative;overflow:hidden;
+}
+.anatomy-item::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;
+  height:3px;
+  background:linear-gradient(90deg,var(--accent),var(--purple));
+  transform:scaleX(0);transition:transform 0.3s;
+}
+.anatomy-item:hover::after{transform:scaleX(1);}
+.anatomy-item:hover{border-color:var(--border-bright);box-shadow:var(--glow);}
+.anatomy-item.open{border-color:var(--accent);}
+.anatomy-label{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;}
+.anatomy-desc{font-size:12px;color:var(--text-muted);line-height:1.6;display:none;}
+.anatomy-item.open .anatomy-desc{display:block;animation:fadeIn 0.3s;}
+
+/* FLOWCHART */
+.flowchart{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:28px;
+  margin-bottom:20px;
+}
+.flow-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--accent);margin-bottom:24px;}
+.flow-steps{display:flex;flex-direction:column;align-items:center;gap:0;}
+.flow-step{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:14px 24px;
+  max-width:480px;width:100%;
+  text-align:center;
+  font-size:14px;transition:all 0.3s;position:relative;
+}
+.flow-step:hover{border-color:var(--accent);box-shadow:var(--glow);}
+.flow-step.highlight{
+  background:linear-gradient(135deg,rgba(79,195,247,0.15),rgba(167,139,250,0.1));
+  border-color:var(--accent);
+}
+.flow-step .step-name{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--accent);}
+.flow-step .step-note{font-size:12px;color:var(--text-muted);margin-top:4px;}
+.flow-arrow{
+  width:2px;height:36px;
+  background:linear-gradient(to bottom,var(--accent),var(--purple));
+  position:relative;display:flex;justify-content:center;
+}
+.flow-arrow::after{
+  content:'▼';position:absolute;bottom:-8px;
+  color:var(--purple);font-size:12px;
+}
+
+/* ========================= COMPARISON TABLE ========================= */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{
+  background:var(--surface2);
+  padding:12px 16px;
+  text-align:left;
+  font-family:'Syne',sans-serif;font-size:12px;font-weight:700;
+  color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;
+  border-bottom:1px solid var(--border);white-space:nowrap;
+}
+td{
+  padding:12px 16px;
+  border-bottom:1px solid var(--border);
+  color:var(--text-muted);line-height:1.5;vertical-align:top;
+}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--surface);color:var(--text);}
+td:first-child{color:var(--text);font-weight:500;}
+
+/* ========================= TREATMENT ========================= */
+.treatment-grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));}
+.treat-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;transition:all 0.3s;
+}
+.treat-card:hover{border-color:var(--border-bright);transform:translateY(-2px);}
+.treat-header{padding:14px 18px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
+.treat-header.emergency{background:rgba(248,113,113,0.15);color:var(--red);border-bottom:1px solid rgba(248,113,113,0.2);}
+.treat-header.secondary{background:rgba(79,195,247,0.1);color:var(--accent);border-bottom:1px solid var(--border);}
+.treat-header.supportive{background:rgba(52,211,153,0.1);color:var(--green);border-bottom:1px solid rgba(52,211,153,0.2);}
+.treat-body{padding:16px 18px;}
+.treat-item{
+  display:flex;gap:10px;align-items:flex-start;
+  padding:8px 0;border-bottom:1px solid var(--border);
+  font-size:13px;color:var(--text-muted);
+}
+.treat-item:last-child{border-bottom:none;}
+.treat-item::before{content:'→';color:var(--accent);font-size:11px;margin-top:2px;flex-shrink:0;}
+
+/* ========================= MNEMONICS ========================= */
+.mnemonics-grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));}
+.mnemonic-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;transition:all 0.3s;
+}
+.mnemonic-card:hover{border-color:var(--border-bright);box-shadow:var(--glow);}
+.mnemonic-header{
+  padding:16px 20px;
+  background:linear-gradient(135deg,var(--surface2),var(--surface3));
+  border-bottom:1px solid var(--border);
+}
+.mnemonic-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;letter-spacing:2px;}
+.mnemonic-subtitle{font-size:12px;color:var(--text-muted);margin-top:4px;}
+.mnemonic-body{padding:16px 20px;}
+.mnemonic-row{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:8px 0;border-bottom:1px solid var(--border);
+}
+.mnemonic-row:last-child{border-bottom:none;}
+.mnem-letter{
+  font-family:'Syne',sans-serif;font-size:22px;font-weight:800;
+  min-width:32px;line-height:1;
+}
+.mnem-word{font-size:14px;font-weight:500;color:var(--text);}
+.mnem-desc{font-size:12px;color:var(--text-muted);line-height:1.5;margin-top:2px;}
+
+/* ========================= VIVA ========================= */
+.viva-list{display:flex;flex-direction:column;gap:14px;}
+.viva-item{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;
+}
+.viva-q{
+  display:flex;align-items:flex-start;gap:14px;
+  padding:16px 20px;cursor:pointer;
+  transition:background 0.2s;
+}
+.viva-q:hover{background:var(--surface2);}
+.viva-num{
+  font-family:'DM Mono',monospace;
+  font-size:13px;font-weight:500;
+  color:var(--accent);min-width:32px;
+}
+.viva-text{font-size:14px;font-weight:500;flex:1;}
+.viva-chevron{color:var(--text-dim);transition:transform 0.3s;font-size:12px;}
+.viva-item.open .viva-chevron{transform:rotate(90deg);}
+.viva-a{
+  padding:0 20px 0 66px;
+  max-height:0;overflow:hidden;
+  transition:all 0.4s ease;
+}
+.viva-item.open .viva-a{max-height:300px;padding-bottom:18px;}
+.viva-answer{font-size:13px;color:var(--text-muted);line-height:1.8;border-left:2px solid var(--accent);padding-left:14px;}
+.viva-answer .highlight{color:var(--green);font-weight:500;}
+
+/* OVERVIEW specifics */
+.overview-hero{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:28px;margin-bottom:24px;
+  position:relative;overflow:hidden;
+}
+.overview-hero::before{
+  content:'🧠';position:absolute;right:24px;top:24px;font-size:80px;opacity:0.08;
+}
+.hero-title{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1.2;margin-bottom:8px;}
+.hero-desc{font-size:15px;color:var(--text-muted);max-width:600px;line-height:1.7;}
+.tag-row{margin-top:16px;display:flex;flex-wrap:wrap;gap:6px;}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  header{padding:20px 16px 0;}
+  .tabs-container{padding:16px 12px 0;gap:2px;}
+  .tab-btn{padding:8px 10px;font-size:12px;}
+  main{padding:20px 14px;}
+  .section-title{font-size:22px;}
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--text-dim);}
+
+/* STREAK BADGE */
+.streak-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:linear-gradient(135deg,rgba(251,191,36,0.2),rgba(251,140,0,0.1));
+  border:1px solid rgba(251,191,36,0.4);
+  border-radius:40px;padding:6px 14px;font-size:13px;
+  color:var(--gold);font-weight:600;
+}
+
+/* BACK TO TOP */
+.back-top{
+  position:fixed;bottom:24px;right:24px;z-index:100;
+  width:44px;height:44px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:18px;color:var(--accent);
+  transition:all 0.3s;box-shadow:var(--glow);
+}
+.back-top:hover{background:var(--surface3);border-color:var(--accent);}
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+<div class="bg-grid"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">🧠</div>
+    <div>
+      <div class="logo-text">NeuroVentricle Study</div>
+      <div class="logo-sub">Lateral Ventricle & CSF · Mansoura University</div>
+    </div>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-chip"><span class="stat-dot"></span><span id="statQuiz">Quiz: 0/25</span></div>
+    <div class="streak-badge">🔥 Streak: <span id="statStreak">0</span></div>
+    <div class="stat-chip">📊 <span id="statProgress">0%</span> done</div>
+  </div>
+</header>
+
+<!-- SEARCH -->
+<div class="search-wrapper">
+  <span class="search-icon">🔍</span>
+  <input class="search-bar" type="text" id="globalSearch" placeholder="Search topics, structures, foramina…" oninput="doSearch(this.value)">
+  <div id="searchResults"></div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-container">
+  <button class="tab-btn active" onclick="switchTab('overview',this)"><span class="tab-emoji">🏠</span>Overview</button>
+  <button class="tab-btn" onclick="switchTab('quiz',this)"><span class="tab-emoji">❓</span>Quiz</button>
+  <button class="tab-btn" onclick="switchTab('flashcards',this)"><span class="tab-emoji">🃏</span>Flashcards</button>
+  <button class="tab-btn" onclick="switchTab('cases',this)"><span class="tab-emoji">🏥</span>Clinical Cases</button>
+  <button class="tab-btn" onclick="switchTab('anatomy',this)"><span class="tab-emoji">🔬</span>Anatomy</button>
+  <button class="tab-btn" onclick="switchTab('diagnosis',this)"><span class="tab-emoji">🩺</span>Diagnosis</button>
+  <button class="tab-btn" onclick="switchTab('treatment',this)"><span class="tab-emoji">💊</span>Management</button>
+  <button class="tab-btn" onclick="switchTab('mnemonics',this)"><span class="tab-emoji">🧩</span>Mnemonics</button>
+  <button class="tab-btn" onclick="switchTab('viva',this)"><span class="tab-emoji">🗣️</span>Viva</button>
+</div>
+
+<main>
+
+<!-- ========================= OVERVIEW ========================= -->
+<div id="tab-overview" class="tab-panel active">
+  <div class="overview-hero">
+    <div class="hero-title">Lateral Ventricle<br>&amp; Cerebrospinal Fluid</div>
+    <div class="hero-desc">Master the anatomy of the ventricular system, CSF formation &amp; circulation pathways, and hydrocephalus — complete with clinical applications &amp; exam-favourite high-yield facts.</div>
+    <div class="tag-row">
+      <span class="tag tag-high">⭐ High Yield</span>
+      <span class="tag tag-exam">🎯 Exam Favourite</span>
+      <span class="tag tag-pearl">💡 Clinical Pearl</span>
+    </div>
+  </div>
+
+  <div class="section-title">Key Concept Cards</div>
+  <div class="section-sub">Tap any card for quick revision</div>
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-icon">🫧</div>
+      <div class="card-title">The Lateral Ventricle</div>
+      <div class="card-text">A <b style="color:var(--accent)">C-shaped</b> cavity in each cerebral hemisphere, lined with <b style="color:var(--accent)">ependyma</b>. Has a central body + 3 horns (anterior, posterior, inferior).</div>
+      <div style="margin-top:10px"><span class="tag tag-high">⭐ High Yield</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon">💧</div>
+      <div class="card-title">CSF Volume</div>
+      <div class="card-text">Total = <b style="color:var(--gold)">130 ml</b><br>30 ml in ventricles<br>100 ml in subarachnoid space</div>
+      <div style="margin-top:10px"><span class="tag tag-exam">🎯 Exam Fav</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🏭</div>
+      <div class="card-title">CSF Formation</div>
+      <div class="card-text"><b style="color:var(--accent)">70%</b> by choroid plexus (mainly lateral ventricle). Remainder from ependymal cells + pia mater cells.</div>
+      <div style="margin-top:10px"><span class="tag tag-exam">🎯 Exam Fav</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🌊</div>
+      <div class="card-title">CSF Circulation</div>
+      <div class="card-text">Lateral → Monro → 3rd → Sylvius → 4th → Magendie/Luschka → Subarachnoid → Arachnoid villi → Superior sagittal sinus</div>
+      <div style="margin-top:10px"><span class="tag tag-high">⭐ Must Know</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon">⚖️</div>
+      <div class="card-title">CSF Functions</div>
+      <div class="card-text">① Protects brain/cord &nbsp;② Reduces weight <b style="color:var(--gold)">60×</b> (1400→25 g) &nbsp;③ Substitutes CNS lymphatics &nbsp;④ Maintains chemical environment</div>
+      <div style="margin-top:10px"><span class="tag tag-pearl">💡 Pearl</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon">📐</div>
+      <div class="card-title">TOI — Posterior Horn</div>
+      <div class="card-text">Lateral wall (medial→lateral):<br><b style="color:var(--accent)">T</b>apetum &nbsp;·&nbsp; <b style="color:var(--purple)">O</b>ptic radiation &nbsp;·&nbsp; <b style="color:var(--pink)">I</b>nferior longitudinal fasciculus</div>
+      <div style="margin-top:10px"><span class="tag tag-exam">🎯 Arabic Lecture</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔴</div>
+      <div class="card-title">Hydrocephalus</div>
+      <div class="card-text">Abnormal ↑ CSF volume → ventricular dilation + ↑ head size.<br>Commonest cause = <b style="color:var(--red)">obstruction</b> to circulation</div>
+      <div style="margin-top:10px"><span class="tag tag-exam">🎯 Exam Fav</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🧲</div>
+      <div class="card-title">CSF Absorption</div>
+      <div class="card-text">Main site = <b style="color:var(--accent)">arachnoid villi &amp; granulations</b> → drain into dural sinuses, esp. <b style="color:var(--gold)">superior sagittal sinus</b></div>
+      <div style="margin-top:10px"><span class="tag tag-pearl">💡 Clinical</span></div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:32px">Lobe Locations — Ventricle Parts</div>
+  <div class="section-sub">Know which horn is where!</div>
+  <div class="cards-grid">
+    <div class="card" style="border-color:rgba(251,191,36,0.3)">
+      <div class="card-icon">🟡</div>
+      <div class="card-title" style="color:var(--gold)">Anterior Horn</div>
+      <div class="card-text"><b>Frontal Lobe</b><br>Roof: Body of corpus callosum<br>Floor: Rostrum of corpus callosum<br>Medial: Septum pellucidum<br>Lateral: Head of caudate</div>
+    </div>
+    <div class="card" style="border-color:rgba(79,195,247,0.3)">
+      <div class="card-icon">🔵</div>
+      <div class="card-title">Body (Central Part)</div>
+      <div class="card-text"><b>Parietal Lobe</b><br>Roof: Body of corpus callosum<br>Floor: Caudate + Stria term. + Thalamus + Fornix<br>Medial: Septum pellucidum</div>
+    </div>
+    <div class="card" style="border-color:rgba(167,139,250,0.3)">
+      <div class="card-icon">🟣</div>
+      <div class="card-title" style="color:var(--purple)">Posterior Horn</div>
+      <div class="card-text"><b>Occipital Lobe</b><br>Roof: Tapetum<br>Floor: Collateral trigone<br>Medial: Bulb + Calcar avis<br>Lateral: <b style="color:var(--accent)">TOI</b></div>
+    </div>
+    <div class="card" style="border-color:rgba(244,114,182,0.3)">
+      <div class="card-icon">🩷</div>
+      <div class="card-title" style="color:var(--pink)">Inferior Horn</div>
+      <div class="card-text"><b>Temporal Lobe</b><br>Roof: Tail caudate + Amygdaloid + Stria term.<br>Floor: Fimbria + Hippocampus + Collateral eminence<br>Medial: Choroid plexus<br>Lateral: Tapetum</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= QUIZ ========================= -->
+<div id="tab-quiz" class="tab-panel">
+  <div class="section-title">Quiz Mode</div>
+  <div class="section-sub">25 exam-style MCQs — answer to reveal detailed explanations</div>
+  <div class="quiz-header">
+    <div class="quiz-meta">
+      <div class="quiz-badge">📝 <span id="qAnswered">0</span>/25 answered</div>
+      <div class="quiz-badge">✅ Score: <span id="qScore">0</span></div>
+    </div>
+    <button onclick="resetQuiz()" style="background:var(--surface2);border:1px solid var(--border);padding:8px 16px;border-radius:var(--radius-sm);color:var(--text-muted);cursor:pointer;font-size:13px;">🔄 Reset</button>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="quizProgress" style="width:0%"></div></div>
+  <div id="quizContainer"></div>
+</div>
+
+<!-- ========================= FLASHCARDS ========================= -->
+<div id="tab-flashcards" class="tab-panel">
+  <div class="section-title">Flashcards</div>
+  <div class="section-sub">24 flip-cards — click/tap to reveal answers</div>
+  <div class="flashcards-grid" id="flashcardsGrid"></div>
+</div>
+
+<!-- ========================= CLINICAL CASES ========================= -->
+<div id="tab-cases" class="tab-panel">
+  <div class="section-title">Clinical Cases</div>
+  <div class="section-sub">6 exam-style vignettes with structured answers</div>
+  <div id="casesContainer"></div>
+</div>
+
+<!-- ========================= ANATOMY ========================= -->
+<div id="tab-anatomy" class="tab-panel">
+  <div class="section-title">Anatomy & Pathophysiology</div>
+  <div class="section-sub">Click any structure for detailed explanation</div>
+
+  <div style="margin-bottom:28px">
+    <h3 style="font-family:'Syne',sans-serif;color:var(--accent);margin-bottom:14px;font-size:16px;">🏛️ Ventricular Parts — Click to Explore</h3>
+    <div class="anatomy-grid" id="anatomyGrid"></div>
+  </div>
+
+  <div class="flowchart">
+    <div class="flow-title">💧 CSF Circulation Pathway</div>
+    <div class="flow-steps">
+      <div class="flow-step highlight">
+        <div class="step-name">🏭 Choroid Plexus (mainly Lateral Ventricle)</div>
+        <div class="step-note">Produces 70% of CSF — largest source</div>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step">
+        <div class="step-name">🫧 Lateral Ventricles</div>
+        <div class="step-note">C-shaped cavity in each hemisphere</div>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step highlight">
+        <div class="step-name">🚪 Interventricular Foramen of Monro</div>
+        <div class="step-note">Connects lateral → 3rd ventricle</div>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step">
+        <div class="step-name">🔲 3rd Ventricle</div>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step highlight">
+        <div class="step-name">🌊 Cerebral Aqueduct of Sylvius</div>
+        <div class="step-note">Most common obstruction site → hydrocephalus</div>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step">
+        <div class="step-name">🔲 4th Ventricle</div>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step highlight">
+        <div class="step-name">🚪 Foramen of Magendie (×1) + Luschka (×2)</div>
+        <div class="step-note">3 exits from 4th ventricle to subarachnoid space</div>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step">
+        <div class="step-name">🌐 Subarachnoid Space (100 ml)</div>
+        <div class="step-note">+ small amount to central canal of spinal cord</div>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step highlight">
+        <div class="step-name">🧲 Arachnoid Villi &amp; Granulations</div>
+        <div class="step-note">Main absorption site</div>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-step">
+        <div class="step-name">🩸 Superior Sagittal Sinus (venous blood)</div>
+        <div class="step-note">Final destination — dural sinus drainage</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= DIAGNOSIS ========================= -->
+<div id="tab-diagnosis" class="tab-panel">
+  <div class="section-title">Diagnosis &amp; Investigation</div>
+  <div class="section-sub">Causes, criteria, and localisation of hydrocephalus</div>
+
+  <div style="margin-bottom:28px">
+    <h3 style="font-family:'Syne',sans-serif;color:var(--accent);margin-bottom:16px;font-size:16px;">🔴 Hydrocephalus — Causes &amp; Mechanisms</h3>
+    <div class="cards-grid">
+      <div class="card" style="border-color:rgba(248,113,113,0.4)">
+        <div class="card-icon">🚧</div>
+        <div class="card-title" style="color:var(--red)">Obstruction (Commonest)</div>
+        <div class="card-text">Blockage anywhere in the CSF pathway. <b>Most common site:</b> Cerebral aqueduct of Sylvius.<br>Results in dilatation <i>above</i> the block.</div>
+        <div style="margin-top:8px"><span class="tag tag-exam">🎯 #1 Cause</span></div>
+      </div>
+      <div class="card" style="border-color:rgba(251,191,36,0.4)">
+        <div class="card-icon">🧬</div>
+        <div class="card-title" style="color:var(--gold)">Overproduction (Rare)</div>
+        <div class="card-text">Choroid plexus <b>tumor</b> → excess CSF exceeds absorption capacity → all ventricles dilate.</div>
+        <div style="margin-top:8px"><span class="tag tag-pearl">💡 Rare Cause</span></div>
+      </div>
+      <div class="card" style="border-color:rgba(167,139,250,0.4)">
+        <div class="card-icon">🩸</div>
+        <div class="card-title" style="color:var(--purple)">Inadequate Drainage</div>
+        <div class="card-text"><b>Thrombosis of superior sagittal sinus</b> → arachnoid villi cannot drain CSF into venous blood → pressure builds.</div>
+        <div style="margin-top:8px"><span class="tag tag-pearl">💡 Clinical</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:28px">
+    <h3 style="font-family:'Syne',sans-serif;color:var(--accent);margin-bottom:16px;font-size:16px;">🏥 Localising the Obstruction by MRI</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>MRI Finding</th><th>Dilated Ventricles</th><th>Site of Obstruction</th></tr></thead>
+        <tbody>
+          <tr><td>Lateral + 3rd dilated; 4th normal</td><td>Lateral &amp; 3rd</td><td>Cerebral aqueduct of Sylvius</td></tr>
+          <tr><td>Only one lateral ventricle dilated</td><td>One lateral</td><td>Foramen of Monro (one side)</td></tr>
+          <tr><td>All ventricles dilated</td><td>All 4</td><td>Outflow (Magendie/Luschka) or absorption failure</td></tr>
+          <tr><td>All dilated + ICP ↑, normal pressure</td><td>All 4</td><td>Arachnoid villi / sagittal sinus thrombosis</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div>
+    <h3 style="font-family:'Syne',sans-serif;color:var(--accent);margin-bottom:16px;font-size:16px;">📋 Key Clinical Features</h3>
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-icon">👶</div>
+        <div class="card-title">In Infants</div>
+        <div class="card-text">Skull sutures not fused → head enlarges progressively. Sunset sign (eyes pushed down). Translucent scalp veins. Bulging fontanelle.</div>
+        <div style="margin-top:8px"><span class="tag tag-high">⭐ Classic Presentation</span></div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🧑</div>
+        <div class="card-title">In Adults</div>
+        <div class="card-text">Skull fused → raised ICP without head enlargement. Headache, vomiting, papilloedema, declining consciousness. Normal Pressure Hydrocephalus (NPH) triad: wet, wobbly, wacky.</div>
+        <div style="margin-top:8px"><span class="tag tag-pearl">💡 NPH Triad</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= TREATMENT ========================= -->
+<div id="tab-treatment" class="tab-panel">
+  <div class="section-title">Management</div>
+  <div class="section-sub">Principles of hydrocephalus treatment &amp; CSF regulation</div>
+
+  <div class="treatment-grid">
+    <div class="treat-card">
+      <div class="treat-header emergency">🚨 Emergency / Surgical</div>
+      <div class="treat-body">
+        <div class="treat-item">Ventriculoperitoneal (VP) shunt — gold standard for chronic hydrocephalus</div>
+        <div class="treat-item">External ventricular drain (EVD) — acute ICP crisis</div>
+        <div class="treat-item">Endoscopic Third Ventriculostomy (ETV) — bypass aqueductal stenosis</div>
+        <div class="treat-item">Remove obstructing tumor or clot if identified</div>
+      </div>
+    </div>
+    <div class="treat-card">
+      <div class="treat-header secondary">💊 Medical (Temporary)</div>
+      <div class="treat-body">
+        <div class="treat-item">Acetazolamide — reduces CSF production by inhibiting carbonic anhydrase</div>
+        <div class="treat-item">Furosemide — adjunct to reduce CSF formation</div>
+        <div class="treat-item">Osmotic agents (mannitol) — acute raised ICP</div>
+        <div class="treat-item">Steroids — reduce inflammation around obstruction</div>
+      </div>
+    </div>
+    <div class="treat-card">
+      <div class="treat-header supportive">💚 CSF Regulation Principles</div>
+      <div class="treat-body">
+        <div class="treat-item">ICP regulated by adjusting production (↓) OR drainage (↑)</div>
+        <div class="treat-item">Normal ICP = 5–15 mmHg (supine)</div>
+        <div class="treat-item">Cerebral Perfusion Pressure = MAP − ICP (must keep &gt; 60 mmHg)</div>
+        <div class="treat-item">Head elevation 30° reduces ICP by improving venous drainage</div>
+      </div>
+    </div>
+    <div class="treat-card">
+      <div class="treat-header secondary">🔬 Underlying Cause</div>
+      <div class="treat-body">
+        <div class="treat-item">Choroid plexus tumor → surgical resection → stops overproduction</div>
+        <div class="treat-item">Superior sagittal sinus thrombosis → anticoagulation</div>
+        <div class="treat-item">Aqueductal stenosis → ETV preferred over shunt in children</div>
+        <div class="treat-item">Meningitis causing adhesions → treat infection + shunt</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= MNEMONICS ========================= -->
+<div id="tab-mnemonics" class="tab-panel">
+  <div class="section-title">Mnemonics</div>
+  <div class="section-sub">7 custom memory aids for exam day</div>
+  <div class="mnemonics-grid" id="mnemonicsGrid"></div>
+</div>
+
+<!-- ========================= VIVA ========================= -->
+<div id="tab-viva" class="tab-panel">
+  <div class="section-title">Viva Questions</div>
+  <div class="section-sub">12 classic oral-exam questions — click to reveal model answers</div>
+  <div class="viva-list" id="vivaList"></div>
+</div>
+
+</main>
+
+<div class="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</div>
+
+<script>
+// ========================= DATA =========================
+const quizData = [
+  {q:"What is the commonest cause of hydrocephalus?",options:["Dilatation of the brain ventricles","Overproduction of the CSF","Choroid plexus tumor","Obstruction to CSF circulation","Thrombosis of the superior sagittal sinus"],correct:3,exp:"Obstruction to CSF circulation is explicitly the commonest cause. Overproduction (choroid plexus tumor) and inadequate drainage (sinus thrombosis) are rarer. Dilatation is the result, not the cause."},
+  {q:"What percentage of CSF is produced by the choroid plexus?",options:["30%","50%","70%","90%","100%"],correct:2,exp:"70% is formed by the choroid plexus. The remaining 30% comes from ependymal lining cells and pia mater cells."},
+  {q:"Through which structure does CSF flow from the lateral ventricle to the 3rd ventricle?",options:["Cerebral aqueduct of Sylvius","Interventricular foramen of Monro","Foramen of Magendie","Foramina of Luschka","Arachnoid granulations"],correct:1,exp:"The Interventricular Foramen of Monro connects the lateral ventricle to the 3rd ventricle. Sylvius connects 3rd→4th. Magendie/Luschka connect 4th→subarachnoid."},
+  {q:"How does CSF enter the subarachnoid space from the 4th ventricle?",options:["Through the interventricular foramen","Through the cerebral aqueduct","Through the median foramen of Magendie and 2 lateral foramina of Luschka","Through arachnoid villi","Through the central canal"],correct:2,exp:"CSF exits the 4th ventricle via one median Foramen of Magendie and two lateral Foramina of Luschka. A small amount also enters the central canal."},
+  {q:"Where does the majority of CSF absorption take place?",options:["Choroid plexus","Pia mater cells","Ependymal lining","Arachnoid villi & granulations","Foramina of Luschka"],correct:3,exp:"Arachnoid villi & granulations are the main drainage sites, passing CSF into dural sinuses. The other options are sites of formation or transit."},
+  {q:"Which dural sinus specifically receives the most drained CSF?",options:["Inferior sagittal sinus","Transverse sinus","Superior sagittal sinus","Straight sinus","Sigmoid sinus"],correct:2,exp:"Arachnoid villi drain into dural sinuses, especially the superior sagittal sinus — this is the primary venous drainage site for CSF."},
+  {q:"How much CSF volume is contained within the subarachnoid space?",options:["30 ml","60 ml","100 ml","130 ml","1400 ml"],correct:2,exp:"Total CSF = 130 ml. Of this, 100 ml is in the subarachnoid space and 30 ml is in the ventricles."},
+  {q:"By how many folds does CSF reduce the effective weight of the brain?",options:["10 folds","25 folds","40 folds","60 folds","100 folds"],correct:3,exp:"CSF reduces the effective brain weight 60 folds — from 1400 gm (actual weight) to just 25 gm (effective buoyant weight)."},
+  {q:"In which lobe does the anterior horn of the lateral ventricle lie?",options:["Parietal lobe","Occipital lobe","Temporal lobe","Frontal lobe","Insula"],correct:3,exp:"Anterior horn = Frontal lobe. Body = Parietal. Posterior horn = Occipital. Inferior horn = Temporal."},
+  {q:"What forms the medial wall of the anterior horn?",options:["Head of Caudate nucleus","Septum pellucidum","Rostrum of corpus callosum","Genu of corpus callosum","Body of fornix"],correct:1,exp:"Septum pellucidum forms the medial wall of the anterior horn. Head of caudate = lateral wall. Rostrum = floor. Genu = anterior."},
+  {q:"What forms the floor of the central part (body) of the lateral ventricle?",options:["Septum pellucidum","Body of corpus callosum","Body of caudate, Stria terminalis, Thalamostriate vein, Thalamus, Choroid plexus, Fornix","Tapetum","Fimbria of hippocampus"],correct:2,exp:"The floor of the body includes the caudate body, stria terminalis, thalamostriate vein, thalamus, choroid plexus, and body of fornix."},
+  {q:"What structure forms the roof of the posterior horn?",options:["Tapetum of the corpus callosum","Bulb of posterior horn","Calcar avis","Collateral trigone","Optic radiation"],correct:0,exp:"The roof of the posterior horn is the tapetum of the corpus callosum. Bulb + calcar avis = medial wall. Collateral trigone = floor. Optic radiation = lateral wall."},
+  {q:"From medial to lateral, what makes up the lateral wall of the posterior horn? (TOI)",options:["Optic radiation, Tapetum, Inf. longitudinal fasciculus","Tapetum, Inf. longitudinal fasciculus, Optic radiation","Tapetum, Optic radiation, Inf. longitudinal fasciculus","Inf. long. fasciculus, Optic radiation, Tapetum","Calcar avis, Bulb of posterior horn, Tapetum"],correct:2,exp:"Mnemonic TOI — Tapetum, Optic radiation, Inferior longitudinal fasciculus (medial to lateral). This is a high-yield exam favourite!"},
+  {q:"What causes the elevation known as the 'Calcar avis' in the posterior horn?",options:["Collateral sulcus","Calcarine sulcus","Forceps major","Optic radiation","Hippocampus"],correct:1,exp:"Calcar avis is the ridge opposite the calcarine sulcus. Collateral sulcus creates the collateral trigone. Forceps major creates the bulb."},
+  {q:"In which lobe is the inferior horn located?",options:["Frontal","Parietal","Temporal","Occipital","Insular"],correct:2,exp:"Inferior horn = Temporal lobe. This horn curves anteriorly and inferiorly into the temporal lobe."},
+  {q:"What forms the medial wall of the inferior horn?",options:["Tapetum","Fimbria of hippocampus","Hippocampus","Choroid plexus of the inferior horn","Tail of caudate nucleus"],correct:3,exp:"Choroid plexus of the inferior horn forms its medial wall. Tapetum = lateral. Fimbria + Hippocampus = floor. Tail of caudate = roof."},
+  {q:"Which of these is a function of cerebrospinal fluid?",options:["Increases the brain weight","Regulates systemic blood pressure","Substitutes the lymphatic system in the CNS","Produces neurotransmitters","Forms the myelin sheath"],correct:2,exp:"CSF substitutes the CNS lymphatic system. It also protects the brain, reduces its weight, and maintains chemical environment. It does NOT increase weight (opposite!)."},
+  {q:"The total volume of CSF in the CNS is approximately:",options:["30 ml","100 ml","130 ml","500 ml","1400 ml"],correct:2,exp:"130 ml total = 30 ml in ventricles + 100 ml in subarachnoid space. 1400 ml is the actual brain weight in grams (not CSF)."},
+  {q:"Thrombosis of the superior sagittal sinus results in hydrocephalus through which mechanism?",options:["Overproduction of CSF","Inadequate drainage of CSF","Obstruction of the interventricular foramen","Obstruction of the cerebral aqueduct","Tumor of the choroid plexus"],correct:1,exp:"Sagittal sinus thrombosis prevents arachnoid villi from draining CSF into venous blood → inadequate drainage → hydrocephalus."},
+  {q:"Which structure forms the roof of the anterior horn?",options:["Rostrum of corpus callosum","Genu of corpus callosum","Body of corpus callosum","Head of caudate nucleus","Septum pellucidum"],correct:2,exp:"Roof of anterior horn = Body of corpus callosum (same as body/central part). Rostrum = floor. Genu = anterior wall. Head of caudate = lateral wall."},
+  {q:"The lateral ventricle is lined with which type of cells?",options:["Astrocytes","Microglia","Ependyma","Schwann cells","Oligodendrocytes"],correct:2,exp:"The ventricles are lined with ependymal cells (ependyma). These ciliated cells help move CSF and contribute 30% of CSF formation."},
+  {q:"Which part of the lateral ventricle is located in the parietal lobe?",options:["Anterior horn","Posterior horn","Inferior horn","Body (central part)","Interventricular foramen"],correct:3,exp:"Body/central part = Parietal lobe. Anterior = Frontal. Posterior = Occipital. Inferior = Temporal."},
+  {q:"The choroid plexus of the lateral ventricle is attached to which two parts?",options:["Anterior horn and body","Body and posterior horn","Body and inferior horn","Anterior horn and inferior horn","Posterior horn and inferior horn"],correct:2,exp:"Choroid plexus is attached to the body (floor) and inferior horn (medial wall). The anterior horn and posterior horn have NO choroid plexus."},
+  {q:"What structure forms the floor of the posterior horn?",options:["Collateral trigone","Calcar avis","Bulb of posterior horn","Tapetum","Optic radiation"],correct:0,exp:"Collateral trigone = floor of posterior horn (created by collateral sulcus). Bulb + calcar avis are on the medial wall. Tapetum = roof/lateral wall."},
+  {q:"How is intracranial pressure regulated by CSF?",options:["By changing the composition of ependymal cells","By substituting the lymphatic system","By controlling production and drainage rates","By decreasing brain weight to 25 gm","By communicating via the Foramen of Monro"],correct:2,exp:"ICP is regulated by adjusting the rate of CSF production and/or drainage. Increasing drainage or decreasing production lowers ICP."}
+];
+
+const flashcards = [
+  {q:"What shape is the lateral ventricle?",a:"C-shaped cavity inside each cerebral hemisphere, lined with ependyma"},
+  {q:"What is the total volume of CSF?",a:"130 ml total: 30 ml in ventricles, 100 ml in subarachnoid space"},
+  {q:"What % of CSF is produced by the choroid plexus?",a:"70% — mainly from the choroid plexus of the lateral ventricle"},
+  {q:"What are the other sources of CSF besides choroid plexus?",a:"Ependymal lining of ventricles (30%) + cells of pia mater"},
+  {q:"Name the CSF pathway in order",a:"Lateral → Foramen of Monro → 3rd ventricle → Aqueduct of Sylvius → 4th ventricle → Magendie/Luschka → Subarachnoid space"},
+  {q:"What is the main CSF absorption site?",a:"Arachnoid villi & granulations → drain into superior sagittal sinus"},
+  {q:"By how much does CSF reduce effective brain weight?",a:"60 folds: from 1400 gm to 25 gm"},
+  {q:"List 4 functions of CSF",a:"① Protects brain/cord ② Reduces weight 60× ③ Substitutes CNS lymphatics ④ Maintains chemical environment"},
+  {q:"Define hydrocephalus",a:"Abnormal increase in CSF volume → ventricular dilation → increased head size"},
+  {q:"What is the commonest cause of hydrocephalus?",a:"Obstruction to CSF circulation (most commonly at cerebral aqueduct)"},
+  {q:"Name 3 causes of hydrocephalus",a:"① Obstruction (commonest) ② Overproduction (choroid plexus tumor) ③ Inadequate drainage (sagittal sinus thrombosis)"},
+  {q:"TOI — What does it stand for?",a:"Tapetum, Optic radiation, Inferior longitudinal fasciculus — lateral wall of POSTERIOR horn (medial→lateral)"},
+  {q:"Which horn is in the frontal lobe?",a:"Anterior horn"},
+  {q:"Which horn is in the temporal lobe?",a:"Inferior horn"},
+  {q:"What is the medial wall of the anterior horn?",a:"Septum pellucidum"},
+  {q:"What is the floor of the anterior horn?",a:"Rostrum of corpus callosum; anteriorly bounded by genu"},
+  {q:"What forms the roof of the posterior horn?",a:"Tapetum of the corpus callosum"},
+  {q:"What is the medial wall of the posterior horn?",a:"Bulb of posterior horn + Calcar avis"},
+  {q:"What is the floor of the inferior horn?",a:"Fimbria of hippocampus, Hippocampus, Collateral eminence (medial → lateral)"},
+  {q:"What is the medial wall of the inferior horn?",a:"Choroid plexus of the inferior horn"},
+  {q:"What is the Calcar avis?",a:"An elevation on the medial wall of the posterior horn created by the calcarine sulcus"},
+  {q:"Where do the foramina of Luschka open?",a:"Two lateral foramina connecting the 4th ventricle to the subarachnoid space"},
+  {q:"Which sinus mainly receives drained CSF?",a:"Superior sagittal sinus (via arachnoid villi)"},
+  {q:"What cells line the lateral ventricle?",a:"Ependymal cells (ependyma)"}
+];
+
+const cases = [
+  {
+    title:"Case 1 — The Big-Headed Baby",urgency:"Paediatric Emergency",
+    scenario:"A 6-month-old infant is brought by parents for progressive enlargement of the head since birth. MRI shows dilation of the lateral and third ventricles but a normal-sized fourth ventricle.",
+    questions:["What is the diagnosis?","What is the site of obstruction?","Explain the mechanism."],
+    answer:`<div class="answer-step"><div class="step-badge">1</div><div><b>Diagnosis:</b> Non-communicating (obstructive) hydrocephalus — the most common type.</div></div>
+<div class="answer-step"><div class="step-badge">2</div><div><b>Site of obstruction:</b> <span class="highlight">Cerebral aqueduct of Sylvius</span> — the narrowest part connecting the 3rd to the 4th ventricle.</div></div>
+<div class="answer-step"><div class="step-badge">3</div><div><b>Mechanism:</b> Obstruction prevents CSF from flowing from the 3rd to the 4th ventricle. CSF accumulates above the blockage → dilation of both lateral + 3rd ventricles. The 4th ventricle remains normal because it drains freely. This is the commonest cause of hydrocephalus.</div></div>`
+  },
+  {
+    title:"Case 2 — The Rare Tumour",urgency:"Oncology",
+    scenario:"A 35-year-old presents with progressive headache and bilateral papilloedema. MRI shows dilation of ALL four ventricles. A mass is identified in the lateral ventricle near the choroid plexus.",
+    questions:["What is causing the hydrocephalus?","Why are all four ventricles dilated?","How is this different from the commonest cause?"],
+    answer:`<div class="answer-step"><div class="step-badge">1</div><div><b>Cause:</b> <span class="highlight">Choroid plexus tumor (papilloma)</span> → overproduction of CSF beyond absorption capacity.</div></div>
+<div class="answer-step"><div class="step-badge">2</div><div><b>All 4 ventricles dilated</b> because CSF is overproduced throughout the system, not blocked at a single point. The pathway remains open, but volume overwhelms drainage.</div></div>
+<div class="answer-step"><div class="step-badge">3</div><div><b>Contrast with commonest cause (obstruction):</b> Obstruction causes dilation only <i>above</i> the blockage. Overproduction dilates the entire ventricular system uniformly. This is a rare cause vs obstruction which is the commonest.</div></div>`
+  },
+  {
+    title:"Case 3 — The Clotted Sinus",urgency:"Neurology",
+    scenario:"A 28-year-old woman on oral contraceptives develops severe headache and visual changes. Imaging confirms thrombosis of the superior sagittal sinus and raised ICP.",
+    questions:["How does this cause hydrocephalus?","Name the structure whose function is impaired.","What is the mechanism at the cellular level?"],
+    answer:`<div class="answer-step"><div class="step-badge">1</div><div><b>Mechanism:</b> The superior sagittal sinus receives CSF via arachnoid villi & granulations. Thrombosis blocks venous outflow → CSF cannot drain → <span class="highlight">inadequate drainage</span> → raised ICP.</div></div>
+<div class="answer-step"><div class="step-badge">2</div><div><b>Impaired structures:</b> Arachnoid villi and granulations (which project into the superior sagittal sinus). These are the main absorption sites.</div></div>
+<div class="answer-step"><div class="step-badge">3</div><div><b>Cellular level:</b> Arachnoid villi work by hydrostatic pressure difference between subarachnoid CSF and venous sinus. Thrombosis raises venous pressure, eliminating this gradient → absorption stops.</div></div>`
+  },
+  {
+    title:"Case 4 — The Dissection Probe",urgency:"Anatomy Lab",
+    scenario:"During cadaveric dissection, a probe is inserted into the posterior horn of the lateral ventricle and directed laterally. The demonstrator asks about the structures traversed from medial to lateral.",
+    questions:["Name the structures in order (medial → lateral).","What is the mnemonic?","What is the significance of the optic radiation here?"],
+    answer:`<div class="answer-step"><div class="step-badge">1</div><div><b>Structures (medial → lateral):</b><br>① <span class="highlight">Tapetum</span> of the corpus callosum<br>② <span class="highlight">Optic radiation</span><br>③ <span class="highlight">Inferior longitudinal fasciculus</span></div></div>
+<div class="answer-step"><div class="step-badge">2</div><div><b>Mnemonic:</b> <span class="highlight" style="font-size:16px;font-weight:700">TOI</span> — Tapetum · Optic radiation · Inferior longitudinal fasciculus</div></div>
+<div class="answer-step"><div class="step-badge">3</div><div><b>Clinical significance:</b> The optic radiation (Meyer's loop) carries visual fibres. Lesions here (e.g. temporal lobe surgery) can cause a contralateral upper quadrant visual field defect (pie in the sky).</div></div>`
+  },
+  {
+    title:"Case 5 — The Head Trauma",urgency:"Emergency",
+    scenario:"A motorcyclist sustains a high-speed head injury but does not lose consciousness immediately. The neurosurgeon explains that the brain was protected from direct impact against the skull.",
+    questions:["What protective mechanism was at play?","Quantify the protection provided.","What would happen without this mechanism?"],
+    answer:`<div class="answer-step"><div class="step-badge">1</div><div><b>Mechanism:</b> <span class="highlight">CSF in the subarachnoid space</span> acts as a hydraulic shock absorber, distributing forces evenly and cushioning the brain within the skull.</div></div>
+<div class="answer-step"><div class="step-badge">2</div><div><b>Quantification:</b> CSF reduces effective brain weight <span class="highlight">60 folds</span> — from actual 1400 g to effective 25 g via buoyancy. This dramatically reduces inertial forces during acceleration/deceleration.</div></div>
+<div class="answer-step"><div class="step-badge">3</div><div><b>Without CSF:</b> The brain at 1400 g would crash directly against the inner skull surface with full inertial force → severe diffuse axonal injury, contusions, and haemorrhage from even minor impacts.</div></div>`
+  },
+  {
+    title:"Case 6 — The Child with Rising ICP",urgency:"Paediatric Neurosurgery",
+    scenario:"A child presents with progressive headache, vomiting, and declining academic performance over 6 months. CSF studies show normal composition. MRI demonstrates ventricular dilation. Describe the full workup and management approach.",
+    questions:["What is the differential diagnosis?","How do you localize the obstruction on MRI?","Outline the management."],
+    answer:`<div class="answer-step"><div class="step-badge">1</div><div><b>Differential:</b> ① Obstructive hydrocephalus (congenital aqueductal stenosis commonest in children) ② Tumour causing obstruction ③ Post-infectious adhesions ④ NPH (rare in children)</div></div>
+<div class="answer-step"><div class="step-badge">2</div><div><b>MRI Localisation:</b> Lateral + 3rd dilated but 4th normal → <span class="highlight">aqueduct of Sylvius</span>. All 4 dilated → absorption failure or 4th ventricle outflow block. Only one lateral dilated → unilateral Foramen of Monro block.</div></div>
+<div class="answer-step"><div class="step-badge">3</div><div><b>Management:</b><br>• Acute: IV mannitol, head elevation 30°<br>• Definitive: <span class="highlight">Endoscopic Third Ventriculostomy</span> (preferred for aqueductal stenosis in children) OR VP shunt<br>• Treat underlying cause if identified</div></div>`
+  }
+];
+
+const mnemonicsData = [
+  {
+    title:"FLOW",color:"var(--accent)",
+    subtitle:"CSF Circulation Pathway",
+    rows:[
+      {letter:"F",color:"var(--accent)",word:"Foramen of Monro",desc:"Lateral → 3rd ventricle"},
+      {letter:"L",color:"var(--purple)",word:"Little aqueduct (Sylvius)",desc:"3rd → 4th ventricle — commonest obstruction site"},
+      {letter:"O",color:"var(--green)",word:"Openings ×3 (Magendie + 2×Luschka)",desc:"4th ventricle → subarachnoid space"},
+      {letter:"W",color:"var(--gold)",word:"Washed away (arachnoid villi)",desc:"Into superior sagittal sinus"},
+    ]
+  },
+  {
+    title:"TOI",color:"var(--orange)",
+    subtitle:"Posterior Horn Lateral Wall (medial→lateral)",
+    rows:[
+      {letter:"T",color:"var(--orange)",word:"Tapetum",desc:"Of corpus callosum — innermost"},
+      {letter:"O",color:"var(--pink)",word:"Optic radiation",desc:"Carries visual fibres — damage = visual field defect"},
+      {letter:"I",color:"var(--purple)",word:"Inferior longitudinal fasciculus",desc:"Outermost — temporal association fibres"},
+    ]
+  },
+  {
+    title:"FIAT",color:"var(--gold)",
+    subtitle:"4 Lobes = 4 Ventricle Parts",
+    rows:[
+      {letter:"F",color:"var(--gold)",word:"Frontal → Anterior horn",desc:""},
+      {letter:"I",color:"var(--accent)",word:"Inferior → Temporal horn",desc:""},
+      {letter:"A",color:"var(--green)",word:"Anterior body → Parietal",desc:""},
+      {letter:"T",color:"var(--purple)",word:"Tail (posterior) → Occipital",desc:""},
+    ]
+  },
+  {
+    title:"OOA",color:"var(--green)",
+    subtitle:"3 Causes of Hydrocephalus",
+    rows:[
+      {letter:"O",color:"var(--red)",word:"Obstruction",desc:"Commonest! Usually at aqueduct of Sylvius"},
+      {letter:"O",color:"var(--gold)",word:"Overproduction",desc:"Choroid plexus tumor (rare)"},
+      {letter:"A",color:"var(--purple)",word:"Absorption failure",desc:"Sagittal sinus thrombosis"},
+    ]
+  },
+  {
+    title:"CSF 130",color:"var(--accent)",
+    subtitle:"Volume Breakdown",
+    rows:[
+      {letter:"C",color:"var(--accent)",word:"CSF total = 130 ml",desc:""},
+      {letter:"30",color:"var(--pink)",word:"30 ml in ventricles",desc:""},
+      {letter:"100",color:"var(--green)",word:"100 ml in subarachnoid",desc:""},
+    ]
+  },
+  {
+    title:"PRIM",color:"var(--purple)",
+    subtitle:"Functions of CSF (PRIM)",
+    rows:[
+      {letter:"P",color:"var(--purple)",word:"Protects brain & spinal cord",desc:"Hydraulic cushion"},
+      {letter:"R",color:"var(--red)",word:"Reduces weight 60×",desc:"1400 g → 25 g"},
+      {letter:"I",color:"var(--accent)",word:"Instead of lymphatics",desc:"Substitutes CNS lymphatic system"},
+      {letter:"M",color:"var(--green)",word:"Maintains chemical environment",desc:"Ionic balance for neurons"},
+    ]
+  },
+  {
+    title:"BFCM",color:"var(--pink)",
+    subtitle:"Inferior Horn Floor (medial→lateral)",
+    rows:[
+      {letter:"B",color:"var(--pink)",word:"(F)imbria of hippocampus",desc:"First medially"},
+      {letter:"F",color:"var(--pink)",word:"… actually: Fimbria, Hippocampus, Collateral eminence",desc:"The order of floor from medial to lateral"},
+    ]
+  }
+];
+
+const vivaData = [
+  {q:"What is the normal volume of CSF?",a:"Total = <span class='highlight'>130 ml</span>: 30 ml inside the ventricles and 100 ml in the subarachnoid space."},
+  {q:"Describe the shape and location of the lateral ventricle.",a:"It is a <span class='highlight'>C-shaped cavity</span> inside each cerebral hemisphere, lined with ependyma. It has a central body in the parietal lobe and three horns extending into the frontal (anterior), occipital (posterior), and temporal (inferior) lobes."},
+  {q:"What is the primary source of CSF formation?",a:"The <span class='highlight'>choroid plexus</span> is the main source, forming ~<span class='highlight'>70% of CSF</span>. The largest contribution comes from the choroid plexus of the lateral ventricle. The remaining 30% is formed by ependymal cells and pia mater."},
+  {q:"How does CSF flow from the lateral ventricle to the subarachnoid space?",a:"Lateral ventricle → <span class='highlight'>Foramen of Monro</span> → 3rd ventricle → <span class='highlight'>Aqueduct of Sylvius</span> → 4th ventricle → <span class='highlight'>Foramen of Magendie (×1) + Foramina of Luschka (×2)</span> → subarachnoid space."},
+  {q:"Where is CSF absorbed?",a:"The main absorption sites are the <span class='highlight'>arachnoid villi and granulations</span>, which drain CSF into the venous blood of dural sinuses, especially the <span class='highlight'>superior sagittal sinus</span>."},
+  {q:"List the boundaries of the anterior horn of the lateral ventricle.",a:"Roof: Body of corpus callosum | Floor: Rostrum | Anterior: Genu | Medial: <span class='highlight'>Septum pellucidum</span> | Lateral: <span class='highlight'>Head of caudate nucleus</span>"},
+  {q:"Identify the lateral wall of the posterior horn from medial to lateral.",a:"Mnemonic <b>TOI</b>: <span class='highlight'>T</span>apetum of corpus callosum → <span class='highlight'>O</span>ptic radiation → <span class='highlight'>I</span>nferior longitudinal fasciculus. This is a high-yield exam favourite!"},
+  {q:"What structures form the floor of the inferior horn?",a:"From medial to lateral: <span class='highlight'>Fimbria of hippocampus</span>, <span class='highlight'>Hippocampus</span>, and <span class='highlight'>Collateral eminence</span>."},
+  {q:"Name four functions of cerebrospinal fluid.",a:"① <span class='highlight'>Protects</span> brain and spinal cord ② <span class='highlight'>Reduces effective brain weight 60 folds</span> (1400 g → 25 g) ③ <span class='highlight'>Substitutes the lymphatic system</span> in the CNS ④ <span class='highlight'>Maintains chemical environment</span>"},
+  {q:"Define hydrocephalus.",a:"An <span class='highlight'>abnormal increase in the volume of CSF</span> accompanied by dilatation of the ventricles and an increase in the size of the head."},
+  {q:"What is the most common cause of hydrocephalus?",a:"The most common cause is <span class='highlight'>obstruction to the circulation of CSF</span> — most frequently at the cerebral aqueduct of Sylvius."},
+  {q:"Which structure forms the medial wall of the body (central part) of the lateral ventricle?",a:"The medial wall of the body is formed by the <span class='highlight'>septum pellucidum</span>."}
+];
+
+const anatomyItems = [
+  {label:"Anterior Horn (Frontal)",desc:"Roof: Body of corpus callosum | Floor: Rostrum | Anterior: Genu | Medial: Septum pellucidum | Lateral: Head of caudate nucleus"},
+  {label:"Body / Central Part (Parietal)",desc:"Roof: Body of corpus callosum | Floor: Caudate body + Stria terminalis + Thalamostriate vein + Thalamus + Choroid plexus + Fornix body | Medial: Septum pellucidum"},
+  {label:"Posterior Horn (Occipital)",desc:"Roof: Tapetum | Floor: Collateral trigone | Medial: Bulb of posterior horn + Calcar avis | Lateral: TOI (Tapetum, Optic radiation, Inferior long. fasciculus)"},
+  {label:"Inferior Horn (Temporal)",desc:"Roof: Tail of caudate + Amygdaloid + Stria terminalis + Thalamostriate vein | Floor: Fimbria + Hippocampus + Collateral eminence | Medial: Choroid plexus | Lateral: Tapetum"},
+  {label:"Interventricular Foramen of Monro",desc:"Connects EACH lateral ventricle to the 3rd ventricle. Obstruction here → unilateral hydrocephalus."},
+  {label:"Cerebral Aqueduct of Sylvius",desc:"Connects 3rd → 4th ventricle. The narrowest point in the CSF pathway — COMMONEST site of obstruction causing hydrocephalus."},
+  {label:"Foramen of Magendie",desc:"Single MEDIAN foramen — 4th ventricle → subarachnoid space. Part of 3 exit foramina from 4th ventricle."},
+  {label:"Foramina of Luschka ×2",desc:"Two LATERAL foramina — 4th ventricle → subarachnoid space (cerebellopontine angle cisterns)."},
+  {label:"Choroid Plexus",desc:"Specialized vascular tufts in the roof of the 3rd/4th ventricle and floor of the body + inferior horn of the lateral ventricle. Produces 70% of CSF."},
+  {label:"Arachnoid Villi & Granulations",desc:"Project into the superior sagittal sinus. Main CSF absorption site. Function via hydrostatic pressure gradient. Blocked in sinus thrombosis → hydrocephalus."},
+  {label:"Septum Pellucidum",desc:"Thin membrane between the two lateral ventricles. Forms medial wall of BOTH anterior horn and body. Cavum septi pellucidi = normal variant."},
+  {label:"Calcar Avis",desc:"Ridge on medial wall of posterior horn caused by the calcarine sulcus. Important anatomical landmark. 'Bird's spur' appearance."},
+];
+
+// ========================= QUIZ INIT =========================
+let quizState = {answered:0,score:0,streak:0};
+
+function renderQuiz(){
+  const c = document.getElementById('quizContainer');
+  c.innerHTML = quizData.map((q,i)=>`
+    <div class="quiz-card" id="qcard${i}">
+      <div class="q-number">Question ${i+1} of ${quizData.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options">
+        ${q.options.map((o,j)=>`
+          <div class="option" id="opt${i}_${j}" onclick="selectAnswer(${i},${j})">
+            <div class="option-letter">${String.fromCharCode(65+j)}</div>
+            <div>${o}</div>
+          </div>`).join('')}
+      </div>
+      <div class="explanation" id="exp${i}">
+        <b>✅ Correct: ${q.options[q.correct]}</b><br><br>${q.exp}
+      </div>
+    </div>`).join('');
+}
+
+function selectAnswer(qi,ai){
+  const opts = document.querySelectorAll(`[id^="opt${qi}_"]`);
+  const exp = document.getElementById(`exp${qi}`);
+  if(opts[0].classList.contains('disabled')) return;
+  opts.forEach(o=>o.classList.add('disabled'));
+  const correct = quizData[qi].correct;
+  if(ai===correct){
+    opts[ai].classList.add('correct');
+    quizState.score++;quizState.streak++;
+  } else {
+    opts[ai].classList.add('wrong');
+    opts[correct].classList.add('correct');
+    quizState.streak=0;
+  }
+  quizState.answered++;
+  exp.classList.add('show');
+  updateStats();
+  saveProgress();
+}
+
+function updateStats(){
+  document.getElementById('qAnswered').textContent=quizState.answered;
+  document.getElementById('qScore').textContent=quizState.score;
+  document.getElementById('statStreak').textContent=quizState.streak;
+  document.getElementById('statQuiz').textContent=`Quiz: ${quizState.answered}/25`;
+  const pct = Math.round((quizState.answered/25)*100);
+  document.getElementById('quizProgress').style.width=pct+'%';
+  document.getElementById('statProgress').textContent=pct+'%';
+}
+
+function resetQuiz(){
+  quizState={answered:0,score:0,streak:0};
+  updateStats();
+  renderQuiz();
+  localStorage.removeItem('lvcsf_quiz');
+}
+
+// ========================= FLASHCARDS =========================
+function renderFlashcards(){
+  const g = document.getElementById('flashcardsGrid');
+  g.innerHTML = flashcards.map((f,i)=>`
+    <div class="flip-card" onclick="this.classList.toggle('flipped')" id="fc${i}">
+      <div class="flip-inner">
+        <div class="flip-front">
+          <div class="flip-q">${f.q}</div>
+          <div class="flip-hint">👆 tap to flip</div>
+        </div>
+        <div class="flip-back">
+          <div class="flip-a">${f.a}</div>
+          <div class="flip-hint">👆 tap to flip back</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ========================= CASES =========================
+function renderCases(){
+  const c = document.getElementById('casesContainer');
+  c.innerHTML = cases.map((cs,i)=>`
+    <div class="case-card">
+      <div class="case-header">
+        <div>
+          <div class="case-num">${cs.title}</div>
+          <div class="case-scenario">${cs.scenario}</div>
+        </div>
+        <div class="case-urgency">${cs.urgency}</div>
+      </div>
+      <div class="case-body">
+        ${cs.questions.map((q,j)=>`<div class="case-q">❓ ${q}</div>`).join('')}
+        <button class="reveal-btn" onclick="revealCase(${i})">🔓 Reveal Answer</button>
+        <div class="case-answer" id="case${i}">${cs.answer}</div>
+      </div>
+    </div>`).join('');
+}
+
+function revealCase(i){
+  const el = document.getElementById(`case${i}`);
+  el.classList.toggle('show');
+}
+
+// ========================= ANATOMY =========================
+function renderAnatomy(){
+  const g = document.getElementById('anatomyGrid');
+  g.innerHTML = anatomyItems.map((a,i)=>`
+    <div class="anatomy-item" onclick="this.classList.toggle('open')">
+      <div class="anatomy-label">📍 ${a.label}</div>
+      <div class="anatomy-desc">${a.desc}</div>
+    </div>`).join('');
+}
+
+// ========================= MNEMONICS =========================
+function renderMnemonics(){
+  const g = document.getElementById('mnemonicsGrid');
+  g.innerHTML = mnemonicsData.map(m=>`
+    <div class="mnemonic-card">
+      <div class="mnemonic-header">
+        <div class="mnemonic-title" style="color:${m.color}">${m.title}</div>
+        <div class="mnemonic-subtitle">${m.subtitle}</div>
+      </div>
+      <div class="mnemonic-body">
+        ${m.rows.map(r=>`
+          <div class="mnemonic-row">
+            <div class="mnem-letter" style="color:${r.color}">${r.letter}</div>
+            <div>
+              <div class="mnem-word">${r.word}</div>
+              ${r.desc?`<div class="mnem-desc">${r.desc}</div>`:''}
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+// ========================= VIVA =========================
+function renderViva(){
+  const v = document.getElementById('vivaList');
+  v.innerHTML = vivaData.map((vi,i)=>`
+    <div class="viva-item" id="viva${i}">
+      <div class="viva-q" onclick="toggleViva(${i})">
+        <div class="viva-num">V${i+1}</div>
+        <div class="viva-text">${vi.q}</div>
+        <div class="viva-chevron">▶</div>
+      </div>
+      <div class="viva-a">
+        <div class="viva-answer">${vi.a}</div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleViva(i){
+  document.getElementById(`viva${i}`).classList.toggle('open');
+}
+
+// ========================= SEARCH =========================
+const searchIndex = [
+  ...quizData.map(q=>({text:q.q+' '+q.options.join(' '),tab:'quiz',label:q.q})),
+  ...flashcards.map(f=>({text:f.q+' '+f.a,tab:'flashcards',label:f.q})),
+  ...vivaData.map(v=>({text:v.q,tab:'viva',label:v.q})),
+  ...anatomyItems.map(a=>({text:a.label+' '+a.desc,tab:'anatomy',label:a.label})),
+];
+
+function doSearch(val){
+  const box = document.getElementById('searchResults');
+  if(!val.trim()){box.style.display='none';return;}
+  const res = searchIndex.filter(s=>s.text.toLowerCase().includes(val.toLowerCase())).slice(0,8);
+  if(!res.length){box.style.display='none';return;}
+  box.style.display='block';
+  box.innerHTML = res.map(r=>`
+    <div class="search-item" onclick="switchTab('${r.tab}',null);box.style.display='none'">
+      ${r.label.substring(0,80)}… <span class="search-tag">${r.tab}</span>
+    </div>`).join('');
+}
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.search-wrapper')) document.getElementById('searchResults').style.display='none';
+});
+
+// ========================= TABS =========================
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  else {
+    document.querySelectorAll('.tab-btn').forEach(b=>{
+      if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes(`'${id}'`)) b.classList.add('active');
+    });
+  }
+  localStorage.setItem('lvcsf_tab',id);
+}
+
+// ========================= LOCALSTORAGE =========================
+function saveProgress(){
+  localStorage.setItem('lvcsf_quiz', JSON.stringify(quizState));
+}
+
+function loadProgress(){
+  const s = localStorage.getItem('lvcsf_quiz');
+  if(s) Object.assign(quizState,JSON.parse(s));
+  updateStats();
+  const lastTab = localStorage.getItem('lvcsf_tab');
+  if(lastTab){
+    const btn = document.querySelector(`.tab-btn[onclick*="'${lastTab}'"]`);
+    switchTab(lastTab,btn);
+  }
+}
+
+// ========================= INIT =========================
+renderQuiz();
+renderFlashcards();
+renderCases();
+renderAnatomy();
+renderMnemonics();
+renderViva();
+loadProgress();
+</script>
+</body>
+</html>

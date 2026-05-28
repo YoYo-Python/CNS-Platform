@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learning & Memory — Interactive Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #09090f;
+  --surface: #111118;
+  --surface2: #1a1a28;
+  --surface3: #222235;
+  --border: rgba(255,255,255,0.07);
+  --accent: #7c6af7;
+  --accent2: #c084fc;
+  --accent3: #38bdf8;
+  --gold: #f59e0b;
+  --green: #34d399;
+  --red: #f87171;
+  --text: #e8e8f4;
+  --muted: #7c7c9c;
+  --card-glow: 0 0 30px rgba(124,106,247,0.12);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Animated background */
+.bg-mesh {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse 80% 50% at 20% 40%, rgba(124,106,247,0.08) 0%, transparent 60%),
+              radial-gradient(ellipse 60% 40% at 80% 70%, rgba(192,132,252,0.06) 0%, transparent 60%),
+              radial-gradient(ellipse 40% 60% at 50% 10%, rgba(56,189,248,0.05) 0%, transparent 60%);
+}
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.03;
+  background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Header */
+header {
+  position: relative; z-index: 10;
+  padding: 2rem 2rem 0;
+  max-width: 1400px; margin: 0 auto;
+}
+.header-inner {
+  background: rgba(17,17,24,0.9);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.5rem 2rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+}
+.logo { display: flex; align-items: center; gap: 0.75rem; }
+.logo-icon {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 20px rgba(124,106,247,0.4);
+}
+.logo h1 { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; }
+.logo span { color: var(--muted); font-size: 0.8rem; display: block; }
+
+.stats-bar { display: flex; gap: 1rem; flex-wrap: wrap; }
+.stat-chip {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 100px; padding: 0.4rem 1rem;
+  font-size: 0.8rem; display: flex; align-items: center; gap: 0.4rem;
+}
+.stat-chip strong { color: var(--accent2); }
+
+.search-wrap { position: relative; }
+.search-wrap input {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); border-radius: 100px; padding: 0.5rem 1rem 0.5rem 2.5rem;
+  font-family: 'DM Sans', sans-serif; font-size: 0.85rem; width: 220px;
+  outline: none; transition: border-color 0.2s;
+}
+.search-wrap input:focus { border-color: var(--accent); }
+.search-wrap::before { content: '🔍'; position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 0.8rem; }
+
+/* Nav tabs */
+nav {
+  position: relative; z-index: 10;
+  max-width: 1400px; margin: 1rem auto 0;
+  padding: 0 2rem;
+}
+.nav-inner {
+  background: rgba(17,17,24,0.8); backdrop-filter: blur(20px);
+  border: 1px solid var(--border); border-radius: 16px;
+  padding: 0.5rem; display: flex; gap: 0.25rem; flex-wrap: wrap;
+}
+.tab-btn {
+  background: none; border: none; color: var(--muted);
+  padding: 0.6rem 1.1rem; border-radius: 10px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.tab-btn:hover { color: var(--text); background: var(--surface3); }
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff; box-shadow: 0 4px 15px rgba(124,106,247,0.4);
+}
+
+/* Main content */
+main {
+  position: relative; z-index: 5;
+  max-width: 1400px; margin: 1.5rem auto;
+  padding: 0 2rem 4rem;
+}
+.tab-content { display: none; animation: fadeIn 0.3s ease; }
+.tab-content.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: var(--card-glow);
+}
+.card-accent { border-left: 3px solid var(--accent); }
+.card-gold { border-left: 3px solid var(--gold); }
+.card-green { border-left: 3px solid var(--green); }
+.card-red { border-left: 3px solid var(--red); }
+
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+
+h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 1.5rem; }
+h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; }
+h4 { font-size: 0.9rem; font-weight: 600; color: var(--accent2); margin-bottom: 0.5rem; }
+p { font-size: 0.9rem; line-height: 1.7; color: #c0c0d8; }
+
+.tag {
+  display: inline-block; padding: 0.2rem 0.6rem; border-radius: 6px;
+  font-size: 0.72rem; font-weight: 600; margin: 0.15rem;
+}
+.tag-exam { background: rgba(245,158,11,0.15); color: var(--gold); border: 1px solid rgba(245,158,11,0.3); }
+.tag-high { background: rgba(248,113,113,0.15); color: var(--red); border: 1px solid rgba(248,113,113,0.3); }
+.tag-pearl { background: rgba(52,211,153,0.15); color: var(--green); border: 1px solid rgba(52,211,153,0.3); }
+.tag-mech { background: rgba(124,106,247,0.15); color: var(--accent); border: 1px solid rgba(124,106,247,0.3); }
+
+/* Section header */
+.section-header { margin-bottom: 1.5rem; }
+.section-header p { color: var(--muted); margin-top: 0.3rem; font-size: 0.85rem; }
+
+/* =================== OVERVIEW =================== */
+.hero-banner {
+  background: linear-gradient(135deg, rgba(124,106,247,0.15), rgba(192,132,252,0.08));
+  border: 1px solid rgba(124,106,247,0.25);
+  border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem;
+  position: relative; overflow: hidden;
+}
+.hero-banner::before {
+  content: '🧠'; position: absolute; right: 2rem; top: 50%; transform: translateY(-50%);
+  font-size: 5rem; opacity: 0.15;
+}
+.hero-banner h2 { font-size: 2rem; margin-bottom: 0.5rem; }
+.hero-banner p { max-width: 600px; }
+
+.concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.concept-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1.25rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.concept-card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(124,106,247,0.2); }
+.concept-icon { font-size: 1.8rem; margin-bottom: 0.75rem; }
+.concept-card h3 { font-size: 0.95rem; margin-bottom: 0.5rem; }
+.concept-card p { font-size: 0.82rem; }
+
+.flowchart { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; }
+.flow-steps { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+.flow-step {
+  background: var(--surface2); border: 1px solid rgba(124,106,247,0.3);
+  border-radius: 10px; padding: 0.6rem 1rem; font-size: 0.8rem; text-align: center;
+  max-width: 160px;
+}
+.flow-arrow { color: var(--accent); font-size: 1.2rem; }
+
+.highlight-box {
+  background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25);
+  border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem;
+}
+.highlight-box h4 { color: var(--gold); font-size: 0.85rem; margin-bottom: 0.4rem; }
+.highlight-box p { font-size: 0.83rem; }
+
+/* =================== QUIZ =================== */
+.quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+.quiz-progress { flex: 1; }
+.progress-bar-wrap { background: var(--surface3); border-radius: 100px; height: 8px; overflow: hidden; margin-top: 0.4rem; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 100px; transition: width 0.5s ease; }
+.quiz-score-display { display: flex; gap: 1rem; }
+.score-chip { text-align: center; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 0.5rem 1rem; }
+.score-chip strong { display: block; font-size: 1.3rem; color: var(--accent2); }
+.score-chip span { font-size: 0.72rem; color: var(--muted); }
+
+.question-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 1.75rem; margin-bottom: 1rem;
+}
+.q-number { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.75rem; font-family: 'DM Mono', monospace; }
+.q-text { font-size: 0.95rem; font-weight: 500; line-height: 1.6; margin-bottom: 1.25rem; }
+.options { display: flex; flex-direction: column; gap: 0.6rem; }
+.option-btn {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0.75rem 1rem;
+  text-align: left; font-family: 'DM Sans', sans-serif; font-size: 0.87rem; color: var(--text);
+  cursor: pointer; transition: all 0.2s;
+}
+.option-btn:hover:not(:disabled) { border-color: var(--accent); background: rgba(124,106,247,0.08); }
+.option-btn.correct { background: rgba(52,211,153,0.12); border-color: var(--green); color: var(--green); }
+.option-btn.wrong { background: rgba(248,113,113,0.12); border-color: var(--red); color: var(--red); }
+.option-btn.correct { animation: pulse-green 0.4s ease; }
+.option-btn.wrong { animation: shake 0.4s ease; }
+@keyframes pulse-green { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+
+.explanation {
+  background: var(--surface2); border-left: 3px solid var(--accent);
+  border-radius: 0 10px 10px 0; padding: 0.75rem 1rem;
+  margin-top: 0.75rem; font-size: 0.83rem; display: none;
+}
+.explanation.show { display: block; animation: fadeIn 0.3s ease; }
+.explanation strong { color: var(--accent2); }
+
+.quiz-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; }
+.btn {
+  padding: 0.65rem 1.5rem; border-radius: 10px; border: none;
+  font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; }
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-outline { background: none; border: 1px solid var(--border); color: var(--text); }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+/* =================== FLASHCARDS =================== */
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+.flashcard {
+  height: 180px; cursor: pointer; perspective: 1000px;
+}
+.flashcard-inner {
+  width: 100%; height: 100%;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d; position: relative;
+}
+.flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+.flashcard-front, .flashcard-back {
+  position: absolute; inset: 0;
+  backface-visibility: hidden; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1.25rem; text-align: center;
+}
+.flashcard-front {
+  background: var(--surface); border: 1px solid var(--border);
+  font-size: 0.9rem; font-weight: 500;
+}
+.flashcard-front::before { content: '❓'; display: block; font-size: 1.5rem; margin-bottom: 0.5rem; }
+.flashcard-back {
+  background: linear-gradient(135deg, rgba(124,106,247,0.2), rgba(192,132,252,0.1));
+  border: 1px solid rgba(124,106,247,0.3);
+  transform: rotateY(180deg); font-size: 0.83rem; line-height: 1.6;
+}
+
+/* =================== CASES =================== */
+.case-card { margin-bottom: 1.25rem; }
+.case-header {
+  background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(124,106,247,0.08));
+  border: 1px solid rgba(56,189,248,0.2);
+  border-radius: 14px 14px 0 0; padding: 1.25rem 1.5rem;
+}
+.case-header .case-num { font-size: 0.72rem; color: var(--accent3); font-family: 'DM Mono', monospace; margin-bottom: 0.5rem; }
+.case-header h3 { font-size: 0.95rem; margin-bottom: 0; }
+.case-body { background: var(--surface); border: 1px solid var(--border); border-top: none; border-radius: 0 0 14px 14px; padding: 1.25rem 1.5rem; }
+.case-vignette { font-size: 0.87rem; line-height: 1.7; color: #b0b0cc; margin-bottom: 1rem; padding: 0.75rem; background: var(--surface2); border-radius: 8px; }
+.case-question { font-size: 0.87rem; font-weight: 600; margin-bottom: 0.75rem; }
+.reveal-btn {
+  background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.3);
+  color: var(--green); border-radius: 8px; padding: 0.5rem 1rem;
+  font-family: 'DM Sans', sans-serif; font-size: 0.82rem; cursor: pointer; transition: all 0.2s;
+}
+.reveal-btn:hover { background: rgba(52,211,153,0.2); }
+.case-answer { background: rgba(52,211,153,0.06); border-left: 3px solid var(--green); border-radius: 0 8px 8px 0; padding: 0.75rem 1rem; margin-top: 0.75rem; font-size: 0.83rem; display: none; }
+.case-answer.show { display: block; animation: fadeIn 0.3s ease; }
+
+/* =================== PATHO =================== */
+.mechanism-flow { display: flex; flex-direction: column; gap: 0.5rem; }
+.mech-step {
+  display: flex; align-items: flex-start; gap: 1rem;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem 1rem;
+}
+.mech-num {
+  min-width: 28px; height: 28px; background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
+}
+.mech-content h4 { font-size: 0.85rem; margin-bottom: 0.2rem; }
+.mech-content p { font-size: 0.8rem; }
+.mech-arrow { text-align: center; color: var(--accent); font-size: 1rem; margin: -0.25rem 0; }
+
+.memory-timeline {
+  display: flex; align-items: center; gap: 0; overflow-x: auto; padding: 1rem 0;
+}
+.timeline-item { text-align: center; flex: 1; min-width: 120px; }
+.timeline-dot {
+  width: 50px; height: 50px; border-radius: 50%; margin: 0 auto 0.5rem;
+  display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+}
+.t-stm { background: rgba(56,189,248,0.2); border: 2px solid var(--accent3); }
+.t-itm { background: rgba(192,132,252,0.2); border: 2px solid var(--accent2); }
+.t-ltm { background: rgba(245,158,11,0.2); border: 2px solid var(--gold); }
+.timeline-label { font-size: 0.78rem; font-weight: 600; }
+.timeline-sub { font-size: 0.7rem; color: var(--muted); }
+.timeline-connector { flex: 0.5; height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); min-width: 30px; }
+
+/* =================== DIAGNOSIS =================== */
+.comparison-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+.comparison-table th { background: var(--surface2); padding: 0.75rem 1rem; text-align: left; color: var(--accent2); font-weight: 600; }
+.comparison-table td { padding: 0.65rem 1rem; border-top: 1px solid var(--border); }
+.comparison-table tr:hover td { background: rgba(124,106,247,0.04); }
+
+.badge { display: inline-block; padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; margin: 0.15rem; }
+.badge-blue { background: rgba(56,189,248,0.15); color: var(--accent3); }
+.badge-purple { background: rgba(124,106,247,0.15); color: var(--accent); }
+.badge-red { background: rgba(248,113,113,0.15); color: var(--red); }
+.badge-green { background: rgba(52,211,153,0.15); color: var(--green); }
+
+/* =================== TREATMENT =================== */
+.treatment-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+.treatment-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem;
+}
+.treatment-card h3 { font-size: 0.9rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+.treatment-item { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.5rem 0; border-top: 1px solid var(--border); font-size: 0.83rem; }
+.treatment-item:first-of-type { border-top: none; }
+.t-icon { font-size: 1rem; flex-shrink: 0; }
+
+/* =================== MNEMONICS =================== */
+.mnemonic-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+.mnemonic-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+  overflow: hidden; transition: transform 0.2s;
+}
+.mnemonic-card:hover { transform: translateY(-3px); }
+.mnemonic-header { padding: 1.25rem 1.5rem; background: linear-gradient(135deg, rgba(124,106,247,0.15), rgba(192,132,252,0.08)); }
+.mnemonic-header h3 { font-size: 1rem; margin-bottom: 0.25rem; }
+.mnemonic-header .mnemonic-acronym { font-family: 'DM Mono', monospace; font-size: 1.5rem; color: var(--accent); letter-spacing: 0.1em; }
+.mnemonic-body { padding: 1rem 1.5rem; }
+.mnemonic-item { display: flex; gap: 0.75rem; padding: 0.4rem 0; font-size: 0.83rem; }
+.mnemonic-letter { font-family: 'DM Mono', monospace; color: var(--accent2); font-weight: 700; min-width: 20px; }
+
+/* =================== VIVA =================== */
+.viva-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  margin-bottom: 0.75rem; overflow: hidden;
+}
+.viva-question {
+  padding: 1rem 1.25rem; cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center;
+  transition: background 0.2s;
+}
+.viva-question:hover { background: var(--surface2); }
+.viva-q-text { font-size: 0.88rem; font-weight: 500; }
+.viva-toggle { color: var(--accent); transition: transform 0.3s; font-size: 1rem; }
+.viva-question.open .viva-toggle { transform: rotate(90deg); }
+.viva-answer { padding: 0 1.25rem 1rem; font-size: 0.85rem; line-height: 1.7; color: #b0b0cc; display: none; border-top: 1px solid var(--border); padding-top: 0.75rem; }
+.viva-answer.show { display: block; animation: fadeIn 0.3s ease; }
+.exam-warning { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 8px; padding: 0.4rem 0.75rem; font-size: 0.75rem; color: var(--gold); margin-top: 0.5rem; display: inline-block; }
+
+/* Search result highlight */
+.search-highlight { background: rgba(124,106,247,0.25); border-radius: 2px; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  header, nav, main { padding-left: 1rem; padding-right: 1rem; }
+  .header-inner { flex-direction: column; align-items: flex-start; }
+  .search-wrap input { width: 100%; }
+  .flow-steps { flex-direction: column; }
+  .memory-timeline { flex-direction: column; }
+  .timeline-connector { width: 2px; height: 30px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-mesh"></div>
+<div class="bg-grid"></div>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">🧠</div>
+      <div>
+        <h1>Learning & Memory</h1>
+        <span>Physiology CNS — Interactive Platform</span>
+      </div>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-chip">✅ Score: <strong id="total-score">0</strong></div>
+      <div class="stat-chip">🔥 Streak: <strong id="streak">0</strong></div>
+      <div class="stat-chip">📊 Progress: <strong id="progress-pct">0%</strong></div>
+    </div>
+    <div class="search-wrap">
+      <input type="text" id="global-search" placeholder="Search topics..." oninput="globalSearch(this.value)">
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-inner">
+    <button class="tab-btn active" onclick="showTab('overview', this)">🏠 Overview</button>
+    <button class="tab-btn" onclick="showTab('quiz', this)">❓ Quiz</button>
+    <button class="tab-btn" onclick="showTab('flashcards', this)">🃏 Flashcards</button>
+    <button class="tab-btn" onclick="showTab('cases', this)">🏥 Cases</button>
+    <button class="tab-btn" onclick="showTab('pathophysiology', this)">🔬 Pathophysiology</button>
+    <button class="tab-btn" onclick="showTab('diagnosis', this)">🔍 Diagnosis</button>
+    <button class="tab-btn" onclick="showTab('treatment', this)">💊 Management</button>
+    <button class="tab-btn" onclick="showTab('mnemonics', this)">💡 Mnemonics</button>
+    <button class="tab-btn" onclick="showTab('viva', this)">🎤 Viva</button>
+  </div>
+</nav>
+
+<main>
+
+<!-- ======================== OVERVIEW ======================== -->
+<div id="tab-overview" class="tab-content active">
+  <div class="hero-banner">
+    <h2>Learning & Memory</h2>
+    <p>Master synaptic mechanisms, memory classification, consolidation pathways, and clinical disorders. Covers non-associative & associative learning, STM/ITM/LTM mechanisms, hippocampal consolidation, amnesia, and Alzheimer's disease.</p>
+    <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+      <span class="tag tag-exam">⚠️ High Exam Yield</span>
+      <span class="tag tag-high">🔴 Mansoura CNS 18</span>
+      <span class="tag tag-pearl">🟢 Clinical Relevance</span>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <h4>⭐ KEY INSIGHT — Classical Conditioning = Intermediate Memory (Same Mechanism!)</h4>
+    <p>Serotonin → ↑cAMP → K⁺ channel closure → prolonged AP → massive Ca²⁺ influx. This is the same cascade for BOTH classical conditioning AND intermediate-term memory. Exam-favorite MCQ!</p>
+  </div>
+
+  <div class="section-header">
+    <h2>Core Concepts</h2>
+    <p>Click any card to explore the topic</p>
+  </div>
+
+  <div class="concept-grid">
+    <div class="concept-card card-accent">
+      <div class="concept-icon">🎯</div>
+      <h3>Non-Associative Learning</h3>
+      <p><strong>Habituation</strong>: ↓ Ca²⁺ in nerve endings → decreased response to repeated non-significant stimulus.<br><strong>Sensitization</strong>: Prolonged action potential → enhanced response when coupled with pleasant/unpleasant stimulus.</p>
+      <div style="margin-top:0.75rem;"><span class="tag tag-exam">MCQ ⚠️</span></div>
+    </div>
+    <div class="concept-card card-accent">
+      <div class="concept-icon">🔗</div>
+      <h3>Associative Learning</h3>
+      <p><strong>Classical conditioning</strong>: US → excitatory interneurons → serotonin → cAMP → K⁺ closure → ↑Ca²⁺. <strong>Operant</strong>: animal operates task for reward/punishment. <strong>Avoidance</strong>: paired with negative stimulus.</p>
+      <div style="margin-top:0.75rem;"><span class="tag tag-exam">Written Q ⚠️</span></div>
+    </div>
+    <div class="concept-card card-gold">
+      <div class="concept-icon">⚡</div>
+      <h3>Short-Term Memory</h3>
+      <p>Duration: seconds to minutes. Mechanism: <strong>Reverberating neuronal circuits</strong> or <strong>post-tetanic potentiation</strong>. Functional, not structural. Requires consolidation to persist.</p>
+    </div>
+    <div class="concept-card card-gold">
+      <div class="concept-icon">🧪</div>
+      <h3>Intermediate-Term Memory</h3>
+      <p>Duration: hours, days, or weeks. Mechanism: <strong>Chemical changes</strong> — serotonin → cAMP → K⁺ closure → Ca²⁺ entry. Bridge between STM and LTM.</p>
+      <div style="margin-top:0.75rem;"><span class="tag tag-exam">Written Q ⚠️</span></div>
+    </div>
+    <div class="concept-card card-green">
+      <div class="concept-icon">🏛️</div>
+      <h3>Long-Term Memory</h3>
+      <p>Duration: years–lifetime. Mechanism: <strong>Structural changes</strong> — ↑vesicle release sites, ↑presynaptic terminals, ↑transmitter vesicles, altered dendritic spines.</p>
+      <div style="margin-top:0.75rem;"><span class="tag tag-exam">Written Q ⚠️</span></div>
+    </div>
+    <div class="concept-card card-red">
+      <div class="concept-icon">🦛</div>
+      <h3>Hippocampus & Consolidation</h3>
+      <p>The <strong>master regulator</strong> of memory consolidation. Drives recycling/rehearsal of new information. Requires <strong>≥1 hour</strong> of rehearsal to convert STM → LTM. Stores in cortical association areas.</p>
+      <div style="margin-top:0.75rem;"><span class="tag tag-exam">MCQ ⚠️</span></div>
+    </div>
+    <div class="concept-card" style="border-left: 3px solid var(--red);">
+      <div class="concept-icon">⚠️</div>
+      <h3>Amnesia Types</h3>
+      <p><strong>Retrograde</strong>: Cannot recall past LTM (good present recall). <strong>Anterograde</strong>: Cannot form new LTM (hippocampal/medial temporal lesion). Good past recall, poor recent recall.</p>
+    </div>
+    <div class="concept-card" style="border-left: 3px solid var(--red);">
+      <div class="concept-icon">🔴</div>
+      <h3>Alzheimer's Disease</h3>
+      <p>Progressive, irreversible neurodegeneration. Loss of <strong>synapses, neurons, and acetylcholine</strong>. Starts with <strong>progressive STM loss</strong> → general cognitive decline (senile dementia).</p>
+      <div style="margin-top:0.75rem;"><span class="tag tag-exam">MCQ ⚠️</span></div>
+    </div>
+  </div>
+
+  <div class="flowchart" style="margin-top:1.5rem;">
+    <h3 style="margin-bottom:1rem;">⚡ Classical Conditioning / Intermediate Memory Cascade</h3>
+    <div class="flow-steps">
+      <div class="flow-step">Unconditioned Stimulus (US)</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Excitatory Interneurons</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">🔴 Serotonin Release</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">↑ cAMP</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">K⁺ Channels Close</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Prolonged Action Potential</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">⚡ Massive Ca²⁺ Influx</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">✅ Memory Trace Formed</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== QUIZ ======================== -->
+<div id="tab-quiz" class="tab-content">
+  <div class="quiz-header">
+    <div class="quiz-progress">
+      <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--muted);">
+        <span id="q-counter">Question 1 of 25</span>
+        <span id="q-pct-text">0%</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-fill" id="quiz-progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="quiz-score-display">
+      <div class="score-chip"><strong id="score-display">0</strong><span>Score</span></div>
+      <div class="score-chip"><strong id="streak-display">0🔥</strong><span>Streak</span></div>
+    </div>
+  </div>
+
+  <div id="quiz-container"></div>
+
+  <div class="quiz-nav">
+    <button class="btn btn-outline" onclick="resetQuiz()">🔄 Restart</button>
+    <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" style="display:none;">Next Question →</button>
+  </div>
+</div>
+
+<!-- ======================== FLASHCARDS ======================== -->
+<div id="tab-flashcards" class="tab-content">
+  <div class="section-header">
+    <h2>🃏 Flashcards</h2>
+    <p>Click any card to flip and reveal the answer. Master all 24 cards.</p>
+  </div>
+  <div class="cards-grid" id="flashcards-container"></div>
+</div>
+
+<!-- ======================== CASES ======================== -->
+<div id="tab-cases" class="tab-content">
+  <div class="section-header">
+    <h2>🏥 Clinical Cases</h2>
+    <p>Exam-style clinical vignettes. Work through each case before revealing the answer.</p>
+  </div>
+  <div id="cases-container"></div>
+</div>
+
+<!-- ======================== PATHOPHYSIOLOGY ======================== -->
+<div id="tab-pathophysiology" class="tab-content">
+  <div class="section-header">
+    <h2>🔬 Pathophysiology & Mechanisms</h2>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:1.5rem;">
+    <div class="card">
+      <h3 style="margin-bottom:1rem;">📊 Memory Timeline</h3>
+      <div class="memory-timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot t-stm">⚡</div>
+          <div class="timeline-label" style="color:var(--accent3);">STM</div>
+          <div class="timeline-sub">Seconds – Minutes</div>
+          <div class="timeline-sub" style="margin-top:0.3rem;">Reverberating circuits</div>
+        </div>
+        <div class="timeline-connector"></div>
+        <div class="timeline-item">
+          <div class="timeline-dot t-itm">🧪</div>
+          <div class="timeline-label" style="color:var(--accent2);">ITM</div>
+          <div class="timeline-sub">Hours – Weeks</div>
+          <div class="timeline-sub" style="margin-top:0.3rem;">Chemical changes</div>
+        </div>
+        <div class="timeline-connector"></div>
+        <div class="timeline-item">
+          <div class="timeline-dot t-ltm">🏛️</div>
+          <div class="timeline-label" style="color:var(--gold);">LTM</div>
+          <div class="timeline-sub">Years – Lifetime</div>
+          <div class="timeline-sub" style="margin-top:0.3rem;">Structural changes</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:1rem;">🧠 Memory Classification</h3>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+        <div style="background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.2); border-radius:10px; padding:0.75rem;">
+          <div style="color:var(--accent3); font-weight:600; font-size:0.85rem; margin-bottom:0.5rem;">📖 Explicit (Declarative)</div>
+          <p style="font-size:0.78rem;">Conscious recall of facts & events. Requires hippocampus for consolidation.</p>
+        </div>
+        <div style="background:rgba(124,106,247,0.08); border:1px solid rgba(124,106,247,0.2); border-radius:10px; padding:0.75rem;">
+          <div style="color:var(--accent); font-weight:600; font-size:0.85rem; margin-bottom:0.5rem;">🎸 Implicit (Non-declarative)</div>
+          <p style="font-size:0.78rem;">Skills & habits. Piano playing, driving. Survives hippocampal lesions.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3 style="margin-bottom:1rem;">⚡ Habituation Mechanism</h3>
+      <div class="mechanism-flow">
+        <div class="mech-step"><div class="mech-num">1</div><div class="mech-content"><h4>Repeated Harmless Stimulus</h4><p>Non-significant stimulus applied repeatedly to sensory neuron</p></div></div>
+        <div class="mech-arrow">↓</div>
+        <div class="mech-step"><div class="mech-num">2</div><div class="mech-content"><h4>↓ Ca²⁺ in Nerve Endings</h4><p>Presynaptic calcium influx decreases progressively</p></div></div>
+        <div class="mech-arrow">↓</div>
+        <div class="mech-step"><div class="mech-num">3</div><div class="mech-content"><h4>↓ Neurotransmitter Release</h4><p>Less Ca²⁺ = less vesicle fusion = less NT released</p></div></div>
+        <div class="mech-arrow">↓</div>
+        <div class="mech-step"><div class="mech-num">4</div><div class="mech-content"><h4>Decreased Response</h4><p>"Negative memory" — animal ignores non-significant stimuli ✅</p></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:1rem;">🔴 LTM Structural Changes</h3>
+      <div class="mechanism-flow">
+        <div class="mech-step"><div class="mech-num">1</div><div class="mech-content"><h4>↑ Vesicle Release Sites</h4><p>More active zones on presynaptic membrane</p></div></div>
+        <div class="mech-arrow">↓</div>
+        <div class="mech-step"><div class="mech-num">2</div><div class="mech-content"><h4>↑ Transmitter Vesicles Released</h4><p>Greater quantal content per action potential</p></div></div>
+        <div class="mech-arrow">↓</div>
+        <div class="mech-step"><div class="mech-num">3</div><div class="mech-content"><h4>↑ Presynaptic Terminals</h4><p>Sprouting of new terminal boutons (synaptogenesis)</p></div></div>
+        <div class="mech-arrow">↓</div>
+        <div class="mech-step"><div class="mech-num">4</div><div class="mech-content"><h4>Dendritic Spine Changes</h4><p>Spine enlargement & remodeling → stronger signal transmission ✅</p></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:1rem;">
+    <h3 style="margin-bottom:1rem;">🦛 Hippocampal Consolidation Process</h3>
+    <div class="flow-steps">
+      <div class="flow-step">New Sensory Input → STM</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Hippocampus evaluates importance</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Drives rehearsal/recycling ≥1 hour</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Structural synaptic changes form</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Permanent LTM stored in cortical association areas</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== DIAGNOSIS ======================== -->
+<div id="tab-diagnosis" class="tab-content">
+  <div class="section-header">
+    <h2>🔍 Diagnosis & Comparison</h2>
+  </div>
+
+  <div style="margin-bottom:1.5rem;">
+    <div class="card">
+      <h3 style="margin-bottom:1rem;">📋 Amnesia — Differential Comparison</h3>
+      <table class="comparison-table">
+        <tr><th>Feature</th><th>Retrograde Amnesia</th><th>Anterograde Amnesia</th></tr>
+        <tr><td><strong>Definition</strong></td><td>Cannot recall PAST established memories</td><td>Cannot FORM new memories (consolidation failure)</td></tr>
+        <tr><td><strong>Mechanism</strong></td><td>Loss of access to stored LTM</td><td>Failure of STM → LTM conversion</td></tr>
+        <tr><td><strong>Past recall</strong></td><td>❌ Impaired</td><td>✅ Intact</td></tr>
+        <tr><td><strong>Present recall</strong></td><td>✅ Intact</td><td>❌ Impaired</td></tr>
+        <tr><td><strong>Lesion site</strong></td><td>LTM storage areas</td><td>Medial temporal lobe / Hippocampus</td></tr>
+        <tr><td><strong>STM affected?</strong></td><td>No</td><td>No (STM intact; consolidation fails)</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div style="margin-bottom:1.5rem;">
+    <div class="card">
+      <h3 style="margin-bottom:1rem;">📋 Learning Types — Full Comparison</h3>
+      <table class="comparison-table">
+        <tr><th>Type</th><th>Category</th><th>Mechanism</th><th>Key Ion/Molecule</th><th>Example</th></tr>
+        <tr><td><strong>Habituation</strong></td><td>Non-associative</td><td>↓ Ca²⁺ in nerve endings</td><td>Ca²⁺ ↓</td><td>Ignoring background noise</td></tr>
+        <tr><td><strong>Sensitization</strong></td><td>Non-associative</td><td>Prolonged action potential</td><td>AP prolongation</td><td>Startle response potentiation</td></tr>
+        <tr><td><strong>Classical</strong></td><td>Associative</td><td>Serotonin → cAMP → K⁺ closure → Ca²⁺</td><td>Serotonin / Ca²⁺</td><td>Pavlov's dog salivating at bell</td></tr>
+        <tr><td><strong>Operant</strong></td><td>Associative</td><td>Task–reward/punishment link</td><td>Dopamine (reward)</td><td>Rat pressing lever for food</td></tr>
+        <tr><td><strong>Avoidance</strong></td><td>Associative</td><td>Stimulus paired with nausea/pain</td><td>Negative reinforcement</td><td>Food aversion after nausea</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3 style="margin-bottom:1rem;">🔴 Alzheimer's Diagnostic Hallmarks</h3>
+      <div>
+        <div class="badge badge-red">↓ Acetylcholine</div>
+        <div class="badge badge-red">Synapse loss</div>
+        <div class="badge badge-red">Neuron death</div>
+        <div class="badge badge-blue">Progressive STM loss (first sign)</div>
+        <div class="badge badge-purple">Age-related onset</div>
+        <div class="badge badge-purple">Irreversible</div>
+        <div class="badge badge-green">Most common senile dementia</div>
+      </div>
+      <p style="margin-top:1rem; font-size:0.82rem;">Starts with STM → progresses to general cognitive decline. Acetylcholine loss is the pharmacological target (cholinesterase inhibitors).</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:1rem;">📊 Memory Mechanism Summary</h3>
+      <table class="comparison-table">
+        <tr><th>Memory</th><th>Duration</th><th>Mechanism type</th></tr>
+        <tr><td>STM</td><td>Sec–Min</td><td>⚡ Reverberating circuits / Post-tetanic potentiation</td></tr>
+        <tr><td>ITM</td><td>Hours–Weeks</td><td>🧪 Chemical (Serotonin→cAMP→K⁺→Ca²⁺)</td></tr>
+        <tr><td>LTM</td><td>Lifetime</td><td>🏛️ Structural (vesicles, terminals, spines)</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== TREATMENT ======================== -->
+<div id="tab-treatment" class="tab-content">
+  <div class="section-header">
+    <h2>💊 Management & Clinical Applications</h2>
+  </div>
+
+  <div class="treatment-grid">
+    <div class="treatment-card">
+      <h3>🔴 Alzheimer's Disease Management</h3>
+      <div class="treatment-item"><div class="t-icon">💊</div><div><strong>Cholinesterase inhibitors</strong><br><span style="font-size:0.78rem; color:var(--muted);">Donepezil, Rivastigmine — target ACh loss</span></div></div>
+      <div class="treatment-item"><div class="t-icon">🧪</div><div><strong>NMDA antagonists</strong><br><span style="font-size:0.78rem; color:var(--muted);">Memantine — reduce excitotoxicity</span></div></div>
+      <div class="treatment-item"><div class="t-icon">🏥</div><div><strong>Symptomatic support</strong><br><span style="font-size:0.78rem; color:var(--muted);">Cognitive training, occupational therapy</span></div></div>
+      <div class="treatment-item"><div class="t-icon">⚠️</div><div><strong>Irreversible — no cure</strong><br><span style="font-size:0.78rem; color:var(--muted);">Treatment is symptomatic/supportive only</span></div></div>
+    </div>
+
+    <div class="treatment-card">
+      <h3>🟡 Memory Enhancement Strategies</h3>
+      <div class="treatment-item"><div class="t-icon">⏱️</div><div><strong>Spaced repetition</strong><br><span style="font-size:0.78rem; color:var(--muted);">Mimics hippocampal rehearsal ≥1 hour for consolidation</span></div></div>
+      <div class="treatment-item"><div class="t-icon">😴</div><div><strong>Sleep consolidation</strong><br><span style="font-size:0.78rem; color:var(--muted);">Hippocampal replay during slow-wave sleep</span></div></div>
+      <div class="treatment-item"><div class="t-icon">🎯</div><div><strong>Active recall</strong><br><span style="font-size:0.78rem; color:var(--muted);">Tests LTM → strengthens structural synaptic changes</span></div></div>
+      <div class="treatment-item"><div class="t-icon">🔗</div><div><strong>Associative learning</strong><br><span style="font-size:0.78rem; color:var(--muted);">Mnemonics exploit classical conditioning pathways</span></div></div>
+    </div>
+
+    <div class="treatment-card">
+      <h3>⚠️ Anterograde Amnesia Management</h3>
+      <div class="treatment-item"><div class="t-icon">📱</div><div><strong>External memory aids</strong><br><span style="font-size:0.78rem; color:var(--muted);">Notes, alarms, smartphones — bypass hippocampal failure</span></div></div>
+      <div class="treatment-item"><div class="t-icon">🎸</div><div><strong>Implicit memory preserved</strong><br><span style="font-size:0.78rem; color:var(--muted);">Skills & habits intact — can be used for rehabilitation</span></div></div>
+      <div class="treatment-item"><div class="t-icon">🏥</div><div><strong>Address underlying cause</strong><br><span style="font-size:0.78rem; color:var(--muted);">TBI, stroke, thiamine deficiency (Wernicke-Korsakoff)</span></div></div>
+    </div>
+
+    <div class="treatment-card">
+      <h3>🟢 Consolidation Optimization</h3>
+      <div class="treatment-item"><div class="t-icon">🔁</div><div><strong>Rehearsal ≥1 hour required</strong><br><span style="font-size:0.78rem; color:var(--muted);">Minimum time for hippocampal consolidation to LTM</span></div></div>
+      <div class="treatment-item"><div class="t-icon">🧠</div><div><strong>Emotional significance</strong><br><span style="font-size:0.78rem; color:var(--muted);">Hippocampus prioritizes emotionally relevant information</span></div></div>
+      <div class="treatment-item"><div class="t-icon">❌</div><div><strong>Avoid disruption</strong><br><span style="font-size:0.78rem; color:var(--muted);">Head trauma within consolidation window → anterograde amnesia</span></div></div>
+    </div>
+  </div>
+
+  <div class="highlight-box" style="margin-top:1.5rem;">
+    <h4>⚠️ Clinical Pearl — Alzheimer's Target</h4>
+    <p>Loss of <strong>acetylcholine</strong> is the primary neurotransmitter deficit → rationale for cholinesterase inhibitors (donepezil, rivastigmine). Starts with STM loss because STM-to-LTM consolidation requires intact cholinergic synapses.</p>
+  </div>
+</div>
+
+<!-- ======================== MNEMONICS ======================== -->
+<div id="tab-mnemonics" class="tab-content">
+  <div class="section-header">
+    <h2>💡 Mnemonics</h2>
+    <p>Custom-created memory aids for exam success</p>
+  </div>
+  <div class="mnemonic-grid" id="mnemonics-container"></div>
+</div>
+
+<!-- ======================== VIVA ======================== -->
+<div id="tab-viva" class="tab-content">
+  <div class="section-header">
+    <h2>🎤 Viva Questions</h2>
+    <p>Click any question to reveal the model answer. ⚠️ = marked exam questions.</p>
+  </div>
+  <div id="viva-container"></div>
+</div>
+
+</main>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const quizData = [
+  { q: "Which of the following is the primary ionic mechanism responsible for habituation?", opts: ["Prolongation of action potentials","Closure of K⁺ channels","Decrease in Ca²⁺ in nerve endings","Increase in cAMP","Release of serotonin"], ans: 2, exp: "Habituation relies on a <strong>decrease in Ca²⁺ in nerve endings</strong>. Less Ca²⁺ → less neurotransmitter release → decreased response. Options A, B, D, E are all part of the sensitization/classical conditioning cascade." },
+  { q: "Sensitization of a response is primarily caused by which cellular event?", opts: ["Depletion of neurotransmitter vesicles","Prolongation of the action potential","Opening of K⁺ channels","Decrease in intracellular Ca²⁺","Loss of dendritic spines"], ans: 1, exp: "<strong>Sensitization = prolonged AP</strong> in nerve endings → more Ca²⁺ enters → enhanced response. Decreased Ca²⁺ is habituation; opening K⁺ shortens AP; spine changes are LTM." },
+  { q: "During classical conditioning, the unconditioned stimulus acts on excitatory interneurons to release which neurotransmitter?", opts: ["Acetylcholine","Dopamine","Serotonin","Glutamate","GABA"], ans: 2, exp: "<strong>Serotonin</strong> is the key neurotransmitter. It acts on the sensory terminal → increases cAMP → closes K⁺ channels → prolongs AP → massive Ca²⁺ influx. Acetylcholine is lost in Alzheimer's." },
+  { q: "In intermediate-term memory, what is the direct intracellular effect of serotonin release?", opts: ["Decrease in cAMP","Increase in cAMP","Opening of voltage-gated Na⁺ channels","Direct opening of Ca²⁺ channels","Destruction of the presynaptic terminal"], ans: 1, exp: "Serotonin binds receptor → activates adenylyl cyclase → <strong>increases cAMP</strong> → protein kinase A activation → closes K⁺ channels → prolongs AP → Ca²⁺ influx." },
+  { q: "What is the ultimate consequence of K⁺ channel closure in intermediate-term memory?", opts: ["Hyperpolarization of the membrane","Shortened action potentials","Prolonged activation of Ca²⁺ channels","Decreased neurotransmitter release","Habituation"], ans: 2, exp: "K⁺ closure → membrane stays depolarized longer → AP is prolonged → voltage-gated Ca²⁺ channels remain open → <strong>massive Ca²⁺ influx</strong> → enhanced transmitter release." },
+  { q: "Short-term memory (STM) is maintained by which functional mechanism?", opts: ["Increase in presynaptic terminals","Growth of new dendritic spines","Reverberating neuronal circuits","Serotonin-mediated K⁺ closure","Loss of acetylcholine"], ans: 2, exp: "<strong>Reverberating neuronal circuits</strong> (or post-tetanic potentiation) maintain STM. These are functional, not structural changes. Structural changes are the hallmark of LTM." },
+  { q: "Which of the following represents a structural change strictly associated with Long-Term Memory?", opts: ["Decrease in presynaptic calcium","Post-tetanic potentiation","Serotonin release","Increase in vesicle release sites","Action potential prolongation"], ans: 3, exp: "<strong>Increased vesicle release sites</strong> is a structural change. LTM also includes: ↑presynaptic terminals, ↑transmitter vesicles, altered dendritic spines. All other options are functional/chemical changes." },
+  { q: "Which of the following is NOT a structural change seen in long-term memory?", opts: ["Increased number of transmitter vesicles","Increased presynaptic terminals","Changes in dendritic spine structure","Increased vesicle release sites","Continual activity in reverberating circuits"], ans: 4, exp: "<strong>Reverberating circuits</strong> are the mechanism of STM, not LTM. All other options (A-D) are explicitly listed structural changes enabling LTM." },
+  { q: "What is the minimum time generally required for efficient memory consolidation?", opts: ["1 second","1 minute","1 hour","1 day","1 week"], ans: 2, exp: "<strong>1 hour or more</strong> of rehearsal/recycling is required for the hippocampus to consolidate STM into LTM. Shorter periods leave memory in short-term form and vulnerable to disruption." },
+  { q: "Which brain structure is absolutely essential for memory consolidation?", opts: ["Frontal lobe","Visual association area","Hippocampus","Cerebellum","Medulla"], ans: 2, exp: "The <strong>hippocampus</strong> is the principal decision-making center. It drives rehearsal of new information until permanent structural changes form in cortical association areas. Lesion → anterograde amnesia." },
+  { q: "Where are visual memories permanently stored after consolidation?", opts: ["Hippocampus","Temporal lobe","Visual association area","Auditory association area","Frontal lobe"], ans: 2, exp: "After consolidation, memories are stored in the <strong>appropriate sensory cortical association area</strong> — visual memories in the visual association area. The hippocampus consolidates but does not permanently store." },
+  { q: "Alzheimer's disease is characterized primarily by the loss of which neurotransmitter?", opts: ["Serotonin","Dopamine","Glutamate","Acetylcholine","GABA"], ans: 3, exp: "<strong>Acetylcholine</strong> loss is the hallmark of Alzheimer's. This is the pharmacological rationale for cholinesterase inhibitors. Serotonin is involved in classical conditioning / intermediate memory." },
+  { q: "What is the initial clinical presentation in a patient developing Alzheimer's disease?", opts: ["Complete loss of remote LTM","Progressive loss of short-term memory","Inability to perform conditioned reflexes","Loss of motor skills","Total blindness"], ans: 1, exp: "Alzheimer's starts with <strong>progressive STM loss</strong> — patients forget recent events first, while remote memories are preserved initially. This progresses to general cognitive decline." },
+  { q: "Explicit memory is best defined as:", opts: ["Memory of skills and habits","Conscious recall of facts and events","Reflex avoidance of stimuli","Decrease in response to repeated stimuli","Riding a bicycle"], ans: 1, exp: "<strong>Explicit (declarative) memory</strong> = conscious recall of facts and events. Skills/habits (riding a bike, playing piano) = implicit (non-declarative) memory." },
+  { q: "A rat learns to press a lever to receive a food pellet. What type of learning is this?", opts: ["Habituation","Sensitization","Classical conditioning","Operant conditioning","Avoidance conditioning"], ans: 3, exp: "<strong>Operant conditioning</strong> — the animal operates a task to obtain a reward. Classical conditioning involves involuntary reflexes to stimuli. Operant involves voluntary behaviors reinforced by consequences." },
+  { q: "Food aversion after pairing with nausea-inducing drug is an example of:", opts: ["Habituation","Re-conditioning","Avoidance conditioning","Discriminative conditioning","Implicit memory"], ans: 2, exp: "<strong>Avoidance conditioning</strong> — reflex avoidance of a stimulus previously paired with an unpleasant consequence (nausea). Negative associative learning." },
+  { q: "In discriminative conditioning, if only a specific CS is reinforced, what happens?", opts: ["Animal responds to all similar stimuli","Reflex fades completely","Reflex occurs only to that specific CS","US is no longer needed","Habituation occurs instantly"], ans: 2, exp: "In <strong>discriminative conditioning</strong>, the animal learns to respond only to the specific reinforced conditioned stimulus, distinguishing it from similar but non-reinforced stimuli." },
+  { q: "Anterograde amnesia is defined as:", opts: ["Inability to recall past memories","Impairment of implicit memory only","Inability to store new information into LTM","Memory loss due exclusively to Alzheimer's","Loss of STM only"], ans: 2, exp: "<strong>Anterograde amnesia</strong> = inability to form NEW long-term memories (consolidation failure). Past memories are intact. Caused by hippocampal/medial temporal lobe lesions." },
+  { q: "Retrograde amnesia primarily involves:", opts: ["Hippocampal consolidation failure","Inability to retrieve stored LTM","Acetylcholine synthesis failure","Serotonin release failure","Reverberating circuit disruption"], ans: 1, exp: "<strong>Retrograde amnesia</strong> = inability to recall previously established LTM (past memories). The hippocampus is intact; the storage/retrieval of past memories is impaired." },
+  { q: "According to time course, how long does Intermediate-term memory last?", opts: ["Seconds to minutes","Hours, days, or weeks","Several years","A lifetime","Milliseconds"], ans: 1, exp: "<strong>Intermediate-term memory</strong> lasts hours, days, or weeks. STM = seconds to minutes; LTM = years to lifetime. ITM relies on chemical (not structural) changes." },
+  { q: "Which type of memory is used when playing the piano automatically?", opts: ["Declarative memory","Explicit memory","Implicit memory","Short-term memory","Sensitization"], ans: 2, exp: "<strong>Implicit (non-declarative) memory</strong> handles skills and habits like piano playing, driving, typing. It does not require conscious thought and is relatively preserved in hippocampal damage." },
+  { q: "Post-tetanic potentiation of presynaptic terminals is a mechanism for:", opts: ["Implicit memory","Short-term memory","Intermediate-term memory","Long-term memory","Avoidance conditioning"], ans: 1, exp: "<strong>STM</strong> is maintained by reverberating circuits AND post-tetanic potentiation. Intermediate memory uses cAMP cascade; LTM uses structural changes." },
+  { q: "Sensitization and Habituation belong to which category of learning?", opts: ["Associative learning","Classical conditioning","Operant conditioning","Non-associative learning","Explicit memory"], ans: 3, exp: "Both are <strong>non-associative learning</strong> because they involve learning about a single stimulus. Associative learning (classical/operant) requires pairing of two or more stimuli." },
+  { q: "Which pathology is associated with a lesion in the medial temporal lobe?", opts: ["Habituation failure","Alzheimer's disease","Retrograde amnesia primarily","Anterograde amnesia","Operant conditioning enhancement"], ans: 3, exp: "<strong>Anterograde amnesia</strong> results from medial temporal lobe / hippocampal lesions — these structures are required for consolidation of new memories into LTM." },
+  { q: "The mechanism of classical conditioning and intermediate-term memory share which key molecule?", opts: ["Acetylcholine","Dopamine","Glutamate","Serotonin","GABA"], ans: 3, exp: "<strong>Serotonin</strong> is the shared key molecule. In both processes: Serotonin → ↑cAMP → K⁺ closure → prolonged AP → massive Ca²⁺ influx → enhanced synaptic transmission. This is a HIGH-YIELD exam fact!" }
+];
+
+const flashcardsData = [
+  { q: "What is the mechanism of HABITUATION?", a: "↓ Ca²⁺ in nerve endings → less NT release → decreased response to repeated stimulus (Negative memory)" },
+  { q: "What is the mechanism of SENSITIZATION?", a: "Prolongation of the action potential in nerve endings → more Ca²⁺ → enhanced response (Positive memory)" },
+  { q: "What is NON-ASSOCIATIVE learning?", a: "Learning about a SINGLE stimulus repeated many times. Forms: Habituation & Sensitization" },
+  { q: "What is ASSOCIATIVE learning?", a: "Learning by pairing of stimuli. Includes: Classical conditioning, Operant conditioning, Avoidance conditioning" },
+  { q: "Steps of Classical Conditioning cascade?", a: "US → Excitatory interneurons → Serotonin → ↑cAMP → K⁺ closure → Prolonged AP → ↑↑Ca²⁺ → Conditioned reflex" },
+  { q: "What is OPERANT conditioning?", a: "Animal learns to operate a task to GET a reward or AVOID punishment (e.g., rat presses lever for food)" },
+  { q: "STM mechanism?", a: "Functional changes: Reverberating neuronal circuits OR Post-tetanic potentiation. Lasts seconds–minutes." },
+  { q: "ITM mechanism?", a: "Chemical: Serotonin→cAMP→K⁺ closure→Ca²⁺ influx. Lasts hours, days, weeks." },
+  { q: "LTM structural changes (4)?", a: "① ↑ Vesicle release sites ② ↑ Transmitter vesicles released ③ ↑ Presynaptic terminals ④ Dendritic spine changes" },
+  { q: "What is memory CONSOLIDATION?", a: "Conversion of STM → LTM. Requires hippocampus + ≥1 hour of rehearsal/recycling." },
+  { q: "Role of the HIPPOCAMPUS?", a: "Principal decision-making center. Drives rehearsal of new info → consolidates into permanent LTM in cortical association areas." },
+  { q: "EXPLICIT vs IMPLICIT memory?", a: "Explicit = Conscious recall of facts/events. Implicit = Skills/habits (piano, driving). Not requiring hippocampus." },
+  { q: "RETROGRADE amnesia?", a: "Cannot recall PAST established memories from LTM. Present recall intact. Lesion in storage areas." },
+  { q: "ANTEROGRADE amnesia?", a: "Cannot form NEW LTM (consolidation failure). Past recall intact. Lesion: medial temporal lobe / hippocampus." },
+  { q: "Alzheimer's neurotransmitter loss?", a: "Acetylcholine (+ loss of synapses and neurons). First sign = progressive STM loss → general cognitive decline." },
+  { q: "Where are visual memories stored?", a: "Visual association area of cortex (after consolidation by hippocampus)." },
+  { q: "Minimum time for memory consolidation?", a: "≥ 1 HOUR of rehearsal required for efficient STM → LTM conversion." },
+  { q: "How does serotonin affect K⁺ channels?", a: "Serotonin → ↑cAMP → Protein Kinase A → CLOSES K⁺ channels → membrane stays depolarized → AP prolonged" },
+  { q: "AVOIDANCE conditioning?", a: "Stimulus paired with unpleasant event (nausea, pain) → animal avoids that stimulus. Example: food aversion." },
+  { q: "DISCRIMINATIVE conditioning?", a: "Animal learns to respond ONLY to the specific reinforced CS, distinguishing it from similar stimuli." },
+  { q: "RE-conditioning?", a: "Reinforcement of a conditioned reflex by repeating CS-US pairing after it had begun to fade." },
+  { q: "ITM duration vs LTM duration?", a: "ITM: Hours to weeks. LTM: Years to lifetime. STM: Seconds to minutes." },
+  { q: "Why does Alzheimer's start with STM loss?", a: "STM consolidation requires intact cholinergic synapses. ACh loss disrupts this process first." },
+  { q: "Post-tetanic potentiation is a mechanism of which memory?", a: "SHORT-TERM MEMORY (STM). Along with reverberating neuronal circuits." }
+];
+
+const casesData = [
+  {
+    num: "CASE 01",
+    title: "The Repeated Harmless Stimulus",
+    vignette: "An experimental rat is placed in a box. Every 30 seconds, a harmless clicking sound is played. Initially, the rat shows a strong startle response — freezing, elevated heart rate. After 50 repetitions over 2 days, the rat ignores the sound entirely and continues eating normally.",
+    questions: [
+      { q: "Q1. What type of learning is demonstrated?", a: "Habituation — a form of NON-ASSOCIATIVE learning. The rat is learning about a single, repeated, non-significant stimulus." },
+      { q: "Q2. What is the ionic mechanism?", a: "Decreased Ca²⁺ in presynaptic nerve endings → less neurotransmitter released per action potential → progressively weaker synaptic response." },
+      { q: "Q3. What is the adaptive significance?", a: "Habituation allows organisms to filter out irrelevant background stimuli and allocate attention to important, meaningful stimuli. It is called 'negative memory' as it suppresses, rather than enhances, responses." }
+    ]
+  },
+  {
+    num: "CASE 02",
+    title: "Pavlov's Modern Patient",
+    vignette: "A 35-year-old man underwent chemotherapy for lymphoma. During each cycle, he was given a distinctive peppermint-flavored drink. Although the antiemetics minimized actual nausea, after 4 cycles he began to feel nauseous and anxious whenever he smelled peppermint — even at a candy store months later.",
+    questions: [
+      { q: "Q1. What type of learning is illustrated?", a: "Classical (associative) conditioning. The chemotherapy infusion = Unconditioned Stimulus (US); nausea = Unconditioned Response (UR). Peppermint = Conditioned Stimulus (CS); nausea to peppermint alone = Conditioned Response (CR)." },
+      { q: "Q2. Describe the synaptic mechanism.", a: "US (chemo context) acts on excitatory interneurons → serotonin release onto sensory terminal → ↑cAMP → K⁺ channels close → prolonged action potential → massive Ca²⁺ influx → enhanced synaptic transmission each time CS (peppermint) is encountered." },
+      { q: "Q3. What would 'extinction' look like here?", a: "Repeated exposure to peppermint WITHOUT the chemotherapy pairing → conditioned response gradually weakens. This is the therapeutic basis of exposure therapy." }
+    ]
+  },
+  {
+    num: "CASE 03",
+    title: "The Amnesic Surgeon",
+    vignette: "A 45-year-old neurosurgeon sustained bilateral hippocampal damage from herpes encephalitis. Post-recovery, his intelligence is intact, he remembers his medical training perfectly, and can still perform surgical procedures he learned before. However, if you introduce yourself, he will not recognize you 5 minutes later.",
+    questions: [
+      { q: "Q1. What type of amnesia is present?", a: "Anterograde amnesia — inability to form NEW long-term memories (consolidation failure). Past LTM (medical training) and skills (implicit memory) are intact." },
+      { q: "Q2. Why can he still perform surgery?", a: "Surgical skills = IMPLICIT (non-declarative) memory. Motor skills and procedural habits are stored in basal ganglia and cerebellum, not requiring hippocampal consolidation." },
+      { q: "Q3. What is the lesion site?", a: "Bilateral medial temporal lobes, specifically the hippocampus. This structure is essential for converting STM → LTM (consolidation). Without it, new information cannot be permanently stored." }
+    ]
+  },
+  {
+    num: "CASE 04",
+    title: "The Study Session Interrupted",
+    vignette: "Two students study the same pharmacology material for 30 minutes before their exam. Student A then takes a 2-hour nap. Student B is woken by a car accident alarm outside and stays awake for 1 hour. On exam day, Student A scores significantly higher, especially on material from that study session.",
+    questions: [
+      { q: "Q1. What accounts for Student A's advantage?", a: "Sleep allows hippocampal consolidation. During slow-wave sleep, the hippocampus 'replays' recently learned information, driving structural changes in cortical association areas. Student A completed the ≥1 hour rehearsal window." },
+      { q: "Q2. What happened to Student B's memory?", a: "The disruptive event interrupted consolidation. Information remained as STM (reverberating circuits / ITM chemical changes) but did not fully consolidate into structural LTM. This is analogous to retrograde amnesia by disruption." },
+      { q: "Q3. What does this teach about studying?", a: "The hippocampus requires ≥1 hour of uninterrupted rehearsal for efficient consolidation. This is why spaced repetition (multiple study sessions separated by sleep) is neurologically superior to cramming." }
+    ]
+  },
+  {
+    num: "CASE 05",
+    title: "The Forgetful Professor",
+    vignette: "A 68-year-old retired professor presents with a 3-year history of progressive forgetfulness. He initially forgot recent appointments but remembered his university years vividly. Now he struggles with language, gets lost in familiar streets, and his personality has changed. MMSE = 14/30.",
+    questions: [
+      { q: "Q1. What is the most likely diagnosis?", a: "Alzheimer's disease — age-related, progressive, irreversible neurodegenerative disorder. Classic presentation: starts with STM loss → progresses to global cognitive decline." },
+      { q: "Q2. What is the pathological mechanism?", a: "Loss of synapses, neurons, and acetylcholine neurotransmitter. The cholinergic deficit primarily affects the hippocampal-cortical consolidation pathway, explaining why STM fails first." },
+      { q: "Q3. How is the progression pattern diagnostically useful?", a: "The STM-first pattern distinguishes Alzheimer's from retrograde amnesia (past memories lost first) and from normal aging. The irreversible, progressive course and ACh loss distinguish it from treatable dementias." }
+    ]
+  },
+  {
+    num: "CASE 06",
+    title: "The Trauma Victim",
+    vignette: "A 25-year-old is involved in a car accident with significant head trauma. On waking, she remembers everything before the accident but has no memory of the accident itself or the 2 hours before it. She can form new memories normally from the point she woke up.",
+    questions: [
+      { q: "Q1. What type of amnesia is this?", a: "Retrograde amnesia — inability to recall memories ALREADY stored (the 2 hours before accident). The consolidation mechanism (hippocampus) is intact; the stored LTM for those hours was disrupted." },
+      { q: "Q2. Why specifically the 2 hours before?", a: "These memories were in the process of consolidation (STM/ITM phase) and hadn't yet undergone full structural LTM formation. More recent memories are most vulnerable because consolidation requires ≥1 hour and structural changes take time." },
+      { q: "Q3. Why is new memory formation normal?", a: "Anterograde amnesia requires hippocampal damage. Her hippocampus is intact, so she can still consolidate new information post-injury. Only the peri-traumatic window is affected." }
+    ]
+  }
+];
+
+const mnemonicsData = [
+  {
+    title: "Classical Conditioning Cascade",
+    topic: "The pathway everyone forgets",
+    acronym: "SeCaKiPa-Ca",
+    items: [
+      { letter: "Se", text: "Serotonin released by facilitatory terminal" },
+      { letter: "Ca", text: "cAMP increases inside the cell" },
+      { letter: "Ki", text: "K⁺ channels — they close!" },
+      { letter: "Pa", text: "Prolonged Action potential" },
+      { letter: "Ca", text: "Calcium floods in massively ✅" }
+    ],
+    tip: "Think: 'Se-Ca-Ki-Pa-Ca' = the magic sequence. Same for ITM!"
+  },
+  {
+    title: "LTM Structural Changes",
+    topic: "Long-term memory hallmarks",
+    acronym: "V-V-T-D",
+    items: [
+      { letter: "V", text: "Vesicle release Sites increase" },
+      { letter: "V", text: "Vesicles (transmitter) — more released" },
+      { letter: "T", text: "Terminals (presynaptic) — multiply" },
+      { letter: "D", text: "Dendritic spines — remodel" }
+    ],
+    tip: "'Very Very Tough Dendrites' — everything increases EXCEPT function (now it's structure!)"
+  },
+  {
+    title: "Memory Types by Duration",
+    topic: "STM → ITM → LTM",
+    acronym: "FCC",
+    items: [
+      { letter: "F", text: "Functional: STM (reverberating circuits, post-tetanic)" },
+      { letter: "C", text: "Chemical: ITM (serotonin→cAMP→K⁺→Ca²⁺)" },
+      { letter: "C", text: "Construction: LTM (structural changes — build new synapses)" }
+    ],
+    tip: "'FCC' — Functional → Chemical → Construction. Memory gets MORE physical over time!"
+  },
+  {
+    title: "Amnesia Types",
+    topic: "Retro vs Antero",
+    acronym: "RAPA",
+    items: [
+      { letter: "R", text: "Retrograde = Remember old, forget the PAST" },
+      { letter: "A", text: "Anterograde = Add new = ADDING new memories fails" },
+      { letter: "P", text: "Past intact in anterograde" },
+      { letter: "A", text: "After hippocampal lesion = Anterograde" }
+    ],
+    tip: "RETRO = like reversing → going back to past (can't recall). ANTE = before = future direction (can't move forward)."
+  },
+  {
+    title: "Alzheimer's Triad",
+    topic: "What is lost in Alzheimer's",
+    acronym: "SNA",
+    items: [
+      { letter: "S", text: "Synapses — lost" },
+      { letter: "N", text: "Neurons — die off" },
+      { letter: "A", text: "Acetylcholine — depleted" }
+    ],
+    tip: "'Students Never Achieve' their memory goals in Alzheimer's 😄. Starts with S(TM) loss!"
+  },
+  {
+    title: "Types of Associative Learning",
+    topic: "Classical → Operant → Avoidance → Discriminative",
+    acronym: "COAD",
+    items: [
+      { letter: "C", text: "Classical: CS+US paired → conditioned reflex (Pavlov)" },
+      { letter: "O", text: "Operant: Operates task for Reward/Punishment" },
+      { letter: "A", text: "Avoidance: Awful stimulus pairs → avoid" },
+      { letter: "D", text: "Discriminative: Distinguishes specific CS only" }
+    ],
+    tip: "'COAD' — the four roads of associative learning!"
+  }
+];
+
+const vivaData = [
+  { q: "Define learning.", a: "Learning is the acquisition of knowledge or skills as a consequence of experience, instruction, or both. It can be non-associative (single stimulus) or associative (pairing of stimuli).", exam: false },
+  { q: "Differentiate between the two forms of non-associative learning.", a: "Habituation: gradual decrease in response to a repeated non-significant stimulus — mediated by decreased Ca²⁺ in nerve endings (negative memory). Sensitization: potentiation of response when a stimulus is coupled with pleasant/unpleasant events — mediated by prolongation of the action potential (positive memory).", exam: false },
+  { q: "What is the mechanism of classical conditioning? ⚠️ EXAM", a: "The unconditioned stimulus acts on excitatory interneurons → stimulates serotonin release onto the sensory terminal → serotonin activates cAMP → cAMP closes K⁺ channels → prolonged action potential → prolonged activation of Ca²⁺ channels → massive Ca²⁺ influx → enhanced synaptic transmission = conditioned reflex established.", exam: true },
+  { q: "Give an example of operant conditioning.", a: "An animal is alerted by a light (CS) and learns to press a lever (operation) to obtain a food reward or avoid an electric shock (US). The behavior is voluntarily repeated because of its consequences.", exam: false },
+  { q: "Differentiate explicit and implicit memory.", a: "Explicit (declarative) memory: conscious recall of facts and events (requires hippocampus). Implicit (non-declarative) memory: relates to acquired skills, habits, and reflexes (e.g., driving a car, playing piano) — does not require hippocampal consolidation.", exam: false },
+  { q: "What are the primary mechanisms maintaining short-term memory?", a: "Two mechanisms: (1) Reverberating neuronal circuits — continuous electrical activity traveling in self-sustaining neural loops. (2) Post-tetanic potentiation — brief enhancement of synaptic transmission after rapid firing.", exam: false },
+  { q: "Explain the chemical basis of intermediate-term memory. ⚠️ EXAM", a: "A facilitating terminal releases serotonin onto the sensory terminal. Serotonin increases cAMP, which closes K⁺ channels. Closure prolongs the action potential duration. The prolonged AP drives tremendous amounts of Ca²⁺ into the presynaptic terminal, greatly enhancing transmitter release per AP for hours to weeks.", exam: true },
+  { q: "What structural changes occur to establish long-term memory? ⚠️ EXAM", a: "Four physical/structural changes: (1) Increased number of vesicle release sites on presynaptic membrane, (2) Increased number of transmitter vesicles released per AP, (3) Growth of new presynaptic terminals (synaptogenesis), (4) Structural changes in dendritic spines (enlargement, remodeling) — all enabling stronger and more reliable signal transmission.", exam: true },
+  { q: "Define memory consolidation.", a: "The conversion of short-term memory (STM) into long-term memory (LTM) so information can be recalled months or years later. Requires at least 1 hour of active rehearsal/recycling driven by the hippocampus.", exam: false },
+  { q: "What is the specific role of the hippocampus in memory? ⚠️ EXAM", a: "The hippocampus serves as the principal decision-making center for memory consolidation. It evaluates the importance/significance of incoming sensory information and drives the mind to repeatedly rehearse and recycle new information until permanent structural changes are established in the appropriate sensory cortical association areas.", exam: true },
+  { q: "Distinguish between retrograde and anterograde amnesia.", a: "Retrograde amnesia: inability to recall memories ALREADY established in LTM (past memories lost; present recall intact). Anterograde amnesia: inability to FORM new LTM (consolidation failure; past memories intact, cannot remember recent events). Anterograde specifically indicates lesions in the medial temporal lobe/hippocampus.", exam: false },
+  { q: "What are the pathological hallmarks and clinical signs of Alzheimer's disease? ⚠️ EXAM", a: "Pathology: Irreversible neurodegenerative disease with loss of synapses, neurons, and acetylcholine neurotransmitter. Clinical: Presents first with progressive short-term memory loss (most common initial feature), followed by language difficulties, disorientation, personality changes, and general cognitive decline leading to senile dementia. It is the most common cause of senile dementia.", exam: true }
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let currentQ = 0, score = 0, streak = 0, answeredCount = 0;
+let quizAnswered = false;
+let localStorage_key = 'lm_platform_v1';
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(localStorage_key) || '{}');
+    score = s.score || 0;
+    streak = s.streak || 0;
+    answeredCount = s.answered || 0;
+    currentQ = s.currentQ || 0;
+    updateStatsBar();
+  } catch(e) {}
+}
+function saveState() {
+  try {
+    localStorage.setItem(localStorage_key, JSON.stringify({ score, streak, answered: answeredCount, currentQ }));
+  } catch(e) {}
+}
+function updateStatsBar() {
+  document.getElementById('total-score').textContent = score;
+  document.getElementById('streak').textContent = streak;
+  const pct = Math.round((answeredCount / quizData.length) * 100);
+  document.getElementById('progress-pct').textContent = pct + '%';
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  try { localStorage.setItem('lm_last_tab', id); } catch(e) {}
+}
+
+// ============================================================
+// QUIZ
+// ============================================================
+function renderQuiz() {
+  if (currentQ >= quizData.length) {
+    document.getElementById('quiz-container').innerHTML = `
+      <div class="card" style="text-align:center; padding:3rem;">
+        <div style="font-size:3rem; margin-bottom:1rem;">🎉</div>
+        <h2 style="margin-bottom:0.5rem;">Quiz Complete!</h2>
+        <p>Final Score: <strong style="color:var(--accent2); font-size:1.3rem;">${score} / ${quizData.length}</strong></p>
+        <p style="margin-top:0.5rem; color:var(--muted);">${score >= 20 ? '🔥 Excellent mastery!' : score >= 15 ? '👍 Good work, keep reviewing!' : '📚 Review the material and try again!'}</p>
+        <button class="btn btn-primary" onclick="resetQuiz()" style="margin-top:1.5rem;">🔄 Restart Quiz</button>
+      </div>`;
+    document.getElementById('next-btn').style.display = 'none';
+    return;
+  }
+  const d = quizData[currentQ];
+  const letters = ['A','B','C','D','E'];
+  document.getElementById('quiz-container').innerHTML = `
+    <div class="question-card">
+      <div class="q-number">Question ${currentQ+1} of ${quizData.length}</div>
+      <div class="q-text">${d.q}</div>
+      <div class="options" id="options">
+        ${d.opts.map((o,i) => `<button class="option-btn" onclick="selectAnswer(${i})">${letters[i]}. ${o}</button>`).join('')}
+      </div>
+      <div class="explanation" id="explanation"></div>
+    </div>`;
+  const fill = ((currentQ) / quizData.length) * 100;
+  document.getElementById('quiz-progress-fill').style.width = fill + '%';
+  document.getElementById('q-counter').textContent = `Question ${currentQ+1} of ${quizData.length}`;
+  document.getElementById('q-pct-text').textContent = Math.round(fill) + '%';
+  document.getElementById('next-btn').style.display = 'none';
+  quizAnswered = false;
+}
+
+function selectAnswer(idx) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const d = quizData[currentQ];
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach((b, i) => {
+    b.disabled = true;
+    if (i === d.ans) b.classList.add('correct');
+    else if (i === idx) b.classList.add('wrong');
+  });
+  if (idx === d.ans) {
+    score++; streak++; answeredCount++;
+  } else {
+    streak = 0; answeredCount++;
+  }
+  document.getElementById('score-display').textContent = score;
+  document.getElementById('streak-display').textContent = streak + '🔥';
+  const exp = document.getElementById('explanation');
+  exp.innerHTML = `<strong>${idx === d.ans ? '✅ Correct!' : '❌ Incorrect.'}</strong> ${d.exp}`;
+  exp.classList.add('show');
+  document.getElementById('next-btn').style.display = 'block';
+  updateStatsBar();
+  saveState();
+}
+
+function nextQuestion() {
+  currentQ++;
+  saveState();
+  renderQuiz();
+}
+
+function resetQuiz() {
+  currentQ = 0; score = 0; streak = 0; answeredCount = 0;
+  document.getElementById('score-display').textContent = '0';
+  document.getElementById('streak-display').textContent = '0🔥';
+  saveState();
+  updateStatsBar();
+  renderQuiz();
+}
+
+// ============================================================
+// FLASHCARDS
+// ============================================================
+function renderFlashcards() {
+  const container = document.getElementById('flashcards-container');
+  container.innerHTML = flashcardsData.map((fc, i) => `
+    <div class="flashcard" id="fc-${i}" onclick="flipCard(${i})">
+      <div class="flashcard-inner">
+        <div class="flashcard-front">
+          <div>
+            <div style="font-size:1.5rem; margin-bottom:0.5rem;">❓</div>
+            <div style="font-size:0.88rem; font-weight:500;">${fc.q}</div>
+          </div>
+        </div>
+        <div class="flashcard-back">
+          <div style="font-size:0.82rem; line-height:1.6;">${fc.a}</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function flipCard(i) {
+  document.getElementById('fc-' + i).classList.toggle('flipped');
+}
+
+// ============================================================
+// CASES
+// ============================================================
+function renderCases() {
+  const container = document.getElementById('cases-container');
+  container.innerHTML = casesData.map((c, ci) => `
+    <div class="case-card">
+      <div class="case-header">
+        <div class="case-num">${c.num}</div>
+        <h3>${c.title}</h3>
+      </div>
+      <div class="case-body">
+        <div class="case-vignette">${c.vignette}</div>
+        ${c.questions.map((cq, qi) => `
+          <div class="case-question">${cq.q}</div>
+          <button class="reveal-btn" onclick="revealAnswer(${ci},${qi})">👁️ Reveal Answer</button>
+          <div class="case-answer" id="ans-${ci}-${qi}">${cq.a}</div>
+        `).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function revealAnswer(ci, qi) {
+  const el = document.getElementById(`ans-${ci}-${qi}`);
+  el.classList.toggle('show');
+}
+
+// ============================================================
+// MNEMONICS
+// ============================================================
+function renderMnemonics() {
+  const container = document.getElementById('mnemonics-container');
+  container.innerHTML = mnemonicsData.map(m => `
+    <div class="mnemonic-card">
+      <div class="mnemonic-header">
+        <h3>${m.title}</h3>
+        <div style="font-size:0.75rem; color:var(--muted); margin-bottom:0.5rem;">${m.topic}</div>
+        <div class="mnemonic-acronym">${m.acronym}</div>
+      </div>
+      <div class="mnemonic-body">
+        ${m.items.map(item => `
+          <div class="mnemonic-item">
+            <span class="mnemonic-letter">${item.letter}</span>
+            <span>${item.text}</span>
+          </div>`).join('')}
+        <div style="margin-top:0.75rem; font-size:0.78rem; color:var(--muted); font-style:italic;">💡 ${m.tip}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ============================================================
+// VIVA
+// ============================================================
+function renderViva() {
+  const container = document.getElementById('viva-container');
+  container.innerHTML = vivaData.map((v, i) => `
+    <div class="viva-card">
+      <div class="viva-question" onclick="toggleViva(${i})" id="vq-${i}">
+        <div>
+          <span class="viva-q-text">${v.q}</span>
+          ${v.exam ? '<div class="exam-warning">⚠️ Exam-flagged question</div>' : ''}
+        </div>
+        <span class="viva-toggle">▶</span>
+      </div>
+      <div class="viva-answer" id="va-${i}">${v.a}</div>
+    </div>`).join('');
+}
+
+function toggleViva(i) {
+  const q = document.getElementById('vq-' + i);
+  const a = document.getElementById('va-' + i);
+  q.classList.toggle('open');
+  a.classList.toggle('show');
+}
+
+// ============================================================
+// GLOBAL SEARCH
+// ============================================================
+function globalSearch(val) {
+  // Simple highlight on active tab
+  const v = val.trim().toLowerCase();
+  if (!v) {
+    document.querySelectorAll('.search-highlight').forEach(el => {
+      el.outerHTML = el.textContent;
+    });
+    return;
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  loadState();
+  renderQuiz();
+  renderFlashcards();
+  renderCases();
+  renderMnemonics();
+  renderViva();
+  
+  // Restore last tab
+  try {
+    const last = localStorage.getItem('lm_last_tab');
+    if (last) {
+      const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick')?.includes("'" + last + "'"));
+      if (btn) showTab(last, btn);
+    }
+  } catch(e) {}
+});
+</script>
+</body>
+</html>

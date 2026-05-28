@@ -1,0 +1,1798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeuroPath Pro — Neurodegenerative Diseases Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #6C63FF;
+  --primary-dark: #5A52D5;
+  --primary-light: #8B85FF;
+  --secondary: #FF6B6B;
+  --accent: #4ECDC4;
+  --accent2: #FFE66D;
+  --success: #2ECC71;
+  --warning: #F39C12;
+  --danger: #E74C3C;
+  --info: #3498DB;
+  --bg-dark: #0F0E17;
+  --bg-card: #1A1932;
+  --bg-card2: #232248;
+  --text-primary: #FFFFFE;
+  --text-secondary: #A7A9BE;
+  --text-muted: #72738C;
+  --gradient1: linear-gradient(135deg, #6C63FF, #4ECDC4);
+  --gradient2: linear-gradient(135deg, #FF6B6B, #FFE66D);
+  --gradient3: linear-gradient(135deg, #A855F7, #6C63FF);
+  --gradient4: linear-gradient(135deg, #4ECDC4, #2ECC71);
+  --shadow: 0 8px 32px rgba(0,0,0,0.3);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,0.4);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Animated Background */
+.bg-animation {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 0; pointer-events: none; overflow: hidden;
+}
+.bg-orb {
+  position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.15;
+  animation: floatOrb 20s ease-in-out infinite;
+}
+.bg-orb:nth-child(1) { width: 400px; height: 400px; background: var(--primary); top: -100px; left: -100px; animation-delay: 0s; }
+.bg-orb:nth-child(2) { width: 350px; height: 350px; background: var(--accent); bottom: -100px; right: -100px; animation-delay: -7s; }
+.bg-orb:nth-child(3) { width: 300px; height: 300px; background: var(--secondary); top: 50%; left: 50%; animation-delay: -14s; }
+.bg-orb:nth-child(4) { width: 250px; height: 250px; background: #A855F7; top: 30%; right: 10%; animation-delay: -3s; }
+
+@keyframes floatOrb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(50px, -60px) scale(1.1); }
+  50% { transform: translate(-30px, 40px) scale(0.9); }
+  75% { transform: translate(40px, 30px) scale(1.05); }
+}
+
+/* Header */
+.header {
+  position: relative; z-index: 10; padding: 20px 24px;
+  background: rgba(15, 14, 23, 0.8); backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(108, 99, 255, 0.2);
+}
+.header-inner {
+  max-width: 1400px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+}
+.logo { display: flex; align-items: center; gap: 12px; }
+.logo-icon {
+  width: 48px; height: 48px; background: var(--gradient1); border-radius: 14px;
+  display: flex; align-items: center; justify-content: center; font-size: 24px;
+  box-shadow: 0 4px 20px rgba(108, 99, 255, 0.4);
+}
+.logo-text h1 { font-size: 22px; font-weight: 800; background: var(--gradient1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.logo-text p { font-size: 11px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; }
+
+.stats-bar { display: flex; gap: 16px; flex-wrap: wrap; }
+.stat-item {
+  background: var(--bg-card); padding: 8px 16px; border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; gap: 8px;
+}
+.stat-item .emoji { font-size: 18px; }
+.stat-item .stat-val { font-size: 16px; font-weight: 700; color: var(--accent); }
+.stat-item .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
+
+/* Search Bar */
+.search-container {
+  position: relative; z-index: 10; max-width: 1400px; margin: 16px auto; padding: 0 24px;
+}
+.search-box {
+  width: 100%; padding: 14px 20px 14px 48px; border-radius: var(--radius);
+  background: var(--bg-card); border: 1px solid rgba(255,255,255,0.08);
+  color: var(--text-primary); font-size: 15px; outline: none;
+  transition: var(--transition);
+}
+.search-box:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(108,99,255,0.2); }
+.search-icon { position: absolute; left: 40px; top: 50%; transform: translateY(-50%); font-size: 18px; color: var(--text-muted); }
+
+/* Tab Navigation */
+.tab-nav {
+  position: relative; z-index: 10; max-width: 1400px; margin: 0 auto; padding: 0 24px;
+  display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 8px;
+}
+.tab-nav::-webkit-scrollbar { display: none; }
+.tab-btn {
+  padding: 12px 20px; border-radius: var(--radius-sm); border: none; cursor: pointer;
+  font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+  background: var(--bg-card); color: var(--text-secondary);
+  transition: var(--transition); white-space: nowrap;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.tab-btn:hover { background: var(--bg-card2); color: var(--text-primary); transform: translateY(-2px); }
+.tab-btn.active {
+  background: var(--gradient1); color: white;
+  box-shadow: 0 4px 20px rgba(108,99,255,0.4);
+  transform: translateY(-2px);
+}
+
+/* Main Content */
+.main-content {
+  position: relative; z-index: 10; max-width: 1400px; margin: 0 auto; padding: 24px;
+}
+.tab-content { display: none; animation: fadeIn 0.4s ease; }
+.tab-content.active { display: block; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+@keyframes shake { 0%,100% { transform: translateX(0); } 20%,60% { transform: translateX(-6px); } 40%,80% { transform: translateX(6px); } }
+@keyframes correctPop { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
+@keyframes flipIn { from { transform: rotateY(90deg); opacity: 0; } to { transform: rotateY(0); opacity: 1; } }
+
+/* Section Headers */
+.section-header {
+  margin-bottom: 28px;
+}
+.section-header h2 {
+  font-size: 28px; font-weight: 800; margin-bottom: 8px;
+  background: var(--gradient1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.section-header p { color: var(--text-secondary); font-size: 15px; }
+
+/* Cards */
+.card {
+  background: var(--bg-card); border-radius: var(--radius); padding: 24px;
+  border: 1px solid rgba(255,255,255,0.06); transition: var(--transition);
+  box-shadow: var(--shadow);
+}
+.card:hover { border-color: rgba(108,99,255,0.3); transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+
+/* Grid Layouts */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+
+/* Tags */
+.tag {
+  display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 10px;
+  font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+}
+.tag-high { background: rgba(231, 76, 60, 0.2); color: #E74C3C; }
+.tag-exam { background: rgba(243, 156, 18, 0.2); color: #F39C12; }
+.tag-pearl { background: rgba(78, 205, 196, 0.2); color: #4ECDC4; }
+.tag-path { background: rgba(108, 99, 255, 0.2); color: #6C63FF; }
+
+/* Overview Tab */
+.summary-card {
+  background: var(--bg-card); border-radius: var(--radius); padding: 24px;
+  border-left: 4px solid var(--primary); transition: var(--transition);
+  border: 1px solid rgba(255,255,255,0.06); border-left: 4px solid;
+}
+.summary-card.ad { border-left-color: var(--secondary); }
+.summary-card.pd { border-left-color: var(--accent); }
+.summary-card.hd { border-left-color: var(--accent2); }
+.summary-card.dem { border-left-color: var(--primary); }
+.summary-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.summary-card p { color: var(--text-secondary); font-size: 14px; line-height: 1.7; }
+
+/* Timeline */
+.timeline { position: relative; padding: 20px 0; }
+.timeline::before {
+  content: ''; position: absolute; left: 20px; top: 0; bottom: 0;
+  width: 3px; background: var(--gradient1); border-radius: 3px;
+}
+.timeline-item {
+  position: relative; margin-left: 50px; margin-bottom: 24px;
+  background: var(--bg-card); border-radius: var(--radius); padding: 20px;
+  border: 1px solid rgba(255,255,255,0.06); transition: var(--transition);
+  animation: slideUp 0.5s ease backwards;
+}
+.timeline-item:nth-child(1) { animation-delay: 0.1s; }
+.timeline-item:nth-child(2) { animation-delay: 0.2s; }
+.timeline-item:nth-child(3) { animation-delay: 0.3s; }
+.timeline-item:nth-child(4) { animation-delay: 0.4s; }
+.timeline-item::before {
+  content: ''; position: absolute; left: -38px; top: 24px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--primary); border: 3px solid var(--bg-dark);
+  box-shadow: 0 0 12px rgba(108,99,255,0.5);
+}
+.timeline-item h4 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.timeline-item p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+/* Signs Grid */
+.sign-card {
+  background: var(--bg-card); border-radius: var(--radius-sm); padding: 16px;
+  border: 1px solid rgba(255,255,255,0.06); transition: var(--transition); cursor: default;
+}
+.sign-card:hover { transform: translateY(-3px); border-color: rgba(108,99,255,0.3); }
+.sign-card .sign-emoji { font-size: 28px; margin-bottom: 8px; }
+.sign-card h5 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.sign-card p { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+.sign-card .tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
+
+/* Quiz Tab */
+.quiz-header {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+  margin-bottom: 24px;
+}
+.quiz-progress {
+  flex: 1; min-width: 200px;
+}
+.progress-bar-outer {
+  width: 100%; height: 10px; background: var(--bg-card2); border-radius: 10px; overflow: hidden;
+}
+.progress-bar-inner {
+  height: 100%; background: var(--gradient1); border-radius: 10px;
+  transition: width 0.5s ease;
+}
+.quiz-stats {
+  display: flex; gap: 16px;
+}
+.quiz-stat {
+  background: var(--bg-card); padding: 10px 18px; border-radius: var(--radius-sm);
+  text-align: center; border: 1px solid rgba(255,255,255,0.06);
+}
+.quiz-stat .val { font-size: 22px; font-weight: 800; }
+.quiz-stat .lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
+.quiz-stat.correct .val { color: var(--success); }
+.quiz-stat.wrong .val { color: var(--danger); }
+.quiz-stat.streak .val { color: var(--accent2); }
+
+.quiz-question-card {
+  background: var(--bg-card); border-radius: var(--radius); padding: 32px;
+  border: 1px solid rgba(255,255,255,0.06); margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+.q-number {
+  display: inline-block; background: var(--gradient1); padding: 4px 12px;
+  border-radius: 20px; font-size: 12px; font-weight: 700; margin-bottom: 16px;
+}
+.q-text { font-size: 17px; font-weight: 600; line-height: 1.7; margin-bottom: 24px; }
+.q-options { display: flex; flex-direction: column; gap: 10px; }
+.q-option {
+  padding: 16px 20px; border-radius: var(--radius-sm); cursor: pointer;
+  background: var(--bg-card2); border: 2px solid rgba(255,255,255,0.06);
+  transition: var(--transition); font-size: 15px; display: flex; align-items: flex-start; gap: 12px;
+}
+.q-option:hover:not(.disabled) { border-color: var(--primary); background: rgba(108,99,255,0.1); }
+.q-option .opt-letter {
+  min-width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px;
+  flex-shrink: 0;
+}
+.q-option.selected { border-color: var(--primary); background: rgba(108,99,255,0.15); }
+.q-option.correct { border-color: var(--success); background: rgba(46,204,113,0.15); animation: correctPop 0.4s ease; }
+.q-option.correct .opt-letter { background: var(--success); color: white; }
+.q-option.wrong { border-color: var(--danger); background: rgba(231,76,60,0.15); animation: shake 0.4s ease; }
+.q-option.wrong .opt-letter { background: var(--danger); color: white; }
+.q-option.disabled { cursor: default; opacity: 0.7; }
+.q-option.disabled.correct { opacity: 1; }
+
+.q-explanation {
+  margin-top: 20px; padding: 20px; background: rgba(108,99,255,0.08);
+  border-radius: var(--radius-sm); border-left: 4px solid var(--primary);
+  display: none; animation: fadeIn 0.3s ease;
+}
+.q-explanation.show { display: block; }
+.q-explanation h5 { font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--primary-light); }
+.q-explanation p { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+
+.quiz-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 20px; }
+.btn {
+  padding: 12px 28px; border-radius: var(--radius-sm); border: none; cursor: pointer;
+  font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+  transition: var(--transition); display: flex; align-items: center; gap: 8px;
+}
+.btn-primary { background: var(--gradient1); color: white; box-shadow: 0 4px 16px rgba(108,99,255,0.3); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(108,99,255,0.5); }
+.btn-secondary { background: var(--bg-card2); color: var(--text-secondary); border: 1px solid rgba(255,255,255,0.08); }
+.btn-secondary:hover { background: var(--bg-card); color: var(--text-primary); }
+.btn-success { background: var(--gradient4); color: white; }
+.btn-danger { background: var(--secondary); color: white; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Flashcards Tab */
+.flashcard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+.flashcard {
+  perspective: 1000px; height: 240px; cursor: pointer;
+}
+.flashcard-inner {
+  position: relative; width: 100%; height: 100%;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+.flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+.flashcard-face {
+  position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+  border-radius: var(--radius); padding: 24px;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  text-align: center; border: 1px solid rgba(255,255,255,0.06);
+}
+.flashcard-front {
+  background: var(--bg-card);
+}
+.flashcard-front h4 { font-size: 15px; font-weight: 600; line-height: 1.6; }
+.flashcard-front .fc-hint { font-size: 11px; color: var(--text-muted); margin-top: 16px; }
+.flashcard-back {
+  background: var(--bg-card2); transform: rotateY(180deg);
+  border: 2px solid rgba(108,99,255,0.3);
+}
+.flashcard-back p { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+.flashcard-num {
+  position: absolute; top: 12px; left: 16px; font-size: 11px;
+  color: var(--text-muted); font-weight: 700;
+}
+.flashcard-emoji { font-size: 36px; margin-bottom: 12px; }
+
+/* Clinical Cases Tab */
+.case-card {
+  background: var(--bg-card); border-radius: var(--radius); padding: 28px;
+  border: 1px solid rgba(255,255,255,0.06); margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+.case-header { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+.case-num {
+  width: 44px; height: 44px; border-radius: 12px; background: var(--gradient1);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 18px; flex-shrink: 0;
+}
+.case-title { font-size: 18px; font-weight: 700; }
+.case-vignette {
+  background: rgba(108,99,255,0.06); padding: 20px; border-radius: var(--radius-sm);
+  margin-bottom: 20px; border-left: 4px solid var(--primary);
+  font-size: 14px; line-height: 1.8; color: var(--text-secondary);
+}
+.case-question { margin-bottom: 16px; }
+.case-question h5 { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+.case-answer {
+  display: none; padding: 16px; background: rgba(46,204,113,0.08);
+  border-radius: var(--radius-sm); border-left: 4px solid var(--success);
+  margin-top: 10px; animation: fadeIn 0.3s ease;
+}
+.case-answer.show { display: block; }
+.case-answer p { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+.reveal-btn {
+  padding: 8px 18px; border-radius: var(--radius-xs); border: none; cursor: pointer;
+  background: var(--bg-card2); color: var(--accent); font-size: 12px; font-weight: 600;
+  transition: var(--transition); font-family: 'Inter', sans-serif;
+}
+.reveal-btn:hover { background: rgba(78,205,196,0.15); }
+
+/* Pathophysiology Tab */
+.patho-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.patho-item {
+  background: var(--bg-card); border-radius: var(--radius-sm); padding: 20px;
+  border: 1px solid rgba(255,255,255,0.06); cursor: pointer;
+  transition: var(--transition);
+}
+.patho-item:hover { border-color: var(--primary); transform: translateY(-3px); }
+.patho-item.expanded { border-color: var(--primary); }
+.patho-item .pi-header { display: flex; align-items: center; gap: 12px; }
+.patho-item .pi-icon { font-size: 28px; }
+.patho-item h5 { font-size: 15px; font-weight: 700; }
+.patho-item .pi-detail {
+  display: none; margin-top: 14px; padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  font-size: 13px; color: var(--text-secondary); line-height: 1.7;
+}
+.patho-item.expanded .pi-detail { display: block; animation: fadeIn 0.3s ease; }
+
+/* Flow Chart */
+.flow-chart { display: flex; flex-direction: column; gap: 8px; align-items: center; margin: 32px 0; }
+.flow-step {
+  background: var(--bg-card); border-radius: var(--radius-sm); padding: 16px 28px;
+  border: 1px solid rgba(255,255,255,0.06); text-align: center;
+  max-width: 500px; width: 100%; transition: var(--transition);
+  font-size: 14px; font-weight: 500;
+}
+.flow-step:hover { border-color: var(--primary); transform: scale(1.02); }
+.flow-arrow { font-size: 22px; color: var(--primary); }
+.flow-step.highlight {
+  border-color: var(--secondary); background: rgba(255,107,107,0.1);
+}
+
+/* Diagnosis Tab */
+.diag-badges { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
+.diag-badge {
+  padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  background: rgba(108,99,255,0.1); color: var(--primary-light);
+  border: 1px solid rgba(108,99,255,0.2); cursor: default; transition: var(--transition);
+}
+.diag-badge:hover { transform: scale(1.05); }
+.diag-badge.active { background: var(--primary); color: white; }
+
+.comparison-table {
+  width: 100%; border-collapse: separate; border-spacing: 0;
+  border-radius: var(--radius); overflow: hidden; margin: 20px 0;
+}
+.comparison-table th {
+  background: var(--bg-card2); padding: 14px 18px; text-align: left;
+  font-size: 13px; font-weight: 700; color: var(--text-primary);
+  border-bottom: 2px solid var(--primary);
+}
+.comparison-table td {
+  padding: 12px 18px; font-size: 13px; color: var(--text-secondary);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  background: var(--bg-card);
+}
+.comparison-table tr:hover td { background: var(--bg-card2); }
+
+/* Treatment Tab */
+.treatment-card {
+  background: var(--bg-card); border-radius: var(--radius); padding: 24px;
+  border: 1px solid rgba(255,255,255,0.06); transition: var(--transition);
+}
+.treatment-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+.treatment-card ul { list-style: none; }
+.treatment-card li {
+  padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 14px; color: var(--text-secondary); display: flex; align-items: flex-start; gap: 10px;
+}
+.treatment-card li:last-child { border-bottom: none; }
+.treatment-card li .bullet { flex-shrink: 0; }
+
+.urgency-high { border-left: 4px solid var(--danger); }
+.urgency-med { border-left: 4px solid var(--warning); }
+.urgency-low { border-left: 4px solid var(--success); }
+
+/* Mnemonics Tab */
+.mnemonic-card {
+  background: var(--bg-card); border-radius: var(--radius); padding: 24px;
+  border: 1px solid rgba(255,255,255,0.06); transition: var(--transition);
+  cursor: pointer;
+}
+.mnemonic-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+.mnemonic-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.mnemonic-word {
+  font-size: 28px; font-weight: 900; letter-spacing: 4px;
+  background: var(--gradient2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin: 12px 0;
+}
+.mnemonic-expand {
+  display: none; margin-top: 14px; padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.mnemonic-card.expanded .mnemonic-expand { display: block; animation: fadeIn 0.3s ease; }
+.mnemonic-expand ul { list-style: none; }
+.mnemonic-expand li {
+  padding: 6px 0; font-size: 14px; color: var(--text-secondary);
+  display: flex; align-items: center; gap: 10px;
+}
+.mnemonic-expand li .letter {
+  font-weight: 800; font-size: 18px; color: var(--secondary); min-width: 24px;
+}
+
+/* Viva Tab */
+.viva-card {
+  background: var(--bg-card); border-radius: var(--radius); padding: 24px;
+  border: 1px solid rgba(255,255,255,0.06); margin-bottom: 16px;
+  transition: var(--transition);
+}
+.viva-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+.viva-answer {
+  display: none; padding: 16px; background: rgba(78,205,196,0.06);
+  border-radius: var(--radius-sm); border-left: 4px solid var(--accent);
+  margin-top: 10px; animation: fadeIn 0.3s ease;
+}
+.viva-answer.show { display: block; }
+.viva-answer p { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+
+/* Quiz Result */
+.quiz-result {
+  text-align: center; padding: 48px; display: none;
+}
+.quiz-result.show { display: block; animation: fadeIn 0.5s ease; }
+.result-emoji { font-size: 64px; margin-bottom: 16px; }
+.result-score { font-size: 48px; font-weight: 900; background: var(--gradient1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.result-msg { font-size: 18px; color: var(--text-secondary); margin: 12px 0 24px; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header-inner { flex-direction: column; align-items: flex-start; }
+  .stats-bar { width: 100%; justify-content: flex-start; }
+  .section-header h2 { font-size: 22px; }
+  .tab-nav { gap: 4px; }
+  .tab-btn { padding: 10px 14px; font-size: 12px; }
+  .quiz-question-card { padding: 20px; }
+  .q-text { font-size: 15px; }
+  .flashcard { height: 220px; }
+  .timeline::before { left: 12px; }
+  .timeline-item { margin-left: 36px; }
+  .timeline-item::before { left: -30px; width: 12px; height: 12px; }
+}
+
+/* Score display for completed quiz */
+.score-display { font-size: 14px; font-weight: 600; color: var(--accent); }
+
+/* Additional utility */
+.hidden { display: none !important; }
+.mt-16 { margin-top: 16px; }
+.mb-24 { margin-bottom: 24px; }
+.text-center { text-align: center; }
+
+/* Essay questions styling */
+.essay-card {
+  background: var(--bg-card); border-radius: var(--radius); padding: 24px;
+  border: 1px solid rgba(255,255,255,0.06); margin-bottom: 16px;
+  transition: var(--transition); cursor: pointer;
+}
+.essay-card:hover { border-color: rgba(168, 85, 247, 0.3); }
+.essay-card h4 { font-size: 15px; font-weight: 600; line-height: 1.6; color: var(--text-primary); display: flex; align-items: flex-start; gap: 10px; }
+.essay-source { font-size: 11px; color: var(--text-muted); margin-top: 8px; font-style: italic; }
+
+/* Drug table */
+.drug-table { width: 100%; margin: 20px 0; }
+.drug-row {
+  display: flex; align-items: stretch; gap: 2px; margin-bottom: 2px;
+}
+.drug-cell {
+  flex: 1; padding: 14px 16px; background: var(--bg-card);
+  font-size: 13px; color: var(--text-secondary);
+}
+.drug-cell.header {
+  background: var(--bg-card2); font-weight: 700; color: var(--text-primary);
+}
+.drug-cell:first-child { border-radius: var(--radius-xs) 0 0 var(--radius-xs); }
+.drug-cell:last-child { border-radius: 0 var(--radius-xs) var(--radius-xs) 0; }
+
+/* Sub-tab for pathophysiology */
+.sub-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+.sub-tab {
+  padding: 8px 16px; border-radius: 20px; border: none; cursor: pointer;
+  background: var(--bg-card2); color: var(--text-secondary); font-family: 'Inter'; font-size: 12px; font-weight: 600;
+  transition: var(--transition);
+}
+.sub-tab.active { background: var(--primary); color: white; }
+.sub-tab:hover:not(.active) { background: var(--bg-card); }
+.sub-content { display: none; }
+.sub-content.active { display: block; animation: fadeIn 0.3s ease; }
+</style>
+</head>
+<body>
+
+<div class="bg-animation">
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+</div>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">🧠</div>
+      <div class="logo-text">
+        <h1>NeuroPath Pro</h1>
+        <p>Neurodegenerative Diseases</p>
+      </div>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-item">
+        <span class="emoji">🔥</span>
+        <div>
+          <div class="stat-val" id="streakDisplay">0</div>
+          <div class="stat-label">Streak</div>
+        </div>
+      </div>
+      <div class="stat-item">
+        <span class="emoji">📊</span>
+        <div>
+          <div class="stat-val" id="progressDisplay">0%</div>
+          <div class="stat-label">Progress</div>
+        </div>
+      </div>
+      <div class="stat-item">
+        <span class="emoji">🏆</span>
+        <div>
+          <div class="stat-val" id="scoreDisplay">0</div>
+          <div class="stat-label">Score</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="search-container">
+  <span class="search-icon">🔍</span>
+  <input type="text" class="search-box" id="searchBox" placeholder="Search any topic, drug, symptom, disease...">
+</div>
+
+<nav class="tab-nav" id="tabNav">
+  <button class="tab-btn active" data-tab="overview">📋 Overview</button>
+  <button class="tab-btn" data-tab="quiz">🎯 Quiz Mode</button>
+  <button class="tab-btn" data-tab="flashcards">🃏 Flashcards</button>
+  <button class="tab-btn" data-tab="cases">🏥 Clinical Cases</button>
+  <button class="tab-btn" data-tab="pathophysiology">🔬 Pathophysiology</button>
+  <button class="tab-btn" data-tab="diagnosis">🩺 Diagnosis</button>
+  <button class="tab-btn" data-tab="treatment">💊 Treatment</button>
+  <button class="tab-btn" data-tab="mnemonics">🧩 Mnemonics</button>
+  <button class="tab-btn" data-tab="viva">🗣️ Viva Prep</button>
+</nav>
+
+<main class="main-content">
+
+<!-- ========== OVERVIEW TAB ========== -->
+<div class="tab-content active" id="tab-overview">
+  <div class="section-header">
+    <h2>📋 Overview — Neurodegenerative Diseases</h2>
+    <p>Quick summary of Alzheimer's, Parkinson's, and Huntington's disease. Every fact you need at a glance.</p>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="grid-2 mb-24">
+    <div class="summary-card dem searchable" data-search="dementia memory impairment consciousness cognitive deficit">
+      <h3>🧠 Dementia — Definition</h3>
+      <p>Development of <strong>memory impairment</strong> and other cognitive deficits with <strong>preservation of normal level of consciousness</strong>. It is a progressive loss of intellectual capabilities without affecting consciousness.</p>
+      <div class="tags mt-16"><span class="tag tag-high">HIGH-YIELD</span><span class="tag tag-exam">EXAM FAVORITE</span></div>
+    </div>
+    <div class="summary-card ad searchable" data-search="alzheimer amyloid beta tau plaques tangles cortical atrophy senile dementia elderly">
+      <h3>🟥 Alzheimer Disease (AD)</h3>
+      <p>Most common cause of dementia in the elderly. Characterized by <strong>extracellular Amyloid β plaques</strong> and <strong>intracellular hyperphosphorylated tau tangles</strong>. Causes cortical atrophy with widened sulci and compensatory ventricular enlargement (hydrocephalus ex vacuo). Usually begins after age 50. 5–10% familial.</p>
+      <div class="tags mt-16"><span class="tag tag-high">HIGH-YIELD</span><span class="tag tag-exam">⚠️ EXAM</span></div>
+    </div>
+    <div class="summary-card pd searchable" data-search="parkinson dopamine substantia nigra lewy bodies alpha synuclein tremor rigidity bradykinesia">
+      <h3>🟩 Parkinson Disease (PD)</h3>
+      <p>Loss of <strong>pigmented catecholaminergic neurons</strong> in the <strong>substantia nigra & locus ceruleus</strong>. Accumulation of <strong>α-synuclein Lewy bodies</strong>. Causes bradykinesia, rigidity, pill-rolling tremor, festinating gait, and masked facies. Men > Women.</p>
+      <div class="tags mt-16"><span class="tag tag-high">HIGH-YIELD</span><span class="tag tag-pearl">CLINICAL PEARL</span></div>
+    </div>
+    <div class="summary-card hd searchable" data-search="huntington chorea GABA basal ganglia CAG repeat familial genetic autosomal dominant">
+      <h3>🟨 Huntington Disease (HD)</h3>
+      <p>Familial genetic disease with <strong>CAG trinucleotide repeats</strong>. Loss of <strong>GABA</strong> (main inhibitory neurotransmitter) from <strong>basal ganglia</strong> (corpus striatum). Leads to <strong>chorea</strong> (jerky involuntary movements), progressive motor loss, and dementia. Fatal course.</p>
+      <div class="tags mt-16"><span class="tag tag-exam">⚠️ EXAM</span><span class="tag tag-path">PATHOLOGY</span></div>
+    </div>
+  </div>
+
+  <!-- Disease Progression Timeline -->
+  <div class="section-header">
+    <h2>⏳ Disease Feature Timeline</h2>
+    <p>Comparative progression of key neurodegenerative diseases</p>
+  </div>
+  <div class="timeline mb-24">
+    <div class="timeline-item searchable" data-search="normal protein metabolism alpha secretase">
+      <h4>🟢 Normal State</h4>
+      <p>Extracellular proteins are metabolized by <strong>alpha-secretase</strong> (normal pathway). Intracellular tau proteins stabilize microtubules. Dopaminergic neurons produce adequate dopamine. GABA maintains inhibitory braking in basal ganglia.</p>
+    </div>
+    <div class="timeline-item searchable" data-search="early pathology misfolding beta secretase hyperphosphorylation">
+      <h4>🟡 Early Pathological Changes</h4>
+      <p><strong>AD:</strong> Beta-secretase starts abnormally cleaving protein → Amyloid β forms. Tau becomes hyperphosphorylated. <strong>PD:</strong> α-synuclein misfolds, proteasome degradation fails. <strong>HD:</strong> CAG repeats expand, GABA neurons begin to degenerate.</p>
+    </div>
+    <div class="timeline-item searchable" data-search="accumulation plaques tangles lewy bodies atrophy">
+      <h4>🟠 Accumulation Phase</h4>
+      <p><strong>AD:</strong> Plaques accumulate extracellularly; tangles accumulate intracellularly → neuronal toxicity and death → cortical atrophy. <strong>PD:</strong> Lewy bodies form → substantia nigra pallor. <strong>HD:</strong> Corpus striatum atrophies → GABA loss.</p>
+    </div>
+    <div class="timeline-item searchable" data-search="clinical manifestation dementia tremor chorea">
+      <h4>🔴 Clinical Manifestation</h4>
+      <p><strong>AD:</strong> Progressive dementia with memory loss, brain atrophy, ventricle enlargement. <strong>PD:</strong> Bradykinesia, rigidity, pill-rolling tremor, shuffling gait, mask-like face. <strong>HD:</strong> Chorea, progressive motor loss, dementia, death.</p>
+    </div>
+  </div>
+
+  <!-- Key Clinical Signs Grid -->
+  <div class="section-header">
+    <h2>🩻 Key Clinical Signs</h2>
+    <p>Critical signs organized by disease</p>
+  </div>
+  <div class="grid-4 mb-24">
+    <div class="sign-card searchable" data-search="memory loss cortical atrophy ventricle enlargement alzheimer">
+      <div class="sign-emoji">🧓</div>
+      <h5>Progressive Memory Loss</h5>
+      <p>Gradual cognitive decline starting after age 50, hallmark of Alzheimer's</p>
+      <div class="tags"><span class="tag tag-high">HIGH-YIELD</span></div>
+    </div>
+    <div class="sign-card searchable" data-search="hydrocephalus ex vacuo ventricle brain shrink">
+      <div class="sign-emoji">🧪</div>
+      <h5>Hydrocephalus Ex Vacuo</h5>
+      <p>Compensatory ventricular enlargement due to cortical atrophy in AD</p>
+      <div class="tags"><span class="tag tag-exam">EXAM</span></div>
+    </div>
+    <div class="sign-card searchable" data-search="pill rolling tremor resting tremor parkinson">
+      <div class="sign-emoji">✋</div>
+      <h5>Pill-Rolling Tremor</h5>
+      <p>Resting tremor characteristic of Parkinson's disease</p>
+      <div class="tags"><span class="tag tag-pearl">CLINICAL PEARL</span></div>
+    </div>
+    <div class="sign-card searchable" data-search="masked facies diminished facial expression parkinson">
+      <div class="sign-emoji">😐</div>
+      <h5>Mask-Like Face</h5>
+      <p>Diminished facial expression in Parkinson's disease</p>
+      <div class="tags"><span class="tag tag-pearl">CLINICAL PEARL</span></div>
+    </div>
+    <div class="sign-card searchable" data-search="bradykinesia akinesia slowness movement difficulty initiating">
+      <div class="sign-emoji">🐌</div>
+      <h5>Bradykinesia / Akinesia</h5>
+      <p>Slowness or difficulty initiating movement (PD)</p>
+      <div class="tags"><span class="tag tag-exam">⚠️ EXAM</span></div>
+    </div>
+    <div class="sign-card searchable" data-search="festinating gait shuffling stooped posture parkinson">
+      <div class="sign-emoji">🚶</div>
+      <h5>Festinating Gait</h5>
+      <p>Shuffling gait with stooped posture in Parkinsonism</p>
+      <div class="tags"><span class="tag tag-pearl">CLINICAL PEARL</span></div>
+    </div>
+    <div class="sign-card searchable" data-search="chorea jerky involuntary movements huntington">
+      <div class="sign-emoji">💃</div>
+      <h5>Chorea</h5>
+      <p>Jerky, involuntary movements due to GABA loss in Huntington's</p>
+      <div class="tags"><span class="tag tag-high">HIGH-YIELD</span></div>
+    </div>
+    <div class="sign-card searchable" data-search="rigidity cogwheel lead pipe parkinson">
+      <div class="sign-emoji">🔒</div>
+      <h5>Rigidity</h5>
+      <p>Increased muscle tone throughout range of motion in PD</p>
+      <div class="tags"><span class="tag tag-pearl">CLINICAL PEARL</span></div>
+    </div>
+  </div>
+
+  <!-- Essay Questions -->
+  <div class="section-header">
+    <h2>📝 Essay Questions</h2>
+    <p>Practice these for written exams</p>
+  </div>
+  <div class="essay-card searchable" data-search="senile plaques neurofibrillary tangles alzheimer pathophysiology">
+    <h4>📌 Q1: Explain the pathophysiological mechanism differentiating the formation of senile plaques and neurofibrillary tangles in Alzheimer's disease, and how these affect brain macro-structure.</h4>
+    <div class="essay-source">📖 Source: PDF + Audio Lecture</div>
+  </div>
+  <div class="essay-card searchable" data-search="pharmacological targets cognitive decline alzheimer treatment">
+    <h4>📌 Q2: Detail the pharmacological targets currently approved for slowing cognitive decline and improving symptoms in Alzheimer's disease.</h4>
+    <div class="essay-source">📖 Source: PDF</div>
+  </div>
+  <div class="essay-card searchable" data-search="substantia nigra macroscopic microscopic parkinson motor symptoms">
+    <h4>📌 Q3: Correlate the macroscopic and microscopic findings in the substantia nigra of a Parkinson's disease patient with their clinical motor symptoms.</h4>
+    <div class="essay-source">📖 Source: PDF + Audio Lecture</div>
+  </div>
+  <div class="essay-card searchable" data-search="protein misfolding parkinson alzheimer comparison">
+    <h4>📌 Q4: Compare the role of protein misfolding in Parkinson's disease versus Alzheimer's disease.</h4>
+    <div class="essay-source">📖 Source: PDF + Audio Lecture</div>
+  </div>
+  <div class="essay-card searchable" data-search="huntington genetic neurotransmitter CAG chorea">
+    <h4>📌 Q5: Describe the genetic and neurotransmitter abnormalities defining Huntington's disease and how they lead to chorea.</h4>
+    <div class="essay-source">📖 Source: PDF + Audio Lecture</div>
+  </div>
+  <div class="essay-card searchable" data-search="motor manifestations huntington parkinson neurotransmitter contrast">
+    <h4>📌 Q6: Contrast the motor manifestations of Huntington's disease with those of Parkinson's disease based on their respective neurotransmitter deficits.</h4>
+    <div class="essay-source">📖 Source: Audio Lecture</div>
+  </div>
+</div>
+
+<!-- ========== QUIZ TAB ========== -->
+<div class="tab-content" id="tab-quiz">
+  <div class="section-header">
+    <h2>🎯 Quiz Mode — 25 MCQs</h2>
+    <p>Test your knowledge with exam-style questions. Immediate feedback and explanations!</p>
+  </div>
+  <div class="quiz-header">
+    <div class="quiz-progress">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-size:13px;color:var(--text-secondary);">Question <span id="qCurrent">1</span>/25</span>
+        <span style="font-size:13px;color:var(--text-muted);" id="qPercent">0%</span>
+      </div>
+      <div class="progress-bar-outer">
+        <div class="progress-bar-inner" id="quizProgressBar" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="quiz-stats">
+      <div class="quiz-stat correct"><div class="val" id="quizCorrect">0</div><div class="lbl">Correct</div></div>
+      <div class="quiz-stat wrong"><div class="val" id="quizWrong">0</div><div class="lbl">Wrong</div></div>
+      <div class="quiz-stat streak"><div class="val" id="quizStreak">0</div><div class="lbl">Streak 🔥</div></div>
+    </div>
+  </div>
+  <div id="quizContainer"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-secondary" id="prevBtn" onclick="navigateQuiz(-1)" disabled>← Previous</button>
+    <button class="btn btn-primary" id="nextBtn" onclick="navigateQuiz(1)">Next →</button>
+  </div>
+  <div class="quiz-result" id="quizResult">
+    <div class="result-emoji" id="resultEmoji">🎉</div>
+    <div class="result-score" id="resultScore">0/25</div>
+    <div class="result-msg" id="resultMsg">Great job!</div>
+    <button class="btn btn-primary" onclick="resetQuiz()">🔄 Retake Quiz</button>
+  </div>
+</div>
+
+<!-- ========== FLASHCARDS TAB ========== -->
+<div class="tab-content" id="tab-flashcards">
+  <div class="section-header">
+    <h2>🃏 Flashcards — Click to Flip</h2>
+    <p>20 flashcards covering all high-yield concepts. Click any card to reveal the answer.</p>
+  </div>
+  <div class="flashcard-grid" id="flashcardGrid"></div>
+</div>
+
+<!-- ========== CLINICAL CASES TAB ========== -->
+<div class="tab-content" id="tab-cases">
+  <div class="section-header">
+    <h2>🏥 Clinical Cases</h2>
+    <p>Exam-style clinical vignettes with structured answers</p>
+  </div>
+  <div id="casesContainer"></div>
+</div>
+
+<!-- ========== PATHOPHYSIOLOGY TAB ========== -->
+<div class="tab-content" id="tab-pathophysiology">
+  <div class="section-header">
+    <h2>🔬 Pathophysiology</h2>
+    <p>Interactive exploration of disease mechanisms</p>
+  </div>
+
+  <div class="sub-tabs">
+    <button class="sub-tab active" data-subtab="patho-ad" onclick="switchSubTab(this,'patho')">🟥 Alzheimer's</button>
+    <button class="sub-tab" data-subtab="patho-pd" onclick="switchSubTab(this,'patho')">🟩 Parkinson's</button>
+    <button class="sub-tab" data-subtab="patho-hd" onclick="switchSubTab(this,'patho')">🟨 Huntington's</button>
+    <button class="sub-tab" data-subtab="patho-structures" onclick="switchSubTab(this,'patho')">🏗️ Key Structures</button>
+  </div>
+
+  <!-- AD Flow -->
+  <div class="sub-content active" id="patho-ad">
+    <h3 style="margin-bottom:20px;font-size:18px;font-weight:700;">🟥 Alzheimer Disease — Pathophysiology Flow</h3>
+    <div class="flow-chart">
+      <div class="flow-step">Normal extracellular protein cleaved by <strong>alpha-secretase</strong> (normal pathway)</div>
+      <div class="flow-arrow">⬇️</div>
+      <div class="flow-step highlight">Abnormal metabolism by <strong>beta-secretase</strong> → forms toxic <strong>Amyloid β peptides</strong></div>
+      <div class="flow-arrow">⬇️</div>
+      <div class="flow-step">Amyloid β aggregates <strong>extracellularly</strong> → forms <strong>Senile (Neuritic) Plaques</strong></div>
+      <div class="flow-arrow">⬇️ (Simultaneously)</div>
+      <div class="flow-step highlight">Intracellular microtubule <strong>tau protein</strong> becomes <strong>hyperphosphorylated</strong></div>
+      <div class="flow-arrow">⬇️</div>
+      <div class="flow-step">Hyperphosphorylated tau forms <strong>intracellular Neurofibrillary Tangles (NFTs)</strong></div>
+      <div class="flow-arrow">⬇️</div>
+      <div class="flow-step">Plaques + Tangles → <strong>Neuronal toxicity & death</strong></div>
+      <div class="flow-arrow">⬇️</div>
+      <div class="flow-step highlight">Cortical atrophy → widening of sulci → compensatory <strong>ventricular enlargement</strong> (Hydrocephalus Ex Vacuo)</div>
+      <div class="flow-arrow">⬇️</div>
+      <div class="flow-step">Progressive <strong>dementia</strong> with preserved consciousness</div>
+    </div>
+  </div>
+
+  <!-- PD Flow -->
+  <div class="sub-content" id="patho-pd">
+    <h3 style="margin-bottom:20px;font-size:18px;font-weight:700;">🟩 Parkinson Disease — Pathophysiology Flow</h3>
+    <div class="flow-chart">
+      <div class="flow-step">Normal <strong>α-synuclein</strong> protein is properly folded and degraded by <strong>proteasome</strong></div>
+      <div class="flow-arrow">⬇️</div>
+      <div class="flow-step highlight">α-synuclein <strong>misfolds</strong> → defective proteasome degradation</div>
+      <div class="flow-arrow">⬇️</div>
+      <div class="flow-step">Misfolded α-synuclein aggregates → forms <strong>intracytoplasmic eosinophilic inclusions (Lewy Bodies)</strong></div>
+      <div class="flow-arrow">⬇️</div>
+      <div class="flow-step highlight">Death of <strong>pigmented catecholaminergic neurons</strong> in <strong>Substantia Nigra</strong> & <strong>Locus Ceruleus</strong></div>
+      <div class="flow-arrow">⬇️</div>
+      <div class="flow-step">Macroscopic: <strong>Pallor of substantia nigra</strong> (loss of pigmentation)</div>
+      <div class="flow-arrow">⬇️</div>
+      <div class="flow-step highlight">Loss of <strong>dopamine</strong> production → disrupted basal ganglia regulation → loss of motor "brakes"</div>
+      <div class="flow-arrow">⬇️</div>
+      <div class="flow-step">Clinical: <strong>Bradykinesia, rigidity, pill-rolling tremor, festinating gait, masked facies</strong></div>
+    </div>
+  </div>
+
+  <!-- HD Flow -->
+  <div class="sub-content" id="patho-hd">
+    <h3 style="margin-bottom:20px;font-size:18px;font-weight:700;">🟨 Huntington Disease — Pathophysiology Flow</h3>
+    <div class="flow-chart">
+      <div class="flow-step">Autosomal dominant genetic mutation: expansion of <strong>CAG trinucleotide repeats</strong></div>
+      <div class="flow-arrow">⬇️</div>
+      <div class="flow-step highlight">Neurotoxicity in <strong>basal ganglia (corpus striatum)</strong></div>
+      <div class="flow-arrow">⬇️</div>
+      <div class="flow-step">Loss of GABAergic neurons → depletion of <strong>GABA</strong> (main inhibitory neurotransmitter)</div>
+      <div class="flow-arrow">⬇️</div>
+      <div class="flow-step highlight"><strong>Atrophy of the basal ganglia</strong></div>
+      <div class="flow-arrow">⬇️</div>
+      <div class="flow-step">Loss of inhibitory "brakes" in the brain</div>
+      <div class="flow-arrow">⬇️</div>
+      <div class="flow-step highlight">Clinical: <strong>Chorea</strong> (jerky involuntary movements) + progressive motor loss + dementia → <strong>fatal</strong></div>
+    </div>
+  </div>
+
+  <!-- Key Structures -->
+  <div class="sub-content" id="patho-structures">
+    <h3 style="margin-bottom:20px;font-size:18px;font-weight:700;">🏗️ Key Anatomical Structures & Molecules</h3>
+    <div class="patho-grid" id="pathoGrid"></div>
+  </div>
+</div>
+
+<!-- ========== DIAGNOSIS TAB ========== -->
+<div class="tab-content" id="tab-diagnosis">
+  <div class="section-header">
+    <h2>🩺 Diagnosis</h2>
+    <p>Diagnostic criteria, key findings, and comparison tables</p>
+  </div>
+
+  <!-- Diagnostic Criteria -->
+  <div class="card mb-24 searchable" data-search="diagnostic criteria alzheimer parkinson huntington">
+    <h3 style="font-size:18px;font-weight:700;margin-bottom:16px;">📋 Diagnostic Criteria Summary</h3>
+    <div class="diag-badges">
+      <div class="diag-badge active">AD: Cortical Atrophy</div>
+      <div class="diag-badge">AD: Widened Sulci</div>
+      <div class="diag-badge">AD: Ventricular Enlargement</div>
+      <div class="diag-badge active">PD: Substantia Nigra Pallor</div>
+      <div class="diag-badge">PD: Lewy Bodies (microscopy)</div>
+      <div class="diag-badge active">HD: Basal Ganglia Atrophy</div>
+      <div class="diag-badge">HD: CAG Repeat Testing</div>
+      <div class="diag-badge">Prion: Spongy Degeneration</div>
+    </div>
+  </div>
+
+  <!-- Comparison Table -->
+  <div class="card mb-24 searchable" data-search="comparison table alzheimer parkinson huntington features">
+    <h3 style="font-size:18px;font-weight:700;margin-bottom:16px;">📊 Disease Comparison Table</h3>
+    <div style="overflow-x:auto;">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>🟥 Alzheimer's</th>
+            <th>🟩 Parkinson's</th>
+            <th>🟨 Huntington's</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Key Protein</strong></td><td>Amyloid β (extracellular) + Tau (intracellular)</td><td>α-synuclein (intracellular)</td><td>Mutant Huntingtin (CAG repeats)</td></tr>
+          <tr><td><strong>Pathological Hallmark</strong></td><td>Senile plaques + Neurofibrillary tangles</td><td>Lewy bodies</td><td>Basal ganglia atrophy</td></tr>
+          <tr><td><strong>Location</strong></td><td>Cerebral cortex (diffuse)</td><td>Substantia nigra, Locus ceruleus</td><td>Corpus striatum (basal ganglia)</td></tr>
+          <tr><td><strong>Neurotransmitter</strong></td><td>↓ ACh, ↑ Glutamate (excitotoxicity)</td><td>↓ Dopamine</td><td>↓ GABA</td></tr>
+          <tr><td><strong>Gross Finding</strong></td><td>Cortical atrophy, widened sulci, ventricular enlargement</td><td>Pallor of substantia nigra</td><td>Atrophy of basal ganglia</td></tr>
+          <tr><td><strong>Main Motor Sign</strong></td><td>None (primarily cognitive)</td><td>Bradykinesia, rigidity, tremor</td><td>Chorea (jerky movements)</td></tr>
+          <tr><td><strong>Genetics</strong></td><td>5–10% familial</td><td>Mostly sporadic</td><td>Autosomal dominant (familial)</td></tr>
+          <tr><td><strong>Age of Onset</strong></td><td>Usually after 50</td><td>Variable (typically 50–60s)</td><td>30–50 years</td></tr>
+          <tr><td><strong>Gender</strong></td><td>Both (slightly F > M)</td><td>Men > Women</td><td>Equal</td></tr>
+          <tr><td><strong>Prognosis</strong></td><td>Progressive, fatal</td><td>Progressive, manageable symptoms</td><td>Progressive, fatal</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Diagnostic Algorithm -->
+  <div class="card mb-24 searchable" data-search="diagnostic algorithm step by step approach dementia">
+    <h3 style="font-size:18px;font-weight:700;margin-bottom:16px;">🔀 Diagnostic Algorithm — Approach to Dementia</h3>
+    <div class="flow-chart">
+      <div class="flow-step">Patient presents with progressive <strong>cognitive decline</strong> + preserved consciousness</div>
+      <div class="flow-arrow">⬇️</div>
+      <div class="flow-step">Is there significant <strong>motor involvement</strong>?</div>
+      <div class="flow-arrow" style="display:flex;gap:40px;justify-content:center;">
+        <span>⬇️ Yes</span>
+        <span>⬇️ No (primarily cognitive)</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:600px;margin:0 auto;">
+        <div class="flow-step" style="border-left:3px solid var(--accent);">Motor: Tremor, Rigidity, Bradykinesia → <strong>Parkinson's</strong><br><br>Motor: Chorea, jerky movements → <strong>Huntington's</strong></div>
+        <div class="flow-step" style="border-left:3px solid var(--secondary);">Check imaging: Cortical atrophy + ventricular enlargement → <strong>Alzheimer's</strong><br><br>Spongy degeneration → <strong>Prion disease</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Investigation Findings -->
+  <div class="card searchable" data-search="investigation findings MRI microscopy autopsy">
+    <h3 style="font-size:18px;font-weight:700;margin-bottom:16px;">🔬 Key Investigation Findings</h3>
+    <div class="grid-3">
+      <div style="padding:16px;background:var(--bg-card2);border-radius:var(--radius-sm);">
+        <h5 style="color:var(--secondary);margin-bottom:8px;">🟥 Alzheimer's</h5>
+        <p style="font-size:13px;color:var(--text-secondary);line-height:1.7;">
+          <strong>Gross:</strong> Cortical atrophy, widened sulci, hydrocephalus ex vacuo<br>
+          <strong>Micro:</strong> Extracellular amyloid plaques, intracellular NFTs<br>
+          <strong>Stain:</strong> Silver stain, Congo red (amyloid)
+        </p>
+      </div>
+      <div style="padding:16px;background:var(--bg-card2);border-radius:var(--radius-sm);">
+        <h5 style="color:var(--accent);margin-bottom:8px;">🟩 Parkinson's</h5>
+        <p style="font-size:13px;color:var(--text-secondary);line-height:1.7;">
+          <strong>Gross:</strong> Pallor of substantia nigra & locus ceruleus<br>
+          <strong>Micro:</strong> Lewy bodies (eosinophilic intracytoplasmic inclusions with α-synuclein)<br>
+          <strong>Clinical:</strong> Diagnosis is primarily clinical
+        </p>
+      </div>
+      <div style="padding:16px;background:var(--bg-card2);border-radius:var(--radius-sm);">
+        <h5 style="color:var(--accent2);margin-bottom:8px;">🟨 Huntington's</h5>
+        <p style="font-size:13px;color:var(--text-secondary);line-height:1.7;">
+          <strong>Gross:</strong> Atrophy of basal ganglia (corpus striatum)<br>
+          <strong>Genetic:</strong> CAG trinucleotide repeat expansion testing<br>
+          <strong>Clinical:</strong> Chorea + family history (autosomal dominant)
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== TREATMENT TAB ========== -->
+<div class="tab-content" id="tab-treatment">
+  <div class="section-header">
+    <h2>💊 Treatment</h2>
+    <p>Pharmacological management of neurodegenerative diseases</p>
+  </div>
+
+  <div class="grid-2 mb-24">
+    <!-- AD Treatment -->
+    <div class="treatment-card urgency-med searchable" data-search="alzheimer treatment memantine rivastigmine acetylcholinesterase NMDA monoclonal antibody">
+      <h4>🟥 Alzheimer Disease Treatment</h4>
+      <ul>
+        <li><span class="bullet">💊</span><div><strong>Acetylcholinesterase Inhibitors</strong> (e.g., Rivastigmine, Donepezil) — Slow degradation of ACh, improve neuropsychiatric symptoms like apathy. <em>Symptomatic only.</em></div></li>
+        <li><span class="bullet">💊</span><div><strong>NMDA Receptor Antagonists</strong> (Memantine) — Block glutamate excitotoxicity, slow cognitive decline. <em>Used in moderate-severe AD.</em></div></li>
+        <li><span class="bullet">💉</span><div><strong>Monoclonal Antibodies</strong> against Amyloid β — Newer disease-modifying therapies targeting amyloid accumulation.</div></li>
+        <li><span class="bullet">⚠️</span><div>No cure exists. All treatments aim to <strong>slow progression</strong> or manage symptoms.</div></li>
+      </ul>
+    </div>
+
+    <!-- PD Treatment -->
+    <div class="treatment-card urgency-high searchable" data-search="parkinson treatment L-dopa levodopa dopamine precursor carbidopa">
+      <h4>🟩 Parkinson Disease Treatment</h4>
+      <ul>
+        <li><span class="bullet">💊</span><div><strong>L-Dopa (Levodopa)</strong> — Dopamine precursor; crosses BBB and is converted to dopamine. <em>Gold standard treatment.</em></div></li>
+        <li><span class="bullet">💊</span><div><strong>Carbidopa</strong> — Peripheral dopa decarboxylase inhibitor; given with L-dopa to prevent peripheral conversion and reduce side effects.</div></li>
+        <li><span class="bullet">💊</span><div><strong>Dopamine Agonists</strong> — Directly stimulate dopamine receptors (e.g., Pramipexole).</div></li>
+        <li><span class="bullet">💊</span><div><strong>MAO-B Inhibitors</strong> — Prevent dopamine breakdown (e.g., Selegiline).</div></li>
+        <li><span class="bullet">⚠️</span><div>Treatment is <strong>symptomatic</strong>; disease continues to progress.</div></li>
+      </ul>
+    </div>
+
+    <!-- HD Treatment -->
+    <div class="treatment-card urgency-low searchable" data-search="huntington treatment supportive tetrabenazine">
+      <h4>🟨 Huntington Disease Treatment</h4>
+      <ul>
+        <li><span class="bullet">💊</span><div><strong>Tetrabenazine</strong> — Reduces chorea by depleting dopamine from nerve terminals.</div></li>
+        <li><span class="bullet">🩺</span><div><strong>Supportive care</strong> — Physical therapy, speech therapy, nutritional support.</div></li>
+        <li><span class="bullet">⚠️</span><div><strong>No disease-modifying therapy</strong>. Course is progressive and <strong>fatal</strong>.</div></li>
+        <li><span class="bullet">🧬</span><div><strong>Genetic counseling</strong> — Essential for family members due to autosomal dominant inheritance.</div></li>
+      </ul>
+    </div>
+
+    <!-- Other Dementias -->
+    <div class="treatment-card urgency-low searchable" data-search="wernicke korsakoff thiamine prion HIV dementia">
+      <h4>🔵 Other Causes of Dementia</h4>
+      <ul>
+        <li><span class="bullet">💊</span><div><strong>Wernicke-Korsakoff Syndrome</strong> — Caused by <strong>Thiamine (B1) deficiency</strong>. Treat with IV thiamine.</div></li>
+        <li><span class="bullet">🦠</span><div><strong>Prion Disease (CJD/Mad Cow)</strong> — "Spongy degeneration" of brain. No effective treatment.</div></li>
+        <li><span class="bullet">🦠</span><div><strong>HIV-associated Dementia</strong> — Manage with antiretroviral therapy.</div></li>
+        <li><span class="bullet">🩺</span><div><strong>Multi-infarct (Vascular) Dementia</strong> — Control vascular risk factors.</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Drug Comparison Table -->
+  <div class="card searchable" data-search="drug comparison mechanism action target">
+    <h3 style="font-size:18px;font-weight:700;margin-bottom:16px;">💊 Drug Comparison Table</h3>
+    <div style="overflow-x:auto;">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Drug</th>
+            <th>Disease</th>
+            <th>Mechanism</th>
+            <th>Category</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Rivastigmine / Donepezil</strong></td><td>Alzheimer's</td><td>Acetylcholinesterase inhibitor → ↑ACh</td><td>Symptomatic</td></tr>
+          <tr><td><strong>Memantine</strong></td><td>Alzheimer's</td><td>NMDA receptor antagonist → ↓excitotoxicity</td><td>Neuroprotective</td></tr>
+          <tr><td><strong>Anti-Amyloid mAbs</strong></td><td>Alzheimer's</td><td>Target Amyloid β deposits</td><td>Disease-modifying</td></tr>
+          <tr><td><strong>L-Dopa (Levodopa)</strong></td><td>Parkinson's</td><td>Dopamine precursor → crosses BBB → converted to DA</td><td>Gold standard</td></tr>
+          <tr><td><strong>Carbidopa</strong></td><td>Parkinson's</td><td>Peripheral DDC inhibitor → ↑L-dopa reaching brain</td><td>Adjunct</td></tr>
+          <tr><td><strong>Tetrabenazine</strong></td><td>Huntington's</td><td>Depletes dopamine → ↓chorea</td><td>Symptomatic</td></tr>
+          <tr><td><strong>Thiamine (B1)</strong></td><td>Wernicke-Korsakoff</td><td>Replaces deficient vitamin</td><td>Curative</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MNEMONICS TAB ========== -->
+<div class="tab-content" id="tab-mnemonics">
+  <div class="section-header">
+    <h2>🧩 Mnemonics</h2>
+    <p>Memory aids designed from lecture content — click to expand!</p>
+  </div>
+  <div class="grid-2" id="mnemonicGrid"></div>
+</div>
+
+<!-- ========== VIVA TAB ========== -->
+<div class="tab-content" id="tab-viva">
+  <div class="section-header">
+    <h2>🗣️ Viva Preparation — 12 Questions</h2>
+    <p>Practice oral exam questions with model answers. Click "Reveal" to see the answer.</p>
+  </div>
+  <div id="vivaContainer"></div>
+</div>
+
+</main>
+
+<script>
+// ============== DATA ==============
+
+const quizData = [
+  {
+    q: "Which of the following defines dementia?",
+    options: ["Memory impairment with altered consciousness","Memory impairment with preserved consciousness","Acute loss of motor function","Spongy degeneration of the spinal cord","Infection by HIV"],
+    correct: 1,
+    explanation: "Dementia is the development of memory impairment/cognitive deficits with preservation of a normal level of consciousness. Option A describes delirium, not dementia."
+  },
+  {
+    q: "What is the fundamental biochemical abnormality in Alzheimer Disease?",
+    options: ["Accumulation of alpha-synuclein","Accumulation of Amyloid β and tau","Loss of GABA","Thiamine deficiency","Prion misfolding"],
+    correct: 1,
+    explanation: "Amyloid β (extracellular plaques) and hyperphosphorylated tau (intracellular tangles) are the two fundamental biochemical abnormalities in AD."
+  },
+  {
+    q: "In Alzheimer disease, where are plaques located?",
+    options: ["Intracellularly","Extracellularly","Within the nucleus","Within the substantia nigra","Inside Lewy bodies"],
+    correct: 1,
+    explanation: "Plaques are deposits of aggregated Amyloid β peptides in the neuropil (extracellular space). Remember: 'الاكستراسي ديبوزيشن ده جاي من الامايلويد' — Extracellular deposition comes from amyloid."
+  },
+  {
+    q: "Neurofibrillary tangles are composed of:",
+    options: ["Amyloid beta","Alpha-synuclein","Microtubule-binding protein tau","GABA","Dopamine"],
+    correct: 2,
+    explanation: "Tangles are aggregates of hyperphosphorylated microtubule-binding protein tau (intracellular). Amyloid beta forms plaques (extracellular)."
+  },
+  {
+    q: "What gross morphological change is seen in an Alzheimer's brain?",
+    options: ["Narrowing of sulci","Pallor of the substantia nigra","Atrophy of the basal ganglia","Cortical atrophy with widening of cerebral sulci","Spongy degeneration"],
+    correct: 3,
+    explanation: "AD shows cortical atrophy with widened sulci and compensatory ventricular enlargement (hydrocephalus ex vacuo). The brain shrinks despite protein deposition because neurons are lost."
+  },
+  {
+    q: "Why do the ventricles enlarge in Alzheimer disease?",
+    options: ["Overproduction of CSF","Blockage of CSF flow","Compensatory enlargement due to significant cortical atrophy","Tumor growth","Vasodilation"],
+    correct: 2,
+    explanation: "With significant cortical atrophy and neuronal loss, there is compensatory ventricular enlargement (hydrocephalus ex vacuo). This is NOT due to increased CSF production or blockage."
+  },
+  {
+    q: "Which enzyme abnormally metabolizes protein to form toxic amyloid beta in AD?",
+    options: ["Alpha-secretase","Beta-secretase","Acetylcholinesterase","Proteasome","Dopamine decarboxylase"],
+    correct: 1,
+    explanation: "Beta-secretase abnormally cleaves the extracellular protein to form toxic Amyloid β, instead of the normal alpha-secretase pathway."
+  },
+  {
+    q: "What is the mechanism of action of memantine in treating Alzheimer's?",
+    options: ["Acetylcholinesterase inhibitor","Monoclonal antibody against amyloid","NMDA receptor antagonist blocking excitotoxicity","Dopamine precursor","GABA agonist"],
+    correct: 2,
+    explanation: "Memantine is an NMDA receptor antagonist that blocks glutamate excitotoxicity, slowing cognitive decline in moderate-severe AD."
+  },
+  {
+    q: "Which drug improves neuropsychiatric symptoms in AD by slowing neurotransmitter degradation?",
+    options: ["Memantine","Rivastigmine","L-dopa","Haloperidol","Thiamine"],
+    correct: 1,
+    explanation: "Rivastigmine (an acetylcholinesterase inhibitor) slows ACh degradation, symptomatically improving neuropsychiatric symptoms like apathy."
+  },
+  {
+    q: "At what age does Alzheimer's typically begin?",
+    options: ["Before 30","After 50","During childhood","After 80 only","Congenitally"],
+    correct: 1,
+    explanation: "AD usually begins after age 50. Most cases are sporadic, with 5–10% being familial."
+  },
+  {
+    q: "Parkinsonism is characterized clinically by all EXCEPT:",
+    options: ["Masked faces","Stooped posture","Festinating gait","Chorea","Rigidity"],
+    correct: 3,
+    explanation: "Chorea (jerky involuntary movements) is characteristic of Huntington disease, NOT Parkinson's. PD features: bradykinesia, rigidity, tremor, masked facies, festinating gait."
+  },
+  {
+    q: "What causes the macroscopic pallor of the substantia nigra in Parkinson disease?",
+    options: ["Accumulation of amyloid beta","Loss of pigmented, catecholaminergic neurons","Hemorrhage","Infarction","Tumor infiltration"],
+    correct: 1,
+    explanation: "The pallor is due to loss of pigmented catecholaminergic (dopamine-producing) neurons in the substantia nigra. These neurons contain neuromelanin, giving the region its normal dark color."
+  },
+  {
+    q: "Lewy bodies are intracellular inclusions containing which mutated protein?",
+    options: ["Tau","Amyloid beta","α-synuclein","Prion protein","GABA"],
+    correct: 2,
+    explanation: "Lewy bodies are intracytoplasmic eosinophilic inclusions composed of aggregated α-synuclein, the diagnostic hallmark of Parkinson's disease."
+  },
+  {
+    q: "Defective degradation of α-synuclein by which cellular organelle might play a role in PD?",
+    options: ["Lysosome","Mitochondria","Proteasome","Golgi apparatus","Endoplasmic reticulum"],
+    correct: 2,
+    explanation: "Defective degradation of α-synuclein by the proteasome leads to its accumulation and aggregation into Lewy bodies."
+  },
+  {
+    q: "Which of the following can induce secondary Parkinsonism?",
+    options: ["Dopamine antagonists and post-encephalitic states","Acetylcholinesterase inhibitors","Thiamine deficiency","HIV infection","Vitamin C deficiency"],
+    correct: 0,
+    explanation: "Parkinsonism can be secondary, induced by drugs (dopamine antagonists/toxins like MPTP) or post-encephalitic states (historically associated with the influenza pandemic)."
+  },
+  {
+    q: "What is the standard precursor drug used to treat Parkinson's disease?",
+    options: ["Memantine","Rivastigmine","L-dopa","Monoclonal antibodies","Thiamine"],
+    correct: 2,
+    explanation: "L-dopa (Levodopa) is a dopamine precursor that crosses the blood-brain barrier and is converted to dopamine in the brain. It is the gold standard treatment for PD."
+  },
+  {
+    q: "In a 62-year-old man with pill-rolling tremor and shuffling gait, where are the diagnostic eosinophilic inclusions located?",
+    options: ["Anterior cerebellum","Caudate nucleus","Geniculate ganglion","Substantia nigra","Cerebral cortex"],
+    correct: 3,
+    explanation: "This case describes Parkinson's disease. Lewy bodies (eosinophilic inclusions with α-synuclein) are found in the substantia nigra."
+  },
+  {
+    q: "The lecturer defines 'akinesia' in Parkinsonism as:",
+    options: ["Fast, jerky movements","Difficulty initiating movement","Resting tremor","Memory loss","Hyperactive reflexes"],
+    correct: 1,
+    explanation: "'اكينيزيا صعوبه في بدء الحركه' — Akinesia means difficulty initiating/starting movement. Bradykinesia means slowness of movement."
+  },
+  {
+    q: "Which gender is more affected by Parkinson disease?",
+    options: ["Women more than men","Men more than women","Equal in both","Only men","Only women"],
+    correct: 1,
+    explanation: "Parkinson's disease affects men more than women, as stated in the lecture slides."
+  },
+  {
+    q: "Huntington disease is characterized macroscopically by atrophy of which structure?",
+    options: ["Cerebral cortex","Substantia nigra","Cerebellum","Basal ganglia (corpus striatum)","Locus ceruleus"],
+    correct: 3,
+    explanation: "HD features atrophy of the basal ganglia, specifically the corpus striatum (caudate nucleus + putamen)."
+  },
+  {
+    q: "The main clinical motor symptom of Huntington disease is:",
+    options: ["Bradykinesia","Pill-rolling tremor","Festinating gait","Chorea","Rigidity"],
+    correct: 3,
+    explanation: "HD features chorea — jerky, involuntary, dance-like movements. All other options (A, B, C, E) are features of Parkinson's disease."
+  },
+  {
+    q: "Chorea in Huntington's is caused by the loss of which inhibitory neurotransmitter?",
+    options: ["Dopamine","Glutamate","GABA","Acetylcholine","Serotonin"],
+    correct: 2,
+    explanation: "GABA is the main inhibitory neurotransmitter in the brain. Its loss in HD removes the 'brakes' on movement, causing excessive jerky movements (chorea)."
+  },
+  {
+    q: "Which infectious agent causes 'spongy degeneration' of the brain (mad cow disease)?",
+    options: ["HIV","Prion (related to protein)","Influenza virus","Streptococcus","Herpes simplex"],
+    correct: 1,
+    explanation: "Prion-associated disorders (Creutzfeldt-Jakob disease / mad cow disease) cause spongy degeneration. Prions are misfolded proteins, not bacteria or viruses."
+  },
+  {
+    q: "Thiamine deficiency leads to which dementia-causing syndrome?",
+    options: ["Alzheimer's disease","Huntington's disease","Wernicke-Korsakoff syndrome","Multi-infarct dementia","Progressive multifocal leukoencephalopathy"],
+    correct: 2,
+    explanation: "Thiamine (Vitamin B1) deficiency causes Wernicke-Korsakoff syndrome, a metabolic/nutritional cause of dementia commonly seen in alcoholics."
+  },
+  {
+    q: "What percentage of Alzheimer's cases are considered familial?",
+    options: ["1% to 2%","5% to 10%","20% to 30%","50%","100%"],
+    correct: 1,
+    explanation: "Most AD cases are sporadic, but at least 5% to 10% are familial, as stated in the source material."
+  }
+];
+
+const flashcardData = [
+  { emoji: "🧠", front: "What defines dementia?", back: "Progressive memory impairment + cognitive deficits with PRESERVED normal level of consciousness." },
+  { emoji: "🟥", front: "What are the TWO fundamental biochemical abnormalities in AD?", back: "1) Extracellular Amyloid β plaques (from beta-secretase)\n2) Intracellular hyperphosphorylated Tau tangles" },
+  { emoji: "🔬", front: "Where are plaques vs. tangles located in AD?", back: "Plaques = EXTRACELLULAR (Amyloid β)\nTangles = INTRACELLULAR (hyperphosphorylated Tau)" },
+  { emoji: "📉", front: "What is hydrocephalus ex vacuo?", back: "Compensatory ventricular enlargement due to significant cortical atrophy (brain shrinks → ventricles expand to fill space). Seen in AD." },
+  { emoji: "⚗️", front: "Alpha-secretase vs. Beta-secretase in AD?", back: "Alpha-secretase = NORMAL pathway (no toxic products)\nBeta-secretase = ABNORMAL → produces toxic Amyloid β peptides" },
+  { emoji: "💊", front: "Name 2 drug classes for Alzheimer's treatment.", back: "1) AChE inhibitors (Rivastigmine) → symptomatic\n2) NMDA antagonists (Memantine) → blocks excitotoxicity" },
+  { emoji: "🟩", front: "What protein misfolds in Parkinson disease?", back: "α-synuclein → misfolds → accumulates as intracytoplasmic Lewy bodies → kills dopaminergic neurons" },
+  { emoji: "🖤", front: "Why is the substantia nigra pale in PD?", back: "Loss of pigmented catecholaminergic (dopamine-producing) neurons that normally contain neuromelanin, giving the region its dark color." },
+  { emoji: "⚙️", front: "Which organelle fails to degrade α-synuclein in PD?", back: "The PROTEASOME — defective proteasomal degradation leads to α-synuclein accumulation." },
+  { emoji: "🐌", front: "Bradykinesia vs. Akinesia?", back: "Bradykinesia = SLOWNESS of movement\nAkinesia = DIFFICULTY INITIATING movement\nBoth are features of Parkinson's disease." },
+  { emoji: "💃", front: "What is chorea?", back: "Jerky, involuntary, dance-like movements. The hallmark motor symptom of Huntington disease, caused by loss of GABA inhibition." },
+  { emoji: "🧬", front: "What genetic abnormality causes Huntington disease?", back: "Expansion of CAG trinucleotide repeats → autosomal dominant inheritance → causes neurotoxicity in the basal ganglia." },
+  { emoji: "🛑", front: "What is lost in HD that causes loss of 'brakes'?", back: "GABA — the main INHIBITORY neurotransmitter in the brain. Its loss removes the inhibitory 'brakes' on movement → chorea." },
+  { emoji: "📊", front: "AD vs PD vs HD: Which neurotransmitter is lost?", back: "AD: ↓ACh (+ ↑glutamate excitotoxicity)\nPD: ↓Dopamine\nHD: ↓GABA" },
+  { emoji: "🏗️", front: "AD vs PD vs HD: Which structure is primarily affected?", back: "AD: Cerebral cortex (diffuse)\nPD: Substantia nigra & Locus ceruleus\nHD: Basal ganglia (corpus striatum)" },
+  { emoji: "💊", front: "What is the gold standard treatment for Parkinson's?", back: "L-Dopa (Levodopa) — a dopamine precursor that crosses the blood-brain barrier and is converted to dopamine in the brain." },
+  { emoji: "🦠", front: "What causes spongy degeneration (mad cow)?", back: "PRION proteins — misfolded proteins that cause Creutzfeldt-Jakob disease. No effective treatment exists." },
+  { emoji: "🍺", front: "Thiamine deficiency causes which syndrome?", back: "Wernicke-Korsakoff syndrome — a metabolic/nutritional cause of dementia commonly seen in chronic alcoholism." },
+  { emoji: "👨", front: "Gender predisposition in PD?", back: "MEN more than WOMEN are affected by Parkinson's disease." },
+  { emoji: "📈", front: "What % of AD cases are familial?", back: "5% to 10% are familial. The rest are sporadic (most common presentation)." }
+];
+
+const casesData = [
+  {
+    num: 1, title: "Autopsy Finding: Cortical Atrophy",
+    vignette: "An autopsy of a 70-year-old brain shows severe cortical atrophy and widened cerebral sulci. Special stains reveal massive extracellular protein deposits throughout the neuropil.",
+    questions: [
+      { q: "What mechanism is involved?", a: "Abnormal metabolism of an extracellular protein by beta-secretase (instead of alpha-secretase), producing toxic Amyloid β peptides that aggregate extracellularly." },
+      { q: "What structure/molecule is implicated?", a: "Amyloid β peptides forming senile (neuritic) plaques in the extracellular space. Additionally, intracellular hyperphosphorylated tau forms neurofibrillary tangles." },
+      { q: "What happens if this process continues?", a: "Formation of extracellular plaques causes neuronal toxicity and cell death, leading to cortical atrophy. Ventricles enlarge compensatorily (hydrocephalus ex vacuo)." }
+    ]
+  },
+  {
+    num: 2, title: "Difficulty Initiating Movement",
+    vignette: "A 58-year-old man presents with progressive difficulty initiating movement over the past 2 years. He has a noticeable tremor at rest, especially in his right hand, described as 'rolling a pill between his fingers.'",
+    questions: [
+      { q: "What mechanism is involved?", a: "Loss of dopaminergic inhibitory 'brakes' for movement coordination due to degeneration of pigmented catecholaminergic neurons in the substantia nigra." },
+      { q: "What is the microscopic finding?", a: "Intracytoplasmic eosinophilic inclusions (Lewy bodies) containing aggregated α-synuclein in surviving neurons of the substantia nigra." },
+      { q: "What is the first-line treatment?", a: "L-Dopa (Levodopa) — a dopamine precursor that crosses the blood-brain barrier, replacing the lost neurotransmitter." }
+    ]
+  },
+  {
+    num: 3, title: "Intracytoplasmic Eosinophilic Inclusion",
+    vignette: "Microscopic examination of a brain section from a patient with stooped posture reveals intracytoplasmic eosinophilic inclusions in the midbrain.",
+    questions: [
+      { q: "What protein forms these inclusions?", a: "α-synuclein protein that has misfolded and aggregated intracellularly, forming Lewy bodies — the diagnostic hallmark of Parkinson's disease." },
+      { q: "Why does the protein accumulate?", a: "Due to defective degradation by the proteasome, the misfolded α-synuclein cannot be properly cleared and accumulates within neurons." },
+      { q: "What macroscopic finding would you see?", a: "Pallor of the substantia nigra and locus ceruleus due to loss of the pigmented neurons that normally give these regions their dark appearance." }
+    ]
+  },
+  {
+    num: 4, title: "Familial Dementia with Jerky Movements",
+    vignette: "A 42-year-old woman with a strong family history of neurodegenerative disease presents with progressive dementia and sudden, jerky, involuntary movements of all limbs.",
+    questions: [
+      { q: "What is the most likely diagnosis?", a: "Huntington disease — an autosomal dominant genetic disease characterized by CAG trinucleotide repeats, chorea, and progressive dementia." },
+      { q: "What neurotransmitter is lost?", a: "GABA — the main inhibitory neurotransmitter in the brain. Its loss removes the inhibitory 'brakes' on movement, causing excessive jerky movements (chorea)." },
+      { q: "What gross finding would be seen on imaging?", a: "Atrophy of the basal ganglia (corpus striatum, particularly the caudate nucleus), which may also cause compensatory ventricular enlargement." }
+    ]
+  },
+  {
+    num: 5, title: "NMDA Receptor Antagonist Therapy",
+    vignette: "A 72-year-old woman with moderate Alzheimer's disease is started on a new medication. Her physician explains it works by blocking NMDA receptors to reduce neuronal damage from excessive glutamate.",
+    questions: [
+      { q: "What drug is being prescribed?", a: "Memantine — an NMDA receptor antagonist used in moderate to severe Alzheimer's disease." },
+      { q: "What mechanism does it target?", a: "It blocks glutamate-mediated excitotoxicity. In AD, excess glutamate overstimulates NMDA receptors, causing calcium influx and neuronal death. Memantine provides neuroprotection." },
+      { q: "What other drug class might be added?", a: "Acetylcholinesterase inhibitors (e.g., Rivastigmine, Donepezil) — these slow ACh degradation to improve neuropsychiatric symptoms." }
+    ]
+  },
+  {
+    num: 6, title: "Drug-Induced Parkinsonism",
+    vignette: "A 35-year-old man on long-term antipsychotic medication develops tremor, rigidity, and shuffling gait. He has no family history of neurological disease.",
+    questions: [
+      { q: "What is the mechanism of his symptoms?", a: "Drug-induced (secondary) Parkinsonism. Antipsychotics are dopamine antagonists that block D2 receptors in the basal ganglia, mimicking the effects of dopamine deficiency." },
+      { q: "How does this differ from idiopathic Parkinson's?", a: "Idiopathic PD involves actual neuronal degeneration with Lewy bodies. Drug-induced Parkinsonism is reversible upon discontinuation of the offending agent — no structural neuronal loss occurs." },
+      { q: "Name another cause of secondary Parkinsonism.", a: "Post-encephalitic Parkinsonism (historically associated with the influenza pandemic) and exposure to toxins like MPTP." }
+    ]
+  }
+];
+
+const pathoStructures = [
+  { icon: "🧠", name: "Cerebral Cortex", detail: "Affected in Alzheimer's Disease. Shows cortical atrophy with widening of sulci. Site of amyloid plaque and NFT deposition. Neuronal loss leads to compensatory ventricular enlargement." },
+  { icon: "⚫", name: "Substantia Nigra", detail: "Primary site affected in Parkinson's Disease. Contains pigmented catecholaminergic (dopamine-producing) neurons. Loss of these neurons causes PALLOR on gross exam and depletes dopamine in the basal ganglia." },
+  { icon: "🔵", name: "Locus Ceruleus", detail: "Also affected in PD. Contains norepinephrine-producing neurons. Loss contributes to non-motor symptoms of Parkinson's (depression, autonomic dysfunction)." },
+  { icon: "🟡", name: "Basal Ganglia (Corpus Striatum)", detail: "Primary site affected in Huntington's Disease. Includes caudate nucleus and putamen. GABA-producing neurons degenerate here, removing inhibitory 'brakes' on movement → chorea." },
+  { icon: "🟣", name: "Amyloid β Peptides", detail: "Produced by abnormal cleavage of extracellular protein by BETA-secretase (normal = alpha-secretase). Aggregates EXTRACELLULARLY to form senile/neuritic plaques. Hallmark of Alzheimer's." },
+  { icon: "🔴", name: "Tau Protein", detail: "Normal microtubule-binding protein that becomes HYPERPHOSPHORYLATED in AD. Aggregates INTRACELLULARLY as neurofibrillary tangles (NFTs). Destabilizes cytoskeleton." },
+  { icon: "🟢", name: "α-Synuclein", detail: "Protein that MISFOLDS in Parkinson's Disease. Accumulates intracellularly due to defective PROTEASOME degradation. Forms eosinophilic Lewy bodies — the diagnostic hallmark of PD." },
+  { icon: "🛑", name: "GABA", detail: "Main INHIBITORY neurotransmitter in the brain. Lost in Huntington's Disease due to degeneration of GABAergic neurons in the basal ganglia. Loss = loss of brakes = chorea." },
+  { icon: "⚡", name: "Dopamine", detail: "Key neurotransmitter lost in Parkinson's Disease. Produced by substantia nigra neurons. Its loss impairs basal ganglia motor regulation → bradykinesia, rigidity, tremor." },
+  { icon: "💎", name: "Lewy Bodies", detail: "Intracytoplasmic eosinophilic inclusions containing aggregated α-synuclein. Found in surviving neurons of the substantia nigra. DIAGNOSTIC for Parkinson's disease on microscopy." },
+  { icon: "🧬", name: "CAG Trinucleotide Repeats", detail: "Genetic abnormality in Huntington's Disease. Excessive CAG repeats in the Huntingtin gene (Chr 4). Causes neurotoxicity. Autosomal dominant inheritance. Anticipation phenomenon." },
+  { icon: "🔌", name: "NMDA Receptors", detail: "Glutamate receptors involved in excitotoxicity in AD. Overactivation causes Ca²⁺ influx → neuronal death. Blocked by Memantine (NMDA antagonist) for neuroprotection." }
+];
+
+const mnemonicsData = [
+  {
+    title: "🟥 AD Hallmarks", word: "PLATE",
+    items: [
+      { letter: "P", text: "Plaques (extracellular Amyloid β)" },
+      { letter: "L", text: "Loss of cortical neurons → atrophy" },
+      { letter: "A", text: "Alpha → Beta secretase switch (abnormal)" },
+      { letter: "T", text: "Tangles (intracellular hyperphosphorylated Tau)" },
+      { letter: "E", text: "Enlargement of ventricles (ex vacuo)" }
+    ]
+  },
+  {
+    title: "🟩 PD Features", word: "TRAP",
+    items: [
+      { letter: "T", text: "Tremor (pill-rolling, resting)" },
+      { letter: "R", text: "Rigidity (cogwheel/lead-pipe)" },
+      { letter: "A", text: "Akinesia/bradykinesia (difficulty starting/slow movement)" },
+      { letter: "P", text: "Postural instability (stooped, festinating gait)" }
+    ]
+  },
+  {
+    title: "🟩 PD Pathology", word: "SLAP",
+    items: [
+      { letter: "S", text: "Substantia nigra (pallor on gross exam)" },
+      { letter: "L", text: "Lewy bodies (eosinophilic inclusions)" },
+      { letter: "A", text: "Alpha-synuclein (misfolded protein)" },
+      { letter: "P", text: "Proteasome (defective degradation)" }
+    ]
+  },
+  {
+    title: "🟨 HD Features", word: "CATCH",
+    items: [
+      { letter: "C", text: "Chorea (jerky involuntary movements)" },
+      { letter: "A", text: "Autosomal dominant inheritance" },
+      { letter: "T", text: "Trinucleotide CAG repeats" },
+      { letter: "C", text: "Corpus striatum atrophy" },
+      { letter: "H", text: "Huntingtin gene mutation (fatal course)" }
+    ]
+  },
+  {
+    title: "💊 AD Treatment", word: "MAN",
+    items: [
+      { letter: "M", text: "Memantine (NMDA antagonist → blocks excitotoxicity)" },
+      { letter: "A", text: "AChE inhibitors (Rivastigmine → ↑ACh)" },
+      { letter: "N", text: "New monoclonal antibodies (anti-Amyloid β)" }
+    ]
+  },
+  {
+    title: "🧠 Protein Location", word: "EI",
+    items: [
+      { letter: "E", text: "Extracellular = Amyloid β (plaques) — think 'E for External'" },
+      { letter: "I", text: "Intracellular = Tau (tangles) AND α-synuclein (Lewy bodies) — think 'I for Inside'" }
+    ]
+  },
+  {
+    title: "🔬 Neurotransmitter Loss", word: "DAG",
+    items: [
+      { letter: "D", text: "Dopamine ↓ = Parkinson's (slowness)" },
+      { letter: "A", text: "Acetylcholine ↓ = Alzheimer's (memory loss)" },
+      { letter: "G", text: "GABA ↓ = Huntington's (chorea)" }
+    ]
+  }
+];
+
+const vivaData = [
+  { q: "Define dementia.", a: "Dementia is the development of memory impairment and other cognitive deficits occurring with the preservation of a normal level of consciousness. It results in progressive loss of intellectual capabilities without affecting consciousness." },
+  { q: "What are the two hallmark microscopic findings in Alzheimer's disease?", a: "1) Senile (neuritic) plaques — extracellular deposits of aggregated Amyloid β peptides. 2) Neurofibrillary tangles — intracellular aggregates of hyperphosphorylated microtubule-binding protein tau." },
+  { q: "Explain the concept of hydrocephalus ex vacuo in AD.", a: "As neurons are destroyed by amyloid plaques and tau tangles, the brain undergoes significant cortical atrophy. The ventricles enlarge compensatorily to fill the space left by lost brain tissue. This is NOT due to CSF overproduction or obstruction." },
+  { q: "What is the difference between alpha-secretase and beta-secretase in AD pathology?", a: "Alpha-secretase is the NORMAL enzyme that cleaves extracellular protein without producing toxic fragments. Beta-secretase is the ABNORMAL pathway that cleaves the same protein into toxic Amyloid β peptides, which aggregate into senile plaques." },
+  { q: "Describe the pathological finding of Lewy bodies.", a: "Lewy bodies are intracytoplasmic eosinophilic inclusions found in neurons of the substantia nigra. They contain aggregated, misfolded α-synuclein protein. They are the microscopic diagnostic hallmark of Parkinson's disease." },
+  { q: "Why does the substantia nigra appear pale in PD?", a: "The substantia nigra normally appears dark due to neuromelanin pigment in dopaminergic neurons. When these pigmented catecholaminergic neurons degenerate in PD, the region loses its pigmentation and appears pale on gross examination." },
+  { q: "What role does the proteasome play in Parkinson's disease?", a: "The proteasome normally degrades misfolded or damaged intracellular proteins. In PD, there is defective proteasomal degradation of α-synuclein, leading to its accumulation and aggregation into toxic Lewy bodies." },
+  { q: "Differentiate bradykinesia from akinesia.", a: "Bradykinesia = SLOWNESS of movement (بطق في الحركة). Akinesia = DIFFICULTY INITIATING movement (صعوبه في بدء الحركه). Both are cardinal features of Parkinson's disease." },
+  { q: "What is the genetic basis of Huntington disease?", a: "HD is caused by expansion of CAG trinucleotide repeats in the Huntingtin gene on chromosome 4. It follows autosomal dominant inheritance. The expanded repeats produce a toxic mutant protein causing neurodegeneration." },
+  { q: "Why does loss of GABA cause chorea in Huntington's?", a: "GABA is the main inhibitory neurotransmitter in the brain. It normally provides 'brakes' on excitatory motor signals in the basal ganglia. When GABAergic neurons in the corpus striatum degenerate, inhibition is lost, resulting in excessive, uncoordinated jerky movements (chorea)." },
+  { q: "Compare the motor manifestations of PD vs HD.", a: "PD (dopamine loss): Hypokinetic — bradykinesia, rigidity, resting tremor, decreased movement. HD (GABA loss): Hyperkinetic — chorea, excessive involuntary movements. PD = too little movement, HD = too much movement." },
+  { q: "Name causes of secondary Parkinsonism.", a: "1) Drug-induced — dopamine antagonists (antipsychotics), toxins (MPTP). 2) Post-encephalitic — historically associated with the influenza pandemic. These differ from idiopathic PD because they don't have Lewy bodies and may be reversible." }
+];
+
+// ============== APP STATE ==============
+let state = {
+  currentTab: 'overview',
+  quizCurrent: 0,
+  quizAnswers: new Array(25).fill(null),
+  quizCorrect: 0,
+  quizWrong: 0,
+  quizStreak: 0,
+  maxStreak: 0,
+  totalScore: 0,
+  quizCompleted: false
+};
+
+// Load from localStorage
+function loadState() {
+  try {
+    const saved = localStorage.getItem('neuropath_state');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      Object.assign(state, parsed);
+    }
+  } catch(e) {}
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('neuropath_state', JSON.stringify(state));
+  } catch(e) {}
+}
+
+// ============== TAB NAVIGATION ==============
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    switchTab(tab);
+  });
+});
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  state.currentTab = tab;
+  saveState();
+}
+
+// ============== SEARCH ==============
+document.getElementById('searchBox').addEventListener('input', function() {
+  const query = this.value.toLowerCase().trim();
+  const items = document.querySelectorAll('.searchable');
+  if (!query) {
+    items.forEach(item => { item.style.display = ''; item.style.opacity = '1'; });
+    return;
+  }
+  items.forEach(item => {
+    const searchData = (item.dataset.search || '').toLowerCase() + ' ' + item.textContent.toLowerCase();
+    if (searchData.includes(query)) {
+      item.style.display = '';
+      item.style.opacity = '1';
+    } else {
+      item.style.opacity = '0.15';
+    }
+  });
+});
+
+// ============== QUIZ ==============
+function initQuiz() {
+  renderQuizQuestion();
+  updateQuizUI();
+}
+
+function renderQuizQuestion() {
+  const container = document.getElementById('quizContainer');
+  const idx = state.quizCurrent;
+  const q = quizData[idx];
+  const answered = state.quizAnswers[idx];
+  const letters = ['A','B','C','D','E'];
+
+  let optionsHTML = q.options.map((opt, i) => {
+    let cls = 'q-option';
+    if (answered !== null) {
+      cls += ' disabled';
+      if (i === q.correct) cls += ' correct';
+      else if (i === answered && answered !== q.correct) cls += ' wrong';
+    }
+    return `<div class="${cls}" onclick="selectAnswer(${idx}, ${i})">
+      <div class="opt-letter">${letters[i]}</div>
+      <div>${opt}</div>
+    </div>`;
+  }).join('');
+
+  let explHTML = `<div class="q-explanation ${answered !== null ? 'show' : ''}" id="explanation-${idx}">
+    <h5>${answered === q.correct ? '✅ Correct!' : answered !== null ? '❌ Incorrect' : ''}</h5>
+    <p>${q.explanation}</p>
+  </div>`;
+
+  container.innerHTML = `
+    <div class="quiz-question-card">
+      <div class="q-number">Q${idx + 1}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="q-options">${optionsHTML}</div>
+      ${explHTML}
+    </div>
+  `;
+}
+
+function selectAnswer(qIdx, optIdx) {
+  if (state.quizAnswers[qIdx] !== null) return;
+  state.quizAnswers[qIdx] = optIdx;
+
+  const q = quizData[qIdx];
+  if (optIdx === q.correct) {
+    state.quizCorrect++;
+    state.quizStreak++;
+    state.totalScore += 10;
+    if (state.quizStreak > state.maxStreak) state.maxStreak = state.quizStreak;
+  } else {
+    state.quizWrong++;
+    state.quizStreak = 0;
+  }
+
+  saveState();
+  renderQuizQuestion();
+  updateQuizUI();
+
+  // Check if quiz complete
+  const totalAnswered = state.quizAnswers.filter(a => a !== null).length;
+  if (totalAnswered === quizData.length) {
+    state.quizCompleted = true;
+    saveState();
+    setTimeout(showQuizResult, 800);
+  }
+}
+
+function navigateQuiz(dir) {
+  const newIdx = state.quizCurrent + dir;
+  if (newIdx < 0 || newIdx >= quizData.length) return;
+  state.quizCurrent = newIdx;
+  saveState();
+  renderQuizQuestion();
+  updateQuizUI();
+}
+
+function updateQuizUI() {
+  const idx = state.quizCurrent;
+  const total = quizData.length;
+  const answered = state.quizAnswers.filter(a => a !== null).length;
+  const pct = Math.round((answered / total) * 100);
+
+  document.getElementById('qCurrent').textContent = idx + 1;
+  document.getElementById('qPercent').textContent = pct + '%';
+  document.getElementById('quizProgressBar').style.width = pct + '%';
+  document.getElementById('quizCorrect').textContent = state.quizCorrect;
+  document.getElementById('quizWrong').textContent = state.quizWrong;
+  document.getElementById('quizStreak').textContent = state.quizStreak;
+
+  document.getElementById('prevBtn').disabled = idx === 0;
+  document.getElementById('nextBtn').disabled = idx === total - 1;
+  if (idx === total - 1) {
+    document.getElementById('nextBtn').textContent = state.quizCompleted ? '🏁 Done' : 'Next →';
+  } else {
+    document.getElementById('nextBtn').textContent = 'Next →';
+  }
+
+  // Global stats
+  document.getElementById('streakDisplay').textContent = state.maxStreak;
+  document.getElementById('scoreDisplay').textContent = state.totalScore;
+  document.getElementById('progressDisplay').textContent = pct + '%';
+}
+
+function showQuizResult() {
+  document.getElementById('quizContainer').style.display = 'none';
+  document.querySelector('.quiz-nav').style.display = 'none';
+  const result = document.getElementById('quizResult');
+  result.classList.add('show');
+
+  const score = state.quizCorrect;
+  const total = quizData.length;
+  const pct = Math.round((score / total) * 100);
+
+  document.getElementById('resultScore').textContent = `${score}/${total}`;
+
+  if (pct >= 90) {
+    document.getElementById('resultEmoji').textContent = '🏆';
+    document.getElementById('resultMsg').textContent = `Outstanding! ${pct}% — You're exam-ready! 🔥`;
+  } else if (pct >= 70) {
+    document.getElementById('resultEmoji').textContent = '🎉';
+    document.getElementById('resultMsg').textContent = `Great job! ${pct}% — Almost there!`;
+  } else if (pct >= 50) {
+    document.getElementById('resultEmoji').textContent = '📚';
+    document.getElementById('resultMsg').textContent = `Good effort! ${pct}% — Review the weak areas.`;
+  } else {
+    document.getElementById('resultEmoji').textContent = '💪';
+    document.getElementById('resultMsg').textContent = `${pct}% — Keep studying, you'll get there!`;
+  }
+}
+
+function resetQuiz() {
+  state.quizCurrent = 0;
+  state.quizAnswers = new Array(25).fill(null);
+  state.quizCorrect = 0;
+  state.quizWrong = 0;
+  state.quizStreak = 0;
+  state.quizCompleted = false;
+  state.totalScore = 0;
+  saveState();
+
+  document.getElementById('quizContainer').style.display = '';
+  document.querySelector('.quiz-nav').style.display = '';
+  document.getElementById('quizResult').classList.remove('show');
+  renderQuizQuestion();
+  updateQuizUI();
+}
+
+// ============== FLASHCARDS ==============
+function initFlashcards() {
+  const grid = document.getElementById('flashcardGrid');
+  grid.innerHTML = flashcardData.map((fc, i) => `
+    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+      <div class="flashcard-inner">
+        <div class="flashcard-face flashcard-front">
+          <div class="flashcard-num">#${i + 1}</div>
+          <div class="flashcard-emoji">${fc.emoji}</div>
+          <h4>${fc.front}</h4>
+          <div class="fc-hint">👆 Click to flip</div>
+        </div>
+        <div class="flashcard-face flashcard-back">
+          <div class="flashcard-num">#${i + 1}</div>
+          <p>${fc.back.replace(/\n/g, '<br>')}</p>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ============== CLINICAL CASES ==============
+function initCases() {
+  const container = document.getElementById('casesContainer');
+  container.innerHTML = casesData.map(c => {
+    const questionsHTML = c.questions.map((cq, qi) => `
+      <div class="case-question">
+        <h5>❓ ${cq.q}</h5>
+        <button class="reveal-btn" onclick="revealCaseAnswer(this)">👁️ Reveal Answer</button>
+        <div class="case-answer">
+          <p>${cq.a}</p>
+        </div>
+      </div>
+    `).join('');
+
+    return `
+      <div class="case-card searchable" data-search="${c.title.toLowerCase()}">
+        <div class="case-header">
+          <div class="case-num">${c.num}</div>
+          <div class="case-title">${c.title}</div>
+        </div>
+        <div class="case-vignette">${c.vignette}</div>
+        ${questionsHTML}
+      </div>
+    `;
+  }).join('');
+}
+
+function revealCaseAnswer(btn) {
+  const answer = btn.nextElementSibling;
+  answer.classList.toggle('show');
+  btn.textContent = answer.classList.contains('show') ? '🙈 Hide Answer' : '👁️ Reveal Answer';
+}
+
+// ============== PATHOPHYSIOLOGY STRUCTURES ==============
+function initPathoStructures() {
+  const grid = document.getElementById('pathoGrid');
+  grid.innerHTML = pathoStructures.map(ps => `
+    <div class="patho-item searchable" data-search="${ps.name.toLowerCase()} ${ps.detail.toLowerCase()}" onclick="this.classList.toggle('expanded')">
+      <div class="pi-header">
+        <div class="pi-icon">${ps.icon}</div>
+        <h5>${ps.name}</h5>
+      </div>
+      <div class="pi-detail">${ps.detail}</div>
+    </div>
+  `).join('');
+}
+
+function switchSubTab(btn, prefix) {
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+
+  const tabId = btn.dataset.subtab;
+  const allSubContent = btn.closest('.tab-content').querySelectorAll('.sub-content');
+  allSubContent.forEach(sc => sc.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+}
+
+// ============== MNEMONICS ==============
+function initMnemonics() {
+  const grid = document.getElementById('mnemonicGrid');
+  grid.innerHTML = mnemonicsData.map(m => {
+    const itemsHTML = m.items.map(item => `
+      <li><span class="letter">${item.letter}</span> ${item.text}</li>
+    `).join('');
+    return `
+      <div class="mnemonic-card searchable" data-search="${m.title.toLowerCase()} ${m.word.toLowerCase()}" onclick="this.classList.toggle('expanded')">
+        <h4>${m.title}</h4>
+        <div class="mnemonic-word">${m.word}</div>
+        <div style="font-size:12px;color:var(--text-muted);">👆 Click to expand</div>
+        <div class="mnemonic-expand">
+          <ul>${itemsHTML}</ul>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============== VIVA ==============
+function initViva() {
+  const container = document.getElementById('vivaContainer');
+  container.innerHTML = vivaData.map((v, i) => `
+    <div class="viva-card searchable" data-search="${v.q.toLowerCase()} ${v.a.toLowerCase()}">
+      <h4>🗣️ V${i + 1}: ${v.q}</h4>
+      <button class="reveal-btn" onclick="revealVivaAnswer(this)">👁️ Reveal Answer</button>
+      <div class="viva-answer">
+        <p>${v.a}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+function revealVivaAnswer(btn) {
+  const answer = btn.nextElementSibling;
+  answer.classList.toggle('show');
+  btn.textContent = answer.classList.contains('show') ? '🙈 Hide Answer' : '👁️ Reveal Answer';
+}
+
+// ============== INIT ==============
+function init() {
+  loadState();
+  initQuiz();
+  initFlashcards();
+  initCases();
+  initPathoStructures();
+  initMnemonics();
+  initViva();
+
+  // Restore tab
+  if (state.currentTab) {
+    switchTab(state.currentTab);
+  }
+
+  // Restore quiz state
+  if (state.quizCompleted) {
+    // Re-render completed state
+    renderQuizQuestion();
+    updateQuizUI();
+  }
+
+  updateQuizUI();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

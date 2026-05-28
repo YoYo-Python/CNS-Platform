@@ -1,0 +1,2285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧠 CNS Parasitology — Interactive Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+--primary: #6366f1;
+--primary-dark: #4f46e5;
+--primary-light: #818cf8;
+--secondary: #ec4899;
+--accent: #14b8a6;
+--accent2: #f59e0b;
+--danger: #ef4444;
+--success: #22c55e;
+--warning: #f59e0b;
+--bg-dark: #0f0f23;
+--bg-card: #1a1a2e;
+--bg-card2: #16213e;
+--bg-hover: #252547;
+--text-primary: #f1f5f9;
+--text-secondary: #94a3b8;
+--text-muted: #64748b;
+--border: #334155;
+--gradient1: linear-gradient(135deg, #6366f1, #ec4899);
+--gradient2: linear-gradient(135deg, #14b8a6, #6366f1);
+--gradient3: linear-gradient(135deg, #f59e0b, #ef4444);
+--gradient4: linear-gradient(135deg, #22c55e, #14b8a6);
+--shadow: 0 4px 24px rgba(0,0,0,0.3);
+--shadow-lg: 0 8px 40px rgba(0,0,0,0.4);
+--radius: 16px;
+--radius-sm: 10px;
+--radius-xs: 6px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+font-family: 'Inter', sans-serif;
+background: var(--bg-dark);
+color: var(--text-primary);
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* Animated background */
+.bg-animation {
+position: fixed;
+top: 0; left: 0;
+width: 100%; height: 100%;
+z-index: 0;
+pointer-events: none;
+overflow: hidden;
+}
+
+.bg-orb {
+position: absolute;
+border-radius: 50%;
+filter: blur(80px);
+opacity: 0.15;
+animation: float 20s ease-in-out infinite;
+}
+
+.bg-orb:nth-child(1) {
+width: 500px; height: 500px;
+background: var(--primary);
+top: -100px; left: -100px;
+animation-delay: 0s;
+}
+
+.bg-orb:nth-child(2) {
+width: 400px; height: 400px;
+background: var(--secondary);
+top: 50%; right: -100px;
+animation-delay: -7s;
+}
+
+.bg-orb:nth-child(3) {
+width: 350px; height: 350px;
+background: var(--accent);
+bottom: -50px; left: 30%;
+animation-delay: -14s;
+}
+
+@keyframes float {
+0%, 100% { transform: translate(0, 0) scale(1); }
+25% { transform: translate(50px, -50px) scale(1.1); }
+50% { transform: translate(-30px, 30px) scale(0.95); }
+75% { transform: translate(40px, 20px) scale(1.05); }
+}
+
+/* Header */
+.header {
+position: relative;
+z-index: 10;
+padding: 20px 24px;
+background: rgba(15,15,35,0.8);
+backdrop-filter: blur(20px);
+border-bottom: 1px solid rgba(99,102,241,0.2);
+}
+
+.header-inner {
+max-width: 1400px;
+margin: 0 auto;
+display: flex;
+align-items: center;
+justify-content: space-between;
+flex-wrap: wrap;
+gap: 16px;
+}
+
+.logo {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+
+.logo-icon {
+width: 48px; height: 48px;
+background: var(--gradient1);
+border-radius: 14px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 24px;
+box-shadow: 0 4px 20px rgba(99,102,241,0.4);
+}
+
+.logo-text h1 {
+font-size: 20px;
+font-weight: 800;
+background: var(--gradient1);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+}
+
+.logo-text p {
+font-size: 12px;
+color: var(--text-muted);
+font-weight: 500;
+}
+
+.stats-bar {
+display: flex;
+gap: 16px;
+flex-wrap: wrap;
+}
+
+.stat-chip {
+display: flex;
+align-items: center;
+gap: 6px;
+padding: 8px 14px;
+background: rgba(99,102,241,0.1);
+border: 1px solid rgba(99,102,241,0.2);
+border-radius: 30px;
+font-size: 13px;
+font-weight: 600;
+color: var(--text-secondary);
+}
+
+.stat-chip .val {
+color: var(--primary-light);
+}
+
+/* Search Bar */
+.search-container {
+position: relative;
+z-index: 10;
+max-width: 1400px;
+margin: 16px auto;
+padding: 0 24px;
+}
+
+.search-input {
+width: 100%;
+padding: 14px 20px 14px 48px;
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+color: var(--text-primary);
+font-size: 15px;
+font-family: 'Inter', sans-serif;
+outline: none;
+transition: all 0.3s;
+}
+
+.search-input:focus {
+border-color: var(--primary);
+box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+}
+
+.search-icon {
+position: absolute;
+left: 40px;
+top: 50%;
+transform: translateY(-50%);
+font-size: 18px;
+color: var(--text-muted);
+}
+
+/* Tabs */
+.tabs-container {
+position: relative;
+z-index: 10;
+max-width: 1400px;
+margin: 0 auto;
+padding: 0 24px;
+overflow-x: auto;
+-ms-overflow-style: none;
+scrollbar-width: none;
+}
+
+.tabs-container::-webkit-scrollbar { display: none; }
+
+.tabs {
+display: flex;
+gap: 6px;
+padding: 8px 0;
+min-width: max-content;
+}
+
+.tab-btn {
+padding: 10px 18px;
+border: none;
+background: transparent;
+color: var(--text-muted);
+font-size: 13px;
+font-weight: 600;
+font-family: 'Inter', sans-serif;
+cursor: pointer;
+border-radius: var(--radius-sm);
+transition: all 0.3s;
+white-space: nowrap;
+display: flex;
+align-items: center;
+gap: 6px;
+}
+
+.tab-btn:hover {
+background: var(--bg-hover);
+color: var(--text-primary);
+}
+
+.tab-btn.active {
+background: var(--gradient1);
+color: white;
+box-shadow: 0 4px 16px rgba(99,102,241,0.4);
+}
+
+/* Main Content */
+.main-content {
+position: relative;
+z-index: 10;
+max-width: 1400px;
+margin: 0 auto;
+padding: 24px;
+}
+
+.tab-panel {
+display: none;
+animation: fadeIn 0.4s ease;
+}
+
+.tab-panel.active { display: block; }
+
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(16px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+/* Cards */
+.card {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+padding: 24px;
+margin-bottom: 20px;
+transition: all 0.3s;
+}
+
+.card:hover {
+border-color: rgba(99,102,241,0.3);
+box-shadow: var(--shadow);
+}
+
+.card-header {
+display: flex;
+align-items: center;
+gap: 12px;
+margin-bottom: 16px;
+}
+
+.card-icon {
+width: 42px; height: 42px;
+border-radius: 12px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 20px;
+flex-shrink: 0;
+}
+
+.card-title {
+font-size: 18px;
+font-weight: 700;
+}
+
+.card-subtitle {
+font-size: 13px;
+color: var(--text-muted);
+}
+
+/* Grid system */
+.grid-2 {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+gap: 20px;
+}
+
+.grid-3 {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+gap: 16px;
+}
+
+.grid-4 {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+gap: 16px;
+}
+
+/* Tags */
+.tag {
+display: inline-flex;
+align-items: center;
+gap: 4px;
+padding: 4px 10px;
+border-radius: 20px;
+font-size: 11px;
+font-weight: 600;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+
+.tag-high { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+.tag-exam { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+.tag-pearl { background: rgba(20,184,166,0.15); color: #2dd4bf; border: 1px solid rgba(20,184,166,0.3); }
+
+/* ============== OVERVIEW TAB ============== */
+.summary-card {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+padding: 20px;
+transition: all 0.3s;
+cursor: pointer;
+position: relative;
+overflow: hidden;
+}
+
+.summary-card::before {
+content: '';
+position: absolute;
+top: 0; left: 0; right: 0;
+height: 4px;
+}
+
+.summary-card:nth-child(1)::before { background: var(--gradient1); }
+.summary-card:nth-child(2)::before { background: var(--gradient2); }
+.summary-card:nth-child(3)::before { background: var(--gradient3); }
+.summary-card:nth-child(4)::before { background: var(--gradient4); }
+.summary-card:nth-child(5)::before { background: linear-gradient(135deg, #ec4899, #8b5cf6); }
+
+.summary-card:hover {
+transform: translateY(-4px);
+box-shadow: var(--shadow-lg);
+border-color: rgba(99,102,241,0.3);
+}
+
+.summary-card h3 {
+font-size: 16px;
+font-weight: 700;
+margin-bottom: 4px;
+}
+
+.summary-card .organism {
+font-size: 13px;
+font-style: italic;
+color: var(--primary-light);
+margin-bottom: 8px;
+}
+
+.summary-card p {
+font-size: 13px;
+color: var(--text-secondary);
+line-height: 1.6;
+}
+
+/* Timeline */
+.timeline {
+position: relative;
+padding-left: 32px;
+}
+
+.timeline::before {
+content: '';
+position: absolute;
+left: 12px;
+top: 0; bottom: 0;
+width: 2px;
+background: linear-gradient(to bottom, var(--primary), var(--secondary), var(--accent));
+}
+
+.timeline-item {
+position: relative;
+margin-bottom: 24px;
+padding: 16px 20px;
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius-sm);
+}
+
+.timeline-item::before {
+content: '';
+position: absolute;
+left: -26px;
+top: 20px;
+width: 12px; height: 12px;
+background: var(--primary);
+border-radius: 50%;
+border: 3px solid var(--bg-dark);
+z-index: 1;
+}
+
+.timeline-item h4 {
+font-size: 15px;
+font-weight: 700;
+margin-bottom: 6px;
+color: var(--primary-light);
+}
+
+.timeline-item p {
+font-size: 13px;
+color: var(--text-secondary);
+line-height: 1.5;
+}
+
+/* Signs grid */
+.sign-card {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius-sm);
+padding: 16px;
+transition: all 0.3s;
+}
+
+.sign-card:hover {
+border-color: var(--primary);
+transform: translateY(-2px);
+}
+
+.sign-card h4 {
+font-size: 14px;
+font-weight: 700;
+margin-bottom: 6px;
+}
+
+.sign-card p {
+font-size: 12px;
+color: var(--text-secondary);
+line-height: 1.5;
+margin-bottom: 8px;
+}
+
+.sign-card .tags {
+display: flex;
+flex-wrap: wrap;
+gap: 4px;
+}
+
+/* ============== QUIZ TAB ============== */
+.quiz-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+flex-wrap: wrap;
+gap: 16px;
+margin-bottom: 24px;
+}
+
+.quiz-progress-bar {
+width: 100%;
+height: 8px;
+background: var(--bg-card2);
+border-radius: 10px;
+overflow: hidden;
+margin-bottom: 8px;
+}
+
+.quiz-progress-fill {
+height: 100%;
+background: var(--gradient1);
+border-radius: 10px;
+transition: width 0.5s ease;
+}
+
+.quiz-stats {
+display: flex;
+gap: 16px;
+flex-wrap: wrap;
+}
+
+.quiz-stat {
+padding: 8px 16px;
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius-sm);
+font-size: 13px;
+font-weight: 600;
+}
+
+.quiz-stat span { color: var(--primary-light); }
+
+.question-card {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+padding: 28px;
+margin-bottom: 20px;
+}
+
+.question-number {
+font-size: 12px;
+font-weight: 700;
+color: var(--primary-light);
+text-transform: uppercase;
+letter-spacing: 1px;
+margin-bottom: 8px;
+}
+
+.question-text {
+font-size: 16px;
+font-weight: 600;
+line-height: 1.6;
+margin-bottom: 20px;
+}
+
+.options-list {
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
+
+.option-btn {
+display: flex;
+align-items: flex-start;
+gap: 12px;
+padding: 14px 18px;
+background: var(--bg-card2);
+border: 2px solid var(--border);
+border-radius: var(--radius-sm);
+cursor: pointer;
+transition: all 0.3s;
+text-align: left;
+font-size: 14px;
+color: var(--text-primary);
+font-family: 'Inter', sans-serif;
+line-height: 1.5;
+}
+
+.option-btn:hover:not(.disabled) {
+border-color: var(--primary);
+background: rgba(99,102,241,0.05);
+}
+
+.option-btn .letter {
+display: flex;
+align-items: center;
+justify-content: center;
+width: 28px; height: 28px;
+min-width: 28px;
+border-radius: 50%;
+background: rgba(99,102,241,0.15);
+color: var(--primary-light);
+font-weight: 700;
+font-size: 13px;
+}
+
+.option-btn.correct {
+border-color: var(--success);
+background: rgba(34,197,94,0.08);
+animation: pulse-correct 0.5s ease;
+}
+
+.option-btn.correct .letter {
+background: var(--success);
+color: white;
+}
+
+.option-btn.wrong {
+border-color: var(--danger);
+background: rgba(239,68,68,0.08);
+animation: shake 0.5s ease;
+}
+
+.option-btn.wrong .letter {
+background: var(--danger);
+color: white;
+}
+
+.option-btn.disabled {
+pointer-events: none;
+opacity: 0.6;
+}
+
+.option-btn.disabled.correct {
+opacity: 1;
+}
+
+@keyframes pulse-correct {
+0% { transform: scale(1); }
+50% { transform: scale(1.02); }
+100% { transform: scale(1); }
+}
+
+@keyframes shake {
+0%, 100% { transform: translateX(0); }
+25% { transform: translateX(-6px); }
+75% { transform: translateX(6px); }
+}
+
+.explanation-box {
+margin-top: 16px;
+padding: 16px;
+border-radius: var(--radius-sm);
+font-size: 13px;
+line-height: 1.7;
+animation: fadeIn 0.4s ease;
+}
+
+.explanation-box.correct-exp {
+background: rgba(34,197,94,0.08);
+border: 1px solid rgba(34,197,94,0.3);
+}
+
+.explanation-box.wrong-exp {
+background: rgba(239,68,68,0.08);
+border: 1px solid rgba(239,68,68,0.3);
+}
+
+.explanation-box strong { color: var(--primary-light); }
+
+.quiz-nav {
+display: flex;
+justify-content: space-between;
+margin-top: 20px;
+}
+
+.btn {
+padding: 12px 24px;
+border: none;
+border-radius: var(--radius-sm);
+font-size: 14px;
+font-weight: 600;
+font-family: 'Inter', sans-serif;
+cursor: pointer;
+transition: all 0.3s;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.btn-primary {
+background: var(--gradient1);
+color: white;
+box-shadow: 0 4px 16px rgba(99,102,241,0.3);
+}
+
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(99,102,241,0.4); }
+
+.btn-secondary {
+background: var(--bg-card2);
+color: var(--text-secondary);
+border: 1px solid var(--border);
+}
+
+.btn-secondary:hover { border-color: var(--primary); color: var(--text-primary); }
+
+.btn-success {
+background: var(--gradient4);
+color: white;
+}
+
+.btn-warning {
+background: var(--gradient3);
+color: white;
+}
+
+/* ============== FLASHCARDS TAB ============== */
+.flashcard-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+gap: 20px;
+}
+
+.flashcard-wrapper {
+perspective: 1000px;
+height: 260px;
+}
+
+.flashcard {
+width: 100%;
+height: 100%;
+position: relative;
+transform-style: preserve-3d;
+transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+cursor: pointer;
+}
+
+.flashcard.flipped {
+transform: rotateY(180deg);
+}
+
+.flashcard-face {
+position: absolute;
+width: 100%;
+height: 100%;
+backface-visibility: hidden;
+border-radius: var(--radius);
+padding: 24px;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+text-align: center;
+border: 1px solid var(--border);
+}
+
+.flashcard-front {
+background: var(--bg-card);
+}
+
+.flashcard-front .fc-icon {
+font-size: 32px;
+margin-bottom: 16px;
+}
+
+.flashcard-front h3 {
+font-size: 15px;
+font-weight: 600;
+line-height: 1.5;
+margin-bottom: 12px;
+}
+
+.flashcard-front .flip-hint {
+font-size: 11px;
+color: var(--text-muted);
+margin-top: auto;
+}
+
+.flashcard-back {
+background: var(--bg-card2);
+transform: rotateY(180deg);
+border-color: var(--primary);
+}
+
+.flashcard-back p {
+font-size: 14px;
+line-height: 1.7;
+color: var(--text-secondary);
+}
+
+.flashcard-back .fc-tag {
+margin-top: 12px;
+font-size: 11px;
+padding: 4px 12px;
+border-radius: 20px;
+background: rgba(99,102,241,0.15);
+color: var(--primary-light);
+font-weight: 600;
+}
+
+/* ============== CLINICAL CASES TAB ============== */
+.case-card {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+overflow: hidden;
+margin-bottom: 24px;
+}
+
+.case-header {
+padding: 20px 24px;
+background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(236,72,153,0.1));
+border-bottom: 1px solid var(--border);
+display: flex;
+align-items: center;
+gap: 12px;
+}
+
+.case-header .case-num {
+width: 40px; height: 40px;
+border-radius: 50%;
+background: var(--gradient1);
+display: flex;
+align-items: center;
+justify-content: center;
+font-weight: 800;
+font-size: 16px;
+flex-shrink: 0;
+}
+
+.case-header h3 {
+font-size: 16px;
+font-weight: 700;
+}
+
+.case-body {
+padding: 24px;
+}
+
+.case-vignette {
+font-size: 14px;
+line-height: 1.8;
+color: var(--text-secondary);
+margin-bottom: 20px;
+padding: 16px;
+background: rgba(99,102,241,0.05);
+border-left: 3px solid var(--primary);
+border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+}
+
+.case-question {
+margin-bottom: 16px;
+}
+
+.case-question h4 {
+font-size: 14px;
+font-weight: 700;
+margin-bottom: 8px;
+color: var(--primary-light);
+}
+
+.reveal-btn {
+padding: 10px 20px;
+background: var(--bg-card2);
+border: 1px solid var(--border);
+border-radius: var(--radius-xs);
+color: var(--text-secondary);
+font-size: 13px;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.3s;
+font-family: 'Inter', sans-serif;
+}
+
+.reveal-btn:hover {
+border-color: var(--primary);
+color: var(--text-primary);
+}
+
+.case-answer {
+display: none;
+margin-top: 12px;
+padding: 16px;
+background: rgba(34,197,94,0.06);
+border: 1px solid rgba(34,197,94,0.2);
+border-radius: var(--radius-xs);
+font-size: 13px;
+line-height: 1.7;
+color: var(--text-secondary);
+animation: fadeIn 0.4s ease;
+}
+
+.case-answer.show { display: block; }
+
+/* ============== PATHOPHYSIOLOGY TAB ============== */
+.patho-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+gap: 16px;
+}
+
+.patho-item {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius-sm);
+padding: 20px;
+cursor: pointer;
+transition: all 0.3s;
+}
+
+.patho-item:hover {
+border-color: var(--primary);
+transform: translateY(-2px);
+box-shadow: var(--shadow);
+}
+
+.patho-item h4 {
+font-size: 15px;
+font-weight: 700;
+margin-bottom: 6px;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.patho-item p {
+font-size: 13px;
+color: var(--text-secondary);
+line-height: 1.6;
+}
+
+.patho-detail {
+display: none;
+margin-top: 12px;
+padding-top: 12px;
+border-top: 1px solid var(--border);
+font-size: 12px;
+color: var(--text-muted);
+line-height: 1.6;
+}
+
+.patho-item.expanded .patho-detail {
+display: block;
+animation: fadeIn 0.3s ease;
+}
+
+/* Flow chart */
+.flow-chart {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 0;
+margin: 24px 0;
+}
+
+.flow-step {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius-sm);
+padding: 16px 24px;
+text-align: center;
+max-width: 500px;
+width: 100%;
+position: relative;
+}
+
+.flow-step h4 {
+font-size: 14px;
+font-weight: 700;
+margin-bottom: 4px;
+}
+
+.flow-step p {
+font-size: 12px;
+color: var(--text-secondary);
+}
+
+.flow-arrow {
+font-size: 24px;
+color: var(--primary);
+margin: 4px 0;
+}
+
+/* ============== DIAGNOSIS TAB ============== */
+.diag-table {
+width: 100%;
+border-collapse: separate;
+border-spacing: 0;
+border-radius: var(--radius);
+overflow: hidden;
+border: 1px solid var(--border);
+margin-bottom: 20px;
+}
+
+.diag-table th {
+background: rgba(99,102,241,0.15);
+padding: 14px 16px;
+text-align: left;
+font-size: 13px;
+font-weight: 700;
+color: var(--primary-light);
+border-bottom: 1px solid var(--border);
+}
+
+.diag-table td {
+padding: 12px 16px;
+font-size: 13px;
+color: var(--text-secondary);
+border-bottom: 1px solid rgba(51,65,85,0.5);
+line-height: 1.5;
+}
+
+.diag-table tr:last-child td { border-bottom: none; }
+
+.diag-table tr:hover td {
+background: rgba(99,102,241,0.03);
+}
+
+.badge {
+display: inline-flex;
+align-items: center;
+gap: 4px;
+padding: 4px 10px;
+border-radius: 20px;
+font-size: 11px;
+font-weight: 600;
+}
+
+.badge-primary { background: rgba(99,102,241,0.15); color: var(--primary-light); }
+.badge-success { background: rgba(34,197,94,0.15); color: #4ade80; }
+.badge-warning { background: rgba(245,158,11,0.15); color: #fbbf24; }
+.badge-danger { background: rgba(239,68,68,0.15); color: #f87171; }
+
+/* ============== TREATMENT TAB ============== */
+.treatment-card {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+padding: 20px;
+margin-bottom: 16px;
+}
+
+.treatment-card.emergency {
+border-color: rgba(239,68,68,0.4);
+background: linear-gradient(135deg, rgba(239,68,68,0.05), transparent);
+}
+
+.treatment-card.standard {
+border-color: rgba(99,102,241,0.3);
+}
+
+.treatment-card.supportive {
+border-color: rgba(20,184,166,0.3);
+}
+
+.drug-table {
+width: 100%;
+border-collapse: collapse;
+margin-top: 12px;
+}
+
+.drug-table th {
+text-align: left;
+padding: 10px 12px;
+font-size: 12px;
+font-weight: 700;
+color: var(--text-muted);
+text-transform: uppercase;
+letter-spacing: 0.5px;
+border-bottom: 1px solid var(--border);
+}
+
+.drug-table td {
+padding: 10px 12px;
+font-size: 13px;
+color: var(--text-secondary);
+border-bottom: 1px solid rgba(51,65,85,0.3);
+}
+
+/* ============== MNEMONICS TAB ============== */
+.mnemonic-card {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+overflow: hidden;
+margin-bottom: 20px;
+cursor: pointer;
+transition: all 0.3s;
+}
+
+.mnemonic-card:hover {
+border-color: var(--primary);
+}
+
+.mnemonic-header {
+padding: 20px 24px;
+display: flex;
+align-items: center;
+gap: 12px;
+}
+
+.mnemonic-header .emoji {
+font-size: 28px;
+}
+
+.mnemonic-header h3 {
+font-size: 16px;
+font-weight: 700;
+}
+
+.mnemonic-header .mnemonic-word {
+font-size: 20px;
+font-weight: 900;
+background: var(--gradient1);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+margin-left: auto;
+}
+
+.mnemonic-body {
+display: none;
+padding: 0 24px 20px;
+}
+
+.mnemonic-card.expanded .mnemonic-body {
+display: block;
+animation: fadeIn 0.3s ease;
+}
+
+.mnemonic-list {
+list-style: none;
+}
+
+.mnemonic-list li {
+padding: 8px 0;
+font-size: 14px;
+color: var(--text-secondary);
+display: flex;
+gap: 8px;
+align-items: flex-start;
+border-bottom: 1px solid rgba(51,65,85,0.3);
+}
+
+.mnemonic-list li:last-child { border-bottom: none; }
+
+.mnemonic-list .letter {
+color: var(--primary-light);
+font-weight: 800;
+min-width: 20px;
+font-size: 16px;
+}
+
+/* Score modal */
+.modal-overlay {
+display: none;
+position: fixed;
+top: 0; left: 0;
+width: 100%; height: 100%;
+background: rgba(0,0,0,0.7);
+z-index: 100;
+justify-content: center;
+align-items: center;
+backdrop-filter: blur(8px);
+}
+
+.modal-overlay.show {
+display: flex;
+}
+
+.modal {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+padding: 40px;
+max-width: 460px;
+width: 90%;
+text-align: center;
+animation: fadeIn 0.4s ease;
+}
+
+.modal h2 {
+font-size: 24px;
+font-weight: 800;
+margin-bottom: 8px;
+}
+
+.modal .score-display {
+font-size: 64px;
+font-weight: 900;
+background: var(--gradient1);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+margin: 16px 0;
+}
+
+.modal p {
+color: var(--text-secondary);
+margin-bottom: 24px;
+font-size: 15px;
+}
+
+/* Section Title */
+.section-title {
+font-size: 22px;
+font-weight: 800;
+margin-bottom: 20px;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+
+.section-desc {
+font-size: 14px;
+color: var(--text-secondary);
+margin-bottom: 24px;
+line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+.header-inner { flex-direction: column; align-items: flex-start; }
+.stats-bar { width: 100%; justify-content: flex-start; }
+.grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+.flashcard-grid { grid-template-columns: 1fr; }
+.main-content { padding: 16px; }
+.diag-table { font-size: 12px; }
+.diag-table th, .diag-table td { padding: 8px 10px; }
+.question-card { padding: 20px; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+/* Utility */
+.text-center { text-align: center; }
+.mb-8 { margin-bottom: 8px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+.mt-16 { margin-top: 16px; }
+.mt-24 { margin-top: 24px; }
+
+.highlight-box {
+padding: 16px;
+border-radius: var(--radius-sm);
+margin-bottom: 16px;
+font-size: 13px;
+line-height: 1.7;
+}
+
+.highlight-box.warning {
+background: rgba(245,158,11,0.08);
+border: 1px solid rgba(245,158,11,0.3);
+color: #fbbf24;
+}
+
+.highlight-box.danger {
+background: rgba(239,68,68,0.08);
+border: 1px solid rgba(239,68,68,0.3);
+color: #f87171;
+}
+
+.highlight-box.info {
+background: rgba(99,102,241,0.08);
+border: 1px solid rgba(99,102,241,0.3);
+color: var(--primary-light);
+}
+
+.italic { font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="bg-animation">
+<div class="bg-orb"></div>
+<div class="bg-orb"></div>
+<div class="bg-orb"></div>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+<div class="header-inner">
+<div class="logo">
+<div class="logo-icon">🧠</div>
+<div class="logo-text">
+<h1>CNS Parasitology</h1>
+<p>Parasitic Infections of CNS & Special Senses</p>
+</div>
+</div>
+<div class="stats-bar">
+<div class="stat-chip">📊 Progress: <span class="val" id="globalProgress">0%</span></div>
+<div class="stat-chip">🏆 Quiz Score: <span class="val" id="globalScore">0/25</span></div>
+<div class="stat-chip">🔥 Streak: <span class="val" id="globalStreak">0</span></div>
+</div>
+</div>
+</header>
+
+<!-- SEARCH -->
+<div class="search-container">
+<span class="search-icon">🔍</span>
+<input type="text" class="search-input" id="searchInput" placeholder="Search across all topics... (e.g., rosette, trypomastigote, metronidazole)">
+</div>
+
+<!-- TABS -->
+<div class="tabs-container">
+<div class="tabs">
+<button class="tab-btn active" data-tab="overview">📋 Overview</button>
+<button class="tab-btn" data-tab="quiz">🎯 Quiz Mode</button>
+<button class="tab-btn" data-tab="flashcards">🃏 Flashcards</button>
+<button class="tab-btn" data-tab="cases">🏥 Clinical Cases</button>
+<button class="tab-btn" data-tab="pathophysiology">🔬 Pathophysiology</button>
+<button class="tab-btn" data-tab="diagnosis">🩺 Diagnosis</button>
+<button class="tab-btn" data-tab="treatment">💊 Treatment</button>
+<button class="tab-btn" data-tab="mnemonics">🧩 Mnemonics</button>
+</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+
+<!-- ==================== OVERVIEW TAB ==================== -->
+<div class="tab-panel active" id="tab-overview">
+<h2 class="section-title">📋 Overview — CNS Parasitic Infections</h2>
+<p class="section-desc">Five major parasitic infections affecting the CNS and special senses. Each represents a unique mechanism of tissue invasion, immune evasion, and organ damage.</p>
+
+<!-- Quick Summary Cards -->
+<div class="grid-3 mb-24" id="summaryCards">
+<div class="summary-card">
+<h3>🦟 Cerebral Malaria</h3>
+<p class="organism">Plasmodium falciparum</p>
+<p>Life-threatening complication with iRBC sequestration to brain endothelium, causing DIC, BBB disruption, coma, and seizures.</p>
+<div class="tags mt-16">
+<span class="tag tag-high">⚡ HIGH-YIELD</span>
+<span class="tag tag-exam">📝 EXAM FAVORITE</span>
+</div>
+</div>
+<div class="summary-card">
+<h3>🪰 African Trypanosomiasis</h3>
+<p class="organism">T. b. gambiense / T. b. rhodesiense</p>
+<p>Sleeping sickness: hemolymphatic stage → meningoencephalitis. Transmitted by Glossina (tsetse) fly. Metacyclic trypomastigote is infective.</p>
+<div class="tags mt-16">
+<span class="tag tag-high">⚡ HIGH-YIELD</span>
+<span class="tag tag-exam">📝 EXAM FAVORITE</span>
+</div>
+</div>
+<div class="summary-card">
+<h3>🧫 Secondary Amoebic Abscess</h3>
+<p class="organism">Entamoeba histolytica</p>
+<p>Hematogenous spread from large intestine → liver → brain. ONLY trophozoites invade tissue. Cysts are NEVER found in tissues.</p>
+<div class="tags mt-16">
+<span class="tag tag-exam">📝 EXAM FAVORITE</span>
+<span class="tag tag-pearl">💎 CLINICAL PEARL</span>
+</div>
+</div>
+<div class="summary-card">
+<h3>🪱 Neurocysticercosis</h3>
+<p class="organism">Taenia solium (larval stage)</p>
+<p>Humans as intermediate host. Ingestion of eggs → larval migration to CNS → space-occupying cysts. Internal autoinfection via antiperistalsis.</p>
+<div class="tags mt-16">
+<span class="tag tag-high">⚡ HIGH-YIELD</span>
+<span class="tag tag-pearl">💎 CLINICAL PEARL</span>
+</div>
+</div>
+<div class="summary-card">
+<h3>👁️ Onchocerciasis (River Blindness)</h3>
+<p class="organism">Onchocerca volvulus</p>
+<p>Simulium (blackfly) transmits L3 larvae → adults in subcutaneous nodules → microfilariae migrate to eyes → hypersensitivity → blindness.</p>
+<div class="tags mt-16">
+<span class="tag tag-exam">📝 EXAM FAVORITE</span>
+<span class="tag tag-pearl">💎 CLINICAL PEARL</span>
+</div>
+</div>
+</div>
+
+<!-- Key Clinical Signs Grid -->
+<h3 class="section-title">🔑 Key Clinical Signs & Exam Pearls</h3>
+<div class="grid-4 mb-24">
+<div class="sign-card">
+<h4>🩸 Rosette Formation</h4>
+<p>iRBCs bind to uninfected RBCs, protecting parasite from splenic clearance and immune response.</p>
+<div class="tags"><span class="tag tag-high">HIGH-YIELD</span></div>
+</div>
+<div class="sign-card">
+<h4>🫁 Winterbottom's Sign</h4>
+<p>Posterior cervical lymphadenopathy — hallmark of African trypanosomiasis hemolymphatic stage.</p>
+<div class="tags"><span class="tag tag-exam">EXAM</span></div>
+</div>
+<div class="sign-card">
+<h4>🔴 Chancre</h4>
+<p>Painful red nodule at site of tsetse fly bite where metacyclic trypomastigotes multiply locally.</p>
+<div class="tags"><span class="tag tag-pearl">PEARL</span></div>
+</div>
+<div class="sign-card">
+<h4>👁️ Conjunctivitis + Photophobia</h4>
+<p>Earliest ocular finding in Onchocerciasis. Precedes keratitis, uveitis, and optic atrophy.</p>
+<div class="tags"><span class="tag tag-exam">EXAM</span></div>
+</div>
+<div class="sign-card">
+<h4>🧠 Space-Occupying Lesion</h4>
+<p>Both neurocysticercosis and secondary amoebic abscess present as brain tumors.</p>
+<div class="tags"><span class="tag tag-high">HIGH-YIELD</span></div>
+</div>
+<div class="sign-card">
+<h4>🧬 DIC</h4>
+<p>Disseminated intravascular coagulation accompanies cerebral malaria pathogenesis.</p>
+<div class="tags"><span class="tag tag-high">HIGH-YIELD</span></div>
+</div>
+<div class="sign-card">
+<h4>💊 BBB Penetrance</h4>
+<p>Melarsoprol needed for late-stage trypanosomiasis because it crosses the BBB; Suramin does not.</p>
+<div class="tags"><span class="tag tag-pearl">PEARL</span></div>
+</div>
+<div class="sign-card">
+<h4>🔁 Autoinfection</h4>
+<p>Internal (antiperistalsis) and external (fecal-oral) autoinfection unique to T. solium neurocysticercosis.</p>
+<div class="tags"><span class="tag tag-exam">EXAM</span></div>
+</div>
+</div>
+
+<!-- Exam Warnings -->
+<h3 class="section-title">⚠️ Critical Exam Warnings</h3>
+<div class="highlight-box danger">⚠️ Cerebral Malaria is caused by <em>Plasmodium falciparum</em> ONLY. It is called "malignant" malaria because it is life-threatening. Never attribute cerebral malaria to other Plasmodium species.</div>
+<div class="highlight-box warning">⚠️ The infective stage of T. brucei is the <strong>METACYCLIC</strong> trypomastigote. Writing just "trypanosome" will NOT be counted as correct.</div>
+<div class="highlight-box danger">⚠️ The <strong>trophozoite</strong> is the ONLY form of E. histolytica that causes pathology and is found in tissues. Cysts are NEVER found in tissues.</div>
+<div class="highlight-box warning">⚠️ <em>T. b. gambiense</em> = chronic (patient sleeps on side). <em>T. b. rhodesiense</em> = acute (strikes like a stick, rapidly fatal).</div>
+<div class="highlight-box info">💡 Earliest ocular sign in Onchocerciasis = <strong>conjunctivitis with photophobia</strong>.</div>
+</div>
+
+<!-- ==================== QUIZ TAB ==================== -->
+<div class="tab-panel" id="tab-quiz">
+<h2 class="section-title">🎯 Quiz Mode — Test Your Knowledge</h2>
+<p class="section-desc">25 exam-style MCQs covering mechanisms (60%), structures/definitions (25%), and regulatory/comparative concepts (15%).</p>
+
+<div class="quiz-header">
+<div style="width:100%">
+<div class="quiz-progress-bar">
+<div class="quiz-progress-fill" id="quizProgressBar" style="width:0%"></div>
+</div>
+<div class="quiz-stats">
+<div class="quiz-stat">Question: <span id="quizCurrentQ">1</span>/25</div>
+<div class="quiz-stat">Correct: <span id="quizCorrect">0</span></div>
+<div class="quiz-stat">Wrong: <span id="quizWrong">0</span></div>
+<div class="quiz-stat">🔥 Streak: <span id="quizStreak">0</span></div>
+</div>
+</div>
+</div>
+
+<div id="quizContainer"></div>
+
+<div class="quiz-nav">
+<button class="btn btn-secondary" id="prevBtn" onclick="navigateQuiz(-1)">← Previous</button>
+<button class="btn btn-primary" id="nextBtn" onclick="navigateQuiz(1)">Next →</button>
+</div>
+</div>
+
+<!-- ==================== FLASHCARDS TAB ==================== -->
+<div class="tab-panel" id="tab-flashcards">
+<h2 class="section-title">🃏 Flashcards — Click to Flip</h2>
+<p class="section-desc">20 rapid-review flashcards. Click any card to reveal the answer. Master these for exam success!</p>
+<div class="flashcard-grid" id="flashcardGrid"></div>
+</div>
+
+<!-- ==================== CLINICAL CASES TAB ==================== -->
+<div class="tab-panel" id="tab-cases">
+<h2 class="section-title">🏥 Clinical Cases — Applied Scenarios</h2>
+<p class="section-desc">Exam-style clinical vignettes with structured step-by-step answers. Practice clinical reasoning.</p>
+<div id="casesContainer"></div>
+</div>
+
+<!-- ==================== PATHOPHYSIOLOGY TAB ==================== -->
+<div class="tab-panel" id="tab-pathophysiology">
+<h2 class="section-title">🔬 Pathophysiology — Mechanisms & Structures</h2>
+<p class="section-desc">Click on any pathophysiology card to expand the detailed mechanism. Flow charts show step-by-step disease progression.</p>
+
+<!-- Disease 1: Cerebral Malaria -->
+<div class="card mb-24">
+<div class="card-header">
+<div class="card-icon" style="background:rgba(239,68,68,0.15)">🦟</div>
+<div>
+<div class="card-title">Cerebral Malaria — Pathogenesis Flow</div>
+<div class="card-subtitle">Plasmodium falciparum</div>
+</div>
+</div>
+<div class="flow-chart">
+<div class="flow-step"><h4>🦟 Mosquito Bite</h4><p>Anopheles injects sporozoites</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step"><h4>🫁 Liver Schizogony</h4><p>Sporozoites infect hepatocytes → merozoites</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step"><h4>🩸 Erythrocytic Schizogony</h4><p>Merozoites invade RBCs → infected RBCs (iRBCs)</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step" style="border-color:var(--danger)"><h4>🔴 Sequestration & Rosetting</h4><p>iRBCs adhere to brain endothelial cells via cytoadherence; rosette formation with uninfected RBCs</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step" style="border-color:var(--warning)"><h4>💥 Cytokine Storm</h4><p>Excessive TNF, IFN-γ, IL-1α, IL-1β release → endothelial dysfunction, reduced NO</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step" style="border-color:var(--danger)"><h4>🧠 BBB Disruption + DIC</h4><p>Cerebral thrombosis, hemorrhage, hypoxia, reduced blood flow → coma, seizures, death</p></div>
+</div>
+</div>
+
+<!-- Disease 2: Trypanosomiasis -->
+<div class="card mb-24">
+<div class="card-header">
+<div class="card-icon" style="background:rgba(99,102,241,0.15)">🪰</div>
+<div>
+<div class="card-title">African Trypanosomiasis — Pathogenesis Flow</div>
+<div class="card-subtitle">T. brucei gambiense / rhodesiense</div>
+</div>
+</div>
+<div class="flow-chart">
+<div class="flow-step"><h4>🪰 Tsetse Fly Bite</h4><p>Glossina injects metacyclic trypomastigotes</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step"><h4>🔴 Local Chancre</h4><p>Parasites multiply locally → painful red nodule</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step"><h4>🫁 Hemolymphatic Stage</h4><p>Blood/lymph invasion → fever, Winterbottom's sign, myalgia, toxic manifestations</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step" style="border-color:var(--danger)"><h4>🧠 CNS Invasion</h4><p>Parasites cross BBB → meningoencephalitis, ischemia, hemorrhage</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step" style="border-color:var(--danger)"><h4>😴 Sleeping Stage</h4><p>Severe headache, tremors, mental apathy, altered sleep cycle → coma → death</p></div>
+</div>
+</div>
+
+<!-- Key Structures -->
+<h3 class="section-title mt-24">🧬 Key Structures & Processes (Click to Expand)</h3>
+<div class="patho-grid">
+<div class="patho-item" onclick="this.classList.toggle('expanded')">
+<h4>🔴 Rosette Formation</h4>
+<p>iRBCs binding to uninfected RBCs</p>
+<div class="patho-detail">
+<strong>Function:</strong> Protects the parasite from host immune response and splenic clearance. The rosettes of cells also contribute to microvascular obstruction in the brain, exacerbating cerebral ischemia. This is unique to P. falciparum.
+</div>
+</div>
+<div class="patho-item" onclick="this.classList.toggle('expanded')">
+<h4>🧪 Nitric Oxide (NO)</h4>
+<p>Essential for endothelial cell function</p>
+<div class="patho-detail">
+<strong>In CM:</strong> NO levels are significantly reduced, contributing to endothelial dysfunction. Normal NO maintains vascular tone, prevents platelet aggregation, and reduces leukocyte adhesion. Its depletion is central to BBB breakdown.
+</div>
+</div>
+<div class="patho-item" onclick="this.classList.toggle('expanded')">
+<h4>🧬 Metacyclic Trypomastigote</h4>
+<p>Infective stage of T. brucei</p>
+<div class="patho-detail">
+<strong>Life cycle stages:</strong> Metacyclic (fly salivary glands, infective) → Long slender bloodstream form → Short stumpy form (→ fly ingests) → Procyclic (fly midgut) → Epimastigote (fly salivary glands) → Metacyclic. Exam demands you specify "metacyclic."
+</div>
+</div>
+<div class="patho-item" onclick="this.classList.toggle('expanded')">
+<h4>🧫 Trophozoite vs Cyst</h4>
+<p>E. histolytica tissue-invasive form</p>
+<div class="patho-detail">
+<strong>Critical distinction:</strong> Only the trophozoite invades tissue (has pseudopodia, lytic capabilities). The quadrinucleated mature cyst is the infective/transmissible stage via fecal-oral route but CANNOT survive or form in tissues. Cysts excyst in the intestine to release trophozoites.
+</div>
+</div>
+<div class="patho-item" onclick="this.classList.toggle('expanded')">
+<h4>🪱 Cysticercus cellulosae</h4>
+<p>Larval stage of T. solium in brain</p>
+<div class="patho-detail">
+<strong>Mechanism:</strong> When humans ingest T. solium eggs (NOT cysticerci), the eggs hatch into hexacanth embryos/oncospheres that penetrate the intestinal wall and migrate hematogenously. In the brain, they develop into cysticerci, causing a local immune response with neutrophils, eosinophils, and lymphocytes.
+</div>
+</div>
+<div class="patho-item" onclick="this.classList.toggle('expanded')">
+<h4>👁️ Microfilariae in Eye</h4>
+<p>O. volvulus → ocular pathology</p>
+<div class="patho-detail">
+<strong>Mechanism of blindness:</strong> Microfilariae released by adult worms in subcutaneous nodules migrate to eyes. Both living and dead microfilariae trigger hypersensitivity reactions. Mechanical damage + toxin release → conjunctivitis → keratitis → uveitis → chorioretinitis → optic atrophy → permanent blindness.
+</div>
+</div>
+</div>
+</div>
+
+<!-- ==================== DIAGNOSIS TAB ==================== -->
+<div class="tab-panel" id="tab-diagnosis">
+<h2 class="section-title">🩺 Diagnosis — Investigations & Algorithms</h2>
+<p class="section-desc">Comprehensive diagnostic comparison across all five parasitic CNS infections.</p>
+
+<div class="card mb-24">
+<div class="card-header">
+<div class="card-icon" style="background:rgba(20,184,166,0.15)">📊</div>
+<div>
+<div class="card-title">Diagnostic Comparison Table</div>
+<div class="card-subtitle">Key investigations for each parasite</div>
+</div>
+</div>
+<div style="overflow-x:auto">
+<table class="diag-table">
+<thead>
+<tr>
+<th>Parasite</th>
+<th>Gold Standard</th>
+<th>Key Finding</th>
+<th>Additional Tests</th>
+<th>Specimen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>P. falciparum</strong></td>
+<td>Thick & thin blood smear</td>
+<td>Rosette formation, ring forms, banana-shaped gametocytes</td>
+<td>RDT (antigen test), PCR</td>
+<td>Peripheral blood</td>
+</tr>
+<tr>
+<td><strong>T. brucei</strong></td>
+<td>Direct microscopy of CSF</td>
+<td>Polymorphic trypomastigotes in CSF (late stage)</td>
+<td>Serology, PCR, lymph node aspirate</td>
+<td>Blood (early), CSF (late)</td>
+</tr>
+<tr>
+<td><strong>E. histolytica</strong></td>
+<td>Aspirate microscopy</td>
+<td>Trophozoites with central karyosome & pseudopodia (20µm)</td>
+<td>Serology (IgG), CT/MRI for abscess</td>
+<td>Brain abscess aspirate</td>
+</tr>
+<tr>
+<td><strong>T. solium (NCC)</strong></td>
+<td>Neuroimaging (CT/MRI)</td>
+<td>Cystic lesions with scolex, calcifications</td>
+<td>Serology (EITB), CSF analysis</td>
+<td>Imaging, serum</td>
+</tr>
+<tr>
+<td><strong>O. volvulus</strong></td>
+<td>Skin snip biopsy</td>
+<td>Microfilariae in dermis</td>
+<td>Patch skin test, slit-lamp exam, Mazzotti test</td>
+<td>Skin, eye</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- Investigation badges -->
+<h3 class="section-title">🔬 Investigation Findings</h3>
+<div class="grid-3 mb-24">
+<div class="card">
+<h4 class="mb-8">🩸 Blood Smear Findings</h4>
+<div style="display:flex;flex-wrap:wrap;gap:6px">
+<span class="badge badge-danger">Ring forms (P.f.)</span>
+<span class="badge badge-primary">Banana gametocytes</span>
+<span class="badge badge-warning">Rosette formation</span>
+<span class="badge badge-success">Polymorphic tryps</span>
+</div>
+</div>
+<div class="card">
+<h4 class="mb-8">🧠 CSF Analysis</h4>
+<div style="display:flex;flex-wrap:wrap;gap:6px">
+<span class="badge badge-danger">Trypomastigotes</span>
+<span class="badge badge-primary">↑ WBC (lymphocytes)</span>
+<span class="badge badge-warning">↑ IgM</span>
+<span class="badge badge-success">↑ Protein</span>
+</div>
+</div>
+<div class="card">
+<h4 class="mb-8">📷 Neuroimaging</h4>
+<div style="display:flex;flex-wrap:wrap;gap:6px">
+<span class="badge badge-danger">Ring-enhancing lesion</span>
+<span class="badge badge-primary">Scolex (NCC)</span>
+<span class="badge badge-warning">Calcified cysts</span>
+<span class="badge badge-success">Space-occupying lesion</span>
+</div>
+</div>
+</div>
+
+<!-- Diagnostic Algorithm -->
+<div class="card mb-24">
+<div class="card-header">
+<div class="card-icon" style="background:rgba(245,158,11,0.15)">🗺️</div>
+<div>
+<div class="card-title">Diagnostic Decision Algorithm</div>
+<div class="card-subtitle">Step-by-step approach for CNS parasitic infections</div>
+</div>
+</div>
+<div class="flow-chart">
+<div class="flow-step"><h4>Step 1: Clinical Presentation</h4><p>Coma/seizures? Lymphadenopathy? Visual changes? Travel to endemic area?</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step"><h4>Step 2: Peripheral Blood Analysis</h4><p>Thick/thin smear for malaria parasites; buffy coat for trypanosomes</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step"><h4>Step 3: Neuroimaging (CT/MRI)</h4><p>Space-occupying lesion → NCC or amoebic abscess? Diffuse edema → CM or trypanosomiasis?</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step"><h4>Step 4: CSF Analysis (if safe)</h4><p>Trypomastigotes → Sleeping sickness. Trophozoites → Amoebic. Elevated eosinophils → NCC.</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step"><h4>Step 5: Serology & Molecular</h4><p>PCR, ELISA, EITB as confirmatory. Skin snip for Onchocerciasis.</p></div>
+</div>
+</div>
+
+<!-- Special diagnostic tests -->
+<h3 class="section-title">🧪 Special Diagnostic Tests</h3>
+<div class="grid-2">
+<div class="card">
+<h4 class="mb-8">🩹 Patch Skin Test (Onchocerciasis)</h4>
+<p style="font-size:13px;color:var(--text-secondary);line-height:1.6">A piece of skin is excised and placed in saline. After incubation, microfilariae migrate out of the skin sample and can be seen microscopically. Detects the presence of <em>O. volvulus</em> microfilariae in the dermis.</p>
+</div>
+<div class="card">
+<h4 class="mb-8">🧪 Mazzotti Test (Onchocerciasis)</h4>
+<p style="font-size:13px;color:var(--text-secondary);line-height:1.6">Administration of a small dose of DEC (diethylcarbamazine) causes an intense pruritic reaction if microfilariae are present. The dying microfilariae trigger a hypersensitivity response. Rarely used now due to risk.</p>
+</div>
+</div>
+</div>
+
+<!-- ==================== TREATMENT TAB ==================== -->
+<div class="tab-panel" id="tab-treatment">
+<h2 class="section-title">💊 Treatment — Pharmacological Management</h2>
+<p class="section-desc">Drug therapy organized by disease, stage, and urgency. Color-coded for quick reference.</p>
+
+<!-- Cerebral Malaria -->
+<div class="treatment-card emergency">
+<div class="card-header">
+<div class="card-icon" style="background:rgba(239,68,68,0.2)">🚨</div>
+<div>
+<div class="card-title">Cerebral Malaria</div>
+<div class="card-subtitle">EMERGENCY — P. falciparum</div>
+</div>
+<span class="badge badge-danger">URGENT</span>
+</div>
+<table class="drug-table">
+<thead><tr><th>Drug</th><th>Route</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><strong>IV Artesunate</strong></td><td>Intravenous</td><td>First-line for severe malaria; rapid parasite clearance</td></tr>
+<tr><td><strong>IV Quinine</strong></td><td>Intravenous</td><td>Alternative if artesunate unavailable; monitor blood glucose</td></tr>
+<tr><td>Supportive: anticonvulsants, manage cerebral edema, blood transfusion if severe anemia</td><td>—</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- African Trypanosomiasis -->
+<div class="treatment-card emergency">
+<div class="card-header">
+<div class="card-icon" style="background:rgba(245,158,11,0.2)">💉</div>
+<div>
+<div class="card-title">African Trypanosomiasis</div>
+<div class="card-subtitle">Stage-dependent therapy</div>
+</div>
+<span class="badge badge-warning">STAGED</span>
+</div>
+<table class="drug-table">
+<thead><tr><th>Stage</th><th>Drug</th><th>Key Feature</th></tr></thead>
+<tbody>
+<tr><td><strong>Early (Hemolymphatic)</strong></td><td><strong>Suramin</strong> (rhodesiense)<br><strong>Pentamidine</strong> (gambiense)</td><td>Does NOT cross BBB — only effective before CNS invasion</td></tr>
+<tr><td><strong>Late (Meningoencephalitis)</strong></td><td><strong>Melarsoprol</strong> (both)<br><strong>Eflornithine</strong> (gambiense)</td><td>Crosses BBB — required for CNS-stage disease. Melarsoprol is arsenical (toxic)</td></tr>
+</tbody>
+</table>
+<div class="highlight-box danger mt-16">⚠️ EXAM PEARL: You MUST know that early-stage drugs (Suramin, Pentamidine) do NOT cross the BBB. Late-stage requires Melarsoprol or Eflornithine.</div>
+</div>
+
+<!-- Amoebic Abscess -->
+<div class="treatment-card standard">
+<div class="card-header">
+<div class="card-icon" style="background:rgba(99,102,241,0.2)">💊</div>
+<div>
+<div class="card-title">Secondary Amoebic Abscess</div>
+<div class="card-subtitle">E. histolytica — Tissue amoebicides</div>
+</div>
+<span class="badge badge-primary">TISSUE</span>
+</div>
+<table class="drug-table">
+<thead><tr><th>Drug</th><th>Type</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><strong>Metronidazole</strong></td><td>Tissue amoebicide</td><td>First-line for invasive/extra-intestinal amoebiasis</td></tr>
+<tr><td><strong>Tinidazole</strong></td><td>Tissue amoebicide</td><td>Alternative, similar mechanism</td></tr>
+<tr><td><strong>Diloxanide furoate</strong></td><td>Luminal amoebicide</td><td>Follow-up to clear intestinal cysts</td></tr>
+</tbody>
+</table>
+<div class="highlight-box info mt-16">💡 Rationale: Tissue amoebicides target trophozoites in extra-intestinal sites. A luminal agent should follow to eliminate residual cysts in the gut lumen.</div>
+</div>
+
+<!-- Neurocysticercosis -->
+<div class="treatment-card standard">
+<div class="card-header">
+<div class="card-icon" style="background:rgba(20,184,166,0.2)">🪱</div>
+<div>
+<div class="card-title">Neurocysticercosis</div>
+<div class="card-subtitle">T. solium larvae</div>
+</div>
+<span class="badge badge-success">MULTI-MODAL</span>
+</div>
+<table class="drug-table">
+<thead><tr><th>Drug/Intervention</th><th>Purpose</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><strong>Praziquantel</strong></td><td>Antihelminthic</td><td>Kills cysticerci</td></tr>
+<tr><td><strong>Albendazole</strong></td><td>Antihelminthic</td><td>Often preferred; better CNS penetration</td></tr>
+<tr><td><strong>Corticosteroids</strong></td><td>Anti-inflammatory</td><td>Reduce inflammation from dying cysts (Jarisch-Herxheimer–like reaction)</td></tr>
+<tr><td><strong>Surgery</strong></td><td>Excision</td><td>For large/obstructive cysts causing hydrocephalus</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- Onchocerciasis -->
+<div class="treatment-card supportive">
+<div class="card-header">
+<div class="card-icon" style="background:rgba(236,72,153,0.2)">👁️</div>
+<div>
+<div class="card-title">Onchocerciasis</div>
+<div class="card-subtitle">O. volvulus</div>
+</div>
+<span class="badge badge-primary">ANTIPARASITIC</span>
+</div>
+<table class="drug-table">
+<thead><tr><th>Drug</th><th>Target</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><strong>Ivermectin</strong></td><td>Microfilariae</td><td>Kills microfilariae; does NOT kill adults. Repeat annually.</td></tr>
+<tr><td><strong>Doxycycline</strong></td><td>Wolbachia endosymbiont</td><td>Kills Wolbachia → sterilizes/kills adult worms</td></tr>
+<tr><td><strong>Nodulectomy</strong></td><td>Adult worms</td><td>Surgical excision of subcutaneous nodules</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- ==================== MNEMONICS TAB ==================== -->
+<div class="tab-panel" id="tab-mnemonics">
+<h2 class="section-title">🧩 Mnemonics — Memory Aids</h2>
+<p class="section-desc">Custom-built mnemonics to lock in the high-yield facts. Click each card to expand the breakdown.</p>
+
+<div id="mnemonicsContainer"></div>
+</div>
+
+</main>
+
+<!-- Score Modal -->
+<div class="modal-overlay" id="scoreModal">
+<div class="modal">
+<h2 id="modalTitle">🎉 Quiz Complete!</h2>
+<div class="score-display" id="modalScore">0%</div>
+<p id="modalMessage">Keep studying and try again!</p>
+<button class="btn btn-primary" onclick="resetQuiz()" style="margin:0 auto">🔄 Retake Quiz</button>
+</div>
+</div>
+
+<script>
+// ========================= DATA =========================
+
+// Quiz Questions (25)
+const quizData = [
+{q:"Which precise mechanism initiates BBB disruption in Cerebral Malaria?",options:["Direct lysis of neurons by sporozoites","Intravascular coagulation in the liver","Sequestration of iRBCs to brain endothelial cells","Blockage of the choroid plexus by parasite cysts","Multiplication of metacyclic forms in the CSF"],correct:2,explain:"Accumulation of parasitized RBCs to the luminal site of microvessel ECs triggers cerebral malaria. P. falciparum does not form cysts, lyse neurons directly, or use metacyclic forms in humans."},
+{q:"What is the role of Nitric Oxide (NO) in cerebral malaria pathogenesis?",options:["Increased NO causes severe vasodilation and hemorrhage","Reduced NO levels contribute to endothelial dysfunction","NO is utilized by the parasite to form rosettes","NO directly kills sequestered iRBCs","NO triggers DIC in the brain"],correct:1,explain:"Endothelial dysfunction in malaria is associated with reduced levels of NO, essential for proper EC functioning. NO is reduced, not increased; it does not form rosettes or trigger DIC directly."},
+{q:"What is the specific infective stage of T. brucei injected by the Glossina fly?",options:["Procyclic trypomastigote","Short stumpy form","Epimastigote","Metacyclic trypomastigote","Long slender form"],correct:3,explain:"The tsetse fly injects the metacyclic trypomastigote during a blood meal. Procyclic and epimastigote are vector stages; short/long forms are bloodstream forms."},
+{q:"Why does T. b. rhodesiense have a different clinical outcome than T. b. gambiense?",options:["It affects the liver instead of the CNS","It has a highly acute, rapid, and severe fatal course","It cannot cross the BBB","It forms cysts in skeletal muscles","It is transmitted by mosquitoes"],correct:1,explain:"Rhodesian disease causes severe fatal disease in a short duration (acute course) compared to the chronic Gambian disease. Both affect the CNS and use the tsetse fly."},
+{q:"How do E. histolytica organisms reach the brain to form secondary abscesses?",options:["Direct migration through the cribriform plate","Retrograde transport along peripheral nerves","Hematogenous spread after invading submucosal blood vessels in the large intestine","Dissemination via lymphatics from a skin chancre","Ingestion of trophozoites that directly cross gastric mucosa"],correct:2,explain:"Trophozoites inhabit the large intestine and invade submucosal blood vessels, spreading hematogenously to extra-intestinal sites."},
+{q:"Which morphological stage of E. histolytica is exclusively found in brain abscess tissue?",options:["Mature quadrinucleated cyst","Pre-cyst","Metacystic trophozoite","Trophozoite","Excystation form"],correct:3,explain:"Invasion of tissue is performed solely by the trophozoite; cysts are never detected in tissue."},
+{q:"In Neurocysticercosis, how does internal autoinfection occur?",options:["Fecal-oral contamination from unwashed hands","Antiperistaltic movements regurgitating gravid segments into the stomach","Direct migration of larvae from colon to spinal cord","Hematogenous spread of ingested adult worms","Inhalation of aerosolized Taenia eggs"],correct:1,explain:"Antiperistaltic movements push gravid segments to the stomach, where gastric acid releases the infective eggs. Fecal-oral is external autoinfection."},
+{q:"Which cellular infiltrates characterize the local reaction in Neurocysticercosis?",options:["Lymphocytes, macrophages, and giant cells","Neutrophils, eosinophils, and lymphocytes","Basophils and mast cells only","Red blood cells and platelets","Epithelioid cells and fibroblasts"],correct:1,explain:"The cyst produces local cellular reaction with neutrophils, eosinophils, and lymphocytes as explicitly stated in the source."},
+{q:"What acts as the infective stage for Onchocerciasis?",options:["Microfilariae from the skin","Adult worms in nodules","Filariform larva (L3) in the mouth of the Simulium fly","Metacyclic trypomastigotes","Quadrinucleated cysts"],correct:2,explain:"Infection occurs through inoculation of the infective filariform larva from the Simulium fly."},
+{q:"How does Onchocerca volvulus cause 'River Blindness'?",options:["Adult worms directly consume the optic nerve","Larvae occlude the retinal artery","Hypersensitivity to toxins from living/dead microfilariae and mechanical action","Cysts rupture in the anterior chamber","The simulium fly bites the cornea directly"],correct:2,explain:"Blindness is caused by hypersensitivity to toxins and the mechanical action of moving microfilariae in eye tissues."},
+{q:"What is the earliest clinical ocular finding in Onchocerciasis?",options:["Optic atrophy","Retinitis","Conjunctivitis with photophobia","Choroiditis","Cataracts"],correct:2,explain:"The most common early finding is conjunctivitis with photophobia, preceding more severe manifestations."},
+{q:"What role do humans play when they develop Neurocysticercosis?",options:["Definitive host","Reservoir host","Intermediate host","Vector","Paratenic host"],correct:2,explain:"By harboring the larval stage (Cysticercus cellulosae), humans act as the intermediate host."},
+{q:"What is the significance of 'rosette formation' in P. falciparum infection?",options:["It helps merozoites invade new RBCs","It protects the parasite from immune response and splenic clearance","It facilitates sexual reproduction of gametocytes","It enables the parasite to cross the BBB","It triggers complement activation directly"],correct:1,explain:"Rosette formation (iRBCs binding to uninfected RBCs) protects the parasite from host immune response and splenic clearance."},
+{q:"Which cytokines are prominently involved in the intracerebral inflammatory response in CM?",options:["IL-4, IL-10, IL-13","TNF, IFN-γ, IL-1α, IL-1β","IL-5, IL-9, IL-25","TGF-β, IL-35, IL-37","IL-17, IL-22, IL-23"],correct:1,explain:"Cerebral malaria triggers excessive intracerebral proinflammatory cytokine response including TNF, IFN-γ, IL-1α, and IL-1β."},
+{q:"Which drug is required for late-stage (meningoencephalitic) African trypanosomiasis?",options:["Suramin","Pentamidine","Chloroquine","Melarsoprol","Metronidazole"],correct:3,explain:"Melarsoprol crosses the BBB and is required for late-stage disease. Suramin and Pentamidine do NOT cross the BBB."},
+{q:"Why can't Suramin be used to treat meningoencephalitic-stage sleeping sickness?",options:["It is too expensive","It causes severe hepatotoxicity","It does not cross the blood-brain barrier","It is only effective against P. falciparum","It kills only the procyclic stage"],correct:2,explain:"Suramin does not cross the BBB, making it ineffective once parasites have invaded the CNS."},
+{q:"Winterbottom's sign refers to:",options:["Hepatomegaly in amoebic abscess","Posterior cervical lymphadenopathy in trypanosomiasis","Subcutaneous nodules in onchocerciasis","Splenomegaly in malaria","Seizures in neurocysticercosis"],correct:1,explain:"Winterbottom's sign is posterior cervical lymphadenopathy, a clinical hallmark of African trypanosomiasis."},
+{q:"The quadrinucleated cyst of E. histolytica is:",options:["The invasive tissue form","Never found in the intestinal lumen","The infective/transmissible stage","Found commonly in brain abscess aspirates","Destroyed by gastric acid"],correct:2,explain:"The mature quadrinucleated cyst is the infective stage transmitted via fecal-oral route. It is NOT found in tissues."},
+{q:"What triggers the release of T. solium eggs during internal autoinfection?",options:["Bile salts in the duodenum","Gastric acid acting on gravid segments after antiperistalsis","Pancreatic enzymes in the jejunum","Colonic bacterial flora","Mechanical disruption by food bolus"],correct:1,explain:"Antiperistaltic movements push gravid segments from the small intestine to the stomach, where gastric acid releases the infective eggs."},
+{q:"Which vector transmits Onchocerca volvulus?",options:["Anopheles mosquito","Glossina (tsetse) fly","Simulium (blackfly)","Chrysops (deer fly)","Phlebotomus (sandfly)"],correct:2,explain:"Onchocerca volvulus is transmitted by the Simulium (blackfly), which breeds near fast-flowing rivers."},
+{q:"The Patch skin test in Onchocerciasis detects:",options:["Adult worms in subcutaneous tissue","Antibodies against filariform larvae","Microfilariae migrating out of excised skin","Eosinophils in dermal tissue","Wolbachia antigens in blood"],correct:2,explain:"A piece of skin is placed in saline; microfilariae migrate out and are detected microscopically."},
+{q:"Which drug specifically targets the Wolbachia endosymbiont in O. volvulus?",options:["Ivermectin","Praziquantel","Doxycycline","Albendazole","DEC"],correct:2,explain:"Doxycycline kills Wolbachia endosymbiont bacteria within O. volvulus, leading to sterilization and eventual death of adult worms."},
+{q:"Corticosteroids are given alongside antihelminthics in neurocysticercosis to:",options:["Enhance drug absorption into the CNS","Prevent allergic reaction to the tablet","Reduce inflammation caused by dying cysts","Suppress the adult worm's reproductive capacity","Stimulate immune clearance of calcified cysts"],correct:2,explain:"Dying cysts trigger an intense inflammatory/immune response; corticosteroids are essential to reduce cerebral edema and inflammation."},
+{q:"A patient from Africa presents with coma. Blood smear shows multiple ring forms within erythrocytes. The MOST likely causative species is:",options:["P. vivax","P. ovale","P. malariae","P. falciparum","P. knowlesi"],correct:3,explain:"Cerebral malaria causing coma is exclusively caused by P. falciparum, which characteristically shows multiple ring forms in a single RBC."},
+{q:"In the E. histolytica pathway to brain abscess, the usual sequence of organ involvement is:",options:["Brain → liver → lung","Liver → brain → lung","Large intestine → liver → lung → brain","Small intestine → spleen → brain","Large intestine → brain directly"],correct:2,explain:"The classical pathway is: large intestine (submucosal invasion) → liver (portal circulation) → lungs → brain via hematogenous spread."}
+];
+
+// Flashcard Data (20)
+const flashcardData = [
+{front:"What species causes Cerebral Malaria?",back:"Plasmodium falciparum ONLY — the 'malignant' malaria species",icon:"🦟",tag:"Cerebral Malaria"},
+{front:"What is rosette formation?",back:"Infected RBCs (iRBCs) bind to uninfected RBCs, protecting the parasite from splenic clearance and immune response",icon:"🔴",tag:"Cerebral Malaria"},
+{front:"What cytokines drive CM pathology?",back:"TNF, IFN-γ, IL-1α, IL-1β — excessive intracerebral proinflammatory response",icon:"💥",tag:"Cerebral Malaria"},
+{front:"What is the infective stage of T. brucei?",back:"Metacyclic trypomastigote — injected by the Glossina (tsetse) fly. Must write 'metacyclic' on exam!",icon:"🪰",tag:"Trypanosomiasis"},
+{front:"What is Winterbottom's sign?",back:"Posterior cervical lymphadenopathy — hallmark of African trypanosomiasis hemolymphatic stage",icon:"🫁",tag:"Trypanosomiasis"},
+{front:"Gambiense vs Rhodesiense?",back:"Gambiense = chronic (sleeps on side). Rhodesiense = acute (strikes like a stick, rapidly fatal)",icon:"⚔️",tag:"Trypanosomiasis"},
+{front:"Why is Melarsoprol needed in late-stage sleeping sickness?",back:"It crosses the BBB, unlike Suramin/Pentamidine which only work in the hemolymphatic stage",icon:"💊",tag:"Trypanosomiasis"},
+{front:"What form of E. histolytica is found in tissues?",back:"ONLY the trophozoite. Cysts are NEVER found in tissues — this is a critical exam point!",icon:"🧫",tag:"Amoebiasis"},
+{front:"Pathway of E. histolytica to brain?",back:"Large intestine → submucosal vessels → liver → lungs → brain (hematogenous spread)",icon:"🧠",tag:"Amoebiasis"},
+{front:"Treatment for secondary amoebic abscess?",back:"Metronidazole or Tinidazole (tissue amoebicides), followed by luminal agent (Diloxanide furoate)",icon:"💉",tag:"Amoebiasis"},
+{front:"How does internal autoinfection occur in NCC?",back:"Antiperistaltic movements push gravid segments to the stomach → gastric acid releases eggs → eggs hatch → larvae migrate to CNS",icon:"🔁",tag:"Neurocysticercosis"},
+{front:"What role do humans play in NCC?",back:"Intermediate host — harboring the larval stage (Cysticercus cellulosae)",icon:"🪱",tag:"Neurocysticercosis"},
+{front:"What cellular reaction surrounds the cysticercus in the brain?",back:"Neutrophils, eosinophils, and lymphocytes",icon:"🔬",tag:"Neurocysticercosis"},
+{front:"Treatment of neurocysticercosis?",back:"Praziquantel or Albendazole + Corticosteroids (reduce inflammation from dying cysts) ± Surgery",icon:"💊",tag:"Neurocysticercosis"},
+{front:"Vector for Onchocerciasis?",back:"Simulium (blackfly) — breeds near fast-flowing rivers, hence 'River Blindness'",icon:"👁️",tag:"Onchocerciasis"},
+{front:"Earliest ocular sign of Onchocerciasis?",back:"Conjunctivitis with photophobia",icon:"😎",tag:"Onchocerciasis"},
+{front:"How do microfilariae cause blindness?",back:"Hypersensitivity reactions to toxins from living/dead microfilariae + mechanical damage to eye tissues",icon:"🔥",tag:"Onchocerciasis"},
+{front:"What does the Patch skin test detect?",back:"Microfilariae migrating out of excised skin placed in saline — diagnostic for O. volvulus",icon:"🩹",tag:"Onchocerciasis"},
+{front:"What does reduced NO cause in CM?",back:"Endothelial dysfunction — NO is essential for proper endothelial cell functioning, vasodilation, and anti-coagulation",icon:"🧪",tag:"Cerebral Malaria"},
+{front:"What is DIC in cerebral malaria?",back:"Disseminated intravascular coagulation — leads to cerebral thrombosis, hemorrhage, hypoxia, and reduced blood flow",icon:"🩸",tag:"Cerebral Malaria"}
+];
+
+// Clinical Cases (6)
+const casesData = [
+{
+title:"Comatose Patient with Rosette Formation",
+vignette:"A 28-year-old male presents in a coma with seizures after returning from sub-Saharan Africa. He had high-grade fevers for 5 days. Peripheral blood smear shows rosette formations and multiple ring forms within erythrocytes. His platelet count is very low.",
+questions:[
+{q:"What is the most likely diagnosis and causative organism?",a:"Cerebral Malaria caused by Plasmodium falciparum. This is the ONLY species causing cerebral malaria. The rosette formations, ring forms, and thrombocytopenia (suggesting DIC) are characteristic."},
+{q:"Explain the pathogenesis of the coma.",a:"iRBCs sequester to brain endothelial cells → triggers excessive proinflammatory cytokine release (TNF, IFN-γ, IL-1α, IL-1β) → reduced NO → endothelial dysfunction → DIC → cerebral thrombosis, hemorrhage, hypoxia → BBB disruption → coma and seizures."},
+{q:"What is the immediate treatment?",a:"IV Artesunate (first-line for severe/cerebral malaria). Alternatively, IV Quinine. Supportive care: anticonvulsants, manage cerebral edema, blood transfusion if severe anemia."}
+]
+},
+{
+title:"African Traveler with Chancre and Lymphadenopathy",
+vignette:"A 35-year-old male from rural East Africa presents with a painful red nodule on his forearm that appeared 2 weeks after a fly bite. He now has irregular fevers, severe headache, and prominent swelling of posterior cervical lymph nodes.",
+questions:[
+{q:"Identify the clinical signs and their significance.",a:"The painful red nodule is a chancre (local multiplication of metacyclic trypomastigotes at the bite site). The posterior cervical lymphadenopathy is Winterbottom's sign — hallmark of the hemolymphatic stage of African trypanosomiasis."},
+{q:"What stage of disease is this patient in?",a:"Hemolymphatic (Stage 1). The parasite has spread from the local chancre into the blood and lymphatic system. CNS invasion has not yet occurred (no altered mental status, sleep disturbance, or convulsions)."},
+{q:"What treatment should be given and why must it be given NOW?",a:"Suramin (for T. b. rhodesiense — East Africa = acute form) or Pentamidine (for T. b. gambiense). These drugs do NOT cross the BBB, so they must be given BEFORE CNS invasion. If the disease progresses to meningoencephalitis, Melarsoprol (which crosses the BBB) would be required."}
+]
+},
+{
+title:"Space-Occupying Lesion in Liver Abscess Patient",
+vignette:"A 42-year-old with a history of amoebic liver abscess now presents with severe headache, projectile vomiting, and left-sided weakness. CT scan shows a ring-enhancing space-occupying lesion in the right cerebral hemisphere. Aspirate shows organisms with central karyosome and pseudopodia.",
+questions:[
+{q:"What is the diagnosis?",a:"Secondary amoebic cerebral abscess caused by Entamoeba histolytica trophozoites that spread hematogenously from the liver abscess to the brain."},
+{q:"Why are cysts NOT found in the aspirate?",a:"Only trophozoites invade tissue; cysts CANNOT survive or form in extra-intestinal tissues. The trophozoite (with central karyosome, pseudopodia, ~20µm) is the only pathogenic form found in tissues."},
+{q:"What is the treatment approach?",a:"Metronidazole or Tinidazole (tissue amoebicides) to eradicate trophozoites. Follow with luminal amoebicide (Diloxanide furoate) to clear intestinal cysts. Neurosurgical drainage may be needed for large abscesses."}
+]
+},
+{
+title:"Seizures After Tapeworm History",
+vignette:"A 25-year-old woman with a known history of Taenia solium intestinal infection develops severe headaches and new-onset seizures after a week of intense nausea and vomiting. MRI shows multiple cystic lesions in the brain parenchyma with visible scolices.",
+questions:[
+{q:"What caused the seizures?",a:"Neurocysticercosis via internal autoinfection. The intense vomiting caused antiperistaltic movements, pushing gravid proglottids from the small intestine to the stomach. Gastric acid released T. solium eggs, which hatched into hexacanth embryos that migrated hematogenously to the brain, forming cysticerci."},
+{q:"What role is this patient playing in the parasite life cycle?",a:"Intermediate host — she is harboring the larval stage (Cysticercus cellulosae), the same role that pigs normally play in the T. solium life cycle."},
+{q:"Outline the treatment.",a:"Albendazole (preferred CNS penetration) or Praziquantel to kill cysticerci. Corticosteroids MUST be co-administered to reduce inflammatory response from dying cysts. Anticonvulsants for seizure control. Surgery if cysts cause obstructive hydrocephalus."}
+]
+},
+{
+title:"Subcutaneous Nodules and Progressive Vision Loss",
+vignette:"A 40-year-old man living near a river in West Africa presents with multiple painless firm subcutaneous nodules, severe itching with altered skin pigmentation, and progressive vision loss. Slit-lamp examination reveals microfilariae in the anterior chamber of the eye.",
+questions:[
+{q:"What is the diagnosis and vector?",a:"Onchocerciasis (River Blindness) caused by Onchocerca volvulus, transmitted by the Simulium (blackfly) which breeds near fast-flowing rivers."},
+{q:"Explain the pathogenesis of blindness.",a:"L3 filariform larvae (injected by Simulium) mature into adult worms in subcutaneous fibrous nodules. Adults produce microfilariae that migrate to skin (causing dermatitis, depigmentation) and eyes. In the eye, both living and dead microfilariae cause hypersensitivity reactions and mechanical damage → conjunctivitis → keratitis → uveitis → optic atrophy → blindness."},
+{q:"What is the treatment?",a:"Ivermectin (kills microfilariae; must be repeated as it does not kill adult worms). Doxycycline (kills Wolbachia endosymbiont → sterilizes/kills adult worms). Nodulectomy (surgical removal of nodules containing adults)."}
+]
+},
+{
+title:"Integrative Case — Returned Traveler with Progressive Neurological Decline",
+vignette:"A 35-year-old male presents to the ER with convulsions and altered mental status. He recently returned from rural Africa. He reports having suffered from irregular fevers, muscle pain, and an inflamed nodule on his neck a few months prior, which he ignored. He has been increasingly apathetic and somnolent for weeks.",
+questions:[
+{q:"What is the most likely diagnosis?",a:"Late-stage African Trypanosomiasis (meningoencephalitic stage / Sleeping Sickness). The initial chancre and hemolymphatic symptoms (fever, myalgia) have progressed to CNS invasion."},
+{q:"Trace the complete pathogenesis.",a:"Glossina bite → metacyclic trypomastigotes injected → local chancre formation → hemolymphatic spread (fever, Winterbottom's sign, myalgia) → parasites cross BBB → inflammatory cells induce meningoencephalitis (ischemia, hemorrhage) → altered sleep cycle, tremors, mental apathy, convulsions → coma → death if untreated."},
+{q:"Why would cerebral malaria be a differential, and how do you distinguish?",a:"Both cause coma/convulsions in African travelers. However, the initial painful nodule (chancre) and progressive somnolence over weeks strongly suggest Sleeping Sickness. CM presents more acutely with sudden coma. CSF examination showing trypomastigotes confirms trypanosomiasis. Blood smear showing rosettes/ring forms would confirm malaria."},
+{q:"What treatment is required at this stage?",a:"Melarsoprol (crosses BBB — arsenical compound) or Eflornithine (for gambiense). Early-stage drugs (Suramin, Pentamidine) are useless because they cannot cross the BBB. This case illustrates why early treatment before CNS invasion is critical."}
+]
+}
+];
+
+// Mnemonics (6)
+const mnemonicsData = [
+{
+emoji:"🦟",
+title:"Cerebral Malaria Pathogenesis",
+word:"S-C-R-D-H",
+items:[
+{letter:"S",text:"Sequestration of iRBCs to brain endothelial cells"},
+{letter:"C",text:"Cytokine storm (TNF, IFN-γ, IL-1α, IL-1β)"},
+{letter:"R",text:"Rosette formation (iRBCs + uninfected RBCs)"},
+{letter:"D",text:"DIC (Disseminated Intravascular Coagulation)"},
+{letter:"H",text:"Hypoxia & Hemorrhage → BBB disruption → coma"}
+]
+},
+{
+emoji:"🪰",
+title:"Trypanosomiasis Stages — 'CLIMB'",
+word:"C-L-I-M-B",
+items:[
+{letter:"C",text:"Chancre — painful nodule at bite site"},
+{letter:"L",text:"Lymphadenopathy — Winterbottom's sign (posterior cervical)"},
+{letter:"I",text:"Irregular fevers & immune evasion"},
+{letter:"M",text:"Meningoencephalitis — crosses BBB"},
+{letter:"B",text:"Brain damage → sleeping stage → coma → death"}
+]
+},
+{
+emoji:"🧫",
+title:"E. histolytica Spread — 'TILL Brain'",
+word:"T-I-L-L-B",
+items:[
+{letter:"T",text:"Trophozoites (ONLY form in tissues)"},
+{letter:"I",text:"Intestine (large) — initial colonization"},
+{letter:"L",text:"Liver abscess — first extra-intestinal site"},
+{letter:"L",text:"Lungs — next station via bloodstream"},
+{letter:"B",text:"Brain — secondary amoebic abscess (space-occupying lesion)"}
+]
+},
+{
+emoji:"🪱",
+title:"Neurocysticercosis Autoinfection — 'GAGE'",
+word:"G-A-G-E",
+items:[
+{letter:"G",text:"Gravid segments in small intestine"},
+{letter:"A",text:"Antiperistalsis pushes segments to stomach"},
+{letter:"G",text:"Gastric acid releases eggs from segments"},
+{letter:"E",text:"Eggs hatch → Embryos migrate to brain → cysts"}
+]
+},
+{
+emoji:"👁️",
+title:"Onchocerciasis to Blindness — 'SIMON'",
+word:"S-I-M-O-N",
+items:[
+{letter:"S",text:"Simulium (blackfly) injects L3 filariform larvae"},
+{letter:"I",text:"Intracutaneous nodules form with adult worms"},
+{letter:"M",text:"Microfilariae migrate to eyes and skin"},
+{letter:"O",text:"Ocular damage: conjunctivitis → keratitis → uveitis → optic atrophy"},
+{letter:"N",text:"No vision — River Blindness (permanent)"}
+]
+},
+{
+emoji:"💊",
+title:"Trypanosomiasis Treatment by Stage — 'SPEED'",
+word:"S-P-E-E-D",
+items:[
+{letter:"S",text:"Suramin — early-stage, rhodesiense (no BBB crossing)"},
+{letter:"P",text:"Pentamidine — early-stage, gambiense (no BBB crossing)"},
+{letter:"E",text:"Eflornithine — late-stage, gambiense only (crosses BBB)"},
+{letter:"E",text:"(E is also for) EMERGENCY — if late stage, must use BBB-crossing drug"},
+{letter:"D",text:"Dare to use Melarsoprol — late-stage, both (crosses BBB, arsenical)"}
+]
+}
+];
+
+// ========================= STATE =========================
+let currentQuizQ = 0;
+let quizAnswers = new Array(quizData.length).fill(null);
+let quizCorrectCount = 0;
+let quizWrongCount = 0;
+let quizStreak = 0;
+let quizMaxStreak = 0;
+let activeTab = 'overview';
+
+// Load saved state
+function loadState() {
+try {
+const saved = JSON.parse(localStorage.getItem('cnsParaStudy') || '{}');
+if (saved.quizAnswers) quizAnswers = saved.quizAnswers;
+if (saved.quizCorrectCount !== undefined) quizCorrectCount = saved.quizCorrectCount;
+if (saved.quizWrongCount !== undefined) quizWrongCount = saved.quizWrongCount;
+if (saved.quizStreak !== undefined) quizStreak = saved.quizStreak;
+if (saved.quizMaxStreak !== undefined) quizMaxStreak = saved.quizMaxStreak;
+if (saved.currentQuizQ !== undefined) currentQuizQ = saved.currentQuizQ;
+if (saved.activeTab) activeTab = saved.activeTab;
+} catch(e) {}
+}
+
+function saveState() {
+try {
+localStorage.setItem('cnsParaStudy', JSON.stringify({
+quizAnswers, quizCorrectCount, quizWrongCount, quizStreak, quizMaxStreak, currentQuizQ, activeTab
+}));
+} catch(e) {}
+}
+
+// ========================= TABS =========================
+function initTabs() {
+const btns = document.querySelectorAll('.tab-btn');
+btns.forEach(btn => {
+btn.addEventListener('click', () => {
+btns.forEach(b => b.classList.remove('active'));
+btn.classList.add('active');
+document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+const tabId = btn.dataset.tab;
+document.getElementById('tab-' + tabId).classList.add('active');
+activeTab = tabId;
+saveState();
+});
+if (btn.dataset.tab === activeTab) btn.click();
+});
+}
+
+// ========================= QUIZ =========================
+function renderQuiz() {
+const container = document.getElementById('quizContainer');
+const q = quizData[currentQuizQ];
+const answered = quizAnswers[currentQuizQ] !== null;
+const selectedIdx = quizAnswers[currentQuizQ];
+
+let html = `<div class="question-card">
+<div class="question-number">Question ${currentQuizQ + 1} of ${quizData.length}</div>
+<div class="question-text">${q.q}</div>
+<div class="options-list">`;
+
+q.options.forEach((opt, i) => {
+let cls = 'option-btn';
+if (answered) {
+cls += ' disabled';
+if (i === q.correct) cls += ' correct';
+else if (i === selectedIdx && i !== q.correct) cls += ' wrong';
+}
+const letter = String.fromCharCode(65 + i);
+html += `<button class="${cls}" onclick="answerQuiz(${i})">
+<span class="letter">${letter}</span>
+<span>${opt}</span>
+</button>`;
+});
+
+html += `</div>`;
+
+if (answered) {
+const isCorrect = selectedIdx === q.correct;
+html += `<div class="explanation-box ${isCorrect ? 'correct-exp' : 'wrong-exp'}">
+<strong>${isCorrect ? '✅ Correct!' : '❌ Incorrect.'}</strong><br>
+${q.explain}
+</div>`;
+}
+
+html += `</div>`;
+container.innerHTML = html;
+
+updateQuizUI();
+}
+
+function answerQuiz(idx) {
+if (quizAnswers[currentQuizQ] !== null) return;
+quizAnswers[currentQuizQ] = idx;
+
+const q = quizData[currentQuizQ];
+if (idx === q.correct) {
+quizCorrectCount++;
+quizStreak++;
+if (quizStreak > quizMaxStreak) quizMaxStreak = quizStreak;
+} else {
+quizWrongCount++;
+quizStreak = 0;
+}
+
+saveState();
+renderQuiz();
+
+// Check completion
+const answeredCount = quizAnswers.filter(a => a !== null).length;
+if (answeredCount === quizData.length) {
+setTimeout(showScoreModal, 800);
+}
+}
+
+function navigateQuiz(dir) {
+currentQuizQ += dir;
+if (currentQuizQ < 0) currentQuizQ = 0;
+if (currentQuizQ >= quizData.length) currentQuizQ = quizData.length - 1;
+saveState();
+renderQuiz();
+}
+
+function updateQuizUI() {
+const answeredCount = quizAnswers.filter(a => a !== null).length;
+const pct = Math.round((answeredCount / quizData.length) * 100);
+document.getElementById('quizProgressBar').style.width = pct + '%';
+document.getElementById('quizCurrentQ').textContent = currentQuizQ + 1;
+document.getElementById('quizCorrect').textContent = quizCorrectCount;
+document.getElementById('quizWrong').textContent = quizWrongCount;
+document.getElementById('quizStreak').textContent = quizStreak;
+
+document.getElementById('prevBtn').disabled = currentQuizQ === 0;
+document.getElementById('nextBtn').disabled = currentQuizQ === quizData.length - 1;
+
+// Global stats
+document.getElementById('globalScore').textContent = quizCorrectCount + '/' + quizData.length;
+document.getElementById('globalStreak').textContent = quizMaxStreak;
+document.getElementById('globalProgress').textContent = pct + '%';
+}
+
+function showScoreModal() {
+const pct = Math.round((quizCorrectCount / quizData.length) * 100);
+document.getElementById('modalScore').textContent = pct + '%';
+let msg = '';
+if (pct >= 90) msg = '🏆 Outstanding! You\'re exam-ready!';
+else if (pct >= 75) msg = '👏 Great job! Review the ones you missed.';
+else if (pct >= 60) msg = '📚 Good effort! Keep reviewing the key concepts.';
+else msg = '💪 Keep studying! Focus on the high-yield topics.';
+document.getElementById('modalMessage').textContent = msg;
+document.getElementById('scoreModal').classList.add('show');
+}
+
+function resetQuiz() {
+quizAnswers = new Array(quizData.length).fill(null);
+quizCorrectCount = 0;
+quizWrongCount = 0;
+quizStreak = 0;
+currentQuizQ = 0;
+saveState();
+document.getElementById('scoreModal').classList.remove('show');
+renderQuiz();
+}
+
+// ========================= FLASHCARDS =========================
+function renderFlashcards() {
+const grid = document.getElementById('flashcardGrid');
+grid.innerHTML = flashcardData.map((fc, i) => `
+<div class="flashcard-wrapper">
+<div class="flashcard" onclick="this.classList.toggle('flipped')">
+<div class="flashcard-face flashcard-front">
+<div class="fc-icon">${fc.icon}</div>
+<h3>${fc.front}</h3>
+<div class="flip-hint">👆 Click to flip</div>
+</div>
+<div class="flashcard-face flashcard-back">
+<p>${fc.back}</p>
+<div class="fc-tag">${fc.tag}</div>
+</div>
+</div>
+</div>
+`).join('');
+}
+
+// ========================= CLINICAL CASES =========================
+function renderCases() {
+const container = document.getElementById('casesContainer');
+container.innerHTML = casesData.map((c, ci) => `
+<div class="case-card">
+<div class="case-header">
+<div class="case-num">${ci + 1}</div>
+<h3>${c.title}</h3>
+</div>
+<div class="case-body">
+<div class="case-vignette">${c.vignette}</div>
+${c.questions.map((cq, qi) => `
+<div class="case-question">
+<h4>Q${qi + 1}: ${cq.q}</h4>
+<button class="reveal-btn" onclick="toggleCaseAnswer(this)">🔍 Reveal Answer</button>
+<div class="case-answer">${cq.a}</div>
+</div>
+`).join('')}
+</div>
+</div>
+`).join('');
+}
+
+function toggleCaseAnswer(btn) {
+const answer = btn.nextElementSibling;
+answer.classList.toggle('show');
+btn.textContent = answer.classList.contains('show') ? '🔒 Hide Answer' : '🔍 Reveal Answer';
+}
+
+// ========================= MNEMONICS =========================
+function renderMnemonics() {
+const container = document.getElementById('mnemonicsContainer');
+container.innerHTML = mnemonicsData.map((m, i) => `
+<div class="mnemonic-card" onclick="this.classList.toggle('expanded')">
+<div class="mnemonic-header">
+<span class="emoji">${m.emoji}</span>
+<h3>${m.title}</h3>
+<span class="mnemonic-word">${m.word}</span>
+</div>
+<div class="mnemonic-body">
+<ul class="mnemonic-list">
+${m.items.map(item => `
+<li>
+<span class="letter">${item.letter}</span>
+<span>${item.text}</span>
+</li>
+`).join('')}
+</ul>
+</div>
+</div>
+`).join('');
+}
+
+// ========================= SEARCH =========================
+function initSearch() {
+const input = document.getElementById('searchInput');
+input.addEventListener('input', (e) => {
+const term = e.target.value.toLowerCase().trim();
+if (!term) {
+document.querySelectorAll('.summary-card, .sign-card, .flashcard-wrapper, .case-card, .patho-item, .mnemonic-card, .treatment-card, .question-card').forEach(el => {
+el.style.display = '';
+el.style.opacity = '1';
+});
+return;
+}
+
+// Search across visible elements
+const searchables = document.querySelectorAll('.summary-card, .sign-card, .flashcard-wrapper, .case-card, .patho-item, .mnemonic-card, .treatment-card');
+searchables.forEach(el => {
+const text = el.textContent.toLowerCase();
+if (text.includes(term)) {
+el.style.display = '';
+el.style.opacity = '1';
+} else {
+el.style.opacity = '0.2';
+}
+});
+});
+}
+
+// ========================= INIT =========================
+function init() {
+loadState();
+initTabs();
+renderQuiz();
+renderFlashcards();
+renderCases();
+renderMnemonics();
+initSearch();
+updateQuizUI();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

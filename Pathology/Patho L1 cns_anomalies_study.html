@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CNS Congenital Anomalies & Hydrocephalus — Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0d14;
+  --surface: #111520;
+  --surface2: #161b2a;
+  --border: rgba(100,130,255,0.12);
+  --accent: #5b7fff;
+  --accent2: #a78bfa;
+  --accent3: #34d399;
+  --accent4: #f59e0b;
+  --accent5: #f87171;
+  --text: #e8eaf6;
+  --text2: #9ba3c7;
+  --text3: #5c6489;
+  --glow: rgba(91,127,255,0.18);
+  --card-r: 16px;
+  --transition: 0.22s cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── Background ── */
+.bg-canvas{
+  position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+}
+.orb{
+  position:absolute;border-radius:50%;filter:blur(80px);opacity:.35;
+  animation:drift 18s ease-in-out infinite alternate;
+}
+.orb1{width:600px;height:600px;background:radial-gradient(circle,#1a3fff,transparent);top:-200px;left:-200px;animation-delay:0s}
+.orb2{width:400px;height:400px;background:radial-gradient(circle,#7c3aed,transparent);bottom:-100px;right:-100px;animation-delay:-6s}
+.orb3{width:300px;height:300px;background:radial-gradient(circle,#059669,transparent);top:40%;right:20%;animation-delay:-12s}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(40px,30px) scale(1.08)}}
+
+/* ── Layout ── */
+#app{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 20px 60px}
+
+/* ── Header ── */
+.header{
+  text-align:center;padding:56px 20px 32px;
+}
+.header-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(91,127,255,.12);border:1px solid rgba(91,127,255,.25);
+  border-radius:100px;padding:6px 18px;font-size:.8rem;font-family:'Syne',sans-serif;
+  color:var(--accent);letter-spacing:.06em;text-transform:uppercase;margin-bottom:20px;
+}
+.header h1{
+  font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:800;
+  background:linear-gradient(135deg,#fff 0%,var(--accent2) 50%,var(--accent) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  line-height:1.1;margin-bottom:12px;
+}
+.header p{color:var(--text2);font-size:1rem;max-width:560px;margin:0 auto 28px}
+.stats-bar{
+  display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:8px;
+}
+.stat-pill{
+  background:var(--surface);border:1px solid var(--border);border-radius:100px;
+  padding:8px 18px;font-size:.82rem;color:var(--text2);display:flex;align-items:center;gap:8px;
+}
+.stat-pill strong{color:var(--text);font-weight:600}
+.stat-pill .dot{width:8px;height:8px;border-radius:50%}
+.dot-blue{background:var(--accent)}
+.dot-purple{background:var(--accent2)}
+.dot-green{background:var(--accent3)}
+
+/* ── Search ── */
+.search-wrap{
+  max-width:460px;margin:0 auto 32px;position:relative;
+}
+.search-wrap input{
+  width:100%;background:var(--surface);border:1px solid var(--border);border-radius:100px;
+  padding:12px 20px 12px 46px;color:var(--text);font-size:.9rem;font-family:'DM Sans',sans-serif;
+  transition:var(--transition);outline:none;
+}
+.search-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
+.search-wrap input::placeholder{color:var(--text3)}
+.search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:1rem;pointer-events:none}
+.search-results{
+  display:none;position:absolute;top:calc(100% + 8px);left:0;right:0;
+  background:var(--surface2);border:1px solid var(--border);border-radius:16px;
+  max-height:320px;overflow-y:auto;z-index:100;padding:8px;
+}
+.search-result-item{
+  padding:10px 14px;border-radius:10px;cursor:pointer;font-size:.85rem;color:var(--text2);
+  transition:var(--transition);
+}
+.search-result-item:hover{background:var(--surface);color:var(--text)}
+.search-result-item .sr-tag{font-size:.72rem;color:var(--accent);font-family:'Syne',sans-serif;letter-spacing:.04em;margin-bottom:2px}
+
+/* ── Tabs ── */
+.tab-nav{
+  display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 4px 16px;
+  justify-content:center;flex-wrap:wrap;
+}
+.tab-nav::-webkit-scrollbar{display:none}
+.tab-btn{
+  flex-shrink:0;background:var(--surface);border:1px solid var(--border);
+  border-radius:100px;padding:8px 18px;font-size:.82rem;font-family:'Syne',sans-serif;
+  font-weight:600;color:var(--text2);cursor:pointer;transition:var(--transition);
+  letter-spacing:.03em;white-space:nowrap;
+}
+.tab-btn:hover{color:var(--text);border-color:var(--accent);background:rgba(91,127,255,.08)}
+.tab-btn.active{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border-color:transparent;color:#fff;
+  box-shadow:0 4px 18px rgba(91,127,255,.35);
+}
+
+/* ── Tab Panels ── */
+.tab-panel{display:none;animation:fadeUp .3s ease}
+.tab-panel.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Cards ── */
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--card-r);
+  padding:24px;transition:var(--transition);
+}
+.card:hover{border-color:rgba(91,127,255,.25);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.section-title{
+  font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:700;
+  color:var(--text);margin-bottom:20px;display:flex;align-items:center;gap:10px;
+}
+.section-title .icon{font-size:1.3rem}
+.tag{
+  display:inline-block;border-radius:100px;padding:3px 12px;font-size:.72rem;
+  font-family:'Syne',sans-serif;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+}
+.tag-high{background:rgba(245,158,11,.15);color:var(--accent4);border:1px solid rgba(245,158,11,.25)}
+.tag-exam{background:rgba(248,113,113,.15);color:var(--accent5);border:1px solid rgba(248,113,113,.25)}
+.tag-pearl{background:rgba(52,211,153,.15);color:var(--accent3);border:1px solid rgba(52,211,153,.25)}
+.tag-blue{background:rgba(91,127,255,.12);color:var(--accent);border:1px solid rgba(91,127,255,.2)}
+
+/* ── OVERVIEW ── */
+.overview-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:28px;
+}
+.overview-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--card-r);
+  padding:22px;position:relative;overflow:hidden;transition:var(--transition);
+}
+.overview-card::before{
+  content:'';position:absolute;inset:0;border-radius:var(--card-r);
+  background:linear-gradient(135deg,var(--card-accent-a,transparent) 0%,transparent 60%);
+  opacity:.08;
+}
+.overview-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.overview-card .oc-icon{font-size:2rem;margin-bottom:12px}
+.overview-card h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:8px;color:var(--text)}
+.overview-card p{font-size:.85rem;color:var(--text2);line-height:1.6}
+.overview-card .tags{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px}
+
+.key-facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:28px}
+.fact-item{
+  background:var(--surface2);border-left:3px solid var(--accent);border-radius:8px;
+  padding:14px 16px;
+}
+.fact-item .fl{font-size:.72rem;color:var(--accent);font-family:'Syne',sans-serif;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px}
+.fact-item p{font-size:.85rem;color:var(--text2);line-height:1.5}
+
+/* flow chart */
+.flowchart{margin:20px 0}
+.flow-steps{display:flex;flex-direction:column;gap:0}
+.flow-step{
+  display:flex;align-items:flex-start;gap:14px;padding:14px 18px;
+  background:var(--surface2);border-radius:10px;position:relative;
+}
+.flow-step+.flow-step{margin-top:4px}
+.flow-step::after{
+  content:'↓';position:absolute;bottom:-16px;left:28px;
+  color:var(--accent);font-size:1rem;z-index:1;
+}
+.flow-step:last-child::after{display:none}
+.flow-num{
+  width:28px;height:28px;border-radius:50%;background:var(--accent);
+  color:#fff;font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.flow-text{font-size:.85rem;color:var(--text2);line-height:1.5;padding-top:4px}
+.flow-text strong{color:var(--text)}
+
+/* ── QUIZ ── */
+.quiz-header{
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px;
+}
+.quiz-meta{display:flex;gap:16px;flex-wrap:wrap}
+.quiz-meta-item{
+  background:var(--surface2);border-radius:10px;padding:10px 16px;text-align:center;
+}
+.quiz-meta-item .val{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--text)}
+.quiz-meta-item .lbl{font-size:.72rem;color:var(--text3);letter-spacing:.04em;text-transform:uppercase}
+.progress-bar{
+  height:6px;background:var(--surface2);border-radius:100px;margin-bottom:28px;overflow:hidden;
+}
+.progress-fill{
+  height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));
+  border-radius:100px;transition:width .5s ease;
+}
+.q-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--card-r);padding:28px;margin-bottom:20px}
+.q-num{font-size:.75rem;color:var(--accent);font-family:'Syne',sans-serif;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}
+.q-text{font-size:1rem;font-weight:500;color:var(--text);line-height:1.65;margin-bottom:22px}
+.options{display:flex;flex-direction:column;gap:10px}
+.option-btn{
+  background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+  padding:13px 18px;text-align:left;color:var(--text2);font-size:.9rem;font-family:'DM Sans',sans-serif;
+  cursor:pointer;transition:var(--transition);display:flex;align-items:center;gap:12px;
+}
+.option-btn:hover:not(:disabled){
+  border-color:var(--accent);color:var(--text);background:rgba(91,127,255,.07);
+}
+.option-btn.correct{background:rgba(52,211,153,.1);border-color:var(--accent3);color:var(--accent3);animation:pulse-green .4s ease}
+.option-btn.wrong{background:rgba(248,113,113,.1);border-color:var(--accent5);color:var(--accent5);animation:shake .35s ease}
+.option-btn .opt-letter{
+  width:26px;height:26px;border-radius:50%;background:var(--surface);border:1px solid var(--border);
+  font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:var(--transition);
+}
+@keyframes pulse-green{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.explanation{
+  margin-top:16px;background:rgba(91,127,255,.07);border:1px solid rgba(91,127,255,.18);
+  border-radius:10px;padding:16px;font-size:.87rem;color:var(--text2);line-height:1.6;
+  display:none;
+}
+.explanation.show{display:block;animation:fadeUp .25s ease}
+.explanation strong{color:var(--accent3)}
+.q-nav{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.btn{
+  border:none;border-radius:100px;padding:10px 22px;font-size:.87rem;font-family:'Syne',sans-serif;
+  font-weight:600;cursor:pointer;transition:var(--transition);
+}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(91,127,255,.4)}
+.btn-ghost{background:var(--surface2);border:1px solid var(--border);color:var(--text2)}
+.btn-ghost:hover{color:var(--text);border-color:var(--accent)}
+.quiz-complete{
+  text-align:center;padding:48px 24px;
+}
+.quiz-complete .big-score{
+  font-family:'DM Serif Display',serif;font-size:5rem;
+  background:linear-gradient(135deg,var(--accent3),var(--accent));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:12px;
+}
+.quiz-complete p{color:var(--text2);font-size:1.05rem;margin-bottom:28px}
+
+/* ── FLASHCARDS ── */
+.flashcard-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;
+}
+.flashcard-wrap{height:200px;cursor:pointer;perspective:1000px}
+.flashcard{
+  width:100%;height:100%;transition:transform .55s cubic-bezier(.4,0,.2,1);
+  transform-style:preserve-3d;position:relative;
+}
+.flashcard-wrap.flipped .flashcard{transform:rotateY(180deg)}
+.flashcard-face{
+  position:absolute;inset:0;backface-visibility:hidden;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--card-r);
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  padding:22px;text-align:center;
+}
+.flashcard-face.back{
+  transform:rotateY(180deg);
+  background:var(--surface2);border-color:rgba(167,139,250,.25);
+}
+.flashcard-face .fc-q{font-size:.9rem;font-weight:500;color:var(--text);line-height:1.55}
+.flashcard-face .fc-a{font-size:.87rem;color:var(--text2);line-height:1.55}
+.flashcard-face .fc-hint{font-size:.72rem;color:var(--text3);margin-top:10px}
+.flashcard-face .fc-icon{font-size:1.6rem;margin-bottom:12px}
+.fc-progress{
+  display:flex;justify-content:center;gap:8px;margin:20px 0 8px;flex-wrap:wrap;
+}
+.fc-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--surface2);
+  border:1px solid var(--border);transition:var(--transition);cursor:pointer;
+}
+.fc-dot.seen{background:var(--accent2)}
+.fc-dot.current{background:var(--accent);transform:scale(1.4)}
+
+/* ── CLINICAL CASES ── */
+.case-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--card-r);
+  margin-bottom:20px;overflow:hidden;
+}
+.case-header{
+  padding:20px 24px;background:var(--surface2);border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;gap:14px;
+}
+.case-num{
+  font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;color:var(--accent);
+  letter-spacing:.06em;text-transform:uppercase;flex-shrink:0;padding-top:2px;
+}
+.case-vignette{font-size:.9rem;color:var(--text);line-height:1.7}
+.case-body{padding:24px}
+.case-question{
+  background:var(--surface2);border-radius:10px;padding:16px;margin-bottom:12px;
+}
+.case-question p{font-size:.87rem;color:var(--text2);line-height:1.55;margin-bottom:12px}
+.case-question .q-label{font-size:.72rem;color:var(--accent4);font-family:'Syne',sans-serif;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px}
+.reveal-btn{
+  background:rgba(91,127,255,.1);border:1px solid rgba(91,127,255,.2);
+  border-radius:8px;padding:8px 16px;font-size:.82rem;font-family:'Syne',sans-serif;
+  font-weight:600;color:var(--accent);cursor:pointer;transition:var(--transition);
+}
+.reveal-btn:hover{background:rgba(91,127,255,.18)}
+.case-answer{
+  margin-top:12px;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.18);
+  border-radius:8px;padding:14px;font-size:.85rem;color:var(--text2);line-height:1.6;
+  display:none;animation:fadeUp .25s ease;
+}
+.case-answer.show{display:block}
+.case-answer strong{color:var(--accent3)}
+
+/* ── PATHOPHYSIOLOGY ── */
+.patho-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:28px;
+}
+.patho-item{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:18px;cursor:pointer;transition:var(--transition);
+}
+.patho-item:hover{border-color:var(--accent);transform:translateY(-2px)}
+.patho-item.open{border-color:var(--accent);background:rgba(91,127,255,.05)}
+.patho-item .pi-title{font-family:'Syne',sans-serif;font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.patho-item .pi-sub{font-size:.8rem;color:var(--text3)}
+.patho-item .pi-detail{
+  font-size:.84rem;color:var(--text2);line-height:1.6;margin-top:12px;
+  border-top:1px solid var(--border);padding-top:12px;display:none;
+}
+.patho-item.open .pi-detail{display:block;animation:fadeUp .2s ease}
+.patho-item .pi-tag{margin-left:auto}
+
+/* ── DIAGNOSIS ── */
+.diag-algo{margin-bottom:28px}
+.algo-step{
+  display:grid;grid-template-columns:36px 1fr;gap:14px;padding:14px 0;
+  border-left:2px solid var(--border);padding-left:20px;margin-left:18px;
+  position:relative;
+}
+.algo-step::before{
+  content:'';position:absolute;left:-7px;top:18px;
+  width:12px;height:12px;border-radius:50%;background:var(--accent);
+  border:2px solid var(--bg);
+}
+.algo-step:last-child{border-left-color:transparent}
+.algo-step .as-title{font-family:'Syne',sans-serif;font-size:.92rem;font-weight:700;color:var(--text);margin-bottom:4px}
+.algo-step .as-desc{font-size:.84rem;color:var(--text2);line-height:1.55}
+.algo-step .as-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.badge{
+  background:var(--surface2);border:1px solid var(--border);border-radius:100px;
+  padding:4px 12px;font-size:.75rem;color:var(--text2);
+}
+.badge-blue{background:rgba(91,127,255,.1);border-color:rgba(91,127,255,.2);color:var(--accent)}
+.badge-green{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.2);color:var(--accent3)}
+.badge-amber{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.2);color:var(--accent4)}
+.badge-red{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.2);color:var(--accent5)}
+
+.compare-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.compare-table th{
+  background:var(--surface2);color:var(--text);font-family:'Syne',sans-serif;
+  font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  padding:12px 16px;text-align:left;border-bottom:1px solid var(--border);
+}
+.compare-table td{
+  padding:12px 16px;color:var(--text2);border-bottom:1px solid rgba(255,255,255,.04);
+  vertical-align:top;line-height:1.55;
+}
+.compare-table tr:hover td{background:rgba(91,127,255,.03)}
+.compare-table td:first-child{color:var(--text);font-weight:500}
+.table-wrap{overflow-x:auto;border-radius:var(--card-r);border:1px solid var(--border);margin-bottom:24px}
+
+/* ── TREATMENT ── */
+.treatment-section{margin-bottom:28px}
+.tx-urgency-header{
+  display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:12px 12px 0 0;
+  font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;
+}
+.tx-urgent{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.2);color:var(--accent5)}
+.tx-secondary{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.18);color:var(--accent4)}
+.tx-supportive{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.15);color:var(--accent3)}
+.tx-list{
+  background:var(--surface);border:1px solid var(--border);border-top:none;
+  border-radius:0 0 12px 12px;padding:16px;
+}
+.tx-item{
+  display:flex;align-items:flex-start;gap:12px;padding:10px 0;
+  border-bottom:1px solid rgba(255,255,255,.04);
+}
+.tx-item:last-child{border-bottom:none}
+.tx-item .ti-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
+.tx-item .ti-body{}
+.tx-item .ti-name{font-size:.88rem;font-weight:500;color:var(--text)}
+.tx-item .ti-note{font-size:.8rem;color:var(--text3);margin-top:2px}
+
+/* ── MNEMONICS ── */
+.mnemonics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
+.mnemonic-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--card-r);
+  padding:24px;cursor:pointer;transition:var(--transition);
+}
+.mnemonic-card:hover{border-color:var(--accent2);transform:translateY(-2px)}
+.mnemonic-card.open .mc-list{display:block}
+.mc-title{font-family:'DM Serif Display',serif;font-style:italic;font-size:1.2rem;color:var(--accent2);margin-bottom:4px}
+.mc-acronym{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  letter-spacing:.06em;margin-bottom:14px;
+}
+.mc-desc{font-size:.83rem;color:var(--text3);margin-bottom:14px}
+.mc-list{display:none;animation:fadeUp .2s ease}
+.mc-list-item{
+  display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.85rem;
+}
+.mc-list-item:last-child{border-bottom:none}
+.mc-list-item .letter{
+  font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;
+  color:var(--accent2);min-width:22px;
+}
+.mc-list-item .meaning{color:var(--text2);line-height:1.5}
+.mc-list-item .meaning strong{color:var(--text)}
+
+/* ── VIVA ── */
+.viva-list{display:flex;flex-direction:column;gap:12px}
+.viva-item{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;
+}
+.viva-q{
+  padding:16px 20px;display:flex;justify-content:space-between;align-items:center;
+  cursor:pointer;transition:var(--transition);
+}
+.viva-q:hover{background:rgba(91,127,255,.05)}
+.viva-q p{font-size:.9rem;font-weight:500;color:var(--text);line-height:1.5}
+.viva-q .vq-num{
+  font-family:'Syne',sans-serif;font-size:.72rem;color:var(--accent);margin-right:12px;flex-shrink:0;
+}
+.viva-q .chevron{color:var(--text3);transition:var(--transition);flex-shrink:0}
+.viva-item.open .chevron{transform:rotate(90deg)}
+.viva-a{
+  border-top:1px solid var(--border);padding:16px 20px;
+  font-size:.87rem;color:var(--text2);line-height:1.65;display:none;
+}
+.viva-item.open .viva-a{display:block;animation:fadeUp .2s ease}
+
+/* ── responsive ── */
+@media(max-width:600px){
+  .quiz-meta{gap:8px}
+  .flashcard-grid{grid-template-columns:1fr 1fr}
+  .tab-btn{padding:7px 14px;font-size:.78rem}
+}
+
+/* scrollbar */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:3px}
+
+.empty-state{text-align:center;padding:40px;color:var(--text3);font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="bg-canvas">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<div id="app">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-badge">🧠 Pathology & Embryology</div>
+    <h1>CNS Congenital Anomalies<br>& Hydrocephalus</h1>
+    <p>Mansoura University · Interactive Study Platform · USMLE-Style</p>
+    <div class="stats-bar">
+      <div class="stat-pill"><span class="dot dot-blue"></span>Quiz Score: <strong id="stat-score">0%</strong></div>
+      <div class="stat-pill"><span class="dot dot-purple"></span>Cards Seen: <strong id="stat-cards">0/22</strong></div>
+      <div class="stat-pill"><span class="dot dot-green"></span>Streak: <strong id="stat-streak">🔥 0</strong></div>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search concepts, conditions, mechanisms…">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+
+  <!-- Tabs -->
+  <nav class="tab-nav" id="tabNav">
+    <button class="tab-btn active" data-tab="overview">📋 Overview</button>
+    <button class="tab-btn" data-tab="quiz">🎯 Quiz</button>
+    <button class="tab-btn" data-tab="flashcards">🃏 Flashcards</button>
+    <button class="tab-btn" data-tab="cases">🏥 Clinical Cases</button>
+    <button class="tab-btn" data-tab="patho">🔬 Pathophysiology</button>
+    <button class="tab-btn" data-tab="diagnosis">🩻 Diagnosis</button>
+    <button class="tab-btn" data-tab="treatment">💊 Treatment</button>
+    <button class="tab-btn" data-tab="mnemonics">✨ Mnemonics</button>
+    <button class="tab-btn" data-tab="viva">🗣️ Viva</button>
+  </nav>
+
+  <!-- ====== OVERVIEW ====== -->
+  <div class="tab-panel active" id="tab-overview">
+    <div class="section-title"><span class="icon">🧠</span>Key Conditions at a Glance</div>
+    <div class="overview-grid">
+      <div class="overview-card" style="--card-accent-a:#5b7fff">
+        <div class="oc-icon">🌀</div>
+        <h3>Neural Tube Defects</h3>
+        <p>Failure of neural tube closure by <strong>3rd gestational week</strong>. Spectrum: anencephaly → spina bifida occulta.</p>
+        <div class="tags"><span class="tag tag-high">High Yield</span><span class="tag tag-exam">Exam Fav</span></div>
+      </div>
+      <div class="overview-card" style="--card-accent-a:#a78bfa">
+        <div class="oc-icon">🔵</div>
+        <h3>Forebrain Abnormalities</h3>
+        <p>Holoprosencephaly (undivided prosencephalon), polymicrogyria, absent corpus callosum.</p>
+        <div class="tags"><span class="tag tag-pearl">Clinical Pearl</span></div>
+      </div>
+      <div class="overview-card" style="--card-accent-a:#34d399">
+        <div class="oc-icon">🧩</div>
+        <h3>Posterior Fossa Malformations</h3>
+        <p>Arnold-Chiari (small fossa, herniation) vs Dandy-Walker (absent vermis, 4th ventricle cyst).</p>
+        <div class="tags"><span class="tag tag-high">High Yield</span><span class="tag tag-exam">Exam Fav</span></div>
+      </div>
+      <div class="overview-card" style="--card-accent-a:#f59e0b">
+        <div class="oc-icon">💧</div>
+        <h3>Hydrocephalus</h3>
+        <p>↑ CSF volume + ventricular dilation. Three types: communicating, non-communicating, ex vacuo.</p>
+        <div class="tags"><span class="tag tag-high">High Yield</span><span class="tag tag-exam">Exam Fav</span></div>
+      </div>
+      <div class="overview-card" style="--card-accent-a:#f87171">
+        <div class="oc-icon">🩺</div>
+        <h3>Spina Bifida Spectrum</h3>
+        <p>Occulta (hair tuft) → Meningocele (CSF+meninges) → Myelomeningocele (spinal cord involved).</p>
+        <div class="tags"><span class="tag tag-pearl">Clinical Pearl</span></div>
+      </div>
+      <div class="overview-card" style="--card-accent-a:#06b6d4">
+        <div class="oc-icon">⚠️</div>
+        <h3>Etiology — TORCH</h3>
+        <p>Infections in 1st trimester → microcephaly. Toxo, Rubella, CMV, Treponema. Folate deficiency → NTDs.</p>
+        <div class="tags"><span class="tag tag-exam">Exam Fav</span></div>
+      </div>
+    </div>
+
+    <div class="section-title"><span class="icon">⚡</span>High-Yield Facts</div>
+    <div class="key-facts">
+      <div class="fact-item"><div class="fl">Neural Tube</div><p>Closes by <strong>3rd gestational week</strong>. Failure → NTDs</p></div>
+      <div class="fact-item"><div class="fl">Spina Bifida Occulta</div><p>Bony lumbo-sacral defect + <strong>tuft of hair</strong>. No herniation.</p></div>
+      <div class="fact-item"><div class="fl">Holoprosencephaly</div><p>Severest form → <strong>cyclopia</strong> (single midline eye)</p></div>
+      <div class="fact-item"><div class="fl">Arnold-Chiari Triad</div><p>Small fossa + myelomeningocele + <strong>obstructive hydrocephalus</strong></p></div>
+      <div class="fact-item"><div class="fl">Dandy-Walker</div><p>Absent cerebellar <strong>vermis</strong> → 4th ventricle cyst dilation</p></div>
+      <div class="fact-item"><div class="fl">Hydro — Newborn</div><p>Open sutures → <strong>skull enlargement</strong> (head circumference ↑)</p></div>
+      <div class="fact-item"><div class="fl">Hydro — Adult</div><p>Fused skull → <strong>dementia + wide gait + incontinence</strong></p></div>
+      <div class="fact-item"><div class="fl">Ex Vacuo</div><p>Alzheimer's + <strong>Tau protein misfolding</strong> → atrophy → compensatory CSF dilation</p></div>
+      <div class="fact-item"><div class="fl">Most Common NCC Cause (Newborn)</div><p>Stricture of <strong>Aqueduct of Sylvius</strong></p></div>
+      <div class="fact-item"><div class="fl">Absent Corpus Callosum</div><p>Rare; exclusively affects <strong>females</strong>. Seizures + retinal abnormalities.</p></div>
+      <div class="fact-item"><div class="fl">Polymicrogyria</div><p>Excessive folding → multiple small gyri → <strong>thick cortex</strong></p></div>
+      <div class="fact-item"><div class="fl">Communicating Hydrocephalus</div><p>Choroid plexus papilloma (↑production) OR postmeningitic <strong>arachnoid granulation scarring</strong> (↓absorption)</p></div>
+    </div>
+
+    <div class="section-title"><span class="icon">🔄</span>Pathogenesis of Obstructive Hydrocephalus</div>
+    <div class="flowchart">
+      <div class="flow-steps">
+        <div class="flow-step"><div class="flow-num">1</div><div class="flow-text"><strong>Stricture / Tumor</strong> — Aqueduct of Sylvius or 4th ventricle mass (e.g. ependymoma)</div></div>
+        <div class="flow-step"><div class="flow-num">2</div><div class="flow-text"><strong>Internal blockage</strong> — CSF produced by choroid plexus cannot reach subarachnoid space</div></div>
+        <div class="flow-step"><div class="flow-num">3</div><div class="flow-text"><strong>CSF backs up</strong> — Pressure builds behind the obstruction</div></div>
+        <div class="flow-step"><div class="flow-num">4</div><div class="flow-text"><strong>Ventricular dilation</strong> — Lateral and 3rd ventricles expand</div></div>
+        <div class="flow-step"><div class="flow-num">5A</div><div class="flow-text"><strong>Newborn:</strong> Unfused sutures → skull expands → enlarged head circumference</div></div>
+        <div class="flow-step"><div class="flow-num">5B</div><div class="flow-text"><strong>Adult:</strong> Fused skull → brain compressed → dementia, gait, incontinence, death if untreated</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== QUIZ ====== -->
+  <div class="tab-panel" id="tab-quiz">
+    <div class="quiz-header">
+      <div class="section-title" style="margin:0"><span class="icon">🎯</span>Quiz Mode — 25 Questions</div>
+      <div class="quiz-meta">
+        <div class="quiz-meta-item"><div class="val" id="qScore">0</div><div class="lbl">Score</div></div>
+        <div class="quiz-meta-item"><div class="val" id="qCorrect">0</div><div class="lbl">Correct</div></div>
+        <div class="quiz-meta-item"><div class="val" id="qStreak">0🔥</div><div class="lbl">Streak</div></div>
+        <div class="quiz-meta-item"><div class="val" id="qNum">1/25</div><div class="lbl">Question</div></div>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="qProgress" style="width:4%"></div></div>
+    <div id="quizContainer"></div>
+  </div>
+
+  <!-- ====== FLASHCARDS ====== -->
+  <div class="tab-panel" id="tab-flashcards">
+    <div class="section-title"><span class="icon">🃏</span>Flashcards — Tap to Flip</div>
+    <div class="fc-progress" id="fcProgress"></div>
+    <div class="flashcard-grid" id="flashcardGrid"></div>
+  </div>
+
+  <!-- ====== CLINICAL CASES ====== -->
+  <div class="tab-panel" id="tab-cases">
+    <div class="section-title"><span class="icon">🏥</span>Clinical Cases — Exam Vignettes</div>
+    <div id="casesContainer"></div>
+  </div>
+
+  <!-- ====== PATHOPHYSIOLOGY ====== -->
+  <div class="tab-panel" id="tab-patho">
+    <div class="section-title"><span class="icon">🔬</span>Pathophysiology — Click to Explore</div>
+    <div class="patho-grid" id="pathoGrid"></div>
+
+    <div class="section-title" style="margin-top:32px"><span class="icon">🔄</span>Hydrocephalus Ex Vacuo — Alzheimer's Model</div>
+    <div class="flowchart">
+      <div class="flow-steps">
+        <div class="flow-step"><div class="flow-num">1</div><div class="flow-text"><strong>Tau protein misfolding</strong> — Aberrant tau accumulates in neurons (Alzheimer's disease)</div></div>
+        <div class="flow-step"><div class="flow-num">2</div><div class="flow-text"><strong>Cellular atrophy</strong> — Neurons die; brain mass decreases progressively</div></div>
+        <div class="flow-step"><div class="flow-num">3</div><div class="flow-text"><strong>Excess cranial space</strong> — Ventricles and sulci appear to enlarge on imaging</div></div>
+        <div class="flow-step"><div class="flow-num">4</div><div class="flow-text"><strong>Compensatory CSF fill</strong> — Fluid passively fills vacated space</div></div>
+        <div class="flow-step"><div class="flow-num">5</div><div class="flow-text"><strong>Normal CSF pressure</strong> — This is NOT true hydrocephalus; no obstruction or overproduction</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== DIAGNOSIS ====== -->
+  <div class="tab-panel" id="tab-diagnosis">
+    <div class="section-title"><span class="icon">🩻</span>Diagnostic Approach</div>
+    <div class="diag-algo" id="diagAlgo"></div>
+
+    <div class="section-title" style="margin-top:32px"><span class="icon">📊</span>Comparison Tables</div>
+
+    <div class="table-wrap">
+      <table class="compare-table">
+        <thead><tr><th>Feature</th><th>Meningocele</th><th>Encephalocele</th><th>Myelomeningocele</th></tr></thead>
+        <tbody>
+          <tr><td>Contents</td><td>Meninges + CSF only</td><td>Meninges + CSF + Brain tissue</td><td>Meninges + CSF + Spinal cord</td></tr>
+          <tr><td>Location</td><td>Spine or occipital</td><td>Skull defect (occipital common)</td><td>Lumbar spine</td></tr>
+          <tr><td>Key Assoc.</td><td>—</td><td>May be incompatible with life</td><td>Arnold-Chiari malformation</td></tr>
+          <tr><td>Neurological Deficit</td><td>Minimal/none</td><td>Severe if brain involved</td><td>Severe (paraplegia, bladder)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-wrap">
+      <table class="compare-table">
+        <thead><tr><th>Feature</th><th>Arnold-Chiari</th><th>Dandy-Walker</th></tr></thead>
+        <tbody>
+          <tr><td>Mechanism</td><td>Small posterior fossa → herniation downward</td><td>Absent cerebellar vermis → 4th ventricle cyst</td></tr>
+          <tr><td>Posterior Fossa</td><td>Small</td><td>Enlarged (cystic)</td></tr>
+          <tr><td>Cerebellum</td><td>Displaced downward through foramen magnum</td><td>Hemispheres small, superiorly displaced</td></tr>
+          <tr><td>Vermis</td><td>Present</td><td>Absent (partial or complete)</td></tr>
+          <tr><td>4th Ventricle</td><td>Compressed/displaced</td><td>Massively dilated (cyst-like)</td></tr>
+          <tr><td>Key Association</td><td>Lumbar myelomeningocele + hydrocephalus</td><td>Hydrocephalus common</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-wrap">
+      <table class="compare-table">
+        <thead><tr><th>Feature</th><th>Communicating</th><th>Non-Communicating</th><th>Ex Vacuo</th></tr></thead>
+        <tbody>
+          <tr><td>CSF Pathways</td><td>Open (communicating)</td><td>Blocked internally</td><td>Open (no obstruction)</td></tr>
+          <tr><td>Mechanism</td><td>↑ Production or ↓ Absorption</td><td>Physical obstruction of flow</td><td>Brain atrophy creates space</td></tr>
+          <tr><td>Example Cause</td><td>Choroid plexus papilloma; postmeningitic scarring</td><td>Aqueductal stricture; ependymoma; colloid cyst</td><td>Alzheimer's disease (Tau)</td></tr>
+          <tr><td>CSF Pressure</td><td>↑</td><td>↑</td><td>Normal</td></tr>
+          <tr><td>Treatment needed?</td><td>Yes</td><td>Yes (urgent)</td><td>No (treat underlying)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ====== TREATMENT ====== -->
+  <div class="tab-panel" id="tab-treatment">
+    <div class="section-title"><span class="icon">💊</span>Management Principles</div>
+
+    <div class="treatment-section">
+      <div class="tx-urgency-header tx-urgent">🚨 Urgent / Surgical Interventions</div>
+      <div class="tx-list">
+        <div class="tx-item"><div class="ti-icon">🔧</div><div class="ti-body"><div class="ti-name">VP Shunt (Ventriculoperitoneal)</div><div class="ti-note">Primary treatment for obstructive & communicating hydrocephalus. Drains CSF from ventricles to peritoneum.</div></div></div>
+        <div class="tx-item"><div class="ti-icon">🏥</div><div class="ti-body"><div class="ti-name">Surgical Repair of Myelomeningocele</div><div class="ti-note">Closure within 24–72h of birth to prevent infection and minimize further neurological injury.</div></div></div>
+        <div class="tx-item"><div class="ti-icon">🧠</div><div class="ti-body"><div class="ti-name">Endoscopic Third Ventriculostomy (ETV)</div><div class="ti-note">Alternative to shunt for non-communicating hydrocephalus. Creates bypass for CSF flow.</div></div></div>
+        <div class="tx-item"><div class="ti-icon">⚙️</div><div class="ti-body"><div class="ti-name">Posterior Fossa Decompression (Arnold-Chiari)</div><div class="ti-note">Suboccipital craniectomy to enlarge foramen magnum and relieve brainstem compression.</div></div></div>
+      </div>
+    </div>
+
+    <div class="treatment-section">
+      <div class="tx-urgency-header tx-secondary">⚠️ Preventive & Prenatal Measures</div>
+      <div class="tx-list">
+        <div class="tx-item"><div class="ti-icon">💊</div><div class="ti-body"><div class="ti-name">Folic Acid Supplementation</div><div class="ti-note">400–800 mcg/day pre-conception and in first trimester significantly reduces NTD risk.</div></div></div>
+        <div class="tx-item"><div class="ti-icon">🔬</div><div class="ti-body"><div class="ti-name">TORCH Screening in Pregnancy</div><div class="ti-note">Toxoplasmosis, Rubella, CMV, Syphilis — 1st trimester infections most dangerous for fetal brain development.</div></div></div>
+        <div class="tx-item"><div class="ti-icon">📡</div><div class="ti-body"><div class="ti-name">Prenatal Ultrasound / AFP Screening</div><div class="ti-note">Elevated maternal serum AFP → open NTD. Ultrasound for structural CNS anomalies from 18–20 weeks.</div></div></div>
+      </div>
+    </div>
+
+    <div class="treatment-section">
+      <div class="tx-urgency-header tx-supportive">✅ Supportive & Symptomatic Management</div>
+      <div class="tx-list">
+        <div class="tx-item"><div class="ti-icon">💧</div><div class="ti-body"><div class="ti-name">Hydrocephalus Ex Vacuo</div><div class="ti-note">No shunting needed. Manage the underlying cause (e.g., Alzheimer's dementia medications). No elevated ICP.</div></div></div>
+        <div class="tx-item"><div class="ti-icon">🧪</div><div class="ti-body"><div class="ti-name">Acetazolamide (Carbonic Anhydrase Inhibitor)</div><div class="ti-note">Temporarily reduces CSF production. Adjunct while awaiting definitive surgical treatment.</div></div></div>
+        <div class="tx-item"><div class="ti-icon">🏋️</div><div class="ti-body"><div class="ti-name">Physiotherapy & Neurorehabilitation</div><div class="ti-note">Critical for myelomeningocele patients — bladder training, physiotherapy, orthotics for lower limb deficits.</div></div></div>
+        <div class="tx-item"><div class="ti-icon">👁️</div><div class="ti-body"><div class="ti-name">Multidisciplinary Follow-up</div><div class="ti-note">Neurosurgery, neurology, ophthalmology (absent CC), urology. Monitor for shunt complications.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== MNEMONICS ====== -->
+  <div class="tab-panel" id="tab-mnemonics">
+    <div class="section-title"><span class="icon">✨</span>Custom Mnemonics</div>
+    <div class="mnemonics-grid" id="mnemonicsGrid"></div>
+  </div>
+
+  <!-- ====== VIVA ====== -->
+  <div class="tab-panel" id="tab-viva">
+    <div class="section-title"><span class="icon">🗣️</span>Viva Questions — 12 High-Yield Q&amp;As</div>
+    <div class="viva-list" id="vivaList"></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════════ */
+const QUESTIONS = [
+  {q:"Which mechanism is primarily responsible for the development of anencephaly?",opts:["Overproduction of CSF by the choroid plexus","Failure of the neural tube to close by the third gestational week","Premature closure of the cranial sutures","Failure of the prosencephalon to divide into two hemispheres","Protein misfolding in the cytoplasm"],ans:1,exp:"Anencephaly is a neural tube defect caused by failure of the neural tube to close by the 3rd gestational week. Option A causes hydrocephalus, D causes holoprosencephaly, and E causes brain atrophy in Alzheimer's."},
+  {q:"A maternal infection with Toxoplasma during the first trimester leads to which fetal abnormality?",opts:["Failure of the cerebellar vermis to develop","Herniation of the brainstem","Abnormal brain size development leading to microcephaly","Overgrowth of the corpus callosum","Excessive folding of the cerebral cortex"],ans:2,exp:"TORCH infections (Toxoplasma, Rubella, CMV, Syphilis) disrupt normal fetal brain growth, resulting in microcephaly. A is Dandy-Walker, B is Arnold-Chiari, E is polymicrogyria."},
+  {q:"The formation of a meningocele is mechanistically characterized by:",opts:["Herniation of both meninges and brain tissue through a skull defect","Herniation of only meninges through a vertebral arch or skull bone defect","Expansion of a cavity within the spinal cord","Obstruction of the aqueduct of Sylvius","Failure of the prosencephalon to divide"],ans:1,exp:"Meningocele = sac-like outpouching of ONLY meninges + CSF. A describes encephalocele. C is syringomyelia. D causes hydrocephalus. E causes holoprosencephaly."},
+  {q:"Encephalocele formation differs from meningocele by the inclusion of:",opts:["CSF","Arachnoid granulations","Brain tissue in the herniating sac","The cerebellar vermis","A tuft of hair"],ans:2,exp:"Encephalocele contains brain tissue in addition to meninges and CSF, which distinguishes it from meningocele. D relates to Dandy-Walker and E to spina bifida occulta."},
+  {q:"Holoprosencephaly arises due to failure of which embryological mechanism?",opts:["Caudal neural tube closure","Development of the cerebellar vermis","Division of the prosencephalon into two hemispheres","Reabsorption of CSF by arachnoid villi","Formation of the corpus callosum"],ans:2,exp:"Holoprosencephaly = failure of prosencephalon to divide. Severest form → cyclopia (single midline eye). A causes spina bifida. B causes Dandy-Walker. E causes absent corpus callosum."},
+  {q:"The abnormal thickening of the cerebral cortex in polymicrogyria is caused by:",opts:["Downward displacement of the brainstem","Excessive folding creating multiple small gyri","Accumulation of CSF in the subarachnoid space","Ischemia from placental thrombosis","A colloid cyst in the third ventricle"],ans:1,exp:"Polymicrogyria = multiple small gyri + excessive folding = abnormally thick cortex. A is Arnold-Chiari, C is hydrocephalus, D causes microcephaly, E causes obstructive hydrocephalus."},
+  {q:"In Arnold-Chiari malformation, the downward displacement of the brainstem is directly due to:",opts:["A large posterior fossa","An abnormally small posterior fossa","Absence of the cerebellar vermis","Dilation of the 4th ventricle","Excessive CSF production"],ans:1,exp:"Small posterior fossa forces normal-sized cerebellum and brainstem downward through an enlarged foramen magnum. C and D define Dandy-Walker instead."},
+  {q:"The cyst-like dilation of the 4th ventricle in Dandy-Walker malformation is a consequence of:",opts:["Absence of the cerebellar vermis","Downward herniation of the brainstem","Hyperplasia of the choroid plexus","Scarring at the base of the brain","Overgrowth of the prosencephalon"],ans:0,exp:"Absent vermis leaves a structural void → cyst-like dilation of 4th ventricle. B is Arnold-Chiari. C causes communicating hydrocephalus (over-production type). D is postmeningitic scarring."},
+  {q:"Syringomyelia leads to paralysis and weakness through which mechanism?",opts:["Compression of the motor cortex by CSF","Expansion of a syrinx (cyst) that destroys the spinal cord over time","Herniation of the spinal cord through the vertebrae","Viral destruction of anterior horn cells","Failure of the neural plate to fold"],ans:1,exp:"A syrinx (fluid-filled cyst) within the spinal cord expands over time, progressively destroying spinal cord tissue. C is myelomeningocele. D is polio."},
+  {q:"Communicating hydrocephalus is mechanistically defined by:",opts:["Obstruction within the aqueduct of Sylvius","Open communication between ventricles and subarachnoid space","Downward displacement of the cerebellum","Absence of the corpus callosum","A stricture in the fourth ventricle"],ans:1,exp:"In communicating hydrocephalus, CSF pathways are OPEN — the problem is overproduction or decreased absorption. A and E are non-communicating. C is Arnold-Chiari."},
+  {q:"Decreased reabsorption of CSF leading to hydrocephalus can be caused by:",opts:["Choroid plexus papilloma","Ependymoma","Postmeningitic scarring of arachnoid granulations","Colloid cyst","Aqueductal stricture"],ans:2,exp:"Postmeningitic scarring (e.g., TB meningitis) damages arachnoid granulations → decreased CSF absorption → communicating hydrocephalus. A causes increased production. B, D, E cause internal obstruction (non-communicating)."},
+  {q:"The most common cause of non-communicating hydrocephalus in newborns is:",opts:["Tuberculous meningitis","Stricture of the aqueduct of Sylvius","Medulloblastoma","Alzheimer's disease","Choroid plexus papilloma"],ans:1,exp:"Stricture of the aqueduct of Sylvius is explicitly the most common cause in newborns. E causes communicating type. D causes ex vacuo."},
+  {q:"How does Hydrocephalus ex vacuo occur mechanistically?",opts:["Overproduction of CSF by a tumor","Obstruction of the 3rd ventricle","Compensatory dilation of ventricles following decreased brain mass (atrophy)","Complete failure of the neural tube to close","Fibrosis of the arachnoid villi"],ans:2,exp:"Ex vacuo = brain atrophy (e.g., Alzheimer's) creates space → CSF fills in. There is NO true pressure increase. A is communicating, B and E are other hydrocephalus types, D is anencephaly."},
+  {q:"The brain atrophy in Alzheimer's leading to Hydrocephalus ex vacuo involves which molecule?",opts:["Overexpression of amyloid","Misfolding of Tau protein","Ischemic necrosis","Viral cytopathic effect","Hemorrhage"],ans:1,exp:"The lecturer explicitly names Tau protein misfolding as the cause of brain atrophy in Alzheimer's leading to ex vacuo. While amyloid is also implicated in Alzheimer's, Tau was the molecule named in the source lecture."},
+  {q:"Why does hydrocephalus cause skull enlargement in newborns but NOT in adults?",opts:["Adult CSF is produced at a slower rate","Adult cranial sutures are closed, preventing skull expansion","Newborns lack arachnoid granulations","Newborns have a smaller posterior fossa","Adults possess compensatory lymphatic drainage"],ans:1,exp:"In adults, the skull is rigid and fused — increased CSF pressure compresses brain inward instead of expanding outward. In newborns, unfused sutures allow physical expansion of the skull."},
+  {q:"By which gestational week does the neural tube normally close?",opts:["First week","Second week","Third week","Fourth week","Eighth week"],ans:2,exp:"The neural tube closes by the 3rd gestational week. Failure of closure = neural tube defects (anencephaly, spina bifida, etc.)."},
+  {q:"Which is the classic structural finding in Spina Bifida Occulta?",opts:["A large CSF-filled sac on the back","Exposed brain tissue","A tuft of hair over a lumbo-sacral bony defect","A single midline eye","An absent cerebellum"],ans:2,exp:"Spina bifida occulta = asymptomatic bony defect (lumbo-sacral) with NO sac, but a tuft of hair marks the skin overlying the defect. A is meningocele, B is encephalocele, D is holoprosencephaly."},
+  {q:"Absent corpus callosum is an extremely rare congenital disorder that exclusively affects:",opts:["Premature infants","Males","Females","Twins","Mothers with TORCH infections"],ans:2,exp:"The source explicitly states that absent corpus callosum is exclusive to females, with symptoms including mental retardation, seizures, and retinal abnormalities. No other option is supported by the source material."},
+  {q:"Which structure is explicitly absent in Dandy-Walker malformation?",opts:["Prosencephalon","Corpus callosum","Cerebellar vermis","3rd ventricle","Aqueduct of Sylvius"],ans:2,exp:"The core defining feature of Dandy-Walker is absent (partial or complete) cerebellar vermis, which leads to the 4th ventricle cyst. A is holoprosencephaly. B is absent corpus callosum."},
+  {q:"A colloid cyst causing non-communicating hydrocephalus is located in the:",opts:["Lateral ventricle","Third ventricle","Fourth ventricle","Subarachnoid space","Foramen magnum"],ans:1,exp:"Colloid cysts classically occur in the third ventricle at the foramen of Monro, causing intermittent obstruction of CSF flow → non-communicating hydrocephalus."},
+  {q:"The most common cause of non-communicating hydrocephalus in newborns involves:",opts:["Foramen of Luschka","Foramen of Magendie","Aqueduct of Sylvius","Interventricular foramen of Monro","Foramen magnum"],ans:2,exp:"Stricture of the Aqueduct of Sylvius is the most common cause of non-communicating (obstructive) hydrocephalus in newborns."},
+  {q:"Comparing meningocele and encephalocele, the critical difference is that encephalocele contains:",opts:["CSF","Meninges","Brain tissue","Spinal cord tissue","A syrinx"],ans:2,exp:"Both contain CSF and meninges. Encephalocele additionally contains brain tissue. D is myelomeningocele. E is syringomyelia."},
+  {q:"Which term describes herniation containing both meninges AND the spinal cord?",opts:["Spina bifida occulta","Meningocele","Meningomyelocele","Encephalocele","Syringomyelia"],ans:2,exp:"Meningomyelocele (= myelomeningocele) contains meninges + spinal cord + CSF. A has no herniation. B is meninges only. D is brain herniation. E is spinal cord cyst."},
+  {q:"An ependymoma in the 4th ventricle produces which type of hydrocephalus?",opts:["Communicating hydrocephalus due to overproduction","Non-communicating hydrocephalus due to internal obstruction","Communicating hydrocephalus due to decreased absorption","Hydrocephalus ex vacuo","Decreased CSF volume"],ans:1,exp:"A 4th ventricle tumor physically blocks the internal CSF pathway → non-communicating (obstructive) hydrocephalus. It does not cause communicating types because there is a physical internal block."},
+  {q:"Which finding is characteristic of Arnold-Chiari malformation (vs Dandy-Walker)?",opts:["Enlarged posterior fossa","Cyst-like dilation of the 4th ventricle","Small posterior fossa with cerebellar herniation","Absence of the cerebellar vermis","Exclusive association with holoprosencephaly"],ans:2,exp:"Arnold-Chiari = SMALL posterior fossa + downward herniation of cerebellum/brainstem. B and D are Dandy-Walker features. A is incorrect."}
+];
+
+const FLASHCARDS = [
+  {q:"What closes by the 3rd gestational week?",a:"The neural tube. Failure → neural tube defects (anencephaly, spina bifida, etc.).",icon:"🌀"},
+  {q:"What is the hallmark sign of Spina Bifida Occulta?",a:"A tuft of hair over a bony lumbo-sacral defect. No sac, no herniation — often asymptomatic.",icon:"💈"},
+  {q:"What is the difference between meningocele and encephalocele?",a:"Meningocele = meninges + CSF only. Encephalocele = meninges + CSF + BRAIN TISSUE.",icon:"🧠"},
+  {q:"What condition results from failure of the prosencephalon to divide?",a:"Holoprosencephaly. Severest form → cyclopia (single midline eye).",icon:"👁️"},
+  {q:"What is polymicrogyria?",a:"Multiple small gyri due to excessive cortical folding → abnormally thick cortex.",icon:"🌊"},
+  {q:"What is the key structural defect in Arnold-Chiari?",a:"Small posterior fossa → downward displacement of cerebellum & brainstem through enlarged foramen magnum.",icon:"⬇️"},
+  {q:"What is absent in Dandy-Walker malformation?",a:"The cerebellar vermis (partial or complete) → cyst-like 4th ventricle dilation.",icon:"🕳️"},
+  {q:"What triad is associated with Arnold-Chiari?",a:"① Small posterior fossa ② Lumbar myelomeningocele ③ Obstructive hydrocephalus.",icon:"⚠️"},
+  {q:"What causes communicating hydrocephalus?",a:"↑ CSF production (choroid plexus papilloma) OR ↓ absorption (postmeningitic arachnoid granule scarring).",icon:"💧"},
+  {q:"What is the most common cause of non-communicating hydrocephalus in newborns?",a:"Stricture of the Aqueduct of Sylvius.",icon:"🔩"},
+  {q:"Why does hydrocephalus cause head enlargement only in newborns?",a:"Unfused cranial sutures allow skull to expand. Adult fused skull → brain compression instead.",icon:"👶"},
+  {q:"What is Hydrocephalus Ex Vacuo?",a:"Compensatory CSF dilation when brain atrophies (Alzheimer's - Tau protein misfolding). Normal CSF pressure.",icon:"🍃"},
+  {q:"What infections cause microcephaly?",a:"TORCH: Toxoplasmosis, Rubella, Cytomegalovirus, Syphilis (Treponema) — especially in 1st trimester.",icon:"🦠"},
+  {q:"What is myelomeningocele?",a:"Herniation of meninges + CSF + SPINAL CORD through vertebral arch. Most severe spina bifida. Strongly associated with Arnold-Chiari.",icon:"🔴"},
+  {q:"What is syringomyelia?",a:"A cyst/cavity (syrinx) within the spinal cord that expands over time, destroying cord tissue → weakness, paralysis.",icon:"💊"},
+  {q:"What are the 3 mechanisms of hydrocephalus?",a:"① ↑ CSF production (rare) ② ↓ CSF absorption (arachnoid granulations) ③ Obstruction of flow (non-communicating).",icon:"3️⃣"},
+  {q:"What is the clinical presentation of adult hydrocephalus?",a:"Progressive dementia + wide-based gait + urinary incontinence (Hakim's triad). No skull enlargement.",icon:"👴"},
+  {q:"What causes forebrain abnormalities?",a:"Abnormal prosencephalon development → holoprosencephaly, polymicrogyria, or absent corpus callosum.",icon:"🧩"},
+  {q:"Which gender is exclusively affected by absent corpus callosum?",a:"Females only. Presents with seizures, mental retardation, retinal abnormalities.",icon:"♀️"},
+  {q:"What is a colloid cyst and where is it found?",a:"Benign cyst in the 3rd ventricle. Causes intermittent non-communicating hydrocephalus by blocking foramen of Monro.",icon:"🔵"},
+  {q:"What prevents hydrocephalus from expanding the adult skull?",a:"Fused cranial sutures after fontanelle closure. The rigid skull forces CSF pressure to compress brain inward.",icon:"💀"},
+  {q:"Name two non-communicating hydrocephalus causes other than aqueductal stricture.",a:"① Ependymoma in 4th ventricle ② Colloid cyst in 3rd ventricle.",icon:"📋"},
+];
+
+const CASES = [
+  {num:"Case 1",vignette:"An infant is born with a sac-like protrusion in the occipital region. Fluid aspiration reveals pure CSF with no solid tissue. The overlying skin is intact.",qs:[{label:"Q1",q:"What is the diagnosis and what does the sac contain?",a:"<strong>Meningocele.</strong> The sac contains only meninges and CSF — no brain tissue. If it contained brain tissue, it would be an encephalocele."},
+  {label:"Q2",q:"What mechanism underlies this finding?",a:"Failure of neural tube closure creating a skull defect through which the meninges herniate. The key distinguishing feature is the <strong>absence of brain tissue</strong> in the sac."},
+  {label:"Q3",q:"What risk does this sac pose if left untreated?",a:"The intact CSF compartment is disrupted, risking <strong>ascending meningitis</strong>. Early surgical repair is indicated."}]},
+  {num:"Case 2",vignette:"An adult with a history of recurrent pulmonary tuberculosis presents with a 6-month history of progressive cognitive decline, shuffling wide-based gait, and urinary incontinence. MRI shows enlarged ventricles.",qs:[{label:"Q1",q:"What type of hydrocephalus is this, and what caused it?",a:"<strong>Communicating hydrocephalus</strong> due to postmeningitic scarring. Tuberculous meningitis causes fibrosis at the base of the brain and at arachnoid granulations, reducing CSF absorption."},
+  {label:"Q2",q:"Why does this patient have dementia rather than an enlarged head?",a:"Adult cranial sutures are <strong>fused</strong>. The skull cannot expand, so accumulated CSF compresses brain parenchyma inward → progressive dementia + gait abnormality + incontinence (classic triad)."},
+  {label:"Q3",q:"What would happen to a newborn in the same situation?",a:"In a newborn, unfused sutures allow the skull to expand → <strong>enlarged head circumference</strong> rather than brain compression."}]},
+  {num:"Case 3",vignette:"Ultrasound of a fetus at 18 weeks shows a single central eye and a failure of the forebrain to separate into two distinct hemispheres. The midline facial structures are also abnormal.",qs:[{label:"Q1",q:"What is the diagnosis?",a:"<strong>Holoprosencephaly</strong> — severest form. The prosencephalon failed to divide into two hemispheres, and associated midline facial structures also failed to cleave, resulting in <strong>cyclopia</strong>."},
+  {label:"Q2",q:"What is the embryological mechanism?",a:"Failure of the prosencephalon (forebrain) to divide during development. Because midline forebrain and midline facial development are coupled, the face reflects the brain anomaly — hence the single central eye."},
+  {label:"Q3",q:"What is the prognosis?",a:"The severest form of holoprosencephaly (alobar) is generally <strong>incompatible with normal life</strong>. Cyclopia is also associated with other midline defects and severe neurological impairment."}]},
+  {num:"Case 4",vignette:"A young female is brought in with severe mental retardation, frequent seizures, and ophthalmological abnormalities. MRI reveals an absence of the structure connecting the two cerebral hemispheres.",qs:[{label:"Q1",q:"What is the diagnosis?",a:"<strong>Absent corpus callosum.</strong> The corpus callosum is the key interhemispheric commissural structure. Its absence disrupts communication between the two hemispheres."},
+  {label:"Q2",q:"Why is this condition exclusive to females?",a:"According to the source material, absent corpus callosum as described here is a condition that <strong>exclusively affects females</strong>. This is a high-yield exam fact to memorize."},
+  {label:"Q3",q:"What are the key clinical features?",a:"Seizures, mental retardation, and retinal/ophthalmological abnormalities form the classic triad. The condition is considered rare."}]},
+  {num:"Case 5",vignette:"A 70-year-old with known Alzheimer's disease has an MRI showing enlarged ventricles and widened sulci. CSF pressure measurement is normal. Neurological exam shows progressive dementia consistent with Alzheimer's.",qs:[{label:"Q1",q:"What type of hydrocephalus is this?",a:"<strong>Hydrocephalus Ex Vacuo</strong> — not true hydrocephalus. It is a compensatory dilation of ventricles and widening of sulci due to brain tissue loss (atrophy)."},
+  {label:"Q2",q:"What is the molecular basis in Alzheimer's?",a:"<strong>Tau protein misfolding</strong> causes intraneuronal neurofibrillary tangles, leading to neuronal death and progressive loss of brain mass. The space created is filled by CSF."},
+  {label:"Q3",q:"What distinguishes this from true hydrocephalus?",a:"Normal CSF pressure is the key differentiator. In true hydrocephalus (communicating or non-communicating), CSF pressure is elevated. In ex vacuo, there is no obstruction or overproduction — just <strong>passive filling of atrophied space</strong>."}]},
+  {num:"Case 6 — Integrative",vignette:"A newborn, born to a mother who received no prenatal care, has a large sac protruding from the lumbar region containing spinal cord tissue. Brain MRI shows the cerebellum displaced downward through the foramen magnum and severely dilated ventricles.",qs:[{label:"Q1",q:"Name all three pathological findings.",a:"① <strong>Myelomeningocele</strong> (lumbar sac with spinal cord) ② <strong>Arnold-Chiari malformation</strong> (cerebellar herniation through foramen magnum) ③ <strong>Non-communicating hydrocephalus</strong> (ventricular dilation from CSF obstruction)"},
+  {label:"Q2",q:"How are these three findings mechanistically linked?",a:"Failure of caudal neural tube closure → myelomeningocele. A small posterior fossa forces cerebellum/brainstem downward → Arnold-Chiari. The herniated tissue physically blocks CSF flow at the foramen magnum → obstructive hydrocephalus. This is the <strong>classic Arnold-Chiari triad</strong>."},
+  {label:"Q3",q:"What would happen if left untreated?",a:"The infant's unfused sutures will allow head circumference to progressively enlarge. Without shunting and surgical repair, <strong>irreversible brain damage</strong> and death will occur from compression and infection."}]},
+];
+
+const PATHO_ITEMS = [
+  {title:"Neural Plate → Neural Tube",tag:"NTD",icon:"🌀",sub:"Weeks 1–3 of gestation",detail:"The nervous system originates from the neural plate (ectoderm). The plate folds longitudinally, and the edges fuse to form the neural tube. This process must be completed by the 3rd gestational week. Failure at the cranial end → anencephaly; failure at the caudal end → spina bifida spectrum."},
+  {title:"Mesenchymal Coverings",tag:"NTD",icon:"🏗️",sub:"Skull, meninges, spinal column",detail:"Normal neural tube closure allows the overlying mesenchyme to develop into meninges, skull, and vertebral column. If closure fails, the mesenchyme cannot form properly, leaving defects through which neural tissue herniates."},
+  {title:"Prosencephalon Division",tag:"Forebrain",icon:"✂️",sub:"Forebrain cleavage",detail:"The prosencephalon (forebrain) normally divides into two cerebral hemispheres. Failure → holoprosencephaly. The severity ranges from alobar (complete failure, cyclopia) to lobar (partial division, milder features). The process is coupled with midline facial cleavage."},
+  {title:"Corpus Callosum Development",tag:"Forebrain",icon:"🔗",sub:"Commissural fibers",detail:"The corpus callosum is the largest commissure linking the two hemispheres. Congenital absence (agenesis) disrupts interhemispheric communication. Per source material, this condition exclusively affects females, presenting with seizures, retardation, and retinal anomalies."},
+  {title:"Cortical Folding (Polymicrogyria)",tag:"Forebrain",icon:"🌊",sub:"Gyral development",detail:"Normal brain development creates proportional gyri (folds) and sulci (grooves). Polymicrogyria involves excessive, disorganized folding → multiple small (micro) gyri → abnormally THICK cortex (not thin). This disrupts normal laminar architecture."},
+  {title:"Posterior Fossa Size",tag:"Arnold-Chiari",icon:"📐",sub:"Infratentorial space",detail:"The posterior fossa is a compartment beneath the tentorium. In Arnold-Chiari, the posterior fossa is abnormally SMALL. Because the bony compartment is too small for normal-sized structures, the cerebellum and brainstem are forced downward through an enlarged foramen magnum."},
+  {title:"Foramen Magnum Enlargement",tag:"Arnold-Chiari",icon:"⬇️",sub:"Craniovertebral junction",detail:"In Arnold-Chiari, the foramen magnum becomes enlarged to accommodate the herniating brainstem and cerebellum (tonsillar herniation). This herniation compresses CSF flow between the ventricular system and subarachnoid space → obstructive hydrocephalus."},
+  {title:"Cerebellar Vermis Agenesis",tag:"Dandy-Walker",icon:"🕳️",sub:"Midline cerebellar structure",detail:"The vermis is the midline part of the cerebellum. In Dandy-Walker, it is absent (partial or complete). The resulting structural void allows the 4th ventricle to expand massively into a cyst-like structure. The cerebellar hemispheres are underdeveloped and displaced superiorly."},
+  {title:"CSF Production — Choroid Plexus",tag:"Hydrocephalus",icon:"💧",sub:"Lateral & 3rd ventricles",detail:"CSF is produced by the choroid plexus in the lateral and 3rd ventricles. The normal rate is ~20ml/hour (500ml/day). A choroid plexus papilloma causes OVERPRODUCTION → communicating hydrocephalus. The pathways are open but overwhelmed."},
+  {title:"CSF Absorption — Arachnoid Granulations",tag:"Hydrocephalus",icon:"🌿",sub:"Superior sagittal sinus",detail:"CSF is reabsorbed into venous blood via arachnoid granulations (Pacchionian granulations) in the subarachnoid space, draining into the superior sagittal sinus. Postmeningitic scarring damages these granulations → decreased absorption → communicating hydrocephalus."},
+  {title:"CSF Flow Obstruction",tag:"Hydrocephalus",icon:"🔩",sub:"Aqueduct of Sylvius",detail:"The aqueduct of Sylvius connects the 3rd to 4th ventricle. Stricture of this structure is the most common cause of non-communicating hydrocephalus in newborns. Other sites: foramen of Monro (colloid cyst), 4th ventricle (ependymoma)."},
+  {title:"Tau Protein Misfolding",tag:"Ex Vacuo",icon:"🔬",sub:"Alzheimer's disease",detail:"In Alzheimer's disease, Tau protein misfolds and forms intraneuronal neurofibrillary tangles. This leads to neuronal death, progressive brain atrophy, and loss of brain mass. The resulting cranial space is passively filled by CSF → Hydrocephalus Ex Vacuo (NO pressure increase)."},
+];
+
+const MNEMONICS = [
+  {title:"Neural Tube Defect Spectrum",acronym:"SAME",desc:"From no herniation → brain involved",items:[{l:"S",m:"Spina bifida occulta — <strong>S</strong>ilent bony defect, hair tuft only"},
+    {l:"A",m:"<strong>A</strong>nencephaly — <strong>A</strong>bsent brain, incompatible with life"},
+    {l:"M",m:"<strong>M</strong>eningocele — <strong>M</strong>eninges + CSF sac only"},
+    {l:"E",m:"<strong>E</strong>ncephalocele / m<strong>E</strong>ningomyelocele — both contain neural tissue"}]},
+  {title:"Arnold-Chiari Classic Triad",acronym:"SMH",desc:"Small + Myelomeningocele + Hydrocephalus",items:[{l:"S",m:"<strong>S</strong>mall posterior fossa → forces cerebellum down"},
+    {l:"M",m:"<strong>M</strong>yelomeningocele — lumbar spinal cord herniation"},
+    {l:"H",m:"<strong>H</strong>ydrocephalus — from CSF obstruction at foramen magnum"}]},
+  {title:"Hydrocephalus Mechanisms",acronym:"POD",desc:"Three ways CSF accumulates",items:[{l:"P",m:"<strong>P</strong>roduction ↑ — choroid plexus papilloma"},
+    {l:"O",m:"<strong>O</strong>bstruction — non-communicating (aqueductal stricture, colloid cyst, ependymoma)"},
+    {l:"D",m:"<strong>D</strong>ecreased absorption — postmeningitic arachnoid granulation scarring"}]},
+  {title:"TORCH Infections → Microcephaly",acronym:"TORCH",desc:"1st trimester = highest risk",items:[{l:"T",m:"<strong>T</strong>oxoplasma gondii"},
+    {l:"O",m:"<strong>O</strong>ther (Syphilis — Treponema pallidum)"},
+    {l:"R",m:"<strong>R</strong>ubella virus"},
+    {l:"C",m:"<strong>C</strong>ytomegalovirus (CMV)"},
+    {l:"H",m:"<strong>H</strong>erpes simplex / HIV"}]},
+  {title:"Dandy-Walker vs Arnold-Chiari",acronym:"DAC",desc:"Remember which is which",items:[{l:"D",m:"<strong>D</strong>andy-Walker = <strong>D</strong>eleted vermis + <strong>D</strong>ilated 4th ventricle (cyst)"},
+    {l:"A",m:"<strong>A</strong>rnold-Chiari = <strong>A</strong>bnormally small fossa → <strong>A</strong>ll structures pushed down"},
+    {l:"C",m:"Both commonly cause <strong>C</strong>SF issues (hydro<strong>C</strong>ephalus)"}]},
+  {title:"Adult Hydrocephalus Triad",acronym:"WW-D",desc:"Hakim's triad — all start from skull rigidity",items:[{l:"W",m:"<strong>W</strong>et — urinary incontinence"},
+    {l:"W",m:"<strong>W</strong>obbly — wide-based gait"},
+    {l:"D",m:"<strong>D</strong>emented — progressive cognitive decline (fused skull → inward brain compression)"}]},
+];
+
+const VIVA = [
+  {num:"V1",q:"What is anencephaly?",a:"Anencephaly is a neural tube defect characterized by the complete absence of the brain. It results from failure of the cranial neural tube to close by the 3rd gestational week. It is incompatible with life."},
+  {num:"V2",q:"Name three causes of microcephaly.",a:"① TORCH infections in 1st trimester (Toxoplasmosis, CMV most commonly) ② Maternal malnutrition ③ Harmful substances (alcohol, drugs) ④ Placental thrombosis causing fetal ischemia."},
+  {num:"V3",q:"What distinguishes a meningocele from an encephalocele?",a:"Both are sac-like outpouchings through a bone defect. Meningocele contains only meninges and CSF. Encephalocele additionally contains herniated brain tissue — making it more severe and potentially incompatible with normal life."},
+  {num:"V4",q:"Describe the clinical presentation of Spina Bifida Occulta.",a:"Asymptomatic failure of caudal neural tube closure producing a bony defect in the lumbo-sacral region. No herniated sac. The only external marker is a tuft of hair on the skin overlying the defect."},
+  {num:"V5",q:"What is the embryological failure in Holoprosencephaly?",a:"Failure of the prosencephalon (forebrain) to develop and divide into two separate cerebral hemispheres. The most severe form (alobar) presents with cyclopia — a single midline eye — because midline facial cleavage is also disrupted."},
+  {num:"V6",q:"What is the classic triad of Dandy-Walker malformation?",a:"① Absent cerebellar vermis (partial or complete) ② Cyst-like dilation of the 4th ventricle ③ Underdeveloped, superiorly displaced cerebellar hemispheres. Often presents with hydrocephalus."},
+  {num:"V7",q:"Define Arnold-Chiari malformation.",a:"An abnormally small posterior fossa leading to downward displacement (herniation) of the cerebellum and brainstem through an enlarged foramen magnum. Almost always associated with lumbar myelomeningocele and obstructive hydrocephalus."},
+  {num:"V8",q:"Define Syringomyelia.",a:"A disorder in which a cyst or cavity (syrinx) forms within the spinal cord. Over time it elongates and destroys spinal cord tissue, causing progressive pain, weakness, and eventually paralysis."},
+  {num:"V9",q:"What are the two mechanisms underlying communicating hydrocephalus?",a:"① Increased CSF production — e.g., choroid plexus papilloma producing excess CSF. ② Decreased CSF reabsorption — e.g., postmeningitic scarring of arachnoid granulations reducing absorption capacity."},
+  {num:"V10",q:"What is the most common cause of non-communicating hydrocephalus in newborns?",a:"Stricture of the Aqueduct of Sylvius — the narrow channel connecting the 3rd to the 4th ventricle. Obstruction here causes CSF to back up, dilating the lateral and 3rd ventricles."},
+  {num:"V11",q:"Contrast hydrocephalus in newborns vs adults.",a:"Newborns: unfused cranial sutures allow skull to expand → enlarged head circumference (macrocephaly). Adults: fused skull prevents expansion → CSF compresses brain inward → progressive dementia, wide-based gait, urinary incontinence (Hakim's triad)."},
+  {num:"V12",q:"Explain the mechanism of Hydrocephalus ex vacuo.",a:"Compensatory dilation of ventricles when surrounding brain mass decreases due to atrophy. Classic example: Alzheimer's disease — Tau protein misfolding → neuronal death → brain mass ↓ → CSF fills vacated space. CSF pressure is NORMAL. No treatment required for the hydrocephalus itself."},
+];
+
+const DIAG_STEPS = [
+  {title:"Step 1 — Prenatal Screening",desc:"Maternal serum AFP (elevated in open NTDs), detailed ultrasound at 18–20 weeks for structural CNS anomalies.",badges:["AFP ↑ → open NTD","US: neural tube closure","TORCH titres in 1st trimester"]},
+  {title:"Step 2 — Postnatal Clinical Exam",desc:"Head circumference measurement (macrocephaly in infant hydrocephalus), inspect spine for sac/hair tuft (spina bifida), fontanelle tension.",badges:["Head circumference","Fontanelle bulge","Lumbar sac assessment","Tuft of hair = occulta"]},
+  {title:"Step 3 — Neuroimaging (MRI / CT)",desc:"MRI is gold standard. Identifies posterior fossa malformations, ventricular size, cerebellar position, corpus callosum, and spinal cord involvement.",badges:["MRI: gold standard","CT: quick, limited detail","US: neonatal (fontanelle)","4th ventricle cyst = Dandy-Walker","Cerebellar herniation = Arnold-Chiari"]},
+  {title:"Step 4 — Classify Hydrocephalus Type",desc:"Distinguish communicating (open pathways, CSF pressure ↑) vs non-communicating (internal obstruction, CSF pressure ↑) vs ex vacuo (atrophy, normal pressure).",badges:["CSF pressure measurement","CT ventricular pattern","Communicate vs block","Ex vacuo: normal pressure"]},
+  {title:"Step 5 — Identify Underlying Cause",desc:"Arnold-Chiari → look for myelomeningocele. Hydrocephalus → identify obstruction site. TB meningitis → chest imaging. Alzheimer's → clinical neuropsych.",badges:["MRI: aqueductal stricture","Lumbar MRI: myelomeningocele","TB: sputum + chest X-ray","Neuropsych: Alzheimer's"]},
+  {title:"Step 6 — Intervention Planning",desc:"Surgical candidates: VP shunt for hydrocephalus, posterior fossa decompression for Arnold-Chiari, myelomeningocele closure within 24–72h of birth.",badges:["VP shunt","ETV (endoscopic)","Posterior fossa decompression","Myelomeningocele closure ≤72h"]},
+];
+
+/* ═══════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════ */
+let quizState = {current:0, correct:0, streak:0, maxStreak:0, answered:[], totalAnswered:0};
+let cardsSeen = new Set();
+const LS_KEY = 'cns_study_v2';
+
+function loadState(){
+  try {
+    const d = JSON.parse(localStorage.getItem(LS_KEY)||'{}');
+    if(d.quizState) quizState = d.quizState;
+    if(d.cardsSeen) cardsSeen = new Set(d.cardsSeen);
+  } catch(e){}
+}
+function saveState(){
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      quizState,
+      cardsSeen:[...cardsSeen]
+    }));
+  } catch(e){}
+}
+
+/* ═══════════════════════════════════════════════════════
+   STATS
+═══════════════════════════════════════════════════════ */
+function updateStats(){
+  const pct = quizState.totalAnswered > 0
+    ? Math.round((quizState.correct/quizState.totalAnswered)*100) : 0;
+  document.getElementById('stat-score').textContent = pct+'%';
+  document.getElementById('stat-cards').textContent = cardsSeen.size+'/'+FLASHCARDS.length;
+  document.getElementById('stat-streak').textContent = '🔥 '+quizState.streak;
+}
+
+/* ═══════════════════════════════════════════════════════
+   TABS
+═══════════════════════════════════════════════════════ */
+function initTabs(){
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const tab = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-'+tab).classList.add('active');
+      localStorage.setItem('cns_last_tab', tab);
+    });
+  });
+  const lastTab = localStorage.getItem('cns_last_tab');
+  if(lastTab){
+    const btn = document.querySelector(`[data-tab="${lastTab}"]`);
+    if(btn) btn.click();
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   QUIZ
+═══════════════════════════════════════════════════════ */
+function renderQuiz(){
+  const c = document.getElementById('quizContainer');
+  if(quizState.current >= QUESTIONS.length){
+    renderQuizComplete(c); return;
+  }
+  const q = QUESTIONS[quizState.current];
+  const progress = ((quizState.current)/QUESTIONS.length*100).toFixed(0);
+  document.getElementById('qProgress').style.width = Math.max(4,progress)+'%';
+  document.getElementById('qNum').textContent = (quizState.current+1)+'/'+QUESTIONS.length;
+  document.getElementById('qScore').textContent = quizState.totalAnswered>0?Math.round(quizState.correct/quizState.totalAnswered*100)+'%':'—';
+  document.getElementById('qCorrect').textContent = quizState.correct;
+  document.getElementById('qStreak').textContent = quizState.streak+'🔥';
+
+  const letters = ['A','B','C','D','E'];
+  const alreadyAnswered = quizState.answered[quizState.current];
+
+  let optsHtml = q.opts.map((o,i)=>{
+    let cls = '';
+    if(alreadyAnswered !== undefined){
+      if(i === q.ans) cls = 'correct';
+      else if(i === alreadyAnswered && alreadyAnswered !== q.ans) cls = 'wrong';
+    }
+    return `<button class="option-btn ${cls}" data-idx="${i}" ${alreadyAnswered!==undefined?'disabled':''}><span class="opt-letter">${letters[i]}</span>${o}</button>`;
+  }).join('');
+
+  c.innerHTML = `
+    <div class="q-card">
+      <div class="q-num">Question ${quizState.current+1} of ${QUESTIONS.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options">${optsHtml}</div>
+      <div class="explanation ${alreadyAnswered!==undefined?'show':''}" id="qExp">
+        <strong>✅ Explanation:</strong> ${q.exp}
+      </div>
+    </div>
+    <div class="q-nav">
+      <button class="btn btn-ghost" id="qPrev" ${quizState.current===0?'disabled':''}>← Prev</button>
+      <button class="btn btn-primary" id="qNext">${quizState.current===QUESTIONS.length-1?'Finish':'Next →'}</button>
+    </div>`;
+
+  c.querySelectorAll('.option-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const idx = parseInt(btn.dataset.idx);
+      if(quizState.answered[quizState.current] !== undefined) return;
+      quizState.answered[quizState.current] = idx;
+      quizState.totalAnswered++;
+      if(idx === q.ans){
+        quizState.correct++;
+        quizState.streak++;
+        if(quizState.streak > quizState.maxStreak) quizState.maxStreak = quizState.streak;
+      } else {
+        quizState.streak = 0;
+      }
+      saveState(); updateStats(); renderQuiz();
+    });
+  });
+  document.getElementById('qNext').addEventListener('click',()=>{
+    if(quizState.current < QUESTIONS.length-1){ quizState.current++; saveState(); renderQuiz(); }
+    else { renderQuizComplete(c); }
+  });
+  document.getElementById('qPrev').addEventListener('click',()=>{
+    if(quizState.current > 0){ quizState.current--; saveState(); renderQuiz(); }
+  });
+}
+
+function renderQuizComplete(c){
+  const pct = Math.round(quizState.correct/QUESTIONS.length*100);
+  let msg = pct>=80 ? '🏆 Excellent! You\'re exam-ready!' : pct>=60 ? '👍 Good progress — keep reviewing!' : '📚 Keep studying — you\'ve got this!';
+  c.innerHTML = `
+    <div class="quiz-complete">
+      <div class="big-score">${pct}%</div>
+      <p>${quizState.correct}/${QUESTIONS.length} correct &nbsp;|&nbsp; Max streak: ${quizState.maxStreak}🔥</p>
+      <p style="color:var(--text3);font-size:.9rem;margin-bottom:32px">${msg}</p>
+      <button class="btn btn-primary" id="qRestart">Restart Quiz</button>
+    </div>`;
+  document.getElementById('qProgress').style.width='100%';
+  document.getElementById('qRestart').addEventListener('click',()=>{
+    quizState = {current:0,correct:0,streak:0,maxStreak:0,answered:[],totalAnswered:0};
+    saveState(); updateStats(); renderQuiz();
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   FLASHCARDS
+═══════════════════════════════════════════════════════ */
+function renderFlashcards(){
+  const grid = document.getElementById('flashcardGrid');
+  const dots = document.getElementById('fcProgress');
+  grid.innerHTML = FLASHCARDS.map((fc,i)=>`
+    <div class="flashcard-wrap" data-idx="${i}">
+      <div class="flashcard">
+        <div class="flashcard-face front">
+          <div class="fc-icon">${fc.icon}</div>
+          <div class="fc-q">${fc.q}</div>
+          <div class="fc-hint">Tap to reveal answer</div>
+        </div>
+        <div class="flashcard-face back">
+          <div class="fc-icon">✅</div>
+          <div class="fc-a">${fc.a}</div>
+        </div>
+      </div>
+    </div>`).join('');
+
+  dots.innerHTML = FLASHCARDS.map((_,i)=>`<div class="fc-dot" data-dot="${i}"></div>`).join('');
+  cardsSeen.forEach(i=>{
+    const d = dots.querySelector(`[data-dot="${i}"]`);
+    if(d) d.classList.add('seen');
+  });
+
+  grid.querySelectorAll('.flashcard-wrap').forEach(wrap=>{
+    wrap.addEventListener('click',()=>{
+      wrap.classList.toggle('flipped');
+      const idx = parseInt(wrap.dataset.idx);
+      cardsSeen.add(idx);
+      const dot = dots.querySelector(`[data-dot="${idx}"]`);
+      if(dot){ dot.classList.add('seen'); dot.classList.add('current'); setTimeout(()=>dot.classList.remove('current'),600); }
+      saveState(); updateStats();
+    });
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   CLINICAL CASES
+═══════════════════════════════════════════════════════ */
+function renderCases(){
+  const c = document.getElementById('casesContainer');
+  c.innerHTML = CASES.map(cas=>`
+    <div class="case-card">
+      <div class="case-header">
+        <div class="case-num">${cas.num}</div>
+        <div class="case-vignette">${cas.vignette}</div>
+      </div>
+      <div class="case-body">
+        ${cas.qs.map((q,qi)=>`
+          <div class="case-question">
+            <div class="q-label">${q.label}</div>
+            <p>${q.q}</p>
+            <button class="reveal-btn" data-case="${cas.num.replace(' ','-')}" data-qi="${qi}">Reveal Answer</button>
+            <div class="case-answer" id="ca-${cas.num.replace(' ','-')}-${qi}">${q.a}</div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+
+  c.querySelectorAll('.reveal-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const id = 'ca-'+btn.dataset.case+'-'+btn.dataset.qi;
+      const ans = document.getElementById(id);
+      if(ans){ ans.classList.toggle('show'); btn.textContent = ans.classList.contains('show') ? 'Hide Answer' : 'Reveal Answer'; }
+    });
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   PATHO
+═══════════════════════════════════════════════════════ */
+function renderPatho(){
+  const g = document.getElementById('pathoGrid');
+  const tagColors = {'NTD':'tag-blue','Forebrain':'tag-pearl','Arnold-Chiari':'tag-exam','Dandy-Walker':'tag-high','Hydrocephalus':'tag-blue','Ex Vacuo':'tag-pearl'};
+  g.innerHTML = PATHO_ITEMS.map((p,i)=>`
+    <div class="patho-item" data-idx="${i}">
+      <div class="pi-title">${p.icon} ${p.title} <span class="tag ${tagColors[p.tag]||'tag-blue'} pi-tag">${p.tag}</span></div>
+      <div class="pi-sub">${p.sub}</div>
+      <div class="pi-detail">${p.detail}</div>
+    </div>`).join('');
+  g.querySelectorAll('.patho-item').forEach(item=>{
+    item.addEventListener('click',()=>item.classList.toggle('open'));
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   DIAGNOSIS
+═══════════════════════════════════════════════════════ */
+function renderDiag(){
+  const c = document.getElementById('diagAlgo');
+  const badgeColors = ['badge-blue','badge-green','badge-amber','badge-red'];
+  c.innerHTML = DIAG_STEPS.map((s,i)=>`
+    <div class="algo-step">
+      <div>
+        <div class="as-title">${s.title}</div>
+        <div class="as-desc">${s.desc}</div>
+        <div class="as-badges">${s.badges.map((b,bi)=>`<span class="badge ${badgeColors[bi%4]}">${b}</span>`).join('')}</div>
+      </div>
+    </div>`).join('');
+}
+
+/* ═══════════════════════════════════════════════════════
+   MNEMONICS
+═══════════════════════════════════════════════════════ */
+function renderMnemonics(){
+  const g = document.getElementById('mnemonicsGrid');
+  g.innerHTML = MNEMONICS.map((m,i)=>`
+    <div class="mnemonic-card" data-idx="${i}">
+      <div class="mc-title">${m.title}</div>
+      <div class="mc-acronym">${m.acronym}</div>
+      <div class="mc-desc">${m.desc} — <em>tap to expand</em></div>
+      <div class="mc-list">
+        ${m.items.map(it=>`<div class="mc-list-item"><span class="letter">${it.l}</span><span class="meaning">${it.m}</span></div>`).join('')}
+      </div>
+    </div>`).join('');
+  g.querySelectorAll('.mnemonic-card').forEach(c=>{
+    c.addEventListener('click',()=>c.classList.toggle('open'));
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   VIVA
+═══════════════════════════════════════════════════════ */
+function renderViva(){
+  const l = document.getElementById('vivaList');
+  l.innerHTML = VIVA.map((v,i)=>`
+    <div class="viva-item" data-idx="${i}">
+      <div class="viva-q">
+        <span class="vq-num">${v.num}</span>
+        <p>${v.q}</p>
+        <span class="chevron">›</span>
+      </div>
+      <div class="viva-a">${v.a}</div>
+    </div>`).join('');
+  l.querySelectorAll('.viva-item').forEach(item=>{
+    item.querySelector('.viva-q').addEventListener('click',()=>item.classList.toggle('open'));
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   SEARCH
+═══════════════════════════════════════════════════════ */
+const SEARCH_INDEX = [
+  ...QUESTIONS.map(q=>({tag:'Quiz',text:q.q,detail:q.exp})),
+  ...FLASHCARDS.map(fc=>({tag:'Flashcard',text:fc.q,detail:fc.a})),
+  ...PATHO_ITEMS.map(p=>({tag:'Pathophysiology',text:p.title,detail:p.detail})),
+  ...VIVA.map(v=>({tag:'Viva',text:v.q,detail:v.a})),
+  {tag:'Overview',text:'Arnold-Chiari malformation',detail:'Small posterior fossa → downward cerebellar herniation + myelomeningocele + hydrocephalus triad'},
+  {tag:'Overview',text:'Dandy-Walker malformation',detail:'Absent cerebellar vermis → 4th ventricle cyst dilation'},
+  {tag:'Overview',text:'Hydrocephalus ex vacuo',detail:'Alzheimer\'s Tau protein → brain atrophy → compensatory CSF fill, normal pressure'},
+  {tag:'Overview',text:'Neural tube closes week 3',detail:'Failure by 3rd gestational week → NTDs (anencephaly, spina bifida)'},
+  {tag:'Overview',text:'Spina bifida occulta',detail:'Bony lumbo-sacral defect with tuft of hair. No herniation. Asymptomatic.'},
+];
+
+function initSearch(){
+  const input = document.getElementById('searchInput');
+  const results = document.getElementById('searchResults');
+  input.addEventListener('input',()=>{
+    const q = input.value.trim().toLowerCase();
+    if(q.length < 2){ results.style.display='none'; return; }
+    const matches = SEARCH_INDEX.filter(item=>
+      item.text.toLowerCase().includes(q) || item.detail.toLowerCase().includes(q)
+    ).slice(0,8);
+    if(!matches.length){ results.style.display='none'; return; }
+    results.innerHTML = matches.map(m=>`
+      <div class="search-result-item">
+        <div class="sr-tag">${m.tag}</div>
+        <div>${m.text}</div>
+      </div>`).join('');
+    results.style.display='block';
+  });
+  document.addEventListener('click',e=>{
+    if(!e.target.closest('.search-wrap')) results.style.display='none';
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded',()=>{
+  loadState();
+  initTabs();
+  renderQuiz();
+  renderFlashcards();
+  renderCases();
+  renderPatho();
+  renderDiag();
+  renderMnemonics();
+  renderViva();
+  initSearch();
+  updateStats();
+});
+</script>
+</body>
+</html>

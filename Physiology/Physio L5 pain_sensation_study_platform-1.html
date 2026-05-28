@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pain Sensation — Interactive Medical Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0d14;
+  --surface: #111520;
+  --surface2: #181d2e;
+  --surface3: #1e2438;
+  --border: rgba(99,140,255,0.13);
+  --accent: #638cff;
+  --accent2: #ff6b9d;
+  --accent3: #38d9a9;
+  --accent4: #ffd166;
+  --accent5: #b388ff;
+  --text: #e8eaf0;
+  --text2: #9ba3bf;
+  --text3: #636b8a;
+  --danger: #ff5252;
+  --success: #38d9a9;
+  --warn: #ffd166;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow: 0 8px 40px rgba(0,0,0,0.5);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── ANIMATED BG ─── */
+.bg-orbs {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  overflow: hidden;
+}
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.12;
+  animation: float 20s ease-in-out infinite;
+}
+.orb-1 { width:500px;height:500px;background:#638cff;top:-100px;left:-100px;animation-delay:0s; }
+.orb-2 { width:400px;height:400px;background:#ff6b9d;bottom:-80px;right:-80px;animation-delay:-7s; }
+.orb-3 { width:350px;height:350px;background:#38d9a9;top:40%;left:50%;animation-delay:-14s; }
+@keyframes float {
+  0%,100%{transform:translate(0,0) scale(1);}
+  33%{transform:translate(30px,-40px) scale(1.05);}
+  66%{transform:translate(-20px,30px) scale(0.95);}
+}
+
+/* ─── HEADER ─── */
+header {
+  position: relative; z-index: 10;
+  padding: 28px 32px 0;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.header-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--accent); letter-spacing: 3px; text-transform: uppercase;
+  background: rgba(99,140,255,0.1); padding: 4px 14px; border-radius: 20px;
+  border: 1px solid rgba(99,140,255,0.2);
+}
+header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(26px,5vw,48px); font-weight: 900;
+  background: linear-gradient(135deg, #e8eaf0 0%, #638cff 50%, #ff6b9d 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  text-align: center; line-height: 1.15; margin-top: 8px;
+}
+header p { color: var(--text2); font-size: 14px; font-weight: 300; text-align: center; margin-top: 4px; }
+
+/* ─── STATS BAR ─── */
+.stats-bar {
+  position: relative; z-index: 10;
+  display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+  padding: 18px 24px;
+}
+.stat-chip {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  padding: 6px 16px;
+  font-size: 13px; font-weight: 500;
+  display: flex; align-items: center; gap: 7px;
+}
+.stat-chip span { color: var(--accent); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+
+/* ─── SEARCH ─── */
+.search-wrap {
+  position: relative; z-index: 10;
+  padding: 0 24px 16px;
+  max-width: 600px; margin: 0 auto; width: 100%;
+}
+.search-wrap input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  padding: 12px 20px 12px 46px;
+  color: var(--text); font-size: 14px; font-family: 'DM Sans', sans-serif;
+  outline: none; transition: border-color .2s;
+}
+.search-wrap input:focus { border-color: var(--accent); }
+.search-wrap::before {
+  content: '🔍'; position: absolute; left: 40px; top: 50%; transform: translateY(-50%);
+  font-size: 14px; pointer-events: none;
+}
+#searchResults {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); margin-top: 6px;
+  max-height: 280px; overflow-y: auto; display: none;
+}
+.search-result-item {
+  padding: 10px 16px; border-bottom: 1px solid var(--border); cursor: pointer;
+  transition: background .15s; font-size: 13px;
+}
+.search-result-item:hover { background: var(--surface3); }
+.search-result-item strong { color: var(--accent); display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+
+/* ─── TABS ─── */
+.tabs-wrap {
+  position: relative; z-index: 10;
+  overflow-x: auto; padding: 0 16px 0;
+  -webkit-overflow-scrolling: touch;
+}
+.tabs {
+  display: flex; gap: 4px; min-width: max-content;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 40px;
+  padding: 5px;
+  margin: 0 auto;
+  width: fit-content;
+}
+.tab-btn {
+  padding: 9px 18px;
+  border-radius: 30px; border: none;
+  background: transparent; color: var(--text2);
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all .2s; white-space: nowrap;
+}
+.tab-btn:hover { color: var(--text); background: var(--surface2); }
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--accent), #4a6fe8);
+  color: #fff; box-shadow: 0 4px 20px rgba(99,140,255,0.35);
+}
+
+/* ─── MAIN CONTENT ─── */
+main {
+  position: relative; z-index: 10;
+  max-width: 1100px; margin: 0 auto;
+  padding: 20px 16px 60px;
+}
+.tab-panel { display: none; animation: fadeUp .35s ease; }
+.tab-panel.active { display: block; }
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(16px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+/* ─── CARDS & GRIDS ─── */
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 700;
+  margin-bottom: 16px; margin-top: 28px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-title::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, var(--border), transparent);
+}
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+  border-color: rgba(99,140,255,0.3);
+}
+.card-icon { font-size: 28px; margin-bottom: 10px; }
+.card h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+.tag {
+  display: inline-block;
+  font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 20px; margin: 3px 2px;
+}
+.tag-exam { background: rgba(255,107,157,0.15); color: var(--accent2); border: 1px solid rgba(255,107,157,0.3); }
+.tag-high { background: rgba(255,209,102,0.15); color: var(--accent4); border: 1px solid rgba(255,209,102,0.3); }
+.tag-pearl { background: rgba(56,217,169,0.15); color: var(--accent3); border: 1px solid rgba(56,217,169,0.3); }
+.tag-pathway { background: rgba(179,136,255,0.15); color: var(--accent5); border: 1px solid rgba(179,136,255,0.3); }
+
+/* ─── PROGRESS BAR ─── */
+.progress-bar-wrap {
+  background: var(--surface2);
+  border-radius: 30px; height: 6px; overflow: hidden; margin-bottom: 4px;
+}
+.progress-bar-fill {
+  height: 100%; border-radius: 30px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  transition: width .5s ease;
+}
+
+/* ─── QUIZ ─── */
+.quiz-header {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+  display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
+  margin-bottom: 20px;
+}
+.quiz-stat { text-align: center; }
+.quiz-stat .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px; font-weight: 700; color: var(--accent);
+  display: block;
+}
+.quiz-stat .lbl { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; }
+
+.question-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px;
+  margin-bottom: 16px;
+}
+.question-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--accent3); letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.question-text { font-size: 16px; font-weight: 500; margin-bottom: 18px; line-height: 1.55; }
+.options { display: flex; flex-direction: column; gap: 9px; }
+.option-btn {
+  text-align: left;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 16px;
+  color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px;
+  cursor: pointer; transition: all .18s; display: flex; gap: 12px; align-items: flex-start;
+}
+.option-btn:hover:not(:disabled) { border-color: var(--accent); background: var(--surface3); }
+.option-btn.correct { border-color: var(--success); background: rgba(56,217,169,0.1); color: var(--success); animation: pulse-correct .4s ease; }
+.option-btn.wrong   { border-color: var(--danger);  background: rgba(255,82,82,0.1);  color: var(--danger);  animation: shake .3s ease; }
+.option-btn:disabled { cursor: default; }
+@keyframes pulse-correct { 0%,100%{transform:scale(1)} 50%{transform:scale(1.01)} }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+.option-letter { font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 12px; min-width: 20px; }
+.explanation {
+  margin-top: 14px; padding: 14px; border-radius: var(--radius-sm);
+  background: var(--surface3); border-left: 3px solid var(--accent3);
+  font-size: 13px; line-height: 1.6; color: var(--text2);
+  display: none;
+}
+.explanation.show { display: block; animation: fadeUp .25s ease; }
+.explanation strong { color: var(--accent3); }
+
+/* ─── FLASHCARDS ─── */
+.fc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+.fc-card {
+  height: 200px; cursor: pointer;
+  perspective: 1000px;
+}
+.fc-inner {
+  width: 100%; height: 100%;
+  transform-style: preserve-3d;
+  transition: transform .55s ease;
+  position: relative;
+}
+.fc-card.flipped .fc-inner { transform: rotateY(180deg); }
+.fc-front, .fc-back {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 20px;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  text-align: center; gap: 10px;
+}
+.fc-front {
+  background: var(--surface);
+}
+.fc-back {
+  background: var(--surface2);
+  border-color: rgba(99,140,255,0.3);
+  transform: rotateY(180deg);
+}
+.fc-front .fc-emoji { font-size: 30px; }
+.fc-front p { font-size: 14px; font-weight: 600; line-height: 1.5; }
+.fc-back p { font-size: 13px; color: var(--text2); line-height: 1.65; }
+.fc-back .fc-tag { font-size: 10px; color: var(--accent); font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+.fc-hint { font-size: 10px; color: var(--text3); margin-top: 8px; }
+
+/* ─── CLINICAL CASES ─── */
+.case-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 26px; margin-bottom: 20px;
+}
+.case-header { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; }
+.case-num {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff; border-radius: 10px; padding: 6px 12px;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
+  white-space: nowrap;
+}
+.case-vignette { font-size: 15px; line-height: 1.7; color: var(--text2); margin-bottom: 16px; }
+.case-question { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: var(--text); }
+.reveal-btn {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 20px;
+  color: var(--accent); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all .2s; margin-top: 10px;
+}
+.reveal-btn:hover { background: rgba(99,140,255,0.12); border-color: var(--accent); }
+.case-answer {
+  margin-top: 14px; padding: 16px; border-radius: var(--radius-sm);
+  background: var(--surface3); border-left: 3px solid var(--accent4);
+  font-size: 13px; line-height: 1.7; color: var(--text2);
+  display: none;
+}
+.case-answer.show { display: block; animation: fadeUp .3s ease; }
+.case-answer strong { color: var(--accent4); }
+.case-question-block { margin-bottom: 18px; }
+.case-divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+/* ─── FLOWCHART ─── */
+.flow-wrap { display: flex; flex-direction: column; gap: 0; align-items: center; margin: 20px 0; }
+.flow-node {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 20px;
+  text-align: center; font-size: 13px; line-height: 1.5;
+  max-width: 460px; width: 100%;
+  transition: border-color .2s;
+}
+.flow-node:hover { border-color: var(--accent); }
+.flow-node strong { color: var(--accent); display: block; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px; }
+.flow-arrow {
+  color: var(--accent); font-size: 22px; line-height: 1.2;
+  display: block; text-align: center;
+}
+.flow-node.highlight { border-color: var(--accent3); background: rgba(56,217,169,0.07); }
+.flow-node.warn-node { border-color: var(--accent4); background: rgba(255,209,102,0.07); }
+
+/* ─── COMPARISON TABLE ─── */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+  background: var(--surface2); padding: 12px 16px;
+  text-align: left; font-weight: 700; font-size: 12px;
+  letter-spacing: 1px; text-transform: uppercase; color: var(--text2);
+  border-bottom: 1px solid var(--border);
+}
+tbody td { padding: 12px 16px; border-bottom: 1px solid var(--border); color: var(--text2); line-height: 1.5; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--surface2); }
+tbody td:first-child { font-weight: 600; color: var(--text); }
+
+/* ─── ANATOMY GRID ─── */
+.anatomy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+.anat-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 16px;
+  cursor: pointer; transition: all .2s;
+}
+.anat-item:hover, .anat-item.open { border-color: var(--accent5); background: var(--surface2); }
+.anat-item h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+.anat-item p { font-size: 12px; color: var(--text3); }
+.anat-detail {
+  font-size: 13px; color: var(--text2); line-height: 1.6;
+  margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);
+  display: none;
+}
+.anat-item.open .anat-detail { display: block; animation: fadeUp .25s ease; }
+
+/* ─── MNEMONICS ─── */
+.mnemonic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+.mnemonic-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 22px;
+  position: relative; overflow: hidden;
+}
+.mnemonic-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.mnemonic-card:nth-child(1)::before { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+.mnemonic-card:nth-child(2)::before { background: linear-gradient(90deg, var(--accent3), var(--accent)); }
+.mnemonic-card:nth-child(3)::before { background: linear-gradient(90deg, var(--accent4), var(--accent3)); }
+.mnemonic-card:nth-child(4)::before { background: linear-gradient(90deg, var(--accent5), var(--accent4)); }
+.mnemonic-card:nth-child(5)::before { background: linear-gradient(90deg, var(--accent2), var(--accent5)); }
+.mnemonic-card:nth-child(6)::before { background: linear-gradient(90deg, var(--accent), var(--accent3)); }
+.mnemonic-title { font-size: 13px; color: var(--text3); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+.mnemonic-word {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px; font-weight: 900; color: var(--accent); margin-bottom: 12px; letter-spacing: 2px;
+}
+.mnemonic-topic { font-size: 13px; color: var(--text2); margin-bottom: 12px; font-weight: 500; }
+.mnemonic-list { list-style: none; padding: 0; }
+.mnemonic-list li {
+  font-size: 13px; color: var(--text2); padding: 5px 0;
+  border-bottom: 1px solid var(--border); display: flex; gap: 10px;
+}
+.mnemonic-list li:last-child { border-bottom: none; }
+.mnemonic-letter { font-weight: 900; font-size: 16px; color: var(--accent); min-width: 20px; }
+
+/* ─── TREATMENT ─── */
+.treatment-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px;
+}
+.treatment-card {
+  border-radius: var(--radius); padding: 20px;
+  border: 1px solid;
+}
+.treatment-card.urgent { border-color: rgba(255,82,82,0.4); background: rgba(255,82,82,0.05); }
+.treatment-card.moderate { border-color: rgba(255,209,102,0.4); background: rgba(255,209,102,0.05); }
+.treatment-card.standard { border-color: rgba(56,217,169,0.4); background: rgba(56,217,169,0.05); }
+.treatment-card.info { border-color: rgba(99,140,255,0.4); background: rgba(99,140,255,0.05); }
+.treatment-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.treatment-card ul { padding-left: 0; list-style: none; }
+.treatment-card ul li {
+  font-size: 13px; color: var(--text2); padding: 4px 0;
+  padding-left: 16px; position: relative; line-height: 1.5;
+}
+.treatment-card ul li::before { content: '→'; position: absolute; left: 0; color: var(--accent); }
+
+/* ─── DIAGNOSIS ─── */
+.diag-badge {
+  display: inline-block; padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  margin: 4px 3px;
+}
+.diag-badge.mri   { background: rgba(99,140,255,0.15); color: var(--accent); border: 1px solid rgba(99,140,255,0.3); }
+.diag-badge.neuro { background: rgba(179,136,255,0.15); color: var(--accent5); border: 1px solid rgba(179,136,255,0.3); }
+.diag-badge.lab   { background: rgba(56,217,169,0.15); color: var(--accent3); border: 1px solid rgba(56,217,169,0.3); }
+.diag-badge.exam  { background: rgba(255,107,157,0.15); color: var(--accent2); border: 1px solid rgba(255,107,157,0.3); }
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 10px; }
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:600px){
+  .tabs { flex-wrap: nowrap; }
+  .quiz-header { gap: 12px; }
+  .fc-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<header>
+  <div class="header-badge">📚 Physiology · Interactive Study Platform</div>
+  <h1>Pain Sensation</h1>
+  <p>Visceral · Referred · Headache · Neuropathic Pain · Pain Control</p>
+</header>
+
+<div class="stats-bar">
+  <div class="stat-chip">🎯 Quiz Score <span id="scoreDisplay">0/0</span></div>
+  <div class="stat-chip">🔥 Streak <span id="streakDisplay">0</span></div>
+  <div class="stat-chip">📊 Progress <span id="progressDisplay">0%</span></div>
+  <div class="stat-chip">⚡ Cards Flipped <span id="cardsDisplay">0</span></div>
+</div>
+
+<div class="search-wrap">
+  <input type="text" id="searchInput" placeholder="Search concepts, terms, mechanisms…" autocomplete="off">
+  <div id="searchResults"></div>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('overview')">🗺️ Overview</button>
+    <button class="tab-btn" onclick="switchTab('quiz')">❓ Quiz</button>
+    <button class="tab-btn" onclick="switchTab('flashcards')">🃏 Flashcards</button>
+    <button class="tab-btn" onclick="switchTab('cases')">🏥 Clinical Cases</button>
+    <button class="tab-btn" onclick="switchTab('pathophysiology')">🔬 Pathophysiology</button>
+    <button class="tab-btn" onclick="switchTab('diagnosis')">🩺 Diagnosis</button>
+    <button class="tab-btn" onclick="switchTab('treatment')">💊 Treatment</button>
+    <button class="tab-btn" onclick="switchTab('mnemonics')">🧠 Mnemonics</button>
+  </div>
+</div>
+
+<main>
+
+<!-- ══════════════════════════════════════════════════════ OVERVIEW ══════════════════════════════════════════════════════ -->
+<div class="tab-panel active" id="tab-overview">
+
+  <div class="section-title">📌 Key Concept Cards</div>
+  <div class="card-grid" id="overviewCards">
+    <div class="card">
+      <div class="card-icon">🎯</div>
+      <h3>Visceral Pain</h3>
+      <p>Poorly localized, colicky, burning or dull aching pain from diffuse stimulation of visceral pain receptors. Sharp cuts do NOT cause visceral pain — diffuse stimuli do.</p>
+      <div style="margin-top:10px"><span class="tag tag-exam">⚠️ Exam</span><span class="tag tag-high">High-Yield</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔀</div>
+      <h3>Referred Pain</h3>
+      <p>Pain from a viscus felt in a somatic structure sharing the same embryonic dermatome. Explained by the Convergence-Projection Theory at the SGR dorsal horn cells.</p>
+      <div style="margin-top:10px"><span class="tag tag-exam">⚠️ Exam</span><span class="tag tag-pearl">Clinical Pearl</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🤢</div>
+      <h3>Autonomic Signs of Visceral Pain</h3>
+      <p>Severe visceral pain = parasympathetic manifestations: ↓HR, ↓BP, pupillary constriction, nausea & vomiting. NOT tachycardia.</p>
+      <div style="margin-top:10px"><span class="tag tag-exam">⚠️ Exam</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🛤️</div>
+      <h3>Parietal vs Visceral Pathway</h3>
+      <p>Parietal: A-δ & C fibers via somatic nerves → sharp, well-localized. Visceral: C fibers only via autonomic nerves → dull, poorly localized.</p>
+      <div style="margin-top:10px"><span class="tag tag-high">High-Yield</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🧠</div>
+      <h3>Brain Has No Pain Receptors!</h3>
+      <p>Brain tissue is devoid of pain receptors. Only surrounding structures (meninges, blood vessels, venous sinuses, cranial nerves V, IX, X) are pain-sensitive.</p>
+      <div style="margin-top:10px"><span class="tag tag-exam">⚠️ Exam</span><span class="tag tag-pearl">Clinical Pearl</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon">⚡</div>
+      <h3>Neuropathic Pain</h3>
+      <p>Chronic pain from pathological nerve changes (peripheral or central). Excruciating paroxysms, burning/shooting quality, hyperalgesia. Barely responsive to standard treatment.</p>
+      <div style="margin-top:10px"><span class="tag tag-high">High-Yield</span><span class="tag tag-pearl">Clinical Pearl</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔒</div>
+      <h3>Pain Analgesia System (PAS)</h3>
+      <p>Descending inhibitory system: PAG → Enkephalins → GABA inhibition → NRM (serotonin) + Paragiagantocellularis (noradrenaline) → Dorsal horn enkephalins → Block Substance P & Glutamate.</p>
+      <div style="margin-top:10px"><span class="tag tag-exam">⚠️ Exam</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🚪</div>
+      <h3>Gate Theory</h3>
+      <p>SGR cells (layers II & III) act as a gate. A-β fibers (rubbing) and A-δ fibers (acupuncture) close the gate via presynaptic inhibition, reducing pain transmission.</p>
+      <div style="margin-top:10px"><span class="tag tag-high">High-Yield</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon">💊</div>
+      <h3>Endogenous Opioids</h3>
+      <p>Enkephalins → Delta (δ) receptors · Endorphins (from POMC) → Mu (µ) receptors · Dynorphins → Sigma (σ) receptors. Morphine mimics these at the same receptors.</p>
+      <div style="margin-top:10px"><span class="tag tag-high">High-Yield</span></div>
+    </div>
+  </div>
+
+  <div class="section-title">📍 Referred Pain Map</div>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon">❤️</div>
+      <h3>Heart / MI</h3>
+      <p>Referred to: <strong style="color:var(--accent2)">Retrosternal area → Left arm (inner side) → Left shoulder/neck</strong></p>
+      <div style="margin-top:8px"><span class="tag tag-exam">Classic Exam Case</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🟡</div>
+      <h3>Gallbladder</h3>
+      <p>Referred to: <strong style="color:var(--accent4)">Epigastric region → Right shoulder → Neck</strong></p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🟠</div>
+      <h3>Appendix (Early)</h3>
+      <p>Referred to: <strong style="color:var(--accent3)">Umbilicus</strong> (visceral, C-fibers) → Later shifts to RIF when parietal peritoneum involved (parietal pathway, sharp).</p>
+      <div style="margin-top:8px"><span class="tag tag-exam">Classic Exam Case</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🫁</div>
+      <h3>Diaphragm</h3>
+      <p>Referred to: <strong style="color:var(--accent5)">Shoulder tip</strong> (phrenic nerve, C3-5 dermatome)</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🫘</div>
+      <h3>Kidney / Ureter</h3>
+      <p>Referred to: <strong style="color:var(--accent)">Flank, groin, inner thigh, scrotum/labia</strong></p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔴</div>
+      <h3>Esophagus</h3>
+      <p>Referred to: <strong style="color:var(--accent2)">Midline chest / substernal</strong></p>
+    </div>
+  </div>
+
+  <div class="section-title">📊 Headache Types Timeline</div>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon">👁️</div>
+      <h3>Extracranial Headaches</h3>
+      <p>• Refractive errors / glaucoma (eyes)<br>• Sinusitis (nose)<br>• Dental caries (oral)<br>• Psychogenic: emotional tension → scalp/neck muscle contraction</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🧠</div>
+      <h3>Intracranial Headaches</h3>
+      <p>• Meninges (inflammation / traction)<br>• Blood vessels (over-distension)<br>• Venous sinuses<br>• Cranial nerves V, IX, X<br>• Tumors → pressure on pain-sensitive structures</p>
+      <div style="margin-top:8px"><span class="tag tag-pearl">Pearl: Brain itself has NO pain receptors</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🌡️</div>
+      <h3>Fever Headache Mechanism</h3>
+      <p>Temperature + microbial toxins → over-distension (vasodilation) of cerebral arteries → stretch pain receptors in vessel walls → headache</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">💉</div>
+      <h3>Post-Spinal Tap Headache</h3>
+      <p>Removed CSF → reduced buoyancy → on standing, brain descends by gravity → traction on pain-sensitive meninges (dura, tentorium) → positional headache</p>
+      <div style="margin-top:8px"><span class="tag tag-exam">Classic Vignette</span></div>
+    </div>
+    <div class="card">
+      <div class="card-icon">📈</div>
+      <h3>Hypertensive Headache</h3>
+      <p>High BP → over-distension of cerebral arteries during each systole → throbbing pulsatile headache synchronized with the pulse</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">⚡</div>
+      <h3>Migraine Headache</h3>
+      <p>Vascular mechanism → cerebral artery changes. Preceded by aura (prodrome). Associated with photo/phonophobia. Throbbing, unilateral typically.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════ QUIZ ══════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-quiz">
+
+  <div class="quiz-header">
+    <div class="quiz-stat"><span class="num" id="qScore">0</span><span class="lbl">Correct</span></div>
+    <div class="quiz-stat"><span class="num" id="qWrong">0</span><span class="lbl">Incorrect</span></div>
+    <div class="quiz-stat"><span class="num" id="qStreak">0</span><span class="lbl">Streak 🔥</span></div>
+    <div style="flex:1">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text3);margin-bottom:4px">
+        <span>Progress</span><span id="qProgressTxt">0 / 25</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="qProgress" style="width:0%"></div></div>
+    </div>
+    <button onclick="resetQuiz()" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 16px;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px">🔄 Reset</button>
+  </div>
+
+  <div id="quizContainer"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ FLASHCARDS ══════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-flashcards">
+  <p style="color:var(--text2);font-size:13px;margin-bottom:18px">👆 Tap any card to flip and reveal the answer. <span id="fcCount" style="color:var(--accent)">0 flipped so far!</span></p>
+  <div class="fc-grid" id="fcContainer"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ CASES ══════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-cases">
+  <div id="casesContainer"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ PATHOPHYSIOLOGY ══════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-pathophysiology">
+
+  <div class="section-title">🔬 Key Structures — Click to Explore</div>
+  <div class="anatomy-grid" id="anatGrid"></div>
+
+  <div class="section-title" style="margin-top:32px">🔀 Pain Analgesia System (PAS) — Step-by-Step Cascade</div>
+  <div class="flow-wrap">
+    <div class="flow-node warn-node"><strong>Trigger</strong>Severe Stress / Cortical + Limbic + Hypothalamic Input</div>
+    <span class="flow-arrow">↓</span>
+    <div class="flow-node"><strong>Step 1 — Midbrain/Pons</strong>Periventricular & Periaqueductal Gray (PAG) is stimulated</div>
+    <span class="flow-arrow">↓</span>
+    <div class="flow-node"><strong>Step 2 — Enkephalin Release</strong>PAG secretes Enkephalins onto GABA-ergic interneurons</div>
+    <span class="flow-arrow">↓</span>
+    <div class="flow-node highlight"><strong>Step 3 — KEY STEP ⚠️</strong>Enkephalins INHIBIT the resting GABA-ergic neurons → removes tonic inhibition</div>
+    <span class="flow-arrow">↓</span>
+    <div class="flow-node"><strong>Step 4 — Medulla Activated</strong>Nucleus Raphe Magnus (NRM) → releases Serotonin ↓ · Paragiagantocellularis → releases Noradrenaline ↓</div>
+    <span class="flow-arrow">↓</span>
+    <div class="flow-node"><strong>Step 5 — Dorsal Horn</strong>Serotonin & Noradrenaline activate inhibitory interneurons in the spinal dorsal horn</div>
+    <span class="flow-arrow">↓</span>
+    <div class="flow-node"><strong>Step 6 — Enkephalins at Synapse</strong>Interneurons release Enkephalins onto presynaptic terminals of incoming pain fibers</div>
+    <span class="flow-arrow">↓</span>
+    <div class="flow-node highlight"><strong>Step 7 — Pain Blocked ✅</strong>Presynaptic inhibition → blocks release of Substance P & Glutamate → pain signal cannot ascend</div>
+  </div>
+
+  <div class="section-title" style="margin-top:32px">🔀 Convergence-Projection Theory Flowchart</div>
+  <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:start;max-width:700px;margin:0 auto 20px">
+    <div>
+      <div class="flow-node"><strong>Visceral Input</strong>Diseased organ (e.g., heart, appendix) → C-fibers → autonomic nerves</div>
+      <span class="flow-arrow">↓</span>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--accent);padding-top:40px">+</div>
+    <div>
+      <div class="flow-node"><strong>Somatic Input</strong>Skin / muscle of related dermatome → A-δ / C fibers → somatic nerves</div>
+      <span class="flow-arrow">↓</span>
+    </div>
+  </div>
+  <div class="flow-wrap">
+    <div class="flow-node warn-node"><strong>Convergence Point</strong>SAME Substantia Gelatinosa of Rolandi (SGR) dorsal horn cell receives BOTH inputs</div>
+    <span class="flow-arrow">↓</span>
+    <div class="flow-node"><strong>Cortical Misinterpretation</strong>Cortex is more accustomed to somatic signals → assumes pain is from the skin/muscle</div>
+    <span class="flow-arrow">↓</span>
+    <div class="flow-node highlight"><strong>Result: Referred Pain ✅</strong>Heart pain felt in left arm · Gallbladder pain felt in right shoulder · Appendix pain felt at umbilicus</div>
+  </div>
+
+  <div class="section-title" style="margin-top:32px">🚪 Gate Theory of Pain Control</div>
+  <div class="flow-wrap">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:600px">
+      <div class="flow-node"><strong>Method 1 — Skin Rubbing</strong>A-β fibers stimulated (tactile) → Collaterals to SGR → Presynaptic inhibition of C/A-δ pain fibers → Gate CLOSED</div>
+      <div class="flow-node"><strong>Method 2 — Acupuncture</strong>A-δ fibers stimulated by needle → Collaterals to SGR → Presynaptic inhibition → Gate CLOSED + activates descending PAS</div>
+    </div>
+    <span class="flow-arrow">↓</span>
+    <div class="flow-node highlight"><strong>Gate Closed = Pain Reduced ✅</strong>SGR (layers II & III) acts as the gating mechanism in the dorsal horn</div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════ DIAGNOSIS ══════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-diagnosis">
+
+  <div class="section-title">🩺 Diagnostic Criteria — Visceral vs Parietal Pain</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Feature</th><th>Visceral Pain</th><th>Parietal Pain</th></tr></thead>
+      <tbody>
+        <tr><td>Localization</td><td style="color:var(--accent2)">Poorly localized, diffuse</td><td style="color:var(--accent3)">Well-localized, precise</td></tr>
+        <tr><td>Quality</td><td>Colicky, dull, aching, burning</td><td>Sharp, stabbing</td></tr>
+        <tr><td>Fiber type</td><td>C fibers ONLY</td><td>A-δ AND C fibers</td></tr>
+        <tr><td>Nerve route</td><td>Autonomic nerves</td><td>Somatic nerves</td></tr>
+        <tr><td>Source</td><td>Viscera, visceral serous membranes</td><td>Parietal serous membranes, retroperitoneal</td></tr>
+        <tr><td>Associated signs</td><td>↓HR, ↓BP, nausea, vomiting (parasympathetic)</td><td>Muscle guarding/rigidity</td></tr>
+        <tr><td>Appendicitis example</td><td>Early: vague umbilical pain</td><td>Late: sharp RIF pain</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">🧠 Headache Classification</div>
+  <div class="table-wrap" style="margin-bottom:20px">
+    <table>
+      <thead><tr><th>Feature</th><th>Extracranial</th><th>Intracranial</th></tr></thead>
+      <tbody>
+        <tr><td>Pain-sensitive structures</td><td>Eyes, nose, oral, scalp/neck muscles</td><td>Meninges, blood vessels, venous sinuses, CN V/IX/X</td></tr>
+        <tr><td>Examples</td><td>Refractive errors, sinusitis, psychogenic, dental caries</td><td>Meningitis, tumor, ↑BP, fever, ↓CSF pressure</td></tr>
+        <tr><td>Mechanism</td><td>Local organ pathology / muscle tension</td><td>Traction, distension, inflammation of intracranial structures</td></tr>
+        <tr><td>Severity</td><td>Usually moderate</td><td>Can indicate serious CNS pathology</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">💊 Endogenous Opioid Comparison</div>
+  <div class="table-wrap" style="margin-bottom:20px">
+    <table>
+      <thead><tr><th>Opioid</th><th>Receptor</th><th>Precursor</th><th>Location</th></tr></thead>
+      <tbody>
+        <tr><td>Enkephalins (Leu- & Met-)</td><td><span class="diag-badge mri">Delta (δ)</span></td><td>Proenkephalin</td><td>Brainstem, spinal cord</td></tr>
+        <tr><td>Endorphins (β-endorphin)</td><td><span class="diag-badge exam">Mu (µ)</span></td><td>POMC (pre-opio-melanocortin)</td><td>Anterior pituitary, hypothalamus</td></tr>
+        <tr><td>Dynorphins</td><td><span class="diag-badge neuro">Sigma (σ)</span></td><td>Co-localized with enkephalins</td><td>Brainstem, spinal cord</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">⚗️ Key Investigation Findings</div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px">
+    <h4 style="margin-bottom:12px;font-size:14px">Neuropathic Pain — Clinical Diagnostic Features</h4>
+    <div>
+      <span class="diag-badge exam">Paroxysmal onset</span>
+      <span class="diag-badge neuro">Excruciating intensity</span>
+      <span class="diag-badge mri">Burning / shooting quality</span>
+      <span class="diag-badge lab">Hyperalgesia present</span>
+      <span class="diag-badge exam">Sympathetic dystrophy</span>
+      <span class="diag-badge neuro">Opioid-resistant</span>
+      <span class="diag-badge mri">Chronic course</span>
+      <span class="diag-badge lab">Peripheral or central nerve lesion</span>
+    </div>
+    <h4 style="margin-top:20px;margin-bottom:12px;font-size:14px">Visceral Pain — Diagnostic Clues</h4>
+    <div>
+      <span class="diag-badge mri">Bradycardia</span>
+      <span class="diag-badge lab">Hypotension</span>
+      <span class="diag-badge exam">Nausea / vomiting</span>
+      <span class="diag-badge neuro">Pupillary constriction</span>
+      <span class="diag-badge mri">Diffuse poorly-localized pain</span>
+      <span class="diag-badge lab">Colicky character</span>
+    </div>
+  </div>
+
+  <div class="section-title">🗺️ Diagnostic Algorithm — Headache</div>
+  <div class="flow-wrap">
+    <div class="flow-node warn-node"><strong>Patient presents with headache</strong></div>
+    <span class="flow-arrow">↓</span>
+    <div class="flow-node"><strong>Step 1</strong>Is it extracranial or intracranial? Check: fever, neurological signs, positional component, BP</div>
+    <span class="flow-arrow">↓</span>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:600px;width:100%">
+      <div class="flow-node"><strong>Extracranial pathway</strong>→ Eyes? Sinuses? Dental? Psychogenic stress? Address underlying cause</div>
+      <div class="flow-node"><strong>Intracranial pathway</strong>→ Fever, ↑BP, ↓CSF, tumor, meningitis? → Mechanism-specific management</div>
+    </div>
+    <span class="flow-arrow">↓</span>
+    <div class="flow-node highlight"><strong>Remember: Intracranial headache = pain-sensitive structures (not brain tissue) are involved</strong></div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════ TREATMENT ══════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-treatment">
+
+  <div class="section-title">🚨 Emergency / Acute Pain Management</div>
+  <div class="treatment-grid">
+    <div class="treatment-card urgent">
+      <h4>🚨 Exogenous Opioids (Urgent)</h4>
+      <ul>
+        <li>Morphine: targets Mu (µ) receptors — mimics endorphins</li>
+        <li>Provides presynaptic inhibition at dorsal horn</li>
+        <li>Blocks Substance P & Glutamate release</li>
+        <li>Only partial effect on neuropathic pain</li>
+        <li>Targets same receptors as endogenous opioids</li>
+      </ul>
+    </div>
+    <div class="treatment-card urgent">
+      <h4>🔴 Neuropathic Pain — Special Considerations</h4>
+      <ul>
+        <li>Standard NSAIDs largely ineffective</li>
+        <li>Opioids only partially effective</li>
+        <li>Anticonvulsants (e.g., gabapentin, carbamazepine for trigeminal neuralgia)</li>
+        <li>Tricyclic antidepressants (TCAs)</li>
+        <li>Topical agents (lidocaine, capsaicin)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section-title">🟡 Headache Management by Type</div>
+  <div class="treatment-grid">
+    <div class="treatment-card moderate">
+      <h4>🌡️ Fever Headache</h4>
+      <ul>
+        <li>Antipyretics (paracetamol, NSAIDs)</li>
+        <li>Treat underlying infection (antibiotics if bacterial)</li>
+        <li>Reversal of cerebral artery over-distension</li>
+      </ul>
+    </div>
+    <div class="treatment-card moderate">
+      <h4>📈 Hypertensive Headache</h4>
+      <ul>
+        <li>Antihypertensives to reduce BP</li>
+        <li>Reduces over-distension of cerebral arteries</li>
+        <li>Monitor for hypertensive emergency</li>
+      </ul>
+    </div>
+    <div class="treatment-card moderate">
+      <h4>💉 Post-Spinal Tap Headache</h4>
+      <ul>
+        <li>Lie flat (reduces gravity-induced traction)</li>
+        <li>Adequate hydration to replenish CSF</li>
+        <li>Blood patch (epidural) if severe/persistent</li>
+        <li>Caffeine (vasoconstrictive effect)</li>
+      </ul>
+    </div>
+    <div class="treatment-card moderate">
+      <h4>😤 Psychogenic / Tension Headache</h4>
+      <ul>
+        <li>Address underlying emotional stress/tension</li>
+        <li>Muscle relaxants for scalp/neck tension</li>
+        <li>Simple analgesics (NSAIDs, paracetamol)</li>
+        <li>Psychological counseling / biofeedback</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section-title">🟢 Non-Pharmacological Pain Control</div>
+  <div class="treatment-grid">
+    <div class="treatment-card standard">
+      <h4>✋ Skin Rubbing (Gate Theory)</h4>
+      <ul>
+        <li>Stimulates A-β (tactile) fibers</li>
+        <li>Collaterals inhibit pain at SGR gate</li>
+        <li>Immediate but temporary relief</li>
+        <li>Spinal level mechanism</li>
+        <li>Classic: rubbing a bumped knee</li>
+      </ul>
+    </div>
+    <div class="treatment-card standard">
+      <h4>📍 Acupuncture</h4>
+      <ul>
+        <li>Stimulates A-δ fibers with needles</li>
+        <li>Closes pain gate at SGR</li>
+        <li>Also activates descending PAS</li>
+        <li>May trigger endogenous opioid release</li>
+      </ul>
+    </div>
+    <div class="treatment-card standard">
+      <h4>🧘 Cognitive / Stress Reduction</h4>
+      <ul>
+        <li>Reduces cortical input driving pain perception</li>
+        <li>Positive emotions modulate PAS activation</li>
+        <li>Reduces anxiety-related pain amplification</li>
+      </ul>
+    </div>
+    <div class="treatment-card info">
+      <h4>💉 Endogenous Opioid Activation</h4>
+      <ul>
+        <li>Exercise → β-endorphin release (Mu receptors)</li>
+        <li>Severe stress → enkephalin cascade via PAG</li>
+        <li>"Battlefield analgesia" — soldiers feel no pain acutely</li>
+        <li>Can be blocked by naloxone (opioid antagonist)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section-title">📊 Pain Fiber Comparison</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Fiber</th><th>Type</th><th>Role in Pain</th><th>Therapeutic Use</th></tr></thead>
+      <tbody>
+        <tr><td>A-β</td><td>Large, fast, myelinated</td><td>Tactile sensation; closes pain gate</td><td>Rubbing, TENS (transcutaneous electrical stimulation)</td></tr>
+        <tr><td>A-δ</td><td>Medium, myelinated</td><td>Fast/sharp pain; acupuncture effect</td><td>Acupuncture needle stimulation</td></tr>
+        <tr><td>C fibers</td><td>Small, unmyelinated, slow</td><td>Slow/dull/burning pain; visceral pathway</td><td>Target for opioid analgesics</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════ MNEMONICS ══════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-mnemonics">
+  <p style="color:var(--text2);font-size:13px;margin-bottom:18px">🧠 Custom mnemonics built from your lecture content to make high-yield facts stick!</p>
+  <div class="mnemonic-grid" id="mnemonicContainer"></div>
+</div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════ DATA ═══════════════════════════════════════════════
+
+const quizData = [
+  { q:"Which of the following stimuli is LEAST likely to produce visceral pain?", opts:["Sharp cut to the intestine","Severe smooth muscle spasm","Ischemia from thrombosis","Overdistension of the bladder","Chemical irritation by HCl"], ans:0, exp:"A sharp cut in the viscera does NOT produce pain. Visceral pain requires DIFFUSE stimulation (spasm, ischemia, overdistension, chemicals). This is a classic exam trick!" },
+  { q:"What is the primary mechanism by which colicky spasm causes visceral pain?", opts:["Direct tearing of C-fibers","Ischemia from compression of blood vessels","Rupture of the parietal peritoneum","Rapid release of Substance P in the brain","Activation of A-beta fibers"], ans:1, exp:"Spasms/overdistension compress blood vessels → localized ischemia → stimulates pain receptors. It's the ischemia, not the spasm itself, that triggers pain." },
+  { q:"Visceral pain is frequently associated with which systemic manifestations?", opts:["Tachycardia and hypertension","Parasympathetic manifestations (↓HR, nausea)","Extreme pupillary dilation","Somatic relaxation","Hyperactivity of the cerebral cortex"], ans:1, exp:"Visceral pain triggers PARASYMPATHETIC responses: ↓HR, ↓BP, pupillary constriction, nausea & vomiting. NOT sympathetic (which would cause tachycardia and dilation)." },
+  { q:"Which nerve fibers carry visceral pain in the PARIETAL pathway?", opts:["A-beta fibers only","Type C fibers via autonomic nerves","Both A-δ and C fibers via somatic nerves","A-alpha fibers","B fibers only"], ans:2, exp:"Parietal pathway = A-δ AND C fibers joining SOMATIC nerves → sharp, well-localized pain. Visceral pathway = C fibers ONLY via autonomic nerves → dull, poorly localized." },
+  { q:"According to the Convergence-Projection theory, how does referred pain occur?", opts:["Pain fibers bypass the spinal cord","Visceral and somatic fibers converge on the same SGR dorsal horn cell","The cortex actively re-routes signals to adjacent dermatomes","Visceral pain destroys somatic pain receptors","A-beta fibers convert pain to tactile sensations"], ans:1, exp:"Both visceral and somatic pain fibers synapse on the SAME SGR (Substantia Gelatinosa of Rolandi) dorsal horn cell. The cortex, accustomed to somatic signals, misinterprets the source." },
+  { q:"Where is gallbladder pain classically referred?", opts:["Retrosternal region and left arm","Umbilicus","Lower neck and midline chest","Epigastric region, right shoulder and neck","Back behind the kidney"], ans:3, exp:"Gallbladder → epigastric region + right shoulder + neck. Remember: HEART → left arm (not gallbladder). Umbilicus = appendix (early). Flank/groin = kidney." },
+  { q:"Which of the following is an EXTRACRANIAL cause of headache?", opts:["Decreased CSF pressure","Meningitis","Errors of refraction (eyes)","Brain tumor traction","Over-distension of middle meningeal artery"], ans:2, exp:"Errors of refraction (refractive errors) and glaucoma are EXTRACRANIAL headache causes. All the other options involve intracranial structures (CSF, meninges, blood vessels)." },
+  { q:"Why do brain tumors cause headaches despite brain tissue lacking pain receptors?", opts:["Tumors synthesize massive amounts of Substance P","Tumors directly stimulate A-beta fibers","They cause traction and pressure on pain-sensitive meninges","They destroy the pain analgesia system","They cause immediate CSF leakage"], ans:2, exp:"Brain tissue has NO pain receptors. Tumors cause pain by exerting PRESSURE and TRACTION on the pain-sensitive meninges, dural sinuses, and blood vessels." },
+  { q:"How does fever induce an intracranial headache?", opts:["Direct destruction of brain tissue","Over-distension of cerebral arteries by temperature and microbial toxins","Spasm of extracranial scalp muscles","Dropping CSF pressure","Demyelination of the trigeminal nerve"], ans:1, exp:"Fever → direct heat effects + circulating microbial toxins → vasodilation → over-distension of cerebral arteries → stretch pain receptors in vessel walls → headache." },
+  { q:"Occipital headache likely arises from structures located:", opts:["Above the tentorium cerebelli","In the nasal sinuses","Below the tentorium cerebelli","In the oral cavity","In the eyes"], ans:2, exp:"Occipital headaches arise from BELOW the tentorium cerebelli (lower compartment). Frontal headaches = above the tentorium. This neuroanatomical rule helps localize the pathology." },
+  { q:"Which feature strongly suggests Neuropathic Pain over acute visceral pain?", opts:["Dull, aching quality","Reversibility with antacids","Occurs in paroxysms, described as shooting/burning","Strong parasympathetic manifestations","Accompanied by skeletal muscle spasm"], ans:2, exp:"Neuropathic pain = paroxysms of EXCRUCIATING, BURNING or SHOOTING pain. Visceral pain = dull/aching + autonomic/parasympathetic signs. Key differentiator!" },
+  { q:"What is the role of the Periaqueductal Gray (PAG) in the Pain Analgesia System?", opts:["Receives direct somatic pain from the skin","Secretes Substance P to amplify pain","Releases enkephalins to inhibit GABA-ergic neurons","Acts as the primary receptor for A-delta fibers","Physically blocks the spinal gate at layer II"], ans:2, exp:"PAG is stimulated by higher brain centers → releases ENKEPHALINS → inhibits resting GABA-ergic neurons → removes their inhibitory effect → 'frees' the medullary analgesic nuclei." },
+  { q:"What happens when GABA-ergic neurons in the brainstem are inhibited by enkephalins?", opts:["Substance P is immediately released","Nucleus Raphe Magnus and Paragiagantocellularis are activated","The cerebral cortex is shut down","Parasympathetic tone instantly decreases","A-beta fibers stop firing"], ans:1, exp:"GABA normally INHIBITS the NRM and Paragiagantocellularis. When enkephalins inhibit GABA, these medullary nuclei are 'freed' to become active and release serotonin/noradrenaline." },
+  { q:"The Nucleus Raphe Magnus (NRM) releases which neurotransmitter to inhibit pain in the dorsal horn?", opts:["Dopamine","Acetylcholine","Serotonin","GABA","Glutamate"], ans:2, exp:"NRM is SEROTONERGIC → releases serotonin into the dorsal horn. Paragiagantocellularis releases NORADRENALINE. PAG releases ENKEPHALINS. Different nuclei, different neurotransmitters!" },
+  { q:"How do enkephalin-releasing interneurons in the dorsal horn prevent pain signals from ascending?", opts:["By post-synaptic excitation of the thalamus","By presynaptic inhibition, stopping release of Substance P and Glutamate","By destroying pain receptors in the skin","By increasing local blood flow","By converting C fibers into A-beta fibers"], ans:1, exp:"Enkephalins act PRESYNAPTICALLY on incoming pain fiber terminals → block Substance P (pain neuropeptide) and Glutamate (excitatory neurotransmitter) release → pain signal cannot ascend." },
+  { q:"Which endogenous opioid selectively targets Delta (δ) receptors?", opts:["Beta-endorphin","Dynorphin","Enkephalins (Leu- and Met-)","Morphine","Serotonin"], ans:2, exp:"Receptor-opioid pairing: Delta (δ) → Enkephalins · Mu (µ) → Endorphins (β-endorphin) · Sigma (σ) → Dynorphins. Morphine is EXOGENOUS and primarily targets Mu receptors." },
+  { q:"The POMC molecule is the precursor for which endogenous opioid?", opts:["Met-enkephalin","Leu-enkephalin","Beta-endorphins","Dynorphins","Substance P"], ans:2, exp:"POMC (Pre-opio-melanocortin) → Beta-endorphins, found in the anterior pituitary and hypothalamus. Enkephalins come from PROENKEPHALIN. Different precursors!" },
+  { q:"Rubbing the skin around a painful site reduces pain by stimulating which fibers?", opts:["C fibers","A-delta fibers","A-beta fibers","Autonomic efferents","B fibers"], ans:2, exp:"Rubbing → stimulates LARGE A-β (tactile) fibers → collaterals to the SGR gate → presynaptic inhibition of pain fibers (C and A-δ) → gate closes → pain reduced. This is the Gate Theory!" },
+  { q:"Acupuncture relies on insertion of needles to stimulate which fibers for spinal inhibition?", opts:["A-beta fibers","C fibers","Corticofugal fibers","A-delta fibers","Parasympathetic vagal fibers"], ans:3, exp:"Acupuncture → stimulates A-δ fibers (different from skin rubbing which uses A-β) → inhibits pain at the SGR via enkephalins. May also activate the descending PAS pathway." },
+  { q:"According to the Gate Theory, where is the 'gate' located anatomically?", opts:["Thalamus","Nucleus Raphe Magnus","Substantia Gelatinosa of Rolandi (SGR) — layers II & III","Periaqueductal gray","Somatosensory cortex"], ans:2, exp:"The GATE = SGR cells in layers II & III of the spinal cord dorsal horn. Pain must pass through this gate to reach the anterolateral system and ascend to consciousness." },
+  { q:"Which cranial nerve is afflicted by trigeminal neuralgia?", opts:["Facial nerve (VII)","Vagus nerve (X)","Trigeminal nerve (V)","Glossopharyngeal nerve (IX)","Optic nerve (II)"], ans:2, exp:"Trigeminal nerve (CN V) carries cutaneous sensation from face, forehead, and cornea. Trigeminal neuralgia = neuropathic pain affecting CN V → excruciating paroxysmal face pain." },
+  { q:"Which nucleus in the pain suppression pathway uses serotonin as its primary neurotransmitter?", opts:["Post-central gyrus","Nucleus Raphe Magnus","Periaqueductal gray","Locus coeruleus","Dorsal root ganglion"], ans:1, exp:"NRM = Serotonergic. PAG = Enkephalinergic. Paragiagantocellularis / Locus coeruleus = Noradrenergic. This neurotransmitter-nucleus pairing is a HIGH-YIELD fact!" },
+  { q:"Which statement is TRUE regarding neuropathic pain response to treatment?", opts:["Fully resolved by standard NSAIDs","Completely curable with antibiotics","Hardly treatable, only partially responsive to opioid therapy","Responds instantly to physical rubbing","Can be reversed by inducing hypertension"], ans:2, exp:"Neuropathic pain is notoriously DIFFICULT TO TREAT. Standard analgesics (NSAIDs, paracetamol) are largely ineffective. Opioids are only PARTIALLY helpful. Specific drugs like anticonvulsants and TCAs are needed." },
+  { q:"Which higher brain centers initiate the Pain Analgesia System during severe stress?", opts:["Cerebellum and Pons","Cerebral cortex, limbic system, and hypothalamus","Medulla oblongata only","Substantia Gelatinosa","Brachial plexus"], ans:1, exp:"Cerebral cortex + limbic system + hypothalamus + reticular formation → send impulses to PAG during severe stress/emotion. This explains why soldiers feel no pain on the battlefield initially." },
+  { q:"What is the mechanism of psychogenic headache?", opts:["Over-distension of cerebral arteries","Ischemia of brain tissue","Emotional tension → excessive contraction of scalp and neck muscles","Dropping of CSF pressure","Rapid demyelination of the occipital nerve"], ans:2, exp:"Psychogenic/tension headache is an EXTRACRANIAL headache caused by emotional tension → excessive contraction of scalp and neck muscles → pain. It's NOT due to brain or vascular pathology." }
+];
+
+const flashcards = [
+  { q:"What is the CLASSIC exam statement about sharp cuts and visceral pain?", a:"A sharp cut in the viscera does NOT produce pain. Visceral pain requires DIFFUSE stimulation (spasm, ischemia, overdistension, inflammation, chemicals — not a focused incision).", emoji:"✂️", tag:"⚠️ Exam Favorite" },
+  { q:"Name the two transmission pathways for visceral pain and their fiber types.", a:"Parietal pathway: A-δ + C fibers via somatic nerves → sharp, localized. Visceral pathway: C fibers ONLY via autonomic nerves → dull, poorly localized.", emoji:"🛤️", tag:"High-Yield" },
+  { q:"What parasympathetic signs accompany severe visceral pain?", a:"↓Heart rate, ↓Blood pressure, Pupillary constriction, Nausea, Vomiting. Remember: PARASYMPATHETIC, not sympathetic!", emoji:"🤢", tag:"⚠️ Exam Trap" },
+  { q:"Explain the Convergence-Projection theory in 2 sentences.", a:"Visceral pain fibers AND somatic fibers from the same embryonic segment converge on the SAME SGR dorsal horn cell. The cortex, more accustomed to somatic signals, misinterprets the visceral signal as coming from the skin → Referred Pain.", emoji:"🔀", tag:"Core Concept" },
+  { q:"Where is cardiac pain (MI) referred to and why?", a:"Referred to the inner left arm and left shoulder. Because heart visceral fibers and left arm somatic fibers converge on the same spinal cord segments (T1-T5 SGR cells).", emoji:"❤️", tag:"Classic Case" },
+  { q:"What structures in the brain are pain-sensitive vs. not?", a:"Brain TISSUE has NO pain receptors. Pain-sensitive intracranial structures: Meninges (dura), cerebral blood vessels, venous sinuses, cranial nerves V, IX, X.", emoji:"🧠", tag:"⚠️ Exam Fact" },
+  { q:"Explain how a post-spinal-tap headache develops mechanically.", a:"CSF removed → loss of buoyant support for the brain → on standing, gravity pulls brain downward → traction on pain-sensitive meninges (basal dura, tentorium) → positional headache.", emoji:"💉", tag:"Classic Vignette" },
+  { q:"How does fever cause an intracranial headache?", a:"Elevated temperature + circulating microbial toxins → cerebral artery vasodilation → overdistension → stretch of pain receptors in vessel walls → headache.", emoji:"🌡️", tag:"Mechanism" },
+  { q:"Name the 3 components of the Pain Analgesia System (PAS).", a:"1) Periaqueductal Gray (PAG) — midbrain/pons; 2) Nucleus Raphe Magnus (NRM) + Paragiagantocellularis — medulla; 3) Pain inhibitory complex — spinal dorsal horn.", emoji:"🔒", tag:"High-Yield" },
+  { q:"What is the KEY STEP in the PAS cascade? (The 'exam trick')", a:"Enkephalins (from PAG) INHIBIT resting GABA-ergic neurons. Since GABA was inhibiting NRM and Paragiagantocellularis, stopping GABA 'frees' these nuclei to activate. It's disinhibition!", emoji:"⚡", tag:"⚠️ Key Mechanism" },
+  { q:"What neurotransmitters do the medullary PAS nuclei release and where do they project?", a:"Nucleus Raphe Magnus → SEROTONIN → spinal dorsal horn. Paragiagantocellularis → NORADRENALINE → spinal dorsal horn.", emoji:"🧪", tag:"Specific Facts" },
+  { q:"How does the spinal dorsal horn ultimately block incoming pain signals?", a:"Serotonin/Noradrenaline activate dorsal horn interneurons → release ENKEPHALINS presynaptically onto C/A-δ fiber terminals → block Substance P + Glutamate release → pain signal stopped.", emoji:"🚫", tag:"Final Step" },
+  { q:"Match each endogenous opioid to its receptor: Enkephalins, Endorphins, Dynorphins.", a:"Enkephalins → Delta (δ) receptors; Endorphins (β-endorphin, from POMC) → Mu (µ) receptors; Dynorphins → Sigma (σ) receptors.", emoji:"💊", tag:"Must Memorize" },
+  { q:"What is the Gate Theory of Pain Control and where is the gate?", a:"SGR cells (layers II & III of dorsal horn) act as a gate. Large A-β fibers (rubbing) or A-δ fibers (acupuncture) send collaterals that presynaptically inhibit pain fibers at the SGR → 'close the gate' → reduce pain.", emoji:"🚪", tag:"Gate Theory" },
+  { q:"Rubbing a bumped knee: which fibers, what mechanism, what level?", a:"Rubbing → stimulates A-β (large tactile) fibers → collaterals → presynaptic inhibition of C/A-δ pain fibers at SGR → gate closed. This is SPINAL LEVEL (not brainstem). Immediate but temporary.", emoji:"🤚", tag:"Gate Theory" },
+  { q:"How is acupuncture different from skin rubbing in its pain relief mechanism?", a:"Acupuncture → A-δ fibers (not A-β). Also can activate the DESCENDING PAS (brainstem level), not just the spinal gate. So acupuncture works at BOTH spinal and supraspinal levels.", emoji:"📍", tag:"Comparison" },
+  { q:"Define Neuropathic Pain and list 4 clinical characteristics.", a:"Chronic pain from pathological changes in peripheral/central nerve fibers. Features: (1) Paroxysmal onset, (2) Excruciating intensity, (3) Burning/shooting quality, (4) Hyperalgesia, (5) Sympathetic dystrophy, (6) Resistant to standard treatment.", emoji:"⚡", tag:"Definition" },
+  { q:"Name 4 clinical examples of Neuropathic Pain.", a:"1) Trigeminal neuralgia (CN V), 2) Phantom limb pain, 3) Diabetic peripheral neuropathy, 4) Herpes zoster / postherpetic neuralgia.", emoji:"📋", tag:"Examples" },
+  { q:"Why does a soldier feel no pain immediately after a severe battlefield injury?", a:"Severe stress activates the cerebral cortex/limbic system → stimulates PAG → releases enkephalins → initiates the full PAS cascade → blocks pain signals before they reach consciousness. This is 'stress-induced analgesia'.", emoji:"🪖", tag:"Clinical Pearl" },
+  { q:"How does morphine mimic the endogenous pain system?", a:"Morphine is an exogenous opioid that binds Mu (µ) receptors (same as endorphins), and also Delta/Kappa receptors. It causes presynaptic inhibition in the dorsal horn, blocking Substance P release, mimicking the PAS endpoint.", emoji:"💉", tag:"Pharmacology" },
+  { q:"What is the difference between the appendix pain in early vs. late appendicitis?", a:"Early: Visceral C-fibers → referred pain at UMBILICUS (same embryonic segment), vague and dull. Late: Inflammation spreads to PARIETAL peritoneum → parietal pathway (A-δ + C fibers) → sharp, localized RIF pain.", emoji:"🟠", tag:"Classic Case" },
+  { q:"Which cranial nerves are intracranial pain-sensitive structures?", a:"Cranial nerves V (Trigeminal), IX (Glossopharyngeal), and X (Vagus) are pain-sensitive intracranial structures. They can be a source of intracranial headache.", emoji:"🧠", tag:"Anatomy" }
+];
+
+const cases = [
+  {
+    num:"Case 1", title:"The Intestinal Obstruction",
+    vignette:"A 55-year-old male presents to the ER with a 6-hour history of severe colicky pain in the central abdomen. He appears sweaty and pale, his blood pressure is 90/60 mmHg, heart rate 55 bpm, and he has had two episodes of vomiting. Bowel sounds are high-pitched and tinkling.",
+    qs:[
+      { q:"Q1: Why is the pain poorly localized and colicky?", a:"The bowel obstruction causes severe distension of the bowel wall, compressing blood vessels and producing ischemia. This diffusely stimulates C-fiber pain receptors in the visceral wall, transmitted via the visceral pathway (autonomic nerves). Colicky = rhythmic spasm of smooth muscle trying to overcome the obstruction." },
+      { q:"Q2: Explain the patient's bradycardia and hypotension.", a:"Severe visceral pain is characteristically associated with PARASYMPATHETIC manifestations. Stimulation of visceral C-fibers → autonomic reflexes → ↓HR (bradycardia), ↓BP (hypotension), nausea, vomiting, and pupillary constriction. This distinguishes visceral from somatic pain." },
+      { q:"Q3: Would a surgical incision into the bowel during surgery cause the patient pain if awake?", a:"NO. A sharp cut to the viscera does NOT produce pain. Visceral pain requires DIFFUSE stimulation of pain receptors. This is a classic exam point — surgeons can cut bowel tissue without causing visceral pain, but distension, traction, or ischemia would." }
+    ]
+  },
+  {
+    num:"Case 2", title:"The Chest Pain Mystery",
+    vignette:"A 62-year-old man with known hypertension and smoking history presents with sudden severe chest pain radiating to his left arm and jaw, with profuse sweating and nausea. ECG shows ST-elevation in leads II, III, and aVF. His troponin level is elevated.",
+    qs:[
+      { q:"Q1: Explain the anatomical mechanism of pain radiating to the left arm.", a:"Convergence-Projection Theory: The heart's visceral pain fibers (C-fibers via autonomic nerves) and the somatic sensory fibers from the inner left arm/shoulder converge on the SAME Substantia Gelatinosa of Rolandi (SGR) dorsal horn cells (segments T1-T5). The cortex, accustomed to somatic signals, projects the pain to the left arm." },
+      { q:"Q2: Why doesn't the cortex correctly identify the heart as the source of pain?", a:"The brain is far more accustomed to receiving sensory impulses from the skin (somatic structures) than from internal organs. When visceral fibers activate the same SGR cell as the left arm's somatic fibers, the cortex automatically and incorrectly attributes the signal to the more familiar source (the arm)." }
+    ]
+  },
+  {
+    num:"Case 3", title:"The Post-Spinal Tap Headache",
+    vignette:"A 28-year-old woman underwent a diagnostic lumbar puncture 12 hours ago. She now complains of a severe headache that is markedly worsened when she sits or stands, but completely relieved when lying flat. She describes it as a dull, pressure-like pain at the back of her head.",
+    qs:[
+      { q:"Q1: Explain the mechanism of this positional headache step by step.", a:"Removal of CSF → reduced CSF volume → loss of the brain's normal hydraulic buoyancy. When the patient assumes an upright position, gravity causes the brain to descend toward the foramen magnum. This movement creates mechanical TRACTION on the pain-sensitive basal dura mater and tentorium cerebelli → activating pain receptors in the meninges → occipital headache." },
+      { q:"Q2: Why is the headache relieved when the patient lies flat?", a:"In the supine position, gravity no longer acts to pull the brain downward. Therefore, traction on the meninges is eliminated, and the headache resolves. This positional character (worse upright, relieved lying down) is pathognomonic of post-dural-puncture headache." },
+      { q:"Q3: Why does this patient NOT have pain from the brain tissue itself being 'stretched'?", a:"Brain tissue is entirely DEVOID of pain receptors. It cannot generate pain regardless of the force applied to it. The pain exclusively arises from the pain-sensitive meninges that are being tractioned." }
+    ]
+  },
+  {
+    num:"Case 4", title:"The Battlefield Soldier",
+    vignette:"A 24-year-old soldier sustains a severe gunshot wound to the leg during active combat. Despite the obvious severity of the injury, he reports feeling minimal pain and continues to function for another 30 minutes until he is evacuated to safety.",
+    qs:[
+      { q:"Q1: Explain the neurophysiological mechanism behind this phenomenon.", a:"Severe physical and psychological stress activates the cerebral cortex and limbic system → sends impulses to the Periaqueductal Gray (PAG) → PAG releases ENKEPHALINS → enkephalins inhibit resting GABA-ergic neurons → removes inhibition from Nucleus Raphe Magnus (NRM) and Paragiagantocellularis → these release serotonin and noradrenaline descending to the spinal cord → activate dorsal horn interneurons → release enkephalins presynaptically → block Substance P and Glutamate → pain signal cannot ascend." },
+      { q:"Q2: If the soldier were given a drug that blocks opioid receptors (like naloxone), what would happen?", a:"Naloxone (opioid antagonist) would block the opioid receptors (Delta, Mu, Sigma) that the endogenous enkephalins are acting on. This would reverse the stress-induced analgesia and the soldier would immediately begin feeling the full intensity of the pain." }
+    ]
+  },
+  {
+    num:"Case 5", title:"The Appendicitis Evolution",
+    vignette:"A 19-year-old student presents with a 24-hour history of abdominal pain. She initially had vague, dull discomfort around her navel, accompanied by nausea and a single episode of vomiting. Over the past 4 hours, the pain has shifted to the right lower quadrant and has become sharp and constant. She has tenderness at McBurney's point and guarding on examination.",
+    qs:[
+      { q:"Q1: Explain the initial periumbilical pain (first 20 hours) using pain pathways.", a:"Initial appendix inflammation triggers C-fiber nociceptors in the appendix wall, transmitting via the VISCERAL PATHWAY (C fibers only, via autonomic nerves). By the Convergence-Projection theory, this is referred to the UMBILICUS, which shares the same embryonic spinal segment (T10) as the appendix. Pain is dull, poorly localized, colicky." },
+      { q:"Q2: Explain why the pain shifted to the right iliac fossa and became sharp.", a:"As inflammation progresses and spreads to involve the PARIETAL PERITONEUM overlying the appendix, the PARIETAL PATHWAY is now activated. This pathway uses A-δ AND C fibers via SOMATIC nerves. This produces sharp, precisely localized pain at the actual anatomical site — the right iliac fossa. The shift from visceral to parietal pain is a clinical marker of disease progression." },
+      { q:"Q3: Why is the nausea and vomiting more prominent early in the presentation?", a:"Early visceral pain strongly activates the PARASYMPATHETIC nervous system (via autonomic nerve connections). This produces the classic autonomic manifestations of visceral pain: nausea, vomiting, ↓HR, ↓BP, pupillary constriction. As the pain shifts to the parietal pathway (somatic), these autonomic features become less prominent." }
+    ]
+  },
+  {
+    num:"Case 6", title:"The Neuropathic Face Pain",
+    vignette:"A 68-year-old woman presents with episodes of excruciating, electric-shock-like pain in the right side of her face, particularly around her cheek and jaw. The pain lasts only seconds but occurs repeatedly throughout the day. Even light touch to her face (like washing) triggers an attack. Standard analgesics have provided no relief.",
+    qs:[
+      { q:"Q1: What condition does this describe and which nerve is involved?", a:"This is Trigeminal Neuralgia (Tic Douloureux) — a classic form of NEUROPATHIC PAIN. The Trigeminal nerve (CN V) is involved. It carries cutaneous sensation from the face, forehead, and cornea. Pathological changes in this nerve cause the paroxysmal, excruciating pain." },
+      { q:"Q2: List the features that classify this as neuropathic rather than nociceptive pain.", a:"Neuropathic features present: (1) Excruciating, electric-shock quality, (2) Occurs in paroxysms/episodes not continuous, (3) Burning/shooting character, (4) Allodynia (light touch triggers pain — tactile stimulus causing pain is abnormal), (5) Resistance to standard analgesics (NSAIDs, paracetamol), (6) Chronic course." },
+      { q:"Q3: Why is this pain resistant to standard analgesics?", a:"Neuropathic pain arises from PATHOLOGICAL CHANGES IN NERVE FIBERS THEMSELVES, not from activation of normal nociceptors by tissue damage. Standard analgesics target normal nociceptive pathways. Since the problem is a dysfunctional nerve, drugs like anticonvulsants (carbamazepine), which stabilize neuronal membranes, are more effective." }
+    ]
+  }
+];
+
+const anatData = [
+  { icon:"🔶", name:"Substantia Gelatinosa of Rolandi (SGR)", short:"Layers II & III, dorsal horn", detail:"The central gating mechanism of the spinal cord. Both visceral C-fibers and somatic A-δ/C fibers synapse here. It is the anatomical basis of BOTH the Gate Theory (gate location) and the Convergence-Projection Theory (where referred pain is 'generated'). Interneurons here release enkephalins to block ascending pain." },
+  { icon:"🔵", name:"Periaqueductal Gray (PAG)", short:"Midbrain/pons; initiates PAS", detail:"The highest relay of the Pain Analgesia System. Receives inputs from cerebral cortex, limbic system, and hypothalamus during severe stress. Releases enkephalins to inhibit GABA-ergic neurons, disinhibiting the medullary analgesic nuclei. The 'master switch' of descending pain control." },
+  { icon:"🟢", name:"Nucleus Raphe Magnus (NRM)", short:"Medulla; releases serotonin", detail:"Serotonergic medullary nucleus. When freed from GABA inhibition (by PAG enkephalins), it sends descending serotonergic fibers to the spinal dorsal horn, where serotonin activates enkephalin-releasing interneurons to produce presynaptic inhibition of pain fibers." },
+  { icon:"🟡", name:"Paragiagantocellularis", short:"Medulla; releases noradrenaline", detail:"Noradrenergic medullary nucleus that works in parallel with the NRM. When disinhibited, it releases noradrenaline into the spinal dorsal horn, contributing to the activation of the pain inhibitory complex alongside serotonin from NRM." },
+  { icon:"🔴", name:"C-fibers (Unmyelinated)", short:"Slow pain; visceral pathway", detail:"Small, unmyelinated nerve fibers responsible for slow, dull, burning, aching pain. They are the ONLY fiber type in the visceral pain pathway. They travel via autonomic nerves for visceral pain and via somatic nerves for parietal pain. They carry poorly localized pain signals." },
+  { icon:"🟠", name:"A-delta Fibers", short:"Fast sharp pain; acupuncture", detail:"Medium-sized, thinly myelinated fibers. Carry fast, sharp, well-localized pain. Used in the PARIETAL pain pathway (alongside C-fibers). Acupuncture stimulates A-δ fibers to close the spinal gate and potentially activate the descending PAS." },
+  { icon:"🔷", name:"A-beta Fibers", short:"Touch/proprioception; gate closure", detail:"Large, fast, myelinated tactile fibers. NOT primarily pain-conducting. However, they play a critical role in the GATE THEORY: when stimulated by rubbing/TENS, their collaterals at the SGR cause presynaptic inhibition of incoming pain fibers, 'closing the gate' and reducing pain." },
+  { icon:"💜", name:"Enkephalins", short:"Endogenous opioid; Delta receptors", detail:"Short peptides (Leu-enkephalin and Met-enkephalin) derived from proenkephalin. Bind Delta (δ) opioid receptors. Found in brainstem (PAG) and spinal cord. Play roles at multiple levels of the PAS: PAG → inhibit GABA neurons, Dorsal horn → presynaptic inhibition of pain fibers." },
+  { icon:"🔸", name:"Substance P", short:"Pain neurotransmitter; blocked by PAS", detail:"The primary neuropeptide released by C-fibers at the first spinal synapse to propagate pain signals. Its release is BLOCKED by presynaptic enkephalins as the final step of the PAS cascade. Morphine and endogenous opioids both work by preventing Substance P release." },
+  { icon:"🌐", name:"Meninges (Dura + Arachnoid)", short:"Pain-sensitive intracranial structures", detail:"The three membranes covering the brain. The DURA MATER (especially basal dura and tentorium cerebelli) is pain-sensitive and is the source of intracranial headaches from tumors, meningitis, decreased CSF pressure (post-spinal tap), and vascular distension." },
+];
+
+const mnemonicsData = [
+  {
+    title:"PAS Cascade Steps",
+    word:"SEGA-END",
+    topic:"Steps of the Pain Analgesia System",
+    items:[
+      { l:"S", t:"Stress activates the system (cortex/limbic)" },
+      { l:"E", t:"Enkephalins released by PAG" },
+      { l:"G", t:"GABA-ergic neurons INHIBITED (disinhibition!)" },
+      { l:"A", t:"Analgesic medullary nuclei FREED (NRM + Paragiagantocellularis)" },
+      { l:"E", t:"Enkephalins released at dorsal horn synapse" },
+      { l:"N", t:"NO Substance P or Glutamate released" },
+      { l:"D", t:"Descending inhibition COMPLETE → no pain" }
+    ]
+  },
+  {
+    title:"Visceral Pain Causes",
+    word:"DISTRICT",
+    topic:"Causes of Visceral Pain",
+    items:[
+      { l:"D", t:"Distension (overdistension of a hollow organ)" },
+      { l:"I", t:"Ischemia (most common mechanism of spasm pain)" },
+      { l:"S", t:"Spasm (colicky smooth muscle contractions)" },
+      { l:"T", t:"Thrombosis (vascular occlusion)" },
+      { l:"R", t:"Rupture / trauma" },
+      { l:"I", t:"Inflammation (appendicitis, cholecystitis)" },
+      { l:"C", t:"Chemical irritation (gastric acid, bile)" },
+      { l:"T", t:"TRICK: a sharp cut does NOT cause visceral pain!" }
+    ]
+  },
+  {
+    title:"Endogenous Opioids & Receptors",
+    word:"EDS",
+    topic:"Opioids and their receptors (Enkephalins-Delta, Endorphins-Mu [μ], Dynorphins-Sigma)",
+    items:[
+      { l:"E", t:"Enkephalins → Delta (δ) receptors [from proEnkephalin]" },
+      { l:"D", t:"enDorphins (β-endorphins) → Mu (µ) receptors [from POMC]" },
+      { l:"S", t:"Dynorphins → Sigma (σ) receptors [co-localized with enkephalins]" }
+    ]
+  },
+  {
+    title:"Visceral Pain Autonomic Signs",
+    word:"PANIC",
+    topic:"Parasympathetic signs of severe visceral pain",
+    items:[
+      { l:"P", t:"Pupillary constriction (miosis)" },
+      { l:"A", t:"↓ Arterial blood pressure (hypotension)" },
+      { l:"N", t:"Nausea and vomiting" },
+      { l:"I", t:"↓ Impulse rate (bradycardia — reduced heart rate)" },
+      { l:"C", t:"Colicky character of the pain itself" }
+    ]
+  },
+  {
+    title:"Intracranial Headache Causes",
+    word:"MTTFD",
+    topic:"Sources of Intracranial Headaches",
+    items:[
+      { l:"M", t:"Meningitis / Meningeal traction" },
+      { l:"T", t:"Tumor pressure on meninges/vessels" },
+      { l:"T", t:"Temperature (fever → cerebral artery over-distension)" },
+      { l:"F", t:"Fluid loss — ↓CSF → traction on meninges when upright" },
+      { l:"D", t:"Distension of cerebral arteries (↑BP → throbbing headache)" }
+    ]
+  },
+  {
+    title:"Referred Pain Locations",
+    word:"HEART-GUK",
+    topic:"Classic Referred Pain Site Map",
+    items:[
+      { l:"H", t:"Heart → Left arm, left shoulder, jaw, retrosternal" },
+      { l:"E", t:"Esophagus → Midline/substernal chest" },
+      { l:"A", t:"Appendix (early) → Umbilicus; late → RIF (parietal pain)" },
+      { l:"R", t:"Renal / Ureter → Flank, groin, inner thigh, scrotum" },
+      { l:"T", t:"Tentorium below → Occipital headache; above → Frontal" },
+      { l:"G", t:"Gallbladder → Epigastric, right shoulder, right neck" },
+      { l:"U", t:"Uterus → Sacral / lower back referred" },
+      { l:"K", t:"Keep remembering: same embryonic dermatome = referred site!" }
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════ SEARCH DATA ═══════════════════════════════════════════════
+const searchIndex = [
+  { tab:"overview", text:"Visceral pain poorly localized colicky burning dull C fibers autonomic diffuse stimulation spasm ischemia overdistension" },
+  { tab:"overview", text:"Referred pain convergence projection theory SGR substantia gelatinosa rolandi dorsal horn cortex somatic dermatome" },
+  { tab:"overview", text:"Parietal pathway A-delta C fibers somatic nerves sharp localized pain serous membranes" },
+  { tab:"overview", text:"Brain no pain receptors meninges blood vessels venous sinuses cranial nerves intracranial" },
+  { tab:"overview", text:"Neuropathic pain trigeminal neuralgia phantom limb diabetic neuropathy paroxysms hyperalgesia burning shooting" },
+  { tab:"overview", text:"Pain analgesia system PAS PAG periaqueductal gray enkephalins GABA NRM raphe magnus serotonin noradrenaline substance P glutamate" },
+  { tab:"overview", text:"Gate theory SGR layers II III A-beta acupuncture A-delta presynaptic inhibition rubbing skin" },
+  { tab:"overview", text:"Endogenous opioids enkephalins delta endorphins mu dynorphins sigma POMC morphine receptors" },
+  { tab:"overview", text:"Heart MI cardiac pain left arm referred gallbladder right shoulder appendix umbilicus kidney flank" },
+  { tab:"overview", text:"Fever headache hypertension throbbing CSF spinal tap positional post dural puncture meningeal traction" },
+  { tab:"pathophysiology", text:"PAS cascade stress cortex limbic hypothalamus PAG enkephalins GABA disinhibition NRM serotonin noradrenaline dorsal horn substance P" },
+  { tab:"pathophysiology", text:"Convergence projection visceral somatic same SGR cell cortex misinterprets referred pain" },
+  { tab:"pathophysiology", text:"Gate theory close open A-beta rubbing A-delta acupuncture presynaptic inhibition dorsal horn" },
+  { tab:"diagnosis", text:"Diagnostic criteria visceral parietal comparison fiber type quality localization autonomic signs" },
+  { tab:"diagnosis", text:"Headache classification extracranial intracranial comparison mechanisms" },
+  { tab:"diagnosis", text:"Neuropathic pain diagnosis paroxysmal hyperalgesia opioid resistant allodynia burning" },
+  { tab:"treatment", text:"Morphine opioids mu receptor substance P glutamate neuropathic anticonvulsants carbamazepine" },
+  { tab:"treatment", text:"Gate theory non pharmacological rubbing TENS acupuncture stress reduction" },
+  { tab:"treatment", text:"Fever headache antipyretics hypertensive headache antihypertensives post spinal tap blood patch caffeine" },
+  { tab:"mnemonics", text:"PANIC parasympathetic visceral pain pupil bradycardia nausea hypotension" },
+  { tab:"mnemonics", text:"DISTRICT visceral pain causes distension ischemia spasm thrombosis sharp cut trick" },
+  { tab:"mnemonics", text:"EDS opioids enkephalins delta endorphins mu dynorphins sigma receptors" },
+  { tab:"mnemonics", text:"SEGA-END PAS cascade stress enkephalins GABA analgesic nuclei dorsal horn" },
+];
+
+// ═══════════════════════════════════════════════ STATE ═══════════════════════════════════════════════
+let score = 0, wrong = 0, streak = 0, answered = 0, cardsFlipped = 0, currentTab = 'overview';
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem('painStudy') || '{}');
+    score = s.score || 0;
+    wrong = s.wrong || 0;
+    streak = s.streak || 0;
+    answered = s.answered || 0;
+    cardsFlipped = s.cardsFlipped || 0;
+    currentTab = s.tab || 'overview';
+  } catch(e) {}
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('painStudy', JSON.stringify({ score, wrong, streak, answered, cardsFlipped, tab: currentTab }));
+  } catch(e) {}
+}
+
+function updateStats() {
+  document.getElementById('scoreDisplay').textContent = `${score}/${answered}`;
+  document.getElementById('streakDisplay').textContent = streak;
+  const pct = answered > 0 ? Math.round((score/answered)*100) : 0;
+  document.getElementById('progressDisplay').textContent = pct + '%';
+  document.getElementById('cardsDisplay').textContent = cardsFlipped;
+  document.getElementById('qScore').textContent = score;
+  document.getElementById('qWrong').textContent = wrong;
+  document.getElementById('qStreak').textContent = streak;
+  document.getElementById('qProgressTxt').textContent = `${answered} / ${quizData.length}`;
+  const pbar = Math.round((answered / quizData.length) * 100);
+  document.getElementById('qProgress').style.width = pbar + '%';
+  saveState();
+}
+
+// ═══════════════════════════════════════════════ TABS ═══════════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+  currentTab = name;
+  saveState();
+}
+
+// ═══════════════════════════════════════════════ QUIZ ═══════════════════════════════════════════════
+function buildQuiz() {
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = quizData.map((q, i) => {
+    const letters = ['A','B','C','D','E'];
+    const opts = q.opts.map((o, j) => `
+      <button class="option-btn" onclick="answerQ(${i}, ${j})" id="opt-${i}-${j}">
+        <span class="option-letter">${letters[j]}</span> <span>${o}</span>
+      </button>`).join('');
+    return `
+      <div class="question-card" id="qcard-${i}">
+        <div class="question-num">Question ${i+1} of ${quizData.length}</div>
+        <div class="question-text">${q.q}</div>
+        <div class="options">${opts}</div>
+        <div class="explanation" id="exp-${i}"><strong>✅ Explanation:</strong> ${q.exp}</div>
+      </div>`;
+  }).join('');
+}
+
+function answerQ(qi, ai) {
+  const q = quizData[qi];
+  const opts = document.querySelectorAll(`#qcard-${qi} .option-btn`);
+  opts.forEach(b => b.disabled = true);
+  const exp = document.getElementById(`exp-${qi}`);
+  exp.classList.add('show');
+
+  if (ai === q.ans) {
+    opts[ai].classList.add('correct');
+    score++; streak++; answered++;
+    if (streak >= 3) showMotivation();
+  } else {
+    opts[ai].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    wrong++; streak = 0; answered++;
+  }
+  updateStats();
+}
+
+function resetQuiz() {
+  score = 0; wrong = 0; streak = 0; answered = 0;
+  updateStats();
+  buildQuiz();
+}
+
+function showMotivation() {
+  const msgs = ["🔥 You're on fire!", "⚡ Streak master!", "🏆 Outstanding!", "🧠 Brain of steel!", "💪 Keep going!"];
+  const m = document.createElement('div');
+  m.style.cssText = `position:fixed;top:80px;right:20px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:14px 24px;border-radius:30px;font-weight:700;font-size:14px;z-index:1000;animation:fadeUp .3s ease;box-shadow:0 8px 30px rgba(99,140,255,0.4)`;
+  m.textContent = msgs[Math.floor(Math.random()*msgs.length)] + ' Streak: ' + streak + '!';
+  document.body.appendChild(m);
+  setTimeout(() => m.remove(), 2500);
+}
+
+// ═══════════════════════════════════════════════ FLASHCARDS ═══════════════════════════════════════════════
+function buildFlashcards() {
+  const container = document.getElementById('fcContainer');
+  container.innerHTML = flashcards.map((fc, i) => `
+    <div class="fc-card" id="fc-${i}" onclick="flipCard(${i})">
+      <div class="fc-inner">
+        <div class="fc-front">
+          <span class="fc-emoji">${fc.emoji}</span>
+          <p>${fc.q}</p>
+          <span class="fc-hint">👆 Tap to reveal answer</span>
+        </div>
+        <div class="fc-back">
+          <span class="fc-tag">${fc.tag}</span>
+          <p>${fc.a}</p>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function flipCard(i) {
+  const card = document.getElementById('fc-' + i);
+  if (!card.classList.contains('flipped')) {
+    cardsFlipped++;
+    document.getElementById('fcCount').textContent = cardsFlipped + ' flipped so far!';
+    updateStats();
+  }
+  card.classList.toggle('flipped');
+}
+
+// ═══════════════════════════════════════════════ CASES ═══════════════════════════════════════════════
+function buildCases() {
+  const container = document.getElementById('casesContainer');
+  container.innerHTML = cases.map((c, ci) => `
+    <div class="case-card">
+      <div class="case-header">
+        <span class="case-num">${c.num}</span>
+        <div>
+          <h3 style="font-size:16px;margin-bottom:4px">${c.title}</h3>
+          <p style="font-size:12px;color:var(--text3)">Clinical Vignette · ${c.qs.length} Questions</p>
+        </div>
+      </div>
+      <div class="case-vignette">${c.vignette}</div>
+      <div class="case-divider"></div>
+      ${c.qs.map((q, qi) => `
+        <div class="case-question-block">
+          <div class="case-question">${q.q}</div>
+          <button class="reveal-btn" onclick="revealCase('ca-${ci}-${qi}', this)">🔍 Reveal Answer</button>
+          <div class="case-answer" id="ca-${ci}-${qi}">${q.a}</div>
+        </div>`).join('<div class="case-divider"></div>')}
+    </div>`).join('');
+}
+
+function revealCase(id, btn) {
+  const el = document.getElementById(id);
+  el.classList.toggle('show');
+  btn.textContent = el.classList.contains('show') ? '🙈 Hide Answer' : '🔍 Reveal Answer';
+}
+
+// ═══════════════════════════════════════════════ ANATOMY ═══════════════════════════════════════════════
+function buildAnatomy() {
+  const grid = document.getElementById('anatGrid');
+  grid.innerHTML = anatData.map((a, i) => `
+    <div class="anat-item" id="anat-${i}" onclick="toggleAnat(${i})">
+      <h4>${a.icon} ${a.name}</h4>
+      <p>${a.short}</p>
+      <div class="anat-detail">${a.detail}</div>
+    </div>`).join('');
+}
+
+function toggleAnat(i) {
+  document.getElementById('anat-' + i).classList.toggle('open');
+}
+
+// ═══════════════════════════════════════════════ MNEMONICS ═══════════════════════════════════════════════
+function buildMnemonics() {
+  const container = document.getElementById('mnemonicContainer');
+  container.innerHTML = mnemonicsData.map(m => `
+    <div class="mnemonic-card">
+      <div class="mnemonic-title">${m.title}</div>
+      <div class="mnemonic-word">${m.word}</div>
+      <div class="mnemonic-topic">${m.topic}</div>
+      <ul class="mnemonic-list">
+        ${m.items.map(it => `<li><span class="mnemonic-letter">${it.l}</span>${it.t}</li>`).join('')}
+      </ul>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════ SEARCH ═══════════════════════════════════════════════
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+
+searchInput.addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  if (!q) { searchResults.style.display = 'none'; return; }
+
+  const results = [];
+  // Search quiz
+  quizData.forEach((item, i) => {
+    if (item.q.toLowerCase().includes(q) || item.exp.toLowerCase().includes(q)) {
+      results.push({ tab:'quiz', label:'Quiz', text: item.q.substring(0,80) + '…' });
+    }
+  });
+  // Search flashcards
+  flashcards.forEach((item, i) => {
+    if (item.q.toLowerCase().includes(q) || item.a.toLowerCase().includes(q)) {
+      results.push({ tab:'flashcards', label:'Flashcard', text: item.q.substring(0,80) + '…' });
+    }
+  });
+  // Search index
+  searchIndex.forEach(entry => {
+    if (entry.text.toLowerCase().includes(q)) {
+      results.push({ tab: entry.tab, label: entry.tab.charAt(0).toUpperCase()+entry.tab.slice(1), text: `Content about "${q}" in ${entry.tab} section` });
+    }
+  });
+
+  const unique = [...new Map(results.map(r => [r.text, r])).values()].slice(0, 8);
+
+  if (unique.length === 0) {
+    searchResults.innerHTML = '<div class="search-result-item" style="color:var(--text3)">No results found for "' + q + '"</div>';
+  } else {
+    searchResults.innerHTML = unique.map(r => `
+      <div class="search-result-item" onclick="goToTab('${r.tab}')">
+        <strong>${r.label}</strong> ${r.text}
+      </div>`).join('');
+  }
+  searchResults.style.display = 'block';
+});
+
+function goToTab(tab) {
+  searchResults.style.display = 'none';
+  searchInput.value = '';
+  const tabs = ['overview','quiz','flashcards','cases','pathophysiology','diagnosis','treatment','mnemonics'];
+  const idx = tabs.indexOf(tab);
+  document.querySelectorAll('.tab-btn')[idx]?.click();
+}
+
+document.addEventListener('click', e => {
+  if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+    searchResults.style.display = 'none';
+  }
+});
+
+// ═══════════════════════════════════════════════ INIT ═══════════════════════════════════════════════
+loadState();
+buildQuiz();
+buildFlashcards();
+buildCases();
+buildAnatomy();
+buildMnemonics();
+updateStats();
+
+// Restore last tab
+if (currentTab && currentTab !== 'overview') {
+  const tabs = ['overview','quiz','flashcards','cases','pathophysiology','diagnosis','treatment','mnemonics'];
+  const idx = tabs.indexOf(currentTab);
+  if (idx > 0) {
+    document.querySelectorAll('.tab-btn')[idx]?.click();
+  }
+}
+</script>
+</body>
+</html>

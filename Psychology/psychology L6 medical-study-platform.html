@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧠 Doctor-Patient Communication & Professionalism — Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e1a;
+  --bg2: #0f1628;
+  --bg3: #151d35;
+  --surface: #1a2340;
+  --surface2: #1f2a4a;
+  --border: #2a3a5c;
+  --accent: #38bdf8;
+  --accent2: #818cf8;
+  --accent3: #34d399;
+  --accent4: #fb923c;
+  --accent5: #f472b6;
+  --danger: #f87171;
+  --success: #4ade80;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --gold: #fbbf24;
+  --r: 12px;
+  --r2: 20px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  --glow: 0 0 24px rgba(56,189,248,0.15);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ANIMATED BACKGROUND */
+.bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.07;
+  animation: drift 20s ease-in-out infinite;
+}
+.orb1 { width: 600px; height: 600px; background: #38bdf8; top: -200px; left: -200px; animation-duration: 25s; }
+.orb2 { width: 500px; height: 500px; background: #818cf8; bottom: -150px; right: -150px; animation-duration: 30s; animation-delay: -10s; }
+.orb3 { width: 300px; height: 300px; background: #34d399; top: 50%; left: 50%; animation-duration: 20s; animation-delay: -5s; }
+
+@keyframes drift {
+  0%, 100% { transform: translate(0,0) scale(1); }
+  33% { transform: translate(60px,-40px) scale(1.1); }
+  66% { transform: translate(-30px,50px) scale(0.95); }
+}
+
+/* GRID NOISE TEXTURE */
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(56,189,248,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56,189,248,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+/* LAYOUT */
+.app { position: relative; z-index: 1; }
+
+/* HEADER */
+header {
+  padding: 28px 32px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.logo-block h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+.logo-block p {
+  font-size: 0.8rem;
+  color: var(--text3);
+  margin-top: 4px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stats-bar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.stat-pill {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 6px 14px;
+  font-size: 0.78rem;
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.stat-pill span { color: var(--accent); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+
+/* SEARCH */
+.search-wrap {
+  padding: 20px 32px 0;
+}
+.search-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 500px;
+  transition: border-color 0.2s;
+}
+.search-box:focus-within { border-color: var(--accent); box-shadow: var(--glow); }
+.search-box input {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.9rem;
+  width: 100%;
+}
+.search-box input::placeholder { color: var(--text3); }
+
+/* TABS */
+.tabs-wrap {
+  padding: 20px 32px 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  min-width: max-content;
+}
+.tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: 10px 18px;
+  color: var(--text3);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 8px 8px 0 0;
+}
+.tab-btn:hover { color: var(--text); background: var(--surface); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: var(--surface); }
+
+/* CONTENT */
+.content { padding: 28px 32px 60px; }
+.tab-panel { display: none; animation: fadeUp 0.35s ease; }
+.tab-panel.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* CARDS GRID */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 20px;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.card:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: var(--glow); }
+.card-icon { font-size: 2rem; margin-bottom: 10px; }
+.card h3 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.05rem;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.card p { font-size: 0.84rem; color: var(--text2); line-height: 1.6; }
+
+/* TAGS */
+.tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 2px;
+}
+.tag-high { background: rgba(251,146,60,0.15); color: var(--accent4); border: 1px solid rgba(251,146,60,0.3); }
+.tag-exam { background: rgba(244,114,182,0.15); color: var(--accent5); border: 1px solid rgba(244,114,182,0.3); }
+.tag-pearl { background: rgba(52,211,153,0.15); color: var(--accent3); border: 1px solid rgba(52,211,153,0.3); }
+.tag-warn { background: rgba(251,191,36,0.15); color: var(--gold); border: 1px solid rgba(251,191,36,0.3); }
+
+/* SECTION TITLE */
+.section-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--border), transparent);
+}
+
+/* TIMELINE */
+.timeline {
+  position: relative;
+  padding-left: 28px;
+  margin-bottom: 32px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--accent), var(--accent2), var(--accent3));
+}
+.timeline-item {
+  position: relative;
+  margin-bottom: 16px;
+}
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 8px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+.timeline-item h4 { font-size: 0.9rem; font-weight: 600; color: var(--accent); margin-bottom: 2px; }
+.timeline-item p { font-size: 0.82rem; color: var(--text2); }
+
+/* SEARCH HIGHLIGHT */
+.highlight { background: rgba(56,189,248,0.25); border-radius: 3px; padding: 0 2px; }
+
+/* ====== QUIZ ====== */
+.quiz-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.progress-bar-wrap {
+  flex: 1;
+  min-width: 200px;
+  height: 8px;
+  background: var(--surface2);
+  border-radius: 100px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 100px;
+  transition: width 0.5s ease;
+}
+.quiz-score-display {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+.streak-badge {
+  background: rgba(251,191,36,0.15);
+  border: 1px solid rgba(251,191,36,0.4);
+  border-radius: 100px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.question-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.question-card.correct-card { border-color: var(--success); box-shadow: 0 0 20px rgba(74,222,128,0.15); }
+.question-card.wrong-card { border-color: var(--danger); box-shadow: 0 0 20px rgba(248,113,113,0.15); }
+
+.q-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+.q-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 16px;
+  line-height: 1.6;
+  color: var(--text);
+}
+.options { display: flex; flex-direction: column; gap: 8px; }
+.option-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 10px 16px;
+  text-align: left;
+  color: var(--text2);
+  font-family: inherit;
+  font-size: 0.87rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.option-btn:hover:not(:disabled) { background: var(--surface2); color: var(--text); border-color: var(--accent); }
+.option-btn.selected-correct { background: rgba(74,222,128,0.15); border-color: var(--success); color: var(--success); }
+.option-btn.selected-wrong { background: rgba(248,113,113,0.15); border-color: var(--danger); color: var(--danger); animation: shake 0.4s ease; }
+.option-btn.reveal-correct { background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.4); color: var(--success); }
+.option-btn .opt-letter {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.explanation {
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: var(--bg3);
+  border-radius: var(--r);
+  border-left: 3px solid var(--accent);
+  font-size: 0.83rem;
+  color: var(--text2);
+  line-height: 1.6;
+  display: none;
+}
+.explanation.show { display: block; animation: fadeUp 0.3s ease; }
+.explanation strong { color: var(--accent); }
+
+.quiz-controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.btn {
+  padding: 10px 22px;
+  border-radius: 100px;
+  border: none;
+  font-family: inherit;
+  font-size: 0.87rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-primary { background: var(--accent); color: #0a0e1a; }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(56,189,248,0.4); }
+.btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+.btn-success { background: var(--success); color: #0a0e1a; }
+.btn-danger { background: var(--danger); color: #fff; }
+
+/* ====== FLASHCARDS ====== */
+.flashcards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+.flashcard-container {
+  height: 200px;
+  perspective: 1000px;
+  cursor: pointer;
+}
+.flashcard {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.flashcard.flipped { transform: rotateY(180deg); }
+.flashcard-front, .flashcard-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: var(--r2);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.flashcard-front {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.flashcard-back {
+  background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(129,140,248,0.1));
+  border: 1px solid var(--accent);
+  transform: rotateY(180deg);
+}
+.flashcard-front p { font-size: 0.88rem; font-weight: 500; color: var(--text); text-align: center; }
+.flashcard-back p { font-size: 0.82rem; color: var(--text2); text-align: center; line-height: 1.6; }
+.card-hint { font-size: 0.7rem; color: var(--text3); text-align: center; margin-top: 10px; }
+.card-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  text-align: center;
+}
+.flashcard-front .card-label { color: var(--text3); }
+.flashcard-back .card-label { color: var(--accent); }
+
+/* ====== CASES ====== */
+.case-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.case-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.case-number {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #0a0e1a;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1rem;
+  flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace;
+}
+.case-title { font-family: 'DM Serif Display', serif; font-size: 1.05rem; color: var(--text); }
+.case-scenario {
+  font-size: 0.88rem;
+  color: var(--text2);
+  line-height: 1.7;
+  padding: 14px 16px;
+  background: var(--bg3);
+  border-radius: var(--r);
+  margin-bottom: 16px;
+  border-left: 3px solid var(--accent4);
+}
+.case-q { font-size: 0.87rem; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+.reveal-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 7px 18px;
+  color: var(--text2);
+  font-family: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.reveal-btn:hover { border-color: var(--accent); color: var(--accent); }
+.case-answer {
+  display: none;
+  margin-top: 12px;
+  padding: 14px 16px;
+  background: rgba(52,211,153,0.07);
+  border: 1px solid rgba(52,211,153,0.25);
+  border-radius: var(--r);
+  font-size: 0.85rem;
+  color: var(--text2);
+  line-height: 1.7;
+  animation: fadeUp 0.3s ease;
+}
+.case-answer.show { display: block; }
+.case-answer strong { color: var(--accent3); }
+
+/* ====== PATHOPHYSIOLOGY ====== */
+.flow-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 32px;
+}
+.flow-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.flow-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 12px 18px;
+  font-size: 0.87rem;
+  font-weight: 500;
+  flex: 1;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.flow-box:hover { border-color: var(--accent); background: var(--surface2); }
+.flow-box.active { border-color: var(--accent); background: rgba(56,189,248,0.08); }
+.flow-box .flow-label { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--text3); margin-bottom: 2px; }
+.flow-box .flow-name { color: var(--accent); font-weight: 700; }
+.flow-box .flow-desc { font-size: 0.78rem; color: var(--text2); margin-top: 4px; display: none; }
+.flow-box.active .flow-desc { display: block; animation: fadeUp 0.3s ease; }
+.flow-arrow { color: var(--accent2); font-size: 1.4rem; }
+
+.clickable-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.click-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.click-item:hover { border-color: var(--accent2); transform: translateY(-2px); }
+.click-item h4 { font-size: 0.87rem; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.click-item p { font-size: 0.78rem; color: var(--text2); line-height: 1.5; }
+.click-item .detail-text { display: none; margin-top: 8px; font-size: 0.78rem; color: var(--accent); border-top: 1px solid var(--border); padding-top: 8px; }
+.click-item.open .detail-text { display: block; animation: fadeUp 0.2s ease; }
+
+/* ====== COMPARISON TABLE ====== */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 28px;
+  font-size: 0.85rem;
+}
+.compare-table th {
+  background: var(--surface2);
+  padding: 12px 16px;
+  text-align: left;
+  color: var(--accent);
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+.compare-table td {
+  padding: 10px 16px;
+  color: var(--text2);
+  border-bottom: 1px solid rgba(42,58,92,0.5);
+  vertical-align: top;
+  line-height: 1.5;
+}
+.compare-table tr:hover td { background: rgba(56,189,248,0.03); }
+.compare-table tr:last-child td { border-bottom: none; }
+
+/* ====== TREATMENT ====== */
+.treatment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.treatment-card {
+  border-radius: var(--r2);
+  padding: 20px;
+  border: 1px solid;
+}
+.tx-emergency { background: rgba(248,113,113,0.07); border-color: rgba(248,113,113,0.3); }
+.tx-primary { background: rgba(56,189,248,0.07); border-color: rgba(56,189,248,0.3); }
+.tx-secondary { background: rgba(129,140,248,0.07); border-color: rgba(129,140,248,0.3); }
+.tx-supportive { background: rgba(52,211,153,0.07); border-color: rgba(52,211,153,0.3); }
+.treatment-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; }
+.tx-emergency h3 { color: var(--danger); }
+.tx-primary h3 { color: var(--accent); }
+.tx-secondary h3 { color: var(--accent2); }
+.tx-supportive h3 { color: var(--accent3); }
+.treatment-list { list-style: none; }
+.treatment-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 0.84rem;
+  color: var(--text2);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.treatment-list li::before { content: '→'; color: var(--accent3); flex-shrink: 0; font-weight: 700; }
+
+/* ====== MNEMONICS ====== */
+.mnemonic-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+.mnemonic-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 22px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.mnemonic-card:hover { border-color: var(--accent2); transform: translateY(-2px); }
+.mnemonic-acronym {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.5rem;
+  background: linear-gradient(135deg, var(--accent2), var(--accent5));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.mnemonic-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.mnemonic-subtitle { font-size: 0.78rem; color: var(--text3); margin-bottom: 14px; }
+.mnemonic-list { display: none; flex-direction: column; gap: 6px; }
+.mnemonic-card.open .mnemonic-list { display: flex; animation: fadeUp 0.3s ease; }
+.mnemonic-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.84rem;
+}
+.mnemonic-letter {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.1rem;
+  color: var(--accent2);
+  font-weight: 700;
+  width: 18px;
+  flex-shrink: 0;
+}
+.mnemonic-text { color: var(--text2); line-height: 1.5; }
+
+/* ====== VIVA ====== */
+.viva-list { display: flex; flex-direction: column; gap: 12px; }
+.viva-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.viva-q {
+  padding: 14px 18px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.2s;
+}
+.viva-q:hover { background: var(--surface2); }
+.viva-q .chevron { font-size: 0.8rem; transition: transform 0.2s; color: var(--text3); }
+.viva-item.open .viva-q .chevron { transform: rotate(180deg); }
+.viva-a {
+  display: none;
+  padding: 14px 18px;
+  font-size: 0.84rem;
+  color: var(--text2);
+  line-height: 1.7;
+  border-top: 1px solid var(--border);
+  background: var(--bg3);
+}
+.viva-item.open .viva-a { display: block; animation: fadeUp 0.2s ease; }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 32px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  animation: fadeUp 0.3s ease;
+}
+.modal h2 { font-family: 'DM Serif Display', serif; font-size: 2rem; margin-bottom: 12px; }
+.modal .score-big {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 4rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.modal p { color: var(--text2); margin: 10px 0; }
+
+/* SEARCH RESULTS */
+.search-results-info {
+  font-size: 0.8rem;
+  color: var(--text3);
+  margin-bottom: 16px;
+  padding: 8px 14px;
+  background: var(--surface);
+  border-radius: var(--r);
+  display: none;
+}
+.search-results-info.show { display: block; }
+
+/* RESPONSIVE */
+@media (max-width: 640px) {
+  header, .search-wrap, .tabs-wrap, .content { padding-left: 16px; padding-right: 16px; }
+  .cards-grid, .treatment-grid, .mnemonic-cards, .clickable-grid { grid-template-columns: 1fr; }
+  .flashcards-grid { grid-template-columns: 1fr; }
+}
+
+/* SCROLL */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* QUIZ COMPLETE */
+.quiz-complete {
+  display: none;
+  text-align: center;
+  padding: 60px 20px;
+}
+.quiz-complete.show { display: block; animation: fadeUp 0.5s ease; }
+.score-ring {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 4px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  position: relative;
+  background: conic-gradient(var(--accent) 0%, var(--surface2) 0%);
+}
+.score-ring-inner {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.score-pct { font-family: 'JetBrains Mono', monospace; font-size: 2.2rem; font-weight: 700; color: var(--accent); }
+.score-label { font-size: 0.7rem; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="bg-canvas">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+<div class="bg-grid"></div>
+
+<div class="app">
+  <header>
+    <div class="logo-block">
+      <h1>🩺 Doctor-Patient Relationship</h1>
+      <p>Behavioral Science & Psychiatry · Communication & Professionalism</p>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-pill">📊 Progress <span id="stat-progress">0%</span></div>
+      <div class="stat-pill">🎯 Quiz Score <span id="stat-score">–</span></div>
+      <div class="stat-pill">🔥 Streak <span id="stat-streak">0</span></div>
+    </div>
+  </header>
+
+  <div class="search-wrap">
+    <div class="search-box">
+      <span>🔍</span>
+      <input type="text" id="searchInput" placeholder="Search concepts, terms, questions..." oninput="doSearch(this.value)">
+    </div>
+    <div class="search-results-info" id="searchInfo"></div>
+  </div>
+
+  <div class="tabs-wrap">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('overview',this)">🏠 Overview</button>
+      <button class="tab-btn" onclick="switchTab('quiz',this)">🎯 Quiz Mode</button>
+      <button class="tab-btn" onclick="switchTab('flashcards',this)">🃏 Flashcards</button>
+      <button class="tab-btn" onclick="switchTab('cases',this)">🏥 Clinical Cases</button>
+      <button class="tab-btn" onclick="switchTab('patho',this)">🧠 Concepts</button>
+      <button class="tab-btn" onclick="switchTab('comparison',this)">📊 Comparison</button>
+      <button class="tab-btn" onclick="switchTab('management',this)">✅ Management</button>
+      <button class="tab-btn" onclick="switchTab('mnemonics',this)">💡 Mnemonics</button>
+      <button class="tab-btn" onclick="switchTab('viva',this)">🗣️ Viva</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ===== OVERVIEW ===== -->
+    <div class="tab-panel active" id="tab-overview">
+      <p class="section-title">📌 Key Concepts</p>
+      <div class="cards-grid" id="conceptCards">
+        <div class="card" data-search="communication definition exchange information">
+          <div class="card-icon">💬</div>
+          <h3>Communication</h3>
+          <p>The exchange of information or ideas between a doctor/pharmacist and the patient or caregiver. Makes treatment easier and improves compliance.</p>
+          <div style="margin-top:10px"><span class="tag tag-high">High-Yield</span><span class="tag tag-exam">Exam-Fav</span></div>
+        </div>
+        <div class="card" data-search="professionalism daily expression desire help society quality health care">
+          <div class="card-icon">⭐</div>
+          <h3>Professionalism</h3>
+          <p>The daily expression of the desire to help people and society by providing quality health care — involves a strong societal role and an emotional component.</p>
+          <div style="margin-top:10px"><span class="tag tag-pearl">Clinical Pearl</span></div>
+        </div>
+        <div class="card" data-search="psychology psychiatry normal pathological functions">
+          <div class="card-icon">🧠</div>
+          <h3>Psychology vs Psychiatry</h3>
+          <p>Psychology studies <em>normal</em> mental functions (like Physiology). Psychiatry studies <em>pathological</em> mental functions (like Internal Medicine).</p>
+          <div style="margin-top:10px"><span class="tag tag-exam">Exam-Fav</span></div>
+        </div>
+        <div class="card" data-search="verbal communication words speech professional language">
+          <div class="card-icon">🗣️</div>
+          <h3>Verbal Communication</h3>
+          <p>Exchange of information using words or speech. Must be professional — avoid street slang. Essential for accurate history-taking and prescribing.</p>
+          <div style="margin-top:10px"><span class="tag tag-high">High-Yield</span></div>
+        </div>
+        <div class="card" data-search="non-verbal eye movement facial expressions body language deaf elderly children">
+          <div class="card-icon">👁️</div>
+          <h3>Non-Verbal Communication</h3>
+          <p>Exchange of information using eye movement, facial expressions, and body posture. Crucial for disabled, elderly, and children.</p>
+          <div style="margin-top:10px"><span class="tag tag-pearl">Clinical Pearl</span><span class="tag tag-high">High-Yield</span></div>
+        </div>
+        <div class="card" data-search="insight awareness illness psychosis loss recognition sick">
+          <div class="card-icon">🔮</div>
+          <h3>Insight (البصيرة)</h3>
+          <p>A patient's awareness that they are sick. Lost in psychotic disorders — the hallmark difference between psychosis and other conditions.</p>
+          <div style="margin-top:10px"><span class="tag tag-warn">⚠️ EXAM</span><span class="tag tag-exam">Exam-Fav</span></div>
+        </div>
+        <div class="card" data-search="empathy integrity honesty hard work excellence elements professionalism">
+          <div class="card-icon">🤝</div>
+          <h3>4 Elements of Professionalism</h3>
+          <p>Empathy · Hard Work/Excellence · Integrity/Honesty · Communication with patient and relatives. All four are essential.</p>
+          <div style="margin-top:10px"><span class="tag tag-high">High-Yield</span><span class="tag tag-warn">⚠️ EXAM</span></div>
+        </div>
+        <div class="card" data-search="assertiveness calm aggressive patient de-escalation right wrong politely">
+          <div class="card-icon">🛡️</div>
+          <h3>Assertiveness (الصرامة)</h3>
+          <p>Clarifying right from wrong with extreme politeness. Handle aggressive patients calmly — no retaliation. Call hospital security when needed.</p>
+          <div style="margin-top:10px"><span class="tag tag-pearl">Clinical Pearl</span></div>
+        </div>
+      </div>
+
+      <p class="section-title">🔄 Psychological System — Sequence</p>
+      <div class="timeline">
+        <div class="timeline-item">
+          <h4>1. Consciousness (الوعي)</h4>
+          <p>Awareness of time, place, and people — the first assessment step</p>
+        </div>
+        <div class="timeline-item">
+          <h4>2. Attention (الانتباه)</h4>
+          <p>Focusing attention on a topic or stimulus</p>
+        </div>
+        <div class="timeline-item">
+          <h4>3. Emotion (المشاعر)</h4>
+          <p>Feelings and affective state — influenced by the encounter</p>
+        </div>
+        <div class="timeline-item">
+          <h4>4. Thinking (التفكير)</h4>
+          <p>Organizing and processing thoughts logically</p>
+        </div>
+        <div class="timeline-item">
+          <h4>5. Perception (الإدراك)</h4>
+          <p>Understanding and interpreting raw sensations (e.g., identifying a voice)</p>
+        </div>
+        <div class="timeline-item">
+          <h4>6. Memory / Cognitive Functions</h4>
+          <p>Recall of past events and cognitive integration</p>
+        </div>
+        <div class="timeline-item">
+          <h4>7. Insight (البصيرة)</h4>
+          <p>Recognizing one's own illness — absent in psychosis ⚠️</p>
+        </div>
+        <div class="timeline-item">
+          <h4>8. Judgment (الحكم)</h4>
+          <p>Reacting appropriately to situations — the final output</p>
+        </div>
+      </div>
+
+      <p class="section-title">⚠️ High-Yield Exam Points</p>
+      <div class="cards-grid">
+        <div class="card" style="border-color:rgba(251,191,36,0.4)">
+          <div class="card-icon">🎓</div>
+          <h3>Psychotic vs Normal Patient</h3>
+          <p>The key difference is <strong style="color:var(--gold)">loss of insight</strong> — the psychotic patient does not realize they are sick.</p>
+        </div>
+        <div class="card" style="border-color:rgba(251,191,36,0.4)">
+          <div class="card-icon">📋</div>
+          <h3>Why Doctors Need Communication Most</h3>
+          <p>Doctors need communication skills more than any other profession because patients are humans with <strong style="color:var(--gold)">sensitive needs</strong>.</p>
+        </div>
+        <div class="card" style="border-color:rgba(251,191,36,0.4)">
+          <div class="card-icon">📉</div>
+          <h3>Decline in Clinical Skills</h3>
+          <p>Caused by studying only for MCQ exams through memorization — instead of <strong style="color:var(--gold)">clinical understanding</strong> and hospital practice.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== QUIZ ===== -->
+    <div class="tab-panel" id="tab-quiz">
+      <div class="quiz-header">
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" id="quizProgress" style="width:0%"></div>
+        </div>
+        <div class="quiz-score-display" id="quizScoreDisplay">0 / 25</div>
+        <div class="streak-badge" id="streakBadge">🔥 0 Streak</div>
+      </div>
+
+      <div id="quizContainer"></div>
+      <div class="quiz-complete" id="quizComplete">
+        <div class="score-ring" id="scoreRing">
+          <div class="score-ring-inner">
+            <div class="score-pct" id="scorePct">0%</div>
+            <div class="score-label">SCORE</div>
+          </div>
+        </div>
+        <h2 style="font-family:'DM Serif Display',serif;font-size:1.8rem;margin-bottom:8px">Quiz Complete! 🎉</h2>
+        <p id="scoreMsg" style="color:var(--text2);margin-bottom:24px"></p>
+        <button class="btn btn-primary" onclick="restartQuiz()">🔄 Retry Quiz</button>
+      </div>
+    </div>
+
+    <!-- ===== FLASHCARDS ===== -->
+    <div class="tab-panel" id="tab-flashcards">
+      <p class="section-title">🃏 Flashcards — Click to Flip</p>
+      <div class="flashcards-grid" id="flashcardsGrid"></div>
+    </div>
+
+    <!-- ===== CASES ===== -->
+    <div class="tab-panel" id="tab-cases">
+      <p class="section-title">🏥 Clinical Cases</p>
+      <div id="casesContainer"></div>
+    </div>
+
+    <!-- ===== CONCEPTS / PATHO ===== -->
+    <div class="tab-panel" id="tab-patho">
+      <p class="section-title">🧠 Psychological System — Interactive</p>
+      <div class="flow-chart" id="flowChart"></div>
+
+      <p class="section-title">📖 Core Concepts — Click to Expand</p>
+      <div class="clickable-grid" id="clickGrid"></div>
+    </div>
+
+    <!-- ===== COMPARISON ===== -->
+    <div class="tab-panel" id="tab-comparison">
+      <p class="section-title">📊 Psychology vs Psychiatry</p>
+      <table class="compare-table">
+        <thead><tr><th>Feature</th><th>Psychology</th><th>Psychiatry</th></tr></thead>
+        <tbody>
+          <tr><td>Definition</td><td>Study of normal mental functions</td><td>Medical specialty studying pathological mental functions</td></tr>
+          <tr><td>Analogy</td><td>Like Physiology (normal body)</td><td>Like Internal Medicine (diseased body)</td></tr>
+          <tr><td>Focus</td><td>Consciousness, memory, normal emotions</td><td>Psychosis, loss of insight, mood disorders</td></tr>
+          <tr><td>Insight</td><td>Preserved — patient knows they have issues</td><td>Often lost — patient denies illness (psychosis)</td></tr>
+          <tr><td>Treatment</td><td>Therapy, behavioral modification</td><td>Psychiatric medication + therapy</td></tr>
+        </tbody>
+      </table>
+
+      <p class="section-title">💬 Verbal vs Non-Verbal Communication</p>
+      <table class="compare-table">
+        <thead><tr><th>Feature</th><th>Verbal</th><th>Non-Verbal</th></tr></thead>
+        <tbody>
+          <tr><td>Definition</td><td>Exchange using words or speech</td><td>Exchange using eye movement, facial expressions, body posture</td></tr>
+          <tr><td>Best for</td><td>Accurate history-taking, prescribing</td><td>Deaf, elderly, children, disabled patients</td></tr>
+          <tr><td>Regulation</td><td>Must be professional — no slang</td><td>Must remain calm even when provoked</td></tr>
+          <tr><td>Risk if disrupted</td><td>Wrong diagnosis, malpractice, patient disrespect</td><td>Patient doesn't understand treatment plan</td></tr>
+          <tr><td>Example failure</td><td>Doctor uses slang terms during prescription</td><td>Doctor frowns/rushes, patient feels dismissed</td></tr>
+        </tbody>
+      </table>
+
+      <p class="section-title">🔬 Professionalism Elements</p>
+      <table class="compare-table">
+        <thead><tr><th>Element</th><th>Definition</th><th>Failure Consequence</th></tr></thead>
+        <tbody>
+          <tr><td>🫂 Empathy</td><td>Emotional connection; prioritize patient's long-term wellbeing</td><td>Patient feels uncared for, poor compliance</td></tr>
+          <tr><td>💪 Hard Work / Excellence</td><td>Apply knowledge clinically, not just memorize</td><td>Diagnostic errors, incompetent physician</td></tr>
+          <tr><td>✅ Integrity / Honesty</td><td>100% precise, accurate medical instructions without deceit</td><td>Wrong dosing, malpractice, ethical breach</td></tr>
+          <tr><td>💬 Communication</td><td>Effective exchange with patient AND relatives</td><td>Missed history, poor compliance, malpractice</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ===== MANAGEMENT ===== -->
+    <div class="tab-panel" id="tab-management">
+      <p class="section-title">✅ Professional Conduct — Step-by-Step</p>
+      <div class="treatment-grid">
+        <div class="treatment-card tx-emergency">
+          <h3>🚨 Aggressive Patient — Protocol</h3>
+          <ul class="treatment-list">
+            <li>Remain calm — do NOT shout back</li>
+            <li>Maintain composed non-verbal demeanor</li>
+            <li>Practice assertiveness (right is right, politely)</li>
+            <li>Filter complaints for relevant medical info</li>
+            <li>Call hospital security if unsafe</li>
+            <li>Never engage in physical/verbal fight</li>
+          </ul>
+        </div>
+        <div class="treatment-card tx-primary">
+          <h3>📋 History Taking — Best Practice</h3>
+          <ul class="treatment-list">
+            <li>Assess consciousness first (time/place/person)</li>
+            <li>Actively filter irrelevant side-chatter</li>
+            <li>Use clear, professional language — no slang</li>
+            <li>Extract precise medical information</li>
+            <li>Ensure all vital info is gathered</li>
+            <li>Document accurately to prevent malpractice</li>
+          </ul>
+        </div>
+        <div class="treatment-card tx-secondary">
+          <h3>🧠 Psychiatric Patient — Approach</h3>
+          <ul class="treatment-list">
+            <li>Assess insight first — do they recognize illness?</li>
+            <li>Obtain collateral history from relatives</li>
+            <li>Use non-verbal cues — calm, non-threatening</li>
+            <li>Involve family in communication plan</li>
+            <li>Extra patience and assertiveness required</li>
+            <li>Document carefully — legal implications</li>
+          </ul>
+        </div>
+        <div class="treatment-card tx-supportive">
+          <h3>📚 Medical Student Excellence</h3>
+          <ul class="treatment-list">
+            <li>Understand concepts — do not just memorize</li>
+            <li>Attend clinical rounds and see real patients</li>
+            <li>Practice history taking and physical examination</li>
+            <li>Develop empathy through patient interaction</li>
+            <li>Avoid exclusive focus on MCQ preparation</li>
+            <li>Translate knowledge into clinical judgment</li>
+          </ul>
+        </div>
+        <div class="treatment-card tx-primary">
+          <h3>💊 Verbal Communication — Protocol</h3>
+          <ul class="treatment-list">
+            <li>Use precise, respectful, professional language</li>
+            <li>Avoid all street slang and colloquialisms</li>
+            <li>Explain prescriptions with 100% accuracy</li>
+            <li>Treat medical advice as strictly as religious texts</li>
+            <li>Ensure patient/relative understands the plan</li>
+            <li>Confirm understanding before ending consult</li>
+          </ul>
+        </div>
+        <div class="treatment-card tx-supportive">
+          <h3>🤝 Building Doctor-Patient Trust</h3>
+          <ul class="treatment-list">
+            <li>Maintain strict confidentiality at all times</li>
+            <li>Work in teams during high-risk procedures</li>
+            <li>Keep self-motivated despite hectic conditions</li>
+            <li>Balance verbal AND non-verbal communication</li>
+            <li>Show empathy — connect emotionally</li>
+            <li>Never share patient info on social media</li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="section-title">📊 Clinical Encounter Algorithm</p>
+      <div class="flow-chart">
+        <div class="flow-step">
+          <div class="flow-box" style="border-color:rgba(56,189,248,0.5)">
+            <div class="flow-label">STEP 1</div>
+            <div class="flow-name">Patient Presents</div>
+            <div class="flow-desc" style="display:block">Greet professionally. Observe non-verbal cues. Assess consciousness (oriented to time/place/person?).</div>
+          </div>
+        </div>
+        <div class="flow-step"><div class="flow-arrow" style="padding-left:40px">↓</div></div>
+        <div class="flow-step">
+          <div class="flow-box" style="border-color:rgba(129,140,248,0.5)">
+            <div class="flow-label">STEP 2</div>
+            <div class="flow-name">Filter & History Taking</div>
+            <div class="flow-desc" style="display:block">Actively filter irrelevant talk. Use professional verbal language. Gather precise medical history.</div>
+          </div>
+        </div>
+        <div class="flow-step"><div class="flow-arrow" style="padding-left:40px">↓</div></div>
+        <div class="flow-step">
+          <div class="flow-box" style="border-color:rgba(52,211,153,0.5)">
+            <div class="flow-label">STEP 3</div>
+            <div class="flow-name">Physical Examination</div>
+            <div class="flow-desc" style="display:block">Thorough exam. Use non-verbal reassurance. Maintain professional composure throughout.</div>
+          </div>
+        </div>
+        <div class="flow-step"><div class="flow-arrow" style="padding-left:40px">↓</div></div>
+        <div class="flow-step">
+          <div class="flow-box" style="border-color:rgba(251,191,36,0.5)">
+            <div class="flow-label">STEP 4</div>
+            <div class="flow-name">Accurate Diagnosis</div>
+            <div class="flow-desc" style="display:block">Apply clinical understanding (not mere memorization). Avoid errors from missed history steps.</div>
+          </div>
+        </div>
+        <div class="flow-step"><div class="flow-arrow" style="padding-left:40px">↓</div></div>
+        <div class="flow-step">
+          <div class="flow-box" style="border-color:rgba(251,146,60,0.5)">
+            <div class="flow-label">STEP 5</div>
+            <div class="flow-name">Communicate Treatment Plan</div>
+            <div class="flow-desc" style="display:block">With integrity and honesty. Use clear language. Involve relatives. Confirm patient understanding.</div>
+          </div>
+        </div>
+        <div class="flow-step"><div class="flow-arrow" style="padding-left:40px">↓</div></div>
+        <div class="flow-step">
+          <div class="flow-box" style="border-color:rgba(244,114,182,0.5)">
+            <div class="flow-label">OUTCOME</div>
+            <div class="flow-name">Patient Confidence & Compliance ✅</div>
+            <div class="flow-desc" style="display:block">Good communication → easier diagnosis → patient trust → compliance → better outcomes. Failure → malpractice.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MNEMONICS ===== -->
+    <div class="tab-panel" id="tab-mnemonics">
+      <p class="section-title">💡 Mnemonics — Click to Expand</p>
+      <div class="mnemonic-cards" id="mnemonicsGrid"></div>
+    </div>
+
+    <!-- ===== VIVA ===== -->
+    <div class="tab-panel" id="tab-viva">
+      <p class="section-title">🗣️ Viva Questions — Click to Reveal Answer</p>
+      <div class="viva-list" id="vivaList"></div>
+    </div>
+
+  </div><!-- end .content -->
+</div><!-- end .app -->
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>🎉 Quiz Done!</h2>
+    <div class="score-big" id="modalScore"></div>
+    <p id="modalMsg"></p>
+    <div style="margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="restartQuiz();closeModal()">🔄 Retry</button>
+      <button class="btn btn-secondary" onclick="closeModal()">✖ Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== DATA =====================
+const quizData = [
+  {
+    q: "How does effective communication mechanistically improve a patient's clinical outcome?",
+    options: ["By reducing medication cost","By exchanging information that makes treatment easier and improves compliance","By bypassing physical examination","By eliminating the need for empathy","By speeding consultation under 5 minutes"],
+    correct: 1,
+    exp: "✅ Exchange of ideas/information makes treatment easier and directly improves patient compliance. Cost, skipping exams, and speed are not the primary mechanisms."
+  },
+  {
+    q: "According to the psychological system model, which process immediately follows Emotion/Feelings?",
+    options: ["Memory","Judgment","Thinking","Consciousness","Insight"],
+    correct: 2,
+    exp: "✅ The correct sequence is: Consciousness → Attention → Emotion → Thinking → Perception → Memory → Insight → Judgment."
+  },
+  {
+    q: "What is the mechanistic purpose of the 'Perception' (الإدراك) step?",
+    options: ["To test reflexes","To recall past events","To understand and interpret raw sensations","To recognize that one is sick","To fall asleep"],
+    correct: 2,
+    exp: "✅ Perception is defined as understanding sensations — e.g., hearing a voice and knowing whose it is. Recognizing sickness is Insight; recalling is Memory."
+  },
+  {
+    q: "How does 'Assertiveness' (الصرامة) function in patient interactions?",
+    options: ["By shouting to establish dominance","By ignoring complaints","By distinguishing right from wrong with extreme politeness","By discharging immediately","By falsifying records"],
+    correct: 2,
+    exp: "✅ Assertiveness means clarifying correct medical boundaries politely without aggression. Shouting and ignoring cause ethical problems."
+  },
+  {
+    q: "How does non-verbal communication mechanically bypass auditory deficits?",
+    options: ["By using written medical jargon","By utilizing eye movement, facial expressions, and body posture","By speaking louder","By using slang","By calling relatives"],
+    correct: 1,
+    exp: "✅ Non-verbal uses visual/physical cues, making it ideal for hearing-impaired patients. Speaking louder doesn't help the deaf; slang is verbal."
+  },
+  {
+    q: "What happens when the 'Insight' mechanism fails in a patient?",
+    options: ["They become blind","They lose memory of past events","They fail to realize they are mentally ill (characteristic of psychosis)","They cannot speak","They forget the doctor's name"],
+    correct: 2,
+    exp: "✅ Insight (البصيرة) is awareness of one's illness. Its absence characterizes psychotic conditions — the hallmark difference from normal patients."
+  },
+  {
+    q: "What is the mechanistic role of 'Empathy' in medical professionalism?",
+    options: ["To cry with the patient","To provide emotional connection and prioritize patient's long-term wellbeing","To waive medical fees","To agree with self-diagnosis","To prescribe whatever patient asks"],
+    correct: 1,
+    exp: "✅ Empathy is the emotional component of professionalism — builds trust and ensures best care. It does NOT mean agreeing to incorrect demands."
+  },
+  {
+    q: "How should a doctor handle a patient's irrelevant side-chatter during history taking?",
+    options: ["Throw the patient out","Actively filter information to focus on relevant medical history","Write down every single word","Stop taking the history","Administer a sedative"],
+    correct: 1,
+    exp: "✅ The doctor's role is to filter stories and extract precise medical information needed. Writing everything wastes time; ejecting the patient is unprofessional."
+  },
+  {
+    q: "What is the precise definition of communication in the medical field?",
+    options: ["Prescribing drugs accurately","The exchange of information or ideas between a pharmacist/doctor and the patient or caregiver","Studying normal bodily functions","Maintaining hospital records","Taking blood pressure"],
+    correct: 1,
+    exp: "✅ This is the exact definition from the source material. The others are clinical tasks, not the definition of communication."
+  },
+  {
+    q: "Which is defined as 'the daily expression of the desire to help people and society by providing quality health care'?",
+    options: ["Empathy","Psychiatry","Medical Professionalism","Communication","Insight"],
+    correct: 2,
+    exp: "✅ This is the exact definition of Medical Professionalism from the lecture slides. Empathy is a component of it; psychiatry is a separate field."
+  },
+  {
+    q: "What defines Psychiatry compared to Psychology?",
+    options: ["Psychiatry studies normal functions","Psychiatry studies pathological (abnormal) mental functions","Psychiatry only studies surgery","Psychiatry is the study of internal organs","Psychiatry is identical to Physiology"],
+    correct: 1,
+    exp: "✅ Psychology:normal functions = Physiology. Psychiatry:pathological functions = Internal Medicine. This is the key analogy."
+  },
+  {
+    q: "Which group MOST critically needs communication skills according to the lecture?",
+    options: ["Engineers","Doctors — because patients are humans with sensitive needs","Agricultural scientists","Lawyers","Basic science researchers"],
+    correct: 1,
+    exp: "✅ The slides explicitly state that doctors need communication skills more than other professionals due to direct patient interaction."
+  },
+  {
+    q: "Which is mechanistically better for a pediatric or elderly deaf patient?",
+    options: ["Verbal communication","Non-verbal communication","Both are equal","Neither","Written only"],
+    correct: 1,
+    exp: "✅ Non-verbal is specifically noted as essential for disabled, children, and elderly who have difficulty hearing or understanding verbal language."
+  },
+  {
+    q: "What mechanism drives the 'first step' of any valid psychological assessment?",
+    options: ["Checking reflexes","Assessing consciousness (awareness of time, place, people)","Asking to solve a math problem","Taking an X-ray","Checking emotional state"],
+    correct: 1,
+    exp: "✅ Consciousness must be established first. A patient must be oriented to time/place/person before higher psychological functions can be evaluated."
+  },
+  {
+    q: "How does proper history taking mechanistically prevent malpractice?",
+    options: ["By avoiding the need to prescribe drugs","By ensuring all vital information is gathered, preventing diagnostic errors","By letting the patient talk indefinitely","By allowing the doctor to skip the physical exam","By charging higher fees"],
+    correct: 1,
+    exp: "✅ Proper history taking ensures no vital information is missed, preventing wrong diagnoses and wrong treatments = malpractice prevention."
+  },
+  {
+    q: "How does teamwork mechanistically contribute to professionalism?",
+    options: ["Allows doctors to work fewer hours","Prevents irreplaceable damage during crucial times like surgeries","Allows doctors to gossip","Replaces the need for communication","Divides the doctor's salary"],
+    correct: 1,
+    exp: "✅ Working in a team prevents negligence and irreplaceable damage during high-stakes procedures — it is fundamentally about patient safety."
+  },
+  {
+    q: "How does using slang (street language) mechanistically affect medical consultations?",
+    options: ["Makes patient feel at home","Degrades the professional environment and reduces patient respect","Improves diagnosis accuracy","Speeds up the visit","Is recommended in psychiatry"],
+    correct: 1,
+    exp: "✅ Using slang breaks professional boundaries and reduces the patient's respect for the medical environment. It damages accuracy and professionalism."
+  },
+  {
+    q: "What is the definition of 'Insight' (البصيرة) in the psychological system?",
+    options: ["Ability to see clearly","Awareness of time, place, and people","Patient's recognition that they are sick","Understanding incoming sensations","Making appropriate decisions"],
+    correct: 2,
+    exp: "✅ Insight is the patient's awareness of their own illness. It is the 7th step in the psychological sequence and is lost in psychotic disorders."
+  },
+  {
+    q: "What is the definition of 'Consciousness' (الوعي) in the psychological system?",
+    options: ["Ability to concentrate","Awareness of time, place, and people","Understanding sensations","Recognizing one's illness","Making judgments"],
+    correct: 1,
+    exp: "✅ Consciousness = orientation to time, place, and people. It is the FIRST step assessed in any psychological evaluation."
+  },
+  {
+    q: "Which element of professionalism specifically involves 100% precision and accuracy in medical instructions?",
+    options: ["Empathy","Hard work and excellence","Integrity/Honesty","Communication","Teamwork"],
+    correct: 2,
+    exp: "✅ Integrity/Honesty requires the doctor to be 100% precise with treatments like insulin — treating medical advice as strictly as religious texts."
+  },
+  {
+    q: "Mechanistically, how does lack of clinical hospital practice affect medical students?",
+    options: ["Improves MCQ scores permanently","Causes lack of basic clinical skills like history taking, leading to poor judgment","Increases empathy","Enhances non-verbal communication","Makes them better at psychiatry"],
+    correct: 1,
+    exp: "✅ Students who only memorize for exams without seeing patients fail to develop history-taking and examination skills — the core of clinical competence."
+  },
+  {
+    q: "How does 'Confidentiality' function within professionalism?",
+    options: ["By sharing patient stories on social media","By safeguarding patient information to form a bond of trust","By keeping the diagnosis secret from the patient","By refusing to write records","By locking hospital doors"],
+    correct: 1,
+    exp: "✅ Confidentiality safeguards patient information from outside parties — this is key to building patient trust. The patient themselves should know their diagnosis."
+  },
+  {
+    q: "In the comparative context of medical education, what distinguishes top students from average ones?",
+    options: ["Top students memorize more","Top students understand, apply knowledge, and solve more questions using cognitive memory","Average students study longer hours","Average students use slang","There is no difference"],
+    correct: 1,
+    exp: "✅ Top students understand rather than memorize — engaging higher cognitive functions. Memorization alone was condemned as the cause of poor clinical skill."
+  },
+  {
+    q: "What is 'Perception' (الإدراك) specifically as defined in the psychological sequence?",
+    options: ["Awareness of self","Emotional response to stimuli","The cognitive ability to understand and interpret incoming sensations","The first step of psychological assessment","Recognizing one is sick"],
+    correct: 2,
+    exp: "✅ Perception = understanding and interpreting incoming sensations, e.g., identifying a sound as a specific person's voice. It follows Thinking in the sequence."
+  },
+  {
+    q: "Which element regulates a doctor's reaction to extreme provocation by a patient?",
+    options: ["Physical retaliation","Complete silence and leaving","Calm non-verbal demeanor, assertiveness, and using security protocols","Arguing back with medical jargon","Calling police immediately"],
+    correct: 2,
+    exp: "✅ Professionalism requires staying calm, avoiding fights, practicing assertiveness, and using hospital security for uncooperative patients."
+  }
+];
+
+const flashcardData = [
+  { q: "What is the definition of Communication in medicine?", a: "The exchange of information or ideas between a doctor/pharmacist and the patient or caregiver — makes treatment easier and improves compliance." },
+  { q: "What is the correct sequence of the Psychological System?", a: "Consciousness → Attention → Emotion → Thinking → Perception → Memory → Insight → Judgment" },
+  { q: "What is Insight (البصيرة)?", a: "The patient's awareness that they are sick. Lost in psychotic disorders — this is the hallmark difference between psychosis and normal psychiatric conditions." },
+  { q: "What is Consciousness (الوعي)?", a: "Awareness of time, place, and people — the FIRST step assessed in any psychological evaluation." },
+  { q: "List the 4 Elements of Professionalism.", a: "1) Empathy 2) Hard Work & Excellence 3) Integrity/Honesty 4) Communication with patient and relatives" },
+  { q: "What is the definition of Medical Professionalism?", a: "The daily expression of the desire to help people and society by providing quality health care — involves a societal role and emotional component." },
+  { q: "How does Psychology differ from Psychiatry?", a: "Psychology = normal mental functions (like Physiology). Psychiatry = pathological mental functions (like Internal Medicine)." },
+  { q: "What is Non-Verbal Communication and who benefits most?", a: "Exchange using eye movement, facial expressions, and body posture. Most beneficial for deaf, elderly, and pediatric patients." },
+  { q: "What is Assertiveness (الصرامة)?", a: "Distinguishing right from wrong with extreme politeness — used to manage aggressive patients without retaliation or aggression." },
+  { q: "What is Perception (الإدراك)?", a: "The ability to understand and interpret incoming sensations — e.g., hearing a sound and identifying whose voice it is." },
+  { q: "What happens when Insight is lost in a psychiatric patient?", a: "The patient fails to recognize they are mentally ill, refuses treatment, denies illness — hallmark of psychotic disorders." },
+  { q: "Why do doctors need communication skills more than other professionals?", a: "Because patients are humans with sensitive needs — communication directly affects diagnosis accuracy, compliance, and ethical outcomes." },
+  { q: "What is the risk of using slang in medical consultations?", a: "Degrades professional environment, loses patient respect, and can lead to misunderstood prescriptions and malpractice." },
+  { q: "What are the 3 consequences of poor doctor-patient communication?", a: "1) Poor patient compliance 2) Missed medical history → wrong diagnosis 3) Ethical problems and malpractice." },
+  { q: "How should a doctor handle an aggressive patient?", a: "Remain calm, use assertiveness (polite firmness), maintain composed non-verbal demeanor, and call hospital security if necessary." },
+  { q: "What is Integrity/Honesty in medical professionalism?", a: "Being 100% precise and accurate with medical instructions — treating medical advice as seriously as religious obligations." },
+  { q: "What is Judgment (الحكم) in the psychological sequence?", a: "The final step — the ability to react appropriately to situations based on all prior processing." },
+  { q: "What is the primary cause of declining clinical skills in doctors today?", a: "Studying exclusively for MCQ exams through memorization, without clinical understanding or hands-on hospital practice." },
+  { q: "How does teamwork contribute to medical professionalism?", a: "Prevents irreplaceable damage during crucial procedures (like surgery) by ensuring no negligence through collaborative oversight." },
+  { q: "What is the clinical encounter algorithm?", a: "Patient presents → Filter/History Taking → Physical Exam → Accurate Diagnosis → Communicate Treatment Plan → Patient Compliance" },
+  { q: "What is the role of Empathy in professionalism?", a: "Provides emotional connection and ensures the doctor prioritizes the patient's long-term wellbeing — the emotional core of professionalism." },
+  { q: "What distinguishes the first student from the tenth in a class?", a: "The first understands and applies knowledge using higher cognitive functions. The tenth relies on pure memorization without clinical application." }
+];
+
+const casesData = [
+  {
+    n: "1", title: "The Angry Patient",
+    scenario: "An angry patient confronts a physician in the clinic because of a long wait time. The patient is uncooperative, making it difficult for the doctor to gather a medical history. The doctor feels provoked and is tempted to shout back.",
+    questions: [
+      { q: "What mechanism is breaking down?", a: "<strong>Doctor-Patient Communication and Emotional Processing.</strong> The patient's psychological state is limiting their judgment and attention. The doctor must initiate history taking but cannot due to the communication barrier." },
+      { q: "How should the doctor respond?", a: "<strong>Assertiveness + Non-Verbal Composure:</strong> Remain calm, use non-verbal cues of patience (open body language, no frowning), apply assertiveness (right is right, politely stated), filter the patient's complaints to extract medical data, and involve hospital security if the situation becomes unsafe." },
+      { q: "What happens if the doctor loses their temper?", a: "<strong>Cascading failure:</strong> Poor communication → inaccurate history → wrong diagnosis → medical malpractice. The doctor also violates the ethical standards of professionalism (empathy and integrity are lost)." }
+    ]
+  },
+  {
+    n: "2", title: "The Psychotic Patient",
+    scenario: "A psychiatric patient is brought in by their family. The patient is aggressive and insists they are perfectly healthy. The family reports bizarre behavior and hallucinations for 2 weeks.",
+    questions: [
+      { q: "Which psychological mechanism is impaired?", a: "<strong>Insight (البصيرة) — Step 7 of the psychological sequence.</strong> The patient cannot recognize their own pathological state." },
+      { q: "How does this differ from a normal patient?", a: "A normal patient or surgical patient retains insight — they know they are sick. The psychotic patient loses this self-awareness, which is the defining hallmark of psychotic disorders." },
+      { q: "What is your management approach?", a: "<strong>Obtain collateral history from relatives</strong> (since patient cannot provide accurate information). Use non-verbal reassurance. Maintain calm, non-threatening demeanor. Document carefully — legal implications are significant." }
+    ]
+  },
+  {
+    n: "3", title: "The Insulin Prescription",
+    scenario: "A doctor prescribes insulin but gives vague instructions with colloquial slang. He tells the patient to 'just take some in the morning, يا غالي.' The patient goes home and administers an incorrect dose.",
+    questions: [
+      { q: "What element of professionalism was violated?", a: "<strong>Integrity/Honesty + Verbal Communication.</strong> Medical instructions must be given with 100% precision — treating them as seriously as religious obligations. Slang reduces both clarity and patient respect." },
+      { q: "What is the mechanism of harm?", a: "Verbal Communication breakdown → Misunderstood prescription → Incorrect insulin dose → Patient harm → Medical malpractice and ethical breach." },
+      { q: "How should the consultation have been conducted?", a: "Use precise, professional language. State exact dose, timing, and route. Confirm patient understanding. Involve a caregiver/relative if the patient is elderly or cognitively limited." }
+    ]
+  },
+  {
+    n: "4", title: "The Hearing-Impaired Elderly Patient",
+    scenario: "An 82-year-old patient with profound hearing loss and limited literacy presents to the clinic alone. The doctor attempts to explain a new medication regimen verbally — the patient nods but does not understand.",
+    questions: [
+      { q: "What type of communication is required here?", a: "<strong>Non-Verbal Communication</strong> — eye movement, facial expressions, and body posture are the primary tools. Written instructions in large font can supplement, but the verbal approach has failed here." },
+      { q: "What is the risk if non-verbal communication is also disrupted?", a: "The patient will not understand the treatment plan, leading to poor compliance, incorrect medication use, and potentially serious adverse outcomes." },
+      { q: "What practical steps should the doctor take?", a: "Use clear facial expressions and gestures. Write simple instructions in large print. Request the patient bring a family member next visit. Consider a pharmacist consultation for medication counseling." }
+    ]
+  },
+  {
+    n: "5", title: "The High-Scoring Student Who Can't Diagnose",
+    scenario: "A medical student scores 99% on MCQ exams but during a clinical rotation, fails to take a basic respiratory history from a patient with a chest infection. The consultant is alarmed.",
+    questions: [
+      { q: "Which element of professionalism is deficient?", a: "<strong>Hard Work & Excellence</strong> — specifically the translation of cognitive memory into practical clinical application. Memorization alone cannot substitute for hands-on experience." },
+      { q: "What psychological mechanism is involved?", a: "The gap between <strong>Memory</strong> (stored information) and <strong>Judgment</strong> (applying it correctly to real situations) — knowledge without clinical exposure cannot become clinical judgment." },
+      { q: "What is the long-term consequence if uncorrected?", a: "The student becomes an incompetent physician who makes diagnostic errors. Patients are harmed. This is why clinical training in hospitals is NON-NEGOTIABLE alongside academic study." }
+    ]
+  },
+  {
+    n: "6", title: "The ER Shouting Relative",
+    scenario: "An anxious relative of a patient is shouting in the Emergency Room, threatening the medical staff and disrupting other patients. The resident doctor is approached and feels threatened.",
+    questions: [
+      { q: "What professional mechanism regulates the doctor's response?", a: "<strong>Assertiveness (الصرامة) + Non-Verbal Composure.</strong> The doctor must stay calm and not respond with aggression, shouts, or physical confrontation." },
+      { q: "What are the sequential steps to de-escalate?", a: "1) Maintain calm non-verbal demeanor (open hands, no frowning) 2) Acknowledge the relative's concern empathetically 3) Apply assertiveness (explain boundaries politely) 4) Call hospital security if the situation escalates." },
+      { q: "Why is physical retaliation absolutely prohibited?", a: "It leads to ethical violations, legal prosecution, loss of medical license, physical harm, and total breakdown of the professional environment. Professionalism demands zero aggression from the physician." }
+    ]
+  }
+];
+
+const flowSteps = [
+  { label: "STEP 1", name: "Consciousness (الوعي)", desc: "Awareness of time, place, and people. MUST be assessed first. Is the patient oriented? Do they know where they are?" },
+  { label: "STEP 2", name: "Attention (الانتباه)", desc: "Can the patient focus on the conversation? Attention deficits impair history taking. Assess before proceeding." },
+  { label: "STEP 3", name: "Emotion (المشاعر)", desc: "Feelings and affective state. Is the patient anxious, angry, or calm? Emotional state affects the quality of information provided." },
+  { label: "STEP 4", name: "Thinking (التفكير)", desc: "Is the patient's thought process organized and logical? Disorganized thinking suggests psychiatric pathology." },
+  { label: "STEP 5", name: "Perception (الإدراك)", desc: "Can the patient correctly interpret sensations? Perceptual disturbances (like hallucinations) indicate disruption at this level." },
+  { label: "STEP 6", name: "Memory / Cognitive Functions", desc: "Can the patient recall past events accurately? Memory impairment affects the reliability of medical history." },
+  { label: "STEP 7", name: "Insight (البصيرة) ⚠️", desc: "CRITICAL: Does the patient recognize they are ill? Absent in psychosis. If absent, obtain collateral history from relatives." },
+  { label: "STEP 8", name: "Judgment (الحكم)", desc: "Can the patient make appropriate decisions? Impaired judgment affects consent and compliance with treatment." }
+];
+
+const clickGridData = [
+  { h: "Communication", p: "Core skill in medicine", d: "The exchange of information that makes treatment easier and improves compliance. Doctors need it more than any profession due to sensitive patient needs." },
+  { h: "Professionalism", p: "Daily expression of service", d: "The daily desire to help society through quality healthcare. Involves strong societal role and emotional component — not just clinical skills." },
+  { h: "Empathy", p: "Emotional connection", d: "The core emotional element of professionalism. Helps provide best care and builds patient trust. Does NOT mean agreeing with everything the patient says." },
+  { h: "Integrity/Honesty", p: "100% precision required", d: "Accurately conveying medical information without deceit. Treat insulin instructions like religious obligations — absolute precision required." },
+  { h: "Confidentiality", p: "Safeguarding patient info", d: "Protecting patient information forms a bond of trust. Never share on social media. Applies to external parties — the patient should know their own diagnosis." },
+  { h: "History Filtering", p: "Extract what matters", d: "The doctor must actively filter irrelevant chatter to extract precise medical information. Writing everything is inefficient; filtering is the skill." },
+  { h: "Teamwork", p: "Safety in collaboration", d: "Working in a team, especially during surgery, prevents negligence and irreplaceable patient harm. It is a professional obligation, not optional." },
+  { h: "Hectic Conditions", p: "Self-motivation required", d: "Doctors must maintain self-motivation despite stressful, demanding environments. Stress never excuses errors or loss of empathy." }
+];
+
+const mnemonicsData = [
+  {
+    acronym: "EPIC",
+    name: "4 Elements of Professionalism",
+    sub: "Remember the pillars of what makes a good doctor",
+    items: [
+      { l: "E", t: "Empathy — Emotional connection with your patients; prioritize their long-term wellbeing" },
+      { l: "P", t: "Precision/Hard Work — Excellence in applying knowledge clinically, not just memorizing" },
+      { l: "I", t: "Integrity/Honesty — 100% accurate medical instructions; treat advice as sacred" },
+      { l: "C", t: "Communication — With the patient AND their relatives, verbal AND non-verbal" }
+    ]
+  },
+  {
+    acronym: "CATPMIJ",
+    name: "Psychological System Sequence",
+    sub: "Cats Always Think, Puppies Make Incredibly Joyful",
+    items: [
+      { l: "C", t: "Consciousness — First step; orientation to time/place/person" },
+      { l: "A", t: "Attention — Focusing on the topic" },
+      { l: "T", t: "Thinking — Organizing thoughts logically" },
+      { l: "P", t: "Perception — Understanding sensations" },
+      { l: "M", t: "Memory — Recall and cognitive functions" },
+      { l: "I", t: "Insight — Recognition of one's own illness (LOST in psychosis!)" },
+      { l: "J", t: "Judgment — Appropriate reaction to situations" }
+    ]
+  },
+  {
+    acronym: "CALM",
+    name: "Managing the Aggressive Patient",
+    sub: "Stay CALM in every confrontation",
+    items: [
+      { l: "C", t: "Composure — Maintain calm, non-verbal demeanor. No frowning or raising voice." },
+      { l: "A", t: "Assertiveness — Right is right, wrong is wrong — stated politely and firmly" },
+      { l: "L", t: "Listen — Filter complaints to extract relevant medical information" },
+      { l: "M", t: "Mobilize Security — Call hospital security if situation becomes unsafe" }
+    ]
+  },
+  {
+    acronym: "VNP",
+    name: "Types of Communication",
+    sub: "Verbal, Non-Verbal, Professional — all three matter",
+    items: [
+      { l: "V", t: "Verbal — Words and speech. Must be professional. No slang. Clear and precise." },
+      { l: "N", t: "Non-Verbal — Eye movement, facial expressions, body posture. Essential for deaf/elderly/children." },
+      { l: "P", t: "Professional — Always maintain professionalism in BOTH types of communication" }
+    ]
+  },
+  {
+    acronym: "FHAD",
+    name: "Clinical Encounter Steps",
+    sub: "Filter-History-Assess-Diagnose",
+    items: [
+      { l: "F", t: "Filter — Remove irrelevant chatter; focus on medical history" },
+      { l: "H", t: "History — Gather complete, precise patient history" },
+      { l: "A", t: "Assess — Physical examination with professional composure" },
+      { l: "D", t: "Diagnose + Discuss — Accurate diagnosis, then communicate treatment with integrity" }
+    ]
+  }
+];
+
+const vivaData = [
+  { q: "Why is communication the most essential skill in medicine?", a: "Because it allows the doctor to easily arrive at a diagnosis, wins patient confidence, and enhances the patient experience. Without it, doctors cannot practice effectively and face serious ethical problems. Patients are humans with sensitive needs — unlike any other professional's clientele." },
+  { q: "Differentiate between Psychology and Psychiatry.", a: "Psychology studies normal psychological functions — comparable to Physiology studying normal body function. Psychiatry studies pathological (abnormal) mental functions — comparable to Internal Medicine studying diseased body function. The key distinction is normal vs. pathological." },
+  { q: "What is non-verbal communication and who benefits most?", a: "Non-verbal communication is the exchange of information using eye movement, facial expressions, and body posture — without words. It is most valuable for children, elderly patients, and disabled individuals (especially the hearing-impaired) who struggle with verbal language." },
+  { q: "List and explain the four main elements of professionalism.", a: "1) Empathy — Emotional connection; prioritizing patient's long-term wellbeing. 2) Hard Work & Excellence — Applying clinical knowledge, not mere memorization. 3) Integrity/Honesty — 100% precision in medical instructions, no deceit. 4) Communication — Effective exchange with patients AND relatives." },
+  { q: "Why is teamwork an essential part of professionalism?", a: "Working in a team, particularly during crucial high-stakes procedures like surgeries, prevents negligence that could lead to irreplaceable, permanent damage to the patient. It is a professional obligation rooted in patient safety." },
+  { q: "State the complete sequence of the human psychological system.", a: "Consciousness (وعي) → Attention (انتباه) → Emotion (مشاعر) → Thinking (تفكير) → Perception (إدراك) → Memory/Cognitive Functions → Insight (بصيرة) → Judgment (حكم). Note: Emotion precedes Thinking in this sequence." },
+  { q: "Define Perception in the psychological context and give an example.", a: "Perception (الإدراك) is the cognitive ability to understand and interpret incoming physical sensations. For example: hearing a sound and correctly identifying it as a specific person's voice. It follows Thinking in the psychological sequence and is distinct from Memory." },
+  { q: "What is Insight and when is it characteristically lost?", a: "Insight (البصيرة) is the patient's awareness that they are sick. It is typically lost in severe psychotic disorders — the psychotic patient insists they are perfectly healthy despite clear evidence of pathology. Surgical and general medical patients typically retain insight." },
+  { q: "How should a doctor handle a physically or verbally aggressive patient?", a: "The doctor must: 1) Remain calm and composed. 2) Practice assertiveness — clarify right and wrong politely. 3) Avoid responding with aggression, shouting, or physical confrontation. 4) Filter the patient's aggression to extract medically relevant information. 5) Call hospital security to handle the physical situation professionally." },
+  { q: "Why has clinical skill level among doctors declined in recent years?", a: "The lecturer identified two causes: 1) Students focus entirely on memorizing answers for MCQ exams rather than developing clinical understanding. 2) They skip practical clinical training in hospitals and don't see real patients. This creates a dangerous gap between knowledge and application." },
+  { q: "What is the danger of incomplete history taking due to poor communication?", a: "Skipping details during history taking leads to an incorrect or incomplete diagnosis (medical malpractice). This in turn leads to the wrong treatment being prescribed — potentially causing serious patient harm. Filtering and gathering precise history is therefore a patient safety imperative." },
+  { q: "Why is the doctor's language important during verbal communication?", a: "Using clear, respectful, professional language makes the exchange of information precise and effective. Using slang or inappropriate street language degrades the professional environment, reduces the patient's respect for the doctor, and can lead to misunderstood prescriptions and medical errors." }
+];
+
+// ===================== STATE =====================
+let currentStreak = 0;
+let totalCorrect = 0;
+let questionsAnswered = 0;
+let tabsVisited = new Set(['overview']);
+
+// Load from storage
+try {
+  const saved = JSON.parse(localStorage.getItem('medStudy') || '{}');
+  currentStreak = saved.streak || 0;
+  totalCorrect = saved.correct || 0;
+  questionsAnswered = saved.answered || 0;
+  tabsVisited = new Set(saved.tabs || ['overview']);
+} catch(e) {}
+
+function saveState() {
+  try {
+    localStorage.setItem('medStudy', JSON.stringify({
+      streak: currentStreak, correct: totalCorrect,
+      answered: questionsAnswered, tabs: [...tabsVisited]
+    }));
+  } catch(e) {}
+}
+
+function updateStats() {
+  document.getElementById('stat-streak').textContent = currentStreak;
+  document.getElementById('stat-score').textContent = questionsAnswered > 0
+    ? `${totalCorrect}/${questionsAnswered}` : '–';
+  const pct = Math.round((tabsVisited.size / 9) * 100);
+  document.getElementById('stat-progress').textContent = pct + '%';
+}
+
+// ===================== TABS =====================
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  tabsVisited.add(id);
+  saveState();
+  updateStats();
+  try { localStorage.setItem('lastTab', id); } catch(e) {}
+}
+
+// ===================== QUIZ =====================
+let questionStates = quizData.map(() => ({ answered: false, correct: false }));
+let quizScore = 0;
+let quizStreak = 0;
+
+function buildQuiz() {
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = '';
+  quizData.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = 'question-card';
+    div.id = 'qcard-' + i;
+    const letters = ['A','B','C','D','E'];
+    div.innerHTML = `
+      <div class="q-number">QUESTION ${String(i+1).padStart(2,'0')} OF ${quizData.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options">
+        ${q.options.map((o,j) => `
+          <button class="option-btn" onclick="selectAnswer(${i},${j})" id="opt-${i}-${j}">
+            <span class="opt-letter">${letters[j]}</span>${o}
+          </button>`).join('')}
+      </div>
+      <div class="explanation" id="exp-${i}"><strong>Explanation:</strong> ${q.exp}</div>
+    `;
+    container.appendChild(div);
+  });
+  updateQuizHeader();
+}
+
+function selectAnswer(qi, ai) {
+  if (questionStates[qi].answered) return;
+  questionStates[qi].answered = true;
+  const isCorrect = ai === quizData[qi].correct;
+  questionStates[qi].correct = isCorrect;
+
+  const card = document.getElementById('qcard-' + qi);
+  const opts = card.querySelectorAll('.option-btn');
+  opts.forEach((btn, j) => {
+    btn.disabled = true;
+    if (j === quizData[qi].correct) btn.classList.add('reveal-correct');
+  });
+
+  if (isCorrect) {
+    opts[ai].classList.remove('reveal-correct');
+    opts[ai].classList.add('selected-correct');
+    card.classList.add('correct-card');
+    quizScore++;
+    quizStreak++;
+    totalCorrect++;
+    card.style.animation = 'pulse 0.4s ease';
+  } else {
+    opts[ai].classList.add('selected-wrong');
+    card.classList.add('wrong-card');
+    quizStreak = 0;
+  }
+  questionsAnswered++;
+  currentStreak = Math.max(currentStreak, quizStreak);
+
+  document.getElementById('exp-' + qi).classList.add('show');
+  updateQuizHeader();
+  saveState();
+  updateStats();
+
+  const answered = questionStates.filter(s => s.answered).length;
+  if (answered === quizData.length) {
+    setTimeout(showQuizComplete, 600);
+  }
+}
+
+function updateQuizHeader() {
+  const answered = questionStates.filter(s => s.answered).length;
+  const pct = Math.round((answered / quizData.length) * 100);
+  document.getElementById('quizProgress').style.width = pct + '%';
+  document.getElementById('quizScoreDisplay').textContent = quizScore + ' / ' + answered;
+  document.getElementById('streakBadge').textContent = '🔥 ' + quizStreak + ' Streak';
+}
+
+function showQuizComplete() {
+  const pct = Math.round((quizScore / quizData.length) * 100);
+  document.getElementById('quizComplete').classList.add('show');
+  document.getElementById('scorePct').textContent = pct + '%';
+  const ring = document.getElementById('scoreRing');
+  ring.style.background = `conic-gradient(${pct >= 70 ? '#4ade80' : pct >= 50 ? '#fbbf24' : '#f87171'} ${pct}%, #1f2a4a ${pct}%)`;
+  const msgs = [
+    [0,49, "Keep studying! Review the flashcards and try again. 💪"],
+    [50,69, "Good effort! Focus on the yellow-tagged concepts. 📚"],
+    [70,84, "Well done! Almost there — review the missed questions. 🎯"],
+    [85,100, "Excellent work! You've mastered this topic! 🏆"]
+  ];
+  document.getElementById('scoreMsg').textContent = msgs.find(([a,b]) => pct >= a && pct <= b)?.[2] || '';
+}
+
+function restartQuiz() {
+  questionStates = quizData.map(() => ({ answered: false, correct: false }));
+  quizScore = 0; quizStreak = 0;
+  document.getElementById('quizComplete').classList.remove('show');
+  buildQuiz();
+}
+
+// ===================== FLASHCARDS =====================
+function buildFlashcards() {
+  const grid = document.getElementById('flashcardsGrid');
+  flashcardData.forEach((f, i) => {
+    grid.innerHTML += `
+      <div class="flashcard-container" onclick="flipCard(${i})">
+        <div class="flashcard" id="fc-${i}">
+          <div class="flashcard-front">
+            <div class="card-label">❓ Question</div>
+            <p>${f.q}</p>
+            <div class="card-hint">Tap to reveal answer</div>
+          </div>
+          <div class="flashcard-back">
+            <div class="card-label">✅ Answer</div>
+            <p>${f.a}</p>
+            <div class="card-hint">Tap to flip back</div>
+          </div>
+        </div>
+      </div>`;
+  });
+}
+
+function flipCard(i) {
+  document.getElementById('fc-' + i).classList.toggle('flipped');
+}
+
+// ===================== CASES =====================
+function buildCases() {
+  const c = document.getElementById('casesContainer');
+  casesData.forEach(cs => {
+    const qsHTML = cs.questions.map((cq,qi) => `
+      <div style="margin-bottom:14px">
+        <div class="case-q">Q${qi+1}: ${cq.q}</div>
+        <button class="reveal-btn" onclick="revealCaseAns(this)">Reveal Answer ↓</button>
+        <div class="case-answer">${cq.a}</div>
+      </div>`).join('');
+    c.innerHTML += `
+      <div class="case-card">
+        <div class="case-header">
+          <div class="case-number">${cs.n}</div>
+          <div><div class="case-title">Case ${cs.n}: ${cs.title}</div></div>
+        </div>
+        <div class="case-scenario">${cs.scenario}</div>
+        ${qsHTML}
+      </div>`;
+  });
+}
+
+function revealCaseAns(btn) {
+  const ans = btn.nextElementSibling;
+  ans.classList.toggle('show');
+  btn.textContent = ans.classList.contains('show') ? 'Hide Answer ↑' : 'Reveal Answer ↓';
+}
+
+// ===================== FLOW CHART =====================
+function buildFlowChart() {
+  const fc = document.getElementById('flowChart');
+  flowSteps.forEach((s, i) => {
+    const step = document.createElement('div');
+    step.className = 'flow-step';
+    step.innerHTML = `<div class="flow-box" id="fb-${i}" onclick="toggleFlow(${i})">
+      <div class="flow-label">${s.label}</div>
+      <div class="flow-name">${s.name}</div>
+      <div class="flow-desc">${s.desc}</div>
+    </div>`;
+    fc.appendChild(step);
+    if (i < flowSteps.length - 1) {
+      const arrow = document.createElement('div');
+      arrow.className = 'flow-step';
+      arrow.innerHTML = '<div class="flow-arrow" style="padding-left:40px">↓</div>';
+      fc.appendChild(arrow);
+    }
+  });
+}
+
+function toggleFlow(i) {
+  document.getElementById('fb-' + i).classList.toggle('active');
+}
+
+// ===================== CLICK GRID =====================
+function buildClickGrid() {
+  const g = document.getElementById('clickGrid');
+  clickGridData.forEach((item, i) => {
+    g.innerHTML += `
+      <div class="click-item" id="ci-${i}" onclick="toggleClick(${i})">
+        <h4>${item.h}</h4>
+        <p>${item.p}</p>
+        <div class="detail-text">${item.d}</div>
+      </div>`;
+  });
+}
+
+function toggleClick(i) {
+  document.getElementById('ci-' + i).classList.toggle('open');
+}
+
+// ===================== MNEMONICS =====================
+function buildMnemonics() {
+  const g = document.getElementById('mnemonicsGrid');
+  mnemonicsData.forEach((m, i) => {
+    const items = m.items.map(it => `
+      <div class="mnemonic-item">
+        <div class="mnemonic-letter">${it.l}</div>
+        <div class="mnemonic-text">${it.t}</div>
+      </div>`).join('');
+    g.innerHTML += `
+      <div class="mnemonic-card" id="mc-${i}" onclick="toggleMnemonic(${i})">
+        <div class="mnemonic-acronym">${m.acronym}</div>
+        <div class="mnemonic-name">${m.name}</div>
+        <div class="mnemonic-subtitle">${m.sub} · Click to expand</div>
+        <div class="mnemonic-list">${items}</div>
+      </div>`;
+  });
+}
+
+function toggleMnemonic(i) {
+  document.getElementById('mc-' + i).classList.toggle('open');
+}
+
+// ===================== VIVA =====================
+function buildViva() {
+  const v = document.getElementById('vivaList');
+  vivaData.forEach((item, i) => {
+    v.innerHTML += `
+      <div class="viva-item" id="vi-${i}">
+        <div class="viva-q" onclick="toggleViva(${i})">
+          <span>V${String(i+1).padStart(2,'0')}: ${item.q}</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="viva-a">${item.a}</div>
+      </div>`;
+  });
+}
+
+function toggleViva(i) {
+  document.getElementById('vi-' + i).classList.toggle('open');
+}
+
+// ===================== SEARCH =====================
+function doSearch(term) {
+  const info = document.getElementById('searchInfo');
+  if (!term.trim()) { info.classList.remove('show'); info.textContent = ''; return; }
+  const t = term.toLowerCase();
+  const conceptCards = document.querySelectorAll('#conceptCards .card');
+  let found = 0;
+  conceptCards.forEach(card => {
+    const text = card.textContent.toLowerCase();
+    const searchAttr = (card.dataset.search || '').toLowerCase();
+    const matches = text.includes(t) || searchAttr.includes(t);
+    card.style.display = matches ? '' : 'none';
+    if (matches) found++;
+  });
+  info.classList.add('show');
+  info.textContent = `Found ${found} result${found !== 1 ? 's' : ''} matching "${term}" in Overview concepts.`;
+}
+
+// ===================== MODAL =====================
+function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+
+// ===================== INIT =====================
+buildQuiz();
+buildFlashcards();
+buildCases();
+buildFlowChart();
+buildClickGrid();
+buildMnemonics();
+buildViva();
+updateStats();
+
+// Restore last tab
+try {
+  const lastTab = localStorage.getItem('lastTab');
+  if (lastTab && lastTab !== 'overview') {
+    const btn = document.querySelector(`.tab-btn[onclick*="'${lastTab}'"]`);
+    if (btn) switchTab(lastTab, btn);
+  }
+} catch(e) {}
+</script>
+</body>
+</html>

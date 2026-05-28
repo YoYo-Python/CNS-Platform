@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧫 Viral CNS Infections — Mansoura Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c14;
+  --surface: #111420;
+  --surface2: #181c2e;
+  --border: rgba(255,255,255,0.07);
+  --text: #e8eaf2;
+  --muted: #7a7f9a;
+  --accent-virus: #ff6b6b;
+  --accent-polio: #ffd166;
+  --accent-rabies: #06d6a0;
+  --accent-blue: #4cc9f0;
+  --accent-purple: #a78bfa;
+  --glow-v: rgba(255,107,107,0.18);
+  --glow-p: rgba(255,209,102,0.18);
+  --glow-r: rgba(6,214,160,0.18);
+  --font-head: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-body);
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ─── ANIMATED BG ──────────────────────────────────────────── */
+.bg-canvas{
+  position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+}
+.orb{
+  position:absolute;border-radius:50%;filter:blur(90px);opacity:.25;
+  animation:drift 20s ease-in-out infinite alternate;
+}
+.orb1{width:600px;height:600px;background:radial-gradient(circle,#ff6b6b,transparent);top:-200px;left:-200px;animation-duration:22s}
+.orb2{width:500px;height:500px;background:radial-gradient(circle,#06d6a0,transparent);bottom:-150px;right:-150px;animation-duration:28s;animation-delay:-10s}
+.orb3{width:400px;height:400px;background:radial-gradient(circle,#4cc9f0,transparent);top:50%;left:40%;animation-duration:18s;animation-delay:-5s;opacity:.15}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(60px,40px) scale(1.1)}}
+
+/* ─── LAYOUT ───────────────────────────────────────────────── */
+#app{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 1rem 4rem}
+
+/* ─── HEADER ───────────────────────────────────────────────── */
+.hero{
+  padding:3rem 0 2rem;
+  text-align:center;
+}
+.hero-tag{
+  display:inline-block;
+  background:rgba(255,107,107,.15);
+  border:1px solid rgba(255,107,107,.3);
+  color:var(--accent-virus);
+  font-family:var(--font-mono);
+  font-size:.72rem;letter-spacing:.12em;
+  padding:.3em .9em;border-radius:100px;
+  margin-bottom:1.2rem;
+  text-transform:uppercase;
+}
+.hero h1{
+  font-family:var(--font-head);
+  font-size:clamp(2rem,5vw,3.6rem);
+  font-weight:800;
+  line-height:1.05;
+  letter-spacing:-.02em;
+  margin-bottom:.7rem;
+}
+.hero h1 span{background:linear-gradient(135deg,#ff6b6b,#ffd166,#06d6a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--muted);max-width:560px;margin:0 auto 1.5rem;font-size:1.05rem;line-height:1.6}
+
+/* stats bar */
+.stats-bar{
+  display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-bottom:2rem;
+}
+.stat-chip{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:100px;
+  padding:.4em 1.1em;
+  font-size:.82rem;
+  font-family:var(--font-mono);
+  display:flex;align-items:center;gap:.5em;
+}
+.stat-chip strong{color:var(--accent-blue)}
+
+/* ─── SEARCH ───────────────────────────────────────────────── */
+.search-wrap{
+  position:relative;max-width:480px;margin:0 auto 2.5rem;
+}
+.search-wrap input{
+  width:100%;
+  background:var(--surface);
+  border:1.5px solid var(--border);
+  border-radius:100px;
+  padding:.75em 1.5em .75em 3em;
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:.95rem;
+  outline:none;
+  transition:border-color .2s;
+}
+.search-wrap input:focus{border-color:var(--accent-blue)}
+.search-wrap::before{
+  content:'🔍';
+  position:absolute;left:1.1em;top:50%;transform:translateY(-50%);
+  font-size:1rem;pointer-events:none;
+}
+#searchResults{
+  position:absolute;top:calc(100% + .4rem);left:0;right:0;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  z-index:100;max-height:320px;overflow-y:auto;display:none;
+}
+.s-item{
+  padding:.7em 1.2em;cursor:pointer;
+  font-size:.88rem;border-bottom:1px solid var(--border);
+  transition:background .15s;
+}
+.s-item:hover{background:var(--surface)}
+.s-item em{color:var(--accent-blue);font-style:normal;font-weight:600}
+
+/* ─── TABS ─────────────────────────────────────────────────── */
+.tabs{
+  display:flex;gap:.35rem;flex-wrap:wrap;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:.4rem;
+  margin-bottom:2rem;
+}
+.tab-btn{
+  flex:1;min-width:max-content;
+  background:transparent;border:none;
+  color:var(--muted);
+  font-family:var(--font-body);font-size:.82rem;font-weight:500;
+  padding:.55em .9em;border-radius:var(--radius-sm);
+  cursor:pointer;white-space:nowrap;
+  transition:all .2s;
+}
+.tab-btn:hover{color:var(--text);background:rgba(255,255,255,.05)}
+.tab-btn.active{background:var(--surface2);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.4)}
+
+/* ─── PANELS ───────────────────────────────────────────────── */
+.panel{display:none;animation:fadeUp .35s ease}
+.panel.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── SECTION HEADING ──────────────────────────────────────── */
+.sec-head{
+  font-family:var(--font-head);font-size:1.6rem;font-weight:700;
+  margin-bottom:1.2rem;display:flex;align-items:center;gap:.6rem;
+}
+.sec-sub{color:var(--muted);font-size:.95rem;font-family:var(--font-body);font-weight:400;margin-top:.25rem}
+
+/* ─── CARDS GRID ───────────────────────────────────────────── */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;margin-bottom:1.5rem}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:1.5rem}
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1.2rem 1.4rem;
+  transition:border-color .2s,transform .2s;
+}
+.card:hover{border-color:rgba(255,255,255,.15);transform:translateY(-2px)}
+.card-title{
+  font-family:var(--font-head);font-size:1rem;font-weight:700;
+  margin-bottom:.5rem;display:flex;align-items:center;gap:.5em;
+}
+.card p,.card li{font-size:.9rem;color:var(--muted);line-height:1.65}
+.card ul{padding-left:1.2em}
+
+/* tag badges */
+.badge{
+  display:inline-block;
+  font-size:.68rem;font-family:var(--font-mono);letter-spacing:.05em;
+  padding:.2em .6em;border-radius:4px;margin:.15em .2em;
+}
+.badge-exam{background:rgba(255,107,107,.18);color:var(--accent-virus);border:1px solid rgba(255,107,107,.3)}
+.badge-pearl{background:rgba(255,209,102,.18);color:var(--accent-polio);border:1px solid rgba(255,209,102,.3)}
+.badge-high{background:rgba(76,201,240,.18);color:var(--accent-blue);border:1px solid rgba(76,201,240,.3)}
+.badge-green{background:rgba(6,214,160,.18);color:var(--accent-rabies);border:1px solid rgba(6,214,160,.3)}
+
+/* highlight rows */
+.hl{background:rgba(255,107,107,.07);border-left:3px solid var(--accent-virus);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.6em 1em;margin:.5em 0;font-size:.9rem}
+.hl-y{background:rgba(255,209,102,.07);border-left-color:var(--accent-polio)}
+.hl-g{background:rgba(6,214,160,.07);border-left-color:var(--accent-rabies)}
+
+/* ─── FLOWCHART ────────────────────────────────────────────── */
+.flow{display:flex;flex-direction:column;align-items:center;gap:0;margin:1rem 0 1.5rem}
+.flow-step{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:.7em 1.4em;font-size:.88rem;text-align:center;
+  max-width:380px;width:100%;
+  transition:background .2s;
+}
+.flow-step:hover{background:#1e2338}
+.flow-arr{color:var(--muted);font-size:1.2rem;line-height:1.2;margin:2px 0}
+.flow-step.hi-r{border-color:rgba(255,107,107,.4);background:rgba(255,107,107,.07)}
+.flow-step.hi-y{border-color:rgba(255,209,102,.4);background:rgba(255,209,102,.07)}
+.flow-step.hi-g{border-color:rgba(6,214,160,.4);background:rgba(6,214,160,.07)}
+
+/* ─── CSF TABLE ────────────────────────────────────────────── */
+.tbl-wrap{overflow-x:auto;margin-bottom:1.5rem}
+table{width:100%;border-collapse:collapse;font-size:.86rem}
+th{
+  background:var(--surface2);
+  font-family:var(--font-head);font-size:.8rem;letter-spacing:.06em;
+  padding:.7em 1em;text-align:left;border-bottom:2px solid var(--border);
+  color:var(--muted);text-transform:uppercase;
+}
+td{padding:.65em 1em;border-bottom:1px solid var(--border);line-height:1.5}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.025)}
+.t-viral td:nth-child(3){color:var(--accent-blue)}
+.t-bact td:nth-child(2){color:var(--accent-virus)}
+.t-tb td:nth-child(4){color:var(--accent-polio)}
+
+/* ─── QUIZ ─────────────────────────────────────────────────── */
+.quiz-header{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:1.2rem;gap:1rem;flex-wrap:wrap;
+}
+.progress-bar{
+  flex:1;min-width:120px;height:8px;
+  background:var(--surface2);border-radius:100px;overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--accent-blue),var(--accent-rabies));
+  border-radius:100px;
+  transition:width .4s ease;
+}
+.score-display{
+  font-family:var(--font-mono);font-size:.85rem;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:100px;padding:.35em 1em;
+  display:flex;gap:.8em;
+}
+.score-display span{color:var(--muted)}
+.score-display strong{color:var(--accent-rabies)}
+
+.q-card{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--radius);padding:1.5rem;
+  margin-bottom:1rem;
+}
+.q-num{font-family:var(--font-mono);font-size:.72rem;color:var(--muted);margin-bottom:.5em;letter-spacing:.08em}
+.q-text{font-size:1rem;line-height:1.6;margin-bottom:1.1rem;font-weight:500}
+.options{display:flex;flex-direction:column;gap:.5rem}
+.opt{
+  background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:.7em 1em;cursor:pointer;
+  font-size:.9rem;line-height:1.5;
+  transition:all .2s;display:flex;align-items:flex-start;gap:.7em;
+}
+.opt:hover:not(.disabled){border-color:rgba(76,201,240,.4);background:rgba(76,201,240,.06)}
+.opt-letter{
+  font-family:var(--font-mono);font-size:.78rem;
+  min-width:1.6em;height:1.6em;
+  background:var(--surface);border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:600;margin-top:.05em;
+}
+.opt.correct{border-color:var(--accent-rabies)!important;background:rgba(6,214,160,.1)!important;animation:pulse .4s ease}
+.opt.wrong{border-color:var(--accent-virus)!important;background:rgba(255,107,107,.1)!important;animation:shake .4s ease}
+.opt.disabled{cursor:default}
+.opt.show-correct{border-color:var(--accent-rabies)!important;background:rgba(6,214,160,.06)!important}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.015)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.explanation{
+  margin-top:.9rem;padding:1em;
+  background:rgba(76,201,240,.06);
+  border:1px solid rgba(76,201,240,.2);
+  border-radius:var(--radius-sm);
+  font-size:.87rem;line-height:1.6;
+  display:none;
+}
+.explanation.show{display:block;animation:fadeUp .3s ease}
+.q-nav{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1.2rem}
+.btn{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:.55em 1.3em;
+  font-family:var(--font-body);font-size:.88rem;font-weight:500;
+  color:var(--text);cursor:pointer;
+  transition:all .2s;
+}
+.btn:hover{border-color:rgba(255,255,255,.25)}
+.btn-primary{background:linear-gradient(135deg,var(--accent-blue),var(--accent-purple));border:none;color:#fff}
+.btn-primary:hover{opacity:.88;transform:translateY(-1px)}
+.btn-danger{background:rgba(255,107,107,.15);border-color:rgba(255,107,107,.3);color:var(--accent-virus)}
+
+/* ─── FLASHCARDS ───────────────────────────────────────────── */
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-bottom:1.5rem}
+.fc{perspective:900px;height:180px;cursor:pointer}
+.fc-inner{
+  position:relative;width:100%;height:100%;
+  transform-style:preserve-3d;
+  transition:transform .55s cubic-bezier(.4,0,.2,1);
+}
+.fc.flipped .fc-inner{transform:rotateY(180deg)}
+.fc-face{
+  position:absolute;inset:0;
+  backface-visibility:hidden;
+  border-radius:var(--radius);
+  padding:1.1rem;
+  display:flex;flex-direction:column;justify-content:center;
+  border:1.5px solid var(--border);
+  font-size:.87rem;line-height:1.55;
+}
+.fc-front{background:var(--surface);color:var(--muted)}
+.fc-back{background:var(--surface2);transform:rotateY(180deg);color:var(--text)}
+.fc-front strong{font-family:var(--font-head);font-size:.95rem;color:var(--text);display:block;margin-bottom:.5em}
+.fc-back strong{font-family:var(--font-head);font-size:.85rem;color:var(--accent-blue);display:block;margin-bottom:.4em}
+.fc-hint{font-size:.7rem;color:var(--muted);margin-top:.5em;font-family:var(--font-mono)}
+.fc-label{
+  position:absolute;top:.6rem;right:.8rem;
+  font-family:var(--font-mono);font-size:.62rem;letter-spacing:.08em;
+  opacity:.5;text-transform:uppercase;
+}
+
+/* ─── CLINICAL CASES ───────────────────────────────────────── */
+.case-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;margin-bottom:1.2rem;
+}
+.case-header{
+  padding:1rem 1.4rem;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;gap:1rem;
+}
+.case-num{
+  font-family:var(--font-mono);font-size:.75rem;
+  color:var(--muted);padding:.3em .7em;
+  background:var(--surface2);border-radius:var(--radius-sm);
+  white-space:nowrap;margin-top:.1em;
+}
+.case-vignette{font-size:.9rem;line-height:1.7;flex:1}
+.case-body{padding:1rem 1.4rem}
+.case-q{
+  font-size:.9rem;font-weight:600;margin:.6rem 0 .3rem;
+  display:flex;gap:.5em;
+}
+.reveal-btn{
+  background:rgba(167,139,250,.12);
+  border:1px solid rgba(167,139,250,.3);
+  border-radius:var(--radius-sm);
+  color:var(--accent-purple);
+  font-family:var(--font-body);font-size:.82rem;
+  padding:.45em 1em;cursor:pointer;margin-top:.8rem;
+  transition:all .2s;
+}
+.reveal-btn:hover{background:rgba(167,139,250,.22)}
+.answer-block{
+  background:rgba(6,214,160,.05);
+  border:1px solid rgba(6,214,160,.2);
+  border-radius:var(--radius-sm);
+  padding:1em;margin-top:.6rem;
+  font-size:.87rem;line-height:1.65;
+  display:none;
+}
+.answer-block.show{display:block;animation:fadeUp .3s ease}
+
+/* ─── PATHOPHYSIOLOGY ──────────────────────────────────────── */
+.path-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.8rem;margin-bottom:1.5rem}
+.path-item{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:1em;cursor:pointer;
+  transition:all .2s;
+}
+.path-item:hover{border-color:var(--accent-blue);background:rgba(76,201,240,.05)}
+.path-item.open{border-color:var(--accent-blue);background:rgba(76,201,240,.07)}
+.path-item-title{font-size:.9rem;font-weight:600;margin-bottom:.2em;display:flex;justify-content:space-between}
+.path-detail{font-size:.84rem;color:var(--muted);line-height:1.6;display:none;margin-top:.5em;padding-top:.5em;border-top:1px solid var(--border)}
+.path-item.open .path-detail{display:block;animation:fadeUp .25s ease}
+
+/* ─── DIAGNOSIS ────────────────────────────────────────────── */
+.algo-wrap{margin:1.5rem 0}
+.algo-row{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.5rem}
+.algo-box{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:.6em 1em;font-size:.86rem;
+  flex:1;min-width:180px;max-width:300px;
+}
+.algo-box.decision{border-color:rgba(255,209,102,.35);background:rgba(255,209,102,.07)}
+.algo-box.action{border-color:rgba(6,214,160,.35);background:rgba(6,214,160,.07)}
+.algo-arr{color:var(--muted);font-size:1.1rem}
+
+/* ─── TREATMENT ────────────────────────────────────────────── */
+.tx-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-bottom:1.5rem}
+.tx-card{
+  border-radius:var(--radius);padding:1.2rem;
+  border:1px solid var(--border);
+  position:relative;overflow:hidden;
+}
+.tx-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  border-radius:var(--radius) var(--radius) 0 0;
+}
+.tx-emergency::before{background:var(--accent-virus)}
+.tx-active::before{background:var(--accent-blue)}
+.tx-passive::before{background:var(--accent-purple)}
+.tx-support::before{background:var(--accent-polio)}
+.tx-card h4{font-family:var(--font-head);font-size:.95rem;margin-bottom:.6rem;display:flex;align-items:center;gap:.5em}
+.tx-card li{font-size:.86rem;color:var(--muted);line-height:1.7;list-style:none;padding-left:1.1em;position:relative}
+.tx-card li::before{content:'→';position:absolute;left:0;color:var(--muted)}
+
+/* ─── MNEMONICS ────────────────────────────────────────────── */
+.mn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}
+.mn-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:1.3rem;
+}
+.mn-name{
+  font-family:var(--font-head);font-size:1.5rem;font-weight:800;
+  letter-spacing:.06em;margin-bottom:.3em;
+}
+.mn-title{font-size:.8rem;color:var(--muted);margin-bottom:.8em;font-family:var(--font-mono)}
+.mn-item{display:flex;gap:.7em;margin:.3em 0;font-size:.88rem;align-items:baseline}
+.mn-letter{
+  font-family:var(--font-mono);font-size:1rem;font-weight:700;
+  min-width:1.4em;
+}
+.mn-expand{
+  margin-top:.6em;
+  background:var(--surface2);border:none;border-radius:var(--radius-sm);
+  color:var(--muted);font-family:var(--font-body);font-size:.78rem;
+  padding:.3em .8em;cursor:pointer;transition:color .2s;
+}
+.mn-expand:hover{color:var(--text)}
+.mn-extra{display:none;margin-top:.6em;padding-top:.6em;border-top:1px solid var(--border);font-size:.83rem;color:var(--muted);line-height:1.6}
+.mn-extra.show{display:block;animation:fadeUp .25s ease}
+
+/* ─── VIVA TAB ─────────────────────────────────────────────── */
+.viva-item{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:1rem 1.2rem;
+  margin-bottom:.6rem;cursor:pointer;transition:all .2s;
+}
+.viva-item:hover{border-color:rgba(255,255,255,.15)}
+.viva-item.open{border-color:var(--accent-blue)}
+.viva-q{font-size:.92rem;font-weight:500;display:flex;justify-content:space-between;gap:.5em}
+.viva-a{
+  display:none;margin-top:.65em;padding-top:.65em;
+  border-top:1px solid var(--border);
+  font-size:.87rem;color:var(--muted);line-height:1.65;
+}
+.viva-item.open .viva-a{display:block;animation:fadeUp .25s ease}
+.viva-chev{color:var(--muted);transition:transform .2s;flex-shrink:0}
+.viva-item.open .viva-chev{transform:rotate(180deg)}
+
+/* ─── TOAST ────────────────────────────────────────────────── */
+#toast{
+  position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:.8em 1.3em;
+  font-size:.9rem;
+  transform:translateY(6rem);opacity:0;
+  transition:all .3s ease;
+  max-width:300px;
+}
+#toast.show{transform:translateY(0);opacity:1}
+
+/* ─── RESPONSIVE ───────────────────────────────────────────── */
+@media(max-width:640px){
+  .tabs{gap:.25rem}
+  .tab-btn{font-size:.74rem;padding:.45em .65em}
+  .fc{height:200px}
+  .flow-step{font-size:.82rem}
+}
+</style>
+</head>
+<body>
+<div class="bg-canvas">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<div id="app">
+  <div class="hero">
+    <div class="hero-tag">🧫 Mansoura University · Microbiology</div>
+    <h1>Viral CNS Infections<br><span>Meningitis · Polio · Rabies</span></h1>
+    <p>Comprehensive USMLE-style interactive study platform covering all three topics from your lecture notes.</p>
+    <div class="stats-bar">
+      <div class="stat-chip">📝 <strong id="s-quiz">0/25</strong> <span>Quiz</span></div>
+      <div class="stat-chip">🃏 <strong id="s-fc">0/22</strong> <span>Flashcards</span></div>
+      <div class="stat-chip">🔥 <strong id="s-streak">0</strong> <span>Streak</span></div>
+      <div class="stat-chip">⭐ <strong id="s-score">0%</strong> <span>Score</span></div>
+    </div>
+  </div>
+
+  <div class="search-wrap">
+    <input type="text" id="searchInput" placeholder="Search all content..." autocomplete="off">
+    <div id="searchResults"></div>
+  </div>
+
+  <div class="tabs" id="tabBar">
+    <button class="tab-btn active" data-tab="overview">🧠 Overview</button>
+    <button class="tab-btn" data-tab="quiz">📝 Quiz</button>
+    <button class="tab-btn" data-tab="flashcards">🃏 Flashcards</button>
+    <button class="tab-btn" data-tab="cases">🩺 Cases</button>
+    <button class="tab-btn" data-tab="patho">⚗️ Pathophysiology</button>
+    <button class="tab-btn" data-tab="diagnosis">🔬 Diagnosis</button>
+    <button class="tab-btn" data-tab="treatment">💊 Treatment</button>
+    <button class="tab-btn" data-tab="mnemonics">🧩 Mnemonics</button>
+    <button class="tab-btn" data-tab="viva">🎤 Viva</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       OVERVIEW
+  ══════════════════════════════════════════════════════ -->
+  <div class="panel active" id="tab-overview">
+    <div class="sec-head">🧠 Overview <div class="sec-sub">High-yield summary of all three topics</div></div>
+
+    <div class="grid3">
+      <div class="card">
+        <div class="card-title" style="color:var(--accent-virus)">🦠 Viral Meningitis</div>
+        <p>Most common type of meningitis. Self-limiting (7–10 days). Two main CNS entry routes:</p>
+        <ul style="margin-top:.5em">
+          <li><strong style="color:var(--text)">Hematogenous</strong> — most common overall</li>
+          <li><strong style="color:var(--text)">Neural penetration</strong> — retrograde (HSV, Rabies)</li>
+        </ul>
+        <div style="margin-top:.7em">
+          <span class="badge badge-exam">⚠️ Most common cause: Enteroviruses</span>
+          <span class="badge badge-pearl">💡 Gold standard: PCR (RNA)</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:var(--accent-polio)">🧫 Poliovirus</div>
+        <p>Picornaviridae family · Enterovirus genus · Positive-sense ssRNA · Naked icosahedral · 3 serotypes</p>
+        <ul style="margin-top:.5em">
+          <li>Entry: <strong style="color:var(--text)">fecal-oral route</strong></li>
+          <li>Destroys <strong style="color:var(--text)">lower motor neurons</strong> → flaccid paralysis</li>
+        </ul>
+        <div style="margin-top:.7em">
+          <span class="badge badge-exam">⚠️ Sabin = mucosal IgA (Salk does NOT)</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:var(--accent-rabies)">🦇 Rabies Virus</div>
+        <p>Rhabdoviridae · Lyssavirus · Negative-sense ssRNA · <strong style="color:var(--text)">Bullet-shaped</strong> · Enveloped with glycoprotein spikes</p>
+        <ul style="margin-top:.5em">
+          <li>Entry: animal bite (saliva), scratch, inhalation</li>
+          <li>Binds <strong style="color:var(--text)">nicotinic ACh receptors</strong> at NMJ</li>
+        </ul>
+        <div style="margin-top:.7em">
+          <span class="badge badge-exam">⚠️ Gold standard: Fluorescent antibody test</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-head" style="font-size:1.2rem;margin-top:1.5rem">📊 CSF Comparison Table <div class="sec-sub">High-yield — memorize all three profiles</div></div>
+    <div class="tbl-wrap">
+      <table>
+        <tr>
+          <th>Feature</th>
+          <th style="color:var(--accent-virus)">🔴 Bacterial</th>
+          <th style="color:var(--accent-blue)">🔵 Viral (Aseptic)</th>
+          <th style="color:var(--accent-polio)">🟡 TB</th>
+        </tr>
+        <tr class="t-bact">
+          <td><strong>Appearance</strong></td>
+          <td>Turbid / purulent</td>
+          <td>Clear</td>
+          <td>Turbid ± spider-web clot</td>
+        </tr>
+        <tr>
+          <td><strong>WBC type</strong></td>
+          <td style="color:var(--accent-virus)">PMN (neutrophils)</td>
+          <td style="color:var(--accent-blue)">Lymphocytes (&lt;500)</td>
+          <td style="color:var(--accent-polio)">Lymphocytes</td>
+        </tr>
+        <tr>
+          <td><strong>Glucose</strong></td>
+          <td style="color:var(--accent-virus)">↓↓ &lt;40 mg/dL</td>
+          <td style="color:var(--accent-blue)">Normal 50–80 mg/dL</td>
+          <td style="color:var(--accent-polio)">↓ &lt;40 mg/dL</td>
+        </tr>
+        <tr>
+          <td><strong>Protein</strong></td>
+          <td>↑↑ Increased</td>
+          <td>Normal / mildly ↑</td>
+          <td>↑ Increased</td>
+        </tr>
+        <tr>
+          <td><strong>WBC count</strong></td>
+          <td>10–2000/mm³</td>
+          <td>Elevated but &lt;500</td>
+          <td>100–500/mm³</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="sec-head" style="font-size:1.2rem;margin-top:.5rem">💉 Vaccine Comparison</div>
+    <div class="tbl-wrap">
+      <table>
+        <tr>
+          <th>Feature</th>
+          <th style="color:var(--accent-blue)">Salk (IPV)</th>
+          <th style="color:var(--accent-rabies)">Sabin (OPV)</th>
+        </tr>
+        <tr><td><strong>Type</strong></td><td>Formalin-inactivated</td><td>Live attenuated</td></tr>
+        <tr><td><strong>Route</strong></td><td>Injection (IM)</td><td>Oral</td></tr>
+        <tr><td><strong>Immunity</strong></td><td>Humoral (IgG) only</td><td>Humoral + <strong style="color:var(--accent-rabies)">Secretory IgA</strong></td></tr>
+        <tr><td><strong>Gut shedding prevention</strong></td><td>❌ No</td><td>✅ Yes — eradication key</td></tr>
+        <tr><td><strong>Mucosal immunity</strong></td><td>❌ No</td><td><strong style="color:var(--accent-rabies)">✅ YES</strong> — <span class="badge badge-exam">⚠️ EXAM FAVE</span></td></tr>
+      </table>
+    </div>
+
+    <div class="sec-head" style="font-size:1.2rem;margin-top:.5rem">⚡ Key Clinical Signs</div>
+    <div class="grid3">
+      <div class="card"><div class="card-title">🤒 Meningeal Signs</div><p>Nuchal rigidity (stiff neck), positive Kernig's sign, positive Brudzinski's sign, photophobia, headache, nausea/vomiting</p><span class="badge badge-high">High-yield</span></div>
+      <div class="card"><div class="card-title">💧 ADH Complication</div><p>Inappropriate ADH secretion occurs in <strong style="color:var(--text)">80% of childhood meningitis</strong> cases → water retention → ↑ ICP</p><span class="badge badge-exam">Exam-favorite</span></div>
+      <div class="card"><div class="card-title">😱 Furious Rabies</div><p>Anxiety, agitation, hydrophobia, painful laryngeal spasms on seeing/swallowing water. <strong style="color:var(--text)">Most common form.</strong></p><span class="badge badge-pearl">Clinical pearl</span></div>
+      <div class="card"><div class="card-title">😴 Paralytic Rabies</div><p>Flaccid paralysis, ascending weakness, milder sensory disorders. Less dramatic but equally fatal.</p><span class="badge badge-high">High-yield</span></div>
+      <div class="card"><div class="card-title">🦵 Polio Paralysis</div><p>Flaccid paralysis (asymmetric, affects lower limbs). Destruction of lower motor neurons in anterior horn of spinal cord.</p><span class="badge badge-exam">Exam-favorite</span></div>
+      <div class="card"><div class="card-title">🍎 Apple-Green Fluorescence</div><p>Seen in direct immunofluorescence for Rabies antigen (skin biopsy from nape of neck). Gold standard.</p><span class="badge badge-pearl">Clinical pearl</span></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       QUIZ
+  ══════════════════════════════════════════════════════ -->
+  <div class="panel" id="tab-quiz">
+    <div class="sec-head">📝 Quiz Mode <div class="sec-sub">25 USMLE-style MCQs — all from your lecture notes</div></div>
+    <div class="quiz-header">
+      <div style="display:flex;flex-direction:column;gap:.3rem;flex:1">
+        <div style="font-size:.78rem;color:var(--muted);font-family:var(--font-mono)">PROGRESS</div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      </div>
+      <div class="score-display">
+        <span>✅ <strong id="q-correct">0</strong></span>
+        <span>❌ <strong id="q-wrong">0</strong></span>
+        <span>🔥 <strong id="q-streak2">0</strong></span>
+      </div>
+      <button class="btn btn-danger" onclick="resetQuiz()">↺ Reset</button>
+    </div>
+    <div id="quizContainer"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       FLASHCARDS
+  ══════════════════════════════════════════════════════ -->
+  <div class="panel" id="tab-flashcards">
+    <div class="sec-head">🃏 Flashcards <div class="sec-sub">Click any card to flip it — 22 key concepts</div></div>
+    <div style="display:flex;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap">
+      <button class="btn" onclick="flipAll(false)">☐ Collapse All</button>
+      <button class="btn" onclick="flipAll(true)">⊞ Flip All</button>
+      <div style="margin-left:auto;font-family:var(--font-mono);font-size:.82rem;color:var(--muted);align-self:center" id="fcProgress">0 / 22 flipped</div>
+    </div>
+    <div class="fc-grid" id="fcGrid"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       CLINICAL CASES
+  ══════════════════════════════════════════════════════ -->
+  <div class="panel" id="tab-cases">
+    <div class="sec-head">🩺 Clinical Cases <div class="sec-sub">6 exam-style vignettes with detailed answer explanations</div></div>
+    <div id="casesContainer"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       PATHOPHYSIOLOGY
+  ══════════════════════════════════════════════════════ -->
+  <div class="panel" id="tab-patho">
+    <div class="sec-head">⚗️ Pathophysiology <div class="sec-sub">Interactive mechanism explorer & step-by-step flowcharts</div></div>
+
+    <div class="sec-head" style="font-size:1.1rem;margin-bottom:.8rem">🔬 Key Mechanisms — click to expand</div>
+    <div class="path-grid" id="pathGrid"></div>
+
+    <div class="sec-head" style="font-size:1.1rem;margin:1.5rem 0 .8rem">🔄 Poliovirus Pathogenesis Flowchart</div>
+    <div class="flow" id="polioFlow"></div>
+
+    <div class="sec-head" style="font-size:1.1rem;margin:1.5rem 0 .8rem">🔄 Rabies Virus Pathogenesis Flowchart</div>
+    <div class="flow" id="rabiesFlow"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       DIAGNOSIS
+  ══════════════════════════════════════════════════════ -->
+  <div class="panel" id="tab-diagnosis">
+    <div class="sec-head">🔬 Diagnosis <div class="sec-sub">Tests, gold standards & diagnostic algorithms</div></div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title" style="color:var(--accent-blue)">🧪 Viral Meningitis</div>
+        <div class="hl"><strong>Gold Standard:</strong> PCR — detects viral RNA in CSF</div>
+        <ul style="margin-top:.5em">
+          <li style="font-size:.88rem;color:var(--muted);margin:.3em 0">CSF: Lymphocytosis, Normal glucose, ↑ Protein</li>
+          <li style="font-size:.88rem;color:var(--muted);margin:.3em 0">PCR for RNA viruses (Enteroviruses)</li>
+          <li style="font-size:.88rem;color:var(--muted);margin:.3em 0">Viral culture on monkey kidney cells (slower)</li>
+          <li style="font-size:.88rem;color:var(--muted);margin:.3em 0">Serology for IgM antibodies</li>
+        </ul>
+        <span class="badge badge-exam">⚠️ PCR = gold standard for viral RNA detection</span>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:var(--accent-rabies)">🦇 Rabies Virus</div>
+        <div class="hl hl-g"><strong>Gold Standard:</strong> Direct Immunofluorescence (apple-green color)</div>
+        <ul style="margin-top:.5em">
+          <li style="font-size:.88rem;color:var(--muted);margin:.3em 0">Skin biopsy (nape of neck) + fluorescein-labeled antibody</li>
+          <li style="font-size:.88rem;color:var(--muted);margin:.3em 0">View under UV microscope → apple-green fluorescence</li>
+          <li style="font-size:.88rem;color:var(--muted);margin:.3em 0">Dog observation for 10 days (if alive)</li>
+          <li style="font-size:.88rem;color:var(--muted);margin:.3em 0">Post-mortem brain biopsy for direct IF</li>
+        </ul>
+        <span class="badge badge-exam">⚠️ Fluorescent antibody test detects antigens</span>
+      </div>
+    </div>
+
+    <div class="sec-head" style="font-size:1.1rem;margin:1.5rem 0 .8rem">🗺️ Meningitis Diagnostic Algorithm</div>
+    <div class="algo-wrap">
+      <div class="algo-row">
+        <div class="algo-box decision">🤒 Patient with fever + headache + stiff neck</div>
+        <div class="algo-arr">→</div>
+        <div class="algo-box action">Perform lumbar puncture (LP) — CSF analysis</div>
+      </div>
+      <div class="algo-row" style="margin-left:2rem">
+        <div class="algo-box" style="border-color:rgba(255,107,107,.3)">🔴 Turbid + PMNs + ↓Glucose → <strong>Bacterial</strong></div>
+        <div class="algo-arr">|</div>
+        <div class="algo-box" style="border-color:rgba(76,201,240,.3)">🔵 Clear + Lymphocytes + Normal Glucose → <strong>Viral → PCR</strong></div>
+        <div class="algo-arr">|</div>
+        <div class="algo-box" style="border-color:rgba(255,209,102,.3)">🟡 Turbid + Lymphocytes + ↓Glucose + Spider-web → <strong>TB</strong></div>
+      </div>
+    </div>
+
+    <div class="sec-head" style="font-size:1.1rem;margin:1.5rem 0 .8rem">🗺️ Rabies Diagnostic Algorithm</div>
+    <div class="algo-wrap">
+      <div class="algo-row">
+        <div class="algo-box decision">🐕 Animal bite / exposure</div>
+        <div class="algo-arr">→</div>
+        <div class="algo-box action">Do NOT wait for diagnosis — start PEP immediately</div>
+      </div>
+      <div class="algo-row" style="margin-left:2rem">
+        <div class="algo-box" style="border-color:rgba(6,214,160,.3)">Observe dog for 10 days OR</div>
+        <div class="algo-arr">+</div>
+        <div class="algo-box action">Post-mortem brain: Direct Immunofluorescence (gold standard)</div>
+      </div>
+      <div class="algo-row" style="margin-left:2rem">
+        <div class="algo-box decision">Human skin biopsy (nape of neck)</div>
+        <div class="algo-arr">→</div>
+        <div class="algo-box action">Fluorescein-labeled antibody → UV microscope → 🍎 Apple-green = POSITIVE</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       TREATMENT
+  ══════════════════════════════════════════════════════ -->
+  <div class="panel" id="tab-treatment">
+    <div class="sec-head">💊 Treatment <div class="sec-sub">Management protocols for all three conditions</div></div>
+
+    <div class="hl" style="margin-bottom:1rem">🚨 <strong>Viral Meningitis</strong> — usually self-limiting (7–10 days). No specific antiviral needed for most enteroviruses. Supportive care.</div>
+
+    <div class="sec-head" style="font-size:1.1rem;margin-bottom:.8rem">🚨 Rabies Post-Exposure Prophylaxis (PEP)</div>
+    <div class="tx-grid">
+      <div class="tx-card tx-emergency">
+        <h4>🩸 Step 1 — Wound Care</h4>
+        <ul>
+          <li>Wash wound with soap + running water (vigorously)</li>
+          <li>Apply antiseptic (iodine)</li>
+          <li style="color:var(--accent-virus);font-weight:600">⛔ DO NOT SUTURE the wound</li>
+          <li>Suturing exposes nerve endings → viral spread</li>
+        </ul>
+      </div>
+      <div class="tx-card tx-passive">
+        <h4>🛡️ Step 2 — Passive Immunization</h4>
+        <ul>
+          <li>Human Rabies Immunoglobulin (HRIG) 20 IU/kg</li>
+          <li><strong style="color:var(--text)">½ dose:</strong> infiltrated around the wound</li>
+          <li><strong style="color:var(--text)">½ dose:</strong> distant anterolateral thigh (IM)</li>
+          <li>Neutralizes virus locally + delays CNS fixation</li>
+          <li>Must be at DIFFERENT site from vaccine</li>
+        </ul>
+      </div>
+      <div class="tx-card tx-active">
+        <h4>💉 Step 3 — Active Vaccination (PEP)</h4>
+        <ul>
+          <li>5 doses inactivated Rabies vaccine</li>
+          <li>IM in deltoid (NOT gluteal)</li>
+          <li>Schedule: Days <strong style="color:var(--text)">0, 3, 7, 14, 28</strong></li>
+          <li>Induces endogenous humoral immunity</li>
+        </ul>
+      </div>
+      <div class="tx-card tx-support">
+        <h4>💊 Pre-Exposure Prophylaxis</h4>
+        <ul>
+          <li>For vets, lab workers, travelers to endemic areas</li>
+          <li>3 doses HDCV on days <strong style="color:var(--text)">0, 7, 21</strong></li>
+          <li>Booster doses based on titer levels</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sec-head" style="font-size:1.1rem;margin:1rem 0 .8rem">💉 Polio Vaccination</div>
+    <div class="tx-grid">
+      <div class="tx-card tx-active">
+        <h4>💉 Salk (IPV) — Inactivated</h4>
+        <ul>
+          <li>Formalin-inactivated virus</li>
+          <li>Injection (IM/SC)</li>
+          <li>Induces IgG (humoral) only</li>
+          <li>Protects CNS; does NOT prevent gut replication</li>
+          <li>Safer (no reversion risk)</li>
+        </ul>
+      </div>
+      <div class="tx-card tx-support">
+        <h4>🍬 Sabin (OPV) — Live Attenuated</h4>
+        <ul>
+          <li>Live attenuated virus, oral route</li>
+          <li>Induces IgG + <strong style="color:var(--text)">Secretory IgA</strong></li>
+          <li>Prevents gut replication + fecal shedding</li>
+          <li>Crucial for global eradication campaigns</li>
+          <li>⚠️ Rare risk of vaccine-derived polio</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="hl hl-y" style="margin-top:.5rem">⚠️ <strong>Key Exam Point:</strong> Mucosal (intestinal) IgA immunity is provided by Sabin (OPV) — NOT by Salk (IPV).</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       MNEMONICS
+  ══════════════════════════════════════════════════════ -->
+  <div class="panel" id="tab-mnemonics">
+    <div class="sec-head">🧩 Mnemonics <div class="sec-sub">Custom memory aids from your lecture notes</div></div>
+    <div class="mn-grid" id="mnGrid"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       VIVA
+  ══════════════════════════════════════════════════════ -->
+  <div class="panel" id="tab-viva">
+    <div class="sec-head">🎤 Viva Questions <div class="sec-sub">12 key viva Q&A pairs from your lecture notes</div></div>
+    <div id="vivaContainer"></div>
+  </div>
+
+</div><!-- /#app -->
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════
+
+const QUIZ = [
+  {q:"Which of the following describes the most common route by which viral pathogens gain access to the central nervous system?",opts:["Retrograde axonal transport","Hematogenous route","Direct extension from the middle ear","Olfactory nerve tract","Fecal-oral ingestion"],ans:1,exp:"The hematogenous route (bloodstream) is the most common pathway for most viral CNS pathogens. Retrograde transport is used by Herpes and Rabies, but hematogenous is most common overall."},
+  {q:"Which virus uniquely spreads to the CNS by retrograde transport along nerve roots from the genital region?",opts:["Enterovirus","Poliovirus","HSV-2","Rabies virus","Japanese B encephalitis"],ans:2,exp:"HSV-2 is the most common Herpes virus causing meningitis and spreads via neural penetration (retrograde transport) along genital nerve roots. Rabies also uses retrograde transport but via bite sites."},
+  {q:"How does the Sabin oral polio vaccine (OPV) prevent community transmission of wild-type poliovirus?",opts:["Induces high circulating IgG that destroys virus in the environment","Induces local secretory IgA in the intestine, preventing fecal shedding","Prevents the virus from binding to neuromuscular junctions","Contains formalin-inactivated virus that cannot replicate","Induces cytotoxic T-cells in the spinal cord"],ans:1,exp:"OPV multiplies in the gut, producing secretory IgA antibodies that establish local mucosal immunity. This prevents wild-type virus from replicating in the intestines and being shed into the community."},
+  {q:"During rabies pathogenesis, where does the virus initially bind before traveling up the peripheral nerves?",opts:["CD4 receptors on T-cells","Mucosal IgA receptors","Nicotinic acetylcholine receptors at neuromuscular junctions","Olfactory nerve endings in nasal mucosa","GABA receptors in the spinal cord"],ans:2,exp:"Rabies virus specifically binds to nicotinic acetylcholine receptors at the neuromuscular junction. From here it uses retrograde axonal transport to travel to the spinal cord and brain."},
+  {q:"Why is suturing of a wound from an animal bite strictly contraindicated in rabies PEP?",opts:["It prevents immunoglobulin from entering the bloodstream","Suturing introduces bacterial superinfections that compete with the virus","It causes additional trauma exposing damaged nerve endings, facilitating viral spread","It traps the virus in an anaerobic environment where it replicates faster","Suturing triggers autoimmune response against myelin"],ans:2,exp:"Suturing causes additional trauma which exposes damaged nerve endings to the virus. The rabies virus uses these nerve endings to begin its retrograde axonal transport to the CNS."},
+  {q:"What is the primary purpose of injecting half the dose of Human Rabies Immunoglobulin (HRIG) into the anterolateral thigh?",opts:["To stimulate local IgA in the gut","To ensure systemic absorption without neutralizing the deltoid vaccine","To immediately protect the lower spinal cord","To treat potential systemic viremia","To prevent anaphylaxis"],ans:1,exp:"Half HRIG is injected around the wound site (local neutralization), and the other half at a distant site (anterolateral thigh) so it doesn't interfere with the active vaccine given in the deltoid, while still providing systemic passive immunity."},
+  {q:"A 5-year-old child presents with aseptic meningitis. What is the most likely viral etiology?",opts:["Herpes Simplex Virus 1","Rabies Lyssavirus","Poliovirus","Enterovirus (Echo/Coxsackie)","Measles Morbillivirus"],ans:3,exp:"Enteroviruses (Echovirus, Coxsackievirus, and Poliovirus) account for >85% of all viral meningitis cases, making them by far the most common cause. Non-polio enteroviruses are the most common within this group."},
+  {q:"A patient with viral meningitis shows severe hyponatremia and water retention. Which pathophysiological mechanism is responsible?",opts:["Destruction of the adrenal cortex","Inappropriate secretion of ADH","Viral replication in kidney tubules","Excessive sweating due to fever","Hypothalamic-pituitary axis failure"],ans:1,exp:"Inappropriate ADH secretion occurs in 80% of childhood meningitis cases, leading to water retention and raised intracranial pressure (ICP). This is a specific neuroendocrine complication of CNS infections."},
+  {q:"In the replication cycle of the Rabies virus, why must the virion carry its own RNA-dependent RNA polymerase?",opts:["Because it is a DNA virus replicating in the cytoplasm","Because it is a positive-sense RNA virus","Because it has a negative-sense RNA genome that cannot be directly translated by host ribosomes","Because it requires reverse transcriptase to integrate into the host genome","Because the host cell lacks DNA polymerase"],ans:2,exp:"Rabies has a negative-sense RNA genome. Negative-sense RNA cannot be directly translated by host ribosomes — it must first be transcribed into positive-sense mRNA by the viral RNA-dependent RNA polymerase (which the virus carries)."},
+  {q:"How does the Poliovirus travel from the gastrointestinal tract to the central nervous system?",opts:["Retrograde axonal transport via the vagus nerve","Through Peyer's patches to cervical/mesenteric lymph nodes, then via viremia to the spinal cord","Direct extension through the diaphragm","By infecting circulating red blood cells","Via the olfactory nerve root"],ans:1,exp:"Primary multiplication in oropharynx/intestine → Peyer's patches → cervical and mesenteric lymph nodes → viremia (blood) → CNS → destroys motor neurons. This hematogenous route contrasts with Rabies which uses retrograde axonal transport."},
+  {q:"A bat handler in a cave develops agitation and hydrophobia without any animal bite. What is the transmission mechanism?",opts:["Fecal-oral ingestion of bat guano","Vector-borne transmission via cave mosquitoes","Inhalation of aerosolized rabies virus","Percutaneous absorption through intact skin","Ingestion of contaminated water"],ans:2,exp:"Inhalation of aerosolized rabies virus is a documented non-bite route in bat caves. The virus is present in high concentrations in bat cave environments. Rabies is NOT vector-borne or waterborne."},
+  {q:"What primarily determines the length of the incubation period in Rabies infection?",opts:["The patient's age and gender","The specific serotype of the Lyssavirus","The site of the bite and distance from the CNS","The patient's prior exposure to enteroviruses","The season when the bite occurred"],ans:2,exp:"The incubation period depends on the site of the bite (distance to CNS, nerve supply density), severity of wound, and viral dose inoculated. A bite on the face/neck has a shorter incubation than one on the foot."},
+  {q:"In Furious Rabies, what causes the characteristic symptom of hydrophobia?",opts:["Inappropriate ADH secretion causing water intoxication","Painful spasms of the larynx and throat upon seeing or attempting to swallow water","Paralysis of the facial nerve preventing mouth closure","Destruction of the thirst center in the hypothalamus","Excessive salivation causing a choking reflex"],ans:1,exp:"Furious rabies features painful spasms of the larynx and throat triggered by the sight or attempt to swallow water. This is a spastic, excitatory phenomenon caused by viral encephalitis, not a structural paralysis."},
+  {q:"The Purified Chick Embryo Cell Vaccine (PCEC) for rabies contains which of the following?",opts:["Live attenuated Rabies virus","Recombinant Rabies glycoproteins","Formalin-inactivated Rabies virus grown in chicken cells","Equine Rabies immunoglobulins","Live attenuated Lyssavirus from bat cells"],ans:2,exp:"All human rabies vaccines (including PCEC and HDCV) contain ONLY inactivated (killed) rabies virus. Live rabies vaccines are NEVER used in humans because the virus is too dangerous."},
+  {q:"A patient presents with fever, stiff neck, photophobia; CSF shows 300 WBCs/mm³ (lymphocytes), glucose 65 mg/dL, elevated protein. Diagnosis?",opts:["Purulent bacterial meningitis","Tuberculous meningitis","Fungal meningitis","Viral (Aseptic) meningitis","Rabies encephalitis"],ans:3,exp:"Viral meningitis is characterized by lymphocytosis, NORMAL glucose (50-80 mg/dL), and mildly elevated protein with clear CSF. Bacterial and TB meningitis both show reduced glucose (<40 mg/dL)."},
+  {q:"Which of the following describes the shape and genome of the Rabies virus?",opts:["Icosahedral, positive-sense ssRNA","Bullet-shaped, negative-sense ssRNA","Spherical, double-stranded DNA","Bullet-shaped, positive-sense ssRNA","Icosahedral, negative-sense ssRNA"],ans:1,exp:"Rabies virus (Rhabdoviridae) is uniquely bullet-shaped (or rod-shaped) with a negative-sense, single-stranded RNA genome and an envelope with glycoprotein spikes. This is an EXAM FAVORITE morphology question."},
+  {q:"Which viral family does Poliovirus belong to?",opts:["Rhabdoviridae","Paramyxoviridae","Picornaviridae","Flaviviridae","Togaviridae"],ans:2,exp:"Poliovirus is an Enterovirus under the family Picornaviridae. Rhabdoviridae = Rabies virus. Paramyxoviridae = Measles and Mumps. Flaviviridae = Dengue, Zika, Yellow Fever."},
+  {q:"What is the primary viral reservoir for urban rabies in developing countries?",opts:["Vampire bats","Foxes","Jackals","Dogs","Raccoons"],ans:3,exp:"In developing countries, dogs are the reservoir in 99% of human urban rabies cases. Bats, foxes, jackals, and raccoons are reservoirs for Sylvatic (wild/forest) rabies, predominantly in developed countries."},
+  {q:"Which test is considered the gold standard for detecting viral pathogens (like Enteroviruses) in the CSF?",opts:["Direct Immunofluorescence","Polymerase Chain Reaction (PCR)","Viral Culture on monkey kidney cells","Gram stain","Serology for IgM"],ans:1,exp:"PCR is the gold standard for detecting viral RNA in CSF. Note: Direct Immunofluorescence is the gold standard for RABIES (detects antigens), while PCR is gold standard for RNA viruses like Enteroviruses."},
+  {q:"What is the composition of the Salk polio vaccine?",opts:["Live attenuated virus grown in human diploid cells","Purified viral surface glycoproteins","Formalinized (inactivated) virus grown in human diploid cells","Recombinant viral RNA","Toxoid"],ans:2,exp:"The Salk vaccine (IPV) is an Inactivated Poliovirus Vaccine prepared by treating the virus with formalin. It is grown in human diploid cells, then killed. Sabin vaccine is the LIVE attenuated oral version."},
+  {q:"How many stable antigenic serotypes does Poliovirus have?",opts:["1","2","3","4","5"],ans:2,exp:"Poliovirus has exactly 3 serotypes (Type 1, 2, and 3). Infection with one type does NOT provide immunity against the other two. The Sabin and Salk vaccines both cover all three serotypes."},
+  {q:"A CSF sample from a neonate with meningitis is turbid with severely reduced glucose. Which organism is most likely responsible?",opts:["Coxsackievirus","Streptococcus agalactiae","Rabies virus","Cryptococcus neoformans","Mumps virus"],ans:1,exp:"Neonatal bacterial meningitis is commonly caused by E. coli, S. agalactiae (Group B Strep), or Listeria. Turbidity + low glucose indicates purulent (bacterial) inflammation. Viral meningitis would show clear CSF and normal glucose."},
+  {q:"What specific finding on macroscopic CSF examination is highly suggestive of extreme Tuberculosis meningitis?",opts:["Bright red blood","Yellowish turbidity","Typical 'spider-web' clot","Foamy appearance","Greenish discoloration"],ans:2,exp:"A characteristic 'spider-web' clot may form in the CSF tube in extreme cases of TB meningitis due to very high fibrin content. Turbidity suggests bacterial, red blood suggests hemorrhage."},
+  {q:"In the pre-exposure prophylaxis schedule for rabies, when are the three HDCV vaccine doses administered?",opts:["Days 0, 3, 7","Days 0, 7, 21","Days 0, 14, 28","Days 0, 30, 90","Days 0, 3, 7, 14, 28"],ans:1,exp:"Pre-exposure prophylaxis = 3 doses on Days 0, 7, and 21 (for vets, lab workers, high-risk individuals). Post-exposure = 5 doses on Days 0, 3, 7, 14, and 28. Don't confuse them!"},
+  {q:"Which symptom clearly distinguishes 'Furious Rabies' from 'Paralytic Rabies'?",opts:["Flaccid paralysis","Viral encephalitis","Hydrophobia and excitation","Death","Sensory loss"],ans:2,exp:"Furious rabies (most common form) is characterized by excitation, hyperactivity, hallucinations, and HYDROPHOBIA. Paralytic rabies features ascending flaccid paralysis with milder sensory disorders. Both forms cause viral encephalitis and are ultimately fatal."}
+];
+
+const FLASHCARDS = [
+  {f:"What is the MOST COMMON cause of viral meningitis?",b:"Enteroviruses (Echovirus, Coxsackievirus, Poliovirus) — account for >85% of cases",t:"Virology"},
+  {f:"What are the TWO routes viruses use to enter the CNS?",b:"1. Hematogenous route (most common) — via bloodstream\n2. Neural penetration — retrograde axonal transport (HSV, Rabies)",t:"Pathogenesis"},
+  {f:"CSF findings in VIRAL meningitis?",b:"Clear, Lymphocytes (<500/mm³), Normal glucose (50-80 mg/dL), Mildly ↑ protein",t:"Diagnosis"},
+  {f:"CSF findings in BACTERIAL meningitis?",b:"Turbid, PMNs (neutrophils), ↓↓ Glucose (<40 mg/dL), ↑↑ Protein",t:"Diagnosis"},
+  {f:"CSF findings in TB meningitis?",b:"Turbid (+ spider-web clot), Lymphocytes, ↓ Glucose (<40 mg/dL), ↑ Protein",t:"Diagnosis"},
+  {f:"Gold standard for detecting viral RNA in CSF?",b:"PCR (Polymerase Chain Reaction) — detects viral RNA",t:"Diagnosis"},
+  {f:"What complication occurs in 80% of childhood meningitis?",b:"Inappropriate secretion of ADH → water retention → ↑ intracranial pressure → hyponatremia",t:"Complications"},
+  {f:"Poliovirus: family, genus, genome type?",b:"Family: Picornaviridae\nGenus: Enterovirus\nGenome: Positive-sense ssRNA, naked icosahedral capsid, 3 serotypes",t:"Virology"},
+  {f:"Poliovirus entry route and primary multiplication site?",b:"Entry: Fecal-oral route\nMultiplication: Oropharynx + Intestine (Peyer's patches)",t:"Pathogenesis"},
+  {f:"How does Poliovirus reach the spinal cord?",b:"Oropharynx/Intestine → Cervical/Mesenteric lymph nodes → Viremia → Spinal cord → Destroys motor neurons → Flaccid paralysis",t:"Pathogenesis"},
+  {f:"Salk vaccine: type, immunity induced?",b:"Formalin-inactivated IPV\nInduces: Humoral IgG only\nDoes NOT provide mucosal/gut immunity",t:"Prevention"},
+  {f:"Sabin vaccine: type, immunity induced?",b:"Live attenuated OPV (oral)\nInduces: Humoral IgG + Secretory IgA in intestine\n⭐ KEY: Prevents gut shedding → enables global eradication",t:"Prevention"},
+  {f:"Rabies virus: family, genus, shape, genome?",b:"Family: Rhabdoviridae\nGenus: Lyssavirus\nShape: BULLET-SHAPED\nGenome: Negative-sense ssRNA, enveloped",t:"Virology"},
+  {f:"What receptor does Rabies virus bind to at the NMJ?",b:"Nicotinic acetylcholine receptors at neuromuscular junctions",t:"Pathogenesis"},
+  {f:"Describe Rabies pathogenesis step-by-step",b:"Bite → Muscle replication → Binds nAChR at NMJ → Retrograde axonal transport → Spinal cord → Brain → Fatal encephalitis → Salivary glands",t:"Pathogenesis"},
+  {f:"Two clinical forms of Rabies?",b:"1. Furious Rabies (most common): anxiety, hydrophobia, laryngeal spasms, agitation\n2. Paralytic Rabies: flaccid paralysis, ascending weakness",t:"Clinical"},
+  {f:"Gold standard for RABIES diagnosis?",b:"Direct Immunofluorescence — fluorescein-labeled antibody detects viral antigens → Apple-green fluorescence under UV microscope",t:"Diagnosis"},
+  {f:"Rabies PEP: Step 1 (wound care)?",b:"Wash wound vigorously with soap + running water + antiseptic. DO NOT SUTURE (exposes nerve endings to virus)",t:"Treatment"},
+  {f:"Rabies PEP: HRIG dosing and injection sites?",b:"Human Rabies Immunoglobulin 20 IU/kg total:\n• ½ dose: infiltrate around wound\n• ½ dose: distant anterolateral thigh IM",t:"Treatment"},
+  {f:"Rabies PEP vaccine schedule?",b:"5 doses inactivated vaccine IM in deltoid\nDays: 0, 3, 7, 14, 28\n(Pre-exposure: Days 0, 7, 21 — only 3 doses)",t:"Treatment"},
+  {f:"HSV-2 and meningitis — key fact?",b:"HSV-2 is the MOST COMMON Herpes virus causing meningitis. Spreads via retrograde transport along genital nerve roots.",t:"Virology"},
+  {f:"Spider-web clot in CSF — what does it indicate?",b:"Highly suggestive of extreme/severe TB meningitis. Forms due to very high fibrin content in the CSF.",t:"Diagnosis"}
+];
+
+const CASES = [
+  {
+    num:"Case 1",color:"var(--accent-polio)",
+    vignette:"A 6-year-old child from a region with no vaccination programs presents with acute flaccid paralysis of the right leg. There is no history of animal bite. CSF analysis reveals normal glucose but the child has a recent history of diarrhea.",
+    qs:[
+      {q:"What is the most likely diagnosis and etiological agent?",a:"Acute flaccid paralysis caused by Poliovirus (Picornaviridae family, Enterovirus genus). The combination of unvaccinated status, recent GI illness, and asymmetric flaccid paralysis is classic."},
+      {q:"Describe the pathogenic mechanism leading to paralysis.",a:"Poliovirus enters via the fecal-oral route → multiplies in the oropharynx and intestine (Peyer's patches) → spreads to cervical/mesenteric lymph nodes → enters the bloodstream (viremia) → crosses into the spinal cord → destroys lower motor neurons in the anterior horn → flaccid paralysis."},
+      {q:"Which vaccine would have most effectively prevented this and why?",a:"The Sabin (OPV) vaccine would have been most protective. It multiplies in the gut, inducing local secretory IgA that neutralizes the virus before it can cause viremia, directly preventing the pathogenic pathway. The Salk (IPV) only induces systemic IgG."}
+    ]
+  },
+  {
+    num:"Case 2",color:"var(--accent-rabies)",
+    vignette:"A 35-year-old veterinarian is bitten deeply on the hand by an unprovoked stray dog while on-call in a rural area. He immediately washed the wound with soap and water and presents to the clinic within 30 minutes. He has never received pre-exposure rabies prophylaxis.",
+    qs:[
+      {q:"What is your immediate management?",a:"This is a medical emergency. (1) Re-wash wound vigorously + apply iodine antiseptic. DO NOT SUTURE the wound. (2) Administer HRIG 20 IU/kg: half infiltrated around the wound, half IM in the anterolateral thigh. (3) Begin active vaccination: 5 doses of inactivated rabies vaccine IM in the deltoid on Days 0, 3, 7, 14, and 28. Do NOT wait for lab results."},
+      {q:"Why is suturing the wound contraindicated?",a:"Suturing causes additional trauma that exposes damaged nerve endings to the virus. The Rabies virus uses nicotinic acetylcholine receptors at neuromuscular junctions and nerve endings to begin its retrograde axonal transport to the CNS. Suturing would accelerate this process by increasing nerve ending exposure."},
+      {q:"What will happen if treatment is delayed until clinical symptoms appear?",a:"Once clinical symptoms of rabies encephalitis appear, the disease is virtually 100% fatal. Furious rabies develops (hydrophobia, spasms, agitation) and progresses to cardiac arrest. No treatment reverses established viral encephalitis. This is why PEP must begin immediately without waiting for confirmation."}
+    ]
+  },
+  {
+    num:"Case 3",color:"var(--accent-blue)",
+    vignette:"A 22-year-old student presents with 3 days of fever, severe headache, nausea, and stiff neck with photophobia. CSF analysis results: WBC 280/mm³ (90% lymphocytes), glucose 62 mg/dL, protein slightly elevated, appearance: CLEAR.",
+    qs:[
+      {q:"What type of meningitis does this CSF picture represent?",a:"Viral (Aseptic) Meningitis. The triad of: CLEAR CSF + LYMPHOCYTOSIS + NORMAL GLUCOSE (62 mg/dL is within the normal 50-80 mg/dL range) is diagnostic of viral meningitis."},
+      {q:"What is the gold standard diagnostic test and what does it detect?",a:"PCR (Polymerase Chain Reaction) is the gold standard. It detects viral RNA in the CSF. For Enteroviruses (the most common cause), RT-PCR is used to detect positive-sense ssRNA."},
+      {q:"How would the CSF look if this were bacterial meningitis instead?",a:"Bacterial meningitis would show: TURBID CSF, PMNs/neutrophils predominantly (not lymphocytes), MARKEDLY REDUCED glucose (<40 mg/dL), and HIGHLY elevated protein. The gross appearance would be turbid/purulent rather than clear."}
+    ]
+  },
+  {
+    num:"Case 4",color:"var(--accent-virus)",
+    vignette:"A researcher exploring bat caves develops agitation, hydrophobia, and painful laryngeal spasms. He reports no animal bite but spent several hours in a densely populated bat cave without respiratory protection.",
+    qs:[
+      {q:"What is the likely diagnosis and transmission route?",a:"Rabies virus infection (Lyssavirus, Rhabdoviridae). Transmission occurred via inhalation of aerosolized rabies virus — a documented non-bite route in bat caves where large bat populations produce high concentrations of aerosolized virus."},
+      {q:"What clinical form of rabies is this?",a:"FURIOUS RABIES — the most common form (about 80% of cases). Characterized by excitation, anxiety, agitation, hydrophobia (painful laryngeal/throat spasms on seeing/attempting to swallow water), and hypersalivation. Eventually leads to fatal encephalitis and cardiac arrest."},
+      {q:"What is the significance of apple-green fluorescence on skin biopsy?",a:"Direct immunofluorescence of a skin biopsy (nape of neck) using a fluorescein-labeled specific antibody produces characteristic apple-green fluorescence under UV microscopy when rabies viral antigens are present. This is the GOLD STANDARD for rabies antigen detection."}
+    ]
+  },
+  {
+    num:"Case 5",color:"var(--accent-purple)",
+    vignette:"A physician treats a deep dog bite on a patient's neck by immediately suturing the wound closed to control bleeding, before obtaining any vaccines or immunoglobulin.",
+    qs:[
+      {q:"What critical error did the physician make?",a:"Suturing the wound is strictly CONTRAINDICATED in suspected rabies exposure. The wound must NEVER be sutured because suturing causes additional trauma that exposes damaged nerve endings, providing the rabies virus easier access to peripheral nerve axons for retrograde transport to the CNS."},
+      {q:"How does this error affect the pathogenesis?",a:"The Rabies virus binds to nicotinic acetylcholine receptors at neuromuscular junctions and uses retrograde axonal transport to travel to the spinal cord. Suturing a bite wound on the neck (which is already close to the CNS) with exposed nerve endings dramatically shortens the incubation period and accelerates CNS invasion."},
+      {q:"What is the correct management sequence?",a:"(1) Wash wound vigorously with soap + water, apply antiseptic iodine — do NOT suture. (2) Administer HRIG 20 IU/kg (½ around wound, ½ in contralateral anterolateral thigh). (3) Rabies vaccine 5 doses on Days 0, 3, 7, 14, 28 IM in deltoid."}
+    ]
+  },
+  {
+    num:"Case 6",color:"var(--accent-polio)",
+    vignette:"A neonate (3 weeks old) presents with fever, bulging fontanelle, and irritability. CSF analysis reveals: WBC 800/mm³ (predominantly PMNs/neutrophils), glucose 25 mg/dL (blood glucose 85 mg/dL), protein markedly elevated, appearance: TURBID.",
+    qs:[
+      {q:"What type of meningitis is this? Name likely causative organisms.",a:"This is BACTERIAL (purulent) meningitis. The CSF is TURBID, WBCs are predominantly PMNs (neutrophils), and glucose is MARKEDLY REDUCED (CSF:blood glucose ratio < 0.3). Common neonatal bacteria: E. coli, Streptococcus agalactiae (Group B Strep), Listeria monocytogenes."},
+      {q:"How does this differ from viral meningitis CSF findings?",a:"Viral meningitis would show: CLEAR CSF, LYMPHOCYTES (not PMNs), NORMAL glucose (50-80 mg/dL), mildly elevated protein. The presence of PMNs and reduced glucose is pathognomonic for bacterial (purulent) inflammation — bacteria consume glucose as energy."},
+      {q:"What macroscopic CSF finding would suggest TB meningitis instead?",a:"TB meningitis would show TURBID CSF with a characteristic 'SPIDER-WEB CLOT' visible on macroscopic examination. This occurs due to very high fibrin content. WBCs would be lymphocytes (not PMNs like bacterial), and glucose would be reduced (<40 mg/dL) similar to bacterial."}
+    ]
+  }
+];
+
+const PATH_ITEMS = [
+  {title:"Hematogenous Route",icon:"🩸",detail:"Most common route for viral CNS entry. Virus (e.g., Enteroviruses, Poliovirus) replicates in the gut, enters lymph nodes, causes viremia, and crosses the blood-brain barrier into the CNS."},
+  {title:"Retrograde Axonal Transport",icon:"🧠",detail:"Used by: Herpes Simplex Virus (HSV-1, HSV-2, VZV) and Rabies virus. The virus travels within axons in a retrograde (toward cell body) direction along peripheral nerve fibers to reach the CNS. No viremia required."},
+  {title:"Poliovirus NMJ Binding",icon:"⚡",detail:"Poliovirus uses the hematogenous route to the CNS, where it specifically targets and destroys lower motor neurons (anterior horn cells). The selective motor neuron destruction causes asymmetric flaccid paralysis."},
+  {title:"Rabies NMJ Binding",icon:"🦠",detail:"Rabies virus specifically binds to nicotinic acetylcholine receptors (nAChR) at neuromuscular junctions. This initiates its journey via retrograde axonal transport up peripheral nerves to the spinal cord and brain."},
+  {title:"ADH Hypersecretion",icon:"💧",detail:"In CNS infections, inflammatory mediators and increased intracranial pressure stimulate hypothalamic nuclei to release excess ADH (SIADH). Occurs in 80% of childhood meningitis → water retention → hyponatremia → further ↑ICP."},
+  {title:"Negative-sense RNA Replication",icon:"🔬",detail:"Rabies (Rhabdovirus) carries a negative-sense RNA genome. Since negative-sense RNA cannot be directly translated, the virion must carry its own RNA-dependent RNA polymerase (transcriptase) to first create positive-sense mRNA for translation."},
+  {title:"Sabin vs Salk Immunity",icon:"💉",detail:"Salk (IPV): Killed virus → only systemic IgG. Gut replication still possible. Sabin (OPV): Live attenuated → gut replication → local secretory IgA + systemic IgG. Prevents viral shedding → crucial for eradication campaigns."},
+  {title:"Furious vs Paralytic Rabies",icon:"😱",detail:"After viral encephalitis: Furious (80%) = excitation, hydrophobia, laryngeal spasms, hypersalivation. Paralytic (20%) = ascending flaccid paralysis, milder sensory disorders. Both are 100% fatal once symptoms appear."}
+];
+
+const POLIO_FLOW = [
+  {t:"Ingestion of contaminated food/water (fecal-oral route)",c:""},
+  {t:"Primary multiplication in Oropharynx",c:""},
+  {t:"Multiplication in Intestine — Peyer's patches",c:"hi-y"},
+  {t:"Drainage to Cervical & Mesenteric Lymph Nodes",c:""},
+  {t:"Entry into bloodstream → VIREMIA",c:"hi-r"},
+  {t:"Invasion of Spinal Cord via blood",c:""},
+  {t:"Destruction of Lower Motor Neurons (Anterior Horn)",c:"hi-r"},
+  {t:"FLACCID PARALYSIS (asymmetric, lower limbs)",c:"hi-r"}
+];
+
+const RABIES_FLOW = [
+  {t:"Viral inoculation via animal bite saliva",c:""},
+  {t:"Virus replicates in muscle tissue at bite site",c:""},
+  {t:"Binds nicotinic acetylcholine receptors at NMJ",c:"hi-y"},
+  {t:"Retrograde axonal transport along peripheral nerves",c:"hi-y"},
+  {t:"Replicates in motor neurons of spinal cord & ganglia",c:""},
+  {t:"Ascends to brain — FATAL ENCEPHALITIS",c:"hi-r"},
+  {t:"Furious (hydrophobia, spasms) or Paralytic (flaccid paralysis)",c:"hi-r"},
+  {t:"Spreads to salivary glands (transmission to next host)",c:"hi-g"}
+];
+
+const MNEMONICS = [
+  {
+    name:"VIPER",color:"var(--accent-virus)",
+    title:"Viral Meningitis CSF Profile",
+    items:[
+      {l:"V",w:"Viral cause"},
+      {l:"I",w:"Increased lymphocytes (but <500)"},
+      {l:"P",w:"PCR is gold standard"},
+      {l:"E",w:"Equal (normal) glucose"},
+      {l:"R",w:"Rarely turbid — clear CSF"}
+    ],
+    extra:"Remember: VIPER is CLEAR. Bacterial meningitis is the turbid one with PMNs. If glucose is normal → Think Viral!"
+  },
+  {
+    name:"BARE",color:"var(--accent-rabies)",
+    title:"Rabies PEP Steps (in order)",
+    items:[
+      {l:"B",w:"Bite wound — wash with soap & water immediately"},
+      {l:"A",w:"Antiseptic — apply iodine. Absolutely NO suturing"},
+      {l:"R",w:"Rabies Immunoglobulin (HRIG) — passive immunity"},
+      {l:"E",w:"Eliminate virus with 5 vaccine doses (0, 3, 7, 14, 28)"}
+    ],
+    extra:"BARE the wound, BARE the protocol! Half HRIG at wound, half at thigh. Vaccine in deltoid. Never suture."
+  },
+  {
+    name:"FLIP",color:"var(--accent-polio)",
+    title:"Poliovirus Pathogenesis",
+    items:[
+      {l:"F",w:"Fecal-oral route enters first"},
+      {l:"L",w:"Lymph nodes (cervical/mesenteric) — spreads there"},
+      {l:"I",w:"Into the bloodstream — viremia stage"},
+      {l:"P",w:"Paralysis from motor neuron destruction in spinal cord"}
+    ],
+    extra:"FLIP also reminds you the motor neurons FLIP OFF (get destroyed)! Poliovirus is Picornaviridae, positive-sense ssRNA."
+  },
+  {
+    name:"SNAP",color:"var(--accent-blue)",
+    title:"Sabin vs Salk Key Differences",
+    items:[
+      {l:"S",w:"Secretory IgA = Sabin ONLY (mucosal immunity)"},
+      {l:"N",w:"Neutralizes gut shedding — Sabin prevents it"},
+      {l:"A",w:"Active replication in gut — Sabin does this"},
+      {l:"P",w:"Protection for eradication = Sabin's unique Power"}
+    ],
+    extra:"SNAP: If an exam question asks about mucosal immunity or eradication — answer is always Sabin (OPV). Salk only gives systemic IgG."
+  },
+  {
+    name:"RADS",color:"var(--accent-purple)",
+    title:"Rabies Virus Characteristics",
+    items:[
+      {l:"R",w:"Rhabdoviridae family"},
+      {l:"A",w:"A Lyssavirus genus"},
+      {l:"D",w:"Dangerous negative-sense ssRNA"},
+      {l:"S",w:"Shape = Bullet (rod-shaped) — exam favorite!"}
+    ],
+    extra:"RADS: This rabid virus is a RADICAL BULLET! Negative-sense RNA means it needs its own RNA polymerase. Enveloped with glycoprotein spikes."
+  },
+  {
+    name:"LYMPH",color:"var(--accent-rabies)",
+    title:"Viral vs Bacterial Meningitis Differential",
+    items:[
+      {l:"L",w:"Lymphocytes = Viral (Aseptic)"},
+      {l:"Y",w:"Yikes = Neutrophils/PMNs → Bacterial"},
+      {l:"M",w:"Measurable glucose — Normal in Viral"},
+      {l:"P",w:"PCR for viral, culture for bacterial"},
+      {l:"H",w:"Hydrophobia → Rabies (not meningitis!)"}
+    ],
+    extra:"The CSF cell type is the FASTEST differentiator: Lymphocytes = Viral; PMNs = Bacterial. Combined with glucose: Low glucose + PMNs = emergency bacterial!"
+  }
+];
+
+const VIVA = [
+  {q:"What is the most common cause of viral meningitis?",a:"Enteroviruses — specifically Echoviruses, Coxsackie viruses, and Polioviruses. They account for >85% of all viral meningitis cases."},
+  {q:"What is the gold standard diagnostic test for detecting rabies virus antigen?",a:"Direct immunofluorescence. It uses a fluorescein-labeled specific antibody to detect viral antigens in samples. Under UV microscopy, a positive result shows characteristic apple-green fluorescence. ⚠️ HIGH YIELD"},
+  {q:"Contrast the glucose levels in CSF of bacterial versus viral meningitis.",a:"Bacterial (purulent) meningitis: glucose is markedly REDUCED (<40 mg/dL) because bacteria consume glucose. Viral (aseptic) meningitis: glucose REMAINS NORMAL (50-80 mg/dL)."},
+  {q:"Name two unique transmission routes for Rabies virus besides animal bites.",a:"(1) Scratches or abrasions exposed to infectious saliva, and (2) Inhalation of aerosolized virus — documented in bat caves with large bat populations."},
+  {q:"Why is the Sabin oral polio vaccine (OPV) crucial for global polio eradication?",a:"OPV contains live attenuated virus that multiplies in the gut, inducing local intestinal immunity (secretory IgA). This prevents the host from shedding wild-type virus into the community, breaking the chain of transmission. Salk (IPV) cannot do this. ⚠️ HIGH YIELD"},
+  {q:"Describe the morphology of the Rabies virus.",a:"Bullet-shaped (rod-shaped), single-stranded NEGATIVE-sense RNA genome, enveloped virus with glycoprotein spikes on its surface. Belongs to family Rhabdoviridae, genus Lyssavirus. ⚠️ HIGH YIELD"},
+  {q:"What is the very first step in post-exposure prophylaxis for Rabies?",a:"Clean the wound immediately by washing heavily with soap and running water to physically remove the virus, followed by applying an antiseptic like iodine. The wound must NEVER be sutured."},
+  {q:"How does the Poliovirus reach the central nervous system?",a:"After entering via the mouth and multiplying in the oropharynx and intestine (Peyer's patches), it spreads to cervical and mesenteric lymph nodes, enters the blood (viremia), and then crosses into the spinal cord where it destroys motor neurons."},
+  {q:"What dictates the incubation period of Rabies?",a:"The site of the bite (distance to the CNS and abundance of nerve supply), the severity of the wound, and the viral dose inoculated. Face/neck bites = shorter incubation; foot/leg bites = longer."},
+  {q:"What are the two clinical courses that Rabies can take after the prodromal phase?",a:"(1) Furious rabies (most common ~80%): anxiety, hydrophobia, painful laryngeal spasms, agitation, hypersalivation. (2) Paralytic rabies: ascending flaccid paralysis, milder sensory disorders. Both are fatal."},
+  {q:"What is the significance of the 'spider-web' clot in CSF analysis?",a:"The presence of a typical 'spider-web' clot on macroscopic examination is highly suggestive of extreme TB meningitis, forming due to very high fibrin content in the CSF."},
+  {q:"Which Herpes virus is the most common cause of meningitis in its family?",a:"HSV-2 is the most common cause of meningitis among Herpesviruses. It spreads via retrograde transport along sacral/genital nerve roots. ⚠️ HIGH YIELD"}
+];
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let quizState = JSON.parse(localStorage.getItem('vir_quiz') || 'null') || {answers:{},correct:0,wrong:0,streak:0};
+let fcState = JSON.parse(localStorage.getItem('vir_fc') || 'null') || {flipped:{}};
+let activeTab = localStorage.getItem('vir_tab') || 'overview';
+
+// ═══════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════
+function switchTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'tab-'+id));
+  activeTab = id;
+  localStorage.setItem('vir_tab', id);
+}
+document.getElementById('tabBar').addEventListener('click', e => {
+  if(e.target.dataset.tab) switchTab(e.target.dataset.tab);
+});
+
+// ═══════════════════════════════════════
+// QUIZ
+// ═══════════════════════════════════════
+function buildQuiz() {
+  const c = document.getElementById('quizContainer');
+  c.innerHTML = QUIZ.map((q,i) => {
+    const answered = quizState.answers[i] !== undefined;
+    const chosen = quizState.answers[i];
+    return `<div class="q-card" id="q${i}">
+      <div class="q-num">Q${i+1} / ${QUIZ.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options">
+        ${q.opts.map((o,j) => {
+          let cls = '';
+          if(answered){
+            if(j===q.ans) cls=' correct show-correct';
+            else if(j===chosen && chosen!==q.ans) cls=' wrong';
+            cls+=' disabled';
+          }
+          return `<div class="opt${cls}" onclick="answerQ(${i},${j})">
+            <span class="opt-letter">${'ABCDE'[j]}</span>
+            <span>${o}</span>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="explanation ${answered?'show':''}">${answered ? '💡 '+q.exp : q.exp}</div>
+      ${i < QUIZ.length-1 ? `<div class="q-nav"><button class="btn" onclick="scrollTo(0,document.getElementById('q${i+1}').offsetTop-80)">Next Question →</button></div>` : ''}
+    </div>`;
+  }).join('');
+  updateQuizStats();
+}
+
+function answerQ(qi, chosen) {
+  if(quizState.answers[qi] !== undefined) return;
+  const q = QUIZ[qi];
+  const isCorrect = chosen === q.ans;
+  quizState.answers[qi] = chosen;
+  if(isCorrect){ quizState.correct++; quizState.streak++; } 
+  else { quizState.wrong++; quizState.streak=0; }
+  localStorage.setItem('vir_quiz', JSON.stringify(quizState));
+  buildQuiz();
+  showToast(isCorrect ? '✅ Correct! +1 streak' : '❌ Incorrect. Check the explanation.');
+}
+
+function resetQuiz() {
+  quizState = {answers:{},correct:0,wrong:0,streak:0};
+  localStorage.setItem('vir_quiz', JSON.stringify(quizState));
+  buildQuiz();
+  showToast('Quiz reset!');
+}
+
+function updateQuizStats() {
+  const total = Object.keys(quizState.answers).length;
+  const pct = Math.round((quizState.correct / QUIZ.length)*100);
+  document.getElementById('progressFill').style.width = (total/QUIZ.length*100)+'%';
+  document.getElementById('q-correct').textContent = quizState.correct;
+  document.getElementById('q-wrong').textContent = quizState.wrong;
+  document.getElementById('q-streak2').textContent = quizState.streak;
+  document.getElementById('s-quiz').textContent = total+'/'+QUIZ.length;
+  document.getElementById('s-streak').textContent = quizState.streak;
+  document.getElementById('s-score').textContent = pct+'%';
+}
+
+// ═══════════════════════════════════════
+// FLASHCARDS
+// ═══════════════════════════════════════
+function buildFlashcards() {
+  const g = document.getElementById('fcGrid');
+  g.innerHTML = FLASHCARDS.map((fc,i) => {
+    const isFlipped = fcState.flipped[i];
+    return `<div class="fc ${isFlipped?'flipped':''}" onclick="flipCard(${i})" id="fc${i}">
+      <div class="fc-inner">
+        <div class="fc-face fc-front">
+          <span class="fc-label">${fc.t}</span>
+          <strong>${fc.f}</strong>
+          <div class="fc-hint">👆 tap to flip</div>
+        </div>
+        <div class="fc-face fc-back">
+          <span class="fc-label">Answer</span>
+          <strong>💡 Answer</strong>
+          ${fc.b.split('\n').map(l=>`<div>${l}</div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  updateFcStats();
+}
+
+function flipCard(i) {
+  const el = document.getElementById('fc'+i);
+  fcState.flipped[i] = !fcState.flipped[i];
+  el.classList.toggle('flipped', fcState.flipped[i]);
+  localStorage.setItem('vir_fc', JSON.stringify(fcState));
+  updateFcStats();
+}
+
+function flipAll(state) {
+  FLASHCARDS.forEach((_,i) => { fcState.flipped[i] = state; });
+  localStorage.setItem('vir_fc', JSON.stringify(fcState));
+  buildFlashcards();
+}
+
+function updateFcStats() {
+  const count = Object.values(fcState.flipped).filter(Boolean).length;
+  document.getElementById('fcProgress').textContent = count + ' / ' + FLASHCARDS.length + ' flipped';
+  document.getElementById('s-fc').textContent = count + '/' + FLASHCARDS.length;
+}
+
+// ═══════════════════════════════════════
+// CLINICAL CASES
+// ═══════════════════════════════════════
+function buildCases() {
+  const c = document.getElementById('casesContainer');
+  c.innerHTML = CASES.map((cs,ci) => `
+    <div class="case-card">
+      <div class="case-header">
+        <div class="case-num">${cs.num}</div>
+        <div class="case-vignette"><strong style="color:${cs.color}">Clinical Vignette</strong><br>${cs.vignette}</div>
+      </div>
+      <div class="case-body">
+        ${cs.qs.map((q,qi) => `
+          <div class="case-q">❓ ${q.q}</div>
+          <button class="reveal-btn" onclick="revealAnswer('ca-${ci}-${qi}',this)">▶ Reveal Answer</button>
+          <div class="answer-block" id="ca-${ci}-${qi}">✅ ${q.a}</div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function revealAnswer(id, btn) {
+  const el = document.getElementById(id);
+  el.classList.toggle('show');
+  btn.textContent = el.classList.contains('show') ? '▲ Hide Answer' : '▶ Reveal Answer';
+}
+
+// ═══════════════════════════════════════
+// PATHOPHYSIOLOGY
+// ═══════════════════════════════════════
+function buildPatho() {
+  // items grid
+  document.getElementById('pathGrid').innerHTML = PATH_ITEMS.map((p,i) =>
+    `<div class="path-item" onclick="togglePath(${i})" id="pi${i}">
+      <div class="path-item-title">${p.icon} ${p.title}<span>＋</span></div>
+      <div class="path-detail">${p.detail}</div>
+    </div>`
+  ).join('');
+
+  // polio flow
+  document.getElementById('polioFlow').innerHTML = POLIO_FLOW.map((s,i) =>
+    `${i>0?'<div class="flow-arr">↓</div>':''}<div class="flow-step ${s.c}">${s.t}</div>`
+  ).join('');
+
+  // rabies flow
+  document.getElementById('rabiesFlow').innerHTML = RABIES_FLOW.map((s,i) =>
+    `${i>0?'<div class="flow-arr">↓</div>':''}<div class="flow-step ${s.c}">${s.t}</div>`
+  ).join('');
+}
+
+function togglePath(i) {
+  const el = document.getElementById('pi'+i);
+  const open = el.classList.toggle('open');
+  el.querySelector('.path-item-title span').textContent = open ? '－' : '＋';
+}
+
+// ═══════════════════════════════════════
+// MNEMONICS
+// ═══════════════════════════════════════
+function buildMnemonics() {
+  document.getElementById('mnGrid').innerHTML = MNEMONICS.map((m,i) => `
+    <div class="mn-card">
+      <div class="mn-name" style="color:${m.color}">${m.name}</div>
+      <div class="mn-title">${m.title}</div>
+      ${m.items.map(it => `
+        <div class="mn-item">
+          <span class="mn-letter" style="color:${m.color}">${it.l}</span>
+          <span>${it.w}</span>
+        </div>
+      `).join('')}
+      <button class="mn-expand" onclick="toggleMn(${i})">📖 Show memory tip</button>
+      <div class="mn-extra" id="mn${i}">${m.extra}</div>
+    </div>
+  `).join('');
+}
+
+function toggleMn(i) {
+  const el = document.getElementById('mn'+i);
+  el.classList.toggle('show');
+}
+
+// ═══════════════════════════════════════
+// VIVA
+// ═══════════════════════════════════════
+function buildViva() {
+  document.getElementById('vivaContainer').innerHTML = VIVA.map((v,i) => `
+    <div class="viva-item" id="vi${i}" onclick="toggleViva(${i})">
+      <div class="viva-q">
+        <span>V${i+1}: ${v.q}</span>
+        <span class="viva-chev">▾</span>
+      </div>
+      <div class="viva-a">${v.a}</div>
+    </div>
+  `).join('');
+}
+
+function toggleViva(i) {
+  document.getElementById('vi'+i).classList.toggle('open');
+}
+
+// ═══════════════════════════════════════
+// SEARCH
+// ═══════════════════════════════════════
+const SEARCH_INDEX = [
+  ...QUIZ.map((q,i) => ({text:`Q${i+1}: ${q.q}`, detail:q.exp, tab:'quiz'})),
+  ...FLASHCARDS.map((f,i) => ({text:`FC: ${f.f}`, detail:f.b, tab:'flashcards'})),
+  ...VIVA.map((v,i) => ({text:`V${i+1}: ${v.q}`, detail:v.a, tab:'viva'})),
+  ...PATH_ITEMS.map(p => ({text:`Patho: ${p.icon} ${p.title}`, detail:p.detail, tab:'patho'})),
+  ...MNEMONICS.map(m => ({text:`Mnemonic: ${m.name} — ${m.title}`, detail:m.items.map(x=>x.l+': '+x.w).join(', '), tab:'mnemonics'}))
+];
+
+const si = document.getElementById('searchInput');
+const sr = document.getElementById('searchResults');
+si.addEventListener('input', function() {
+  const v = this.value.trim().toLowerCase();
+  if(!v){sr.style.display='none';return;}
+  const hits = SEARCH_INDEX.filter(x => x.text.toLowerCase().includes(v) || x.detail.toLowerCase().includes(v)).slice(0,8);
+  if(!hits.length){sr.style.display='none';return;}
+  sr.innerHTML = hits.map(h => {
+    const hi = (s) => s.replace(new RegExp(v,'gi'), m=>`<em>${m}</em>`);
+    return `<div class="s-item" onclick="goSearch('${h.tab}')">
+      <div style="font-weight:500;margin-bottom:.2em">${hi(h.text)}</div>
+      <div style="color:var(--muted);font-size:.8rem">${hi(h.detail.substring(0,80))}...</div>
+    </div>`;
+  }).join('');
+  sr.style.display='block';
+});
+
+function goSearch(tab) {
+  switchTab(tab);
+  sr.style.display='none';
+  si.value='';
+}
+document.addEventListener('click', e => { if(!e.target.closest('.search-wrap')) sr.style.display='none'; });
+
+// ═══════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+buildQuiz();
+buildFlashcards();
+buildCases();
+buildPatho();
+buildMnemonics();
+buildViva();
+switchTab(activeTab);
+</script>
+</body>
+</html>

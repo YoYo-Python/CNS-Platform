@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intelligence & Creativity — Interactive Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+--primary: #6C63FF;
+--primary-dark: #5A52D5;
+--primary-light: #8B83FF;
+--secondary: #FF6B6B;
+--accent: #4ECDC4;
+--accent2: #FFE66D;
+--success: #2ED573;
+--warning: #FFA502;
+--danger: #FF4757;
+--bg-dark: #0F0E17;
+--bg-card: #1A1933;
+--bg-card2: #232146;
+--text-primary: #FFFFFE;
+--text-secondary: #A7A9BE;
+--text-muted: #72748A;
+--glass: rgba(255,255,255,0.05);
+--glass2: rgba(255,255,255,0.08);
+--glass3: rgba(255,255,255,0.12);
+--border: rgba(255,255,255,0.08);
+--shadow: 0 8px 32px rgba(0,0,0,0.3);
+--shadow-lg: 0 16px 48px rgba(0,0,0,0.4);
+--radius: 16px;
+--radius-sm: 10px;
+--radius-xs: 6px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+font-family:'Inter',sans-serif;
+background: var(--bg-dark);
+color: var(--text-primary);
+min-height:100vh;
+overflow-x:hidden;
+}
+
+.animated-bg {
+position:fixed; top:0; left:0; width:100%; height:100%;
+z-index:0; pointer-events:none; overflow:hidden;
+}
+.animated-bg .orb {
+position:absolute; border-radius:50%; filter:blur(80px); opacity:0.15;
+animation: orbFloat 20s ease-in-out infinite;
+}
+.animated-bg .orb:nth-child(1) {
+width:400px; height:400px; background:var(--primary);
+top:-100px; left:-100px; animation-delay:0s;
+}
+.animated-bg .orb:nth-child(2) {
+width:350px; height:350px; background:var(--secondary);
+top:50%; right:-80px; animation-delay:-7s;
+}
+.animated-bg .orb:nth-child(3) {
+width:300px; height:300px; background:var(--accent);
+bottom:-80px; left:40%; animation-delay:-14s;
+}
+.animated-bg .orb:nth-child(4) {
+width:250px; height:250px; background:var(--accent2);
+top:30%; left:30%; animation-delay:-3s; opacity:0.08;
+}
+
+@keyframes orbFloat {
+0%,100% { transform:translate(0,0) scale(1); }
+25% { transform:translate(40px,-30px) scale(1.1); }
+50% { transform:translate(-20px,50px) scale(0.95); }
+75% { transform:translate(30px,20px) scale(1.05); }
+}
+
+.app-container {
+position:relative; z-index:1; max-width:1200px;
+margin:0 auto; padding:20px;
+}
+
+/* Header */
+.app-header {
+text-align:center; padding:40px 20px 30px;
+}
+.app-header h1 {
+font-size:2.4rem; font-weight:900;
+background:linear-gradient(135deg,var(--primary),var(--accent),var(--accent2));
+-webkit-background-clip:text; -webkit-text-fill-color:transparent;
+background-clip:text; margin-bottom:8px;
+}
+.app-header .subtitle {
+color:var(--text-secondary); font-size:1rem; font-weight:400;
+}
+
+/* Stats Bar */
+.stats-bar {
+display:flex; gap:12px; margin:20px 0 24px;
+flex-wrap:wrap; justify-content:center;
+}
+.stat-chip {
+background:var(--glass2); border:1px solid var(--border);
+border-radius:40px; padding:8px 18px;
+display:flex; align-items:center; gap:8px;
+font-size:0.85rem; color:var(--text-secondary);
+transition:all 0.3s;
+}
+.stat-chip:hover { background:var(--glass3); transform:translateY(-2px); }
+.stat-chip .stat-val {
+font-weight:700; color:var(--text-primary);
+font-family:'JetBrains Mono',monospace;
+}
+
+/* Tabs */
+.tab-nav {
+display:flex; gap:4px; overflow-x:auto;
+padding:4px; background:var(--glass);
+border-radius:14px; border:1px solid var(--border);
+margin-bottom:24px; scrollbar-width:none;
+}
+.tab-nav::-webkit-scrollbar { display:none; }
+.tab-btn {
+flex-shrink:0; padding:10px 16px;
+border:none; background:transparent;
+color:var(--text-muted); font-size:0.82rem;
+font-weight:600; border-radius:10px;
+cursor:pointer; transition:all 0.3s;
+white-space:nowrap; font-family:'Inter',sans-serif;
+}
+.tab-btn:hover { color:var(--text-secondary); background:var(--glass); }
+.tab-btn.active {
+background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+color:#fff; box-shadow:0 4px 15px rgba(108,99,255,0.4);
+}
+
+/* Search */
+.search-box {
+position:relative; margin-bottom:20px;
+}
+.search-box input {
+width:100%; padding:14px 20px 14px 48px;
+background:var(--glass2); border:1px solid var(--border);
+border-radius:12px; color:var(--text-primary);
+font-size:0.95rem; font-family:'Inter',sans-serif;
+outline:none; transition:all 0.3s;
+}
+.search-box input:focus {
+border-color:var(--primary); box-shadow:0 0 20px rgba(108,99,255,0.2);
+}
+.search-box input::placeholder { color:var(--text-muted); }
+.search-box .search-icon {
+position:absolute; left:16px; top:50%;
+transform:translateY(-50%); font-size:1.1rem;
+}
+
+/* Tab Content */
+.tab-content { display:none; animation:fadeSlideIn 0.4s ease; }
+.tab-content.active { display:block; }
+
+@keyframes fadeSlideIn {
+from { opacity:0; transform:translateY(16px); }
+to { opacity:1; transform:translateY(0); }
+}
+
+/* Cards */
+.card {
+background:var(--bg-card); border:1px solid var(--border);
+border-radius:var(--radius); padding:24px;
+margin-bottom:16px; transition:all 0.3s;
+}
+.card:hover {
+border-color:rgba(108,99,255,0.3);
+box-shadow:0 8px 32px rgba(108,99,255,0.1);
+transform:translateY(-2px);
+}
+.card-header {
+display:flex; align-items:center; gap:12px;
+margin-bottom:16px;
+}
+.card-icon {
+width:44px; height:44px; border-radius:12px;
+display:flex; align-items:center; justify-content:center;
+font-size:1.3rem; flex-shrink:0;
+}
+.card-title {
+font-size:1.1rem; font-weight:700;
+}
+.card-subtitle {
+font-size:0.8rem; color:var(--text-muted);
+}
+
+/* Tags */
+.tag {
+display:inline-block; padding:3px 10px;
+border-radius:20px; font-size:0.7rem;
+font-weight:600; margin:2px 4px 2px 0;
+}
+.tag-high { background:rgba(255,71,87,0.15); color:var(--danger); }
+.tag-exam { background:rgba(255,165,2,0.15); color:var(--warning); }
+.tag-pearl { background:rgba(78,205,196,0.15); color:var(--accent); }
+.tag-def { background:rgba(108,99,255,0.15); color:var(--primary-light); }
+
+/* Summary cards grid */
+.summary-grid {
+display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+gap:14px; margin-bottom:24px;
+}
+.summary-card {
+background:var(--bg-card); border:1px solid var(--border);
+border-radius:var(--radius); padding:20px;
+transition:all 0.3s; position:relative; overflow:hidden;
+}
+.summary-card::before {
+content:''; position:absolute; top:0; left:0;
+width:100%; height:3px;
+}
+.summary-card:nth-child(1)::before { background:linear-gradient(90deg,var(--primary),var(--accent)); }
+.summary-card:nth-child(2)::before { background:linear-gradient(90deg,var(--secondary),var(--warning)); }
+.summary-card:nth-child(3)::before { background:linear-gradient(90deg,var(--accent),var(--success)); }
+.summary-card:nth-child(4)::before { background:linear-gradient(90deg,var(--accent2),var(--primary)); }
+.summary-card:nth-child(5)::before { background:linear-gradient(90deg,var(--danger),var(--secondary)); }
+.summary-card:nth-child(6)::before { background:linear-gradient(90deg,var(--success),var(--accent)); }
+
+.summary-card:hover { transform:translateY(-4px); border-color:rgba(108,99,255,0.3); }
+.summary-card .sc-emoji { font-size:2rem; margin-bottom:10px; }
+.summary-card .sc-title { font-weight:700; font-size:0.95rem; margin-bottom:6px; }
+.summary-card .sc-text { font-size:0.82rem; color:var(--text-secondary); line-height:1.6; }
+
+/* Timeline */
+.timeline { position:relative; padding-left:30px; margin:20px 0; }
+.timeline::before {
+content:''; position:absolute; left:12px; top:0;
+width:2px; height:100%;
+background:linear-gradient(180deg,var(--primary),var(--accent),var(--secondary));
+border-radius:2px;
+}
+.timeline-item {
+position:relative; margin-bottom:20px;
+padding:16px 20px;
+background:var(--glass2); border:1px solid var(--border);
+border-radius:12px; transition:all 0.3s;
+}
+.timeline-item:hover { background:var(--glass3); transform:translateX(4px); }
+.timeline-item::before {
+content:''; position:absolute; left:-24px; top:20px;
+width:12px; height:12px; border-radius:50%;
+background:var(--primary); border:2px solid var(--bg-dark);
+}
+.timeline-item .tl-title { font-weight:700; font-size:0.9rem; margin-bottom:4px; }
+.timeline-item .tl-text { font-size:0.82rem; color:var(--text-secondary); line-height:1.5; }
+
+/* Key signs grid */
+.signs-grid {
+display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+gap:12px; margin:20px 0;
+}
+.sign-card {
+background:var(--glass2); border:1px solid var(--border);
+border-radius:12px; padding:16px;
+transition:all 0.3s; cursor:default;
+}
+.sign-card:hover { background:var(--glass3); transform:scale(1.02); }
+.sign-card .sign-name { font-weight:700; font-size:0.88rem; margin-bottom:6px; }
+.sign-card .sign-desc { font-size:0.78rem; color:var(--text-secondary); line-height:1.5; }
+
+/* Quiz */
+.quiz-header {
+display:flex; justify-content:space-between; align-items:center;
+flex-wrap:wrap; gap:12px; margin-bottom:20px;
+}
+.quiz-progress {
+width:100%; height:8px; background:var(--glass2);
+border-radius:10px; overflow:hidden;
+}
+.quiz-progress-fill {
+height:100%; border-radius:10px;
+background:linear-gradient(90deg,var(--primary),var(--accent));
+transition:width 0.5s ease;
+}
+.quiz-score-display {
+display:flex; gap:16px; align-items:center;
+}
+.quiz-score-item {
+text-align:center;
+}
+.quiz-score-item .qsi-val {
+font-size:1.5rem; font-weight:800;
+font-family:'JetBrains Mono',monospace;
+}
+.quiz-score-item .qsi-label {
+font-size:0.7rem; color:var(--text-muted); text-transform:uppercase;
+letter-spacing:1px;
+}
+
+.quiz-question-card {
+background:var(--bg-card); border:1px solid var(--border);
+border-radius:var(--radius); padding:28px; margin-bottom:16px;
+}
+.quiz-q-num {
+font-size:0.75rem; color:var(--primary-light);
+font-weight:700; text-transform:uppercase;
+letter-spacing:1.5px; margin-bottom:8px;
+}
+.quiz-q-text {
+font-size:1.05rem; font-weight:600; line-height:1.6;
+margin-bottom:20px;
+}
+.quiz-options { display:flex; flex-direction:column; gap:10px; }
+.quiz-option {
+padding:14px 18px; background:var(--glass2);
+border:2px solid var(--border); border-radius:12px;
+cursor:pointer; transition:all 0.3s;
+font-size:0.9rem; display:flex; align-items:center; gap:12px;
+}
+.quiz-option:hover:not(.disabled) {
+background:var(--glass3); border-color:var(--primary);
+transform:translateX(4px);
+}
+.quiz-option .opt-letter {
+width:32px; height:32px; border-radius:8px;
+background:var(--glass3); display:flex;
+align-items:center; justify-content:center;
+font-weight:700; font-size:0.85rem; flex-shrink:0;
+}
+.quiz-option.correct {
+background:rgba(46,213,115,0.12); border-color:var(--success);
+animation:pulseCorrect 0.5s ease;
+}
+.quiz-option.correct .opt-letter { background:var(--success); color:#fff; }
+.quiz-option.wrong {
+background:rgba(255,71,87,0.12); border-color:var(--danger);
+animation:shakeWrong 0.5s ease;
+}
+.quiz-option.wrong .opt-letter { background:var(--danger); color:#fff; }
+.quiz-option.disabled { pointer-events:none; opacity:0.7; }
+.quiz-option.disabled.highlight-correct {
+opacity:1; background:rgba(46,213,115,0.08); border-color:var(--success);
+}
+
+@keyframes pulseCorrect {
+0% { transform:scale(1); }
+50% { transform:scale(1.02); }
+100% { transform:scale(1); }
+}
+@keyframes shakeWrong {
+0%,100% { transform:translateX(0); }
+20% { transform:translateX(-8px); }
+40% { transform:translateX(8px); }
+60% { transform:translateX(-4px); }
+80% { transform:translateX(4px); }
+}
+
+.quiz-explanation {
+margin-top:16px; padding:16px;
+background:var(--glass); border-radius:12px;
+border-left:3px solid var(--primary);
+font-size:0.85rem; color:var(--text-secondary);
+line-height:1.6; animation:fadeSlideIn 0.3s ease;
+}
+.quiz-nav-btns {
+display:flex; gap:10px; margin-top:16px; justify-content:center;
+}
+
+/* Buttons */
+.btn {
+padding:10px 24px; border:none; border-radius:10px;
+font-weight:600; font-size:0.88rem; cursor:pointer;
+transition:all 0.3s; font-family:'Inter',sans-serif;
+}
+.btn-primary {
+background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+color:#fff;
+}
+.btn-primary:hover { box-shadow:0 6px 20px rgba(108,99,255,0.4); transform:translateY(-2px); }
+.btn-outline {
+background:transparent; border:2px solid var(--border);
+color:var(--text-secondary);
+}
+.btn-outline:hover { border-color:var(--primary); color:var(--primary-light); }
+.btn-success {
+background:linear-gradient(135deg,var(--success),#1daa5e);
+color:#fff;
+}
+.btn-danger {
+background:linear-gradient(135deg,var(--danger),#d63031);
+color:#fff;
+}
+
+/* Flashcards */
+.flashcard-grid {
+display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+gap:16px;
+}
+.flashcard-container {
+perspective:1000px; height:240px; cursor:pointer;
+}
+.flashcard {
+position:relative; width:100%; height:100%;
+transition:transform 0.6s; transform-style:preserve-3d;
+}
+.flashcard.flipped { transform:rotateY(180deg); }
+.flashcard-face {
+position:absolute; width:100%; height:100%;
+backface-visibility:hidden; border-radius:var(--radius);
+padding:24px; display:flex; flex-direction:column;
+align-items:center; justify-content:center;
+text-align:center; border:1px solid var(--border);
+}
+.flashcard-front {
+background:linear-gradient(145deg,var(--bg-card),var(--bg-card2));
+}
+.flashcard-back {
+background:linear-gradient(145deg,var(--bg-card2),var(--bg-card));
+transform:rotateY(180deg);
+border-color:var(--primary);
+}
+.flashcard-front .fc-q {
+font-size:0.92rem; font-weight:600; line-height:1.5;
+}
+.flashcard-front .fc-hint {
+font-size:0.72rem; color:var(--text-muted);
+margin-top:12px;
+}
+.flashcard-back .fc-a {
+font-size:0.85rem; line-height:1.6; color:var(--text-secondary);
+}
+.flashcard-front .fc-emoji, .flashcard-back .fc-emoji {
+font-size:2rem; margin-bottom:12px;
+}
+
+/* Clinical Cases */
+.case-card {
+background:var(--bg-card); border:1px solid var(--border);
+border-radius:var(--radius); padding:28px; margin-bottom:20px;
+position:relative; overflow:hidden;
+}
+.case-card::before {
+content:''; position:absolute; top:0; left:0;
+width:4px; height:100%; background:linear-gradient(180deg,var(--primary),var(--accent));
+}
+.case-badge {
+display:inline-block; padding:4px 12px;
+background:rgba(108,99,255,0.15); color:var(--primary-light);
+border-radius:20px; font-size:0.72rem; font-weight:700;
+text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;
+}
+.case-scenario {
+font-size:0.92rem; line-height:1.7; color:var(--text-secondary);
+margin-bottom:16px; padding:16px;
+background:var(--glass); border-radius:10px;
+}
+.case-questions { margin-bottom:16px; }
+.case-q {
+font-size:0.88rem; font-weight:600; margin-bottom:8px;
+padding-left:12px; border-left:2px solid var(--accent);
+}
+.case-answer-section {
+overflow:hidden; max-height:0; transition:max-height 0.5s ease;
+}
+.case-answer-section.open { max-height:600px; }
+.case-answer {
+padding:16px; background:var(--glass2); border-radius:10px;
+font-size:0.85rem; line-height:1.7; color:var(--text-secondary);
+margin-top:10px;
+}
+
+/* Anatomy/Pathophys */
+.patho-grid {
+display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+gap:14px; margin:20px 0;
+}
+.patho-item {
+background:var(--glass2); border:1px solid var(--border);
+border-radius:14px; padding:20px; cursor:pointer;
+transition:all 0.3s;
+}
+.patho-item:hover { background:var(--glass3); transform:translateY(-3px); border-color:var(--primary); }
+.patho-item .pi-emoji { font-size:1.8rem; margin-bottom:10px; }
+.patho-item .pi-title { font-weight:700; font-size:0.9rem; margin-bottom:4px; }
+.patho-item .pi-short { font-size:0.78rem; color:var(--text-muted); }
+.patho-detail {
+display:none; padding:16px; margin-top:10px;
+background:var(--glass); border-radius:10px;
+font-size:0.82rem; line-height:1.6; color:var(--text-secondary);
+}
+.patho-item.expanded .patho-detail { display:block; animation:fadeSlideIn 0.3s ease; }
+
+/* Flowchart */
+.flowchart {
+display:flex; flex-direction:column; align-items:center;
+gap:0; margin:24px 0;
+}
+.flow-step {
+background:var(--bg-card); border:1px solid var(--border);
+border-radius:12px; padding:16px 24px;
+text-align:center; max-width:400px; width:100%;
+transition:all 0.3s;
+}
+.flow-step:hover { border-color:var(--primary); transform:scale(1.02); }
+.flow-step .fs-num {
+font-size:0.7rem; font-weight:800; color:var(--primary-light);
+text-transform:uppercase; letter-spacing:2px; margin-bottom:4px;
+}
+.flow-step .fs-title { font-weight:700; font-size:0.95rem; margin-bottom:4px; }
+.flow-step .fs-desc { font-size:0.8rem; color:var(--text-secondary); }
+.flow-arrow {
+font-size:1.5rem; color:var(--text-muted);
+margin:4px 0;
+}
+
+/* Comparison Tables */
+.comp-table-wrap {
+overflow-x:auto; margin:20px 0; border-radius:14px;
+border:1px solid var(--border);
+}
+.comp-table {
+width:100%; border-collapse:collapse; min-width:500px;
+}
+.comp-table th {
+padding:14px 16px; text-align:left;
+background:var(--glass3); font-size:0.8rem;
+font-weight:700; text-transform:uppercase;
+letter-spacing:1px; color:var(--text-secondary);
+border-bottom:1px solid var(--border);
+}
+.comp-table td {
+padding:12px 16px; font-size:0.85rem;
+color:var(--text-secondary); border-bottom:1px solid var(--border);
+line-height:1.5;
+}
+.comp-table tr:hover td { background:var(--glass); }
+
+/* Treatment tab */
+.treatment-section { margin-bottom:24px; }
+.treatment-section .ts-title {
+font-size:1rem; font-weight:700; margin-bottom:12px;
+display:flex; align-items:center; gap:8px;
+}
+.treatment-grid {
+display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+gap:12px;
+}
+.treatment-card {
+background:var(--glass2); border:1px solid var(--border);
+border-radius:12px; padding:16px; transition:all 0.3s;
+}
+.treatment-card:hover { background:var(--glass3); transform:translateY(-2px); }
+.treatment-card.urgent { border-left:3px solid var(--danger); }
+.treatment-card.standard { border-left:3px solid var(--primary); }
+.treatment-card.supportive { border-left:3px solid var(--accent); }
+.treatment-card .tc-title { font-weight:700; font-size:0.88rem; margin-bottom:6px; }
+.treatment-card .tc-desc { font-size:0.78rem; color:var(--text-secondary); line-height:1.5; }
+
+/* Mnemonics */
+.mnemonic-card {
+background:var(--bg-card); border:1px solid var(--border);
+border-radius:var(--radius); padding:24px; margin-bottom:16px;
+transition:all 0.3s; cursor:pointer;
+}
+.mnemonic-card:hover { border-color:var(--accent); transform:translateY(-2px); }
+.mnemonic-header {
+display:flex; align-items:center; gap:12px;
+margin-bottom:12px;
+}
+.mnemonic-word {
+font-size:1.4rem; font-weight:900;
+font-family:'JetBrains Mono',monospace;
+background:linear-gradient(135deg,var(--accent),var(--primary));
+-webkit-background-clip:text; -webkit-text-fill-color:transparent;
+background-clip:text;
+}
+.mnemonic-context { font-size:0.8rem; color:var(--text-muted); }
+.mnemonic-list {
+display:none; padding-top:10px;
+}
+.mnemonic-card.expanded .mnemonic-list { display:block; animation:fadeSlideIn 0.3s ease; }
+.mnemonic-list-item {
+padding:8px 0; font-size:0.85rem;
+color:var(--text-secondary); line-height:1.5;
+border-bottom:1px solid var(--border);
+}
+.mnemonic-list-item:last-child { border-bottom:none; }
+.mnemonic-list-item strong {
+color:var(--accent); font-weight:700;
+}
+
+/* Section Titles */
+.section-title {
+font-size:1.3rem; font-weight:800; margin-bottom:8px;
+display:flex; align-items:center; gap:10px;
+}
+.section-desc {
+font-size:0.88rem; color:var(--text-secondary);
+margin-bottom:20px; line-height:1.6;
+}
+
+/* Viva section */
+.viva-item {
+background:var(--glass2); border:1px solid var(--border);
+border-radius:12px; padding:16px; margin-bottom:10px;
+cursor:pointer; transition:all 0.3s;
+}
+.viva-item:hover { background:var(--glass3); }
+.viva-q { font-weight:700; font-size:0.9rem; }
+.viva-a {
+display:none; margin-top:10px; padding-top:10px;
+border-top:1px solid var(--border);
+font-size:0.85rem; color:var(--text-secondary); line-height:1.6;
+}
+.viva-item.open .viva-a { display:block; animation:fadeSlideIn 0.3s ease; }
+
+/* Investigation Badges */
+.invest-badges {
+display:flex; flex-wrap:wrap; gap:8px; margin:16px 0;
+}
+.invest-badge {
+padding:8px 16px; background:var(--glass2);
+border:1px solid var(--border); border-radius:20px;
+font-size:0.8rem; color:var(--text-secondary);
+display:flex; align-items:center; gap:6px;
+transition:all 0.3s; cursor:pointer;
+}
+.invest-badge:hover {
+background:var(--glass3); border-color:var(--primary);
+color:var(--text-primary);
+}
+
+/* Responsive */
+@media(max-width:768px) {
+.app-header h1 { font-size:1.6rem; }
+.tab-btn { font-size:0.75rem; padding:8px 12px; }
+.summary-grid { grid-template-columns:1fr; }
+.flashcard-grid { grid-template-columns:1fr; }
+.patho-grid { grid-template-columns:1fr; }
+.quiz-question-card { padding:18px; }
+.signs-grid { grid-template-columns:1fr 1fr; }
+.treatment-grid { grid-template-columns:1fr; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--glass3); border-radius:3px; }
+
+/* Exam alert */
+.exam-alert {
+background:rgba(255,165,2,0.1); border:1px solid rgba(255,165,2,0.3);
+border-radius:10px; padding:12px 16px; margin:12px 0;
+font-size:0.82rem; color:var(--warning);
+display:flex; align-items:center; gap:8px;
+}
+
+/* Motivation */
+.motivation {
+text-align:center; padding:30px; margin:20px 0;
+background:linear-gradient(135deg, rgba(108,99,255,0.1), rgba(78,205,196,0.1));
+border-radius:var(--radius); border:1px solid var(--border);
+}
+.motivation .m-emoji { font-size:2.5rem; margin-bottom:10px; }
+.motivation .m-text { font-size:1.1rem; font-weight:700; }
+.motivation .m-sub { font-size:0.85rem; color:var(--text-muted); margin-top:6px; }
+
+/* Click hint */
+.click-hint {
+font-size:0.72rem; color:var(--text-muted);
+font-style:italic; margin-top:4px;
+}
+</style>
+</head>
+<body>
+
+<div class="animated-bg">
+<div class="orb"></div>
+<div class="orb"></div>
+<div class="orb"></div>
+<div class="orb"></div>
+</div>
+
+<div class="app-container">
+<!-- Header -->
+<header class="app-header">
+<h1>🧠 Intelligence & Creativity</h1>
+<p class="subtitle">Psychiatry / Behavioral Sciences — Comprehensive Study Platform</p>
+</header>
+
+<!-- Stats Bar -->
+<div class="stats-bar">
+<div class="stat-chip">🎯 Quiz: <span class="stat-val" id="statScore">0/25</span></div>
+<div class="stat-chip">🔥 Streak: <span class="stat-val" id="statStreak">0</span></div>
+<div class="stat-chip">📊 Progress: <span class="stat-val" id="statProgress">0%</span></div>
+<div class="stat-chip">🃏 Cards Flipped: <span class="stat-val" id="statCards">0/20</span></div>
+</div>
+
+<!-- Tab Navigation -->
+<nav class="tab-nav">
+<button class="tab-btn active" data-tab="overview">📋 Overview</button>
+<button class="tab-btn" data-tab="quiz">🎯 Quiz</button>
+<button class="tab-btn" data-tab="flashcards">🃏 Flashcards</button>
+<button class="tab-btn" data-tab="cases">🏥 Cases</button>
+<button class="tab-btn" data-tab="pathophys">🔬 Pathophysiology</button>
+<button class="tab-btn" data-tab="diagnosis">🔍 Diagnosis</button>
+<button class="tab-btn" data-tab="treatment">💊 Management</button>
+<button class="tab-btn" data-tab="mnemonics">🧩 Mnemonics</button>
+</nav>
+
+<!-- ===== OVERVIEW TAB ===== -->
+<div class="tab-content active" id="tab-overview">
+<div class="search-box">
+<span class="search-icon">🔍</span>
+<input type="text" id="overviewSearch" placeholder="Search concepts, definitions, syndromes...">
+</div>
+
+<h2 class="section-title">📌 Quick Summary</h2>
+<p class="section-desc">Core concepts from the intelligence & creativity lecture — at a glance.</p>
+
+<div class="summary-grid" id="summaryGrid">
+<div class="summary-card" data-search="intelligence definition IQ mental age chronological age">
+<div class="sc-emoji">🧠</div>
+<div class="sc-title">Intelligence Defined</div>
+<div class="sc-text">The global capacity to act purposefully, think rationally, and deal effectively with one's environment. Measured as IQ = MA/CA × 100. Peaks at age 26.</div>
+<span class="tag tag-exam">⚠️ EXAM</span>
+<span class="tag tag-high">HIGH-YIELD</span>
+</div>
+<div class="summary-card" data-search="gardner multiple intelligences linguistic spatial bodily musical interpersonal intrapersonal logical">
+<div class="sc-emoji">🎭</div>
+<div class="sc-title">Multiple Intelligences</div>
+<div class="sc-text">Gardner's 7 types: Logical-mathematical, Linguistic, Spatial, Bodily-kinesthetic, Musical, Interpersonal, Intrapersonal. Explains diverse capabilities.</div>
+<span class="tag tag-def">DEFINITION</span>
+</div>
+<div class="summary-card" data-search="mental retardation intellectual disability IQ 70 before 18 dementia">
+<div class="sc-emoji">⚠️</div>
+<div class="sc-title">MR vs Dementia</div>
+<div class="sc-text">IQ < 70 before age 18 = Mental Retardation. Decline after age 18 = Dementia. Key age cut-off: 18 years.</div>
+<span class="tag tag-exam">⚠️ EXAM</span>
+<span class="tag tag-high">HIGH-YIELD</span>
+</div>
+<div class="summary-card" data-search="genetic causes down syndrome fragile-x prader-willi angelman PKU chromosome">
+<div class="sc-emoji">🧬</div>
+<div class="sc-title">Genetic Causes of MR</div>
+<div class="sc-text">Down syndrome (chr 21), Fragile-X (FMR-1, most common inherited), Prader-Willi/Angelman (chr 15), PKU (single-gene metabolism error).</div>
+<span class="tag tag-high">HIGH-YIELD</span>
+</div>
+<div class="summary-card" data-search="creativity creative process stages preparation incubation intimation illumination verification">
+<div class="sc-emoji">💡</div>
+<div class="sc-title">The Creative Process</div>
+<div class="sc-text">5 stages: Preparation → Incubation → Intimation → Illumination → Verification. Produces something original and worthwhile.</div>
+<span class="tag tag-pearl">CLINICAL PEARL</span>
+</div>
+<div class="summary-card" data-search="savant autistic savantism giftedness gifted genius">
+<div class="sc-emoji">✨</div>
+<div class="sc-title">Giftedness & Savantism</div>
+<div class="sc-text">Giftedness = significantly above-average intelligence (innate). Savantism = exceptional single-field performance, often in autism. Formula-driven defense strategy.</div>
+<span class="tag tag-pearl">CLINICAL PEARL</span>
+</div>
+</div>
+
+<div class="exam-alert">
+⚠️ <strong>EXAM ALERT:</strong> The lecturer explicitly stated the definition of intelligence and the MR vs Dementia age cut-off (18 years) will appear as MCQs.
+</div>
+
+<h2 class="section-title" style="margin-top:30px;">📊 IQ Classification Timeline</h2>
+<div class="timeline">
+<div class="timeline-item" data-search="genius 140">
+<div class="tl-title">🌟 Genius — IQ > 140</div>
+<div class="tl-text">Exceptionally rare; extraordinary intellectual capacity.</div>
+</div>
+<div class="timeline-item" data-search="very superior 120 139">
+<div class="tl-title">🏆 Very Superior — IQ 120-139</div>
+<div class="tl-text">Well above average; strong analytical and creative abilities.</div>
+</div>
+<div class="timeline-item" data-search="superior 110 119">
+<div class="tl-title">⭐ Superior — IQ 110-119</div>
+<div class="tl-text">Above average intellectual functioning.</div>
+</div>
+<div class="timeline-item" data-search="average 90 109 normal">
+<div class="tl-title">📊 Average — IQ 90-109</div>
+<div class="tl-text">The majority of the population. Two-thirds fall in 85-115 range.</div>
+</div>
+<div class="timeline-item" data-search="dull normal 80 89">
+<div class="tl-title">📉 Dull Normal — IQ 80-89</div>
+<div class="tl-text">Below average but not clinically impaired.</div>
+</div>
+<div class="timeline-item" data-search="borderline 70 79">
+<div class="tl-title">🔻 Borderline — IQ 70-79</div>
+<div class="tl-text">Borderline intellectual functioning; threshold zone.</div>
+</div>
+<div class="timeline-item" data-search="mental retardation MR 70 mild moderate severe profound">
+<div class="tl-title">🚨 Mental Retardation — IQ < 70</div>
+<div class="tl-text">Mild (50-70) | Moderate (35-50) | Severe (20-35) | Profound (<20). Onset before age 18.</div>
+</div>
+</div>
+
+<h2 class="section-title" style="margin-top:30px;">🔑 Key Clinical Signs & Concepts</h2>
+<div class="signs-grid">
+<div class="sign-card" data-search="MR signs symptoms learning problems language delay infantile behavior">
+<span class="tag tag-high">HIGH-YIELD</span>
+<div class="sign-name">MR Clinical Features</div>
+<div class="sign-desc">Learning problems, language delay, persistence of infantile behavior, lack of social inhibitors, abnormal behaviors, poor self-care.</div>
+</div>
+<div class="sign-card" data-search="giftedness traits curiosity vocabulary intensity">
+<span class="tag tag-pearl">PEARL</span>
+<div class="sign-name">Giftedness Traits</div>
+<div class="sign-desc">Intellectual curiosity, rapid learning, extreme intensity, advanced vocabulary, nonconformity, advanced empathy.</div>
+</div>
+<div class="sign-card" data-search="wechsler WAIS WISC WPPSI tests age range">
+<span class="tag tag-exam">EXAM</span>
+<div class="sign-name">Wechsler Tests</div>
+<div class="sign-desc">WAIS-IV (16-90yr) | WISC (6-16yr) | WPPSI (2½-7yr 3mo). Full-Scale IQ from VIQ + PIQ components.</div>
+</div>
+<div class="sign-card" data-search="raven progressive matrices visual analogy 60 items">
+<span class="tag tag-def">DEFINITION</span>
+<div class="sign-name">Raven's Matrices</div>
+<div class="sign-desc">60 visual analogy problems. Strictly non-verbal. Progressively harder. Measures general intelligence (g-factor).</div>
+</div>
+<div class="sign-card" data-search="two thirds population 85 115 normal distribution">
+<span class="tag tag-exam">EXAM</span>
+<div class="sign-name">Normal Distribution</div>
+<div class="sign-desc">Two-thirds (66.6%) of population fall within IQ 85-115. 95% fall within 70-130.</div>
+</div>
+<div class="sign-card" data-search="peak intelligence age 26 fluid crystallized">
+<span class="tag tag-high">HIGH-YIELD</span>
+<div class="sign-name">Intelligence Peak</div>
+<div class="sign-desc">Both fluid and crystallized intelligence peak at age 26, followed by slow decline.</div>
+</div>
+</div>
+</div>
+
+<!-- ===== QUIZ TAB ===== -->
+<div class="tab-content" id="tab-quiz">
+<h2 class="section-title">🎯 MCQ Challenge — 25 Questions</h2>
+<p class="section-desc">Test your knowledge. 60% mechanism, 25% definition, 15% comparative questions.</p>
+
+<div class="quiz-header">
+<div class="quiz-score-display">
+<div class="quiz-score-item">
+<div class="qsi-val" id="qCorrect" style="color:var(--success)">0</div>
+<div class="qsi-label">Correct</div>
+</div>
+<div class="quiz-score-item">
+<div class="qsi-val" id="qWrong" style="color:var(--danger)">0</div>
+<div class="qsi-label">Wrong</div>
+</div>
+<div class="quiz-score-item">
+<div class="qsi-val" id="qStreakDisplay" style="color:var(--accent2)">0</div>
+<div class="qsi-label">Streak</div>
+</div>
+</div>
+</div>
+<div class="quiz-progress"><div class="quiz-progress-fill" id="quizProgressFill" style="width:0%"></div></div>
+
+<div id="quizContainer"></div>
+
+<div class="quiz-nav-btns">
+<button class="btn btn-outline" id="prevQ" onclick="navigateQuiz(-1)">← Previous</button>
+<button class="btn btn-primary" id="nextQ" onclick="navigateQuiz(1)">Next →</button>
+<button class="btn btn-success" id="resetQuiz" onclick="resetQuiz()" style="display:none">🔄 Restart Quiz</button>
+</div>
+</div>
+
+<!-- ===== FLASHCARDS TAB ===== -->
+<div class="tab-content" id="tab-flashcards">
+<h2 class="section-title">🃏 Flashcards — Click to Flip</h2>
+<p class="section-desc">20 cards covering every key concept. Track your progress above!</p>
+<div class="flashcard-grid" id="flashcardGrid"></div>
+</div>
+
+<!-- ===== CLINICAL CASES TAB ===== -->
+<div class="tab-content" id="tab-cases">
+<h2 class="section-title">🏥 Clinical Vignettes</h2>
+<p class="section-desc">Exam-style scenarios with step-by-step analysis.</p>
+<div id="casesContainer"></div>
+</div>
+
+<!-- ===== PATHOPHYSIOLOGY TAB ===== -->
+<div class="tab-content" id="tab-pathophys">
+<h2 class="section-title">🔬 Intelligence Structure & Pathways</h2>
+<p class="section-desc">Click each item to expand and explore the underlying mechanisms.</p>
+
+<div class="patho-grid" id="pathoGrid"></div>
+
+<h2 class="section-title" style="margin-top:30px;">🔄 Creative Process Flowchart</h2>
+<div class="flowchart">
+<div class="flow-step" style="border-color:var(--primary);">
+<div class="fs-num">Stage 1</div>
+<div class="fs-title">📝 Preparation</div>
+<div class="fs-desc">Examine and analyze the problem. Formulate the null hypothesis. Gather information.</div>
+</div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step" style="border-color:var(--accent);">
+<div class="fs-num">Stage 2</div>
+<div class="fs-title">🌊 Incubation</div>
+<div class="fs-desc">The unconscious mind works on the problem. Data is collected and research is done in the background.</div>
+</div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step" style="border-color:var(--accent2);">
+<div class="fs-num">Stage 3</div>
+<div class="fs-title">🌱 Intimation</div>
+<div class="fs-desc">Ideas begin to spring out of the mind. The creative person senses a solution is near.</div>
+</div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step" style="border-color:var(--warning);">
+<div class="fs-num">Stage 4</div>
+<div class="fs-title">💡 Illumination</div>
+<div class="fs-desc">The creative idea bursts from the preconscious into conscious awareness. The "Eureka!" moment.</div>
+</div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step" style="border-color:var(--success);">
+<div class="fs-num">Stage 5</div>
+<div class="fs-title">✅ Verification</div>
+<div class="fs-desc">The null hypothesis becomes a scientific fact. The idea is tested, validated, and formalized.</div>
+</div>
+</div>
+
+<h2 class="section-title" style="margin-top:30px;">📊 MR vs Dementia Comparison</h2>
+<div class="comp-table-wrap">
+<table class="comp-table">
+<thead>
+<tr>
+<th>Feature</th>
+<th>Mental Retardation</th>
+<th>Dementia</th>
+</tr>
+</thead>
+<tbody>
+<tr><td><strong>Definition</strong></td><td>Generalized disorder of impaired cognitive function</td><td>Decline in previously held cognitive function</td></tr>
+<tr><td><strong>Onset</strong></td><td style="color:var(--danger);font-weight:700">Before age 18 ⚠️</td><td style="color:var(--warning);font-weight:700">After age 18 ⚠️</td></tr>
+<tr><td><strong>Mechanism</strong></td><td>Genetic (primary) or acquired via early trauma/infection</td><td>Acquired deterioration (neurodegenerative, vascular, etc.)</td></tr>
+<tr><td><strong>IQ Threshold</strong></td><td>IQ &lt; 70</td><td>Decline from previous baseline</td></tr>
+<tr><td><strong>Clinical Features</strong></td><td>Infantile behavior, language delay, learning problems</td><td>Loss of previously held intelligence/skills</td></tr>
+<tr><td><strong>Significance</strong></td><td>Lifelong learning and social skill deficits</td><td>Progressive loss of function in adulthood</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 class="section-title" style="margin-top:30px;">📊 MR Severity Classification</h2>
+<div class="comp-table-wrap">
+<table class="comp-table">
+<thead>
+<tr><th>Severity</th><th>IQ Range</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Mild</strong></td><td>50–70</td><td>Educable; can acquire practical skills</td></tr>
+<tr><td><strong>Moderate</strong></td><td>35–50</td><td>Trainable; can learn simple tasks</td></tr>
+<tr><td><strong>Severe</strong></td><td>20–35</td><td>Limited speech; needs constant supervision</td></tr>
+<tr><td><strong>Profound</strong></td><td>&lt; 20</td><td>Minimal capacity for sensorimotor functioning</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 class="section-title" style="margin-top:30px;">🗣️ Viva Questions</h2>
+<p class="section-desc">Click each question to reveal the answer.</p>
+<div id="vivaContainer"></div>
+</div>
+
+<!-- ===== DIAGNOSIS TAB ===== -->
+<div class="tab-content" id="tab-diagnosis">
+<h2 class="section-title">🔍 Diagnostic Framework</h2>
+<p class="section-desc">Tests, criteria, and investigation findings for intelligence assessment.</p>
+
+<div class="card">
+<div class="card-header">
+<div class="card-icon" style="background:rgba(108,99,255,0.15);">📋</div>
+<div><div class="card-title">Diagnostic Criteria for Mental Retardation</div>
+<div class="card-subtitle">ICD / DSM Framework</div></div>
+</div>
+<ul style="padding-left:20px;color:var(--text-secondary);font-size:0.88rem;line-height:2;">
+<li><strong>Criterion 1:</strong> IQ score under 70 (2+ standard deviations below the mean)</li>
+<li><strong>Criterion 2:</strong> Onset before the age of 18 (adulthood)</li>
+<li><strong>Criterion 3:</strong> Significant deficits in adaptive functioning (learning, language, social rules, self-care)</li>
+</ul>
+<div class="exam-alert" style="margin-top:14px;">
+⚠️ <strong>KEY DISTINCTION:</strong> If onset is AFTER 18 → Diagnose as <strong>Dementia</strong>, not MR. This WILL appear as an MCQ.
+</div>
+</div>
+
+<h3 class="section-title" style="margin-top:24px;">🧪 Intelligence Tests</h3>
+<p class="section-desc">Click badges to learn about each test.</p>
+<div class="invest-badges" id="testBadges">
+<div class="invest-badge" onclick="showTestDetail('wais')">📊 WAIS-IV</div>
+<div class="invest-badge" onclick="showTestDetail('wisc')">👦 WISC</div>
+<div class="invest-badge" onclick="showTestDetail('wppsi')">👶 WPPSI</div>
+<div class="invest-badge" onclick="showTestDetail('raven')">🔲 Raven's Matrices</div>
+<div class="invest-badge" onclick="showTestDetail('stanford')">📐 Stanford-Binet</div>
+</div>
+<div id="testDetailPanel" class="card" style="display:none;"></div>
+
+<h3 class="section-title" style="margin-top:24px;">📊 Wechsler Test Structure</h3>
+<div class="comp-table-wrap">
+<table class="comp-table">
+<thead><tr><th>Test</th><th>Age Range</th><th>VIQ Components</th><th>PIQ Components</th></tr></thead>
+<tbody>
+<tr>
+<td><strong>WAIS-IV</strong></td>
+<td>16–90 years</td>
+<td>VCI (Vocabulary, Similarities, Information, Comprehension) + WMI (Digit Span, Arithmetic, Letter-Number)</td>
+<td>POI (Block Design, Matrix Reasoning, Visual Puzzles) + PSI (Symbol Search, Coding)</td>
+</tr>
+<tr>
+<td><strong>WISC</strong></td>
+<td>6–16 years</td>
+<td colspan="2">Same structure adapted for children</td>
+</tr>
+<tr>
+<td><strong>WPPSI</strong></td>
+<td>2½ – 7yr 3mo</td>
+<td colspan="2">Same structure adapted for preschoolers</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<h3 class="section-title" style="margin-top:24px;">🧬 Genetic Investigation Algorithm</h3>
+<div class="flowchart">
+<div class="flow-step" style="border-color:var(--secondary);">
+<div class="fs-num">Step 1</div>
+<div class="fs-title">🏥 Clinical Presentation</div>
+<div class="fs-desc">Child presents with delayed language, learning problems, persistence of infantile behavior, lack of social inhibitors</div>
+</div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step" style="border-color:var(--warning);">
+<div class="fs-num">Step 2</div>
+<div class="fs-title">📊 Intelligence Testing</div>
+<div class="fs-desc">Administer WISC (6-16yr) or WPPSI (2½-7yr). Confirm IQ < 70.</div>
+</div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step" style="border-color:var(--primary);">
+<div class="fs-num">Step 3</div>
+<div class="fs-title">🧬 Genetic Testing</div>
+<div class="fs-desc">Karyotype → Check for trisomy 21 (Down), chr 15 abnormalities (Prader-Willi/Angelman). FMR-1 gene testing for Fragile-X. Metabolic screening for PKU.</div>
+</div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step" style="border-color:var(--accent);">
+<div class="fs-num">Step 4</div>
+<div class="fs-title">🔎 Acquired Causes Workup</div>
+<div class="fs-desc">Rule out infection, birth trauma, or other prenatal/perinatal insults if genetic tests negative.</div>
+</div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step" style="border-color:var(--success);">
+<div class="fs-num">Step 5</div>
+<div class="fs-title">📝 Classify & Plan</div>
+<div class="fs-desc">Classify severity (Mild/Moderate/Severe/Profound). Initiate behavioral therapy to maximize skill acquisition within IQ limits.</div>
+</div>
+</div>
+</div>
+
+<!-- ===== TREATMENT TAB ===== -->
+<div class="tab-content" id="tab-treatment">
+<h2 class="section-title">💊 Management & Intervention</h2>
+<p class="section-desc">Key approaches to managing intellectual disability and optimizing potential.</p>
+
+<div class="exam-alert">
+⚠️ <strong>CRITICAL CONCEPT:</strong> IQ cannot be increased via therapy. Behavioral therapy maximizes skill acquisition within the patient's fixed IQ capacity limit.
+</div>
+
+<div class="treatment-section">
+<div class="ts-title">🚨 Essential Principles</div>
+<div class="treatment-grid">
+<div class="treatment-card urgent">
+<div class="tc-title">IQ is Fixed</div>
+<div class="tc-desc">The underlying IQ level in MR cannot be raised or cured through any intervention. Therapy works within limits.</div>
+</div>
+<div class="treatment-card urgent">
+<div class="tc-title">Early Detection</div>
+<div class="tc-desc">Onset must be identified before age 18 for MR diagnosis. Newborn screening (e.g., PKU) enables early metabolic intervention.</div>
+</div>
+</div>
+</div>
+
+<div class="treatment-section">
+<div class="ts-title">🧠 Behavioral Therapy</div>
+<div class="treatment-grid">
+<div class="treatment-card standard">
+<div class="tc-title">Skill Maximization</div>
+<div class="tc-desc">Help the patient achieve the absolute maximum skills and adaptive behaviors possible within their specific IQ range.</div>
+</div>
+<div class="treatment-card standard">
+<div class="tc-title">Social Skills Training</div>
+<div class="tc-desc">Address lack of social inhibitors, teach appropriate social behaviors, and improve daily functioning.</div>
+</div>
+<div class="treatment-card standard">
+<div class="tc-title">Language Therapy</div>
+<div class="tc-desc">Speech and language intervention for delayed language development — a core feature of MR.</div>
+</div>
+</div>
+</div>
+
+<div class="treatment-section">
+<div class="ts-title">🤝 Supportive Measures</div>
+<div class="treatment-grid">
+<div class="treatment-card supportive">
+<div class="tc-title">Special Education</div>
+<div class="tc-desc">Tailored educational programs matched to the patient's severity level (Mild → educable; Moderate → trainable).</div>
+</div>
+<div class="treatment-card supportive">
+<div class="tc-title">Family Counseling</div>
+<div class="tc-desc">Support for family members in understanding the diagnosis, expectations, and caregiving strategies.</div>
+</div>
+<div class="treatment-card supportive">
+<div class="tc-title">Self-Care Training</div>
+<div class="tc-desc">Systematic training for activities of daily living (ADLs) — especially critical in moderate-to-profound MR.</div>
+</div>
+</div>
+</div>
+
+<div class="treatment-section">
+<div class="ts-title">🧬 Preventive / Metabolic</div>
+<div class="treatment-grid">
+<div class="treatment-card standard">
+<div class="tc-title">PKU Dietary Management</div>
+<div class="tc-desc">Phenylalanine-restricted diet from birth prevents MR in PKU. Example of an inborn error of metabolism where early intervention changes outcome.</div>
+</div>
+<div class="treatment-card supportive">
+<div class="tc-title">Genetic Counseling</div>
+<div class="tc-desc">For families with heritable causes (esp. Fragile-X as most common inherited cause) — assess recurrence risk.</div>
+</div>
+</div>
+</div>
+
+<h3 class="section-title" style="margin-top:24px;">📊 Management by MR Severity</h3>
+<div class="comp-table-wrap">
+<table class="comp-table">
+<thead><tr><th>Severity</th><th>IQ</th><th>Management Focus</th><th>Expected Outcome</th></tr></thead>
+<tbody>
+<tr><td><strong>Mild (50-70)</strong></td><td>50-70</td><td>Education, vocational training, social skills</td><td>Can live independently with support</td></tr>
+<tr><td><strong>Moderate (35-50)</strong></td><td>35-50</td><td>Supervised training, self-care skills, sheltered workshop</td><td>Can learn simple tasks, needs supervision</td></tr>
+<tr><td><strong>Severe (20-35)</strong></td><td>20-35</td><td>Constant supervision, basic communication training</td><td>Limited speech, dependent on caregivers</td></tr>
+<tr><td><strong>Profound (&lt;20)</strong></td><td>&lt;20</td><td>Total nursing care, sensorimotor stimulation</td><td>Minimal capacity; total dependency</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- ===== MNEMONICS TAB ===== -->
+<div class="tab-content" id="tab-mnemonics">
+<h2 class="section-title">🧩 Memory Aids & Mnemonics</h2>
+<p class="section-desc">Custom mnemonics from lecture content. Click to expand each one!</p>
+<div id="mnemonicsContainer"></div>
+
+<div class="motivation">
+<div class="m-emoji">🌟</div>
+<div class="m-text">You're building neural pathways right now!</div>
+<div class="m-sub">Every flashcard flipped and question answered strengthens your recall. Keep going! 💪</div>
+</div>
+</div>
+
+</div><!-- End app-container -->
+
+<script>
+// ==========================================
+// DATA
+// ==========================================
+
+const quizData = [
+{q:"Which formula accurately describes the calculation of the Intelligence Quotient (IQ)?",
+opts:["Chronological Age / Mental Age × 100","Mental Age / Chronological Age × 100","Mental Age × Chronological Age / 100","Mental Age + Chronological Age × 100","Chronological Age / 100 × Mental Age"],
+ans:1, expl:"IQ = Mental Age / Chronological Age × 100. This is the standardized Alfred Binet formula. All other arrangements invert or distort it. 📖 Intelligence PDF"},
+
+{q:"Based on the normal distribution of intelligence, what percentage of the population falls within the IQ range of 85-115?",
+opts:["50%","60%","66.6% (Two-thirds)","95%","99%"],
+ans:2, expl:"The source states two-thirds (66.6%) have IQ 85-115. 95% fall within 70-130. 📖 Intelligence PDF"},
+
+{q:"At what age does the capacity for both fluid and crystallized intelligence peak?",
+opts:["16","18","21","26","30"],
+ans:3, expl:"Peak at age 26, then slow decline. Age 18 is the MR cut-off, not the peak. 📖 Intelligence PDF"},
+
+{q:"According to Howard Gardner, which type of intelligence involves understanding others' feelings, intentions, and motives?",
+opts:["Intrapersonal","Bodily-kinesthetic","Interpersonal","Linguistic","Spatial"],
+ans:2, expl:"Interpersonal = understanding others. Intrapersonal = understanding one's own feelings. 📖 Intelligence PDF"},
+
+{q:"Which test consists strictly of 60 visual analogy problems?",
+opts:["WAIS-IV","WISC","WPPSI","Raven's Progressive Matrices","Stanford-Binet"],
+ans:3, expl:"Raven's Progressive Matrices = 60 non-verbal visual analogy items of increasing difficulty. 📖 Intelligence PDF"},
+
+{q:"Mental retardation is defined clinically by an IQ score below what threshold?",
+opts:["100","90","80","70","50"],
+ans:3, expl:"MR = IQ < 70 appearing before adulthood. 90-109 is Average. 📖 Intelligence PDF"},
+
+{q:"If a patient experiences significant cognitive decline starting at age 25, what is the correct diagnosis?",
+opts:["Mental Retardation","Intellectual Giftedness","Dementia","Autistic Savantism","Down Syndrome"],
+ans:2, expl:"After age 18 = Dementia. Before 18 = MR. Explicitly stated by lecturer as exam MCQ. 📖 Recording"},
+
+{q:"Which genetic syndrome causing MR is associated with chromosome 15?",
+opts:["Down syndrome","Fragile-X syndrome","Prader-Willi syndrome","PKU","Autistic Savantism"],
+ans:2, expl:"Prader-Willi and Angelman = chromosome 15. Down = chr 21. Fragile-X = FMR-1 gene. 📖 Intelligence PDF"},
+
+{q:"What is the most common cause of inherited Mental Retardation?",
+opts:["Down syndrome","Fragile-X syndrome","Angelman syndrome","Traumatic brain injury","Prader-Willi syndrome"],
+ans:1, expl:"Fragile-X = most common inherited cause. Down = most common chromosomal cause (but not inherited). 📖 Intelligence PDF"},
+
+{q:"What is the overall incidence of Mental Retardation in the general population?",
+opts:["0.1%","1%","3%","5%","10%"],
+ans:1, expl:"Incidence of MR = 1% exactly as stated in the source. 📖 Intelligence PDF, Recording"},
+
+{q:"During the creative process, the stage where 'ideas spring out of mind' is termed:",
+opts:["Preparation","Incubation","Intimation","Illumination","Verification"],
+ans:2, expl:"Intimation = ideas spring out. Illumination = burst into consciousness. Preparation = analysis. 📖 Intelligence PDF"},
+
+{q:"What distinguishes 'creativity' from 'hard work'?",
+opts:["Creativity requires IQ over 120","Creativity produces something both original and worthwhile","Hard work bypasses the incubation stage","Creativity is only seen in savantism","Creativity cannot occur in medicine"],
+ans:1, expl:"Creativity = producing something original AND worthwhile (e.g., inventing a new endoscope vs. studying existing surgery). 📖 Intelligence PDF"},
+
+{q:"Which index is NOT part of the Performance IQ (PIQ) branch?",
+opts:["Perceptual Organization Index","Processing Speed Index","Verbal Comprehension Index","Block Design Subtest","Matrix Reasoning Subtest"],
+ans:2, expl:"VCI falls under Verbal IQ (VIQ), not PIQ. POI and PSI are PIQ components. 📖 Intelligence PDF"},
+
+{q:"In Wechsler tests, Arithmetic, Digit Span, and Letter-Number Sequencing belong to which index?",
+opts:["Verbal Comprehension Index","Working Memory Index","Perceptual Reasoning Index","Processing Speed Index","Cancellation Index"],
+ans:1, expl:"Working Memory Index (WMI) = Digit Span + Arithmetic + Letter-Number Sequencing. 📖 Intelligence PDF"},
+
+{q:"An IQ score of 55 places an individual in which MR category?",
+opts:["Profound","Severe","Moderate","Mild","Dull Normal"],
+ans:3, expl:"Mild MR = 50-70. IQ 55 falls within Mild range. Moderate = 35-50. 📖 Intelligence PDF"},
+
+{q:"What is the appropriate age range for the WPPSI intelligence scale?",
+opts:["16–90 years","6–16 years","2½ – 7 years & 3 months","0–2 years","Only adults"],
+ans:2, expl:"WPPSI = Preschool scale for 2½ – 7yr 3mo. WAIS = 16-90. WISC = 6-16. 📖 Intelligence PDF"},
+
+{q:"Which intelligence component handles 'control of bodily motions skillfully'?",
+opts:["Spatial","Naturalist","Bodily-kinesthetic","Interpersonal","Logical-mathematical"],
+ans:2, expl:"Bodily-kinesthetic = controlling bodily motions (athletes, dancers). 📖 Intelligence PDF"},
+
+{q:"How does behavioral therapy help individuals with Mental Retardation?",
+opts:["Increases IQ by 10 points","Cures the chromosomal defect","Maximizes skill acquisition within fixed IQ capacity","Converts them to Autistic Savants","Reverses dementia"],
+ans:2, expl:"Therapy cannot increase IQ. It helps patients reach maximum skills within their fixed capacity. 📖 Recording"},
+
+{q:"Which term describes exceptional performance in a single field despite pervasive developmental disorders?",
+opts:["Geniuses","Savants","Mildly Retarded","Intrapersonally Intelligent","Intellectually Average"],
+ans:1, expl:"Savants = exceptional single-field performance, often in autism. Genius = IQ > 140. 📖 Intelligence PDF"},
+
+{q:"PKU causes Mental Retardation through which mechanism?",
+opts:["Extra 21st chromosome","FMR-1 gene mutation","Inborn error of metabolism (single-gene)","Chromosome 15 abnormality","Severe physical brain trauma"],
+ans:2, expl:"PKU = inborn error of metabolism, a single-gene condition. 📖 Intelligence PDF"},
+
+{q:"What characterizes the 'Verification' stage of creativity?",
+opts:["Data is collected unconsciously","Ideas spring out of mind","Null hypothesis is analyzed","Null hypothesis becomes a scientific fact","Idea bursts into consciousness"],
+ans:3, expl:"Verification = null hypothesis becomes scientific fact. Preparation = analyzing. Incubation = unconscious. 📖 Intelligence PDF"},
+
+{q:"An individual unable to understand their own feelings lacks which intelligence?",
+opts:["Interpersonal","Intrapersonal","Linguistic","Existential","Logical-mathematical"],
+ans:1, expl:"Intrapersonal = understanding one's OWN inner state. Interpersonal = understanding OTHERS. 📖 Intelligence PDF"},
+
+{q:"Which behavior is a listed sign of Mental Retardation?",
+opts:["Enhanced social inhibitors","Rapid language development","Persistence of infantile behavior","Advanced vocabulary","Nonconformity"],
+ans:2, expl:"MR signs include persistence of infantile behavior, LACK of social inhibitors, DELAYED language. Advanced vocab and nonconformity = giftedness. 📖 Intelligence PDF"},
+
+{q:"An individual with IQ 125 is classified as:",
+opts:["Genius","Very Superior","Superior","Average","Dull Normal"],
+ans:1, expl:"120-139 = Very Superior. Genius = >140. Superior = 110-119. 📖 Intelligence PDF"},
+
+{q:"Which is NOT a consequence of Mental Retardation?",
+opts:["Learning problems","Abnormal behaviors","Difficulty learning social rules","Advanced empathy","Lack of self-care skills"],
+ans:3, expl:"Advanced empathy is a trait of Intellectual GIFTEDNESS, not MR. All others are MR consequences. 📖 Intelligence PDF"}
+];
+
+const flashcardData = [
+{q:"What is the definition of Intelligence?",a:"The global capacity to act purposefully, think rationally, and deal effectively with one's environment.",emoji:"🧠"},
+{q:"What is the IQ formula?",a:"IQ = (Mental Age / Chronological Age) × 100",emoji:"🔢"},
+{q:"At what age does intelligence peak?",a:"Age 26 — for both fluid and crystallized intelligence.",emoji:"📈"},
+{q:"What differentiates MR from Dementia?",a:"MR: onset BEFORE age 18. Dementia: onset AFTER age 18. Both involve cognitive decline.",emoji:"⚠️"},
+{q:"What IQ defines Mental Retardation?",a:"IQ < 70 with onset before adulthood.",emoji:"🚨"},
+{q:"What is the most common INHERITED cause of MR?",a:"Fragile-X syndrome (FMR-1 gene mutation).",emoji:"🧬"},
+{q:"What chromosome is affected in Down syndrome?",a:"Chromosome 21 — extra copy (trisomy 21).",emoji:"🔬"},
+{q:"What chromosomes are affected in Prader-Willi & Angelman?",a:"Chromosome 15 abnormality for both syndromes.",emoji:"🧪"},
+{q:"What is PKU?",a:"Phenylketonuria — an inborn error of metabolism (single-gene) causing MR if untreated.",emoji:"💊"},
+{q:"What is Autistic Savantism?",a:"Exceptional ability in one field, often in autism. Acts as a formula-driven defense/safety net.",emoji:"✨"},
+{q:"Name the 5 stages of Creativity.",a:"Preparation → Incubation → Intimation → Illumination → Verification.",emoji:"💡"},
+{q:"What is the Illumination stage?",a:"The creative idea bursts from preconscious into conscious awareness ('Eureka!' moment).",emoji:"⚡"},
+{q:"What distinguishes creativity from hard work?",a:"Creativity produces something ORIGINAL and WORTHWHILE, not just replicating existing knowledge.",emoji:"🎨"},
+{q:"What is Interpersonal intelligence?",a:"Understanding OTHERS' feelings, intentions, and motives.",emoji:"🤝"},
+{q:"What is Intrapersonal intelligence?",a:"Understanding ONE'S OWN feelings, intentions, and motives.",emoji:"🪞"},
+{q:"What is Raven's Progressive Matrices?",a:"60 strictly visual analogy problems of increasing difficulty — measures non-verbal intelligence.",emoji:"🔲"},
+{q:"What age range does WAIS-IV cover?",a:"16 to 90 years of age.",emoji:"📊"},
+{q:"What age range does WISC cover?",a:"6 to 16 years of age.",emoji:"👦"},
+{q:"What are the IQ ranges for MR severity?",a:"Mild: 50-70 | Moderate: 35-50 | Severe: 20-35 | Profound: <20",emoji:"📉"},
+{q:"Can therapy increase IQ in MR?",a:"NO. IQ is fixed. Therapy maximizes skill acquisition within the fixed capacity limit.",emoji:"🧑‍⚕️"}
+];
+
+const casesData = [
+{badge:"Scenario 1 — Age of Onset",
+scenario:"A clinical assessment of a 20-year-old shows significant cognitive impairment. Medical records confirm the onset of cognitive deterioration began at age 22. The family reports progressive memory loss and functional decline.",
+questions:["What mechanism/process is involved?","What condition is implicated?","How does the age of onset guide the diagnosis?"],
+answer:"Cognitive deterioration occurring AFTER age 18 is defined as Dementia, not Mental Retardation. MR requires onset before adulthood (age 18). The age cut-off of 18 years is the critical distinguishing factor. This distinction was explicitly emphasized by the lecturer as an exam MCQ topic. 📖 Recording"},
+
+{badge:"Scenario 2 — Chromosomal Abnormality",
+scenario:"A newborn presents with hypotonia, characteristic facial features, and a single transverse palmar crease. Karyotyping reveals an additional 21st chromosome. At age 5, intelligence testing reveals an IQ of 60.",
+questions:["What is the genetic mechanism?","What is the diagnosis?","What is the MR severity classification?"],
+answer:"The extra 21st chromosome causes Down syndrome (Trisomy 21). IQ of 60 falls in the Mild MR range (50-70). Down syndrome is one of the primary genetic/constitutional causes of Mental Retardation. The chromosomal abnormality leads to impaired cognitive development. 📖 Intelligence PDF"},
+
+{badge:"Scenario 3 — Autistic Savantism",
+scenario:"An 8-year-old autistic child, who is largely non-verbal and has significant social deficits, draws highly sophisticated architectural sketches far beyond age-appropriate abilities. The drawings show remarkable precision and detail.",
+questions:["What mechanism explains this ability?","What condition is this?","What would happen if this ability is disrupted?"],
+answer:"This is Autistic Savantism — exceptional performance in a single field (drawing) despite pervasive developmental disorder (autism). The mechanism is a formula-driven approach serving as a 'safety net' or defense strategy to alleviate stress. If disrupted, the child may lose this rigidified safety net. The drawing is actually a symptom of autistic behavior rather than a drive for shared symbolic meaning. 📖 Intelligence PDF"},
+
+{badge:"Scenario 4 — Intelligence Testing",
+scenario:"A psychologist administers a standardized test to a 25-year-old patient. The test consists of 60 strictly visual analogy problems where the patient must identify the missing pattern in progressively difficult matrices.",
+questions:["What test is being administered?","What type of intelligence does it measure?","Why is this test significant?"],
+answer:"This is Raven's Progressive Matrices — a modern, widely used intelligence test utilizing strictly visual (non-verbal) analogies that get progressively harder. It measures general intelligence (g-factor) and non-verbal cognitive capacity. It's significant because it minimizes cultural and linguistic bias. 📖 Intelligence PDF"},
+
+{badge:"Scenario 5 — Creative Process",
+scenario:"A researcher spends months analyzing a complex problem and formulating a null hypothesis (Stage 1). She then steps away from active work, but her mind continues to process data unconsciously (Stage 2). After several weeks, she begins sensing ideas forming (Stage 3). One morning, a complete solution suddenly bursts into her conscious awareness (Stage 4). She then designs experiments to validate her insight.",
+questions:["Identify each stage of the creative process described.","What is the final stage she will complete?","How does this differ from studying existing knowledge?"],
+answer:"The 5 stages described are: (1) Preparation — analyzing the problem/null hypothesis. (2) Incubation — unconscious work. (3) Intimation — ideas spring out. (4) Illumination — insight bursts into consciousness. (5) Verification — the final stage where the null hypothesis becomes scientific fact through experimental validation. Unlike 'hard work' or studying, creativity produces something ORIGINAL and WORTHWHILE. 📖 Intelligence PDF"},
+
+{badge:"Scenario 6 — Integrative: Fragile-X",
+scenario:"A 7-year-old boy presents with delayed language development, inability to learn social rules, persistence of infantile behavior, and difficulty with self-care. Genetic testing reveals an abnormality on the FMR-1 gene. Intelligence testing with WISC yields an IQ of 62.",
+questions:["What is the diagnosis?","What is the genetic mechanism?","What is the classification and management plan?"],
+answer:"Diagnosis: Mental Retardation due to Fragile-X syndrome (most common inherited cause of MR). FMR-1 gene abnormality leads to impaired cognitive development with IQ < 70 before age 18. IQ of 62 = Mild MR (50-70). WISC is appropriate for ages 6-16. Management: Behavioral therapy to maximize skill acquisition within fixed IQ limits. IQ cannot be increased. Speech therapy for language delay. Social skills training. Special education. 📖 Intelligence PDF, Recording"}
+];
+
+const pathoData = [
+{emoji:"🧠",title:"General Intelligence (g-factor)",short:"Spearman's concept of overall cognitive ability",
+detail:"The 'g-factor' represents general intelligence — the common factor underlying all cognitive tasks. Modern tests like Raven's Matrices specifically target this. The Wechsler scales decompose it into Verbal IQ (VCI + WMI) and Performance IQ (POI + PSI) to yield Full-Scale IQ."},
+{emoji:"🎭",title:"Gardner's Multiple Intelligences",short:"7 distinct types of intelligence",
+detail:"Logical-mathematical (abstract thought), Linguistic (phonology/speech), Spatial (3D images/visual processing), Bodily-kinesthetic (motor control, athletics), Musical (pitch/rhythm), Interpersonal (understanding others), Intrapersonal (understanding self). Explains why someone poor at math can excel in sports or music."},
+{emoji:"🧬",title:"Down Syndrome (Trisomy 21)",short:"Extra 21st chromosome → severe MR",
+detail:"An additional copy of chromosome 21 leads to Down syndrome. This is the most common chromosomal cause of MR. Clinical features include characteristic facial features, hypotonia, and intellectual disability. IQ typically below 70."},
+{emoji:"🔗",title:"Fragile-X Syndrome",short:"FMR-1 gene → most common inherited MR",
+detail:"Mutation in the FMR-1 gene on the X chromosome. This is the most common INHERITED (not chromosomal) cause of MR. Causes intellectual disability with IQ < 70, behavioral issues, and specific physical features."},
+{emoji:"⚖️",title:"Prader-Willi & Angelman",short:"Chromosome 15 abnormalities",
+detail:"Both syndromes result from abnormalities on chromosome 15. Prader-Willi: obesity, hyperphagia, intellectual disability. Angelman: severe intellectual disability, movement problems, 'happy puppet' appearance. Different parent-of-origin effects (imprinting)."},
+{emoji:"🧪",title:"PKU (Phenylketonuria)",short:"Single-gene inborn error of metabolism",
+detail:"An inborn error of metabolism caused by a single-gene condition. Phenylalanine cannot be properly metabolized. If untreated, leads to MR. Early dietary intervention (phenylalanine restriction from birth) can prevent intellectual disability."},
+{emoji:"✨",title:"Savantism",short:"Exceptional ability + developmental disorder",
+detail:"Savants show extraordinary performance in a single field (art, music, calculation) despite having pervasive developmental disorders. In autistic savantism, the ability serves as a formula-driven 'safety net' — a rigidified defense strategy to alleviate stress/anxiety."},
+{emoji:"💡",title:"Creativity",short:"5-stage process producing original work",
+detail:"Creativity = producing something original AND worthwhile. 5 stages: Preparation (analyze problem), Incubation (unconscious processing), Intimation (ideas emerging), Illumination (conscious breakthrough), Verification (proving the hypothesis). Distinct from mere hard work or intelligence."}
+];
+
+const vivaData = [
+{q:"V1: Define intelligence globally.",a:"The global capacity of the individual to act purposefully, to think rationally, and to deal effectively with his environment. ⚠️ EXAM POINT"},
+{q:"V2: State the formula for the Intelligence Quotient.",a:"IQ = (Mental Age / Chronological Age) × 100"},
+{q:"V3: What is the age of onset difference between MR and Dementia?",a:"Before 18 years = Mental Retardation. After 18 years = Dementia. ⚠️ EXAM POINT — will come as MCQ."},
+{q:"V4: Name three genetic causes of severe MR.",a:"Down syndrome (extra 21st chromosome), Fragile-X syndrome (FMR-1 gene), and Prader-Willi/Angelman syndromes (chromosome 15)."},
+{q:"V5: What is autistic savantism?",a:"Exceptional abilities (drawing, calculation, music) occasionally exhibited by people with autism or other pervasive developmental disorders, often serving as a rigid formula-driven defense strategy/safety net."},
+{q:"V6: Differentiate Interpersonal and Intrapersonal intelligence.",a:"Interpersonal = understanding OTHERS' feelings/motives. Intrapersonal = understanding one's OWN feelings/motives."},
+{q:"V7: Outline the 5 stages of Creativity.",a:"(1) Preparation, (2) Incubation, (3) Intimation, (4) Illumination, (5) Verification."},
+{q:"V8: What does WAIS-IV test and what is its age range?",a:"Wechsler Adult Intelligence Scale tests intelligence in individuals aged 16 to 90 years."},
+{q:"V9: At what age does intelligence peak?",a:"Age 26 — for both fluid and crystallized intelligence, followed by slow decline."},
+{q:"V10: Name three common traits of intellectual giftedness.",a:"Intellectual curiosity, rapid learning, extreme intensity, advanced vocabulary, nonconformity, advanced empathy."},
+{q:"V11: Define Mental Retardation formally.",a:"A generalized disorder appearing before adulthood characterized by significantly impaired cognitive functioning, defined as IQ < 70."},
+{q:"V12: Can IQ levels be increased via behavioral therapy in MR?",a:"No. The IQ level is fixed. Therapy helps the patient achieve maximum possible skills and behavioral adaptation within their specific intellectual limits."}
+];
+
+const mnemonicsData = [
+{word:"P.I.I.I.V.",context:"5 Stages of Creativity",
+items:["<strong>P</strong>reparation — Analyze the problem, formulate null hypothesis","<strong>I</strong>ncubation — Unconscious mind works on the problem","<strong>I</strong>ntimation — Ideas begin to spring out","<strong>I</strong>llumination — 'Eureka!' idea bursts into consciousness","<strong>V</strong>erification — Null hypothesis becomes scientific fact"]},
+
+{word:"FILM-BIS",context:"Gardner's 7 Intelligences (Mnemonic: FILM-BIS)",
+items:["<strong>F</strong> — Future/Formal → Logical-mathematical (abstract thought)","<strong>I</strong> — I speak → Linguistic (phonology/speech)","<strong>L</strong> — Look → Spatial (3D visual images)","<strong>M</strong> — Move → Bodily-kinesthetic (motor control)","<strong>B</strong> — Beat → Musical (pitch/rhythm)","<strong>I</strong> — Into others → Interpersonal (understanding others)","<strong>S</strong> — Self → Intrapersonal (understanding self)"]},
+
+{word:"DeFrAP",context:"Genetic Causes of MR — Main Syndromes",
+items:["<strong>D</strong>own — Chromosome 21 (trisomy), most common chromosomal cause","<strong>Fr</strong>agile-X — FMR-1 gene, most common INHERITED cause","<strong>A</strong>ngelman — Chromosome 15 ('happy puppet')","<strong>P</strong>rader-Willi — Chromosome 15 (obesity, hyperphagia)","+ PKU — Inborn error of metabolism (single-gene)"]},
+
+{word:"18 = MR ⬆️ D",context:"Age Cut-off for Cognitive Disorders",
+items:["Before age <strong>18</strong> → <strong>M</strong>ental <strong>R</strong>etardation","After age <strong>18</strong> → <strong>D</strong>ementia","⚠️ This distinction is exam-confirmed by the lecturer","Key: Same impairment, different diagnosis based SOLELY on age of onset"]},
+
+{word:"W-W-W-R-S",context:"Intelligence Tests by Name",
+items:["<strong>W</strong>AIS-IV → Adults (16-90 years)","<strong>W</strong>ISC → Children (6-16 years)","<strong>W</strong>PPSI → Preschool (2½ – 7yr 3mo)","<strong>R</strong>aven's → 60 visual analogies (non-verbal)","<strong>S</strong>tanford-Binet → General IQ testing"]},
+
+{word:"M-M-S-P",context:"MR Severity Levels (IQ ranges descending)",
+items:["<strong>M</strong>ild → IQ 50-70 (educable)","<strong>M</strong>oderate → IQ 35-50 (trainable)","<strong>S</strong>evere → IQ 20-35 (limited speech, constant supervision)","<strong>P</strong>rofound → IQ <20 (minimal capacity, total dependency)","Remember: 70 → 50 → 35 → 20 (decreasing by ~15-20 points each step)"]}
+];
+
+const testDetails = {
+wais: {title:"WAIS-IV (Wechsler Adult Intelligence Scale)",content:"Age range: 16–90 years. The gold standard for adult intelligence testing. Yields Full-Scale IQ (FSIQ) from two main branches: Verbal IQ (VIQ) — containing Verbal Comprehension Index (Vocabulary, Similarities, Information, Comprehension) and Working Memory Index (Digit Span, Arithmetic, Letter-Number Sequencing); Performance IQ (PIQ) — containing Perceptual Organization Index (Block Design, Matrix Reasoning, Visual Puzzles) and Processing Speed Index (Symbol Search, Coding). 📖 Intelligence PDF"},
+wisc: {title:"WISC (Wechsler Intelligence Scale for Children)",content:"Age range: 6–16 years. Same structural framework as WAIS adapted for children. Used to officially determine IQ in suspected childhood MR. Contains verbal and performance components yielding Full-Scale IQ. 📖 Intelligence PDF"},
+wppsi: {title:"WPPSI (Wechsler Preschool and Primary Scale)",content:"Age range: 2½ – 7 years & 3 months. Designed for preschool-age children. Adapted from the Wechsler framework with age-appropriate tasks. Critical for early identification of intellectual disability. 📖 Intelligence PDF"},
+raven: {title:"Raven's Progressive Matrices",content:"60 strictly visual analogy problems. Multiple-choice format. Items get progressively harder. No verbal component — minimizes cultural/linguistic bias. Measures general intelligence (g-factor) and non-verbal cognitive capacity. Modern and widely used worldwide. 📖 Intelligence PDF"},
+stanford: {title:"Stanford-Binet Test",content:"One of the oldest intelligence tests, developed by Alfred Binet. Uses the original IQ formula (MA/CA × 100). Covers a wide age range. Tests various cognitive abilities including reasoning, knowledge, quantitative processing, visual-spatial processing, and working memory. 📖 Intelligence PDF"}
+};
+
+// ==========================================
+// STATE
+// ==========================================
+
+let state = JSON.parse(localStorage.getItem('intellStudyState') || '{}');
+if(!state.quizAnswers) state.quizAnswers = {};
+if(!state.quizCorrect) state.quizCorrect = 0;
+if(!state.quizWrong) state.quizWrong = 0;
+if(!state.streak) state.streak = 0;
+if(!state.maxStreak) state.maxStreak = 0;
+if(!state.currentQ) state.currentQ = 0;
+if(!state.flippedCards) state.flippedCards = [];
+if(!state.activeTab) state.activeTab = 'overview';
+function saveState() { localStorage.setItem('intellStudyState', JSON.stringify(state)); }
+
+// ==========================================
+// TAB NAVIGATION
+// ==========================================
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+btn.addEventListener('click', () => {
+const tab = btn.dataset.tab;
+document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+btn.classList.add('active');
+document.getElementById('tab-'+tab).classList.add('active');
+state.activeTab = tab;
+saveState();
+});
+});
+
+// Restore tab
+if(state.activeTab && state.activeTab !== 'overview') {
+document.querySelector(`[data-tab="${state.activeTab}"]`)?.click();
+}
+
+// ==========================================
+// SEARCH
+// ==========================================
+
+document.getElementById('overviewSearch').addEventListener('input', function() {
+const query = this.value.toLowerCase();
+document.querySelectorAll('#tab-overview [data-search]').forEach(el => {
+const searchText = (el.dataset.search + ' ' + el.textContent).toLowerCase();
+el.style.display = searchText.includes(query) || !query ? '' : 'none';
+});
+});
+
+// ==========================================
+// QUIZ ENGINE
+// ==========================================
+
+function renderQuiz() {
+const container = document.getElementById('quizContainer');
+const i = state.currentQ;
+if(i >= quizData.length) {
+container.innerHTML = `<div class="motivation"><div class="m-emoji">🎉</div><div class="m-text">Quiz Complete!</div><div class="m-sub">Score: ${state.quizCorrect}/${quizData.length} (${Math.round(state.quizCorrect/quizData.length*100)}%) | Best Streak: ${state.maxStreak}</div></div>`;
+document.getElementById('resetQuiz').style.display = 'inline-block';
+document.getElementById('nextQ').style.display = 'none';
+document.getElementById('prevQ').style.display = 'none';
+return;
+}
+document.getElementById('resetQuiz').style.display = 'none';
+document.getElementById('nextQ').style.display = 'inline-block';
+document.getElementById('prevQ').style.display = i > 0 ? 'inline-block' : 'none';
+
+const q = quizData[i];
+const answered = state.quizAnswers[i] !== undefined;
+let optionsHTML = '';
+q.opts.forEach((opt, oi) => {
+let cls = 'quiz-option';
+if(answered) {
+cls += ' disabled';
+if(oi === q.ans) cls += ' correct highlight-correct';
+else if(oi === state.quizAnswers[i] && oi !== q.ans) cls += ' wrong';
+}
+optionsHTML += `<div class="${cls}" data-idx="${oi}" onclick="selectAnswer(${oi})">
+<span class="opt-letter">${String.fromCharCode(65+oi)}</span>
+<span>${opt}</span>
+</div>`;
+});
+
+let explHTML = '';
+if(answered) {
+explHTML = `<div class="quiz-explanation">${state.quizAnswers[i]===q.ans?'✅ Correct!':'❌ Incorrect.'} ${q.expl}</div>`;
+}
+
+container.innerHTML = `
+<div class="quiz-question-card">
+<div class="quiz-q-num">Question ${i+1} of ${quizData.length}</div>
+<div class="quiz-q-text">${q.q}</div>
+<div class="quiz-options">${optionsHTML}</div>
+${explHTML}
+</div>`;
+
+const pct = Object.keys(state.quizAnswers).length / quizData.length * 100;
+document.getElementById('quizProgressFill').style.width = pct + '%';
+updateStats();
+}
+
+function selectAnswer(idx) {
+const i = state.currentQ;
+if(state.quizAnswers[i] !== undefined) return;
+state.quizAnswers[i] = idx;
+if(idx === quizData[i].ans) {
+state.quizCorrect++;
+state.streak++;
+if(state.streak > state.maxStreak) state.maxStreak = state.streak;
+} else {
+state.quizWrong++;
+state.streak = 0;
+}
+saveState();
+renderQuiz();
+}
+
+function navigateQuiz(dir) {
+state.currentQ += dir;
+if(state.currentQ < 0) state.currentQ = 0;
+if(state.currentQ > quizData.length) state.currentQ = quizData.length;
+saveState();
+renderQuiz();
+}
+
+function resetQuiz() {
+state.quizAnswers = {};
+state.quizCorrect = 0;
+state.quizWrong = 0;
+state.streak = 0;
+state.currentQ = 0;
+saveState();
+renderQuiz();
+}
+
+// ==========================================
+// FLASHCARDS
+// ==========================================
+
+function renderFlashcards() {
+const grid = document.getElementById('flashcardGrid');
+grid.innerHTML = flashcardData.map((fc, i) => {
+const flipped = state.flippedCards.includes(i);
+return `
+<div class="flashcard-container" onclick="flipCard(${i})">
+<div class="flashcard ${flipped ? 'flipped' : ''}" id="fc-${i}">
+<div class="flashcard-face flashcard-front">
+<div class="fc-emoji">${fc.emoji}</div>
+<div class="fc-q">${fc.q}</div>
+<div class="fc-hint">👆 Click to flip</div>
+</div>
+<div class="flashcard-face flashcard-back">
+<div class="fc-emoji">💡</div>
+<div class="fc-a">${fc.a}</div>
+</div>
+</div>
+</div>`;
+}).join('');
+}
+
+function flipCard(i) {
+const el = document.getElementById('fc-'+i);
+el.classList.toggle('flipped');
+if(!state.flippedCards.includes(i)) {
+state.flippedCards.push(i);
+saveState();
+updateStats();
+}
+}
+
+// ==========================================
+// CLINICAL CASES
+// ==========================================
+
+function renderCases() {
+const container = document.getElementById('casesContainer');
+container.innerHTML = casesData.map((c, i) => `
+<div class="case-card">
+<div class="case-badge">${c.badge}</div>
+<div class="case-scenario">${c.scenario}</div>
+<div class="case-questions">
+${c.questions.map((q,qi) => `<div class="case-q">${qi+1}. ${q}</div>`).join('')}
+</div>
+<button class="btn btn-primary" onclick="toggleCase(${i})">🔍 Reveal Answer</button>
+<div class="case-answer-section" id="case-ans-${i}">
+<div class="case-answer">${c.answer}</div>
+</div>
+</div>
+`).join('');
+}
+
+function toggleCase(i) {
+document.getElementById('case-ans-'+i).classList.toggle('open');
+}
+
+// ==========================================
+// PATHOPHYSIOLOGY
+// ==========================================
+
+function renderPatho() {
+const grid = document.getElementById('pathoGrid');
+grid.innerHTML = pathoData.map((p, i) => `
+<div class="patho-item" id="patho-${i}" onclick="togglePatho(${i})">
+<div class="pi-emoji">${p.emoji}</div>
+<div class="pi-title">${p.title}</div>
+<div class="pi-short">${p.short}</div>
+<div class="click-hint">Click to expand</div>
+<div class="patho-detail">${p.detail}</div>
+</div>
+`).join('');
+}
+
+function togglePatho(i) {
+document.getElementById('patho-'+i).classList.toggle('expanded');
+}
+
+// ==========================================
+// VIVA
+// ==========================================
+
+function renderViva() {
+const container = document.getElementById('vivaContainer');
+container.innerHTML = vivaData.map((v, i) => `
+<div class="viva-item" onclick="this.classList.toggle('open')">
+<div class="viva-q">${v.q}</div>
+<div class="viva-a">${v.a}</div>
+</div>
+`).join('');
+}
+
+// ==========================================
+// MNEMONICS
+// ==========================================
+
+function renderMnemonics() {
+const container = document.getElementById('mnemonicsContainer');
+container.innerHTML = mnemonicsData.map((m, i) => `
+<div class="mnemonic-card" onclick="this.classList.toggle('expanded')">
+<div class="mnemonic-header">
+<div>
+<div class="mnemonic-word">${m.word}</div>
+<div class="mnemonic-context">${m.context}</div>
+</div>
+</div>
+<div class="click-hint">👆 Click to expand</div>
+<div class="mnemonic-list">
+${m.items.map(item => `<div class="mnemonic-list-item">${item}</div>`).join('')}
+</div>
+</div>
+`).join('');
+}
+
+// ==========================================
+// TEST DETAILS (Diagnosis Tab)
+// ==========================================
+
+function showTestDetail(key) {
+const panel = document.getElementById('testDetailPanel');
+const d = testDetails[key];
+panel.style.display = 'block';
+panel.innerHTML = `<div class="card-header"><div class="card-icon" style="background:rgba(108,99,255,0.15);">📊</div><div><div class="card-title">${d.title}</div></div></div><p style="font-size:0.88rem;color:var(--text-secondary);line-height:1.7;">${d.content}</p>`;
+panel.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+// ==========================================
+// STATS UPDATE
+// ==========================================
+
+function updateStats() {
+const totalAnswered = Object.keys(state.quizAnswers).length;
+document.getElementById('statScore').textContent = `${state.quizCorrect}/${quizData.length}`;
+document.getElementById('statStreak').textContent = state.streak;
+document.getElementById('statCards').textContent = `${state.flippedCards.length}/${flashcardData.length}`;
+const totalItems = quizData.length + flashcardData.length;
+const completedItems = totalAnswered + state.flippedCards.length;
+const pct = Math.round(completedItems / totalItems * 100);
+document.getElementById('statProgress').textContent = pct + '%';
+document.getElementById('qCorrect').textContent = state.quizCorrect;
+document.getElementById('qWrong').textContent = state.quizWrong;
+document.getElementById('qStreakDisplay').textContent = state.streak;
+}
+
+// ==========================================
+// INIT
+// ==========================================
+
+renderQuiz();
+renderFlashcards();
+renderCases();
+renderPatho();
+renderViva();
+renderMnemonics();
+updateStats();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Motor Neuron & Spinal Cord Lesions — Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #070b14;
+  --surface: #0d1525;
+  --surface2: #111d33;
+  --surface3: #162340;
+  --border: rgba(99,179,237,0.12);
+  --border2: rgba(99,179,237,0.22);
+  --accent: #3b82f6;
+  --accent2: #06b6d4;
+  --accent3: #8b5cf6;
+  --umn: #ef4444;
+  --lmn: #22c55e;
+  --spinal: #f59e0b;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --correct: #22c55e;
+  --wrong: #ef4444;
+  --card-radius: 14px;
+  --glow: 0 0 30px rgba(59,130,246,0.15);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Space Grotesk',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ANIMATED BG */
+.bg-grid{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background-image:linear-gradient(rgba(59,130,246,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(59,130,246,0.03) 1px,transparent 1px);
+  background-size:60px 60px;
+  pointer-events:none;z-index:0;
+}
+.orb{
+  position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;
+  animation:orbFloat 12s ease-in-out infinite;
+}
+.orb1{width:500px;height:500px;background:radial-gradient(circle,rgba(59,130,246,0.08),transparent 70%);top:-100px;right:-100px;}
+.orb2{width:400px;height:400px;background:radial-gradient(circle,rgba(139,92,246,0.07),transparent 70%);bottom:-50px;left:-50px;animation-delay:-6s;}
+.orb3{width:300px;height:300px;background:radial-gradient(circle,rgba(6,182,212,0.06),transparent 70%);top:40%;left:30%;animation-delay:-3s;}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(20px,-30px) scale(1.05)}66%{transform:translate(-15px,20px) scale(0.97)}}
+
+/* HEADER */
+.header{
+  position:relative;z-index:10;
+  padding:28px 32px 0;
+  max-width:1300px;margin:0 auto;
+}
+.header-inner{
+  background:linear-gradient(135deg,var(--surface) 0%,var(--surface2) 100%);
+  border:1px solid var(--border2);
+  border-radius:20px;
+  padding:28px 36px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:24px;flex-wrap:wrap;
+  box-shadow:var(--glow);
+}
+.header-left h1{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(1.3rem,2.5vw,1.9rem);
+  font-weight:800;
+  background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 50%,var(--accent3) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  line-height:1.2;
+}
+.header-left p{font-size:0.85rem;color:var(--text2);margin-top:4px;}
+.stats-bar{display:flex;gap:16px;flex-wrap:wrap;align-items:center;}
+.stat-pill{
+  background:var(--surface3);border:1px solid var(--border);
+  border-radius:40px;padding:8px 16px;
+  font-size:0.8rem;color:var(--text2);
+  display:flex;align-items:center;gap:6px;
+}
+.stat-pill span{font-weight:700;color:var(--accent);}
+.search-wrap{
+  position:relative;flex:1;min-width:220px;max-width:340px;
+}
+.search-wrap input{
+  width:100%;background:var(--bg);
+  border:1px solid var(--border2);border-radius:40px;
+  padding:10px 18px 10px 42px;
+  font-family:'Space Grotesk',sans-serif;font-size:0.85rem;
+  color:var(--text);outline:none;
+  transition:border-color 0.3s,box-shadow 0.3s;
+}
+.search-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,0.1);}
+.search-wrap .si{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);}
+
+/* SEARCH RESULTS OVERLAY */
+#searchResults{
+  display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(7,11,20,0.9);z-index:1000;
+  backdrop-filter:blur(8px);
+  padding:80px 24px 24px;overflow-y:auto;
+}
+#searchResults.active{display:block;}
+.search-result-item{
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:12px;padding:16px 20px;margin-bottom:12px;
+  cursor:pointer;transition:border-color 0.2s;
+  max-width:800px;margin-left:auto;margin-right:auto;
+  margin-bottom:10px;
+}
+.search-result-item:hover{border-color:var(--accent);}
+.search-result-item h4{color:var(--accent);margin-bottom:4px;font-size:0.9rem;}
+.search-result-item p{color:var(--text2);font-size:0.82rem;}
+.search-close-btn{
+  position:fixed;top:24px;right:24px;
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:8px;padding:8px 16px;cursor:pointer;
+  color:var(--text);font-size:0.85rem;z-index:1001;
+}
+
+/* TABS */
+.tabs-container{
+  max-width:1300px;margin:28px auto 0;
+  padding:0 32px;position:relative;z-index:10;
+}
+.tabs-scroll{
+  display:flex;gap:6px;overflow-x:auto;
+  padding-bottom:2px;
+  scrollbar-width:none;
+}
+.tabs-scroll::-webkit-scrollbar{display:none;}
+.tab-btn{
+  flex-shrink:0;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:40px;padding:10px 20px;
+  font-family:'Space Grotesk',sans-serif;font-size:0.82rem;font-weight:600;
+  color:var(--text2);cursor:pointer;
+  transition:all 0.25s;white-space:nowrap;
+  display:flex;align-items:center;gap:7px;
+}
+.tab-btn:hover{border-color:var(--accent);color:var(--text);}
+.tab-btn.active{
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  border-color:transparent;color:#fff;
+  box-shadow:0 4px 20px rgba(59,130,246,0.35);
+}
+
+/* MAIN CONTENT */
+.main{
+  max-width:1300px;margin:0 auto;
+  padding:28px 32px 80px;
+  position:relative;z-index:5;
+}
+.tab-content{display:none;}
+.tab-content.active{display:block;animation:fadeUp 0.35s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* SECTION HEADINGS */
+.section-title{
+  font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;
+  margin-bottom:8px;
+}
+.section-sub{color:var(--text2);font-size:0.88rem;margin-bottom:28px;}
+
+/* CARDS */
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--card-radius);padding:22px 24px;
+  transition:border-color 0.25s,transform 0.25s,box-shadow 0.25s;
+}
+.card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:var(--glow);}
+
+/* OVERVIEW */
+.overview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;margin-bottom:28px;}
+.overview-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--card-radius);padding:22px 24px;
+  transition:all 0.25s;
+  border-left:3px solid var(--accent);
+}
+.overview-card.umn-card{border-left-color:var(--umn);}
+.overview-card.lmn-card{border-left-color:var(--lmn);}
+.overview-card.spinal-card{border-left-color:var(--spinal);}
+.overview-card:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,0.3);}
+.overview-card h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.oc-badge{
+  font-size:0.7rem;font-weight:600;padding:3px 8px;border-radius:20px;
+}
+.oc-badge.umn{background:rgba(239,68,68,0.15);color:var(--umn);}
+.oc-badge.lmn{background:rgba(34,197,94,0.15);color:var(--lmn);}
+.oc-badge.spinal{background:rgba(245,158,11,0.15);color:var(--spinal);}
+.overview-card ul{list-style:none;display:flex;flex-direction:column;gap:7px;}
+.overview-card ul li{font-size:0.84rem;color:var(--text2);padding-left:14px;position:relative;}
+.overview-card ul li::before{content:'›';position:absolute;left:0;color:var(--accent);}
+
+.tag-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px;}
+.tag{
+  padding:6px 14px;border-radius:40px;font-size:0.78rem;font-weight:600;
+  display:flex;align-items:center;gap:5px;cursor:default;
+  transition:transform 0.2s;
+}
+.tag:hover{transform:scale(1.05);}
+.tag.high-yield{background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.2);}
+.tag.exam-fav{background:rgba(245,158,11,0.15);color:#fcd34d;border:1px solid rgba(245,158,11,0.2);}
+.tag.pearl{background:rgba(34,197,94,0.15);color:#86efac;border:1px solid rgba(34,197,94,0.2);}
+.tag.usmle{background:rgba(139,92,246,0.15);color:#c4b5fd;border:1px solid rgba(139,92,246,0.2);}
+
+/* COMPARISON TABLE */
+.compare-table{
+  width:100%;border-collapse:separate;border-spacing:0;
+  border-radius:14px;overflow:hidden;
+  border:1px solid var(--border);margin-bottom:28px;
+}
+.compare-table th{
+  background:var(--surface2);padding:14px 16px;
+  font-family:'Syne',sans-serif;font-size:0.82rem;font-weight:700;
+  text-align:left;
+}
+.compare-table th:first-child{color:var(--text2);}
+.compare-table th:nth-child(2){color:var(--umn);}
+.compare-table th:nth-child(3){color:var(--lmn);}
+.compare-table td{
+  padding:12px 16px;font-size:0.83rem;color:var(--text2);
+  border-top:1px solid var(--border);
+}
+.compare-table tr:hover td{background:var(--surface2);}
+.compare-table td:first-child{font-weight:600;color:var(--text);}
+
+/* FLOW CHART */
+.flowchart{display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:28px;}
+.flow-node{
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:10px;padding:12px 22px;text-align:center;
+  font-size:0.82rem;color:var(--text);min-width:280px;max-width:500px;
+  position:relative;
+}
+.flow-node.highlight{border-color:var(--accent);background:rgba(59,130,246,0.08);}
+.flow-node.warn{border-color:var(--spinal);background:rgba(245,158,11,0.08);}
+.flow-node.success{border-color:var(--lmn);background:rgba(34,197,94,0.08);}
+.flow-node.danger{border-color:var(--umn);background:rgba(239,68,68,0.08);}
+.flow-arrow{
+  width:2px;height:28px;background:linear-gradient(to bottom,var(--accent),var(--accent3));
+  margin:0 auto;position:relative;
+}
+.flow-arrow::after{
+  content:'▼';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);
+  color:var(--accent3);font-size:10px;
+}
+
+/* QUIZ */
+.quiz-header{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:20px 24px;margin-bottom:24px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;
+}
+.progress-bar-wrap{flex:1;min-width:200px;}
+.progress-bar-wrap label{font-size:0.78rem;color:var(--text2);margin-bottom:6px;display:block;}
+.progress-bar{height:8px;background:var(--surface3);border-radius:40px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:40px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width 0.5s;}
+.quiz-score-box{
+  display:flex;gap:16px;align-items:center;flex-wrap:wrap;
+}
+.score-item{text-align:center;}
+.score-item .val{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--accent);}
+.score-item .lbl{font-size:0.72rem;color:var(--text3);}
+.score-item .val.streak{color:var(--spinal);}
+
+.question-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:28px;margin-bottom:20px;
+  transition:border-color 0.3s;
+}
+.question-card.correct-card{border-color:var(--correct);}
+.question-card.wrong-card{border-color:var(--wrong);}
+.q-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px;}
+.q-num{
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  color:#fff;font-family:'Syne',sans-serif;font-weight:700;
+  font-size:0.8rem;padding:4px 10px;border-radius:8px;
+  flex-shrink:0;margin-top:2px;
+}
+.q-topic-tag{
+  font-size:0.72rem;padding:3px 10px;border-radius:20px;
+  background:rgba(59,130,246,0.1);color:var(--accent);
+  border:1px solid rgba(59,130,246,0.2);
+}
+.q-text{font-size:0.92rem;line-height:1.6;color:var(--text);}
+.options{display:flex;flex-direction:column;gap:10px;margin-top:18px;}
+.option-btn{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:10px;padding:12px 16px;
+  font-family:'Space Grotesk',sans-serif;font-size:0.85rem;
+  color:var(--text2);cursor:pointer;text-align:left;
+  transition:all 0.2s;display:flex;align-items:center;gap:12px;
+}
+.option-btn:hover:not(:disabled){border-color:var(--accent);color:var(--text);background:rgba(59,130,246,0.07);}
+.option-btn:disabled{cursor:default;}
+.option-btn.selected-correct{
+  background:rgba(34,197,94,0.1);border-color:var(--correct);color:var(--correct);
+  animation:pulseGreen 0.4s ease;
+}
+.option-btn.selected-wrong{
+  background:rgba(239,68,68,0.1);border-color:var(--wrong);color:var(--wrong);
+  animation:shake 0.4s ease;
+}
+.option-btn.reveal-correct{background:rgba(34,197,94,0.06);border-color:rgba(34,197,94,0.3);color:var(--lmn);}
+.option-letter{
+  width:26px;height:26px;border-radius:6px;flex-shrink:0;
+  background:var(--surface3);display:flex;align-items:center;justify-content:center;
+  font-size:0.75rem;font-weight:700;
+}
+@keyframes pulseGreen{0%{transform:scale(1)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+.explanation-box{
+  margin-top:16px;background:rgba(59,130,246,0.06);
+  border:1px solid rgba(59,130,246,0.15);border-radius:10px;
+  padding:14px 16px;font-size:0.82rem;color:var(--text2);
+  line-height:1.6;display:none;
+}
+.explanation-box.show{display:block;animation:fadeUp 0.3s ease;}
+.explanation-box strong{color:var(--accent2);}
+
+.quiz-nav{display:flex;gap:12px;justify-content:flex-end;margin-bottom:8px;}
+.btn{
+  padding:10px 22px;border-radius:40px;
+  font-family:'Space Grotesk',sans-serif;font-size:0.85rem;font-weight:600;
+  cursor:pointer;border:none;transition:all 0.25s;
+}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent3));color:#fff;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(59,130,246,0.35);}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text2);}
+.btn-outline:hover{border-color:var(--accent);color:var(--text);}
+.btn-danger{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.2);color:#fca5a5;}
+.btn-danger:hover{background:rgba(239,68,68,0.25);}
+
+/* FLASHCARDS */
+.flashcards-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;
+}
+.flashcard{
+  perspective:1000px;height:180px;cursor:pointer;
+}
+.flashcard-inner{
+  position:relative;width:100%;height:100%;
+  transform-style:preserve-3d;
+  transition:transform 0.55s cubic-bezier(0.4,0,0.2,1);
+}
+.flashcard.flipped .flashcard-inner{transform:rotateY(180deg);}
+.flashcard-front,.flashcard-back{
+  position:absolute;width:100%;height:100%;
+  backface-visibility:hidden;border-radius:var(--card-radius);
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  padding:20px;text-align:center;border:1px solid var(--border);
+}
+.flashcard-front{
+  background:linear-gradient(135deg,var(--surface),var(--surface2));
+}
+.flashcard-back{
+  background:linear-gradient(135deg,var(--surface2),var(--surface3));
+  transform:rotateY(180deg);border-color:var(--border2);
+}
+.fc-label{font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;color:var(--text3);}
+.flashcard-front .fc-label{color:var(--accent);}
+.flashcard-back .fc-label{color:var(--lmn);}
+.fc-text{font-size:0.86rem;line-height:1.5;color:var(--text);}
+.flashcard-back .fc-text{color:var(--text2);font-size:0.82rem;}
+.fc-icon{font-size:1.3rem;margin-bottom:8px;}
+.fc-hint{font-size:0.7rem;color:var(--text3);margin-top:10px;}
+
+/* CLINICAL CASES */
+.case-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;margin-bottom:24px;overflow:hidden;
+}
+.case-header{
+  padding:20px 24px;background:var(--surface2);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;gap:14px;
+}
+.case-num{
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  color:#fff;font-family:'Syne',sans-serif;font-weight:800;
+  font-size:0.75rem;padding:4px 10px;border-radius:6px;
+  flex-shrink:0;margin-top:2px;
+}
+.case-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;}
+.case-body{padding:24px;}
+.case-vignette{
+  background:rgba(59,130,246,0.05);border-left:3px solid var(--accent);
+  border-radius:0 10px 10px 0;padding:16px 18px;
+  font-size:0.87rem;line-height:1.7;color:var(--text2);margin-bottom:20px;
+}
+.case-q{font-size:0.88rem;font-weight:600;color:var(--text);margin-bottom:10px;margin-top:16px;}
+.reveal-btn{
+  background:transparent;border:1px dashed var(--border2);
+  border-radius:8px;padding:10px 16px;
+  font-family:'Space Grotesk',sans-serif;font-size:0.82rem;
+  color:var(--text3);cursor:pointer;transition:all 0.25s;width:100%;text-align:left;
+}
+.reveal-btn:hover{border-color:var(--accent);color:var(--accent);}
+.case-answer{
+  background:rgba(34,197,94,0.05);border:1px solid rgba(34,197,94,0.15);
+  border-radius:10px;padding:14px 16px;
+  font-size:0.83rem;line-height:1.7;color:var(--text2);
+  display:none;margin-top:10px;
+}
+.case-answer.shown{display:block;animation:fadeUp 0.3s ease;}
+.case-answer strong{color:var(--lmn);}
+
+/* PATHOPHYSIOLOGY TAB */
+.patho-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;margin-bottom:32px;}
+.patho-item{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--card-radius);padding:18px 20px;
+  cursor:pointer;transition:all 0.25s;
+}
+.patho-item:hover{border-color:var(--accent);transform:translateY(-2px);}
+.patho-item h4{font-size:0.88rem;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.patho-item p{font-size:0.78rem;color:var(--text2);line-height:1.5;}
+.patho-detail{
+  background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.15);
+  border-radius:10px;padding:14px;font-size:0.82rem;color:var(--text2);
+  line-height:1.6;display:none;margin-top:10px;
+}
+.patho-detail.open{display:block;animation:fadeUp 0.3s;}
+
+/* DIAGNOSIS TAB */
+.diag-steps{display:flex;flex-direction:column;gap:12px;margin-bottom:28px;}
+.diag-step{
+  display:flex;gap:16px;align-items:flex-start;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:16px 20px;
+}
+.step-num{
+  width:32px;height:32px;border-radius:8px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:0.85rem;color:#fff;
+}
+.diag-step h4{font-size:0.88rem;font-weight:700;margin-bottom:4px;}
+.diag-step p{font-size:0.82rem;color:var(--text2);}
+.investigation-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.inv-badge{
+  padding:5px 12px;border-radius:6px;font-size:0.75rem;font-weight:600;
+}
+.inv-badge.mri{background:rgba(139,92,246,0.15);color:#c4b5fd;border:1px solid rgba(139,92,246,0.2);}
+.inv-badge.emg{background:rgba(6,182,212,0.15);color:#67e8f9;border:1px solid rgba(6,182,212,0.2);}
+.inv-badge.ct{background:rgba(59,130,246,0.15);color:#93c5fd;border:1px solid rgba(59,130,246,0.2);}
+.inv-badge.clinical{background:rgba(245,158,11,0.15);color:#fcd34d;border:1px solid rgba(245,158,11,0.2);}
+.inv-badge.reflex{background:rgba(34,197,94,0.15);color:#86efac;border:1px solid rgba(34,197,94,0.2);}
+
+/* TREATMENT TAB */
+.treatment-section{margin-bottom:28px;}
+.treatment-section h3{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.tx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+.tx-card{
+  border-radius:12px;padding:16px 18px;border:1px solid var(--border);
+}
+.tx-card.urgent{background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.2);}
+.tx-card.moderate{background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.2);}
+.tx-card.supportive{background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.2);}
+.tx-card.monitoring{background:rgba(59,130,246,0.08);border-color:rgba(59,130,246,0.2);}
+.tx-card h4{font-size:0.85rem;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.tx-card.urgent h4{color:#fca5a5;}
+.tx-card.moderate h4{color:#fcd34d;}
+.tx-card.supportive h4{color:#86efac;}
+.tx-card.monitoring h4{color:#93c5fd;}
+.tx-card ul{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.tx-card ul li{font-size:0.8rem;color:var(--text2);padding-left:12px;position:relative;}
+.tx-card ul li::before{content:'·';position:absolute;left:0;color:var(--text3);}
+
+/* MNEMONICS */
+.mnemo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;}
+.mnemo-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--card-radius);overflow:hidden;
+  transition:all 0.25s;cursor:pointer;
+}
+.mnemo-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:var(--glow);}
+.mnemo-header{
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+}
+.mnemo-icon{font-size:1.4rem;}
+.mnemo-header h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;}
+.mnemo-acronym{
+  font-family:'JetBrains Mono',monospace;font-size:1.6rem;
+  font-weight:700;color:var(--accent);
+  padding:14px 20px;
+  background:linear-gradient(135deg,rgba(59,130,246,0.05),rgba(139,92,246,0.05));
+}
+.mnemo-list{list-style:none;padding:10px 20px 18px;}
+.mnemo-list li{
+  padding:7px 0;font-size:0.84rem;color:var(--text2);
+  border-bottom:1px solid var(--border);display:flex;align-items:baseline;gap:10px;
+}
+.mnemo-list li:last-child{border-bottom:none;}
+.mnemo-list li .letter{
+  font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;
+  color:var(--accent3);flex-shrink:0;width:18px;
+}
+
+/* VIVA */
+.viva-container{display:flex;flex-direction:column;gap:14px;}
+.viva-item{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;overflow:hidden;
+  transition:border-color 0.2s;
+}
+.viva-item:hover{border-color:var(--border2);}
+.viva-q{
+  padding:16px 20px;cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.viva-q-text{font-size:0.87rem;font-weight:600;color:var(--text);}
+.viva-toggle{font-size:1rem;transition:transform 0.3s;color:var(--text3);}
+.viva-item.open .viva-toggle{transform:rotate(180deg);}
+.viva-a{
+  padding:0 20px;max-height:0;overflow:hidden;
+  transition:max-height 0.4s ease,padding 0.3s;
+  font-size:0.83rem;line-height:1.7;color:var(--text2);
+}
+.viva-item.open .viva-a{max-height:300px;padding:0 20px 16px;}
+.viva-a .exam-flag{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:20px;
+  background:rgba(239,68,68,0.1);color:#fca5a5;
+  border:1px solid rgba(239,68,68,0.2);margin-bottom:8px;
+}
+
+/* DASHBOARD */
+.dashboard-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:28px;}
+.dash-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--card-radius);padding:22px 24px;text-align:center;
+}
+.dash-card .d-val{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;margin-bottom:4px;}
+.dash-card .d-lbl{font-size:0.78rem;color:var(--text3);}
+.dash-card.d-accent .d-val{color:var(--accent);}
+.dash-card.d-lmn .d-val{color:var(--lmn);}
+.dash-card.d-umn .d-val{color:var(--umn);}
+.dash-card.d-spinal .d-val{color:var(--spinal);}
+
+/* QUIZ RESULT */
+.quiz-result{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:32px;text-align:center;
+  display:none;
+}
+.quiz-result.show{display:block;animation:fadeUp 0.4s;}
+.result-score{font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;margin:16px 0;}
+.result-msg{font-size:0.95rem;color:var(--text2);margin-bottom:24px;}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .header{padding:16px;}
+  .tabs-container,.main{padding:16px;}
+  .header-inner{padding:18px 20px;}
+  .compare-table{font-size:0.78rem;}
+  .compare-table th,.compare-table td{padding:10px 12px;}
+}
+@media(max-width:480px){
+  .flashcards-grid{grid-template-columns:1fr;}
+  .overview-grid{grid-template-columns:1fr;}
+}
+
+/* MOTIVATIONAL TOAST */
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:999;
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:12px;padding:14px 20px;
+  font-size:0.85rem;color:var(--text);
+  box-shadow:0 8px 30px rgba(0,0,0,0.4);
+  transform:translateY(100px);opacity:0;
+  transition:all 0.4s cubic-bezier(0.4,0,0.2,1);
+  max-width:320px;
+}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* SCROLL BAR */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--border2);}
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- SEARCH OVERLAY -->
+<div id="searchResults">
+  <button class="search-close-btn" onclick="closeSearch()">✕ Close</button>
+  <div id="searchResultsList"></div>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <h1>⚡ Motor Neuron & Spinal Cord Lesions</h1>
+      <p>Physiology · Lec 11 · Mansoura University · Team 63rd</p>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-pill">🎯 Score <span id="hdr-score">0</span>/<span id="hdr-total">25</span></div>
+      <div class="stat-pill">🔥 Streak <span id="hdr-streak">0</span></div>
+      <div class="stat-pill">📊 <span id="hdr-pct">0</span>% Done</div>
+      <div class="search-wrap">
+        <span class="si">🔍</span>
+        <input type="text" placeholder="Search concepts..." id="searchInput" oninput="liveSearch(this.value)">
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- TABS -->
+<div class="tabs-container">
+  <div class="tabs-scroll">
+    <button class="tab-btn active" onclick="switchTab('overview',this)">🏠 Overview</button>
+    <button class="tab-btn" onclick="switchTab('quiz',this)">🧠 Quiz (25 Qs)</button>
+    <button class="tab-btn" onclick="switchTab('flashcards',this)">🃏 Flashcards</button>
+    <button class="tab-btn" onclick="switchTab('cases',this)">🏥 Clinical Cases</button>
+    <button class="tab-btn" onclick="switchTab('patho',this)">⚙️ Pathophysiology</button>
+    <button class="tab-btn" onclick="switchTab('diagnosis',this)">🔬 Diagnosis</button>
+    <button class="tab-btn" onclick="switchTab('treatment',this)">💊 Management</button>
+    <button class="tab-btn" onclick="switchTab('mnemonics',this)">💡 Mnemonics</button>
+    <button class="tab-btn" onclick="switchTab('viva',this)">🗣️ Viva Q&A</button>
+  </div>
+</div>
+
+<main class="main">
+
+<!-- ============ OVERVIEW ============ -->
+<div class="tab-content active" id="tab-overview">
+  <div class="section-title">🧠 Topic Overview</div>
+  <p class="section-sub">Quick-reference summary of all three core topics — UMNL, LMNL, and Spinal Cord Lesions</p>
+
+  <div class="tag-grid">
+    <span class="tag high-yield">🔴 Babinski's Sign — High Yield</span>
+    <span class="tag exam-fav">⭐ Internal Capsule — Exam Favourite</span>
+    <span class="tag pearl">💎 Brown-Séquard Dissociation — Pearl</span>
+    <span class="tag usmle">📘 USMLE Step 1 Topic</span>
+    <span class="tag high-yield">🔴 Clasp-Knife Spasticity — High Yield</span>
+    <span class="tag pearl">💎 Fasciculations vs Fibrillations</span>
+    <span class="tag exam-fav">⭐ Spinal Shock — Exam Favourite</span>
+    <span class="tag usmle">📘 Mass Reflex — Clinical Pearl</span>
+  </div>
+
+  <div class="overview-grid">
+    <div class="overview-card umn-card">
+      <h3>🔴 Upper Motor Neuron Lesion <span class="oc-badge umn">UMNL</span></h3>
+      <ul>
+        <li>Site: Internal capsule (lenticulostriate artery thrombosis)</li>
+        <li>Contralateral hemiplegia — distal limbs + lower face + tongue</li>
+        <li>Paresis only of axial muscles & upper face (bilateral innervation)</li>
+        <li>Clasp-knife spasticity (antigravity muscles)</li>
+        <li>Hyperreflexia, clonus, Babinski's sign ✅</li>
+        <li>Loss of cremasteric & abdominal reflexes</li>
+        <li>Mechanism: Unopposed vestibulo/reticulospinal facilitation</li>
+      </ul>
+    </div>
+    <div class="overview-card lmn-card">
+      <h3>🟢 Lower Motor Neuron Lesion <span class="oc-badge lmn">LMNL</span></h3>
+      <ul>
+        <li>Site: Anterior horn cells or peripheral nerves</li>
+        <li>Flaccid paralysis (voluntary + postural + reflex lost)</li>
+        <li>Wallerian degeneration (distal) + retrograde degeneration</li>
+        <li>Fasciculations — visible, synchronous, entire motor unit</li>
+        <li>Fibrillations — invisible, EMG-detected, individual fibres</li>
+        <li>Denervation supersensitivity — ACh receptors spread over whole membrane</li>
+        <li>Marked muscle atrophy</li>
+      </ul>
+    </div>
+    <div class="overview-card spinal-card">
+      <h3>🟡 Spinal Cord Lesions <span class="oc-badge spinal">SPINAL</span></h3>
+      <ul>
+        <li>Spinal shock: lasts 2–6 weeks after transection</li>
+        <li>Areflexia, flaccidity, autonomic retention with overflow incontinence</li>
+        <li>Recovery: flexion reflex → flexor stretch → extensor stretch → mass reflex</li>
+        <li>Mass reflex: scratch → bilateral flexion + bladder/bowel + sweating + ↑ABP</li>
+        <li>Brown-Séquard: ipsi LMNL at level, ipsi UMNL + proprioception loss below</li>
+        <li>Contralateral loss of pain & temperature below lesion</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section-title" style="font-size:1.2rem;margin-bottom:16px;">📊 UMNL vs LMNL — Quick Comparison</div>
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>🔴 UMNL</th>
+        <th>🟢 LMNL</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Type of Paralysis</td><td>Spastic (clasp-knife)</td><td>Flaccid</td></tr>
+      <tr><td>Muscle Tone</td><td>Increased (hypertonia)</td><td>Decreased (atonia)</td></tr>
+      <tr><td>Deep Reflexes</td><td>Exaggerated (hyperreflexia)</td><td>Absent (areflexia)</td></tr>
+      <tr><td>Plantar Reflex</td><td>Babinski's sign (+)</td><td>Absent (flaccid)</td></tr>
+      <tr><td>Muscle Atrophy</td><td>Absent / mild disuse</td><td>Marked atrophy</td></tr>
+      <tr><td>Fasciculations</td><td>Absent</td><td>Present ✅</td></tr>
+      <tr><td>Fibrillations</td><td>Absent</td><td>Present (EMG only) ✅</td></tr>
+      <tr><td>Scope</td><td>Many muscle groups (hemiplegia)</td><td>Limited muscle group</td></tr>
+      <tr><td>Clonus</td><td>Present</td><td>Absent</td></tr>
+      <tr><td>ACh Receptors</td><td>Normal</td><td>Increased (supersensitivity)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-title" style="font-size:1.2rem;margin-bottom:16px;">🔀 Brown-Séquard Syndrome (Hemisection at T10)</div>
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Finding</th>
+        <th>Ipsilateral (Same Side)</th>
+        <th>Contralateral (Opposite Side)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>At Level of Lesion</td><td>LMNL: flaccid paralysis, total sensory loss</td><td>No effect at level</td></tr>
+      <tr><td>Motor Below Lesion</td><td>UMNL: spastic paralysis, hyperreflexia, Babinski</td><td>Normal motor</td></tr>
+      <tr><td>Proprioception/Vibration/Fine Touch</td><td>LOST below (dorsal columns cut)</td><td>Normal</td></tr>
+      <tr><td>Pain & Temperature</td><td>Normal below</td><td>LOST below (anterolateral tracts cut)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============ QUIZ ============ -->
+<div class="tab-content" id="tab-quiz">
+  <div class="section-title">🧠 Quiz Mode</div>
+  <p class="section-sub">25 MCQs — Mansoura University Physiology Lec 11 style</p>
+
+  <div class="quiz-header">
+    <div class="progress-bar-wrap">
+      <label id="progress-label">Progress: 0 / 25 answered</label>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+    <div class="quiz-score-box">
+      <div class="score-item"><div class="val" id="scoreVal">0</div><div class="lbl">Score</div></div>
+      <div class="score-item"><div class="val streak" id="streakVal">0🔥</div><div class="lbl">Streak</div></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="btn btn-danger" onclick="resetQuiz()">🔄 Reset</button>
+    </div>
+  </div>
+
+  <div id="quizContainer"></div>
+  <div class="quiz-result" id="quizResult">
+    <div style="font-size:2.5rem;">🎉</div>
+    <div class="result-score" id="resultScore"></div>
+    <div class="result-msg" id="resultMsg"></div>
+    <button class="btn btn-primary" onclick="resetQuiz()">🔄 Try Again</button>
+  </div>
+</div>
+
+<!-- ============ FLASHCARDS ============ -->
+<div class="tab-content" id="tab-flashcards">
+  <div class="section-title">🃏 Flashcards</div>
+  <p class="section-sub">Click any card to reveal the answer — 22 cards covering key concepts</p>
+  <div class="flashcards-grid" id="flashcardsGrid"></div>
+</div>
+
+<!-- ============ CLINICAL CASES ============ -->
+<div class="tab-content" id="tab-cases">
+  <div class="section-title">🏥 Clinical Cases</div>
+  <p class="section-sub">Exam-style vignettes with step-by-step answers</p>
+  <div id="casesContainer"></div>
+</div>
+
+<!-- ============ PATHOPHYSIOLOGY ============ -->
+<div class="tab-content" id="tab-patho">
+  <div class="section-title">⚙️ Pathophysiology</div>
+  <p class="section-sub">Click any item to expand the detailed mechanism</p>
+
+  <div class="patho-grid" id="pathoGrid"></div>
+
+  <div class="section-title" style="font-size:1.2rem;margin-bottom:16px;">🔀 Recovery from Complete Spinal Cord Transection</div>
+  <div class="flowchart">
+    <div class="flow-node danger">⚡ Complete Spinal Cord Transection</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node warn">Interruption of tonic supraspinal facilitation</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node danger">🔴 SPINAL SHOCK (2–6 weeks)<br><small>Areflexia · Flaccidity · Autonomic retention + overflow incontinence</small></div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node highlight">Denervation Supersensitivity + New presynaptic sprouting</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node success">✅ Stage of Reflex Recovery</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node highlight">1st: Flexion Withdrawal Reflex returns</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node highlight">2nd: Stretch reflex in flexors (paraplegia in flexion)</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node highlight">3rd: Stretch reflex in extensors (paraplegia in extension)</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node warn">⚠️ Mass Reflex capability (minor stimulus → massive response)</div>
+  </div>
+
+  <div class="section-title" style="font-size:1.2rem;margin-bottom:16px;margin-top:28px;">🔀 LMNL Nerve Degeneration Sequence</div>
+  <div class="flowchart">
+    <div class="flow-node danger">Nerve Injury (trauma / neuropathy)</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node warn">Wallerian degeneration (distal axon) + Retrograde degeneration (proximal)</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node highlight">Spontaneous injury potentials in still-connected distal segment</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node highlight">⚡ Fasciculations — visible, synchronous (entire motor unit)</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node warn">Axon terminals physically separate from main axon</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node highlight">⚡ Fibrillations — invisible, asynchronous (EMG only — individual fibres)</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node success">↑ ACh receptors covering ENTIRE muscle membrane</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node success">✅ Denervation Supersensitivity + Marked Atrophy</div>
+  </div>
+</div>
+
+<!-- ============ DIAGNOSIS ============ -->
+<div class="tab-content" id="tab-diagnosis">
+  <div class="section-title">🔬 Diagnosis & Investigations</div>
+  <p class="section-sub">How to identify UMNL vs LMNL vs Spinal Cord lesions clinically</p>
+
+  <div class="section-title" style="font-size:1.1rem;margin-bottom:14px;">🔴 UMNL — Diagnostic Algorithm</div>
+  <div class="diag-steps">
+    <div class="diag-step">
+      <div class="step-num">1</div>
+      <div>
+        <h4>History & Presentation</h4>
+        <p>Sudden onset hemiplegia (or weakness) affecting contralateral face, arm, and leg. History of stroke, hypertension, or TIA. Look for risk factors for lenticulostriate artery thrombosis.</p>
+      </div>
+    </div>
+    <div class="diag-step">
+      <div class="step-num">2</div>
+      <div>
+        <h4>Neurological Examination</h4>
+        <p>Check tone (spasticity, clasp-knife), reflexes (hyperreflexia, clonus), and plantar response. Positive Babinski's sign confirms UMNL. Loss of abdominal and cremasteric reflexes.</p>
+        <div class="investigation-badges">
+          <span class="inv-badge clinical">Babinski's Sign ✅</span>
+          <span class="inv-badge reflex">Hyperreflexia</span>
+          <span class="inv-badge clinical">Clasp-Knife Test</span>
+          <span class="inv-badge reflex">Clonus</span>
+        </div>
+      </div>
+    </div>
+    <div class="diag-step">
+      <div class="step-num">3</div>
+      <div>
+        <h4>Imaging</h4>
+        <p>MRI brain — gold standard to identify the internal capsule lesion, ischemic or hemorrhagic territory of the lenticulostriate artery. CT brain is faster in emergency to rule out hemorrhage.</p>
+        <div class="investigation-badges">
+          <span class="inv-badge mri">MRI Brain 🥇</span>
+          <span class="inv-badge ct">CT Brain (Emergency)</span>
+        </div>
+      </div>
+    </div>
+    <div class="diag-step">
+      <div class="step-num">4</div>
+      <div>
+        <h4>Differentiate from LMNL</h4>
+        <p>In UMNL: no atrophy (or mild), no fasciculations, Babinski positive, spastic tone, hyperreflexia. In LMNL: marked atrophy, fasciculations, no Babinski, flaccid tone, areflexia.</p>
+        <div class="investigation-badges">
+          <span class="inv-badge emg">EMG (for LMNL fibrillations)</span>
+          <span class="inv-badge clinical">NCS (nerve conduction)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title" style="font-size:1.1rem;margin-bottom:14px;margin-top:24px;">🟡 Brown-Séquard — Diagnostic Criteria</div>
+  <div class="diag-steps">
+    <div class="diag-step">
+      <div class="step-num">1</div>
+      <div>
+        <h4>At the Level of the Lesion (Ipsilateral)</h4>
+        <p>LMNL type: flaccid paralysis + total loss of ALL sensations (all modalities) at that exact dermatome level on the same side.</p>
+      </div>
+    </div>
+    <div class="diag-step">
+      <div class="step-num">2</div>
+      <div>
+        <h4>Below the Lesion — Motor (Ipsilateral)</h4>
+        <p>UMNL type: spastic paralysis, hyperreflexia, Babinski's sign, loss of voluntary movement — all on the same side as the lesion.</p>
+      </div>
+    </div>
+    <div class="diag-step">
+      <div class="step-num">3</div>
+      <div>
+        <h4>Below the Lesion — Dorsal Column Sensory (Ipsilateral)</h4>
+        <p>Loss of proprioception, vibration sense, and fine/discriminative touch — same side as the lesion (fibres don't cross until medulla).</p>
+      </div>
+    </div>
+    <div class="diag-step">
+      <div class="step-num">4</div>
+      <div>
+        <h4>Below the Lesion — Anterolateral Sensory (Contralateral)</h4>
+        <p>Loss of pain and temperature — opposite side from the lesion (fibres cross immediately in the spinal cord before ascending).</p>
+        <div class="investigation-badges">
+          <span class="inv-badge mri">MRI Spine 🥇</span>
+          <span class="inv-badge clinical">Sensory level exam</span>
+          <span class="inv-badge emg">Somatosensory EPs</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TREATMENT ============ -->
+<div class="tab-content" id="tab-treatment">
+  <div class="section-title">💊 Management Principles</div>
+  <p class="section-sub">Approach to each lesion type — urgency-coded by colour</p>
+
+  <div class="treatment-section">
+    <h3>🚨 Acute / Emergency (UMNL — Stroke)</h3>
+    <div class="tx-grid">
+      <div class="tx-card urgent">
+        <h4>🚨 Immediate Stroke Protocol</h4>
+        <ul>
+          <li>ABC stabilisation</li>
+          <li>Emergency CT to rule out hemorrhage</li>
+          <li>Thrombolytics (tPA) if ischemic within 4.5h window</li>
+          <li>Admit to stroke unit</li>
+        </ul>
+      </div>
+      <div class="tx-card urgent">
+        <h4>🔴 ICP Management</h4>
+        <ul>
+          <li>Head elevation 30°</li>
+          <li>Osmotherapy (mannitol) if cerebral oedema</li>
+          <li>Avoid hypoxia, hypotension, hyperthermia</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="treatment-section">
+    <h3>⚠️ Spasticity Management (UMNL Chronic)</h3>
+    <div class="tx-grid">
+      <div class="tx-card moderate">
+        <h4>⚠️ Physiotherapy (First Line)</h4>
+        <ul>
+          <li>Stretching and range-of-motion exercises</li>
+          <li>Splinting and positioning</li>
+          <li>Gait rehabilitation</li>
+        </ul>
+      </div>
+      <div class="tx-card moderate">
+        <h4>💊 Antispasticity Drugs</h4>
+        <ul>
+          <li>Baclofen (GABA-B agonist — reduces γ-MN firing)</li>
+          <li>Tizanidine (α2 agonist)</li>
+          <li>Diazepam (GABA-A — adjunct)</li>
+          <li>Botulinum toxin (focal spasticity)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="treatment-section">
+    <h3>🟢 LMNL Management</h3>
+    <div class="tx-grid">
+      <div class="tx-card supportive">
+        <h4>🟢 Address the Cause</h4>
+        <ul>
+          <li>Traumatic: surgical decompression/repair</li>
+          <li>Neuropathy: treat underlying disease (e.g., DM control)</li>
+          <li>GBS: IVIG or plasmapheresis</li>
+        </ul>
+      </div>
+      <div class="tx-card supportive">
+        <h4>🟢 Nerve Regeneration Support</h4>
+        <ul>
+          <li>Physiotherapy to prevent contractures</li>
+          <li>Electrical stimulation to maintain muscle bulk</li>
+          <li>B12 and neurotrophin supplementation</li>
+        </ul>
+      </div>
+      <div class="tx-card monitoring">
+        <h4>📊 Monitor with EMG</h4>
+        <ul>
+          <li>Serial EMG to track reinnervation</li>
+          <li>Nerve conduction studies</li>
+          <li>Watch for fibrillation → motor unit potential (recovery sign)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="treatment-section">
+    <h3>🟡 Spinal Cord Injury Management</h3>
+    <div class="tx-grid">
+      <div class="tx-card urgent">
+        <h4>🚨 Acute SCI</h4>
+        <ul>
+          <li>Immobilise spine immediately</li>
+          <li>High-dose methylprednisolone (within 8h — controversial)</li>
+          <li>Surgical decompression if indicated</li>
+          <li>Manage spinal shock: IV fluids, vasopressors</li>
+        </ul>
+      </div>
+      <div class="tx-card moderate">
+        <h4>⚠️ Bladder/Bowel Care</h4>
+        <ul>
+          <li>Indwelling or intermittent catheterisation (retention phase)</li>
+          <li>Later: bladder training (reflex voiding phase)</li>
+          <li>Bowel programme to prevent fecal impaction</li>
+        </ul>
+      </div>
+      <div class="tx-card supportive">
+        <h4>🟢 Mass Reflex Prevention</h4>
+        <ul>
+          <li>Avoid noxious skin stimuli</li>
+          <li>Treat pressure ulcers aggressively</li>
+          <li>Baclofen (oral or intrathecal) for reflex reduction</li>
+        </ul>
+      </div>
+      <div class="tx-card monitoring">
+        <h4>📊 Rehabilitation</h4>
+        <ul>
+          <li>Multidisciplinary team approach</li>
+          <li>Occupational therapy + physiotherapy</li>
+          <li>Psychological support</li>
+          <li>FES (functional electrical stimulation)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MNEMONICS ============ -->
+<div class="tab-content" id="tab-mnemonics">
+  <div class="section-title">💡 Mnemonics</div>
+  <p class="section-sub">Custom memory tools designed for this lecture — click to expand</p>
+  <div class="mnemo-grid" id="mnemoGrid"></div>
+</div>
+
+<!-- ============ VIVA ============ -->
+<div class="tab-content" id="tab-viva">
+  <div class="section-title">🗣️ Viva Questions</div>
+  <p class="section-sub">12 classic exam viva questions — click to reveal the model answer</p>
+  <div class="viva-container" id="vivaContainer"></div>
+</div>
+
+</main>
+
+<script>
+// ===================== DATA =====================
+
+const QUIZ_DATA = [
+  {q:"Which of the following is the MOST COMMON site for an Upper Motor Neuron Lesion?",opts:["A) Anterior horn cells","B) Cerebellum","C) Internal capsule","D) Spinal nerve roots","E) Neuromuscular junction"],ans:2,topic:"UMNL",exp:"The internal capsule is the most frequent site due to its vulnerability to thrombosis of the lenticulostriate artery, which lacks collateral circulation. ⚠️ EXAM FAVOURITE"},
+  {q:"What type of motor loss characterizes UMNL in the limbs?",opts:["A) Ipsilateral flaccid paralysis","B) Contralateral paralysis of distal muscles","C) Ipsilateral paralysis of axial muscles","D) Contralateral flaccid paralysis","E) Bilateral paresis"],ans:1,topic:"UMNL",exp:"UMNL causes CONTRALATERAL paralysis of DISTAL muscles — the descending corticospinal tracts cross over and primarily control distal voluntary movements."},
+  {q:"Why do axial muscles and upper facial muscles only suffer paresis (not paralysis) in unilateral UMNL?",opts:["A) They are innervated entirely ipsilaterally","B) They receive bilateral innervation from descending tracts","C) They are controlled by the cerebellum","D) They are denervated completely","E) They rely solely on spinal reflexes"],ans:1,topic:"UMNL",exp:"Axial muscles are supplied by multiple descending tracts, and upper facial muscles are innervated BILATERALLY by the corticobulbar tract. One-sided lesion cannot fully paralyse them."},
+  {q:"The spasticity seen in UMNL is primarily due to:",opts:["A) Denervation supersensitivity","B) Increased supraspinal facilitation to γ-motor neurons","C) Destruction of alpha motor neurons","D) Degeneration of ACh receptors","E) Flaccid paralysis of antagonist muscles"],ans:1,topic:"UMNL",exp:"Interruption of descending inhibitory cortical fibres leaves facilitatory vestibulospinal and reticulospinal tracts to over-stimulate γ-motor neurons. This increases muscle spindle sensitivity."},
+  {q:"Which type of spasticity is classically associated with UMNL?",opts:["A) Lead-pipe","B) Cog-wheel","C) Clasp-knife","D) Flaccid","E) Waxy flexibility"],ans:2,topic:"UMNL",exp:"Clasp-knife spasticity — high initial resistance followed by sudden 'give' — is the hallmark of UMNL, affecting antigravity muscles predominantly."},
+  {q:"A patient shows upward fanning of toes when the sole of the foot is stroked. This is known as:",opts:["A) Clonus","B) Fasciculation","C) Mass reflex","D) Babinski's sign","E) Withdrawal reflex"],ans:3,topic:"UMNL",exp:"Babinski's sign (extensor plantar response) = UMNL. It results from the loss of descending cortical inhibition. ⭐ One of the most important clinical signs in medicine."},
+  {q:"Which reflexes are characteristically LOST in UMNL?",opts:["A) Deep tendon reflexes","B) Stretch reflex","C) Cremasteric and abdominal reflexes","D) Withdrawal reflex","E) Cough reflex"],ans:2,topic:"UMNL",exp:"Cremasteric (L1-2) and abdominal reflexes are superficial reflexes mediated by cortical pathways — they disappear in UMNL. Deep tendon reflexes are EXAGGERATED in UMNL."},
+  {q:"A patient with UMNL has 'hemiplegia' and walks with a circular leg movement. What gait is this?",opts:["A) Scissor gait","B) Steppage gait","C) Ataxic gait","D) Circumduction gait","E) Festinating gait"],ans:3,topic:"UMNL",exp:"Circumduction gait results from spasticity of antigravity muscles — the leg is stiffly extended and must be swung outward in a circle because it cannot be properly flexed at the knee/hip."},
+  {q:"What structural change occurs in the LMNL muscle?",opts:["A) Hypertrophy","B) Decreased ACh receptors","C) Marked atrophy and increased ACh receptors","D) Increased tone","E) Enhanced stretch reflex"],ans:2,topic:"LMNL",exp:"LMNL causes: (1) marked atrophy due to loss of trophic influence, and (2) INCREASED ACh receptors that spread to the entire muscle membrane = denervation supersensitivity."},
+  {q:"Fasciculations in LMNL occur because of:",opts:["A) Voluntary motor unit contraction","B) Spontaneous injury potentials in the distal axon still connected to the main axon","C) Fibre regeneration","D) Central excitation from the cortex","E) Increased ACh release"],ans:1,topic:"LMNL",exp:"Fasciculations = spontaneous injury potentials in the degenerating DISTAL AXON (still physically connected to the main axon). They fire the entire motor unit synchronously → visible twitches."},
+  {q:"Fibrillations are DIFFERENT from fasciculations because they:",opts:["A) Are visible to the naked eye","B) Involve the entire motor unit","C) Are caused by cortical stimulation","D) Are invisible and detected only by EMG — individual fibres","E) Occur early in denervation before axon separation"],ans:3,topic:"LMNL",exp:"Fibrillations = INVISIBLE, asynchronous contractions of individual muscle fibres, occurring when axon terminals COMPLETELY SEPARATE from the main axon. Detected ONLY by EMG."},
+  {q:"Denervation supersensitivity is caused by:",opts:["A) Decrease in ACh in the neuromuscular junction","B) Spread of ACh receptors over the entire muscle membrane","C) Hyperactivation of corticospinal tract","D) Formation of new motor units","E) Reduction in calcium influx"],ans:1,topic:"LMNL",exp:"After LMNL, ACh receptors increase in number AND spread from the normal end-plate zone to cover the ENTIRE sarcolemma. This makes the muscle hypersensitive to circulating ACh."},
+  {q:"In LMNL, what type of paralysis is present?",opts:["A) Spastic paralysis","B) Clasp-knife paralysis","C) Flaccid paralysis with areflexia","D) Spastic paralysis with hyperreflexia","E) Paralysis with Babinski sign"],ans:2,topic:"LMNL",exp:"LMNL = FLACCID paralysis + AREFLEXIA. The α-motor neurons are destroyed, so: (1) voluntary movement is lost, (2) the stretch reflex arc is broken = no tone = flaccidity, (3) all reflexes lost."},
+  {q:"Spinal shock follows complete spinal cord transection. Which statement is CORRECT?",opts:["A) It lasts 2–6 days","B) It is characterised by hypertonia","C) It lasts 2–6 weeks with flaccid paralysis and areflexia","D) The stretch reflex is exaggerated","E) It involves increased cortical activity"],ans:2,topic:"Spinal",exp:"Spinal shock lasts 2–6 WEEKS in humans. During this phase: flaccid paralysis, complete areflexia, and autonomic dysfunction (retention + overflow incontinence). Due to sudden loss of tonic supraspinal facilitation."},
+  {q:"The MECHANISM of spinal shock is:",opts:["A) Increased descending facilitation","B) Sudden interruption of tonic supraspinal facilitation causing marked inhibition of spinal neurons","C) Spinal cord haemorrhage","D) Degeneration of γ-motor neurons","E) Loss of peripheral nerve input"],ans:1,topic:"Spinal",exp:"Normal function requires TONIC SUPRASPINAL FACILITATION. Transection suddenly removes this, causing marked INHIBITION of all spinal neurons below the level → complete shutdown = spinal shock."},
+  {q:"During spinal shock, autonomic reflexes are lost, leading to:",opts:["A) Diarrhoea","B) Immediate automatic micturition","C) Retention with overflow incontinence","D) Spastic bladder","E) Renal failure"],ans:2,topic:"Spinal",exp:"Bladder fills without any emptying reflex → RETENTION. Once maximum capacity is reached, it passively leaks out → overflow incontinence. Reflex micturition returns after spinal shock resolves."},
+  {q:"The gradual recovery of reflex activity after spinal shock is due to:",opts:["A) Regeneration of the severed corticospinal tract","B) Denervation supersensitivity and sprouting of new presynaptic terminals","C) Return of cortical voluntary control","D) Re-myelination of peripheral nerves","E) Decrease in ACh receptors"],ans:1,topic:"Spinal",exp:"Two mechanisms: (1) DENERVATION SUPERSENSITIVITY — spinal neurons upregulate receptors, and (2) SPROUTING — new presynaptic terminals establish functional synaptic connections on isolated spinal neurons."},
+  {q:"Which reflex is typically the FIRST to reappear during the stage of reflex recovery?",opts:["A) Extensor stretch reflex","B) Mass reflex","C) Flexion withdrawal reflex","D) Micturition reflex","E) Cremasteric reflex"],ans:2,topic:"Spinal",exp:"ORDER of return: (1) Flexion withdrawal reflex → (2) Stretch reflex in flexors → (3) Stretch reflex in extensors → (4) Mass reflex. Flexion reflex returns FIRST."},
+  {q:"The 'Mass Reflex' is triggered by scratching the skin of the lower limb and includes ALL of the following EXCEPT:",opts:["A) Flexion of both lower limbs","B) Evacuation of bladder and rectum","C) Profuse sweating","D) FALL in arterial blood pressure","E) RISE in arterial blood pressure"],ans:3,topic:"Spinal",exp:"Mass reflex causes sympathetic activation → RISE (not fall) in ABP. Components: bilateral limb flexion, bladder/bowel evacuation, profuse sweating, and ↑ arterial blood pressure."},
+  {q:"In Brown-Séquard Syndrome, which sensation is LOST ipsilaterally below the lesion?",opts:["A) Pain and temperature","B) Proprioception, fine touch, and vibration","C) Vision","D) Hearing","E) Olfaction"],ans:1,topic:"Brown-Sequard",exp:"Dorsal column fibres (proprioception, fine touch, vibration) ascend ipsilaterally and only cross in the MEDULLA → hemisection destroys them ipsilaterally. Lost on the SAME SIDE as the lesion."},
+  {q:"In Brown-Séquard Syndrome, which sensation is LOST contralaterally below the lesion?",opts:["A) Vibration","B) Fine touch","C) Proprioception","D) Pain and temperature","E) All sensations"],ans:3,topic:"Brown-Sequard",exp:"Spinothalamic fibres (pain and temperature) cross the cord IMMEDIATELY upon entering (within 1–2 spinal segments). Hemisection cuts fibres that came from the OPPOSITE SIDE → contralateral loss."},
+  {q:"In Brown-Séquard Syndrome, what type of motor weakness is seen EXACTLY AT the level of the lesion ipsilaterally?",opts:["A) Spastic UMNL type","B) Flaccid LMNL type","C) Extrapyramidal rigidity","D) Ataxia","E) No motor weakness"],ans:1,topic:"Brown-Sequard",exp:"At the EXACT level: anterior horn cells AND exiting nerve roots are destroyed → classic LMNL (flaccid paralysis, areflexia, fasciculations). Below the level: UMNL signs on the same side."},
+  {q:"In Brown-Séquard Syndrome, what motor deficit is seen BELOW the level of the lesion ipsilaterally?",opts:["A) Flaccid paralysis","B) Areflexia","C) Spastic paralysis with hyperreflexia and Babinski sign","D) No deficit","E) Tremor"],ans:2,topic:"Brown-Sequard",exp:"Below the lesion on the SAME SIDE: descending motor tracts are severed → UMNL: spastic paralysis, hyperreflexia, Babinski's sign, loss of voluntary movement. Opposite side motor is NORMAL."},
+  {q:"A patient has flaccid paralysis, areflexia, and fasciculations in one limb. The most likely diagnosis is:",opts:["A) UMNL","B) Peripheral sensory neuropathy","C) LMNL","D) Cortical stroke","E) Parkinsonism"],ans:2,topic:"LMNL",exp:"This triad: flaccid paralysis + areflexia + fasciculations = HALLMARK of LMNL. UMNL/stroke causes spasticity + hyperreflexia + Babinski. Parkinsonism causes rigidity + resting tremor."},
+  {q:"Which differentiates UMNL from LMNL regarding the plantar reflex?",opts:["A) UMNL has absent reflex; LMNL has Babinski","B) UMNL has Babinski; LMNL reflex is absent","C) Both have Babinski","D) Both are normal","E) UMNL has normal flexion; LMNL has Babinski"],ans:1,topic:"UMNL vs LMNL",exp:"UMNL: Babinski's sign (extensor plantar) due to loss of descending cortical inhibition. LMNL: plantar reflex is ABSENT because the effector muscles are flaccidly paralysed."},
+];
+
+const FLASHCARD_DATA = [
+  {q:"Where is the MOST COMMON site for UMNL?",a:"Internal capsule — supplied by the lenticulostriate artery (lacks collateral circulation) → vulnerable to thrombosis ⭐ EXAM"},
+  {q:"Why does UMNL cause contralateral hemiplegia?",a:"Descending corticospinal tract fibres CROSS at the pyramidal decussation in the medulla oblongata → lesion affects the opposite side"},
+  {q:"What muscles are only PARETIC (not paralysed) in UMNL and why?",a:"Axial muscles (bilateral descending tracts) and UPPER facial muscles (bilateral corticobulbar innervation) → one lesion cannot fully disconnect them"},
+  {q:"Explain the mechanism of clasp-knife spasticity",a:"Interruption of descending inhibitory cortical fibres → unopposed vestibulospinal/reticulospinal tracts → over-stimulate γ-MN → increased tone in ANTIGRAVITY muscles"},
+  {q:"What is Babinski's sign?",a:"Extensor plantar response (upward fanning of toes) on sole stroking — UMNL sign due to loss of cortical inhibition ⭐ Most famous UMNL sign"},
+  {q:"Name the reflexes LOST in UMNL",a:"Superficial reflexes: cremasteric (L1-2) and abdominal reflexes. Note: deep tendon reflexes are EXAGGERATED (hyperreflexia)"},
+  {q:"What is Wallerian degeneration?",a:"Degeneration of the DISTAL segment of a severed axon (distal to the site of injury) following LMNL — the axon and myelin sheath break down"},
+  {q:"What is retrograde degeneration in LMNL?",a:"Degeneration occurring PROXIMAL to the site of injury, travelling back toward the cell body — may eventually cause cell body death"},
+  {q:"Fasciculations vs Fibrillations — key differences?",a:"Fasciculations: VISIBLE, SYNCHRONOUS, entire motor unit, distal axon still attached. Fibrillations: INVISIBLE, ASYNCHRONOUS, individual fibres, EMG only, terminals separated"},
+  {q:"What is denervation supersensitivity?",a:"After LMNL: ACh receptors INCREASE in number and SPREAD over the entire muscle membrane (not just end-plate) → hypersensitive to circulating ACh"},
+  {q:"How long does spinal shock last in humans?",a:"2–6 WEEKS — mechanism: sudden loss of tonic supraspinal facilitation → marked inhibition of spinal neurons below the level"},
+  {q:"What is the clinical presentation of spinal shock?",a:"FLACCID paralysis, AREFLEXIA (all reflexes abolished), autonomic dysfunction: RETENTION with overflow incontinence, loss of sweating"},
+  {q:"What are the TWO mechanisms of reflex recovery after spinal shock?",a:"(1) Denervation supersensitivity: ↑ receptors on isolated spinal neurons. (2) Sprouting: new presynaptic terminals form functional synapses on isolated neurons"},
+  {q:"What is the ORDER of reflex recovery after spinal shock?",a:"1st: Flexion withdrawal reflex → 2nd: Stretch reflex in FLEXORS → 3rd: Stretch reflex in EXTENSORS → 4th: Mass reflex capability"},
+  {q:"Describe the mass reflex",a:"Minor skin stimulus (scratch) → widespread response: bilateral limb FLEXION + bladder/bowel EVACUATION + profuse SWEATING + ↑ arterial BP. Mechanism: irradiation between supersensitive isolated spinal centres"},
+  {q:"Brown-Séquard: what is lost IPSILATERALLY below the lesion?",a:"(1) Motor: UMNL — spastic paralysis. (2) Sensory: Proprioception, vibration, fine touch (dorsal columns cross in MEDULLA). So DCML loss = SAME side"},
+  {q:"Brown-Séquard: what is lost CONTRALATERALLY below the lesion?",a:"Pain and temperature (spinothalamic fibres cross IMMEDIATELY in the spinal cord) — so anterolateral tract loss = OPPOSITE side"},
+  {q:"Brown-Séquard: what happens AT the exact level of the lesion?",a:"IPSILATERAL LMNL: flaccid paralysis + COMPLETE loss of ALL sensations at that dermatome level (anterior horn cells + all entering roots destroyed)"},
+  {q:"Why does the internal capsule cause such devastating deficits?",a:"It contains TIGHTLY PACKED motor and sensory fibres (like a superhighway). It lacks collateral blood supply from lenticulostriate artery → small clot = massive damage"},
+  {q:"What is circumduction gait and why does it occur?",a:"The UMNL patient swings the stiff, spastically extended leg outward in a circle. Caused by spasticity of antigravity leg extensors preventing normal knee/hip flexion during gait"},
+  {q:"What are the two types of degeneration seen in LMNL?",a:"(1) Wallerian: DISTAL axon degenerates away from lesion. (2) Retrograde: proximal axon degenerates toward cell body. Regeneration possible if cell body survives."},
+  {q:"In spinal cord injury, why does retention with overflow incontinence occur?",a:"Loss of autonomic reflexes → detrusor muscle cannot contract → bladder fills without emptying → when overfull, passively leaks = OVERFLOW INCONTINENCE (not reflex voiding)"},
+];
+
+const CASES_DATA = [
+  {
+    title:"Case 1 — Stroke and Hemiplegia",
+    vignette:"A 62-year-old hypertensive man is brought to the emergency department with sudden onset left-sided weakness. He cannot move his left hand or leg. Examination reveals increased tone in the left upper and lower limbs, exaggerated deep tendon reflexes on the left, a positive Babinski's sign on the left, and upward deviation of both eyes. Lower left facial droop is present, but he can still wrinkle his forehead bilaterally.",
+    questions:[
+      {q:"1. What is the most likely diagnosis and site of the lesion?",a:"<strong>UMNL — right internal capsule.</strong> This is the most common site for UMNL due to thrombosis of the lenticulostriate artery. Contralateral (left-sided) deficits, spasticity, hyperreflexia, and Babinski's sign confirm UMN involvement."},
+      {q:"2. Why can the patient still wrinkle his forehead?",a:"<strong>Bilateral innervation of upper facial muscles.</strong> The upper facial muscles (frontalis, orbicularis oculi) receive corticobulbar input from BOTH cerebral cortices. The undamaged LEFT cortex still supplies the forehead bilaterally → preserved function. Lower face receives only CONTRALATERAL innervation → paralysed."},
+      {q:"3. What investigation confirms the diagnosis?",a:"<strong>MRI brain (gold standard)</strong> to identify the ischemic territory of the lenticulostriate artery within the internal capsule. CT brain is done first in emergency to rule out haemorrhage before thrombolytics."},
+    ]
+  },
+  {
+    title:"Case 2 — Clasp-Knife Spasticity",
+    vignette:"A physiotherapist is examining a hemiplegic patient 6 weeks post-stroke. When she attempts to passively extend the patient's flexed arm, she feels strong initial resistance that suddenly melts away like a penknife closing. The patient's leg is stiffly extended and swings in a circle when the patient attempts to walk.",
+    questions:[
+      {q:"1. Name this type of spasticity and explain the mechanism.",a:"<strong>Clasp-knife spasticity.</strong> The internal capsule lesion interrupts descending INHIBITORY cortical fibres. This leaves the facilitatory vestibulospinal and reticulospinal tracts unopposed → over-stimulation of γ-motor neurons → increased tone in ANTIGRAVITY muscles (arm flexors, leg extensors). Initial resistance = activated muscle spindles. Sudden give = activation of Golgi tendon organs that inhibit the stretched muscle."},
+      {q:"2. What gait pattern is described and why?",a:"<strong>Circumduction gait.</strong> Spasticity of the leg extensors (antigravity) prevents flexion at the knee and hip during the swing phase. The stiff, extended leg cannot clear the floor normally, so the patient swings it outward in a semicircle (circumducts) to advance it."},
+    ]
+  },
+  {
+    title:"Case 3 — EMG Fibrillations (LMNL)",
+    vignette:"A 35-year-old mechanic suffered a deep stab wound to the right thigh 3 weeks ago. He now presents with complete paralysis and severe wasting of the right quadriceps. On examination, tone is markedly reduced, knee jerk is absent, and a few visible muscle twitches are noted in the quadriceps. An EMG reveals numerous small spontaneous potentials of short duration and low amplitude that do not correlate with any visible movement.",
+    questions:[
+      {q:"1. What do the visible twitches and EMG findings represent?",a:"<strong>Fasciculations</strong> (visible twitches) = spontaneous injury potentials in the STILL-CONNECTED distal axon segment, causing synchronous contraction of the entire motor unit. <strong>Fibrillations</strong> (EMG-only small potentials) = axon terminals have now SEPARATED from the main axon, causing asynchronous individual muscle fibre contractions visible only on EMG."},
+      {q:"2. What structural changes have occurred in the quadriceps muscle?",a:"<strong>LMNL muscle changes:</strong> Wallerian degeneration (distal axon), marked ATROPHY (loss of neurotrophic influence), and INCREASE in ACh receptors spreading over the entire sarcolemma (denervation supersensitivity). The muscle is hypersensitive to any circulating acetylcholine."},
+      {q:"3. What is the overall diagnosis and what clinical signs confirm it?",a:"<strong>Lower Motor Neuron Lesion (LMNL)</strong> — confirmed by the triad: (1) FLACCID paralysis, (2) AREFLEXIA (absent knee jerk), and (3) FASCICULATIONS. These three features together define an LMN lesion."},
+    ]
+  },
+  {
+    title:"Case 4 — Mass Reflex",
+    vignette:"A 28-year-old man with a complete T4 spinal cord injury (3 months ago) is receiving nursing care. As the nurse gently brushes his left foot while changing the bed sheets, the patient suddenly experiences violent flexion of both legs, involuntary urination, profuse sweating below the neck, and his carer notes that his blood pressure spikes to 200/110 mmHg on the monitor.",
+    questions:[
+      {q:"1. What is this response called and what caused it?",a:"<strong>Mass Reflex.</strong> After recovery from spinal shock, isolated spinal centres develop DENERVATION SUPERSENSITIVITY. A minor stimulus (gentle skin brushing) causes widespread IRRADIATION between supersensitive spinal autonomic and somatic centres below the lesion level."},
+      {q:"2. List all components of this response.",a:"<strong>Components of Mass Reflex:</strong> (1) Bilateral lower limb FLEXION, (2) Evacuation of bladder (incontinence) and rectum, (3) Profuse SWEATING below the lesion, (4) RISE in arterial blood pressure (sympathetic surge). All triggered simultaneously by a single minor stimulus."},
+    ]
+  },
+  {
+    title:"Case 5 — Brown-Séquard Syndrome",
+    vignette:"A 19-year-old man is admitted following a stab wound to the right side of the back at the T10 level. On examination: (1) Right leg: spastic, hyperreflexia, Babinski positive, cannot feel vibration or fine touch. (2) Left leg: normal power, can feel vibration, but cannot feel pinprick or temperature. (3) At right T10 dermatome: flaccid weakness and complete sensory loss.",
+    questions:[
+      {q:"1. What is the diagnosis? Name the syndrome.",a:"<strong>Brown-Séquard Syndrome</strong> — hemisection of the RIGHT side of the spinal cord at T10. The classic pattern of DISSOCIATED sensory loss and crossed deficits is pathognomonic."},
+      {q:"2. Explain why the right leg has spasticity but the left leg has normal power.",a:"<strong>Motor tracts descend ipsilaterally</strong> (having already crossed in the medulla). The right-side hemisection cuts the RIGHT descending corticospinal tract → UMNL signs on the RIGHT below T10. The LEFT motor tract is intact → normal left motor function."},
+      {q:"3. Explain the sensory dissociation: Why does the right leg lose fine touch but the LEFT leg loses pain/temperature?",a:"<strong>Two different pathways cross at different levels:</strong> DCML fibres (fine touch, proprioception, vibration) ascend ipsilaterally and cross in the MEDULLA → lost on the SAME (right) side below the lesion. Spinothalamic fibres (pain, temperature) cross IMMEDIATELY in the spinal cord → lost on the OPPOSITE (left) side below the lesion."},
+    ]
+  },
+  {
+    title:"Case 6 — Spinal Shock vs Recovery",
+    vignette:"A 23-year-old motorcyclist suffers a complete T6 spinal cord transection in a road traffic accident. In the first week, he has complete flaccid paralysis below T6, no reflexes at all, and a catheter is required as he cannot void. Five weeks later, his legs begin to flex suddenly when the nurse touches the sole of his foot. Eight months later, his legs are now permanently stiff and extended.",
+    questions:[
+      {q:"1. Explain what happened in the first week.",a:"<strong>Spinal shock</strong> — sudden interruption of TONIC SUPRASPINAL FACILITATION removes the excitatory drive that maintained basal activity in spinal neurons → complete shutdown: flaccid paralysis, areflexia, autonomic retention with overflow incontinence (no micturition reflex)."},
+      {q:"2. What neurophysiological changes allowed the foot-touch reflex to return at 5 weeks?",a:"<strong>Two mechanisms of recovery:</strong> (1) DENERVATION SUPERSENSITIVITY — isolated spinal neurons upregulate receptors, becoming highly responsive to any remaining neurotransmitter. (2) AXONAL SPROUTING — new presynaptic terminals grow from local afferent neurons and interneurons, re-establishing functional synaptic connections in the isolated segment. The FLEXION WITHDRAWAL reflex recovers first."},
+      {q:"3. Why are the legs now permanently stiff (extended) at 8 months?",a:"<strong>Paraplegia in extension</strong> — the final stage of reflex recovery after complete transection. The extensor stretch reflex eventually recovers and predominates, leaving the legs in tonic extension. This follows the sequence: flexion reflex → flexor stretch reflex → extensor stretch reflex."},
+    ]
+  },
+];
+
+const PATHO_DATA = [
+  {icon:"🏗️",title:"Internal Capsule",sub:"Most common UMNL site",detail:"The internal capsule houses tightly packed motor (corticospinal) and sensory (thalamocortical) fibres in a small space. It is supplied exclusively by the lenticulostriate artery — a perforating branch with NO collateral circulation. Small clot = massive, catastrophic damage to all fibres passing through."},
+  {icon:"⬇️",title:"Descending Inhibitory Cortical Fibres",sub:"Key to UMNL spasticity",detail:"These corticospinal fibres normally exert a TONIC INHIBITORY influence on the γ-motor neurons and spinal reflex circuits. When destroyed by UMNL, the facilitatory vestibulospinal and reticulospinal tracts are left UNOPPOSED — they over-stimulate γ-motor neurons, increasing muscle spindle sensitivity and producing clasp-knife spasticity."},
+  {icon:"💪",title:"γ-Motor Neurons & Muscle Spindles",sub:"Spasticity mechanism",detail:"γ-motor neurons set the sensitivity of the muscle spindle. In UMNL, unopposed facilitation from vestibulospinal/reticulospinal tracts over-stimulates γ-motor neurons → spindles become hypersensitive → any stretch causes exaggerated contraction → spasticity, hyperreflexia, and clonus."},
+  {icon:"🧩",title:"Corticobulbar Tract — Facial Innervation",sub:"Upper vs lower face",detail:"Upper facial muscles (frontalis, orbicularis oculi) receive BILATERAL corticobulbar input. Lower facial muscles receive ONLY CONTRALATERAL input. Therefore: unilateral UMNL → only the contralateral lower face is paralysed (sole source of input is cut). Upper face survives (ipsilateral cortex still supplies it)."},
+  {icon:"💀",title:"Wallerian Degeneration",sub:"LMNL — distal axon",detail:"After nerve severance, the DISTAL segment of the axon (separated from the cell body) undergoes Wallerian degeneration. Without the cell body providing trophic support, the distal axon and its myelin sheath break down over days to weeks. The proximal segment undergoes retrograde degeneration."},
+  {icon:"⚡",title:"Fasciculations vs Fibrillations",sub:"LMNL — electrical discharge",detail:"FASCICULATIONS: The distal axon is dying but still physically attached to the main axon. Spontaneous injury potentials fire along it → entire MOTOR UNIT contracts synchronously → VISIBLE twitches. FIBRILLATIONS: Axon terminals completely separate → individual fibres fire asynchronously → only EMG can detect them."},
+  {icon:"🔌",title:"Denervation Supersensitivity",sub:"LMNL — muscle membrane",detail:"Normal: ACh receptors confined to end-plate zone. After LMNL: the entire sarcolemma becomes covered with ACh receptors. Mechanism: Loss of the 'receptor-confining signal' from the nerve terminal → receptor synthesis upregulated → spreads. Result: hypersensitive to even minute amounts of ACh."},
+  {icon:"🧠",title:"Tonic Supraspinal Facilitation",sub:"Basis of spinal shock",detail:"Under normal conditions, the brain continuously sends tonic EXCITATORY signals down to spinal neurons, maintaining their baseline activity. Complete cord transection suddenly removes ALL this tonic drive → spinal neurons fall into profound inhibition → spinal shock: everything below the lesion goes quiet."},
+  {icon:"🌱",title:"Axonal Sprouting",sub:"Recovery from spinal shock",detail:"After spinal shock, new presynaptic terminals SPROUT from surviving local afferent neurons (sensory) and interneurons. These establish new functional synaptic contacts on the isolated, supersensitive spinal neurons below the lesion → reflex arcs are re-established AUTONOMOUSLY, independent of higher centres."},
+  {icon:"✂️",title:"Brown-Séquard Pathway Anatomy",sub:"Why deficits are crossed",detail:"Pain/temperature fibres (spinothalamic): enter spinal cord → IMMEDIATELY cross within 1-2 segments → ascend contralaterally. So right hemisection cuts fibres that came from the LEFT → left-side pain loss. Fine touch/proprioception (DCML): enter → ascend IPSILATERALLY → cross in MEDULLA. So right hemisection cuts right DCML → right-side fine touch/proprioception loss."},
+];
+
+const MNEMO_DATA = [
+  {
+    icon:"🔴",
+    title:"UMNL Signs",
+    acronym:"SHAFT-B",
+    items:[
+      {l:"S",t:"Spasticity (clasp-knife, antigravity muscles)"},
+      {l:"H",t:"Hyperreflexia (exaggerated DTRs + clonus)"},
+      {l:"A",t:"Atrophy ABSENT (no denervation)"},
+      {l:"F",t:"Fasciculations ABSENT"},
+      {l:"T",t:"Tone INCREASED (hypertonia)"},
+      {l:"B",t:"Babinski's sign POSITIVE ✅"},
+    ]
+  },
+  {
+    icon:"🟢",
+    title:"LMNL Signs",
+    acronym:"FAT-FFA",
+    items:[
+      {l:"F",t:"Flaccid paralysis"},
+      {l:"A",t:"Atrophy (marked muscle wasting)"},
+      {l:"T",t:"Tone DECREASED (atonia, areflexia)"},
+      {l:"F",t:"Fasciculations PRESENT (visible)"},
+      {l:"F",t:"Fibrillations (EMG only)"},
+      {l:"A",t:"ACh receptors INCREASED (supersensitivity)"},
+    ]
+  },
+  {
+    icon:"🟡",
+    title:"Spinal Shock Features",
+    acronym:"FLARE",
+    items:[
+      {l:"F",t:"Flaccid paralysis below the level"},
+      {l:"L",t:"Loss of ALL reflexes (areflexia)"},
+      {l:"A",t:"Autonomic retention (overflow incontinence)"},
+      {l:"R",t:"Recovery takes 2–6 weeks"},
+      {l:"E",t:"Excitatory drive (supraspinal) is what was lost"},
+    ]
+  },
+  {
+    icon:"✂️",
+    title:"Brown-Séquard Rules",
+    acronym:"SAME-CROSS",
+    items:[
+      {l:"S",t:"SAME side: UMNL motor below lesion"},
+      {l:"A",t:"SAME side: All fine touch/proprioception lost below"},
+      {l:"M",t:"MIXED at level: LMNL + all sensation lost"},
+      {l:"E",t:"EXACT level (ipsi): flaccid + complete sensory loss"},
+      {l:"C",t:"CROSS side: pain and temperature lost"},
+      {l:"R",t:"Reason pain crosses: spinothalamic crosses immediately"},
+      {l:"O",t:"Other side motor: completely NORMAL"},
+      {l:"S",t:"Sensory dissociation = hallmark sign"},
+      {l:"S",t:"Spine MRI confirms hemisection"},
+    ]
+  },
+  {
+    icon:"🌱",
+    title:"Reflex Recovery Order",
+    acronym:"FFE-M",
+    items:[
+      {l:"F",t:"Flexion withdrawal reflex — FIRST to return"},
+      {l:"F",t:"Flexor stretch reflex (paraplegia in flexion)"},
+      {l:"E",t:"Extensor stretch reflex (paraplegia in extension)"},
+      {l:"M",t:"Mass reflex — capable last (minor scratch = massive response)"},
+    ]
+  },
+  {
+    icon:"🔥",
+    title:"Mass Reflex Components",
+    acronym:"BESS",
+    items:[
+      {l:"B",t:"Bilateral leg FLEXION"},
+      {l:"E",t:"Evacuation: bladder + rectum"},
+      {l:"S",t:"Sweating (profuse, below lesion)"},
+      {l:"S",t:"Sympathetic surge: ↑ arterial blood PRESSURE"},
+    ]
+  },
+];
+
+const VIVA_DATA = [
+  {q:"Define Upper Motor Neuron Lesion (UMNL).",a:"UMNL is damage to the upper motor neuron in higher brain centres or descending motor tracts. The most common site is the internal capsule due to thrombosis of the lenticulostriate artery. ⭐ EXAM",exam:true},
+  {q:"Why does a unilateral UMNL cause only paresis (not paralysis) in axial muscles?",a:"Axial muscles receive motor innervation from descending tracts other than the corticospinal tract and have bilateral cortical representation. Unilateral damage only causes weakness, not complete loss of voluntary movement.",exam:false},
+  {q:"Describe clasp-knife spasticity and its mechanism.",a:"Clasp-knife spasticity affects antigravity muscles (arm flexors, leg extensors), with initial resistance followed by sudden give on passive movement. Mechanism: interruption of descending inhibitory cortical fibres → unopposed vestibulospinal/reticulospinal facilitation → over-stimulation of γ-motor neurons.",exam:false},
+  {q:"What is Babinski's sign and what does it indicate?",a:"Babinski's sign is an extensor plantar response — upward fanning of toes on stroking the sole. It indicates UMNL due to the loss of cortical inhibition on spinal reflex circuits. ⭐ One of the most important clinical signs in medicine.",exam:true},
+  {q:"Define Lower Motor Neuron Lesion (LMNL).",a:"LMNL is damage to the lower motor neurons — specifically the spinal anterior horn cells, cranial motor nuclei, or their axons. This results in direct denervation and skeletal muscle paralysis.",exam:false},
+  {q:"Differentiate between fasciculations and fibrillations.",a:"Fasciculations = visible, synchronous contractions of an entire motor unit, caused by spontaneous injury potentials in the STILL-CONNECTED distal axon. Fibrillations = invisible (EMG only), asynchronous contractions of INDIVIDUAL muscle fibres, occurring when axon terminals completely separate.",exam:false},
+  {q:"Explain the concept of denervation supersensitivity.",a:"Following LMNL, the denervated muscle becomes hypersensitive to acetylcholine. ACh receptors increase in number and spread over the ENTIRE surface of the muscle cell membrane (from just the end-plate zone), making the muscle respond to even minute amounts of ACh.",exam:false},
+  {q:"What causes the areflexia seen in spinal shock?",a:"Areflexia during spinal shock results from the sudden interruption of TONIC SUPRASPINAL FACILITATION following cord transection. This sudden withdrawal of excitation causes marked inhibition of all spinal neurons below the lesion — reflexes cannot fire without excitatory background drive.",exam:false},
+  {q:"How long does spinal shock typically last in humans?",a:"In humans, the stage of spinal shock typically lasts 2 to 6 WEEKS. After this period, spinal reflex activity begins to gradually recover autonomously, independent of higher centres.",exam:false},
+  {q:"What physiological mechanisms drive recovery of reflex activity after spinal shock?",a:"Two mechanisms: (1) DENERVATION SUPERSENSITIVITY — isolated spinal neurons upregulate receptors, becoming highly responsive. (2) SPROUTING — new presynaptic terminals grow from local afferent neurons and interneurons, establishing new functional synaptic connections.",exam:false},
+  {q:"Describe the mass reflex.",a:"A widespread autonomic and motor reaction triggered by scratching the skin of the lower limbs in a chronic SCI patient. Results from irradiation of impulses between supersensitive isolated spinal centres: bilateral leg flexion, bladder/bowel evacuation, profuse sweating, and ↑ arterial blood pressure.",exam:false},
+  {q:"What sensory modalities are lost contralaterally in Brown-Séquard Syndrome, and why?",a:"PAIN and TEMPERATURE are lost on the side OPPOSITE the lesion below the cut. Because spinothalamic fibres cross the midline of the spinal cord IMMEDIATELY upon entering (within 1–2 segments), before ascending. So a right hemisection cuts fibres that carried pain/temp from the left side.",exam:false},
+];
+
+// All searchable content
+const SEARCH_INDEX = [
+  ...QUIZ_DATA.map((q,i)=>({title:`Quiz Q${i+1}: ${q.q.substring(0,50)}...`,content:q.q+" "+q.exp,tab:"quiz"})),
+  ...FLASHCARD_DATA.map(f=>({title:`Flashcard: ${f.q.substring(0,50)}`,content:f.q+" "+f.a,tab:"flashcards"})),
+  ...CASES_DATA.map(c=>({title:`Case: ${c.title}`,content:c.vignette,tab:"cases"})),
+  ...PATHO_DATA.map(p=>({title:`Patho: ${p.title}`,content:p.detail,tab:"patho"})),
+  ...MNEMO_DATA.map(m=>({title:`Mnemonic: ${m.title} (${m.acronym})`,content:m.items.map(i=>i.t).join(" "),tab:"mnemonics"})),
+  ...VIVA_DATA.map(v=>({title:`Viva: ${v.q.substring(0,50)}`,content:v.q+" "+v.a,tab:"viva"})),
+];
+
+// ===================== STATE =====================
+let quizState = JSON.parse(localStorage.getItem("mn_quiz") || "{}");
+let score = quizState.score || 0;
+let streak = quizState.streak || 0;
+let answered = quizState.answered || {};
+let totalAnswered = Object.keys(answered).length;
+
+// ===================== INIT =====================
+document.addEventListener("DOMContentLoaded",()=>{
+  const lastTab = localStorage.getItem("mn_tab") || "overview";
+  const btn = [...document.querySelectorAll(".tab-btn")].find(b=>b.getAttribute("onclick").includes(lastTab));
+  if(btn) switchTab(lastTab,btn);
+  buildQuiz();
+  buildFlashcards();
+  buildCases();
+  buildPatho();
+  buildMnemonics();
+  buildViva();
+  updateHeader();
+});
+
+// ===================== TAB SWITCH =====================
+function switchTab(id,btn){
+  document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+  document.getElementById("tab-"+id).classList.add("active");
+  btn.classList.add("active");
+  localStorage.setItem("mn_tab",id);
+}
+
+// ===================== QUIZ =====================
+function buildQuiz(){
+  const container = document.getElementById("quizContainer");
+  container.innerHTML = "";
+  QUIZ_DATA.forEach((q,i)=>{
+    const isAnswered = answered[i] !== undefined;
+    const selected = answered[i];
+    const isCorrect = selected === q.ans;
+    
+    const card = document.createElement("div");
+    card.className = `question-card ${isAnswered?(isCorrect?"correct-card":"wrong-card"):""}`;
+    card.id = `qcard-${i}`;
+    
+    const optHtml = q.opts.map((o,j)=>{
+      let cls = "option-btn";
+      if(isAnswered){
+        if(j===q.ans) cls+=" reveal-correct";
+        if(j===selected && !isCorrect) cls+=" selected-wrong";
+        if(j===selected && isCorrect) cls+=" selected-correct";
+      }
+      return `<button class="${cls}" onclick="selectAnswer(${i},${j})" ${isAnswered?"disabled":""}>
+        <span class="option-letter">${String.fromCharCode(65+j)}</span>${o.substring(3)}
+      </button>`;
+    }).join("");
+    
+    card.innerHTML = `
+      <div class="q-header">
+        <span class="q-num">Q${i+1}</span>
+        <span class="q-topic-tag">${q.topic}</span>
+        <div style="flex:1"><div class="q-text">${q.q}</div></div>
+      </div>
+      <div class="options">${optHtml}</div>
+      <div class="explanation-box ${isAnswered?"show":""}" id="exp-${i}">
+        <strong>📖 Explanation:</strong> ${q.exp}
+      </div>`;
+    container.appendChild(card);
+  });
+  updateProgress();
+}
+
+function selectAnswer(qIdx, optIdx){
+  if(answered[qIdx] !== undefined) return;
+  const q = QUIZ_DATA[qIdx];
+  const isCorrect = optIdx === q.ans;
+  
+  answered[qIdx] = optIdx;
+  totalAnswered++;
+  
+  if(isCorrect){
+    score++;
+    streak++;
+    showToast(streak>=3 ? `🔥 ${streak} streak! Keep going!` : "✅ Correct!");
+  } else {
+    streak = 0;
+    showToast("❌ Not quite — check the explanation");
+  }
+  
+  saveQuiz();
+  buildQuiz();
+  
+  if(totalAnswered === QUIZ_DATA.length){
+    setTimeout(showResult, 500);
+  }
+}
+
+function showResult(){
+  const pct = Math.round(score/QUIZ_DATA.length*100);
+  const res = document.getElementById("quizResult");
+  document.getElementById("resultScore").textContent = `${score} / ${QUIZ_DATA.length}`;
+  let msg = pct>=80?"🎉 Excellent! You've mastered this topic!":pct>=60?"👍 Good effort! Review the explanations and try again.":"💪 Keep studying — you've got this!";
+  document.getElementById("resultMsg").textContent = msg;
+  res.classList.add("show");
+  showToast(`Quiz complete! Score: ${pct}%`);
+}
+
+function resetQuiz(){
+  answered = {};score=0;streak=0;totalAnswered=0;
+  saveQuiz();
+  document.getElementById("quizResult").classList.remove("show");
+  buildQuiz();
+  updateHeader();
+  showToast("🔄 Quiz reset — good luck!");
+}
+
+function saveQuiz(){
+  localStorage.setItem("mn_quiz",JSON.stringify({score,streak,answered}));
+  updateHeader();
+}
+
+function updateProgress(){
+  const pct = Math.round(totalAnswered/QUIZ_DATA.length*100);
+  document.getElementById("progressFill").style.width = pct+"%";
+  document.getElementById("progress-label").textContent = `Progress: ${totalAnswered} / ${QUIZ_DATA.length} answered`;
+  document.getElementById("scoreVal").textContent = score;
+  document.getElementById("streakVal").textContent = streak+"🔥";
+}
+
+function updateHeader(){
+  const pct = Math.round(totalAnswered/QUIZ_DATA.length*100);
+  document.getElementById("hdr-score").textContent = score;
+  document.getElementById("hdr-streak").textContent = streak;
+  document.getElementById("hdr-pct").textContent = pct;
+}
+
+// ===================== FLASHCARDS =====================
+function buildFlashcards(){
+  const grid = document.getElementById("flashcardsGrid");
+  FLASHCARD_DATA.forEach((f,i)=>{
+    const card = document.createElement("div");
+    card.className = "flashcard";
+    card.onclick = ()=> card.classList.toggle("flipped");
+    card.innerHTML = `
+      <div class="flashcard-inner">
+        <div class="flashcard-front">
+          <div class="fc-label">❓ Question ${i+1}</div>
+          <div class="fc-text">${f.q}</div>
+          <div class="fc-hint">tap to reveal →</div>
+        </div>
+        <div class="flashcard-back">
+          <div class="fc-label">✅ Answer</div>
+          <div class="fc-text">${f.a}</div>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ===================== CLINICAL CASES =====================
+function buildCases(){
+  const container = document.getElementById("casesContainer");
+  CASES_DATA.forEach((c,ci)=>{
+    const div = document.createElement("div");
+    div.className = "case-card";
+    const qHtml = c.questions.map((q,qi)=>`
+      <div class="case-q">${q.q}</div>
+      <button class="reveal-btn" onclick="revealCaseAnswer(${ci},${qi})">▼ Reveal Answer</button>
+      <div class="case-answer" id="ca-${ci}-${qi}"><strong>Answer:</strong><br>${q.a}</div>
+    `).join("");
+    div.innerHTML = `
+      <div class="case-header">
+        <span class="case-num">CASE ${ci+1}</span>
+        <div class="case-title">${c.title}</div>
+      </div>
+      <div class="case-body">
+        <div class="case-vignette">📋 ${c.vignette}</div>
+        ${qHtml}
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+function revealCaseAnswer(ci,qi){
+  const el = document.getElementById(`ca-${ci}-${qi}`);
+  el.classList.add("shown");
+}
+
+// ===================== PATHOPHYSIOLOGY =====================
+function buildPatho(){
+  const grid = document.getElementById("pathoGrid");
+  PATHO_DATA.forEach((p,i)=>{
+    const item = document.createElement("div");
+    item.className = "patho-item";
+    item.innerHTML = `
+      <h4>${p.icon} ${p.title}</h4>
+      <p>${p.sub}</p>
+      <div class="patho-detail" id="pd-${i}">${p.detail}</div>`;
+    item.querySelector("h4").onclick = ()=>{
+      const det = document.getElementById(`pd-${i}`);
+      det.classList.toggle("open");
+    };
+    grid.appendChild(item);
+  });
+}
+
+// ===================== MNEMONICS =====================
+function buildMnemonics(){
+  const grid = document.getElementById("mnemoGrid");
+  MNEMO_DATA.forEach(m=>{
+    const card = document.createElement("div");
+    card.className = "mnemo-card";
+    const liHtml = m.items.map(it=>`<li><span class="letter">${it.l}</span> ${it.t}</li>`).join("");
+    card.innerHTML = `
+      <div class="mnemo-header">
+        <span class="mnemo-icon">${m.icon}</span>
+        <h3>${m.title}</h3>
+      </div>
+      <div class="mnemo-acronym">${m.acronym}</div>
+      <ul class="mnemo-list">${liHtml}</ul>`;
+    grid.appendChild(card);
+  });
+}
+
+// ===================== VIVA =====================
+function buildViva(){
+  const container = document.getElementById("vivaContainer");
+  VIVA_DATA.forEach((v,i)=>{
+    const item = document.createElement("div");
+    item.className = "viva-item";
+    item.innerHTML = `
+      <div class="viva-q" onclick="toggleViva(${i})">
+        <span class="viva-q-text">${i+1}. ${v.q}</span>
+        <span class="viva-toggle">▼</span>
+      </div>
+      <div class="viva-a">
+        ${v.exam?'<span class="exam-flag">⚠️ EXAM</span><br>':""}${v.a}
+      </div>`;
+    container.appendChild(item);
+  });
+}
+
+function toggleViva(i){
+  const items = document.querySelectorAll(".viva-item");
+  items[i].classList.toggle("open");
+}
+
+// ===================== SEARCH =====================
+function liveSearch(val){
+  if(val.length < 2){ closeSearch(); return; }
+  const results = SEARCH_INDEX.filter(item=>
+    item.title.toLowerCase().includes(val.toLowerCase()) ||
+    item.content.toLowerCase().includes(val.toLowerCase())
+  ).slice(0,12);
+  
+  const overlay = document.getElementById("searchResults");
+  const list = document.getElementById("searchResultsList");
+  
+  if(results.length === 0){
+    list.innerHTML = `<div style="color:var(--text2);text-align:center;padding:40px;">No results found for "${val}"</div>`;
+  } else {
+    list.innerHTML = results.map(r=>`
+      <div class="search-result-item" onclick="goToTab('${r.tab}')">
+        <h4>${r.title}</h4>
+        <p>${r.content.substring(0,120)}...</p>
+      </div>`).join("");
+  }
+  overlay.classList.add("active");
+}
+
+function closeSearch(){
+  document.getElementById("searchResults").classList.remove("active");
+  document.getElementById("searchInput").value = "";
+}
+
+function goToTab(tabName){
+  closeSearch();
+  const btn = [...document.querySelectorAll(".tab-btn")].find(b=>b.getAttribute("onclick").includes(tabName));
+  if(btn) switchTab(tabName,btn);
+}
+
+document.getElementById("searchResults").addEventListener("click",function(e){
+  if(e.target === this) closeSearch();
+});
+
+// ===================== TOAST =====================
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2500);
+}
+</script>
+</body>
+</html>

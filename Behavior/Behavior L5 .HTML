@@ -1,0 +1,2427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personality Psychology Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+--primary: #6366f1;
+--primary-dark: #4f46e5;
+--primary-light: #818cf8;
+--secondary: #ec4899;
+--accent: #06b6d4;
+--success: #10b981;
+--warning: #f59e0b;
+--danger: #ef4444;
+--bg-dark: #0f0f23;
+--bg-card: #1a1a2e;
+--bg-card-hover: #22223a;
+--bg-surface: #16162a;
+--text-primary: #e2e8f0;
+--text-secondary: #94a3b8;
+--text-muted: #64748b;
+--border: #2d2d50;
+--glass: rgba(255,255,255,0.05);
+--glass-border: rgba(255,255,255,0.1);
+--gradient-1: linear-gradient(135deg, #6366f1, #ec4899);
+--gradient-2: linear-gradient(135deg, #06b6d4, #6366f1);
+--gradient-3: linear-gradient(135deg, #10b981, #06b6d4);
+--gradient-4: linear-gradient(135deg, #f59e0b, #ef4444);
+--gradient-5: linear-gradient(135deg, #8b5cf6, #06b6d4);
+--shadow-lg: 0 20px 60px rgba(0,0,0,0.4);
+--shadow-md: 0 8px 30px rgba(0,0,0,0.3);
+--shadow-sm: 0 4px 15px rgba(0,0,0,0.2);
+--radius: 16px;
+--radius-sm: 10px;
+--radius-xs: 6px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+font-family: 'Inter', sans-serif;
+background: var(--bg-dark);
+color: var(--text-primary);
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* Animated Background */
+.bg-animation {
+position: fixed;
+top: 0; left: 0;
+width: 100%; height: 100%;
+z-index: 0;
+overflow: hidden;
+pointer-events: none;
+}
+
+.bg-orb {
+position: absolute;
+border-radius: 50%;
+filter: blur(80px);
+opacity: 0.15;
+animation: float 20s ease-in-out infinite;
+}
+
+.bg-orb:nth-child(1) {
+width: 500px; height: 500px;
+background: var(--primary);
+top: -100px; left: -100px;
+animation-duration: 25s;
+}
+.bg-orb:nth-child(2) {
+width: 400px; height: 400px;
+background: var(--secondary);
+top: 50%; right: -100px;
+animation-duration: 30s;
+animation-delay: -5s;
+}
+.bg-orb:nth-child(3) {
+width: 350px; height: 350px;
+background: var(--accent);
+bottom: -80px; left: 40%;
+animation-duration: 22s;
+animation-delay: -10s;
+}
+
+@keyframes float {
+0%, 100% { transform: translate(0, 0) rotate(0deg); }
+25% { transform: translate(30px, -40px) rotate(5deg); }
+50% { transform: translate(-20px, 30px) rotate(-3deg); }
+75% { transform: translate(40px, 20px) rotate(4deg); }
+}
+
+/* Header */
+.header {
+position: relative;
+z-index: 10;
+padding: 24px 32px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+background: rgba(15,15,35,0.8);
+backdrop-filter: blur(20px);
+border-bottom: 1px solid var(--border);
+}
+
+.logo {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+
+.logo-icon {
+width: 44px; height: 44px;
+background: var(--gradient-1);
+border-radius: 12px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 22px;
+box-shadow: 0 4px 20px rgba(99,102,241,0.3);
+}
+
+.logo-text h1 {
+font-size: 18px;
+font-weight: 800;
+background: var(--gradient-1);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+line-height: 1.2;
+}
+
+.logo-text span {
+font-size: 11px;
+color: var(--text-muted);
+font-weight: 500;
+letter-spacing: 1px;
+text-transform: uppercase;
+}
+
+.stats-bar {
+display: flex;
+gap: 20px;
+align-items: center;
+}
+
+.stat-item {
+text-align: center;
+padding: 6px 14px;
+background: var(--glass);
+border: 1px solid var(--glass-border);
+border-radius: var(--radius-sm);
+}
+
+.stat-item .stat-value {
+font-size: 18px;
+font-weight: 700;
+color: var(--primary-light);
+font-family: 'JetBrains Mono', monospace;
+}
+
+.stat-item .stat-label {
+font-size: 9px;
+color: var(--text-muted);
+text-transform: uppercase;
+letter-spacing: 1px;
+}
+
+/* Navigation */
+.nav-container {
+position: relative;
+z-index: 10;
+background: rgba(15,15,35,0.6);
+backdrop-filter: blur(15px);
+border-bottom: 1px solid var(--border);
+padding: 0 32px;
+overflow-x: auto;
+-ms-overflow-style: none;
+scrollbar-width: none;
+}
+.nav-container::-webkit-scrollbar { display: none; }
+
+.nav-tabs {
+display: flex;
+gap: 4px;
+min-width: max-content;
+}
+
+.nav-tab {
+padding: 14px 20px;
+font-size: 13px;
+font-weight: 600;
+color: var(--text-muted);
+cursor: pointer;
+border: none;
+background: none;
+border-bottom: 3px solid transparent;
+transition: all 0.3s ease;
+white-space: nowrap;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.nav-tab:hover {
+color: var(--text-primary);
+background: var(--glass);
+}
+
+.nav-tab.active {
+color: var(--primary-light);
+border-bottom-color: var(--primary);
+background: rgba(99,102,241,0.08);
+}
+
+.nav-tab .tab-emoji {
+font-size: 16px;
+}
+
+/* Main Content */
+.main-content {
+position: relative;
+z-index: 5;
+max-width: 1400px;
+margin: 0 auto;
+padding: 28px 32px;
+}
+
+.tab-panel {
+display: none;
+animation: fadeSlideIn 0.4s ease;
+}
+
+.tab-panel.active {
+display: block;
+}
+
+@keyframes fadeSlideIn {
+from { opacity: 0; transform: translateY(15px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+/* Section Titles */
+.section-title {
+font-size: 24px;
+font-weight: 800;
+margin-bottom: 8px;
+display: flex;
+align-items: center;
+gap: 12px;
+}
+
+.section-subtitle {
+color: var(--text-muted);
+font-size: 14px;
+margin-bottom: 28px;
+}
+
+/* Search Bar */
+.search-container {
+position: relative;
+margin-bottom: 28px;
+}
+
+.search-input {
+width: 100%;
+padding: 14px 20px 14px 48px;
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+color: var(--text-primary);
+font-size: 14px;
+font-family: 'Inter', sans-serif;
+transition: all 0.3s ease;
+}
+
+.search-input:focus {
+outline: none;
+border-color: var(--primary);
+box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+}
+
+.search-icon {
+position: absolute;
+left: 16px;
+top: 50%;
+transform: translateY(-50%);
+font-size: 18px;
+color: var(--text-muted);
+}
+
+/* Cards Grid */
+.cards-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+gap: 20px;
+margin-bottom: 36px;
+}
+
+.card {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+padding: 24px;
+transition: all 0.3s ease;
+position: relative;
+overflow: hidden;
+}
+
+.card::before {
+content: '';
+position: absolute;
+top: 0; left: 0;
+width: 100%; height: 3px;
+background: var(--gradient-1);
+opacity: 0;
+transition: opacity 0.3s;
+}
+
+.card:hover {
+transform: translateY(-4px);
+box-shadow: var(--shadow-md);
+border-color: var(--primary);
+}
+
+.card:hover::before {
+opacity: 1;
+}
+
+.card-icon {
+width: 48px; height: 48px;
+border-radius: 12px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 24px;
+margin-bottom: 16px;
+}
+
+.card h3 {
+font-size: 16px;
+font-weight: 700;
+margin-bottom: 10px;
+color: var(--text-primary);
+}
+
+.card p {
+font-size: 13px;
+color: var(--text-secondary);
+line-height: 1.7;
+}
+
+.card .tag {
+display: inline-block;
+padding: 3px 10px;
+border-radius: 20px;
+font-size: 10px;
+font-weight: 600;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+margin-top: 12px;
+margin-right: 4px;
+}
+
+.tag-high-yield { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+.tag-exam { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+.tag-clinical { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+.tag-theory { background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); }
+
+/* Timeline */
+.timeline {
+position: relative;
+padding-left: 32px;
+margin-bottom: 36px;
+}
+
+.timeline::before {
+content: '';
+position: absolute;
+left: 12px;
+top: 0;
+bottom: 0;
+width: 2px;
+background: var(--gradient-2);
+}
+
+.timeline-item {
+position: relative;
+margin-bottom: 24px;
+padding: 20px;
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius-sm);
+transition: all 0.3s;
+}
+
+.timeline-item:hover {
+border-color: var(--accent);
+transform: translateX(4px);
+}
+
+.timeline-item::before {
+content: '';
+position: absolute;
+left: -27px;
+top: 24px;
+width: 12px;
+height: 12px;
+background: var(--accent);
+border-radius: 50%;
+border: 2px solid var(--bg-dark);
+box-shadow: 0 0 10px rgba(6,182,212,0.4);
+}
+
+.timeline-item h4 {
+font-size: 15px;
+font-weight: 700;
+color: var(--accent);
+margin-bottom: 6px;
+}
+
+.timeline-item p {
+font-size: 13px;
+color: var(--text-secondary);
+line-height: 1.6;
+}
+
+/* Quiz Section */
+.quiz-container {
+max-width: 800px;
+margin: 0 auto;
+}
+
+.quiz-progress {
+margin-bottom: 24px;
+}
+
+.progress-bar-outer {
+height: 8px;
+background: var(--bg-card);
+border-radius: 10px;
+overflow: hidden;
+margin-bottom: 8px;
+}
+
+.progress-bar-inner {
+height: 100%;
+background: var(--gradient-1);
+border-radius: 10px;
+transition: width 0.5s ease;
+width: 0%;
+}
+
+.progress-text {
+display: flex;
+justify-content: space-between;
+font-size: 12px;
+color: var(--text-muted);
+}
+
+.quiz-question-card {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+padding: 32px;
+margin-bottom: 20px;
+}
+
+.quiz-q-number {
+font-size: 11px;
+font-weight: 700;
+color: var(--primary-light);
+text-transform: uppercase;
+letter-spacing: 1px;
+margin-bottom: 12px;
+}
+
+.quiz-q-text {
+font-size: 16px;
+font-weight: 600;
+line-height: 1.7;
+margin-bottom: 24px;
+}
+
+.quiz-options {
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
+
+.quiz-option {
+padding: 14px 18px;
+background: var(--bg-surface);
+border: 2px solid var(--border);
+border-radius: var(--radius-sm);
+cursor: pointer;
+transition: all 0.3s;
+font-size: 14px;
+display: flex;
+align-items: center;
+gap: 12px;
+position: relative;
+}
+
+.quiz-option:hover:not(.disabled) {
+border-color: var(--primary);
+background: rgba(99,102,241,0.08);
+transform: translateX(4px);
+}
+
+.quiz-option .option-letter {
+width: 30px; height: 30px;
+border-radius: 50%;
+background: var(--glass);
+border: 1px solid var(--glass-border);
+display: flex;
+align-items: center;
+justify-content: center;
+font-weight: 700;
+font-size: 13px;
+flex-shrink: 0;
+}
+
+.quiz-option.correct {
+border-color: var(--success) !important;
+background: rgba(16,185,129,0.1) !important;
+animation: pulseGreen 0.5s ease;
+}
+
+.quiz-option.correct .option-letter {
+background: var(--success);
+color: white;
+}
+
+.quiz-option.wrong {
+border-color: var(--danger) !important;
+background: rgba(239,68,68,0.1) !important;
+animation: shake 0.5s ease;
+}
+
+.quiz-option.wrong .option-letter {
+background: var(--danger);
+color: white;
+}
+
+.quiz-option.disabled {
+pointer-events: none;
+opacity: 0.6;
+}
+
+.quiz-option.correct.disabled, .quiz-option.wrong.disabled {
+opacity: 1;
+}
+
+@keyframes pulseGreen {
+0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
+50% { box-shadow: 0 0 0 10px rgba(16,185,129,0); }
+}
+
+@keyframes shake {
+0%, 100% { transform: translateX(0); }
+20% { transform: translateX(-8px); }
+40% { transform: translateX(8px); }
+60% { transform: translateX(-6px); }
+80% { transform: translateX(6px); }
+}
+
+.quiz-explanation {
+margin-top: 16px;
+padding: 16px;
+background: rgba(99,102,241,0.08);
+border: 1px solid rgba(99,102,241,0.2);
+border-radius: var(--radius-sm);
+font-size: 13px;
+line-height: 1.7;
+color: var(--text-secondary);
+display: none;
+}
+
+.quiz-explanation.show {
+display: block;
+animation: fadeSlideIn 0.3s ease;
+}
+
+.quiz-explanation strong {
+color: var(--success);
+}
+
+.quiz-nav {
+display: flex;
+justify-content: space-between;
+margin-top: 20px;
+}
+
+.btn {
+padding: 12px 28px;
+border: none;
+border-radius: var(--radius-sm);
+font-family: 'Inter', sans-serif;
+font-size: 14px;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.3s;
+display: inline-flex;
+align-items: center;
+gap: 8px;
+}
+
+.btn-primary {
+background: var(--gradient-1);
+color: white;
+box-shadow: 0 4px 15px rgba(99,102,241,0.3);
+}
+
+.btn-primary:hover {
+transform: translateY(-2px);
+box-shadow: 0 8px 25px rgba(99,102,241,0.4);
+}
+
+.btn-secondary {
+background: var(--glass);
+color: var(--text-primary);
+border: 1px solid var(--glass-border);
+}
+
+.btn-secondary:hover {
+background: rgba(255,255,255,0.1);
+}
+
+.btn:disabled {
+opacity: 0.4;
+cursor: not-allowed;
+transform: none !important;
+}
+
+.quiz-score-card {
+text-align: center;
+padding: 48px;
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+}
+
+.score-circle {
+width: 140px; height: 140px;
+border-radius: 50%;
+background: var(--gradient-1);
+display: flex;
+align-items: center;
+justify-content: center;
+margin: 0 auto 24px;
+box-shadow: 0 8px 40px rgba(99,102,241,0.3);
+}
+
+.score-circle span {
+font-size: 36px;
+font-weight: 900;
+color: white;
+}
+
+.score-message {
+font-size: 20px;
+font-weight: 700;
+margin-bottom: 8px;
+}
+
+.score-detail {
+color: var(--text-muted);
+font-size: 14px;
+margin-bottom: 24px;
+}
+
+/* Flashcards */
+.flashcards-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+gap: 20px;
+}
+
+.flashcard-wrapper {
+perspective: 1000px;
+height: 260px;
+cursor: pointer;
+}
+
+.flashcard {
+width: 100%;
+height: 100%;
+position: relative;
+transform-style: preserve-3d;
+transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.flashcard.flipped {
+transform: rotateY(180deg);
+}
+
+.flashcard-face {
+position: absolute;
+width: 100%;
+height: 100%;
+backface-visibility: hidden;
+border-radius: var(--radius);
+padding: 28px;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+text-align: center;
+border: 1px solid var(--border);
+}
+
+.flashcard-front {
+background: var(--bg-card);
+}
+
+.flashcard-front .fc-label {
+font-size: 10px;
+text-transform: uppercase;
+letter-spacing: 1.5px;
+color: var(--text-muted);
+margin-bottom: 16px;
+}
+
+.flashcard-front .fc-question {
+font-size: 15px;
+font-weight: 600;
+line-height: 1.6;
+}
+
+.flashcard-front .fc-hint {
+margin-top: 20px;
+font-size: 11px;
+color: var(--text-muted);
+}
+
+.flashcard-back {
+background: var(--bg-surface);
+transform: rotateY(180deg);
+border-color: var(--primary);
+}
+
+.flashcard-back .fc-label {
+font-size: 10px;
+text-transform: uppercase;
+letter-spacing: 1.5px;
+color: var(--primary-light);
+margin-bottom: 16px;
+}
+
+.flashcard-back .fc-answer {
+font-size: 14px;
+line-height: 1.7;
+color: var(--text-secondary);
+}
+
+/* Clinical Cases */
+.case-card {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+padding: 28px;
+margin-bottom: 24px;
+}
+
+.case-header {
+display: flex;
+align-items: center;
+gap: 12px;
+margin-bottom: 16px;
+}
+
+.case-number {
+width: 36px; height: 36px;
+background: var(--gradient-4);
+border-radius: 10px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-weight: 800;
+font-size: 14px;
+color: white;
+flex-shrink: 0;
+}
+
+.case-title {
+font-size: 16px;
+font-weight: 700;
+}
+
+.case-vignette {
+padding: 18px;
+background: var(--bg-surface);
+border-radius: var(--radius-sm);
+border-left: 3px solid var(--warning);
+margin-bottom: 18px;
+font-size: 14px;
+line-height: 1.8;
+color: var(--text-secondary);
+}
+
+.case-questions {
+margin-bottom: 16px;
+}
+
+.case-q {
+font-size: 14px;
+font-weight: 600;
+margin-bottom: 8px;
+color: var(--accent);
+}
+
+.case-answer {
+display: none;
+padding: 18px;
+background: rgba(16,185,129,0.08);
+border: 1px solid rgba(16,185,129,0.2);
+border-radius: var(--radius-sm);
+font-size: 13px;
+line-height: 1.8;
+color: var(--text-secondary);
+margin-top: 12px;
+}
+
+.case-answer.show {
+display: block;
+animation: fadeSlideIn 0.3s ease;
+}
+
+.reveal-btn {
+padding: 10px 20px;
+background: var(--gradient-3);
+color: white;
+border: none;
+border-radius: var(--radius-xs);
+cursor: pointer;
+font-family: 'Inter', sans-serif;
+font-weight: 600;
+font-size: 13px;
+transition: all 0.3s;
+margin-top: 8px;
+}
+
+.reveal-btn:hover {
+transform: translateY(-2px);
+box-shadow: 0 4px 15px rgba(16,185,129,0.3);
+}
+
+/* Theory/Path Tab */
+.theory-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+gap: 16px;
+margin-bottom: 36px;
+}
+
+.theory-item {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius-sm);
+padding: 22px;
+cursor: pointer;
+transition: all 0.3s;
+}
+
+.theory-item:hover {
+border-color: var(--primary);
+transform: translateY(-2px);
+}
+
+.theory-item .theory-icon {
+font-size: 28px;
+margin-bottom: 12px;
+}
+
+.theory-item h4 {
+font-size: 15px;
+font-weight: 700;
+margin-bottom: 8px;
+}
+
+.theory-item p {
+font-size: 12px;
+color: var(--text-muted);
+line-height: 1.6;
+}
+
+.theory-detail {
+display: none;
+margin-top: 12px;
+padding: 14px;
+background: var(--bg-surface);
+border-radius: var(--radius-xs);
+font-size: 13px;
+line-height: 1.7;
+color: var(--text-secondary);
+border-left: 3px solid var(--primary);
+}
+
+.theory-detail.show {
+display: block;
+animation: fadeSlideIn 0.3s ease;
+}
+
+/* Flowchart */
+.flowchart {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 0;
+margin: 32px 0;
+}
+
+.flow-step {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius-sm);
+padding: 16px 32px;
+text-align: center;
+max-width: 500px;
+width: 100%;
+font-size: 14px;
+font-weight: 600;
+transition: all 0.3s;
+}
+
+.flow-step:hover {
+border-color: var(--accent);
+transform: scale(1.02);
+}
+
+.flow-arrow {
+font-size: 24px;
+color: var(--accent);
+padding: 4px;
+}
+
+.flow-branch {
+display: flex;
+gap: 16px;
+flex-wrap: wrap;
+justify-content: center;
+margin-top: 4px;
+}
+
+.flow-branch-item {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius-sm);
+padding: 14px 20px;
+text-align: center;
+font-size: 13px;
+flex: 1;
+min-width: 180px;
+max-width: 280px;
+transition: all 0.3s;
+}
+
+.flow-branch-item:hover {
+transform: translateY(-2px);
+}
+
+.flow-branch-item.cluster-a { border-color: #8b5cf6; }
+.flow-branch-item.cluster-b { border-color: #ef4444; }
+.flow-branch-item.cluster-c { border-color: #f59e0b; }
+
+.flow-branch-item h5 {
+font-size: 13px;
+font-weight: 700;
+margin-bottom: 6px;
+}
+
+.flow-branch-item p {
+font-size: 11px;
+color: var(--text-muted);
+line-height: 1.5;
+}
+
+/* Comparison Tables */
+.comparison-table-wrapper {
+overflow-x: auto;
+margin-bottom: 32px;
+border-radius: var(--radius);
+border: 1px solid var(--border);
+}
+
+.comparison-table {
+width: 100%;
+border-collapse: collapse;
+font-size: 13px;
+}
+
+.comparison-table th {
+background: var(--bg-card);
+padding: 14px 18px;
+text-align: left;
+font-weight: 700;
+font-size: 12px;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+color: var(--primary-light);
+border-bottom: 2px solid var(--border);
+white-space: nowrap;
+}
+
+.comparison-table td {
+padding: 12px 18px;
+border-bottom: 1px solid var(--border);
+color: var(--text-secondary);
+line-height: 1.6;
+vertical-align: top;
+}
+
+.comparison-table tr:hover td {
+background: rgba(99,102,241,0.04);
+}
+
+.comparison-table tr:last-child td {
+border-bottom: none;
+}
+
+/* Diagnosis Tab */
+.criteria-list {
+list-style: none;
+margin-bottom: 28px;
+}
+
+.criteria-list li {
+padding: 14px 18px;
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius-sm);
+margin-bottom: 8px;
+display: flex;
+align-items: center;
+gap: 14px;
+font-size: 14px;
+transition: all 0.3s;
+}
+
+.criteria-list li:hover {
+border-color: var(--success);
+transform: translateX(4px);
+}
+
+.criteria-check {
+width: 28px; height: 28px;
+background: rgba(16,185,129,0.15);
+border: 1px solid rgba(16,185,129,0.3);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 14px;
+flex-shrink: 0;
+}
+
+.badge-grid {
+display: flex;
+flex-wrap: wrap;
+gap: 10px;
+margin-bottom: 28px;
+}
+
+.badge {
+padding: 8px 16px;
+border-radius: 20px;
+font-size: 12px;
+font-weight: 600;
+display: flex;
+align-items: center;
+gap: 6px;
+cursor: default;
+transition: all 0.3s;
+}
+
+.badge:hover {
+transform: scale(1.05);
+}
+
+.badge-proj { background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3); }
+.badge-obj { background: rgba(6,182,212,0.15); color: #22d3ee; border: 1px solid rgba(6,182,212,0.3); }
+.badge-obs { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+.badge-int { background: rgba(236,72,153,0.15); color: #f472b6; border: 1px solid rgba(236,72,153,0.3); }
+
+/* Treatment Tab */
+.treatment-section {
+margin-bottom: 32px;
+}
+
+.treatment-section h3 {
+font-size: 17px;
+font-weight: 700;
+margin-bottom: 16px;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.urgency-card {
+padding: 20px;
+border-radius: var(--radius-sm);
+margin-bottom: 12px;
+border: 1px solid;
+}
+
+.urgency-emergency {
+background: rgba(239,68,68,0.08);
+border-color: rgba(239,68,68,0.3);
+}
+
+.urgency-moderate {
+background: rgba(245,158,11,0.08);
+border-color: rgba(245,158,11,0.3);
+}
+
+.urgency-routine {
+background: rgba(16,185,129,0.08);
+border-color: rgba(16,185,129,0.3);
+}
+
+.urgency-label {
+font-size: 10px;
+font-weight: 700;
+text-transform: uppercase;
+letter-spacing: 1px;
+margin-bottom: 8px;
+}
+
+.urgency-emergency .urgency-label { color: var(--danger); }
+.urgency-moderate .urgency-label { color: var(--warning); }
+.urgency-routine .urgency-label { color: var(--success); }
+
+.urgency-card h4 {
+font-size: 14px;
+font-weight: 600;
+margin-bottom: 6px;
+}
+
+.urgency-card p {
+font-size: 13px;
+color: var(--text-secondary);
+line-height: 1.6;
+}
+
+.mgmt-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+gap: 14px;
+}
+
+.mgmt-item {
+padding: 18px;
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius-sm);
+transition: all 0.3s;
+}
+
+.mgmt-item:hover {
+border-color: var(--primary);
+}
+
+.mgmt-item h5 {
+font-size: 13px;
+font-weight: 700;
+margin-bottom: 6px;
+color: var(--primary-light);
+}
+
+.mgmt-item p {
+font-size: 12px;
+color: var(--text-muted);
+line-height: 1.6;
+}
+
+/* Mnemonics */
+.mnemonic-card {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+padding: 28px;
+margin-bottom: 20px;
+transition: all 0.3s;
+cursor: pointer;
+}
+
+.mnemonic-card:hover {
+border-color: var(--secondary);
+transform: translateY(-2px);
+}
+
+.mnemonic-title {
+font-size: 11px;
+font-weight: 700;
+text-transform: uppercase;
+letter-spacing: 1px;
+color: var(--secondary);
+margin-bottom: 12px;
+}
+
+.mnemonic-word {
+font-size: 28px;
+font-weight: 900;
+margin-bottom: 16px;
+background: var(--gradient-1);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+letter-spacing: 4px;
+}
+
+.mnemonic-list {
+list-style: none;
+display: none;
+}
+
+.mnemonic-list.show {
+display: block;
+animation: fadeSlideIn 0.3s ease;
+}
+
+.mnemonic-list li {
+padding: 8px 0;
+font-size: 14px;
+color: var(--text-secondary);
+border-bottom: 1px solid rgba(255,255,255,0.05);
+display: flex;
+gap: 8px;
+}
+
+.mnemonic-list li:last-child {
+border-bottom: none;
+}
+
+.mnemonic-list .m-letter {
+font-weight: 800;
+color: var(--primary-light);
+min-width: 20px;
+}
+
+.mnemonic-expand-hint {
+font-size: 11px;
+color: var(--text-muted);
+margin-top: 8px;
+}
+
+/* Viva section */
+.viva-card {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius-sm);
+padding: 20px;
+margin-bottom: 14px;
+cursor: pointer;
+transition: all 0.3s;
+}
+
+.viva-card:hover {
+border-color: var(--accent);
+}
+
+.viva-q {
+font-size: 14px;
+font-weight: 600;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+
+.viva-a {
+display: none;
+margin-top: 12px;
+padding: 14px;
+background: var(--bg-surface);
+border-radius: var(--radius-xs);
+font-size: 13px;
+color: var(--text-secondary);
+line-height: 1.7;
+border-left: 3px solid var(--accent);
+}
+
+.viva-a.show {
+display: block;
+animation: fadeSlideIn 0.3s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+.header {
+flex-direction: column;
+gap: 16px;
+padding: 16px;
+}
+
+.stats-bar {
+width: 100%;
+justify-content: center;
+}
+
+.main-content {
+padding: 16px;
+}
+
+.cards-grid {
+grid-template-columns: 1fr;
+}
+
+.flashcards-grid {
+grid-template-columns: 1fr;
+}
+
+.flow-branch {
+flex-direction: column;
+align-items: center;
+}
+
+.flow-branch-item {
+max-width: 100%;
+}
+
+.nav-tab {
+padding: 12px 14px;
+font-size: 12px;
+}
+
+.section-title {
+font-size: 20px;
+}
+
+.quiz-question-card {
+padding: 20px;
+}
+
+.mnemonic-word {
+font-size: 22px;
+}
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+/* Motivational Banner */
+.motivation-banner {
+background: var(--gradient-5);
+border-radius: var(--radius);
+padding: 20px 28px;
+margin-bottom: 28px;
+display: flex;
+align-items: center;
+gap: 14px;
+box-shadow: 0 8px 30px rgba(139,92,246,0.2);
+}
+
+.motivation-banner .motiv-emoji {
+font-size: 32px;
+}
+
+.motivation-banner .motiv-text {
+font-size: 15px;
+font-weight: 600;
+color: white;
+line-height: 1.4;
+}
+
+.motivation-banner .motiv-sub {
+font-size: 12px;
+color: rgba(255,255,255,0.7);
+}
+
+/* Five Factor Trait Table special */
+.factor-row {
+display: grid;
+grid-template-columns: 140px 1fr 1fr;
+gap: 1px;
+margin-bottom: 1px;
+}
+
+.factor-cell {
+padding: 12px 16px;
+background: var(--bg-card);
+font-size: 13px;
+}
+
+.factor-cell.header {
+font-weight: 700;
+color: var(--primary-light);
+text-transform: uppercase;
+font-size: 11px;
+letter-spacing: 0.5px;
+}
+
+.factor-cell.trait-name {
+font-weight: 700;
+color: var(--text-primary);
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.factor-cell.low { color: var(--text-muted); }
+.factor-cell.high { color: var(--success); }
+</style>
+</head>
+<body>
+
+<div class="bg-animation">
+<div class="bg-orb"></div>
+<div class="bg-orb"></div>
+<div class="bg-orb"></div>
+</div>
+
+<!-- Header -->
+<header class="header">
+<div class="logo">
+<div class="logo-icon">🧠</div>
+<div class="logo-text">
+<h1>Personality Psychology</h1>
+<span>Theories, Traits & Assessments</span>
+</div>
+</div>
+<div class="stats-bar">
+<div class="stat-item">
+<div class="stat-value" id="progressStat">0%</div>
+<div class="stat-label">Progress</div>
+</div>
+<div class="stat-item">
+<div class="stat-value" id="quizScoreStat">0</div>
+<div class="stat-label">Quiz Score</div>
+</div>
+<div class="stat-item">
+<div class="stat-value" id="streakStat">0🔥</div>
+<div class="stat-label">Streak</div>
+</div>
+</div>
+</header>
+
+<!-- Navigation -->
+<nav class="nav-container">
+<div class="nav-tabs">
+<button class="nav-tab active" data-tab="overview"><span class="tab-emoji">📋</span>Overview</button>
+<button class="nav-tab" data-tab="quiz"><span class="tab-emoji">🎯</span>Quiz Mode</button>
+<button class="nav-tab" data-tab="flashcards"><span class="tab-emoji">🃏</span>Flashcards</button>
+<button class="nav-tab" data-tab="cases"><span class="tab-emoji">🏥</span>Clinical Cases</button>
+<button class="nav-tab" data-tab="theories"><span class="tab-emoji">🔬</span>Theories & Models</button>
+<button class="nav-tab" data-tab="diagnosis"><span class="tab-emoji">🔍</span>Diagnosis</button>
+<button class="nav-tab" data-tab="treatment"><span class="tab-emoji">💊</span>Management</button>
+<button class="nav-tab" data-tab="mnemonics"><span class="tab-emoji">💡</span>Mnemonics</button>
+</div>
+</nav>
+
+<!-- Main Content -->
+<main class="main-content">
+
+<!-- ============= OVERVIEW TAB ============= -->
+<div class="tab-panel active" id="overview">
+<div class="motivation-banner">
+<div class="motiv-emoji">🌟</div>
+<div>
+<div class="motiv-text">Master Personality Psychology — one concept at a time!</div>
+<div class="motiv-sub">8 interactive sections • 25 MCQs • 20 flashcards • 6 clinical cases</div>
+</div>
+</div>
+
+<div class="section-title">🔎 Search All Content</div>
+<div class="search-container">
+<span class="search-icon">🔍</span>
+<input type="text" class="search-input" id="searchInput" placeholder="Search theories, traits, disorders, assessments...">
+</div>
+
+<div class="section-title">📌 Key Concepts at a Glance</div>
+<div class="section-subtitle">Core high-yield facts from personality psychology</div>
+
+<div class="cards-grid" id="overviewCards">
+<div class="card searchable" data-keywords="personality definition uniqueness">
+<div class="card-icon" style="background:rgba(99,102,241,0.15)">🧬</div>
+<h3>Personality Definition</h3>
+<p>The sum total of all relatively unchanging ways of acting, thinking, and feeling that are typical for a person and make each individual unique.</p>
+<span class="tag tag-theory">Core Concept</span>
+</div>
+
+<div class="card searchable" data-keywords="psychoanalytic freud opposing forces unconscious">
+<div class="card-icon" style="background:rgba(236,72,153,0.15)">🔮</div>
+<h3>Psychoanalytic Theory (Freud)</h3>
+<p>Personality results from the struggle among opposing forces within the mind. The unique balance of forces creates unique personality.</p>
+<span class="tag tag-theory">Theory</span>
+</div>
+
+<div class="card searchable" data-keywords="humanistic potential society positive drive">
+<div class="card-icon" style="background:rgba(16,185,129,0.15)">🌱</div>
+<h3>Humanistic Theory</h3>
+<p>Humans are born with a healthy, positive drive to realize full potential. Society often interferes with this self-actualization.</p>
+<span class="tag tag-theory">Theory</span>
+</div>
+
+<div class="card searchable" data-keywords="learning behavioral interactions society learned">
+<div class="card-icon" style="background:rgba(245,158,11,0.15)">📚</div>
+<h3>Learning Theory</h3>
+<p>Personality is learned through interactions with other members of society. Behavioral approach to personality development.</p>
+<span class="tag tag-theory">Theory</span>
+</div>
+
+<div class="card searchable" data-keywords="trait theory describe consistencies organization allport">
+<div class="card-icon" style="background:rgba(139,92,246,0.15)">📊</div>
+<h3>Trait Theory</h3>
+<p>Focuses on describing the consistencies and organization of personality — <em>what</em> traits are, not <em>why</em> we behave.</p>
+<span class="tag tag-exam">Exam Favorite</span>
+</div>
+
+<div class="card searchable" data-keywords="five factor model OCEAN neuroticism extraversion openness agreeableness conscientiousness">
+<div class="card-icon" style="background:rgba(6,182,212,0.15)">⭐</div>
+<h3>Five-Factor Model (OCEAN)</h3>
+<p>Neuroticism, Extraversion, Openness, Agreeableness, Conscientiousness — complete personality description influenced by inheritance + experience.</p>
+<span class="tag tag-high-yield">High Yield</span>
+<span class="tag tag-exam">Exam Favorite</span>
+</div>
+
+<div class="card searchable" data-keywords="conscientiousness lifespan health accidents nutrition success">
+<div class="card-icon" style="background:rgba(16,185,129,0.15)">💪</div>
+<h3>Conscientiousness & Health</h3>
+<p>Predicts lifespan, fewer accidents, better nutrition/exercise. Strong predictor of academic & occupational success.</p>
+<span class="tag tag-high-yield">High Yield</span>
+<span class="tag tag-clinical">Clinical Pearl</span>
+</div>
+
+<div class="card searchable" data-keywords="neuroticism agreeableness depression divorce marriage">
+<div class="card-icon" style="background:rgba(239,68,68,0.15)">⚠️</div>
+<h3>High Neuroticism + Low Agreeableness</h3>
+<p>This combination predicts experiencing depression and having a marriage end in divorce. Also linked to diabetes, heart disease, earlier death.</p>
+<span class="tag tag-high-yield">High Yield</span>
+<span class="tag tag-exam">Exam Favorite</span>
+</div>
+
+<div class="card searchable" data-keywords="personality disorders clusters A B C adolescence pervasive">
+<div class="card-icon" style="background:rgba(239,68,68,0.15)">🏷️</div>
+<h3>Personality Disorder Clusters</h3>
+<p>Cluster A (odd/aloof), Cluster B (dramatic/impulsive), Cluster C (anxious/fearful). Begin in adolescence, pervasive & inflexible.</p>
+<span class="tag tag-high-yield">High Yield</span>
+<span class="tag tag-clinical">Clinical Pearl</span>
+</div>
+
+<div class="card searchable" data-keywords="assessment projective objective rorschach TAT inkblot interview observational">
+<div class="card-icon" style="background:rgba(245,158,11,0.15)">📝</div>
+<h3>Personality Assessment Methods</h3>
+<p>Interviews, Observational Methods (rating scales), Projective Tests (Rorschach/TAT), and Objective Tests (True/False questionnaires).</p>
+<span class="tag tag-exam">Exam Favorite</span>
+</div>
+</div>
+
+<!-- Timeline -->
+<div class="section-title">📈 Trait Hierarchy (Allport)</div>
+<div class="section-subtitle">From rarest to most common</div>
+
+<div class="timeline">
+<div class="timeline-item searchable" data-keywords="cardinal traits dominate life zewail">
+<h4>🔺 Cardinal Traits</h4>
+<p>Extremely rare. Dominate a person's entire life. Example: Zewail's lifelong quest for scientific knowledge. Very few people possess these.</p>
+</div>
+<div class="timeline-item searchable" data-keywords="central traits honesty intimacy power prestige">
+<h4>🔶 Central Traits</h4>
+<p>Common and important. Organize much of behavior toward goals like intimacy, power, prestige. Examples: honesty, generosity, conscientiousness.</p>
+</div>
+<div class="timeline-item searchable" data-keywords="secondary traits situation specific anxiety public speaking">
+<h4>🔽 Secondary Traits</h4>
+<p>Present only in specific situations. Example: being anxious only when speaking in public, or being rude to salespeople. Not part of general description.</p>
+</div>
+</div>
+
+<!-- Cluster Overview Table -->
+<div class="section-title">🗂️ Personality Disorder Clusters</div>
+<div class="comparison-table-wrapper">
+<table class="comparison-table">
+<thead>
+<tr>
+<th>Feature</th>
+<th style="color:#a78bfa">Cluster A — Odd/Aloof</th>
+<th style="color:#f87171">Cluster B — Dramatic/Impulsive</th>
+<th style="color:#fbbf24">Cluster C — Anxious/Fearful</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="font-weight:700">Disorders</td>
+<td>Schizotypal, Schizoid, Paranoid</td>
+<td>Narcissistic, Borderline, Antisocial, Histrionic</td>
+<td>Obsessive-compulsive, Dependent, Avoidant</td>
+</tr>
+<tr>
+<td style="font-weight:700">Core Features</td>
+<td>Interpersonal deficits, detachment, suspiciousness</td>
+<td>Grandiosity, instability, rule-breaking, excessive emotionality</td>
+<td>Inflexibility, submissiveness, social inhibition</td>
+</tr>
+<tr>
+<td style="font-weight:700">Emotional Tone</td>
+<td>Flat, distant, eccentric</td>
+<td>Intense, volatile, reactive</td>
+<td>Worried, tense, avoidant</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- ============= QUIZ TAB ============= -->
+<div class="tab-panel" id="quiz">
+<div class="section-title">🎯 Quiz Mode</div>
+<div class="section-subtitle">Test your knowledge — 25 questions with immediate feedback</div>
+
+<div class="quiz-container">
+<div class="quiz-progress">
+<div class="progress-bar-outer">
+<div class="progress-bar-inner" id="quizProgressBar"></div>
+</div>
+<div class="progress-text">
+<span id="quizProgressText">Question 1 of 25</span>
+<span id="quizScoreText">Score: 0/0</span>
+</div>
+</div>
+
+<div id="quizArea"></div>
+
+<div class="quiz-nav">
+<button class="btn btn-secondary" id="prevBtn" onclick="prevQuestion()" disabled>← Previous</button>
+<button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">Next →</button>
+</div>
+</div>
+</div>
+
+<!-- ============= FLASHCARDS TAB ============= -->
+<div class="tab-panel" id="flashcards">
+<div class="section-title">🃏 Flashcards</div>
+<div class="section-subtitle">Click any card to flip — 20 essential concepts</div>
+
+<div class="flashcards-grid" id="flashcardsGrid"></div>
+</div>
+
+<!-- ============= CLINICAL CASES TAB ============= -->
+<div class="tab-panel" id="cases">
+<div class="section-title">🏥 Clinical Case Vignettes</div>
+<div class="section-subtitle">Exam-style scenarios with detailed answers</div>
+
+<div id="casesArea"></div>
+</div>
+
+<!-- ============= THEORIES TAB ============= -->
+<div class="tab-panel" id="theories">
+<div class="section-title">🔬 Theories & Models</div>
+<div class="section-subtitle">Click any item to expand detailed explanation</div>
+
+<div class="theory-grid" id="theoryGrid"></div>
+
+<!-- Five Factor Model Table -->
+<div class="section-title" style="margin-top:36px">⭐ Five-Factor Model — Trait Dimensions</div>
+<div class="section-subtitle">Each dimension ranges from LOW ← → HIGH</div>
+
+<div class="comparison-table-wrapper">
+<table class="comparison-table">
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Low End</th>
+<th>High End</th>
+<th>Clinical Significance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="font-weight:700;color:#f87171">😰 Neuroticism</td>
+<td>Calm, even-tempered, comfortable, unemotional</td>
+<td>Worrying, temperamental, self-conscious, emotional</td>
+<td>⚠️ High → diabetes, heart disease, depression, earlier death, divorce (with low A)</td>
+</tr>
+<tr>
+<td style="font-weight:700;color:#fbbf24">🎉 Extraversion</td>
+<td>Sober, reserved, retiring, quiet</td>
+<td>Fun-loving, affectionate, talkative, active</td>
+<td>Higher subjective well-being and social support</td>
+</tr>
+<tr>
+<td style="font-weight:700;color:#a78bfa">🎨 Openness</td>
+<td>Conventional, down-to-earth, narrow interests, uncreative</td>
+<td>Original, imaginative, broad interests, creative</td>
+<td>Predicts creativity and openness to new experiences</td>
+</tr>
+<tr>
+<td style="font-weight:700;color:#34d399">🤝 Agreeableness</td>
+<td>Irritable, ruthless, suspicious, uncooperative</td>
+<td>Good-natured, softhearted, trusting, helpful</td>
+<td>⚠️ Low + high N → depression, divorce</td>
+</tr>
+<tr>
+<td style="font-weight:700;color:#22d3ee">📋 Conscientiousness</td>
+<td>Negligent, lazy, disorganized, late</td>
+<td>Careful, reliable, hardworking, organized</td>
+<td>⚠️ Predicts lifespan, health, fewer accidents, school/work success</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<!-- Flowchart: PD Classification -->
+<div class="section-title" style="margin-top:36px">🔄 Personality Disorder Classification Pathway</div>
+
+<div class="flowchart">
+<div class="flow-step">🧩 Persistent patterns of behaviors, emotions, and cognition</div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step">📅 Must begin in <strong>adolescence</strong></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step">🌐 Must be <strong>pervasive</strong> and <strong>inflexible</strong></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step">⏳ Must be <strong>stable over time</strong></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step">⚡ Must lead to <strong>distress or functional impairment</strong></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step" style="background:var(--bg-surface);font-weight:800;color:var(--accent)">Clinical Clustering ↓</div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-branch">
+<div class="flow-branch-item cluster-a">
+<h5 style="color:#a78bfa">Cluster A — Odd/Aloof</h5>
+<p>Schizotypal • Schizoid • Paranoid</p>
+</div>
+<div class="flow-branch-item cluster-b">
+<h5 style="color:#f87171">Cluster B — Dramatic/Impulsive</h5>
+<p>Narcissistic • Borderline • Antisocial • Histrionic</p>
+</div>
+<div class="flow-branch-item cluster-c">
+<h5 style="color:#fbbf24">Cluster C — Anxious/Fearful</h5>
+<p>Obsessive-compulsive • Dependent • Avoidant</p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ============= DIAGNOSIS TAB ============= -->
+<div class="tab-panel" id="diagnosis">
+<div class="section-title">🔍 Diagnostic Criteria & Assessment</div>
+<div class="section-subtitle">Core criteria for personality disorders and assessment methods</div>
+
+<h3 style="font-size:17px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px">✅ Personality Disorder — Diagnostic Criteria</h3>
+
+<ul class="criteria-list">
+<li><span class="criteria-check">1️⃣</span>Persistent patterns of behaviors, emotions, and cognition</li>
+<li><span class="criteria-check">2️⃣</span>Must begin in <strong>adolescence</strong></li>
+<li><span class="criteria-check">3️⃣</span>Must be <strong>pervasive</strong> across multiple contexts</li>
+<li><span class="criteria-check">4️⃣</span>Must be <strong>inflexible</strong> and <strong>stable over time</strong></li>
+<li><span class="criteria-check">5️⃣</span>Must lead to <strong>distress or impairment</strong> in function</li>
+</ul>
+
+<h3 style="font-size:17px;font-weight:700;margin-bottom:16px;margin-top:32px;display:flex;align-items:center;gap:8px">🧪 Assessment Methods</h3>
+
+<div class="badge-grid">
+<div class="badge badge-int">🗣️ Interview</div>
+<div class="badge badge-obs">👀 Observational</div>
+<div class="badge badge-proj">🔮 Projective</div>
+<div class="badge badge-obj">📝 Objective</div>
+</div>
+
+<div class="comparison-table-wrapper">
+<table class="comparison-table">
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+<th>Examples</th>
+<th>What It Measures</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="font-weight:700;color:#f472b6">🗣️ Interview</td>
+<td>Subjective questioning of the client</td>
+<td>Clinical interview, structured/unstructured</td>
+<td>Self-reported thoughts, feelings, history</td>
+</tr>
+<tr>
+<td style="font-weight:700;color:#fbbf24">👀 Observational</td>
+<td>Watching behavior in natural or simulated settings</td>
+<td>Rating scales, behavioral checklists</td>
+<td>Actual behavior as observed by clinician</td>
+</tr>
+<tr>
+<td style="font-weight:700;color:#a78bfa">🔮 Projective</td>
+<td>Ambiguous stimuli to reveal unconscious content</td>
+<td>Rorschach inkblots, TAT (Thematic Apperception Test)</td>
+<td>Contents of the unconscious mind</td>
+</tr>
+<tr>
+<td style="font-weight:700;color:#22d3ee">📝 Objective</td>
+<td>Standardized written questions</td>
+<td>True/False questionnaires (e.g., MMPI)</td>
+<td>Known personality traits via self-report</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<!-- All Disorders -->
+<h3 style="font-size:17px;font-weight:700;margin-bottom:16px;margin-top:32px;display:flex;align-items:center;gap:8px">🏷️ All Personality Disorders — Quick Reference</h3>
+
+<div class="comparison-table-wrapper">
+<table class="comparison-table">
+<thead>
+<tr>
+<th>Disorder</th>
+<th>Cluster</th>
+<th>Core Features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="font-weight:700">Paranoid</td>
+<td><span style="color:#a78bfa">A</span></td>
+<td>Pervasive distrust and suspiciousness of others' motives</td>
+</tr>
+<tr>
+<td style="font-weight:700">Schizoid</td>
+<td><span style="color:#a78bfa">A</span></td>
+<td>Detachment from social relationships, restricted emotional expression</td>
+</tr>
+<tr>
+<td style="font-weight:700">Schizotypal</td>
+<td><span style="color:#a78bfa">A</span></td>
+<td>Acute discomfort in close relationships, cognitive/perceptual distortions, eccentricities of behavior</td>
+</tr>
+<tr>
+<td style="font-weight:700">Antisocial</td>
+<td><span style="color:#f87171">B</span></td>
+<td>Disregard for and violation of rights of others since age 15</td>
+</tr>
+<tr>
+<td style="font-weight:700">Borderline</td>
+<td><span style="color:#f87171">B</span></td>
+<td>Instability of relationships, self-image, affects; marked impulsivity</td>
+</tr>
+<tr>
+<td style="font-weight:700">Histrionic</td>
+<td><span style="color:#f87171">B</span></td>
+<td>Excessive emotionality and attention seeking</td>
+</tr>
+<tr>
+<td style="font-weight:700">Narcissistic</td>
+<td><span style="color:#f87171">B</span></td>
+<td>Grandiosity, need for admiration, lack of empathy</td>
+</tr>
+<tr>
+<td style="font-weight:700">Avoidant</td>
+<td><span style="color:#fbbf24">C</span></td>
+<td>Social inhibition, feelings of inadequacy, hypersensitivity to negative evaluation</td>
+</tr>
+<tr>
+<td style="font-weight:700">Dependent</td>
+<td><span style="color:#fbbf24">C</span></td>
+<td>Excessive need to be taken care of, submissive/clinging behavior, fears of separation</td>
+</tr>
+<tr>
+<td style="font-weight:700">Obsessive-compulsive</td>
+<td><span style="color:#fbbf24">C</span></td>
+<td>Preoccupation with orderliness, perfectionism, control at expense of flexibility</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<!-- Viva Section -->
+<h3 style="font-size:17px;font-weight:700;margin-bottom:16px;margin-top:32px;display:flex;align-items:center;gap:8px">🗣️ Viva Questions — Click to Reveal</h3>
+
+<div id="vivaArea"></div>
+</div>
+
+<!-- ============= TREATMENT TAB ============= -->
+<div class="tab-panel" id="treatment">
+<div class="section-title">💊 Management & Clinical Applications</div>
+<div class="section-subtitle">Trait-based predictions, assessment approaches, and clinical implications</div>
+
+<div class="treatment-section">
+<h3>🚨 High-Risk Trait Combinations</h3>
+
+<div class="urgency-card urgency-emergency">
+<div class="urgency-label">⚠️ Critical — Screen & Monitor</div>
+<h4>High Neuroticism + Low Agreeableness</h4>
+<p>Strongly predicts depression and divorce. Also linked to diabetes, heart disease, and earlier mortality. These patients require proactive mental health screening and support.</p>
+</div>
+
+<div class="urgency-card urgency-moderate">
+<div class="urgency-label">⚡ Important — Track Longitudinally</div>
+<h4>Very High Neuroticism (isolated)</h4>
+<p>Worrying, temperamental, self-conscious, emotional. More likely to have serious health problems (diabetes, heart disease) and die somewhat earlier. Monitor for anxiety/mood disorders.</p>
+</div>
+
+<div class="urgency-card urgency-routine">
+<div class="urgency-label">✅ Protective — Encourage</div>
+<h4>High Conscientiousness</h4>
+<p>Careful, reliable, hardworking. Predicts fewer careless accidents, better nutrition/exercise, longer lifespan, and success in academic and occupational domains.</p>
+</div>
+</div>
+
+<div class="treatment-section">
+<h3>📋 Assessment Selection Guide</h3>
+<div class="mgmt-grid">
+<div class="mgmt-item">
+<h5>🗣️ Interview</h5>
+<p>Best for initial evaluation. Subjective questioning reveals the patient's narrative and history. Use structured interviews for reliability.</p>
+</div>
+<div class="mgmt-item">
+<h5>👀 Observational Methods</h5>
+<p>Ideal when self-report is unreliable. Watch behavior in natural or simulated settings using rating scales. Captures actual behavior rather than stated behavior.</p>
+</div>
+<div class="mgmt-item">
+<h5>🔮 Projective Tests</h5>
+<p>Rorschach inkblots and TAT. Use when needing to reveal unconscious dynamics. Requires trained interpretation. Results are more subjective.</p>
+</div>
+<div class="mgmt-item">
+<h5>📝 Objective Tests</h5>
+<p>True/False standardized questionnaires. Best for reliable, comparable data. Easily administered and scored. Standard for research and large-scale screening.</p>
+</div>
+</div>
+</div>
+
+<div class="treatment-section">
+<h3>🏥 Personality Disorder — General Management Principles</h3>
+<div class="mgmt-grid">
+<div class="mgmt-item">
+<h5>📌 Identify Early</h5>
+<p>Recognize persistent patterns beginning in adolescence. Early identification prevents progression and functional impairment.</p>
+</div>
+<div class="mgmt-item">
+<h5>📌 Assess Pervasiveness</h5>
+<p>Confirm patterns are pervasive (not situation-specific) and inflexible (resistant to change). Distinguish from transient states.</p>
+</div>
+<div class="mgmt-item">
+<h5>📌 Measure Functional Impact</h5>
+<p>Patterns must lead to distress or impairment to qualify as a disorder. Functioning level determines treatment intensity.</p>
+</div>
+<div class="mgmt-item">
+<h5>📌 Cluster-Specific Approach</h5>
+<p>Cluster A: social skills and reality testing. Cluster B: emotional regulation and impulse control. Cluster C: anxiety management and building autonomy.</p>
+</div>
+</div>
+</div>
+
+<div class="treatment-section">
+<h3>🔬 Allport's Insight — Behavioral Prediction</h3>
+<div class="urgency-card urgency-moderate">
+<div class="urgency-label">Clinical Pearl</div>
+<h4>Finding Out What a Person Values</h4>
+<p>According to Allport, the best way to understand and predict someone's behavior is to find out what they value. Example: a person who values money more than family will spend more time working. This applies directly to patient motivation and treatment adherence.</p>
+</div>
+</div>
+</div>
+
+<!-- ============= MNEMONICS TAB ============= -->
+<div class="tab-panel" id="mnemonics">
+<div class="section-title">💡 Mnemonics & Memory Aids</div>
+<div class="section-subtitle">Click each card to expand the breakdown</div>
+
+<div id="mnemonicsArea"></div>
+</div>
+
+</main>
+
+<script>
+// ===== DATA =====
+
+const quizData = [
+{q:"Which psychological theory believes personality results from the struggle among opposing forces within the mind?",opts:["Trait theory","Psychoanalytic theory","Humanistic theory","Learning theory","Cognitive theory"],ans:1,exp:"Freud's Psychoanalytic theory explicitly defines personality as the balance of opposing mental forces. Trait theory describes consistencies; Humanistic focuses on potential; Learning focuses on interactions."},
+{q:"How many words exist in the English language to refer to personality traits?",opts:["Over 5,000","Over 10,000","Over 15,000","More than 17,000","Exactly 20,000"],ans:3,exp:"The English language has more than 17,000 words referring to traits, as specifically cited in the source material."},
+{q:"According to Allport, traits that dominate a person's entire life (e.g., Zewail's quest for knowledge) are called:",opts:["Central traits","Secondary traits","Cardinal traits","Primary traits","Universal traits"],ans:2,exp:"Cardinal traits are rare traits that dominate a person's life. Central traits are common organizers of behavior; Secondary traits are situational."},
+{q:"Being anxious before speaking in public is best categorized as a:",opts:["Cardinal trait","Central trait","Secondary trait","Neurotic trait","Psychotic trait"],ans:2,exp:"Secondary traits tend to be present only in specific situations, such as being nervous under pressure. Not dominant enough for Cardinal or Central."},
+{q:"In the Five-Factor Model, someone who is original, imaginative, and has broad interests scores high on:",opts:["Neuroticism","Extraversion","Openness","Agreeableness","Conscientiousness"],ans:2,exp:"Openness is defined by being original, imaginative, creative, and having broad interests."},
+{q:"High neuroticism is associated with which of the following physical health outcomes?",opts:["Increased athletic endurance","Lowered risk of infections","Diabetes and heart disease","Improved visual acuity","Longer lifespan"],ans:2,exp:"People high in neuroticism are more likely to have serious health problems such as diabetes and heart disease, and are expected to die somewhat earlier."},
+{q:"Which trait predicts how long we will live due to fewer careless accidents and better care of health?",opts:["Openness","Extraversion","Conscientiousness","Agreeableness","Neuroticism"],ans:2,exp:"Conscientious individuals are careful, reliable, and take better care of their health, leading to longer lifespan."},
+{q:"Which combination of traits predicts experiencing depression and a marriage ending in divorce?",opts:["Low neuroticism, high openness","High neuroticism, low agreeableness","Low extraversion, high conscientiousness","High extraversion, high agreeableness","High conscientiousness, low openness"],ans:1,exp:"High neuroticism + low agreeableness is explicitly linked to depression and divorce in the source material."},
+{q:"Which assessment method involves watching a person's actual behavior in a natural or simulated situation?",opts:["Interviews","Observational Methods","Projective Tests","Objective Tests","Biological screening"],ans:1,exp:"Observational methods involve watching behavior, often using rating scales, in natural or simulated settings."},
+{q:"The Rorschach inkblot test is an example of which type of personality assessment?",opts:["Objective Test","Observational Method","Interview","Projective Test","Cognitive Test"],ans:3,exp:"Projective tests use ambiguous stimuli (like inkblots) to reveal the unconscious. Objective tests use True/False questions."},
+{q:"To be classified as a Personality Disorder, the persistent pattern must begin in:",opts:["Early childhood","Adolescence","Early adulthood","Middle age","Late adulthood"],ans:1,exp:"Clinical criteria state that personality disorders must begin in adolescence."},
+{q:"A patient demonstrating grandiosity, a need for admiration, and a lack of empathy most likely has which personality disorder?",opts:["Borderline","Histrionic","Narcissistic","Antisocial","Avoidant"],ans:2,exp:"Narcissistic personality disorder is characterized by grandiosity, need for admiration, and lack of empathy."},
+{q:"Cluster A personality disorders are described as:",opts:["Dramatic and impulsive","Anxious and fearful","Odd and aloof","Depressed and withdrawn","Aggressive and violent"],ans:2,exp:"Cluster A includes Schizotypal, Schizoid, and Paranoid, described as odd and aloof."},
+{q:"Detachment from social relationships and a restricted range of emotional expression defines which disorder?",opts:["Schizotypal","Schizoid","Paranoid","Avoidant","Dependent"],ans:1,exp:"Schizoid personality disorder is marked by detachment from social relationships and restricted emotional expression."},
+{q:"Which Cluster B disorder is characterized by disregard for and violation of the rights of others occurring since age 15?",opts:["Antisocial","Borderline","Histrionic","Narcissistic","Obsessive-compulsive"],ans:0,exp:"This is the exact definition of Antisocial personality disorder."},
+{q:"Excessive emotionality and attention seeking are the core features of:",opts:["Dependent PD","Borderline PD","Histrionic PD","Schizoid PD","Paranoid PD"],ans:2,exp:"Histrionic personality disorder is defined by excessive emotionality and attention seeking."},
+{q:"Preoccupation with orderliness, perfectionism, and control at the expense of flexibility defines:",opts:["Narcissistic PD","Obsessive-compulsive PD","Avoidant PD","Antisocial PD","Schizotypal PD"],ans:1,exp:"This is the definition of Obsessive-compulsive personality disorder (Cluster C)."},
+{q:"Avoidant Personality Disorder is characterized by:",opts:["Disregard for rules","Social inhibition, feelings of inadequacy, hypersensitivity to negative evaluation","Submissive and clinging behavior","Suspiciousness of others' motives","Unstable self-image"],ans:1,exp:"Avoidant PD involves pervasive social inhibition, feelings of inadequacy, and hypersensitivity to evaluation."},
+{q:"Which dimension contrasts 'Sober/Reserved' with 'Fun-loving/Affectionate'?",opts:["Neuroticism","Extraversion","Openness","Agreeableness","Conscientiousness"],ans:1,exp:"These are the exact sub-traits listed under the Extraversion dimension."},
+{q:"In Trait theory, the desire for power and prestige would most likely be an example of a:",opts:["Cardinal trait","Central trait","Secondary trait","Objective trait","Psychoanalytic trait"],ans:1,exp:"Central traits organize behavior aimed at obtaining things like intimacy, power, and prestige."},
+{q:"Humanistic theory fundamentally differs from Psychoanalytic theory by proposing that:",opts:["Behavior is learned from society","Personality is a struggle of opposing mental forces","Humans have a healthy, positive drive to realize full potential","Traits are genetically inherited","Personality is strictly determined by childhood trauma"],ans:2,exp:"Humanists believe we are born with a positive drive to realize potential, unlike Freud's struggle-based model."},
+{q:"Objective personality tests are primarily composed of:",opts:["Ambiguous inkblots","Clinical interviews","Rating scales observed by a clinician","Written True or False questions about the person","Open-ended essay prompts"],ans:3,exp:"Objective personality tests consist of written questions like True or False."},
+{q:"Which of the following must be true for a behavioral pattern to be considered a personality disorder?",opts:["It must be flexible","It must begin in late adulthood","It must lead to distress or impairment in function","It must occur only in isolated situations","It must be primarily physical in nature"],ans:2,exp:"The clinical criteria state the pattern must lead to distress or functional impairment."},
+{q:"A person who values money more than family life and spends more time working is an example illustrating:",opts:["Learning theory","Trait theory (Allport)","Psychoanalytic theory","Observational methods","Cluster A disorders"],ans:1,exp:"Allport's trait theory emphasizes that finding out what a person values is the best way to understand and predict behavior."},
+{q:"Instability of interpersonal relationships, self-image, and affects, along with marked impulsivity, characterizes:",opts:["Antisocial PD","Borderline PD","Histrionic PD","Dependent PD","Schizotypal PD"],ans:1,exp:"These are the core features of Borderline personality disorder."}
+];
+
+const flashcardData = [
+{front:"What is the definition of personality?",back:"The sum total of all relatively unchanging ways of acting, thinking, and feeling that are typical for a person and make each individual unique."},
+{front:"What does Psychoanalytic theory say about personality?",back:"Personality results from the struggle among opposing forces within the mind. The unique balance of these forces creates unique personality."},
+{front:"What is the core belief of Humanistic theory?",back:"Humans are born with a healthy, positive drive to realize their full potential, but society often interferes."},
+{front:"How does Trait Theory differ from other personality theories?",back:"Trait theory focuses on DESCRIBING the consistencies and organization of personality, not on WHY we behave."},
+{front:"Name the 5 factors in the Five-Factor Model.",back:"Neuroticism, Extraversion, Openness, Agreeableness, Conscientiousness (OCEAN)."},
+{front:"What are Cardinal traits?",back:"Extremely rare traits that dominate a person's entire life. Example: Zewail's lifelong quest for scientific knowledge."},
+{front:"What are Central traits?",back:"Common, important traits that organize much of behavior. Examples: honesty, desire for power/prestige/intimacy."},
+{front:"What are Secondary traits?",back:"Traits present only in specific situations. Example: being anxious only before public speaking."},
+{front:"What does high Conscientiousness predict?",back:"Longer lifespan, fewer accidents, better health, better nutrition/exercise, success in school and occupations."},
+{front:"What does high Neuroticism + low Agreeableness predict?",back:"⚠️ Experiencing depression and having a marriage end in divorce."},
+{front:"What does very high Neuroticism predict for health?",back:"More serious health problems (diabetes, heart disease) and expected somewhat earlier death."},
+{front:"What are Projective personality tests?",back:"Tests using ambiguous stimuli (Rorschach inkblots, TAT) to reveal contents of the unconscious mind."},
+{front:"What are Objective personality tests?",back:"Standardized written True/False questionnaires used to measure known personality traits."},
+{front:"What are the 5 criteria for personality disorders?",back:"Persistent patterns, begin in adolescence, pervasive, inflexible and stable over time, cause distress or impairment."},
+{front:"What defines Cluster A personality disorders?",back:"Odd and aloof behavior. Includes: Schizotypal, Schizoid, Paranoid."},
+{front:"What defines Cluster B personality disorders?",back:"Dramatic, impulsive, unpredictable. Includes: Narcissistic, Borderline, Antisocial, Histrionic."},
+{front:"What defines Cluster C personality disorders?",back:"Anxious and fearful. Includes: Obsessive-compulsive, Dependent, Avoidant."},
+{front:"What is Antisocial PD?",back:"Cluster B disorder: disregard for and violation of the rights of others, occurring since age 15."},
+{front:"What is Borderline PD?",back:"Cluster B disorder: instability of relationships, self-image, and affects with marked impulsivity."},
+{front:"What is Dependent PD?",back:"Cluster C disorder: excessive need to be taken care of, leading to submissive/clinging behavior and fears of separation."}
+];
+
+const casesData = [
+{title:"The Inkblot Assessment",vignette:"A clinical psychologist evaluates a 32-year-old patient presenting with vague emotional distress. During the assessment, the psychologist presents a series of ambiguous inkblot images and asks the patient to describe what they see.",questions:[
+{q:"What type of personality test is being used and what does it aim to measure?",a:"This is a Projective Personality Test (specifically the Rorschach inkblot test). It is designed to reveal the contents of the client's unconscious mind by having them project their inner thoughts and feelings onto ambiguous stimuli."},
+{q:"How does this differ from an Objective personality test?",a:"Objective tests use standardized written questions (True/False format) to measure known personality traits through self-report. Projective tests use ambiguous stimuli requiring interpretation, targeting unconscious processes rather than conscious self-assessment."}
+]},
+{title:"The Rule-Breaker Since Adolescence",vignette:"A 24-year-old male presents with a history of lying, fighting, and stealing since age 14. He shows no remorse for his actions and frequently violates others' rights. He has been arrested multiple times for petty theft and assault.",questions:[
+{q:"What personality disorder is most likely present?",a:"Antisocial Personality Disorder (Cluster B). It is characterized by disregard for and violation of the rights of others, with behaviors occurring since age 15. This patient's pattern began at 14 and shows the classic disregard for rules and others' rights."},
+{q:"What cluster does this belong to and why?",a:"Cluster B — dramatic, impulsive, and unpredictable. His behaviors (lying, fighting, stealing, lack of remorse) exemplify the impulsive and dramatic features typical of this cluster."}
+]},
+{title:"The Eccentric Loner",vignette:"A 28-year-old woman presents with acute discomfort in close relationships, cognitive distortions (she believes she can 'sense' when bad things are about to happen), and eccentric behavior including wearing unusual layered clothing and speaking in metaphors.",questions:[
+{q:"What personality disorder does this presentation suggest?",a:"Schizotypal Personality Disorder (Cluster A). It is marked by acute discomfort in close relationships, cognitive/perceptual distortions (magical thinking), and eccentricities of behavior."},
+{q:"How would you distinguish this from Schizoid PD?",a:"Schizoid PD features detachment from social relationships and restricted emotional expression but WITHOUT the cognitive/perceptual distortions and eccentricities seen in Schizotypal PD. The key differentiator is the presence of magical thinking and eccentric behavior."}
+]},
+{title:"The Depressed Divorcee",vignette:"A 45-year-old male presents with severe depression following his third divorce. Clinical interview reveals a lifelong pattern of being tense, insecure, irritable, and suspicious of others' motives. He describes himself as someone who 'always expects the worst.'",questions:[
+{q:"Which Five-Factor Model dimensions best explain his clinical picture?",a:"High Neuroticism (tense, insecure, worrying, emotional) combined with Low Agreeableness (irritable, suspicious, uncooperative). This specific combination strongly predicts experiencing depression and having marriages end in divorce."},
+{q:"What assessment approach would be most appropriate?",a:"A combination of Objective personality tests (True/False questionnaires to quantify trait levels) and clinical Interview to explore the developmental trajectory and functional impact of these traits. Observational methods with rating scales could supplement the evaluation."}
+]},
+{title:"The Health Consequences of Traits",vignette:"An epidemiologist studying a cohort of 500 adults aged 30-60 notices that a subgroup has significantly higher rates of diabetes, heart disease, and premature mortality. These patients also report higher rates of marital dissatisfaction.",questions:[
+{q:"What personality trait is most likely elevated in this subgroup?",a:"High Neuroticism. People very high in neuroticism are more likely to have serious health problems (diabetes, heart disease), report lower happiness, and are expected to die somewhat earlier."},
+{q:"What additional trait, if low, would further explain their marital dissatisfaction?",a:"Low Agreeableness. The combination of high neuroticism and low agreeableness specifically predicts both experiencing depression and having a marriage end in divorce."}
+]},
+{title:"The Anxious Clinger",vignette:"A 30-year-old woman is brought by her mother. She cannot make any daily decisions without excessive reassurance from family members. She fears being alone and becomes extremely distressed at the thought of separation from her partner. She describes herself as 'helpless without others.'",questions:[
+{q:"What personality disorder does this suggest and to which cluster does it belong?",a:"Dependent Personality Disorder, belonging to Cluster C (anxious and fearful). It is defined by an excessive need to be taken care of, leading to submissive and clinging behavior, along with fears of separation."},
+{q:"What other Cluster C disorders should be considered in the differential?",a:"Avoidant PD (social inhibition, inadequacy, hypersensitivity to evaluation — but this patient's issue is dependence, not avoidance of social contact) and Obsessive-compulsive PD (preoccupation with orderliness and control — not relevant here). The key distinguishing feature is the need for care-taking and submissiveness."}
+]}
+];
+
+const theoryData = [
+{icon:"🔮",title:"Psychoanalytic Theory (Freud)",summary:"Personality = struggle among opposing mental forces",detail:"Freud proposed that personality results from the struggle among opposing forces within the mind. Each person's unique balance of these internal forces (id, ego, superego) creates their unique personality. This theory focuses on WHY we behave — the unconscious drives that shape behavior."},
+{icon:"🌱",title:"Humanistic Theory",summary:"Born with positive drive toward self-actualization",detail:"Humanistic psychology holds that humans are born with a healthy, positive drive to realize their full potential (self-actualization). Unlike Freud's conflict model, humanists see the natural state as growth-oriented. However, society often interferes with this positive development, causing psychological problems."},
+{icon:"📚",title:"Learning Theory (Behavioral)",summary:"Personality is learned through social interactions",detail:"The behavioral/learning approach argues that personality is not innate or driven by unconscious forces — it is learned through interactions with other members of society. Personality is shaped by reinforcement, punishment, modeling, and environmental influences throughout life."},
+{icon:"📊",title:"Trait Theory (Allport)",summary:"Focuses on DESCRIBING what traits are, not why",detail:"Unlike theories that explain WHY we behave, Trait theory focuses on describing the consistencies and organization of personality. Allport defined traits as relatively persistent patterns of behavior consistent across situations. He classified traits into Cardinal (dominate life), Central (organize behavior), and Secondary (situation-specific). Finding what a person values is key to predicting behavior."},
+{icon:"⭐",title:"Five-Factor Model (OCEAN)",summary:"5 dimensions influenced by inheritance + experience",detail:"The most comprehensive descriptive model: Neuroticism (emotional instability), Extraversion (sociability), Openness (creativity), Agreeableness (cooperativeness), Conscientiousness (reliability). These are influenced by BOTH inheritance and experiences. High C predicts health/longevity. High N + low A predicts depression/divorce."},
+{icon:"🧪",title:"Personality Assessment",summary:"4 methods: Interview, Observational, Projective, Objective",detail:"Interview: subjective questioning. Observational: watching behavior with rating scales. Projective: ambiguous stimuli (Rorschach/TAT) to reveal the unconscious. Objective: written True/False questionnaires. Crucial for clinical diagnosis and occupational decision-making."},
+{icon:"⚠️",title:"Personality Disorders — Criteria",summary:"Persistent, adolescent-onset, pervasive, inflexible, impairing",detail:"Persistent patterns of behaviors, emotions, and cognition that begin in adolescence, are pervasive and inflexible, are stable over time, and lead to distress or functional impairment. Classified into Cluster A (odd/aloof), Cluster B (dramatic/impulsive), Cluster C (anxious/fearful)."},
+{icon:"🔢",title:"17,000+ Trait Words",summary:"English has more than 17,000 words for personality traits",detail:"The English language contains more than 17,000 words that refer to personality traits, highlighting the enormous complexity and variation of human personality. This is why systematic classification systems like the Five-Factor Model are essential for organizing this vast trait landscape."}
+];
+
+const mnemonicsData = [
+{title:"Five-Factor Model",word:"O C E A N",items:[
+{letter:"O",text:"Openness — Original, Imaginative, Creative, Broad interests"},
+{letter:"C",text:"Conscientiousness — Careful, Reliable, Hardworking, Organized"},
+{letter:"E",text:"Extraversion — Fun-loving, Affectionate, Talkative, Active"},
+{letter:"A",text:"Agreeableness — Good-natured, Softhearted, Trusting, Helpful"},
+{letter:"N",text:"Neuroticism — Worrying, Temperamental, Self-conscious, Emotional"}
+]},
+{title:"Cluster A Disorders — 'Weird'",word:"S S P → WEIRD",items:[
+{letter:"S",text:"Schizotypal — Eccentric behavior, cognitive distortions, uncomfortable in relationships"},
+{letter:"S",text:"Schizoid — Social detachment, restricted emotions, loner"},
+{letter:"P",text:"Paranoid — Suspicious, distrustful of others' motives"}
+]},
+{title:"Cluster B Disorders — 'Wild'",word:"N A B H → WILD",items:[
+{letter:"N",text:"Narcissistic — Grandiosity, needs admiration, lacks empathy"},
+{letter:"A",text:"Antisocial — Violates rights of others since age 15"},
+{letter:"B",text:"Borderline — Unstable relationships, self-image, impulsive"},
+{letter:"H",text:"Histrionic — Excessive emotionality, attention-seeking"}
+]},
+{title:"Cluster C Disorders — 'Worried'",word:"O D A → WORRIED",items:[
+{letter:"O",text:"Obsessive-compulsive — Orderliness, perfectionism, control over flexibility"},
+{letter:"D",text:"Dependent — Needs to be taken care of, submissive, fears separation"},
+{letter:"A",text:"Avoidant — Social inhibition, feels inadequate, hypersensitive to criticism"}
+]},
+{title:"Allport's Trait Hierarchy",word:"C → C → S",items:[
+{letter:"C",text:"Cardinal — Dominate entire life (rare, like Zewail's quest for knowledge)"},
+{letter:"C",text:"Central — Organize behavior toward goals (honesty, power, prestige)"},
+{letter:"S",text:"Secondary — Situation-specific only (anxious before public speaking)"}
+]},
+{title:"PD Diagnostic Criteria",word:"P A P I D",items:[
+{letter:"P",text:"Persistent — Enduring patterns of behavior, emotion, cognition"},
+{letter:"A",text:"Adolescence — Must begin during adolescence"},
+{letter:"P",text:"Pervasive — Occurs across multiple contexts"},
+{letter:"I",text:"Inflexible — Rigid patterns, stable over time"},
+{letter:"D",text:"Distress — Must cause distress or functional impairment"}
+]},
+{title:"Assessment Methods",word:"I O P O",items:[
+{letter:"I",text:"Interview — Subjective questioning of the client"},
+{letter:"O",text:"Observational — Watching behavior, rating scales"},
+{letter:"P",text:"Projective — Ambiguous stimuli (Rorschach, TAT) → unconscious"},
+{letter:"O",text:"Objective — Written True/False questions about the person"}
+]},
+{title:"High Neuroticism Health Risks",word:"D H D → Die",items:[
+{letter:"D",text:"Diabetes — Higher rates in highly neurotic individuals"},
+{letter:"H",text:"Heart disease — Cardiovascular complications"},
+{letter:"D",text:"Depression — Especially combined with low agreeableness"},
+{letter:"→",text:"Die earlier — Expected somewhat earlier mortality"}
+]}
+];
+
+const vivaData = [
+{q:"How is 'personality' defined in psychology?",a:"The sum total of all relatively unchanging ways of acting, thinking, and feeling that are typical for a person. These characteristics make each individual unique."},
+{q:"Briefly contrast Psychoanalytic and Humanistic theories.",a:"Psychoanalytic: personality = struggle of opposing internal mental forces. Humanistic: humans born with positive drive to realize full potential, which society disrupts."},
+{q:"Name Allport's three categories of traits.",a:"Cardinal (dominate entire life, rare), Central (organize much behavior, e.g. honesty), Secondary (situation-specific, e.g. nervous before public speaking)."},
+{q:"Name the five broad traits in the Five-Factor Model.",a:"Neuroticism, Extraversion, Openness, Agreeableness, Conscientiousness (OCEAN)."},
+{q:"Why is Conscientiousness medically significant?",a:"High C → fewer health problems, better nutrition/exercise, longer lifespan, fewer careless accidents. Also strong predictor of academic and occupational success."},
+{q:"What are consequences of high Neuroticism + low Agreeableness?",a:"Strongly predicts experiencing depression and having a marriage end in divorce."},
+{q:"How do Projective and Objective tests differ?",a:"Projective: ambiguous stimuli (inkblots) → reveal unconscious. Objective: standardized True/False written questions → measure known traits."},
+{q:"What are the 5 clinical criteria for personality disorders?",a:"Persistent patterns, begin in adolescence, pervasive and inflexible, stable over time, cause distress or functional impairment."},
+{q:"Which disorders make up Cluster A?",a:"Schizotypal, Schizoid, Paranoid — characterized as odd and aloof."},
+{q:"Define Antisocial Personality Disorder.",a:"Cluster B: disregard for and violation of the rights of others, with behaviors occurring since age 15."},
+{q:"What is the core feature of Dependent PD?",a:"Excessive need to be taken care of → submissive/clinging behavior + fears of separation (Cluster C)."},
+{q:"How does Schizoid differ from Schizotypal?",a:"Schizoid: social detachment + restricted emotions. Schizotypal: adds cognitive/perceptual distortions and eccentric behavior."}
+];
+
+// ===== STATE =====
+let currentQuizQ = 0;
+let quizAnswered = new Array(quizData.length).fill(null);
+let quizCorrect = 0;
+let quizAttempted = 0;
+let streak = 0;
+let maxStreak = 0;
+
+// Load from localStorage
+function loadState() {
+try {
+const s = JSON.parse(localStorage.getItem('personalityStudyState'));
+if (s) {
+quizAnswered = s.quizAnswered || new Array(quizData.length).fill(null);
+quizCorrect = s.quizCorrect || 0;
+quizAttempted = s.quizAttempted || 0;
+streak = s.streak || 0;
+maxStreak = s.maxStreak || 0;
+currentQuizQ = s.currentQuizQ || 0;
+}
+} catch(e) {}
+}
+
+function saveState() {
+try {
+localStorage.setItem('personalityStudyState', JSON.stringify({
+quizAnswered, quizCorrect, quizAttempted, streak, maxStreak, currentQuizQ
+}));
+} catch(e) {}
+}
+
+function saveLastTab(tab) {
+try { localStorage.setItem('personalityLastTab', tab); } catch(e) {}
+}
+
+function loadLastTab() {
+try { return localStorage.getItem('personalityLastTab') || 'overview'; } catch(e) { return 'overview'; }
+}
+
+// ===== NAVIGATION =====
+document.querySelectorAll('.nav-tab').forEach(tab => {
+tab.addEventListener('click', () => {
+document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+tab.classList.add('active');
+document.getElementById(tab.dataset.tab).classList.add('active');
+saveLastTab(tab.dataset.tab);
+});
+});
+
+// ===== SEARCH =====
+document.getElementById('searchInput').addEventListener('input', function() {
+const query = this.value.toLowerCase();
+document.querySelectorAll('.searchable').forEach(item => {
+const text = (item.textContent + ' ' + (item.dataset.keywords || '')).toLowerCase();
+item.style.display = text.includes(query) || query === '' ? '' : 'none';
+});
+});
+
+// ===== QUIZ =====
+function renderQuiz() {
+const area = document.getElementById('quizArea');
+if (quizAttempted >= quizData.length && quizAnswered.every(a => a !== null)) {
+renderQuizResults();
+return;
+}
+const q = quizData[currentQuizQ];
+const answered = quizAnswered[currentQuizQ];
+const letters = ['A','B','C','D','E'];
+
+let optionsHTML = q.opts.map((opt, i) => {
+let cls = 'quiz-option';
+if (answered !== null) {
+cls += ' disabled';
+if (i === q.ans) cls += ' correct';
+else if (i === answered && answered !== q.ans) cls += ' wrong';
+}
+return `<div class="${cls}" onclick="answerQuiz(${i})">
+<span class="option-letter">${letters[i]}</span>
+<span>${opt}</span>
+</div>`;
+}).join('');
+
+let expHTML = `<div class="quiz-explanation ${answered !== null ? 'show' : ''}">${answered !== null ? (answered === q.ans ? '<strong>✅ Correct!</strong> ' : '<strong>❌ Incorrect.</strong> ') + q.exp : ''}</div>`;
+
+area.innerHTML = `
+<div class="quiz-question-card">
+<div class="quiz-q-number">Question ${currentQuizQ+1} of ${quizData.length}</div>
+<div class="quiz-q-text">${q.q}</div>
+<div class="quiz-options">${optionsHTML}</div>
+${expHTML}
+</div>
+`;
+
+updateQuizProgress();
+document.getElementById('prevBtn').disabled = currentQuizQ === 0;
+document.getElementById('nextBtn').textContent = currentQuizQ === quizData.length - 1 ? 'Finish →' : 'Next →';
+}
+
+function answerQuiz(idx) {
+if (quizAnswered[currentQuizQ] !== null) return;
+quizAnswered[currentQuizQ] = idx;
+quizAttempted++;
+if (idx === quizData[currentQuizQ].ans) {
+quizCorrect++;
+streak++;
+if (streak > maxStreak) maxStreak = streak;
+} else {
+streak = 0;
+}
+saveState();
+renderQuiz();
+updateStats();
+}
+
+function nextQuestion() {
+if (currentQuizQ < quizData.length - 1) {
+currentQuizQ++;
+saveState();
+renderQuiz();
+} else {
+renderQuizResults();
+}
+}
+
+function prevQuestion() {
+if (currentQuizQ > 0) {
+currentQuizQ--;
+saveState();
+renderQuiz();
+}
+}
+
+function updateQuizProgress() {
+const pct = Math.round((quizAttempted / quizData.length) * 100);
+document.getElementById('quizProgressBar').style.width = pct + '%';
+document.getElementById('quizProgressText').textContent = `Question ${currentQuizQ+1} of ${quizData.length}`;
+document.getElementById('quizScoreText').textContent = `Score: ${quizCorrect}/${quizAttempted}`;
+}
+
+function renderQuizResults() {
+const area = document.getElementById('quizArea');
+const pct = Math.round((quizCorrect / quizData.length) * 100);
+let msg = pct >= 90 ? "🏆 Outstanding!" : pct >= 70 ? "🌟 Great Job!" : pct >= 50 ? "📚 Keep Studying!" : "💪 Don't Give Up!";
+area.innerHTML = `
+<div class="quiz-score-card">
+<div class="score-circle"><span>${pct}%</span></div>
+<div class="score-message">${msg}</div>
+<div class="score-detail">${quizCorrect} correct out of ${quizData.length} questions · Max Streak: ${maxStreak}🔥</div>
+<button class="btn btn-primary" onclick="resetQuiz()">🔄 Retake Quiz</button>
+</div>
+`;
+document.getElementById('quizProgressBar').style.width = '100%';
+}
+
+function resetQuiz() {
+currentQuizQ = 0;
+quizAnswered = new Array(quizData.length).fill(null);
+quizCorrect = 0;
+quizAttempted = 0;
+streak = 0;
+saveState();
+renderQuiz();
+updateStats();
+}
+
+// ===== FLASHCARDS =====
+function renderFlashcards() {
+const grid = document.getElementById('flashcardsGrid');
+grid.innerHTML = flashcardData.map((fc, i) => `
+<div class="flashcard-wrapper" onclick="this.querySelector('.flashcard').classList.toggle('flipped')">
+<div class="flashcard">
+<div class="flashcard-face flashcard-front">
+<div class="fc-label">Card ${i+1} · Click to flip</div>
+<div class="fc-question">${fc.front}</div>
+<div class="fc-hint">🔄 Tap to reveal answer</div>
+</div>
+<div class="flashcard-face flashcard-back">
+<div class="fc-label">✅ Answer</div>
+<div class="fc-answer">${fc.back}</div>
+</div>
+</div>
+</div>
+`).join('');
+}
+
+// ===== CASES =====
+function renderCases() {
+const area = document.getElementById('casesArea');
+area.innerHTML = casesData.map((c, ci) => {
+let qHTML = c.questions.map((cq, qi) => `
+<div class="case-questions">
+<div class="case-q">Q${qi+1}: ${cq.q}</div>
+<button class="reveal-btn" onclick="toggleCaseAnswer(this)">🔍 Reveal Answer</button>
+<div class="case-answer">${cq.a}</div>
+</div>
+`).join('');
+return `
+<div class="case-card">
+<div class="case-header">
+<div class="case-number">${ci+1}</div>
+<div class="case-title">${c.title}</div>
+</div>
+<div class="case-vignette">${c.vignette}</div>
+${qHTML}
+</div>
+`;
+}).join('');
+}
+
+function toggleCaseAnswer(btn) {
+const answer = btn.nextElementSibling;
+answer.classList.toggle('show');
+btn.textContent = answer.classList.contains('show') ? '🔒 Hide Answer' : '🔍 Reveal Answer';
+}
+
+// ===== THEORIES =====
+function renderTheories() {
+const grid = document.getElementById('theoryGrid');
+grid.innerHTML = theoryData.map((t, i) => `
+<div class="theory-item" onclick="toggleTheoryDetail(this)">
+<div class="theory-icon">${t.icon}</div>
+<h4>${t.title}</h4>
+<p>${t.summary}</p>
+<div class="theory-detail">${t.detail}</div>
+</div>
+`).join('');
+}
+
+function toggleTheoryDetail(el) {
+el.querySelector('.theory-detail').classList.toggle('show');
+}
+
+// ===== MNEMONICS =====
+function renderMnemonics() {
+const area = document.getElementById('mnemonicsArea');
+area.innerHTML = mnemonicsData.map((m, i) => {
+let listHTML = m.items.map(item => `
+<li><span class="m-letter">${item.letter}</span> ${item.text}</li>
+`).join('');
+return `
+<div class="mnemonic-card" onclick="toggleMnemonic(this)">
+<div class="mnemonic-title">📌 ${m.title}</div>
+<div class="mnemonic-word">${m.word}</div>
+<div class="mnemonic-expand-hint">Click to expand ↓</div>
+<ul class="mnemonic-list">${listHTML}</ul>
+</div>
+`;
+}).join('');
+}
+
+function toggleMnemonic(el) {
+const list = el.querySelector('.mnemonic-list');
+const hint = el.querySelector('.mnemonic-expand-hint');
+list.classList.toggle('show');
+hint.textContent = list.classList.contains('show') ? 'Click to collapse ↑' : 'Click to expand ↓';
+}
+
+// ===== VIVA =====
+function renderViva() {
+const area = document.getElementById('vivaArea');
+area.innerHTML = vivaData.map((v, i) => `
+<div class="viva-card" onclick="this.querySelector('.viva-a').classList.toggle('show')">
+<div class="viva-q"><span>🗣️</span> V${i+1}: ${v.q}</div>
+<div class="viva-a">${v.a}</div>
+</div>
+`).join('');
+}
+
+// ===== STATS =====
+function updateStats() {
+const totalItems = quizData.length + flashcardData.length;
+const progress = Math.round((quizAttempted / totalItems) * 100);
+document.getElementById('progressStat').textContent = Math.min(progress, 100) + '%';
+document.getElementById('quizScoreStat').textContent = quizCorrect + '/' + quizAttempted;
+document.getElementById('streakStat').textContent = streak + '🔥';
+}
+
+// ===== INIT =====
+function init() {
+loadState();
+renderQuiz();
+renderFlashcards();
+renderCases();
+renderTheories();
+renderMnemonics();
+renderViva();
+updateStats();
+
+// Restore last tab
+const lastTab = loadLastTab();
+const tabBtn = document.querySelector(`.nav-tab[data-tab="${lastTab}"]`);
+if (tabBtn) {
+document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+tabBtn.classList.add('active');
+document.getElementById(lastTab).classList.add('active');
+}
+}
+
+init();
+</script>
+</body>
+</html>

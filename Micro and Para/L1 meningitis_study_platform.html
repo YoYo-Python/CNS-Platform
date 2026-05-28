@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🧠 Meningitis — Interactive Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #050a14;
+  --surface: #0b1426;
+  --card: #111d35;
+  --card2: #152038;
+  --border: rgba(255,255,255,0.07);
+  --accent: #00d4ff;
+  --accent2: #ff6b35;
+  --accent3: #7c5cbf;
+  --green: #00e676;
+  --red: #ff4444;
+  --yellow: #ffca28;
+  --text: #e8f0fe;
+  --muted: #7a8ba8;
+  --font-head: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden}
+
+/* ── BG EFFECTS ── */
+.bg-orbs{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.12;animation:drift 18s infinite ease-in-out}
+.orb1{width:600px;height:600px;background:radial-gradient(circle,#00d4ff,transparent);top:-200px;left:-200px;animation-delay:0s}
+.orb2{width:500px;height:500px;background:radial-gradient(circle,#7c5cbf,transparent);bottom:-150px;right:-150px;animation-delay:-6s}
+.orb3{width:400px;height:400px;background:radial-gradient(circle,#ff6b35,transparent);top:50%;left:50%;transform:translate(-50%,-50%);animation-delay:-12s}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,-30px) scale(1.05)}66%{transform:translate(-20px,50px) scale(0.95)}}
+
+/* ── HEADER ── */
+header{position:relative;z-index:10;padding:2rem 2rem 0;text-align:center}
+.subject-badge{display:inline-block;font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.25);padding:0.35rem 1rem;border-radius:20px;margin-bottom:1rem}
+h1{font-family:var(--font-head);font-size:clamp(1.8rem,5vw,3.2rem);font-weight:800;line-height:1.1;letter-spacing:-0.02em}
+h1 span{background:linear-gradient(135deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{color:var(--muted);font-size:0.95rem;margin-top:0.5rem;font-weight:300}
+
+/* ── STATS BAR ── */
+.stats-bar{display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;padding:1.5rem 2rem;position:relative;z-index:10}
+.stat-pill{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:0.6rem 1.2rem;display:flex;align-items:center;gap:0.6rem;font-size:0.85rem}
+.stat-pill .val{font-family:var(--font-mono);color:var(--accent);font-weight:600;font-size:1rem}
+.stat-pill .lbl{color:var(--muted);font-size:0.75rem}
+
+/* ── SEARCH ── */
+.search-wrap{padding:0 2rem 1rem;position:relative;z-index:10;max-width:600px;margin:0 auto}
+.search-wrap input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:0.75rem 1rem 0.75rem 2.8rem;color:var(--text);font-family:var(--font-body);font-size:0.9rem;outline:none;transition:border-color 0.2s}
+.search-wrap input:focus{border-color:var(--accent)}
+.search-wrap .icon{position:absolute;left:2.8rem;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+#searchResults{background:var(--card2);border:1px solid var(--border);border-radius:12px;margin-top:0.5rem;max-height:300px;overflow-y:auto;display:none}
+#searchResults .sr-item{padding:0.75rem 1rem;cursor:pointer;border-bottom:1px solid var(--border);font-size:0.85rem}
+#searchResults .sr-item:hover{background:rgba(0,212,255,0.08)}
+#searchResults .sr-item strong{color:var(--accent)}
+
+/* ── TABS ── */
+nav.tabs{display:flex;overflow-x:auto;gap:0.25rem;padding:0 2rem 0;position:relative;z-index:10;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+.tab-btn{background:none;border:none;color:var(--muted);font-family:var(--font-body);font-size:0.82rem;font-weight:500;padding:0.7rem 1.1rem;border-radius:10px 10px 0 0;cursor:pointer;transition:all 0.2s;white-space:nowrap;border-bottom:2px solid transparent}
+.tab-btn:hover{color:var(--text);background:var(--card)}
+.tab-btn.active{color:var(--accent);background:var(--card);border-bottom-color:var(--accent)}
+
+/* ── MAIN CONTENT ── */
+main{position:relative;z-index:5;padding:0 2rem 4rem;max-width:1200px;margin:0 auto}
+.tab-panel{display:none;animation:fadeUp 0.3s ease}
+.tab-panel.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── SECTION TITLE ── */
+.section-title{font-family:var(--font-head);font-size:1.4rem;font-weight:700;margin:1.5rem 0 1rem;display:flex;align-items:center;gap:0.5rem}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border);margin-left:0.5rem}
+
+/* ── CARDS GRID ── */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-bottom:1.5rem}
+.info-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.2rem;transition:transform 0.2s,border-color 0.2s}
+.info-card:hover{transform:translateY(-2px);border-color:rgba(0,212,255,0.3)}
+.info-card .card-icon{font-size:1.6rem;margin-bottom:0.6rem}
+.info-card h3{font-family:var(--font-head);font-size:0.95rem;font-weight:700;margin-bottom:0.4rem;color:var(--accent)}
+.info-card p{font-size:0.82rem;color:var(--muted);line-height:1.5}
+
+/* ── TAGS ── */
+.tag{display:inline-block;font-size:0.68rem;font-weight:600;padding:0.2rem 0.55rem;border-radius:6px;margin:0.15rem;letter-spacing:0.04em}
+.tag-high{background:rgba(255,202,40,0.15);color:var(--yellow);border:1px solid rgba(255,202,40,0.3)}
+.tag-exam{background:rgba(255,107,53,0.15);color:var(--accent2);border:1px solid rgba(255,107,53,0.3)}
+.tag-pearl{background:rgba(0,230,118,0.15);color:var(--green);border:1px solid rgba(0,230,118,0.3)}
+.tag-blue{background:rgba(0,212,255,0.12);color:var(--accent);border:1px solid rgba(0,212,255,0.25)}
+
+/* ── AGE TABLE ── */
+.age-table{width:100%;border-collapse:collapse;margin-bottom:1.5rem;font-size:0.85rem}
+.age-table th{background:rgba(0,212,255,0.1);color:var(--accent);padding:0.75rem 1rem;text-align:left;font-family:var(--font-head);font-size:0.8rem;font-weight:700}
+.age-table td{padding:0.75rem 1rem;border-bottom:1px solid var(--border);color:var(--text)}
+.age-table tr:hover td{background:rgba(255,255,255,0.02)}
+.age-table td em{font-style:italic;color:var(--accent)}
+
+/* ── FLOWCHART ── */
+.flowchart{display:flex;flex-direction:column;align-items:center;gap:0;margin:1rem 0}
+.flow-step{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:0.7rem 1.2rem;font-size:0.82rem;max-width:500px;width:100%;text-align:center;position:relative}
+.flow-step.danger{border-color:rgba(255,68,68,0.4);background:rgba(255,68,68,0.08)}
+.flow-step.warn{border-color:rgba(255,202,40,0.4);background:rgba(255,202,40,0.06)}
+.flow-step.safe{border-color:rgba(0,230,118,0.4);background:rgba(0,230,118,0.06)}
+.flow-arrow{color:var(--muted);font-size:1.2rem;line-height:1;padding:0.15rem 0}
+
+/* ── QUIZ ── */
+#progressBar{height:4px;background:var(--card2);border-radius:2px;margin-bottom:1.5rem;overflow:hidden}
+#progressFill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:2px;transition:width 0.4s ease;width:0%}
+.quiz-meta{display:flex;justify-content:space-between;font-size:0.8rem;color:var(--muted);margin-bottom:1rem}
+.quiz-meta span{display:flex;align-items:center;gap:0.3rem}
+.question-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1rem}
+.question-card .q-num{font-family:var(--font-mono);font-size:0.7rem;color:var(--accent);margin-bottom:0.5rem}
+.question-card .q-text{font-size:0.95rem;line-height:1.6;margin-bottom:1rem;font-weight:500}
+.options{display:flex;flex-direction:column;gap:0.5rem}
+.option-btn{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:0.7rem 1rem;text-align:left;cursor:pointer;font-family:var(--font-body);font-size:0.85rem;color:var(--text);transition:all 0.2s;display:flex;align-items:center;gap:0.75rem}
+.option-btn:hover:not(:disabled){border-color:var(--accent);background:rgba(0,212,255,0.07)}
+.option-btn .opt-letter{font-family:var(--font-mono);font-weight:600;font-size:0.75rem;min-width:20px;color:var(--muted)}
+.option-btn.correct{border-color:var(--green);background:rgba(0,230,118,0.1);animation:pulse-g 0.4s}
+.option-btn.wrong{border-color:var(--red);background:rgba(255,68,68,0.1);animation:shake 0.4s}
+@keyframes pulse-g{0%,100%{box-shadow:0 0 0 0 rgba(0,230,118,0.4)}50%{box-shadow:0 0 0 8px rgba(0,230,118,0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.explanation{background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);border-radius:10px;padding:0.9rem;margin-top:0.75rem;font-size:0.82rem;line-height:1.6;display:none}
+.explanation .ex-correct{color:var(--green);font-weight:600;margin-bottom:0.3rem}
+.explanation .ex-wrong{color:var(--muted)}
+.quiz-nav{display:flex;justify-content:space-between;align-items:center;margin-top:1.5rem;gap:1rem}
+.btn{background:var(--accent);color:#000;border:none;border-radius:10px;padding:0.65rem 1.4rem;font-family:var(--font-body);font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s}
+.btn:hover{background:#00b8d9;transform:translateY(-1px)}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--muted)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,212,255,0.07)}
+.score-banner{background:linear-gradient(135deg,rgba(0,212,255,0.15),rgba(124,92,191,0.15));border:1px solid rgba(0,212,255,0.3);border-radius:16px;padding:2rem;text-align:center;margin-top:1rem}
+.score-banner h2{font-family:var(--font-head);font-size:2.5rem;font-weight:800;color:var(--accent)}
+.score-banner p{color:var(--muted);margin-top:0.5rem}
+
+/* ── FLASHCARDS ── */
+.flashcard-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
+.flashcard{perspective:1000px;height:180px;cursor:pointer}
+.flashcard-inner{position:relative;width:100%;height:100%;transition:transform 0.55s cubic-bezier(0.175,0.885,0.32,1.275);transform-style:preserve-3d}
+.flashcard.flipped .flashcard-inner{transform:rotateY(180deg)}
+.flashcard-front,.flashcard-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:14px;padding:1.2rem;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;border:1px solid var(--border)}
+.flashcard-front{background:var(--card);color:var(--text)}
+.flashcard-front .fc-label{font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.1em}
+.flashcard-front .fc-q{font-size:0.85rem;font-weight:500;line-height:1.4}
+.flashcard-back{background:linear-gradient(135deg,rgba(0,212,255,0.12),rgba(124,92,191,0.12));border-color:rgba(0,212,255,0.3);transform:rotateY(180deg)}
+.flashcard-back .fc-a{font-size:0.82rem;color:var(--text);line-height:1.5}
+.flashcard-back .fc-check{font-size:1.3rem;margin-bottom:0.4rem}
+
+/* ── CLINICAL CASES ── */
+.case-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1.2rem;border-left:3px solid var(--accent2)}
+.case-card h3{font-family:var(--font-head);font-size:1rem;color:var(--accent2);margin-bottom:0.5rem}
+.case-vignette{background:rgba(255,107,53,0.05);border-radius:10px;padding:1rem;font-size:0.87rem;line-height:1.6;margin-bottom:1rem;border:1px solid rgba(255,107,53,0.15)}
+.case-q{font-size:0.85rem;font-weight:600;margin-bottom:0.5rem;color:var(--text)}
+.reveal-btn{background:none;border:1px solid var(--accent2);color:var(--accent2);border-radius:8px;padding:0.45rem 0.9rem;font-size:0.8rem;cursor:pointer;font-family:var(--font-body);transition:all 0.2s;margin-top:0.5rem}
+.reveal-btn:hover{background:rgba(255,107,53,0.12)}
+.case-answer{background:rgba(0,230,118,0.05);border:1px solid rgba(0,230,118,0.2);border-radius:10px;padding:1rem;font-size:0.83rem;line-height:1.7;margin-top:0.75rem;display:none}
+.case-answer.open{display:block;animation:fadeUp 0.3s ease}
+.case-answer strong{color:var(--green)}
+
+/* ── PATHOPHYSIOLOGY ── */
+.path-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;margin-bottom:1.5rem}
+.path-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem;cursor:pointer;transition:all 0.2s}
+.path-item:hover{border-color:var(--accent3);background:rgba(124,92,191,0.1)}
+.path-item h4{font-family:var(--font-head);font-size:0.85rem;color:var(--accent3);margin-bottom:0.3rem}
+.path-item p{font-size:0.78rem;color:var(--muted);line-height:1.4}
+.path-detail{background:rgba(124,92,191,0.08);border:1px solid rgba(124,92,191,0.25);border-radius:12px;padding:1.2rem;margin-top:0.75rem;font-size:0.85rem;line-height:1.6;display:none}
+.path-detail.open{display:block;animation:fadeUp 0.3s ease}
+
+/* ── COMPARISON TABLE ── */
+.comp-table{width:100%;border-collapse:collapse;font-size:0.82rem;margin-bottom:1.5rem;overflow:hidden;border-radius:12px}
+.comp-table th{background:rgba(0,212,255,0.1);color:var(--accent);padding:0.75rem 1rem;text-align:left;font-family:var(--font-head);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em}
+.comp-table td{padding:0.7rem 1rem;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top;line-height:1.5}
+.comp-table tr:last-child td{border-bottom:none}
+.comp-table tr:hover td{background:rgba(255,255,255,0.02)}
+.comp-table td:first-child{color:var(--muted);font-size:0.75rem;font-weight:500}
+
+/* ── TREATMENT ── */
+.treatment-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;margin-bottom:1.5rem}
+.treatment-card{border-radius:14px;padding:1.2rem;border:1px solid}
+.treatment-card.emergency{background:rgba(255,68,68,0.07);border-color:rgba(255,68,68,0.3)}
+.treatment-card.prophylaxis{background:rgba(0,212,255,0.06);border-color:rgba(0,212,255,0.25)}
+.treatment-card.vaccine{background:rgba(124,92,191,0.08);border-color:rgba(124,92,191,0.3)}
+.treatment-card h3{font-family:var(--font-head);font-size:0.95rem;font-weight:700;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.4rem}
+.treatment-card ul{padding-left:1rem}
+.treatment-card li{font-size:0.83rem;line-height:1.7;color:var(--muted)}
+.treatment-card li strong{color:var(--text)}
+.treatment-card .urg-badge{font-size:0.65rem;padding:0.15rem 0.5rem;border-radius:5px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.06em}
+.urg-red{background:rgba(255,68,68,0.2);color:#ff4444}
+.urg-blue{background:rgba(0,212,255,0.15);color:var(--accent)}
+.urg-purple{background:rgba(124,92,191,0.2);color:var(--accent3)}
+.drug-table{width:100%;border-collapse:collapse;font-size:0.82rem;margin-top:1rem}
+.drug-table th{background:rgba(255,255,255,0.05);color:var(--muted);padding:0.6rem 0.8rem;text-align:left;font-size:0.75rem}
+.drug-table td{padding:0.6rem 0.8rem;border-top:1px solid var(--border)}
+
+/* ── MNEMONICS ── */
+.mnemonic-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.4rem;margin-bottom:1rem;cursor:pointer;transition:all 0.2s}
+.mnemonic-card:hover{border-color:var(--yellow);background:rgba(255,202,40,0.04)}
+.mnemonic-card .mnem-title{font-family:var(--font-head);font-size:1rem;font-weight:700;color:var(--yellow);margin-bottom:0.3rem}
+.mnemonic-card .mnem-acronym{font-family:var(--font-mono);font-size:1.5rem;color:var(--text);letter-spacing:0.1em;margin-bottom:0.75rem}
+.mnem-list{display:none}
+.mnem-list.open{display:block;animation:fadeUp 0.3s ease}
+.mnem-row{display:flex;gap:0.75rem;padding:0.4rem 0;font-size:0.84rem;border-bottom:1px solid var(--border)}
+.mnem-row:last-child{border:none}
+.mnem-row .letter{font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--yellow);min-width:20px}
+.mnem-row .meaning{color:var(--text)}
+.mnem-row .note{color:var(--muted);font-size:0.78rem;margin-left:auto;text-align:right;font-style:italic}
+
+/* ── VIVA ── */
+.viva-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.1rem;margin-bottom:0.75rem}
+.viva-q{font-size:0.88rem;font-weight:600;margin-bottom:0.5rem;cursor:pointer;display:flex;justify-content:space-between;align-items:start;gap:1rem}
+.viva-q .vnum{font-family:var(--font-mono);font-size:0.7rem;color:var(--accent);margin-right:0.5rem}
+.viva-a{font-size:0.83rem;line-height:1.65;color:var(--muted);display:none;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border)}
+.viva-a.open{display:block;animation:fadeUp 0.2s ease}
+.viva-chevron{color:var(--muted);transition:transform 0.2s;font-size:0.9rem;flex-shrink:0}
+.viva-item.expanded .viva-chevron{transform:rotate(90deg)}
+
+/* ── PROGRESS BAR ── */
+.quiz-progress-ring{text-align:center;margin-bottom:1rem}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  header{padding:1.5rem 1rem 0}
+  nav.tabs{padding:0 1rem}
+  main{padding:0 1rem 4rem}
+  .stats-bar{padding:1rem;gap:0.75rem}
+  .stat-pill{padding:0.5rem 0.8rem;font-size:0.78rem}
+  .search-wrap{padding:0 1rem 1rem}
+}
+
+/* ── OVERVIEW TIMELINE ── */
+.timeline{position:relative;padding-left:2rem;margin-bottom:1.5rem}
+.timeline::before{content:'';position:absolute;left:0.5rem;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--accent),var(--accent3))}
+.tl-item{position:relative;margin-bottom:1.2rem}
+.tl-item::before{content:'';position:absolute;left:-1.65rem;top:0.35rem;width:12px;height:12px;border-radius:50%;background:var(--accent);border:2px solid var(--bg)}
+.tl-item h4{font-family:var(--font-head);font-size:0.85rem;color:var(--accent);margin-bottom:0.2rem}
+.tl-item p{font-size:0.8rem;color:var(--muted);line-height:1.4}
+
+/* ── MOTIVATIONAL ── */
+.motivate{background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(124,92,191,0.08));border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:1rem 1.2rem;font-size:0.82rem;color:var(--muted);margin-bottom:1.5rem;text-align:center;font-style:italic}
+
+/* ── STREAK ── */
+.streak-badge{display:inline-flex;align-items:center;gap:0.4rem;background:rgba(255,202,40,0.12);border:1px solid rgba(255,202,40,0.3);border-radius:20px;padding:0.35rem 0.9rem;font-family:var(--font-mono);font-size:0.8rem;color:var(--yellow)}
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<header>
+  <div class="subject-badge">🎓 Mansoura University · Microbiology · Semester 4</div>
+  <h1>Bacterial <span>Meningitis</span></h1>
+  <p class="subtitle">CNS Infections — Interactive Study Platform</p>
+</header>
+
+<div class="stats-bar">
+  <div class="stat-pill"><span class="val" id="statScore">0</span><span class="lbl">Quiz Score</span></div>
+  <div class="stat-pill"><span class="val" id="statStreak">🔥 0</span><span class="lbl">Streak</span></div>
+  <div class="stat-pill"><span class="val" id="statProgress">0%</span><span class="lbl">Progress</span></div>
+  <div class="stat-pill"><span class="val" id="statFlipped">0</span><span class="lbl">Cards Flipped</span></div>
+</div>
+
+<div class="search-wrap">
+  <span class="icon">🔍</span>
+  <input type="text" id="searchInput" placeholder="Search all content — organisms, symptoms, drugs…"/>
+  <div id="searchResults"></div>
+</div>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="overview">📋 Overview</button>
+  <button class="tab-btn" data-tab="quiz">🎯 Quiz</button>
+  <button class="tab-btn" data-tab="flashcards">🃏 Flashcards</button>
+  <button class="tab-btn" data-tab="cases">🏥 Clinical Cases</button>
+  <button class="tab-btn" data-tab="patho">🔬 Pathophysiology</button>
+  <button class="tab-btn" data-tab="diagnosis">🧪 Diagnosis</button>
+  <button class="tab-btn" data-tab="treatment">💊 Treatment</button>
+  <button class="tab-btn" data-tab="mnemonics">🧠 Mnemonics</button>
+  <button class="tab-btn" data-tab="viva">🗣️ Viva</button>
+</nav>
+
+<main>
+
+<!-- ═══════════════════ OVERVIEW ═══════════════════ -->
+<div class="tab-panel active" id="tab-overview">
+  <div class="motivate">🧠 "The most serious acute meningitis can kill in under 24 hours — your knowledge can save a life."</div>
+
+  <div class="section-title">📌 What is Meningitis?</div>
+  <div class="cards-grid">
+    <div class="info-card">
+      <div class="card-icon">🦠</div>
+      <h3>Acute Purulent (Bacterial)</h3>
+      <p>Acute inflammatory infection with marked purulent exudates. Most dangerous type. Caused by bacteria like <em>N. meningitidis</em> & <em>S. pneumoniae</em>.</p>
+      <div style="margin-top:0.6rem"><span class="tag tag-high">High-Yield</span><span class="tag tag-exam">Exam Favorite</span></div>
+    </div>
+    <div class="info-card">
+      <div class="card-icon">🐢</div>
+      <h3>Chronic Meningitis</h3>
+      <p>Caused by slow-growing agents (Mycobacteria, Cryptococcus). Produces granulomatous inflammation rather than acute purulence. TB & fungi typical.</p>
+      <div style="margin-top:0.6rem"><span class="tag tag-blue">Granulomatous</span></div>
+    </div>
+    <div class="info-card">
+      <div class="card-icon">🦟</div>
+      <h3>Aseptic (Viral)</h3>
+      <p><strong>Most common type overall.</strong> Non-purulent, predominantly lymphocytic. Echovirus & Coxsackievirus are leading causes. Usually self-limiting.</p>
+      <div style="margin-top:0.6rem"><span class="tag tag-pearl">Clinical Pearl</span><span class="tag tag-high">Most Common</span></div>
+    </div>
+  </div>
+
+  <div class="section-title">👶 Causative Agents by Age</div>
+  <table class="age-table">
+    <tr><th>Age Group</th><th>Primary Organisms</th><th>Key Features</th></tr>
+    <tr><td>Neonates &lt;1 month</td><td><em>S. agalactiae</em>, <em>E. coli</em> K1, <em>Listeria monocytogenes</em></td><td>Vertical/hospital transmission</td></tr>
+    <tr><td>Children &gt;1 month</td><td><em>H. influenzae</em> type b, <em>S. pneumoniae</em>, <em>N. meningitidis</em></td><td>Hib vaccine has greatly reduced H. flu</td></tr>
+    <tr><td>Adults</td><td><em>S. pneumoniae</em> (most common), <em>N. meningitidis</em></td><td>Community-acquired predominates</td></tr>
+    <tr><td>Dorms / Military</td><td><em>N. meningitidis</em></td><td>Close-contact outbreaks</td></tr>
+    <tr><td>HIV/AIDS</td><td><em>Cryptococcus neoformans</em></td><td>Most common fungal chronic meningitis</td></tr>
+  </table>
+
+  <div class="section-title">⚡ High-Yield Clinical Signs</div>
+  <div class="cards-grid">
+    <div class="info-card"><div class="card-icon">🌡️</div><h3>High Fever</h3><p>Sudden onset >39°C. Endotoxin-mediated cytokine release (IL-1, TNF).</p><span class="tag tag-high">Classic Triad</span></div>
+    <div class="info-card"><div class="card-icon">🤕</div><h3>Nuchal Rigidity</h3><p>Stiff neck — meningeal irritation from inflammation. Kernig & Brudzinski signs positive.</p><span class="tag tag-high">Classic Triad</span><span class="tag tag-exam">Exam Favorite</span></div>
+    <div class="info-card"><div class="card-icon">😵</div><h3>Photophobia</h3><p>Sensitivity to light. Part of meningeal irritation syndrome. Classic triad component.</p><span class="tag tag-high">Classic Triad</span></div>
+    <div class="info-card"><div class="card-icon">🔴</div><h3>Petechiae / Ecchymosis</h3><p>PATHOGNOMONIC for meningococcemia. LOS endotoxin → vascular damage → intravascular clotting.</p><span class="tag tag-exam">⚠️ Danger Sign</span><span class="tag tag-pearl">Pearl</span></div>
+    <div class="info-card"><div class="card-icon">💉</div><h3>Low BP + High HR</h3><p>Septic shock from meningococcemia. Cytokine storm causes vascular collapse.</p><span class="tag tag-exam">Emergency</span></div>
+    <div class="info-card"><div class="card-icon">🤢</div><h3>Vomiting / Lethargy</h3><p>Due to raised intracranial pressure and meningeal inflammation.</p><span class="tag tag-blue">Common</span></div>
+  </div>
+
+  <div class="section-title">🗺️ Disease Progression Timeline</div>
+  <div class="timeline">
+    <div class="tl-item"><h4>🫁 Inhalation of respiratory droplets</h4><p>Colonization of nasopharynx — most carriers never develop disease</p></div>
+    <div class="tl-item"><h4>🔗 Pili-mediated adhesion to mucosa</h4><p>IgA protease cleaves mucosal antibodies → immune evasion</p></div>
+    <div class="tl-item"><h4>🩸 Bacteremia develops</h4><p>Endotoxin (LOS) released → fever, cytokine storm begins</p></div>
+    <div class="tl-item"><h4>💥 Meningococcemia (severe)</h4><p>Vascular damage, petechiae, shock — <strong>can kill in &lt;24h</strong></p></div>
+    <div class="tl-item"><h4>🧠 BBB penetration → Meningitis</h4><p>Purulent CSF, PMN influx, glucose depletion, raised ICP</p></div>
+    <div class="tl-item"><h4>⚕️ Without treatment → death</h4><p>Immediate empirical antibiotics are life-saving</p></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ QUIZ ═══════════════════ -->
+<div class="tab-panel" id="tab-quiz">
+  <div class="motivate">💡 Select the best answer. You'll get immediate feedback and explanations!</div>
+  <div id="progressBar"><div id="progressFill"></div></div>
+  <div class="quiz-meta">
+    <span>Question <strong id="qCurrent">1</strong> of <strong>25</strong></span>
+    <span id="streakDisplay" class="streak-badge">🔥 Streak: 0</span>
+    <span>Score: <strong id="qScore">0</strong></span>
+  </div>
+  <div id="quizContainer"></div>
+  <div class="quiz-nav">
+    <button class="btn btn-ghost" id="prevBtn" onclick="navigateQuiz(-1)">← Prev</button>
+    <button class="btn" id="nextBtn" onclick="navigateQuiz(1)">Next →</button>
+  </div>
+  <div id="scoreBanner" style="display:none"></div>
+</div>
+
+<!-- ═══════════════════ FLASHCARDS ═══════════════════ -->
+<div class="tab-panel" id="tab-flashcards">
+  <div class="motivate">🃏 Click any card to flip it. Test yourself before revealing!</div>
+  <div class="flashcard-grid" id="flashcardGrid"></div>
+</div>
+
+<!-- ═══════════════════ CLINICAL CASES ═══════════════════ -->
+<div class="tab-panel" id="tab-cases">
+  <div class="motivate">🏥 Read each case carefully — these mirror real exam vignettes!</div>
+  <div id="casesContainer"></div>
+</div>
+
+<!-- ═══════════════════ PATHOPHYSIOLOGY ═══════════════════ -->
+<div class="tab-panel" id="tab-patho">
+  <div class="section-title">🔬 Neisseria meningitidis — Virulence Factors</div>
+  <div class="path-grid" id="pathGrid"></div>
+  <div id="pathDetail" class="path-detail"></div>
+
+  <div class="section-title">🔄 Pathogenesis Flowchart</div>
+  <div class="flowchart">
+    <div class="flow-step">🫁 Inhalation of infected respiratory droplets</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">🔬 Arrival at nasopharynx (carrier state)</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">📎 <strong>Pili</strong> adhere to mucosal epithelial cells</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">✂️ <strong>IgA protease</strong> cleaves mucosal antibodies → immune evasion</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">🏃 Engulfed by epithelial cells → penetrates blood vessels</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step warn">🩸 <strong>Bacteremia</strong> — bacteria in bloodstream</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step danger">💣 <strong>Endotoxin (LOS)</strong> released → massive cytokine storm</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step danger">🔴 <strong>Meningococcemia</strong> — vascular collapse, petechiae, shock (death in &lt;24h)</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step danger">🧠 <strong>BBB penetration</strong> → purulent meningeal inflammation</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step safe">💊 <strong>Penicillin IV</strong> — drug of choice for confirmed disease</div>
+  </div>
+
+  <div class="section-title" style="margin-top:1.5rem">🧬 CSF Glucose — Why Is It Low?</div>
+  <div class="flowchart">
+    <div class="flow-step">Normal CSF glucose = ~60-70% of serum glucose</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step warn">Bacteria directly consume glucose (metabolic activity)</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step warn">Massive PMN influx → PMNs perform rapid glycolysis</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step warn">Severe vascular inflammation shifts glucose to blood</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step danger">CSF glucose &lt;0.3 serum ratio = ⚠️ Bacterial meningitis</div>
+  </div>
+</div>
+
+<!-- ═══════════════════ DIAGNOSIS ═══════════════════ -->
+<div class="tab-panel" id="tab-diagnosis">
+  <div class="section-title">🧪 CSF Analysis — Bacterial vs Viral</div>
+  <table class="comp-table">
+    <tr><th>Feature</th><th>Acute Bacterial</th><th>Aseptic (Viral)</th></tr>
+    <tr><td>Appearance</td><td>Turbid, milky, may clot</td><td>Clear / slightly turbid</td></tr>
+    <tr><td>Pressure</td><td>Markedly elevated</td><td>Normal / mildly elevated</td></tr>
+    <tr><td>Glucose ratio</td><td style="color:#ff4444">&lt;0.3 (markedly decreased)</td><td style="color:#00e676">&gt;0.6 (normal/slightly low)</td></tr>
+    <tr><td>Protein</td><td style="color:#ff4444">Markedly elevated (vascular leak)</td><td style="color:#00e676">Normal / slightly elevated</td></tr>
+    <tr><td>WBC / cells</td><td>Markedly ↑ PMNs predominate</td><td>Mildly ↑ Lymphocytes predominate</td></tr>
+    <tr><td>Gram stain</td><td>Bacteria visible</td><td>No bacteria</td></tr>
+    <tr><td>Culture</td><td>Positive for organism</td><td>Negative (sterile)</td></tr>
+  </table>
+
+  <div class="section-title">🔬 Organism ID by Gram Stain</div>
+  <table class="comp-table">
+    <tr><th>Organism</th><th>Gram Stain Appearance</th><th>Age Group</th></tr>
+    <tr><td><em>N. meningitidis</em></td><td>Gram-neg kidney-shaped diplococci (intracellular)</td><td>Older children / young adults</td></tr>
+    <tr><td><em>S. pneumoniae</em></td><td>Gram-positive diplococci</td><td>Adults (most common)</td></tr>
+    <tr><td><em>H. influenzae</em></td><td>Gram-negative coccobacilli</td><td>Children &gt;1 month</td></tr>
+    <tr><td><em>S. agalactiae</em></td><td>Gram-positive cocci in short chains</td><td>Neonates</td></tr>
+    <tr><td><em>Listeria</em></td><td>Gram-positive bacilli in short chains</td><td>Neonates</td></tr>
+    <tr><td><em>E. coli</em> K1</td><td>Gram-negative bacilli</td><td>Neonates</td></tr>
+  </table>
+
+  <div class="section-title">🧫 Lab Diagnosis of N. meningitidis — Step by Step</div>
+  <div class="flowchart">
+    <div class="flow-step">1️⃣ Lumbar puncture — 3-10 ml CSF under strict aseptic conditions</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">2️⃣ Physical exam: turbid fluid under tension</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">3️⃣ Direct Gram stain: Gram-neg kidney-shaped diplococci (intra + extracellular)</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">4️⃣ Culture: <strong>Chocolate agar</strong> (CSF) or Thayer-Martin (swab), aerobic, 37°C, 10% CO₂</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">5️⃣ Biochemistry: oxidase positive, ferments glucose + maltose (acid only)</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">6️⃣ Definitive ID: agglutination with specific antisera</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step safe">7️⃣ Rapid alternatives: Antigen detection (latex agglutination), PCR (especially post-antibiotics)</div>
+  </div>
+
+  <div class="section-title" style="margin-top:1.5rem">🔍 Investigation Comparison</div>
+  <table class="comp-table">
+    <tr><th>Test</th><th>Sensitivity</th><th>Best Use</th><th>Limitation</th></tr>
+    <tr><td>Gram stain</td><td>Moderate</td><td>Rapid bedside ID</td><td>Fails if pre-treated with abx</td></tr>
+    <tr><td>Culture</td><td>High (if no prior abx)</td><td>Gold standard + sensitivity</td><td>24-48h delay; fails post-abx</td></tr>
+    <tr><td>PCR</td><td>Very high</td><td>Post-abx samples; rapid</td><td>Cost; availability</td></tr>
+    <tr><td>Latex agglutination</td><td>Good</td><td>Rapid antigen detection</td><td>Less sensitive than PCR</td></tr>
+    <tr><td>Serology</td><td>Variable</td><td>Retrospective diagnosis</td><td>Not useful acutely</td></tr>
+  </table>
+</div>
+
+<!-- ═══════════════════ TREATMENT ═══════════════════ -->
+<div class="tab-panel" id="tab-treatment">
+  <div class="motivate">⚠️ In meningococcemia — EVERY MINUTE COUNTS. Give antibiotics before LP if patient is unstable!</div>
+  <div class="treatment-grid">
+    <div class="treatment-card emergency">
+      <h3>🚨 Acute Treatment <span class="urg-badge urg-red">Emergency</span></h3>
+      <ul>
+        <li><strong>Drug of choice (confirmed N. meningitidis):</strong> Penicillin G IV</li>
+        <li><strong>Why Penicillin works:</strong> Strong anti-meningococcal activity + good CSF penetration when meninges are INFLAMED</li>
+        <li><strong>Empirical (before culture):</strong> 3rd-gen cephalosporins (e.g., Cefotaxime, Ceftriaxone) — broad coverage</li>
+        <li><strong>If penicillin allergic:</strong> Chloramphenicol (historical use)</li>
+        <li><strong>H. influenzae:</strong> Ampicillin or 3rd-gen cephalosporin</li>
+      </ul>
+    </div>
+    <div class="treatment-card prophylaxis">
+      <h3>💊 Chemoprophylaxis <span class="urg-badge urg-blue">Contacts</span></h3>
+      <ul>
+        <li><strong>Drugs used:</strong> Rifampicin or Ciprofloxacin</li>
+        <li><strong>Why NOT Penicillin:</strong> Poor penetration of UNINFLAMED CSF and mucosa → cannot eradicate carrier state</li>
+        <li><strong>Goal:</strong> Eradicate nasopharyngeal carriage in close contacts</li>
+        <li><strong>Who gets it:</strong> Household contacts, dormitory roommates, close contacts within 7 days</li>
+      </ul>
+    </div>
+    <div class="treatment-card vaccine">
+      <h3>💉 Vaccination <span class="urg-badge urg-purple">Prevention</span></h3>
+      <ul>
+        <li><strong>Quadrivalent vaccine:</strong> Covers serogroups A, C, W-135, Y</li>
+        <li><strong>Target: </strong> Polysaccharide capsule antigens</li>
+        <li><strong>High-risk groups:</strong> Military, Hajj pilgrims, asplenic patients</li>
+        <li><strong>Limitation:</strong> DOES NOT cover serogroup B</li>
+        <li><strong>Group B problem:</strong> Capsule mimics human brain sialic acid → poorly immunogenic + autoimmune risk</li>
+        <li><strong>Vaccine is ineffective in infants:</strong> Pure polysaccharide vaccines are T-independent</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section-title">💊 Drug Comparison Table</div>
+  <table class="comp-table">
+    <tr><th>Drug</th><th>Use</th><th>Mechanism</th><th>Key Point</th></tr>
+    <tr><td>Penicillin G</td><td>Active meningitis (confirmed N. men.)</td><td>Cell wall synthesis inhibitor</td><td>Penetrates inflamed BBB well</td></tr>
+    <tr><td>Cefotaxime / Ceftriaxone</td><td>Empirical first-line (broad)</td><td>3rd gen cephalosporin</td><td>Covers most organisms including H. flu</td></tr>
+    <tr><td>Rifampicin</td><td>Chemoprophylaxis</td><td>RNA polymerase inhibitor</td><td>Penetrates uninflamed mucosa</td></tr>
+    <tr><td>Ciprofloxacin</td><td>Chemoprophylaxis (alternative)</td><td>DNA gyrase inhibitor</td><td>Single dose convenient</td></tr>
+    <tr><td>Ampicillin</td><td>Listeria, H. influenzae</td><td>Cell wall inhibitor</td><td>Choice for Listeria coverage</td></tr>
+  </table>
+
+  <div class="section-title">⚠️ Sulfonamides — Historical Note</div>
+  <div class="info-card" style="max-width:600px">
+    <div class="card-icon">🚫</div>
+    <h3>Sulfonamides — Now Obsolete</h3>
+    <p>Previously used for N. meningitidis treatment and prophylaxis. Now rendered ineffective due to widespread resistance development. No longer used clinically for this purpose.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════ MNEMONICS ═══════════════════ -->
+<div class="tab-panel" id="tab-mnemonics">
+  <div class="motivate">🧠 Click each card to reveal the full mnemonic. These are crafted from your lecture content!</div>
+  <div id="mnemonicsContainer"></div>
+</div>
+
+<!-- ═══════════════════ VIVA ═══════════════════ -->
+<div class="tab-panel" id="tab-viva">
+  <div class="motivate">🗣️ Click any question to reveal the model answer. Practice out loud!</div>
+  <div id="vivaContainer"></div>
+</div>
+
+</main>
+
+<script>
+// ════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════
+
+const QUIZ_DATA = [
+  {q:"Which of the following accurately describes the role of IgA protease in the pathogenesis of N. meningitidis?",opts:["Prevents intracellular digestion by macrophages","Mediates widespread vascular damage and petechiae","Blocks host serum bactericidal IgG action","Cleaves mucosal immunoglobulins to facilitate initial colonization","Facilitates initial binding to host cell receptors"],correct:3,explanation:"IgA protease cleaves IgA on mucosal surfaces, aiding survival in the upper respiratory tract. A=capsule, B=endotoxin/LOS, C=outer membrane proteins, E=pili."},
+  {q:"During LP for suspected meningitis, CSF shows decreased glucose, markedly increased PMNs, and elevated protein. What is the primary mechanism causing decreased glucose?",opts:["Failure of choroid plexus to transport glucose","Viral replication shutting down host cell metabolism","Bacterial consumption and glycolysis by infiltrating PMNs","Leakage of CSF glucose into the systemic circulation","Intravascular coagulation blocking nutrient supply"],correct:2,explanation:"Bacteria consume glucose, and the massive number of PMNs utilize it via glycolysis. Viral meningitis typically features normal glucose levels."},
+  {q:"Why is the serogroup B capsular antigen of N. meningitidis considered weakly antigenic?",opts:["It is rapidly degraded by host proteases","It exhibits molecular mimicry to human brain sialic acid polymers","It is hidden beneath a thick outer membrane protein layer","It triggers rapid IgA cleavage","It suppresses T-cell activation"],correct:1,explanation:"The polymer structure closely resembles human brain antigens, preventing the immune system from recognizing it as foreign. This is the concept of molecular mimicry."},
+  {q:"Which of the following represents the most serious complication of Neisseria meningitidis infection, often leading to rapid vascular collapse?",opts:["Chronic granulomatous inflammation","Aseptic meningitis","Meningococcemia","Encephalitis","Endocarditis"],correct:2,explanation:"Meningococcemia involves endotoxin release in the blood causing shock, petechiae, and death within hours. A=TB/fungi, B=viral, D and E are different processes."},
+  {q:"A 2-week-old neonate presents with meningitis. CSF Gram stain shows Gram-positive bacilli arranged in short chains. Which organism is most likely?",opts:["Escherichia coli K1","Streptococcus agalactiae","Neisseria meningitidis","Listeria monocytogenes","Streptococcus pneumoniae"],correct:3,explanation:"Listeria monocytogenes appears as Gram-positive bacilli in short chains and is a cause of neonatal meningitis. E. coli is Gram-negative bacilli. S. agalactiae is Gram-positive cocci. N. meningitidis is Gram-negative diplococci."},
+  {q:"Why is Penicillin ineffective for chemoprophylaxis of asymptomatic N. meningitidis carriers?",opts:["The bacteria possess widespread beta-lactamase resistance","Penicillin is bacteriostatic, not bactericidal","It exhibits inadequate penetration into uninflamed CSF and mucosa","It causes molecular mimicry in healthy patients","It is neutralized by the bacterial capsule"],correct:2,explanation:"While effective for active meningitis (inflamed meninges), Penicillin does not penetrate well enough to clear nasopharyngeal carriage in healthy contacts. Rifampicin or Ciprofloxacin are used instead."},
+  {q:"In a patient with meningitis, which finding specifically points toward a viral (aseptic) etiology rather than acute bacterial?",opts:["Predominance of polymorphonuclear cells in CSF","Severely decreased CSF glucose","Highly turbid, milky CSF","Normal or slightly decreased CSF glucose with lymphocytic predominance","Extremely high CSF pressure"],correct:3,explanation:"Aseptic (viral) meningitis typically presents with normal glucose and a predominance of lymphocytes. PMNs, low glucose, turbid CSF, and high pressure are hallmarks of acute purulent bacterial meningitis."},
+  {q:"Which structural component of N. meningitidis is the primary target for the quadrivalent vaccine?",opts:["Outer membrane proteins","Pili","Lipooligosaccharide (LOS)","Polysaccharide capsule","IgA protease"],correct:3,explanation:"The vaccine contains capsular polysaccharides for serogroups A, C, W-135, and Y. The capsule defines the serogroups used in the vaccine."},
+  {q:"What is the most common cause of community-acquired acute bacterial meningitis in adults?",opts:["Haemophilus influenzae type b","Neisseria meningitidis","Streptococcus pneumoniae","Staphylococcus aureus","Escherichia coli"],correct:2,explanation:"S. pneumoniae is the most common cause in adults. H. influenzae is mostly in children. N. meningitidis is common but secondary to S. pneumoniae in adults. Staph aureus and E. coli are often nosocomial."},
+  {q:"A 4-year-old child's CSF culture grows Gram-negative cocco-bacilli. What is the most likely pathogen?",opts:["Streptococcus pneumoniae","Haemophilus influenzae","Neisseria meningitidis","Listeria monocytogenes","Cryptococcus neoformans"],correct:1,explanation:"H. influenzae morphology is Gram-negative coccobacilli and is common in children >1 month. S. pneumoniae is Gram-positive diplococci. N. meningitidis is Gram-negative kidney-shaped diplococci. Listeria is Gram-positive bacilli."},
+  {q:"N. meningitidis culture requires specific atmospheric conditions. Which is correct?",opts:["Strictly anaerobic, 37°C","Aerobic, 10% CO2, 37°C","Microaerophilic, 5% CO2, 25°C","Aerobic, 0% CO2, 42°C","Facultative anaerobe, standard atmosphere"],correct:1,explanation:"Meningococcus is aerobic, requires 10% CO2 enrichment, and an optimum temperature of 37°C (body temperature)."},
+  {q:"The presence of petechiae in a patient with N. meningitidis infection is a direct mechanistic result of:",opts:["Bacterial capsule resisting phagocytosis","Endotoxin-induced vascular damage and widespread clotting","Pili attaching to endothelial cells","Cleavage of mucosal IgA antibodies","Autoimmune attack on host glycoproteins"],correct:1,explanation:"Endotoxin (LOS) stimulates WBCs to release cytokines, causing vascular collapse and hemorrhage. A, C, D are local/immune evasion steps. E is related to the vaccine issue."},
+  {q:"How are Neisseria meningitidis carriers primarily identified in the laboratory?",opts:["CSF culture","Blood culture","Nasopharyngeal swab","Skin lesion biopsy","Urine antigen test"],correct:2,explanation:"The reservoir is the human nasopharynx, and screening to diagnose carriers requires a nasopharyngeal swab. CSF and blood cultures are used for active disease diagnosis, not asymptomatic carriage."},
+  {q:"The Gram stain of CSF in acute meningococcal meningitis classically shows:",opts:["Extracellular Gram-positive cocci in clusters","Intracellular Gram-negative kidney-shaped diplococci","Intracellular Gram-positive bacilli","Extracellular Gram-negative bacilli","Intracellular Gram-negative cocco-bacilli"],correct:1,explanation:"The classic finding is Gram-negative kidney-shaped diplococci both inside and outside PMNs. A=Staph aureus, C=Listeria, D=E. coli, E=H. influenzae."},
+  {q:"Why is meningitis caused by Mycobacterium tuberculosis termed 'chronic'?",opts:["It is caused by a fast-growing agent with delayed symptom onset","It triggers an immediate purulent response that fails to resolve","It is caused by a slow-growing agent producing granulomatous inflammation","It only occurs in immunocompromised individuals","It exclusively presents with lymphocytic pleocytosis without protein changes"],correct:2,explanation:"Chronic meningitis is caused by slow-growing agents like Mycobacteria, which produce granulomatous inflammatory changes rather than acute purulence."},
+  {q:"Which biochemical reaction profile properly identifies Neisseria meningitidis colonies?",opts:["Ferments glucose only, oxidase negative","Ferments maltose only, oxidase positive","Ferments glucose and maltose with acid production, oxidase positive","Ferments lactose, oxidase negative","Does not ferment sugars, oxidase positive"],correct:2,explanation:"Definitive ID relies on being oxidase positive AND fermenting both glucose and maltose. Note: N. gonorrhoeae ferments glucose only — a key distinction!"},
+  {q:"Which of the following is the most common cause of fungal chronic meningitis in AIDS patients?",opts:["Mycobacterium tuberculosis","Toxoplasma gondii","Cryptococcus neoformans","Listeria monocytogenes","Echovirus"],correct:2,explanation:"Cryptococcus neoformans is the most common cause of chronic meningitis in AIDS. A=bacterium (TB), B=parasite, D=bacterium, E=virus."},
+  {q:"What is the most appropriate empirical step when LP is delayed in a patient with rapid-onset high fever, petechiae, and neck stiffness?",opts:["Wait for CSF culture results before treating","Administer antiviral medications","Administer prompt empirical bactericidal antibiotics","Order an MRI of the brain","Administer a meningococcal vaccine"],correct:2,explanation:"Bacterial meningitis is extremely fatal; empirical antibiotics (3rd-gen cephalosporins) must be administered immediately. Waiting wastes critical time in meningococcemia."},
+  {q:"Which viral group is responsible for the vast majority of aseptic meningitis cases?",opts:["Herpes simplex virus","Varicella-zoster virus","Cytomegalovirus","Echoviruses and Coxsackieviruses","Influenza viruses"],correct:3,explanation:"Echoviruses and Coxsackieviruses (Enteroviruses) are the most common causes of aseptic viral meningitis. HSV, VZV, CMV can cause it but are not the most common."},
+  {q:"Which media is required to successfully culture Neisseria meningitidis from a sterile CSF sample?",opts:["Ordinary nutrient agar","MacConkey agar","Chocolate agar","Lowenstein-Jensen medium","Sabouraud dextrose agar"],correct:2,explanation:"N. meningitidis cannot grow on ordinary media and requires enriched media like Chocolate agar. MacConkey=enteric Gram-neg, Lowenstein-Jensen=TB, Sabouraud=fungi."},
+  {q:"When cultivating a nasopharyngeal swab to identify a meningococcal carrier, which specialized media is preferred to suppress normal flora?",opts:["Blood agar","Chocolate agar","Thayer-Martin media","MacConkey agar","Nutrient agar"],correct:2,explanation:"Thayer-Martin is a selective medium (chocolate agar WITH antibiotics) used to suppress normal flora from the upper respiratory tract. Normal chocolate agar would allow heavy growth of normal flora."},
+  {q:"Streptococcus pneumoniae meningitis is diagnosed by identifying which of the following in a CSF Gram smear?",opts:["Gram-negative kidney-shaped diplococci","Gram-negative coccobacilli","Gram-positive bacilli","Gram-positive diplococci","Gram-positive cocci in clusters"],correct:3,explanation:"S. pneumoniae are Gram-positive diplococci. A=Neisseria meningitidis, B=H. influenzae, C=Listeria, E=Staph aureus."},
+  {q:"What is the current drug of choice for the treatment of confirmed Neisseria meningitidis meningitis?",opts:["Rifampicin","Penicillin","Sulfonamides","Chloramphenicol","Ciprofloxacin"],correct:1,explanation:"Penicillin is the drug of choice due to its anti-meningococcal activity and good CSF penetration when meninges are inflamed. Rifampicin and Ciprofloxacin are for chemoprophylaxis. Sulfonamides are obsolete due to resistance."},
+  {q:"A patient with suspected meningitis receives antibiotics before LP. Culture returns negative. Which technique is best to identify the pathogen?",opts:["Latex agglutination","Polymerase Chain Reaction (PCR)","Serological antibody testing","Repeat lumbar puncture in 24 hours","Viral culture"],correct:1,explanation:"PCR is highly sensitive and specific for detecting bacterial DNA even if bacteria are dead due to prior antibiotic treatment. Culture will fail if bacteria are dead."},
+  {q:"Which risk factor facilitates the progression of N. meningitidis from simple colonization to invasive meningitis?",opts:["High dietary glucose","Recent viral upper respiratory tract infection","Vaccination with quadrivalent vaccine","Prolonged use of Penicillin","Removal of the gallbladder"],correct:1,explanation:"A recent viral upper respiratory infection damages mucosal defenses, making bacterial invasion easier. Complement deficiency and asplenia are other important risk factors."}
+];
+
+const FLASHCARDS = [
+  {q:"What are the 3 types of meningitis?",a:"1) Acute purulent (bacterial) 2) Chronic (TB/fungi) 3) Aseptic (viral — most common)"},
+  {q:"Neonatal meningitis (<1 month) — top 3 organisms?",a:"S. agalactiae, E. coli K1, Listeria monocytogenes"},
+  {q:"Most common cause of bacterial meningitis in adults?",a:"Streptococcus pneumoniae (Gram-positive diplococci)"},
+  {q:"What is the classic triad of meningitis?",a:"Fever + Nuchal rigidity (stiff neck) + Photophobia"},
+  {q:"Pathognomonic skin finding in meningococcemia?",a:"Petechiae / ecchymosis (red spots that don't blanch) — caused by endotoxin LOS"},
+  {q:"5 virulence factors of N. meningitidis?",a:"1) Polysaccharide capsule (antiphagocytic) 2) Pili (adhesion) 3) IgA protease (cleaves mucosal IgA) 4) OMPs (blocks bactericidal IgG) 5) Endotoxin/LOS (vascular damage, shock)"},
+  {q:"Why is Group B N. meningitidis poorly immunogenic?",a:"Molecular mimicry — Group B capsule resembles human brain sialic acid polymers → immune system doesn't recognize it as foreign + risk of autoimmunity"},
+  {q:"CSF findings in bacterial meningitis?",a:"Turbid CSF, ↑ pressure, markedly ↑ protein, glucose <0.3 serum ratio (↓↓), PMNs predominate"},
+  {q:"Why is CSF glucose low in bacterial meningitis?",a:"Bacteria consume it + PMNs perform glycolysis + inflammation shifts glucose to blood"},
+  {q:"CSF findings in viral (aseptic) meningitis?",a:"Clear/slightly turbid, normal/slightly ↑ protein, glucose >0.6 ratio (normal), Lymphocytes predominate"},
+  {q:"Culture conditions for N. meningitidis?",a:"Aerobic, 10% CO2, 37°C, on Chocolate agar (CSF) or Thayer-Martin (nasopharyngeal swab)"},
+  {q:"Biochemical ID of N. meningitidis?",a:"Oxidase positive + ferments glucose AND maltose (acid production only). [Gonococcus = glucose ONLY]"},
+  {q:"Drug of choice for confirmed N. meningitidis meningitis?",a:"Penicillin G IV (penetrates inflamed BBB well)"},
+  {q:"Why can't Penicillin be used for prophylaxis?",a:"Poor penetration of UNINFLAMED CSF and mucosa → can't eradicate carrier state in nasopharynx"},
+  {q:"Chemoprophylaxis drugs for N. meningitidis contacts?",a:"Rifampicin or Ciprofloxacin (single dose convenient)"},
+  {q:"Quadrivalent vaccine — which serogroups?",a:"A, C, W-135, Y — targets capsular polysaccharides. Does NOT cover Group B."},
+  {q:"Best investigation if patient received antibiotics before LP?",a:"PCR — detects bacterial DNA even if bacteria are dead from antibiotic treatment"},
+  {q:"Which medium is used for nasopharyngeal carrier screening?",a:"Thayer-Martin (selective chocolate agar WITH antibiotics) to suppress normal respiratory flora"},
+  {q:"Most common cause of aseptic (viral) meningitis?",a:"Echoviruses and Coxsackieviruses (Enteroviruses)"},
+  {q:"Most common cause of fungal meningitis in AIDS?",a:"Cryptococcus neoformans"},
+  {q:"What defines meningococcemia?",a:"N. meningitidis in the blood releasing endotoxin (LOS) → cytokine storm → vascular collapse, petechiae, intravascular clotting, shock (death in <24h)"},
+  {q:"Gram stain of meningococcal CSF?",a:"Gram-NEGATIVE kidney-shaped (coffee-bean) diplococci, found both INTRAcellular (inside PMNs) and extracellular"},
+  {q:"Empirical antibiotic before culture results?",a:"3rd-generation cephalosporins (Cefotaxime/Ceftriaxone) — broad coverage while awaiting organism ID"},
+  {q:"Which risk group gets the quadrivalent meningococcal vaccine?",a:"Military personnel, Hajj pilgrims, asplenic patients, college dormitory students"}
+];
+
+const CASES = [
+  {
+    title:"Case 1 — The Dormitory Student 🏫",
+    vignette:"A 15-year-old student Ali is found lethargic in his dorm room. He has fever 40°C, stiff neck, photophobia, BP 80/50 mmHg, HR 130 bpm, and a spreading petechial rash on his trunk. He vomited twice.",
+    questions:[
+      {q:"What is the most likely diagnosis?",a:"<strong>Acute bacterial meningitis complicated by meningococcemia</strong>. The combination of meningeal signs (stiff neck, photophobia) + vascular collapse (low BP, high HR) + petechial rash is pathognomonic for N. meningitidis infection."},
+      {q:"Describe the pathogenesis step by step.",a:"Ali inhaled N. meningitidis droplets in crowded dorm → Pili attached to nasopharynx → IgA protease neutralized local defense → Bacteria invaded blood (bacteremia) → Endotoxin (LOS) release → cytokine storm → fever, shock, petechiae (meningococcemia) → bacteria crossed BBB → purulent meningeal inflammation."},
+      {q:"What is the immediate management?",a:"<strong>Do NOT wait for cultures.</strong> Immediately administer IV ceftriaxone/penicillin. Supportive care for shock. Then lumbar puncture when patient is stabilized + blood cultures simultaneously."},
+      {q:"What about his roommate?",a:"The roommate requires immediate <strong>chemoprophylaxis with Rifampicin or Ciprofloxacin</strong> to eradicate nasopharyngeal carriage. Penicillin cannot be used as it doesn't penetrate uninflamed tissue well."}
+    ]
+  },
+  {
+    title:"Case 2 — The Turbid CSF 🧪",
+    vignette:"A patient's LP reveals: turbid milky fluid, pressure markedly elevated, glucose 1.5 mmol/L (serum glucose 7.0), protein 2.1 g/L (normal 0.15-0.45), WBC 4500 cells/μL with 92% PMNs. Gram stain shows Gram-negative kidney-shaped diplococci, mostly intracellular.",
+    questions:[
+      {q:"Interpret the CSF findings.",a:"<strong>Classic acute bacterial meningitis.</strong> Turbid=pus/PMNs; ↑ protein=vascular inflammation leak; glucose ratio=1.5/7.0=0.21 (<0.3)=markedly low; 92% PMNs=bacterial; intracellular Gram-neg diplococci=N. meningitidis confirmed."},
+      {q:"Explain why CSF glucose is so low.",a:"Three mechanisms: 1) <strong>N. meningitidis directly consumes glucose</strong> for its own metabolism. 2) <strong>Massive PMN influx</strong> — PMNs perform rapid anaerobic glycolysis consuming more glucose. 3) <strong>Severe inflammation</strong> increases blood-brain barrier permeability and shifts glucose to circulation."},
+      {q:"What culture conditions are needed?",a:"<strong>Chocolate agar</strong> (enriched, non-selective — appropriate for normally sterile CSF), aerobic conditions, 37°C, 10% CO2 enrichment. Biochemical confirmation: oxidase positive + ferments glucose AND maltose."}
+    ]
+  },
+  {
+    title:"Case 3 — The Petechial Rash ⚠️",
+    vignette:"A young adult develops sudden high fever (39.5°C), chills, and severe widespread petechiae and ecchymosis appearing rapidly on the trunk. Within 3 hours he develops low blood pressure and confusion.",
+    questions:[
+      {q:"What is the critical diagnosis?",a:"<strong>Meningococcemia (meningococcal septicemia)</strong> — a medical emergency. The rapid onset of petechiae + ecchymosis + shock without yet having meningeal signs indicates systemic endotoxemia."},
+      {q:"What molecule is responsible for the rash?",a:"<strong>Endotoxin / Lipooligosaccharide (LOS)</strong> of N. meningitidis. Released into blood → stimulates WBCs → massive cytokine release (TNF, IL-1) → vascular endothelial damage → microhemorrhages → petechiae → widespread clotting."},
+      {q:"What is the treatment approach?",a:"<strong>Immediate IV ceftriaxone</strong> (or penicillin once confirmed). Aggressive IV fluid resuscitation for shock. ICU admission. The goal is to stop further endotoxin release by killing bacteria quickly."}
+    ]
+  },
+  {
+    title:"Case 4 — The Unvaccinated Patient 💉",
+    vignette:"A college student received a quadrivalent meningococcal vaccine (A, C, W-135, Y) before starting university. She still develops bacterial meningitis during a campus outbreak. CSF culture confirms N. meningitidis.",
+    questions:[
+      {q:"How is this possible despite vaccination?",a:"She was infected with <strong>Serogroup B N. meningitidis</strong>, which is NOT covered by the quadrivalent vaccine. Group B capsular polysaccharide mimics human brain sialic acid → poor immunogenicity → no protective antibody response."},
+      {q:"Why can't we just add Group B antigen to the vaccine?",a:"Two reasons: 1) <strong>Poor immunogenicity</strong> — the antigen doesn't stimulate adequate antibody production (molecular mimicry). 2) <strong>Autoimmune risk</strong> — forcing an immune response against something that resembles brain tissue could cause autoimmune encephalitis/hypersensitivity."}
+    ]
+  },
+  {
+    title:"Case 5 — The Neonatal Crisis 👶",
+    vignette:"A 10-day-old neonate presents with poor feeding, irritability, bulging fontanelle, and fever. CSF Gram stain shows Gram-positive cocci arranged in short chains.",
+    questions:[
+      {q:"What is the most likely organism?",a:"<strong>Streptococcus agalactiae (Group B Streptococcus)</strong>. Gram-positive cocci in short chains, neonatal age, vertical transmission from mother during delivery."},
+      {q:"How could this have been prevented?",a:"<strong>Antenatal screening of mother</strong> for GBS carriage (vaginal/rectal swab at 35-37 weeks gestation). If positive → <strong>intrapartum prophylactic antibiotics (Penicillin G IV)</strong> during labor. This greatly reduces vertical transmission."},
+      {q:"What distinguishes this from Listeria in a neonate?",a:"Both are Gram-positive, but: <strong>S. agalactiae = cocci in short chains</strong>; <strong>Listeria = bacilli (rods) in short chains/palisades</strong>. Listeria is also associated with contaminated food (soft cheeses, deli meats) and affects immunocompromised adults as well."}
+    ]
+  },
+  {
+    title:"Case 6 — Post-Antibiotic Dilemma 🔬",
+    vignette:"A 25-year-old male presents with fever, neck stiffness, and photophobia. His GP had given him oral amoxicillin 12 hours ago for 'flu'. LP is performed: turbid CSF, PMN-predominant, low glucose. Gram stain is negative. Culture also returns negative after 48 hours.",
+    questions:[
+      {q:"Why are Gram stain and culture both negative?",a:"Prior antibiotic treatment (amoxicillin) killed the bacteria. <strong>Dead bacteria</strong> don't stain well on Gram stain and <strong>won't grow in culture</strong> because they are no longer viable, even though their DNA and fragments still cause inflammation."},
+      {q:"What investigation can still identify the organism?",a:"<strong>PCR (Polymerase Chain Reaction)</strong> — detects bacterial DNA directly in CSF. DNA persists even after bacteria are killed by antibiotics. Highly specific and sensitive even in pre-treated patients."},
+      {q:"How do the CSF findings still support bacterial meningitis despite negative culture?",a:"The biochemistry remains abnormal: <strong>turbid CSF, PMN predominance, low glucose (<0.3 ratio), high protein</strong> — all reflect ongoing bacterial inflammation. The inflammation doesn't immediately reverse with antibiotic-induced bacterial death."}
+    ]
+  }
+];
+
+const PATH_ITEMS = [
+  {h:"Polysaccharide Capsule",p:"Primary virulence factor",detail:"ANTIPHAGOCYTIC — resists engulfment by phagocytes. Also defines serogroups (A, B, C, W-135, Y). Capsule = basis of vaccine. Group B is poorly immunogenic due to molecular mimicry with human brain sialic acid."},
+  {h:"Pili (Fimbriae)",p:"Adhesion to mucosa",detail:"Enable initial attachment to nasopharyngeal mucosal epithelial cells. Without pili, the bacteria cannot establish colonization. Target for mucosal defense."},
+  {h:"IgA Protease",p:"Mucosal immune evasion",detail:"Cleaves secretory IgA on mucosal surfaces. This is the antibody that protects mucous membranes. By destroying it, N. meningitidis evades the first line of adaptive defense at the nasopharynx."},
+  {h:"Outer Membrane Proteins (OMPs)",p:"Blocks serum bactericidal IgG",detail:"Help with adhesion and facilitate entry into host cells. OMPs also block host serum bactericidal IgG from killing the bacteria in the bloodstream. Basis for some vaccine development efforts (Group B)."},
+  {h:"Endotoxin / LOS",p:"Vascular damage & shock",detail:"Lipooligosaccharide (LOS) is meningococcal endotoxin. Released into blood → activates WBCs → massive TNF/IL-1 cytokine storm → vascular endothelial damage → petechiae, ecchymosis, disseminated intravascular clotting, shock → death in <24h (meningococcemia)."},
+  {h:"Non-motile, non-spore-forming",p:"Basic characteristics",detail:"No flagella (non-motile). Cannot form protective spores. Fastidious organism — won't grow on ordinary media. Requires CO2, enriched media (Chocolate agar). Sensitive to drying and cold."}
+];
+
+const MNEMONICS = [
+  {
+    title:"Age-based Causative Agents",
+    acronym:"NEALE",
+    subtitle:"Remember organisms by age group",
+    rows:[
+      {l:"N",m:"Neonates → S. agalactiae, E. coli K1, Listeria",n:"< 1 month"},
+      {l:"E",m:"Elementary-age children → H. influenzae Hib",n:"now rare (vaccine)"},
+      {l:"A",m:"Adolescents/Adults → N. meningitidis",n:"dorms, military"},
+      {l:"L",m:"Leading adult cause → S. pneumoniae",n:"most common adult"},
+      {l:"E",m:"Elderly + HIV → opportunistic (Listeria, Cryptococcus)",n:"immunocompromised"}
+    ]
+  },
+  {
+    title:"Virulence Factors of N. meningitidis",
+    acronym:"COPED",
+    subtitle:"What makes meningococcus dangerous",
+    rows:[
+      {l:"C",m:"Capsule — antiphagocytic, defines serogroup",n:"primary factor"},
+      {l:"O",m:"OMPs — outer membrane proteins, block IgG",n:"adhesion + evasion"},
+      {l:"P",m:"Pili — adhesion to nasopharyngeal mucosa",n:"first step"},
+      {l:"E",m:"Endotoxin (LOS) — shock, petechiae, death",n:"most dangerous"},
+      {l:"D",m:"Destroys IgA — protease cleaves mucosal IgA",n:"immune evasion"}
+    ]
+  },
+  {
+    title:"Bacterial vs Viral CSF — Key Differences",
+    acronym:"PGTCP",
+    subtitle:"What changes in bacterial meningitis CSF",
+    rows:[
+      {l:"P",m:"Pressure — elevated (turbid fluid, raised ICP)",n:"↑↑ bacterial"},
+      {l:"G",m:"Glucose — LOW (<0.3 ratio) in bacterial",n:"normal in viral"},
+      {l:"T",m:"Turbidity — cloudy/milky in bacterial",n:"clear in viral"},
+      {l:"C",m:"Cells — PMNs predominate in bacterial",n:"lymphocytes in viral"},
+      {l:"P",m:"Protein — markedly elevated in bacterial",n:"normal/slight ↑ viral"}
+    ]
+  },
+  {
+    title:"Treatment Vs Prophylaxis Drugs",
+    acronym:"PRiCR",
+    subtitle:"Which drugs for which purpose",
+    rows:[
+      {l:"P",m:"Penicillin — treats active meningitis (inflamed BBB)",n:"drug of choice"},
+      {l:"R",m:"Rifampicin — prophylaxis for contacts",n:"penetrates mucosa"},
+      {l:"i",m:"in (alternative to Rifampicin) = Ciprofloxacin",n:"single dose"},
+      {l:"C",m:"Ceftriaxone — empirical first-line",n:"broad coverage"},
+      {l:"R",m:"Remember: Penicillin CANNOT prophylax (poor mucosal penetration)",n:"key exam point"}
+    ]
+  },
+  {
+    title:"Classic Triad of Meningitis",
+    acronym:"FNP",
+    subtitle:"Never forget these three",
+    rows:[
+      {l:"F",m:"Fever (high, sudden onset — endotoxin/cytokines)",n:"classic"},
+      {l:"N",m:"Nuchal rigidity (stiff neck — meningeal irritation)",n:"classic"},
+      {l:"P",m:"Photophobia (light sensitivity — meningeal signs)",n:"classic"}
+    ]
+  },
+  {
+    title:"Lab Diagnosis Steps for N. meningitidis",
+    acronym:"SPGBAS",
+    subtitle:"Step-by-step from LP to final ID",
+    rows:[
+      {l:"S",m:"Sample — LP, 3-10ml CSF aseptically",n:"start here"},
+      {l:"P",m:"Physical — turbid, under high pressure",n:"look first"},
+      {l:"G",m:"Gram stain — Gram-neg kidney diplococci intracellular",n:"rapid ID"},
+      {l:"B",m:"Biochemistry — oxidase+, ferments glucose + maltose",n:"species ID"},
+      {l:"A",m:"Agglutination with specific antisera = definitive",n:"serogroup ID"},
+      {l:"S",m:"Supplemental: PCR for post-antibiotic cases",n:"backup"}
+    ]
+  }
+];
+
+const VIVA = [
+  {q:"What defines aseptic meningitis and what are its most common etiologies?",a:"Aseptic meningitis is a non-purulent inflammation of the meninges, representing the most common type of meningitis overall. It is predominantly caused by viral infections — particularly Echoviruses and Coxsackieviruses (Enteroviruses). CSF shows clear fluid, lymphocytic pleocytosis, normal glucose."},
+  {q:"Why is the distinction between community-acquired and nosocomial meningitis critical in an emergency?",a:"⚠️ EXAM TIP: The causative bacteria differ drastically. Community-acquired → S. pneumoniae, N. meningitidis. Nosocomial → Staph aureus, Gram-negative bacilli. Knowing the origin allows selection of the correct empirical antibiotics immediately — crucial because the disease can be fatal within hours before culture results are available."},
+  {q:"List the primary virulence factors of N. meningitidis.",a:"1) Polysaccharide capsule — antiphagocytic (most important). 2) Pili — adhesion to nasopharyngeal mucosa. 3) Outer Membrane Proteins (OMPs) — block serum bactericidal IgG. 4) IgA protease — cleaves mucosal IgA, enables colonization. 5) Endotoxin (LOS) — causes vascular damage, shock, petechiae (most dangerous systemic effect)."},
+  {q:"Explain why a vaccine against serogroup B of N. meningitidis is difficult to produce.",a:"The capsular antigen of serogroup B is structurally similar to human brain glycoproteins — specifically sialic acid polymers. This causes molecular mimicry: the immune system does not recognize it as foreign → poor immunogenicity. Additionally, forcing an immune response risks autoimmune hypersensitivity reactions against host brain tissue."},
+  {q:"Describe the pathogenesis of meningococcemia.",a:"Upon reaching the bloodstream, N. meningitidis releases potent endotoxin (LOS). This activates WBCs to release massive cytokines (TNF-α, IL-1, IL-6), causing: widespread vascular endothelial damage → microhemorrhages → petechiae and ecchymosis → vascular collapse → disseminated intravascular coagulation → shock → death in <24 hours if untreated."},
+  {q:"What are the distinct CSF glucose and protein findings in acute bacterial meningitis?",a:"Glucose: markedly decreased (<0.3 ratio compared to serum) — caused by bacterial consumption + PMN glycolysis + inflammation. Protein: highly elevated (>0.45 g/L) — due to increased vascular permeability from severe inflammation, allowing serum proteins to leak into CSF."},
+  {q:"How does the cellular response in CSF differ between bacterial and viral meningitis?",a:"Bacterial: marked increase in WBCs with strong PMN predominance (>80-90%). PMNs are recruited by bacterial products and endotoxin. Viral (aseptic): milder WBC increase, predominantly lymphocytes (>70%). Lymphocytes reflect the T-cell-mediated antiviral response."},
+  {q:"Why do we use Thayer-Martin media for nasopharyngeal swabs but Chocolate agar for CSF?",a:"Nasopharyngeal swabs contain abundant normal respiratory flora. Thayer-Martin is a SELECTIVE medium (chocolate agar + antibiotics like vancomycin, colistin) that suppresses normal flora while allowing Neisseria to grow. CSF is normally STERILE, so non-selective enriched Chocolate agar is sufficient without needing to suppress competing flora."},
+  {q:"A patient has acute bacterial meningitis and Gram stain shows Gram-negative coccobacilli. What is the organism and the typical patient age?",a:"Haemophilus influenzae type b (Hib). Gram-negative coccobacilli is the characteristic morphology. Most commonly found as a causative agent in children older than 1 month. Its incidence has dramatically decreased due to the Hib childhood vaccination program."},
+  {q:"What is the drug of choice for treating confirmed N. meningitidis meningitis, and why?",a:"Penicillin G IV is the drug of choice. It possesses strong anti-meningococcal bactericidal activity and — crucially — penetrates the CSF WELL when the meninges are actively inflamed (inflamed BBB is leaky). Penicillin resistance in N. meningitidis is extremely rare."},
+  {q:"What drugs are used for chemoprophylaxis of asymptomatic N. meningitidis contacts, and why not Penicillin?",a:"Rifampicin or Ciprofloxacin. Penicillin is ineffective for prophylaxis because it does NOT penetrate the uninflamed CSF or mucosa well enough to eradicate the nasopharyngeal carrier state. Rifampicin and Ciprofloxacin achieve adequate mucosal concentrations to clear carriage."},
+  {q:"What role does PCR play in the rapid diagnosis of meningitis?",a:"PCR detects bacterial DNA directly in the CSF. It is highly specific and sensitive. Particularly valuable when: 1) Patient received antibiotics prior to LP (bacteria are dead → culture negative, but DNA persists). 2) Rapid results are needed. 3) Fastidious organisms fail to culture. PCR can identify the specific organism and serogroup."}
+];
+
+// ════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════
+let state = JSON.parse(localStorage.getItem('meningitis_state') || '{}');
+state.answers = state.answers || {};
+state.streak = state.streak || 0;
+state.score = state.score || 0;
+state.flipped = state.flipped || 0;
+state.currentQ = state.currentQ || 0;
+state.tab = state.tab || 'overview';
+
+function saveState(){ localStorage.setItem('meningitis_state', JSON.stringify(state)); }
+
+function updateStats(){
+  document.getElementById('statScore').textContent = state.score + '/' + Object.keys(state.answers).length;
+  document.getElementById('statStreak').textContent = '🔥 ' + state.streak;
+  const pct = Math.round(Object.keys(state.answers).length / QUIZ_DATA.length * 100);
+  document.getElementById('statProgress').textContent = pct + '%';
+  document.getElementById('statFlipped').textContent = state.flipped;
+}
+
+// ════════════════════════════════════════════════════
+// TABS
+// ════════════════════════════════════════════════════
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    state.tab = btn.dataset.tab;
+    saveState();
+  });
+});
+
+// Restore tab
+const savedTab = document.querySelector('.tab-btn[data-tab="'+state.tab+'"]');
+if(savedTab) savedTab.click();
+
+// ════════════════════════════════════════════════════
+// QUIZ
+// ════════════════════════════════════════════════════
+function renderQuiz(){
+  const qIdx = state.currentQ;
+  const q = QUIZ_DATA[qIdx];
+  const pct = (qIdx / QUIZ_DATA.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('qCurrent').textContent = qIdx + 1;
+  document.getElementById('qScore').textContent = state.score;
+  document.getElementById('streakDisplay').textContent = '🔥 Streak: ' + state.streak;
+
+  const answered = state.answers[qIdx];
+  let html = `<div class="question-card">
+    <div class="q-num">Q${qIdx+1} of ${QUIZ_DATA.length}</div>
+    <div class="q-text">${q.q}</div>
+    <div class="options">`;
+  const letters = ['A','B','C','D','E'];
+  q.opts.forEach((opt, i) => {
+    let cls = '';
+    if(answered !== undefined){
+      if(i === q.correct) cls = 'correct';
+      else if(i === answered && i !== q.correct) cls = 'wrong';
+    }
+    html += `<button class="option-btn ${cls}" ${answered!==undefined?'disabled':''} onclick="selectAnswer(${qIdx},${i})">
+      <span class="opt-letter">${letters[i]}</span>${opt}
+    </button>`;
+  });
+  html += `</div>`;
+  if(answered !== undefined){
+    html += `<div class="explanation" style="display:block">
+      <div class="ex-correct">✅ Correct: ${letters[q.correct]}</div>
+      <div class="ex-wrong">${q.explanation}</div>
+    </div>`;
+  }
+  html += `</div>`;
+  document.getElementById('quizContainer').innerHTML = html;
+
+  // Show score banner if all answered
+  const allDone = Object.keys(state.answers).length === QUIZ_DATA.length;
+  if(allDone){
+    const pct2 = Math.round(state.score / QUIZ_DATA.length * 100);
+    let msg = pct2 >= 80 ? '🎉 Excellent work!' : pct2 >= 60 ? '👍 Good effort!' : '📚 Keep reviewing!';
+    document.getElementById('scoreBanner').innerHTML = `<div class="score-banner">
+      <h2>${state.score} / ${QUIZ_DATA.length}</h2>
+      <p>${msg} You scored ${pct2}%</p>
+      <button class="btn" style="margin-top:1rem" onclick="resetQuiz()">🔄 Restart Quiz</button>
+    </div>`;
+    document.getElementById('scoreBanner').style.display = 'block';
+  }
+}
+
+function selectAnswer(qIdx, chosen){
+  if(state.answers[qIdx] !== undefined) return;
+  state.answers[qIdx] = chosen;
+  if(chosen === QUIZ_DATA[qIdx].correct){
+    state.score++;
+    state.streak++;
+  } else {
+    state.streak = 0;
+  }
+  saveState();
+  updateStats();
+  renderQuiz();
+}
+
+function navigateQuiz(dir){
+  state.currentQ = Math.max(0, Math.min(QUIZ_DATA.length-1, state.currentQ + dir));
+  saveState();
+  renderQuiz();
+}
+
+function resetQuiz(){
+  state.answers = {}; state.score = 0; state.streak = 0; state.currentQ = 0;
+  saveState();
+  updateStats();
+  document.getElementById('scoreBanner').style.display='none';
+  renderQuiz();
+}
+
+// ════════════════════════════════════════════════════
+// FLASHCARDS
+// ════════════════════════════════════════════════════
+function renderFlashcards(){
+  const grid = document.getElementById('flashcardGrid');
+  grid.innerHTML = FLASHCARDS.map((fc, i) => `
+    <div class="flashcard" id="fc${i}" onclick="flipCard(${i})">
+      <div class="flashcard-inner">
+        <div class="flashcard-front">
+          <div class="fc-label">Click to flip</div>
+          <div class="fc-q">${fc.q}</div>
+        </div>
+        <div class="flashcard-back">
+          <div class="fc-check">✅</div>
+          <div class="fc-a">${fc.a}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function flipCard(i){
+  const el = document.getElementById('fc'+i);
+  el.classList.toggle('flipped');
+  if(el.classList.contains('flipped')){ state.flipped++; saveState(); updateStats(); }
+}
+
+// ════════════════════════════════════════════════════
+// CASES
+// ════════════════════════════════════════════════════
+function renderCases(){
+  const container = document.getElementById('casesContainer');
+  container.innerHTML = CASES.map((c, ci) => `
+    <div class="case-card">
+      <h3>${c.title}</h3>
+      <div class="case-vignette">${c.vignette}</div>
+      ${c.questions.map((cq, qi) => `
+        <div>
+          <div class="case-q">❓ ${cq.q}</div>
+          <button class="reveal-btn" onclick="revealCase(${ci},${qi},this)">Reveal Answer ▼</button>
+          <div class="case-answer" id="case_${ci}_${qi}"><strong>Answer:</strong> ${cq.a}</div>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+function revealCase(ci, qi, btn){
+  const el = document.getElementById(`case_${ci}_${qi}`);
+  el.classList.toggle('open');
+  btn.textContent = el.classList.contains('open') ? 'Hide Answer ▲' : 'Reveal Answer ▼';
+}
+
+// ════════════════════════════════════════════════════
+// PATHOPHYSIOLOGY
+// ════════════════════════════════════════════════════
+function renderPath(){
+  const grid = document.getElementById('pathGrid');
+  grid.innerHTML = PATH_ITEMS.map((p, i) => `
+    <div class="path-item" onclick="showPathDetail(${i})">
+      <h4>${p.h}</h4>
+      <p>${p.p}</p>
+    </div>
+  `).join('');
+}
+
+function showPathDetail(i){
+  const detail = document.getElementById('pathDetail');
+  detail.innerHTML = `<strong style="color:var(--accent3)">${PATH_ITEMS[i].h}</strong><br><br>${PATH_ITEMS[i].detail}`;
+  detail.classList.add('open');
+  detail.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ════════════════════════════════════════════════════
+// MNEMONICS
+// ════════════════════════════════════════════════════
+function renderMnemonics(){
+  const container = document.getElementById('mnemonicsContainer');
+  container.innerHTML = MNEMONICS.map((m, mi) => `
+    <div class="mnemonic-card" onclick="toggleMnem(${mi})">
+      <div class="mnem-title">${m.title}</div>
+      <div style="color:var(--muted);font-size:0.8rem;margin-bottom:0.5rem">${m.subtitle}</div>
+      <div class="mnem-acronym">${m.acronym}</div>
+      <div class="mnem-list" id="mnem${mi}">
+        ${m.rows.map(r => `<div class="mnem-row"><span class="letter">${r.l}</span><span class="meaning">${r.m}</span><span class="note">${r.n}</span></div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleMnem(i){
+  document.getElementById('mnem'+i).classList.toggle('open');
+}
+
+// ════════════════════════════════════════════════════
+// VIVA
+// ════════════════════════════════════════════════════
+function renderViva(){
+  const container = document.getElementById('vivaContainer');
+  container.innerHTML = VIVA.map((v, vi) => `
+    <div class="viva-item" id="viva${vi}">
+      <div class="viva-q" onclick="toggleViva(${vi})">
+        <span><span class="vnum">V${vi+1}</span>${v.q}</span>
+        <span class="viva-chevron">▶</span>
+      </div>
+      <div class="viva-a" id="vivaA${vi}">${v.a}</div>
+    </div>
+  `).join('');
+}
+
+function toggleViva(vi){
+  const item = document.getElementById('viva'+vi);
+  const ans = document.getElementById('vivaA'+vi);
+  ans.classList.toggle('open');
+  item.classList.toggle('expanded');
+}
+
+// ════════════════════════════════════════════════════
+// SEARCH
+// ════════════════════════════════════════════════════
+const searchIndex = [];
+QUIZ_DATA.forEach((q,i) => searchIndex.push({text: q.q + ' ' + q.opts.join(' ') + ' ' + q.explanation, label: 'Quiz Q' + (i+1), preview: q.q.substring(0,60)+'...', tab:'quiz', qi:i}));
+FLASHCARDS.forEach((f,i) => searchIndex.push({text: f.q + ' ' + f.a, label: 'Flashcard', preview: f.q.substring(0,60)+'...', tab:'flashcards'}));
+VIVA.forEach((v,i) => searchIndex.push({text: v.q + ' ' + v.a, label: 'Viva V'+(i+1), preview: v.q.substring(0,60)+'...', tab:'viva'}));
+CASES.forEach((c,i) => searchIndex.push({text: c.title + ' ' + c.vignette, label: 'Case ' + (i+1), preview: c.title, tab:'cases'}));
+
+document.getElementById('searchInput').addEventListener('input', function(){
+  const val = this.value.toLowerCase().trim();
+  const results = document.getElementById('searchResults');
+  if(!val){ results.style.display = 'none'; return; }
+  const matches = searchIndex.filter(s => s.text.toLowerCase().includes(val)).slice(0, 8);
+  if(!matches.length){ results.style.display='none'; return; }
+  results.innerHTML = matches.map(m => `<div class="sr-item" onclick="gotoResult('${m.tab}',${m.qi||0})"><strong>[${m.label}]</strong> ${m.preview}</div>`).join('');
+  results.style.display = 'block';
+});
+
+function gotoResult(tab, qi){
+  document.getElementById('searchResults').style.display='none';
+  document.getElementById('searchInput').value='';
+  const btn = document.querySelector('.tab-btn[data-tab="'+tab+'"]');
+  if(btn){ btn.click(); }
+  if(tab==='quiz' && qi !== undefined){ state.currentQ = qi; saveState(); renderQuiz(); }
+}
+
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.search-wrap')) document.getElementById('searchResults').style.display='none';
+});
+
+// ════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════
+renderQuiz();
+renderFlashcards();
+renderCases();
+renderPath();
+renderMnemonics();
+renderViva();
+updateStats();
+</script>
+</body>
+</html>

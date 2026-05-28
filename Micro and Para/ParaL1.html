@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔬 Amoeba CNS & Special Senses — Interactive Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+--bg-primary: #0a0e27;
+--bg-secondary: #131840;
+--bg-card: #1a2050;
+--bg-card-hover: #222b6a;
+--accent-1: #6c63ff;
+--accent-2: #00d2ff;
+--accent-3: #ff6b9d;
+--accent-4: #ffc107;
+--accent-5: #00e676;
+--accent-6: #ff5252;
+--text-primary: #e8eaff;
+--text-secondary: #a0a4cc;
+--text-muted: #6b70a0;
+--gradient-1: linear-gradient(135deg, #6c63ff, #00d2ff);
+--gradient-2: linear-gradient(135deg, #ff6b9d, #ffc107);
+--gradient-3: linear-gradient(135deg, #00e676, #00d2ff);
+--gradient-4: linear-gradient(135deg, #ff5252, #ff6b9d);
+--gradient-5: linear-gradient(135deg, #6c63ff, #ff6b9d);
+--shadow-lg: 0 20px 60px rgba(0,0,0,0.4);
+--shadow-md: 0 10px 30px rgba(0,0,0,0.3);
+--shadow-sm: 0 4px 15px rgba(0,0,0,0.2);
+--radius-lg: 20px;
+--radius-md: 14px;
+--radius-sm: 8px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+font-family: 'Inter', sans-serif;
+background: var(--bg-primary);
+color: var(--text-primary);
+min-height: 100vh;
+overflow-x: hidden;
+}
+.bg-animation {
+position: fixed; top:0; left:0; width:100%; height:100%;
+z-index:0; pointer-events:none; overflow:hidden;
+}
+.bg-orb {
+position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.08;
+animation: floatOrb 20s ease-in-out infinite alternate;
+}
+.bg-orb:nth-child(1){ width:600px;height:600px;background:#6c63ff;top:-10%;left:-10%;animation-delay:0s;}
+.bg-orb:nth-child(2){ width:500px;height:500px;background:#00d2ff;top:50%;right:-10%;animation-delay:5s;}
+.bg-orb:nth-child(3){ width:400px;height:400px;background:#ff6b9d;bottom:-10%;left:30%;animation-delay:10s;}
+.bg-orb:nth-child(4){ width:350px;height:350px;background:#ffc107;top:20%;left:50%;animation-delay:15s;}
+@keyframes floatOrb {
+0%{transform:translate(0,0) scale(1);}
+33%{transform:translate(50px,-30px) scale(1.1);}
+66%{transform:translate(-30px,50px) scale(0.9);}
+100%{transform:translate(20px,-20px) scale(1.05);}
+}
+.app-container {
+position: relative; z-index:1; max-width:1400px; margin:0 auto; padding:10px;
+}
+/* HEADER */
+.header {
+text-align:center; padding:30px 20px 20px; position:relative;
+}
+.header h1 {
+font-size:clamp(1.5rem,4vw,2.8rem); font-weight:900;
+background: var(--gradient-1); -webkit-background-clip:text;
+-webkit-text-fill-color:transparent; background-clip:text;
+letter-spacing:-1px; line-height:1.2;
+}
+.header p {
+color: var(--text-secondary); margin-top:8px; font-size:clamp(0.85rem,2vw,1.05rem);
+}
+/* STATS BAR */
+.stats-bar {
+display:flex; gap:12px; justify-content:center; flex-wrap:wrap;
+margin:15px 0 20px; padding:0 10px;
+}
+.stat-chip {
+background: var(--bg-card); border:1px solid rgba(108,99,255,0.2);
+border-radius:30px; padding:8px 18px; font-size:0.85rem;
+display:flex; align-items:center; gap:6px; font-weight:600;
+transition: all 0.3s;
+}
+.stat-chip:hover { transform:translateY(-2px); border-color:var(--accent-1); }
+.stat-chip .val { color:var(--accent-2); font-family:'JetBrains Mono',monospace; }
+/* SEARCH */
+.search-wrap {
+max-width:500px; margin:0 auto 20px; padding:0 10px;
+}
+.search-wrap input {
+width:100%; padding:12px 20px 12px 45px; border-radius:30px;
+border:1px solid rgba(108,99,255,0.3); background:var(--bg-card);
+color:var(--text-primary); font-size:0.95rem; outline:none;
+transition:all 0.3s;
+}
+.search-wrap input:focus { border-color:var(--accent-1); box-shadow:0 0 20px rgba(108,99,255,0.2); }
+.search-wrap { position:relative; }
+.search-wrap::before {
+content:'🔍'; position:absolute; left:25px; top:50%; transform:translateY(-50%);
+font-size:1.1rem; z-index:2;
+}
+/* TABS */
+.tabs-container {
+display:flex; gap:4px; overflow-x:auto; padding:0 10px 15px;
+scrollbar-width:none; -ms-overflow-style:none;
+}
+.tabs-container::-webkit-scrollbar{display:none;}
+.tab-btn {
+flex-shrink:0; padding:10px 16px; border-radius:12px;
+border:1px solid rgba(108,99,255,0.15); background:var(--bg-card);
+color:var(--text-secondary); font-size:0.8rem; font-weight:600;
+cursor:pointer; transition:all 0.3s; white-space:nowrap;
+}
+.tab-btn:hover { border-color:var(--accent-1); color:var(--text-primary); }
+.tab-btn.active {
+background:var(--gradient-1); color:#fff; border-color:transparent;
+box-shadow:0 4px 20px rgba(108,99,255,0.4);
+}
+/* CONTENT PANELS */
+.panel { display:none; animation:fadeIn 0.4s ease; padding:0 5px; }
+.panel.active { display:block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(15px);} to{opacity:1;transform:translateY(0);} }
+/* SECTION TITLE */
+.section-title {
+font-size:1.5rem; font-weight:800; margin-bottom:20px;
+display:flex; align-items:center; gap:10px;
+}
+.section-title .emoji { font-size:1.8rem; }
+/* CARDS */
+.card {
+background:var(--bg-card); border:1px solid rgba(108,99,255,0.12);
+border-radius:var(--radius-lg); padding:24px; margin-bottom:16px;
+transition:all 0.3s; position:relative; overflow:hidden;
+}
+.card:hover { border-color:rgba(108,99,255,0.3); transform:translateY(-2px); box-shadow:var(--shadow-md); }
+.card::before {
+content:''; position:absolute; top:0; left:0; right:0; height:3px;
+background:var(--gradient-1); opacity:0; transition:opacity 0.3s;
+}
+.card:hover::before { opacity:1; }
+.card-title {
+font-size:1.1rem; font-weight:700; margin-bottom:10px;
+display:flex; align-items:center; gap:8px;
+}
+.card-text { color:var(--text-secondary); line-height:1.7; font-size:0.92rem; }
+/* GRID */
+.grid-2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; }
+.grid-3 { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px; }
+.grid-4 { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
+/* TAG */
+.tag {
+display:inline-block; padding:3px 10px; border-radius:20px;
+font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;
+}
+.tag-high { background:rgba(255,82,82,0.15); color:#ff5252; }
+.tag-exam { background:rgba(255,193,7,0.15); color:#ffc107; }
+.tag-pearl { background:rgba(0,230,118,0.15); color:#00e676; }
+/* TIMELINE */
+.timeline { position:relative; padding-left:30px; }
+.timeline::before {
+content:''; position:absolute; left:12px; top:0; bottom:0; width:2px;
+background:linear-gradient(to bottom,var(--accent-1),var(--accent-2),var(--accent-3));
+}
+.timeline-item { position:relative; margin-bottom:20px; }
+.timeline-item::before {
+content:''; position:absolute; left:-24px; top:6px;
+width:14px; height:14px; border-radius:50%; background:var(--accent-1);
+border:3px solid var(--bg-primary);
+}
+.timeline-item:nth-child(2)::before{background:var(--accent-2);}
+.timeline-item:nth-child(3)::before{background:var(--accent-3);}
+.timeline-item:nth-child(4)::before{background:var(--accent-4);}
+.timeline-item:nth-child(5)::before{background:var(--accent-5);}
+.timeline-item:nth-child(6)::before{background:var(--accent-6);}
+.timeline-item h4 { font-size:0.95rem; font-weight:700; margin-bottom:4px; }
+.timeline-item p { color:var(--text-secondary); font-size:0.85rem; line-height:1.6; }
+/* QUIZ */
+.quiz-progress-bar { width:100%; height:8px; background:var(--bg-card); border-radius:10px; margin-bottom:20px; overflow:hidden; }
+.quiz-progress-fill { height:100%; background:var(--gradient-1); border-radius:10px; transition:width 0.5s ease; }
+.quiz-card { margin-bottom:20px; }
+.quiz-q { font-size:1rem; font-weight:700; margin-bottom:15px; line-height:1.6; }
+.quiz-q .q-num {
+display:inline-flex; align-items:center; justify-content:center;
+width:28px; height:28px; border-radius:50%; background:var(--gradient-1);
+color:#fff; font-size:0.75rem; font-weight:800; margin-right:8px; flex-shrink:0;
+}
+.quiz-option {
+display:block; width:100%; text-align:left; padding:14px 18px;
+border-radius:var(--radius-sm); border:1px solid rgba(108,99,255,0.15);
+background:var(--bg-secondary); color:var(--text-primary);
+font-size:0.9rem; cursor:pointer; transition:all 0.3s;
+margin-bottom:8px; font-family:'Inter',sans-serif; line-height:1.5;
+}
+.quiz-option:hover:not(.disabled) { border-color:var(--accent-1); background:rgba(108,99,255,0.08); }
+.quiz-option.correct {
+border-color:var(--accent-5); background:rgba(0,230,118,0.1);
+animation: pulseCorrect 0.5s ease;
+}
+.quiz-option.wrong {
+border-color:var(--accent-6); background:rgba(255,82,82,0.1);
+animation: shakeWrong 0.5s ease;
+}
+.quiz-option.disabled { pointer-events:none; opacity:0.7; }
+.quiz-option.show-correct { border-color:var(--accent-5); background:rgba(0,230,118,0.08); }
+@keyframes pulseCorrect {
+0%,100%{transform:scale(1);} 50%{transform:scale(1.02);}
+}
+@keyframes shakeWrong {
+0%,100%{transform:translateX(0);} 20%{transform:translateX(-8px);}
+40%{transform:translateX(8px);} 60%{transform:translateX(-5px);}
+80%{transform:translateX(5px);}
+}
+.quiz-explanation {
+display:none; margin-top:12px; padding:15px; border-radius:var(--radius-sm);
+background:rgba(108,99,255,0.06); border-left:3px solid var(--accent-1);
+font-size:0.85rem; color:var(--text-secondary); line-height:1.7;
+}
+.quiz-explanation.show { display:block; animation:fadeIn 0.3s ease; }
+.quiz-explanation strong { color:var(--accent-5); }
+.quiz-explanation em { color:var(--accent-6); }
+/* FLASHCARD */
+.fc-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; }
+.fc-wrapper { perspective:1000px; height:240px; cursor:pointer; }
+.fc-inner {
+position:relative; width:100%; height:100%;
+transition:transform 0.6s; transform-style:preserve-3d;
+}
+.fc-wrapper.flipped .fc-inner { transform:rotateY(180deg); }
+.fc-front, .fc-back {
+position:absolute; width:100%; height:100%; border-radius:var(--radius-lg);
+backface-visibility:hidden; display:flex; align-items:center; justify-content:center;
+padding:24px; text-align:center; font-size:0.9rem; line-height:1.6;
+}
+.fc-front {
+background:var(--bg-card); border:1px solid rgba(108,99,255,0.2);
+font-weight:600; color:var(--text-primary); flex-direction:column; gap:10px;
+}
+.fc-back {
+background:var(--bg-card); border:1px solid rgba(0,230,118,0.3);
+transform:rotateY(180deg); color:var(--accent-5); font-weight:500;
+flex-direction:column; gap:8px;
+}
+.fc-label {
+position:absolute; top:12px; right:14px; font-size:0.65rem;
+text-transform:uppercase; letter-spacing:1px; color:var(--text-muted);
+}
+.fc-front .fc-emoji { font-size:2rem; }
+/* CLINICAL CASE */
+.case-card { margin-bottom:20px; }
+.case-header {
+display:flex; align-items:center; gap:12px; margin-bottom:15px;
+padding-bottom:12px; border-bottom:1px solid rgba(108,99,255,0.1);
+}
+.case-num {
+width:42px; height:42px; border-radius:50%; background:var(--gradient-2);
+display:flex; align-items:center; justify-content:center;
+font-weight:800; font-size:1rem; color:#fff; flex-shrink:0;
+}
+.case-title { font-size:1.05rem; font-weight:700; }
+.case-vignette {
+background:rgba(108,99,255,0.05); padding:16px; border-radius:var(--radius-sm);
+margin-bottom:15px; line-height:1.7; font-size:0.9rem; color:var(--text-secondary);
+border-left:3px solid var(--accent-2);
+}
+.case-question {
+font-weight:600; font-size:0.95rem; margin-bottom:10px;
+padding:10px 14px; background:rgba(255,193,7,0.06); border-radius:var(--radius-sm);
+border-left:3px solid var(--accent-4);
+}
+.reveal-btn {
+padding:10px 24px; border-radius:30px; border:1px solid var(--accent-1);
+background:transparent; color:var(--accent-1); cursor:pointer;
+font-weight:600; font-size:0.85rem; transition:all 0.3s;
+font-family:'Inter',sans-serif;
+}
+.reveal-btn:hover { background:var(--accent-1); color:#fff; }
+.case-answer {
+display:none; margin-top:12px; padding:16px; border-radius:var(--radius-sm);
+background:rgba(0,230,118,0.05); border:1px solid rgba(0,230,118,0.15);
+line-height:1.7; font-size:0.88rem; color:var(--text-secondary);
+}
+.case-answer.show { display:block; animation:fadeIn 0.4s ease; }
+.case-answer strong { color:var(--accent-5); }
+/* FLOW CHART */
+.flow-chart { display:flex; flex-direction:column; align-items:center; gap:0; padding:20px 0; }
+.flow-step {
+background:var(--bg-card); border:1px solid rgba(108,99,255,0.2);
+border-radius:var(--radius-md); padding:16px 24px; text-align:center;
+max-width:500px; width:90%; cursor:pointer; transition:all 0.3s;
+position:relative;
+}
+.flow-step:hover { border-color:var(--accent-1); transform:scale(1.02); }
+.flow-step h4 { font-size:0.9rem; font-weight:700; margin-bottom:4px; }
+.flow-step p { font-size:0.8rem; color:var(--text-secondary); }
+.flow-arrow {
+font-size:1.5rem; color:var(--accent-1); padding:4px 0;
+animation:bounceArrow 2s ease-in-out infinite;
+}
+@keyframes bounceArrow {
+0%,100%{transform:translateY(0);} 50%{transform:translateY(5px);}
+}
+/* COMPARISON TABLE */
+.comp-table-wrap { overflow-x:auto; margin:16px 0; }
+.comp-table {
+width:100%; border-collapse:separate; border-spacing:0;
+font-size:0.82rem; min-width:600px;
+}
+.comp-table th {
+background:var(--gradient-1); color:#fff; padding:12px 14px;
+text-align:left; font-weight:700; font-size:0.8rem;
+text-transform:uppercase; letter-spacing:0.5px;
+}
+.comp-table th:first-child { border-radius:var(--radius-sm) 0 0 0; }
+.comp-table th:last-child { border-radius:0 var(--radius-sm) 0 0; }
+.comp-table td {
+padding:11px 14px; background:var(--bg-card);
+border-bottom:1px solid rgba(108,99,255,0.08); color:var(--text-secondary); line-height:1.5;
+}
+.comp-table tr:hover td { background:var(--bg-card-hover); }
+/* MNEMONIC */
+.mnem-card {
+background:var(--bg-card); border:1px solid rgba(255,193,7,0.2);
+border-radius:var(--radius-lg); padding:24px; margin-bottom:16px;
+cursor:pointer; transition:all 0.3s;
+}
+.mnem-card:hover { border-color:var(--accent-4); }
+.mnem-title { font-size:1.1rem; font-weight:800; color:var(--accent-4); margin-bottom:6px; }
+.mnem-subtitle { font-size:0.85rem; color:var(--text-secondary); margin-bottom:12px; }
+.mnem-letters {
+display:flex; flex-wrap:wrap; gap:8px;
+}
+.mnem-letter-item {
+background:rgba(255,193,7,0.08); border-radius:var(--radius-sm);
+padding:8px 14px; font-size:0.85rem; line-height:1.5;
+}
+.mnem-letter-item strong {
+color:var(--accent-4); font-size:1.1rem; margin-right:4px;
+}
+.mnem-detail {
+display:none; margin-top:14px; padding:14px;
+background:rgba(255,193,7,0.04); border-radius:var(--radius-sm);
+font-size:0.85rem; color:var(--text-secondary); line-height:1.7;
+}
+.mnem-detail.show { display:block; animation:fadeIn 0.3s ease; }
+/* TREATMENT URGENCY */
+.tx-emergency { border-left:4px solid var(--accent-6); }
+.tx-standard { border-left:4px solid var(--accent-1); }
+.tx-supportive { border-left:4px solid var(--accent-5); }
+/* CLICKABLE GRID ITEM */
+.click-item {
+background:var(--bg-card); border:1px solid rgba(108,99,255,0.12);
+border-radius:var(--radius-md); padding:18px; cursor:pointer;
+transition:all 0.3s; text-align:center;
+}
+.click-item:hover { border-color:var(--accent-1); transform:translateY(-3px); box-shadow:var(--shadow-sm); }
+.click-item .ci-emoji { font-size:2rem; margin-bottom:8px; }
+.click-item .ci-title { font-weight:700; font-size:0.9rem; margin-bottom:4px; }
+.click-item .ci-desc { font-size:0.78rem; color:var(--text-secondary); display:none; margin-top:10px; line-height:1.6; text-align:left; }
+.click-item.expanded .ci-desc { display:block; animation:fadeIn 0.3s; }
+.click-item.expanded { border-color:var(--accent-2); }
+/* BADGE */
+.badge-row { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0; }
+.badge {
+padding:6px 14px; border-radius:20px; font-size:0.75rem; font-weight:600;
+background:rgba(108,99,255,0.1); color:var(--accent-2); border:1px solid rgba(0,210,255,0.2);
+}
+/* MOTIVATION */
+.motivation {
+text-align:center; padding:30px 20px; margin:20px 0;
+background:var(--bg-card); border-radius:var(--radius-lg);
+border:1px solid rgba(108,99,255,0.1);
+}
+.motivation .emoji { font-size:2.5rem; }
+.motivation h3 { font-size:1.2rem; margin:10px 0; font-weight:700; }
+.motivation p { color:var(--text-secondary); font-size:0.9rem; }
+/* SCROLL */
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:var(--bg-primary); }
+::-webkit-scrollbar-thumb { background:var(--accent-1); border-radius:10px; }
+/* RESPONSIVE */
+@media(max-width:768px) {
+.grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; }
+.fc-grid { grid-template-columns:1fr; }
+.card { padding:18px; }
+.stats-bar { gap:8px; }
+.stat-chip { padding:6px 12px; font-size:0.78rem; }
+.tab-btn { padding:8px 12px; font-size:0.75rem; }
+}
+.highlight-search { background:rgba(255,193,7,0.3); border-radius:3px; padding:0 2px; }
+</style>
+</head>
+<body>
+<div class="bg-animation">
+<div class="bg-orb"></div><div class="bg-orb"></div><div class="bg-orb"></div><div class="bg-orb"></div>
+</div>
+<div class="app-container">
+<!-- HEADER -->
+<header class="header">
+<h1>🔬 Parasitic & Free-Living Amoebas</h1>
+<p>CNS & Special Senses — Complete Interactive Study Platform</p>
+</header>
+<!-- STATS -->
+<div class="stats-bar">
+<div class="stat-chip">🎯 Quiz: <span class="val" id="stat-score">0/25</span></div>
+<div class="stat-chip">🔥 Streak: <span class="val" id="stat-streak">0</span></div>
+<div class="stat-chip">📇 Cards Flipped: <span class="val" id="stat-flipped">0/24</span></div>
+<div class="stat-chip">📊 Progress: <span class="val" id="stat-progress">0%</span></div>
+</div>
+<!-- SEARCH -->
+<div class="search-wrap">
+<input type="text" id="globalSearch" placeholder="Search any topic, organism, mechanism..." oninput="handleSearch(this.value)">
+</div>
+<!-- TABS -->
+<div class="tabs-container" id="tabsContainer">
+<button class="tab-btn active" onclick="switchTab('overview')">📋 Overview</button>
+<button class="tab-btn" onclick="switchTab('quiz')">🧪 Quiz Mode</button>
+<button class="tab-btn" onclick="switchTab('flashcards')">📇 Flashcards</button>
+<button class="tab-btn" onclick="switchTab('cases')">🏥 Clinical Cases</button>
+<button class="tab-btn" onclick="switchTab('patho')">🔬 Pathophysiology</button>
+<button class="tab-btn" onclick="switchTab('diagnosis')">🩺 Diagnosis</button>
+<button class="tab-btn" onclick="switchTab('treatment')">💊 Treatment</button>
+<button class="tab-btn" onclick="switchTab('mnemonics')">🧠 Mnemonics</button>
+</div>
+
+<!-- ========================== OVERVIEW ========================== -->
+<div class="panel active" id="panel-overview">
+<div class="section-title"><span class="emoji">📋</span> Overview — Key Organisms at a Glance</div>
+<!-- SUMMARY CARDS -->
+<div class="grid-3" style="margin-bottom:24px;">
+<div class="card">
+<div class="card-title">🦠 Entamoeba histolytica</div>
+<div class="badge-row">
+<span class="tag tag-high">HIGH-YIELD</span>
+<span class="tag tag-exam">EXAM-FAVORITE</span>
+</div>
+<div class="card-text">
+Parasitic amoeba causing <strong>amoebic dysentery</strong> (flask-shaped ulcers in the colon) and extra-intestinal disease (liver abscess, lung, brain). Infective stage: mature <strong>quadri-nucleate cyst</strong>. Only <strong>trophozoites</strong> are found in tissues. Brain involvement = <strong>Secondary Amoebic Meningoencephalitis</strong>.
+</div>
+</div>
+<div class="card">
+<div class="card-title">🧠 Naegleria fowleri</div>
+<div class="badge-row">
+<span class="tag tag-high">HIGH-YIELD</span>
+<span class="tag tag-exam">EXAM-FAVORITE</span>
+</div>
+<div class="card-text">
+Free-living "brain-eating" amoeba. Enters via <strong>nasal route</strong> during swimming → olfactory nerve → brain. Causes <strong>Primary Amoebic Meningoencephalitis (PAM)</strong>. Rapidly fatal (3–6 days). Only <strong>trophozoites</strong> found in CSF/tissue. Thrives in <strong>warm stagnant water</strong>.
+</div>
+</div>
+<div class="card">
+<div class="card-title">👁️ Acanthamoeba castellani</div>
+<div class="badge-row">
+<span class="tag tag-high">HIGH-YIELD</span>
+<span class="tag tag-pearl">CLINICAL PEARL</span>
+</div>
+<div class="card-text">
+Free-living amoeba causing <strong>Granulomatous Amoebic Encephalitis (GAE)</strong> in immunocompromised hosts and <strong>Amoebic Keratitis</strong> (contact lens users). <strong>Both trophozoites AND cysts</strong> found in tissues. Spiky pseudopodia = <strong>acanthopodia</strong>. Chronic course.
+</div>
+</div>
+</div>
+
+<!-- KEY SIGNS GRID -->
+<div class="section-title" style="font-size:1.2rem;">⚡ Key Clinical Signs & Exam Facts</div>
+<div class="grid-4" style="margin-bottom:24px;">
+<div class="click-item" onclick="toggleExpand(this)">
+<div class="ci-emoji">🩸</div>
+<div class="ci-title">Flask-shaped Ulcer</div>
+<span class="tag tag-exam">EXAM</span>
+<div class="ci-desc"><strong>E. histolytica</strong>: Trophozoites erode the mucosa → narrow neck ulcer opens into broad base undermining the submucosa. Found primarily in the <strong>caecum</strong>.</div>
+</div>
+<div class="click-item" onclick="toggleExpand(this)">
+<div class="ci-emoji">🍫</div>
+<div class="ci-title">Anchovy-Sauce Pus</div>
+<span class="tag tag-pearl">PEARL</span>
+<div class="ci-desc"><strong>Amoebic Liver Abscess</strong>: Thick, chocolate-colored, odorless pus. Composed of lysed hepatocytes, bile & fat. Trophozoites at the abscess wall, not center.</div>
+</div>
+<div class="click-item" onclick="toggleExpand(this)">
+<div class="ci-emoji">🏊</div>
+<div class="ci-title">Swimming → Death in Days</div>
+<span class="tag tag-high">HIGH-YIELD</span>
+<div class="ci-desc"><strong>Naegleria fowleri</strong>: Healthy child swims in warm lake → headache, fever, stiff neck → coma → death in <strong>3–6 days</strong>. PAM.</div>
+</div>
+<div class="click-item" onclick="toggleExpand(this)">
+<div class="ci-emoji">👓</div>
+<div class="ci-title">Contact Lens Blindness</div>
+<span class="tag tag-pearl">PEARL</span>
+<div class="ci-desc"><strong>Acanthamoeba keratitis</strong>: Homemade/non-sterile lens solution → corneal invasion → can cause <strong>blindness within a month</strong>.</div>
+</div>
+<div class="click-item" onclick="toggleExpand(this)">
+<div class="ci-emoji">🧬</div>
+<div class="ci-title">Cysts in Tissue?</div>
+<span class="tag tag-exam">MCQ TRAP</span>
+<div class="ci-desc"><strong>Only Acanthamoeba</strong> has both trophozoites AND cysts in tissues. E. histolytica & Naegleria have <strong>only trophozoites</strong> in tissues.</div>
+</div>
+<div class="click-item" onclick="toggleExpand(this)">
+<div class="ci-emoji">🔬</div>
+<div class="ci-title">Galactose Lectin</div>
+<span class="tag tag-exam">EXAM</span>
+<div class="ci-desc"><strong>E. histolytica</strong> adheres to colonic mucosa via a <strong>surface lectin (galactose)</strong>, then secretes cytotoxins and proteolytic enzymes.</div>
+</div>
+<div class="click-item" onclick="toggleExpand(this)">
+<div class="ci-emoji">🧫</div>
+<div class="ci-title">Acanthopodia</div>
+<span class="tag tag-exam">EXAM</span>
+<div class="ci-desc"><strong>Acanthamoeba</strong> has small, spiky pseudopodia called <strong>acanthopodia</strong>. Size 20–40 µm. Double-walled cysts are characteristic.</div>
+</div>
+<div class="click-item" onclick="toggleExpand(this)">
+<div class="ci-emoji">🌡️</div>
+<div class="ci-title">Warm Water Risk</div>
+<span class="tag tag-high">HIGH-YIELD</span>
+<div class="ci-desc"><strong>Naegleria</strong> thrives in <strong>warm stagnant freshwater</strong> (lakes, hot springs). Hyper-chlorination required to kill cysts.</div>
+</div>
+</div>
+
+<!-- TIMELINE: E. histolytica Progression -->
+<div class="card">
+<div class="card-title">📍 Disease Progression — E. histolytica (Intestinal → Brain)</div>
+<div class="timeline">
+<div class="timeline-item">
+<h4>1. Cyst Ingestion</h4>
+<p>Mature quadri-nucleate cyst in contaminated food/water passes stomach acid (cyst wall protects).</p>
+</div>
+<div class="timeline-item">
+<h4>2. Excystation in Large Intestine</h4>
+<p>Cyst wall breaks down → releases trophozoites → multiply by binary fission in the lumen.</p>
+</div>
+<div class="timeline-item">
+<h4>3. Mucosal Adherence & Invasion</h4>
+<p>Galactose lectin adhesion → secretion of cytolytic enzymes → flask-shaped ulcers form.</p>
+</div>
+<div class="timeline-item">
+<h4>4. Sub-mucosal Blood Vessel Invasion</h4>
+<p>Trophozoites enter blood vessels → travel via hepatic portal vein.</p>
+</div>
+<div class="timeline-item">
+<h4>5. Liver Abscess</h4>
+<p>Trophozoites destroy hepatocytes → anchovy-sauce pus → abscess grows.</p>
+</div>
+<div class="timeline-item">
+<h4>6. Secondary Brain Abscess</h4>
+<p>Further hematogenous spread → brain → secondary amoebic meningoencephalitis. Fatal if untreated.</p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ========================== QUIZ ========================== -->
+<div class="panel" id="panel-quiz">
+<div class="section-title"><span class="emoji">🧪</span> Quiz Mode — 25 MCQs</div>
+<div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quizProgressFill" style="width:0%"></div></div>
+<p style="text-align:center;margin-bottom:20px;color:var(--text-muted);font-size:0.85rem;">
+Answered: <span id="quizAnswered">0</span>/25 | Correct: <span id="quizCorrectCount">0</span> | Streak: <span id="quizStreak">0</span>
+</p>
+<div id="quizContainer"></div>
+</div>
+
+<!-- ========================== FLASHCARDS ========================== -->
+<div class="panel" id="panel-flashcards">
+<div class="section-title"><span class="emoji">📇</span> Flashcards — Click to Flip!</div>
+<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:20px;">Flipped: <span id="fcFlipped">0</span>/24</p>
+<div class="fc-grid" id="fcGrid"></div>
+</div>
+
+<!-- ========================== CLINICAL CASES ========================== -->
+<div class="panel" id="panel-cases">
+<div class="section-title"><span class="emoji">🏥</span> Clinical Case Vignettes</div>
+<div id="casesContainer"></div>
+</div>
+
+<!-- ========================== PATHOPHYSIOLOGY ========================== -->
+<div class="panel" id="panel-patho">
+<div class="section-title"><span class="emoji">🔬</span> Pathophysiology & Key Structures</div>
+
+<!-- Interactive Structure Grid -->
+<div class="card">
+<div class="card-title">🧬 Key Structures — Click to Explore</div>
+<div class="grid-3">
+<div class="click-item" onclick="toggleExpand(this)">
+<div class="ci-emoji">🔵</div>
+<div class="ci-title">Trophozoite (E. histolytica)</div>
+<div class="ci-desc">20–40 µm, single vesicular nucleus with <strong>central karyosome</strong> & regular peripheral chromatin. Moves via broad pseudopodia. Contains <strong>ingested RBCs</strong> (pathognomonic). Produces cytolytic enzymes, cysteine proteinases, and pore-forming proteins (amoebapore). Destroys tissue; never forms cysts in tissue.</div>
+</div>
+<div class="click-item" onclick="toggleExpand(this)">
+<div class="ci-emoji">🟢</div>
+<div class="ci-title">Cyst (E. histolytica)</div>
+<div class="ci-desc">Mature: <strong>4 nuclei</strong> (quadri-nucleate), 10–15 µm, rounded, refractile wall. Resistant to gastric acid and chlorination at standard levels. Survives outside host. Infective stage. Immature: 1–2 nuclei with chromatoid bars. Found only in stool, <strong>NEVER in tissues</strong>.</div>
+</div>
+<div class="click-item" onclick="toggleExpand(this)">
+<div class="ci-emoji">🟠</div>
+<div class="ci-title">Trophozoite (Naegleria)</div>
+<div class="ci-desc">Amoeboid form: 10–35 µm, single broad pseudopodium (slug-like). <strong>Flagellate form</strong>: develops in water (pear-shaped, 2 flagella). Found only in CSF/brain tissue. Thrives at <strong>40–45°C</strong>. Cannot form cysts in human tissue.</div>
+</div>
+<div class="click-item" onclick="toggleExpand(this)">
+<div class="ci-emoji">🟣</div>
+<div class="ci-title">Trophozoite (Acanthamoeba)</div>
+<div class="ci-desc">20–40 µm. Characteristic <strong>spiky pseudopodia (acanthopodia)</strong>. No flagellate form (2 stages only: trophozoite & cyst). Found in <strong>soil, water, contact lens fluid</strong>. Can invade cornea, skin, lungs, and brain. Both stages found in tissue.</div>
+</div>
+<div class="click-item" onclick="toggleExpand(this)">
+<div class="ci-emoji">⭕</div>
+<div class="ci-title">Cyst (Acanthamoeba)</div>
+<div class="ci-desc"><strong>Double-walled cyst</strong> — outer wrinkled wall (ectocyst) + inner wall (endocyst). Highly resistant. Found in tissues (brain, cornea) alongside trophozoites. This is a key differentiator from Naegleria.</div>
+</div>
+<div class="click-item" onclick="toggleExpand(this)">
+<div class="ci-emoji">🫀</div>
+<div class="ci-title">Galactose/GalNAc Lectin</div>
+<div class="ci-desc">Surface protein of E. histolytica trophozoite. Mediates <strong>adherence to colonic epithelium</strong> by binding host galactose/N-acetyl-D-galactosamine residues. Crucial first step in pathogenesis. Antibodies against this lectin are protective.</div>
+</div>
+</div>
+</div>
+
+<!-- FLOW CHARTS -->
+<div class="card">
+<div class="card-title">📊 Pathogenesis Flow — E. histolytica (Intestinal → Extraintestinal)</div>
+<div class="flow-chart">
+<div class="flow-step"><h4>🍽️ Ingestion of Quadri-nucleate Cyst</h4><p>Contaminated food/water</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step"><h4>🔓 Excystation in Large Intestine</h4><p>8 trophozoites released per cyst</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step"><h4>📌 Adherence via Galactose Lectin</h4><p>Binds Gal/GalNAc on colonic epithelium</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step"><h4>🧪 Cytolysis & Proteolysis</h4><p>Amoebapore + cysteine proteinases → epithelial necrosis</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step"><h4>🕳️ Flask-Shaped Ulcer Formation</h4><p>Narrow neck, broad base undermining submucosa</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step"><h4>🩸 Submucosal Blood Vessel Invasion</h4><p>Trophozoites enter portal circulation</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step" style="border-color:rgba(255,82,82,0.4);">
+<h4>🫁 Hepatic Portal Vein → Liver Abscess</h4>
+<p>Anchovy-sauce pus | May extend to lung/brain</p>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-title">📊 Pathogenesis Flow — Naegleria fowleri (PAM)</div>
+<div class="flow-chart">
+<div class="flow-step"><h4>🏊 Swimming / Sniffing Warm Water</h4><p>Stagnant freshwater, hot springs, unchlorinated pools</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step"><h4>👃 Entry via Nasal Mucosa</h4><p>Amoeboid trophozoites penetrate nasal epithelium</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step"><h4>🧠 Migration along Olfactory Nerve</h4><p>Through cribriform plate to olfactory bulb</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step"><h4>💥 Hemorrhagic Necrosis of Brain</h4><p>Base of brain, frontal lobes → purulent meningitis</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step" style="border-color:rgba(255,82,82,0.4);">
+<h4>☠️ Death in 3–6 Days</h4>
+<p>Only trophozoites in CSF (no cysts)</p>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-title">📊 Pathogenesis Flow — Acanthamoeba (GAE & Keratitis)</div>
+<div class="flow-chart">
+<div class="flow-step"><h4>🌬️ Inhalation / Skin Break / Contact Lens</h4><p>Soil, dust, contaminated lens solution</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step"><h4>🩸 Hematogenous Spread (GAE) or Direct Corneal Invasion (Keratitis)</h4><p>Immunocompromised → brain; Lens user → cornea</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step"><h4>🧱 Granuloma Formation</h4><p>Multinucleated giant cells surround trophozoites & cysts</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step" style="border-color:rgba(255,82,82,0.4);">
+<h4>📉 Chronic Course → Space-Occupying Lesion / Blindness</h4>
+<p>Both trophozoites + double-walled cysts in tissue</p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ========================== DIAGNOSIS ========================== -->
+<div class="panel" id="panel-diagnosis">
+<div class="section-title"><span class="emoji">🩺</span> Diagnosis</div>
+
+<!-- Diagnostic Criteria -->
+<div class="card">
+<div class="card-title">🔍 Diagnostic Approach by Organism</div>
+<div class="comp-table-wrap">
+<table class="comp-table">
+<thead>
+<tr>
+<th>Feature</th>
+<th>E. histolytica</th>
+<th>N. fowleri (PAM)</th>
+<th>Acanthamoeba</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Specimen</strong></td>
+<td>Stool (cysts & trophs), liver aspirate, serum</td>
+<td>CSF (motile trophs)</td>
+<td>Brain biopsy, corneal scrapings</td>
+</tr>
+<tr>
+<td><strong>Microscopy</strong></td>
+<td>Trophozoites with ingested RBCs; quadri-nucleate cysts in stool</td>
+<td>Motile amoeboid trophozoites in CSF (no cysts)</td>
+<td>Trophozoites with acanthopodia + double-walled cysts</td>
+</tr>
+<tr>
+<td><strong>CSF Findings</strong></td>
+<td>Not typically primary (brain abscess seen on imaging)</td>
+<td>Purulent; ↑WBC (mainly neutrophils), ↑protein, ↓glucose, ↑RBCs; motile amoebae; NO bacteria on Gram stain</td>
+<td>Variable; chronic lymphocytic pleocytosis</td>
+</tr>
+<tr>
+<td><strong>Serology</strong></td>
+<td>ELISA for circulating Abs (IHA, IFAT); antigen detection in stool</td>
+<td>Usually not helpful (too rapid)</td>
+<td>Limited utility; culture on NNA plates</td>
+</tr>
+<tr>
+<td><strong>Imaging</strong></td>
+<td>CT/MRI: liver abscess, brain abscess; Ultrasound for liver</td>
+<td>CT: cerebral edema, hemorrhage (non-specific)</td>
+<td>CT/MRI: multiple ring-enhancing lesions (granulomas)</td>
+</tr>
+<tr>
+<td><strong>Culture</strong></td>
+<td>Stool on Robinson's medium (with E. coli)</td>
+<td>Non-nutrient agar with E. coli overlay</td>
+<td>Non-nutrient agar with E. coli overlay</td>
+</tr>
+<tr>
+<td><strong>Key Distinguishing Clue</strong></td>
+<td>History of dysentery → liver abscess → brain</td>
+<td>Healthy child, swimming → rapid death</td>
+<td>Immunocompromised OR contact lens wearer; chronic</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- Investigation Badges -->
+<div class="card">
+<div class="card-title">🏷️ CSF Findings in PAM (Naegleria) — Key Badges</div>
+<div class="badge-row">
+<span class="badge">⬆️ Opening Pressure</span>
+<span class="badge">⬆️ WBC (Neutrophils)</span>
+<span class="badge">⬆️ Protein</span>
+<span class="badge">⬇️ Glucose</span>
+<span class="badge">⬆️ RBCs (Hemorrhagic)</span>
+<span class="badge">🔬 Motile Amoebae</span>
+<span class="badge">🚫 No Bacteria on Gram Stain</span>
+<span class="badge">🚫 No Cysts in CSF</span>
+</div>
+<p style="margin-top:12px;color:var(--text-secondary);font-size:0.85rem;line-height:1.7;">
+⚠️ <strong>Exam Trap</strong>: PAM CSF mimics bacterial meningitis (purulent, neutrophilic), but Gram stain and cultures for bacteria are <strong>NEGATIVE</strong>. Must use <strong>wet mount</strong> to see motile trophozoites. If CSF is sent to routine bacteriology lab → amoebae are missed!
+</p>
+</div>
+
+<!-- Diagnostic Algorithm -->
+<div class="card">
+<div class="card-title">📊 Diagnostic Algorithm — CNS Amoebic Infection</div>
+<div class="flow-chart">
+<div class="flow-step"><h4>🤒 Patient with Meningoencephalitis</h4><p>Headache, fever, altered mental status, stiff neck</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step"><h4>📋 History</h4><p>Recent swimming in warm water? → think <strong>Naegleria</strong><br>Immunocompromised? → think <strong>Acanthamoeba</strong><br>Prior dysentery / liver abscess? → think <strong>E. histolytica</strong></p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step"><h4>🧪 Lumbar Puncture + CSF Analysis</h4><p>Purulent + motile amoebae + no bacteria = <strong>PAM (Naegleria)</strong><br>Lymphocytic + chronic = consider <strong>GAE (Acanthamoeba)</strong></p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step"><h4>🖥️ Brain Imaging (CT/MRI)</h4><p>Diffuse edema → PAM | Ring-enhancing granulomas → GAE | Abscess + liver history → E. histolytica</p></div>
+<div class="flow-arrow">⬇️</div>
+<div class="flow-step"><h4>🔬 Confirm with Culture / PCR / Biopsy</h4><p>Non-nutrient agar + E. coli | PCR for species | Brain biopsy: cysts? → Acanthamoeba</p></div>
+</div>
+</div>
+
+<!-- PAM vs Bacterial Meningitis -->
+<div class="card">
+<div class="card-title">⚖️ PAM vs Bacterial Meningitis — Comparison</div>
+<div class="comp-table-wrap">
+<table class="comp-table">
+<thead>
+<tr><th>Feature</th><th>PAM (Naegleria)</th><th>Bacterial Meningitis</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>History</strong></td><td>Swimming in warm freshwater</td><td>Respiratory infection, ear infection, trauma</td></tr>
+<tr><td><strong>Onset</strong></td><td>Acute (1–7 days post-exposure)</td><td>Acute (hours to days)</td></tr>
+<tr><td><strong>CSF WBC</strong></td><td>↑↑ Neutrophils</td><td>↑↑ Neutrophils</td></tr>
+<tr><td><strong>CSF Glucose</strong></td><td>↓↓</td><td>↓↓</td></tr>
+<tr><td><strong>CSF Protein</strong></td><td>↑↑</td><td>↑↑</td></tr>
+<tr><td><strong>Gram Stain</strong></td><td>NEGATIVE (no bacteria)</td><td>POSITIVE (organisms seen)</td></tr>
+<tr><td><strong>CSF Wet Mount</strong></td><td>Motile amoebae seen</td><td>No amoebae</td></tr>
+<tr><td><strong>Hemorrhagic CSF</strong></td><td>Often YES (RBCs present)</td><td>Usually NO</td></tr>
+<tr><td><strong>Bacterial Culture</strong></td><td>NEGATIVE</td><td>POSITIVE</td></tr>
+<tr><td><strong>Mortality</strong></td><td>>95%</td><td>Variable (10–30% with treatment)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- ========================== TREATMENT ========================== -->
+<div class="panel" id="panel-treatment">
+<div class="section-title"><span class="emoji">💊</span> Treatment</div>
+
+<!-- Emergency -->
+<div class="card tx-emergency">
+<div class="card-title">🚨 EMERGENCY — Naegleria fowleri (PAM)</div>
+<div class="card-text">
+<strong>Drug of choice: Amphotericin B</strong> (IV + intrathecal) — the only drug with proven activity.<br><br>
+• Initiated immediately upon suspicion — delays are fatal.<br>
+• Miltefosine (oral) may be added as adjunct.<br>
+• Supportive: control cerebral edema (mannitol, dexamethasone).<br>
+• <strong>Prognosis: Extremely poor (>95% mortality)</strong>. Very rare survivors reported with early, aggressive treatment.<br><br>
+⚠️ <strong>Prevention is key</strong>: Avoid swimming in warm stagnant freshwater. Use nose clips. <strong>Hyper-chlorination</strong> of swimming pools required (standard chlorination does NOT destroy Naegleria cysts).
+</div>
+</div>
+
+<div class="card tx-emergency">
+<div class="card-title">🚨 EMERGENCY — E. histolytica Brain Abscess</div>
+<div class="card-text">
+<strong>Metronidazole</strong> (tissue amoebicide) — first-line for invasive disease (dysentery, liver abscess, brain abscess).<br><br>
+• Must follow with <strong>luminal agent</strong> (diloxanide furoate, paromomycin, iodoquinol) to eradicate cysts in the gut lumen.<br>
+• Large liver abscesses: <strong>Closed aspiration / surgical drainage</strong> + Metronidazole.<br>
+• Brain abscess: Neurosurgical consultation + Metronidazole.<br>
+• Asymptomatic cyst passers: Luminal agents ONLY.
+</div>
+</div>
+
+<div class="card tx-standard">
+<div class="card-title">💊 Acanthamoeba — GAE & Keratitis</div>
+<div class="card-text">
+<strong>GAE:</strong> Combination therapy — Pentamidine + Sulfadiazine ± Flucytosine ± Fluconazole. Miltefosine may help. Prognosis poor in immunocompromised.<br><br>
+<strong>Keratitis:</strong> Topical — PHMB (polyhexamethylene biguanide) or chlorhexidine + propamidine isethionate (Brolene). Prolonged therapy (months). May need corneal transplant.<br><br>
+⚠️ <strong>Prevention</strong>: Use <strong>commercial sterile</strong> contact lens solutions. Never use homemade saline or tap water. Remove lenses before swimming.
+</div>
+</div>
+
+<!-- Drug Comparison Table -->
+<div class="card">
+<div class="card-title">💉 Drug Comparison Table</div>
+<div class="comp-table-wrap">
+<table class="comp-table">
+<thead>
+<tr><th>Drug</th><th>Target</th><th>Type</th><th>Route</th><th>Key Notes</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Metronidazole</strong></td><td>E. histolytica (invasive)</td><td>Tissue amoebicide</td><td>Oral / IV</td><td>First-line for dysentery, liver/brain abscess. MUST follow with luminal agent.</td></tr>
+<tr><td><strong>Diloxanide furoate</strong></td><td>E. histolytica (luminal)</td><td>Luminal amoebicide</td><td>Oral</td><td>Kills cysts in gut lumen. Used after metronidazole or for asymptomatic carriers.</td></tr>
+<tr><td><strong>Paromomycin</strong></td><td>E. histolytica (luminal)</td><td>Luminal amoebicide</td><td>Oral</td><td>Aminoglycoside. Alternative luminal agent.</td></tr>
+<tr><td><strong>Amphotericin B</strong></td><td>Naegleria fowleri</td><td>Antifungal (amoebicidal)</td><td>IV + Intrathecal</td><td>Only proven drug for PAM. Must be given ASAP.</td></tr>
+<tr><td><strong>Miltefosine</strong></td><td>Naegleria / Acanthamoeba</td><td>Antiparasitic</td><td>Oral</td><td>Originally anti-leishmanial. Adjunct for PAM & GAE.</td></tr>
+<tr><td><strong>PHMB / Chlorhexidine</strong></td><td>Acanthamoeba (keratitis)</td><td>Antiseptic</td><td>Topical (eye)</td><td>First-line topical for Acanthamoeba keratitis.</td></tr>
+<tr><td><strong>Pentamidine</strong></td><td>Acanthamoeba (GAE)</td><td>Antiprotozoal</td><td>IV</td><td>Part of combination therapy for GAE.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- Symptomatic -->
+<div class="card tx-supportive">
+<div class="card-title">🩹 Supportive & Symptomatic Management</div>
+<div class="grid-3">
+<div class="click-item" onclick="toggleExpand(this)">
+<div class="ci-emoji">💧</div>
+<div class="ci-title">Fluid & Electrolyte Replacement</div>
+<div class="ci-desc">Essential in amoebic dysentery with severe diarrhea. Oral or IV rehydration depending on severity.</div>
+</div>
+<div class="click-item" onclick="toggleExpand(this)">
+<div class="ci-emoji">🧊</div>
+<div class="ci-title">Cerebral Edema Management</div>
+<div class="ci-desc">Mannitol, dexamethasone, elevation of head. Critical in PAM and brain abscess.</div>
+</div>
+<div class="click-item" onclick="toggleExpand(this)">
+<div class="ci-emoji">🔪</div>
+<div class="ci-title">Surgical Intervention</div>
+<div class="ci-desc">Closed aspiration of liver abscess. Neurosurgical drainage of brain abscess. Corneal transplant for failed keratitis treatment.</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ========================== MNEMONICS ========================== -->
+<div class="panel" id="panel-mnemonics">
+<div class="section-title"><span class="emoji">🧠</span> Mnemonics</div>
+
+<div class="mnem-card" onclick="toggleMnemDetail(this)">
+<div class="mnem-title">🔤 "FLASK" — E. histolytica Pathogenesis</div>
+<div class="mnem-subtitle">Remember the steps to flask-shaped ulcer formation</div>
+<div class="mnem-letters">
+<div class="mnem-letter-item"><strong>F</strong>ood/water — cyst ingestion</div>
+<div class="mnem-letter-item"><strong>L</strong>arge intestine — excystation site</div>
+<div class="mnem-letter-item"><strong>A</strong>dherence — galactose lectin</div>
+<div class="mnem-letter-item"><strong>S</strong>ecretion — cytolytic enzymes</div>
+<div class="mnem-letter-item"><strong>K</strong>illing — necrosis → flask ulcer</div>
+</div>
+<div class="mnem-detail">
+<strong>Full breakdown:</strong> The trophozoite adheres to the colonic mucosa using a galactose lectin, then secretes cytotoxins and proteolytic enzymes that kill epithelial cells, forming the classic flask-shaped ulcer with a narrow mucosal opening and broad submucosal base.
+</div>
+</div>
+
+<div class="mnem-card" onclick="toggleMnemDetail(this)">
+<div class="mnem-title">🔤 "NOSE → BRAIN" — Naegleria Entry</div>
+<div class="mnem-subtitle">N.O.S.E. = Naegleria's Only Safe Entry</div>
+<div class="mnem-letters">
+<div class="mnem-letter-item"><strong>N</strong>asal route (swimming/sniffing)</div>
+<div class="mnem-letter-item"><strong>O</strong>lfactory nerve migration</div>
+<div class="mnem-letter-item"><strong>S</strong>ix days to death</div>
+<div class="mnem-letter-item"><strong>E</strong>ating brain (PAM)</div>
+</div>
+<div class="mnem-detail">
+<strong>Naegleria</strong> fowleri enters ONLY via the nose, never orally. It travels the olfactory nerve through the cribriform plate to the olfactory bulb, then destroys brain tissue. Death typically occurs within 3–6 days. The nasal route = <strong>Primary</strong> (P)AM.
+</div>
+</div>
+
+<div class="mnem-card" onclick="toggleMnemDetail(this)">
+<div class="mnem-title">🔤 "ACE" — Acanthamoeba Characteristics</div>
+<div class="mnem-subtitle">Remember the 3 key features</div>
+<div class="mnem-letters">
+<div class="mnem-letter-item"><strong>A</strong>canthopodia (spiky pseudopodia)</div>
+<div class="mnem-letter-item"><strong>C</strong>ysts AND trophozoites in tissue</div>
+<div class="mnem-letter-item"><strong>E</strong>ye (keratitis) + Encephalitis (GAE)</div>
+</div>
+<div class="mnem-detail">
+Acanthamoeba is unique because <strong>BOTH stages</strong> (trophozoites with acanthopodia + double-walled cysts) are found in tissues. It causes TWO major diseases: keratitis (contact lens users) and GAE (immunocompromised). Remember: ACE = Acanthamoeba Cysts Everywhere.
+</div>
+</div>
+
+<div class="mnem-card" onclick="toggleMnemDetail(this)">
+<div class="mnem-title">🔤 "ANCHOR" — Liver Abscess</div>
+<div class="mnem-subtitle">Remember the anchovy-sauce pus features</div>
+<div class="mnem-letters">
+<div class="mnem-letter-item"><strong>A</strong>nchovy-sauce appearance</div>
+<div class="mnem-letter-item"><strong>N</strong>o bacteria (sterile pus)</div>
+<div class="mnem-letter-item"><strong>C</strong>hocolate-colored</div>
+<div class="mnem-letter-item"><strong>H</strong>epatocytes lysed</div>
+<div class="mnem-letter-item"><strong>O</strong>dorless</div>
+<div class="mnem-letter-item"><strong>R</strong>ight lobe most common</div>
+</div>
+<div class="mnem-detail">
+Amoebic liver abscess contains <strong>thick, chocolate-colored, odorless pus</strong> (anchovy-sauce) made up of lysed liver cells, bile & fat. It's usually in the right lobe. It's NOT a true abscess (no bacterial pus) — trophozoites are found at the wall, not the center.
+</div>
+</div>
+
+<div class="mnem-card" onclick="toggleMnemDetail(this)">
+<div class="mnem-title">🔤 "TROPIC" — Tissue Stage Rule</div>
+<div class="mnem-subtitle">Which stages are found in tissue?</div>
+<div class="mnem-letters">
+<div class="mnem-letter-item"><strong>TR</strong>ophozoites — E. histolytica (tissue) ✅</div>
+<div class="mnem-letter-item"><strong>O</strong>nly trophozoites — Naegleria (tissue) ✅</div>
+<div class="mnem-letter-item"><strong>P</strong>lus cysts — Acanthamoeba (tissue) ✅</div>
+<div class="mnem-letter-item"><strong>I</strong>n gut only — Cysts pass in stool</div>
+<div class="mnem-letter-item"><strong>C</strong>ysts NEVER in E.h./N.f. tissue ❌</div>
+</div>
+<div class="mnem-detail">
+⚠️ <strong>CLASSIC MCQ</strong>: "Which amoeba has cysts found in tissue?" → ONLY Acanthamoeba. E. histolytica cysts are ONLY in stool. Naegleria cysts are ONLY in soil/water — never in CSF or brain tissue.
+</div>
+</div>
+
+<div class="mnem-card" onclick="toggleMnemDetail(this)">
+<div class="mnem-title">🔤 "4-C-Q" — E. histolytica Infective Cyst</div>
+<div class="mnem-subtitle">Remember: 4 nuclei Cyst = only infective stage</div>
+<div class="mnem-letters">
+<div class="mnem-letter-item"><strong>4</strong> = Quadri-nucleate</div>
+<div class="mnem-letter-item"><strong>C</strong> = Cyst (mature)</div>
+<div class="mnem-letter-item"><strong>Q</strong> = ingested (oral route)</div>
+</div>
+<div class="mnem-detail">
+Only the <strong>mature quadri-nucleate cyst</strong> is infective. Immature cysts (1–2 nuclei) are not infective. Trophozoites, if ingested, are destroyed by gastric acid. The cyst wall protects against stomach acid, standard chlorination, and drying.
+</div>
+</div>
+
+<div class="mnem-card" onclick="toggleMnemDetail(this)">
+<div class="mnem-title">🔤 "PRIMARY vs SECONDARY" — Brain Infections</div>
+<div class="mnem-subtitle">Never confuse them on the exam!</div>
+<div class="mnem-letters">
+<div class="mnem-letter-item"><strong>P</strong>rimary = <strong>P</strong>AM = direct nose → brain (<strong>N</strong>aegleria)</div>
+<div class="mnem-letter-item"><strong>S</strong>econdary = <strong>S</strong>pread from gut/liver → brain (<strong>E. histolytica</strong>)</div>
+</div>
+<div class="mnem-detail">
+<strong>Naegleria goes PRIMARILY to the brain</strong> (no intestinal or systemic phase first) = PRIMARY amoebic meningoencephalitis.<br>
+<strong>E. histolytica goes SECONDARILY to the brain</strong> (primary site is the intestine/liver, brain is secondary metastasis) = SECONDARY amoebic meningoencephalitis.
+</div>
+</div>
+</div>
+
+</div><!-- end app-container -->
+
+<script>
+// ============================== DATA ==============================
+const quizData = [
+{q:"Which of the following is the exact mechanism by which <em>Entamoeba histolytica</em> reaches the brain to cause an abscess?",
+opts:["A) Direct migration through the olfactory nerve","B) Hematogenous spread of trophozoites from sub-mucosal blood vessels","C) Inhalation of mature cysts into the lungs followed by neural spread","D) Hematogenous spread of mature cysts from the colon","E) Direct extension through the diaphragm"],
+ans:1, exp:"<strong>Correct: B</strong> — Trophozoites invade the submucosal blood vessels and metastasize hematogenously to ectopic sites like the brain. <em>A is Naegleria; C is incorrect for E. histolytica; D: cysts never enter tissues; E describes liver→lung extension.</em>"},
+{q:"How does <em>Naegleria fowleri</em> gain access to the central nervous system?",
+opts:["A) Ingestion of cysts in contaminated water","B) Migration of trophozoites from the gut to the bloodstream","C) Penetration of the nasal mucosa and migration via the olfactory nerve","D) Direct invasion through a corneal abrasion","E) Hematogenous spread from a skin ulcer"],
+ans:2, exp:"<strong>Correct: C</strong> — Trophozoites enter the nose during swimming and migrate via the olfactory nerve to the brain (PAM). <em>A,B describe E. histolytica; D,E describe Acanthamoeba.</em>"},
+{q:"Which mechanism best describes the pathogenesis of amoebic dysentery?",
+opts:["A) Non-invasive colonization of the large intestine lumen","B) Secretion of cytolytic enzymes causing necrosis of epithelial cells in the colon","C) Granuloma formation in the small intestine","D) Release of neurotoxins by cysts","E) Multiplication of flagellated forms in the caecum"],
+ans:1, exp:"<strong>Correct: B</strong> — Trophozoites secrete cytolytic enzymes (amoebapore) leading to necrosis and flask-shaped ulcers. <em>A is asymptomatic passing; C is wrong location; D: cysts don't release toxins; E: flagella belong to Naegleria.</em>"},
+{q:"What is the infective stage of <em>Entamoeba histolytica</em> for humans?",
+opts:["A) Flagellated trophozoite","B) Precyst","C) Uninucleate cyst","D) Mature quadri-nucleate cyst","E) Amoeboid trophozoite"],
+ans:3, exp:"<strong>Correct: D</strong> — Infection is acquired by ingestion of mature quadri-nucleate cysts. <em>A is Naegleria; B,C are immature; E: trophozoites are destroyed by gastric acid.</em>"},
+{q:"Which amoeba is characterized by multiple small spiky pseudopodia (acanthopodia)?",
+opts:["A) Entamoeba histolytica","B) Naegleria fowleri flagellate form","C) Naegleria fowleri amoeboid form","D) Acanthamoeba castellani","E) Giardia lamblia"],
+ans:3, exp:"<strong>Correct: D</strong> — Acanthamoeba has 20–40 µm trophozoites with small spiky pseudopodia called acanthopodia. <em>A has broad pseudopodia; B has flagella; C has single broad pseudopodium; E is not an amoeba.</em>"},
+{q:"Which finding is diagnostic for <em>Acanthamoeba</em> in a brain biopsy but is NEVER seen in <em>Naegleria</em> brain infections?",
+opts:["A) Presence of purulent CSF","B) Presence of amoeboid trophozoites","C) Presence of double-walled cysts","D) Elevated CSF protein","E) Presence of red blood cells"],
+ans:2, exp:"<strong>Correct: C</strong> — Both trophozoites and cysts of Acanthamoeba are found in tissues. Naegleria cysts are NEVER in tissues. <em>A,B,D,E can be seen in Naegleria infections.</em>"},
+{q:"What promotes the adherence of <em>E. histolytica</em> trophozoites to the intestinal mucosa?",
+opts:["A) Acanthopodia","B) A surface lectin known as galactose","C) Flagellar attachment","D) Chitinous cyst wall","E) Hyaluronidase"],
+ans:1, exp:"<strong>Correct: B</strong> — Adherence to intestinal mucosa is mediated by a surface lectin (galactose/GalNAc). <em>A is Acanthamoeba; C is Naegleria; D surrounds the cyst; E is not mentioned.</em>"},
+{q:"A patient develops amoebic keratitis. What is the most likely mode of transmission?",
+opts:["A) Inhaling contaminated dust","B) Eating unwashed vegetables","C) Using non-sterile, homemade contact lens solutions","D) Being bitten by an arthropod vector","E) Hematogenous spread from a liver abscess"],
+ans:2, exp:"<strong>Correct: C</strong> — Amoebic keratitis occurs by direct contact of the cornea with contaminated contact lens fluid. <em>A causes GAE; B causes E. histolytica; D: amoebas aren't vector-borne; E is hepatic spread.</em>"},
+{q:"What is the characteristic pathological finding in the colon during acute <em>E. histolytica</em> infection?",
+opts:["A) Diffuse pseudomembrane formation","B) Flask-shaped ulcers with broad bases and narrow necks","C) Villous atrophy","D) Granulomatous masses only","E) Superficial mucosal scraping without cellular infiltration"],
+ans:1, exp:"<strong>Correct: B</strong> — The primary ulcer is flask-shaped with a narrow mucosal neck and broad submucosal base. <em>A is C. difficile; C is Giardia/celiac; D is amoeboma (chronic); E is incorrect — inflammation is present.</em>"},
+{q:"What color and consistency describes the pus from an amoebic liver abscess?",
+opts:["A) Thin, clear fluid","B) Thick, yellow and foul-smelling","C) Thick, chocolate-colored or anchovy-sauce","D) Greenish and frothy","E) Bloody with visible cysts"],
+ans:2, exp:"<strong>Correct: C</strong> — Anchovy-sauce pus: thick, chocolate-colored, odorless, made of lysed hepatocytes, bile, and fat. <em>A,B,D are incorrect descriptions; E: cysts are never in tissue.</em>"},
+{q:"Which clinical entity is designated as 'Secondary Amoebic Meningoencephalitis'?",
+opts:["A) PAM caused by N. fowleri","B) GAE caused by Acanthamoeba","C) Brain abscess caused by hematogenous spread of E. histolytica","D) Keratitis caused by Acanthamoeba","E) Dysentery caused by E. histolytica"],
+ans:2, exp:"<strong>Correct: C</strong> — E. histolytica brain abscess is secondary to intestinal/hepatic infection. <em>A is primary; B is granulomatous; D is ocular; E is intestinal.</em>"},
+{q:"What triggers <em>Naegleria fowleri</em> to transform from an amoeboid to a flagellate form?",
+opts:["A) Entry into the human brain","B) Encystment in the soil","C) Contact with warm water","D) Exposure to gastric acid","E) Exposure to hyper-chlorination"],
+ans:2, exp:"<strong>Correct: C</strong> — The flagellate form develops when the organism contacts water. <em>A: it remains amoeboid in brain; B: that forms cysts; D: destroyed by acid; E: kills it.</em>"},
+{q:"Why is closed aspiration sometimes required for <em>E. histolytica</em> infections?",
+opts:["A) To remove cysts from the large intestine","B) To treat small asymptomatic luminal colonies","C) To manage large extra-intestinal amoebic liver abscesses","D) To treat amoebic keratitis","E) To remove flagellated forms from the CSF"],
+ans:2, exp:"<strong>Correct: C</strong> — Large liver abscesses require aspiration/drainage + metronidazole. <em>A: cysts pass naturally; B: luminal drugs suffice; D: topical treatment; E: Naegleria uses Amphotericin-B.</em>"},
+{q:"Which complication arises if <em>E. histolytica</em> ulcers extend completely through the large intestine wall?",
+opts:["A) Pseudopolyposis","B) Perforation and peritonitis","C) Diffuse amoebic hepatitis","D) Pulmonary consolidation","E) Encystment in the peritoneal cavity"],
+ans:1, exp:"<strong>Correct: B</strong> — Deep ulcers extending through the full wall cause perforation and peritonitis with high fatality. <em>A is a different complication; C requires vessel invasion; D requires lung spread; E: cysts only form in gut lumen.</em>"},
+{q:"What is the morphological characteristic of the <em>E. histolytica</em> trophozoite nucleus?",
+opts:["A) Two large prominent nucleoli","B) Single nucleus with a central karyosome and regular peripheral chromatin","C) Multinucleated with irregular chromatin","D) Double wall enclosing the nucleus","E) Pear-shaped with flagella attached to the nucleus"],
+ans:1, exp:"<strong>Correct: B</strong> — E. histolytica has a single vesicular nucleus with small central karyosome and regular peripheral chromatin granules."},
+{q:"A 10-year-old boy swims in a warm lake. Five days later he dies of fulminant meningoencephalitis. What will CSF wet mount show?",
+opts:["A) Quadri-nucleate cysts","B) Motile amoeboid trophozoites","C) Double-walled cysts with acanthopodia","D) Gram-positive diplococci","E) Flagellated trophozoites only"],
+ans:1, exp:"<strong>Correct: B</strong> — Naegleria PAM: only motile amoeboid trophozoites in CSF, never cysts. <em>A: cysts aren't in CSF; C: Acanthamoeba; D: bacterial meningitis; E: flagellate form is only in water.</em>"},
+{q:"An immunocompromised patient has chronic seizures. Brain biopsy shows granulomas with double-walled cysts. Diagnosis?",
+opts:["A) PAM (Naegleria)","B) Secondary amoebic meningoencephalitis (E. histolytica)","C) Granulomatous Amoebic Encephalitis (Acanthamoeba)","D) Toxoplasma encephalitis","E) Neurocysticercosis"],
+ans:2, exp:"<strong>Correct: C</strong> — Double-walled cysts in brain tissue + granulomas + immunocompromised = Acanthamoeba GAE. Both trophozoites and cysts found in tissue."},
+{q:"What is the drug of choice for <em>Naegleria fowleri</em> PAM?",
+opts:["A) Metronidazole","B) Diloxanide furoate","C) Amphotericin B","D) Chloroquine","E) PHMB"],
+ans:2, exp:"<strong>Correct: C</strong> — Amphotericin B (IV + intrathecal) is the only drug with proven activity against Naegleria fowleri. <em>A: E. histolytica; B: luminal; D: malaria; E: Acanthamoeba keratitis.</em>"},
+{q:"Which of these factors determines the invasiveness of <em>E. histolytica</em>?",
+opts:["A) Temperature of water","B) Host immunity, amoeba virulence, and intestinal bacterial flora","C) Contact lens hygiene","D) Chlorination levels","E) Presence of flagellated forms"],
+ans:1, exp:"<strong>Correct: B</strong> — Invasiveness depends on host resistance (immunity), strain virulence, and intestinal bacterial flora. <em>A,D relate to Naegleria; C to Acanthamoeba keratitis; E is Naegleria.</em>"},
+{q:"What distinguishes <em>E. histolytica</em> trophozoites from non-pathogenic <em>E. dispar</em> under microscopy?",
+opts:["A) E. histolytica is larger","B) E. histolytica trophozoites contain ingested RBCs","C) E. dispar has four nuclei in trophozoite stage","D) E. histolytica has acanthopodia","E) E. dispar forms flagellated forms"],
+ans:1, exp:"<strong>Correct: B</strong> — Trophozoites containing ingested RBCs is pathognomonic for <em>E. histolytica</em> (indicates tissue invasion). E. dispar is morphologically identical but does not ingest RBCs."},
+{q:"A contact lens wearer develops corneal opacification within weeks. Both trophozoites and cysts are seen on corneal scraping. Treatment?",
+opts:["A) Amphotericin B IV","B) Metronidazole oral","C) Topical PHMB or chlorhexidine + propamidine","D) Diloxanide furoate oral","E) Intrathecal amphotericin"],
+ans:2, exp:"<strong>Correct: C</strong> — Acanthamoeba keratitis is treated with topical antiseptics: PHMB (polyhexamethylene biguanide) or chlorhexidine + propamidine isethionate (Brolene). <em>A,E: PAM; B,D: E. histolytica.</em>"},
+{q:"A patient with previous bloody diarrhea now has a brain abscess. What is this called?",
+opts:["A) Primary Amoebic Meningoencephalitis","B) Granulomatous Amoebic Encephalitis","C) Secondary Amoebic Meningoencephalitis","D) Cerebral malaria","E) Neurotoxoplasmosis"],
+ans:2, exp:"<strong>Correct: C</strong> — Brain involvement SECONDARY to intestinal/hepatic E. histolytica infection = Secondary Amoebic Meningoencephalitis. <em>A: Naegleria (direct nose→brain); B: Acanthamoeba.</em>"},
+{q:"Which organism has THREE morphological forms (amoeboid, flagellate, cyst)?",
+opts:["A) E. histolytica","B) Acanthamoeba castellani","C) Naegleria fowleri","D) Giardia lamblia","E) Balantidium coli"],
+ans:2, exp:"<strong>Correct: C</strong> — Naegleria fowleri has 3 forms: amoeboid trophozoite (in tissue), flagellate trophozoite (in water), and cyst (in soil). <em>A: 2 forms (troph + cyst); B: 2 forms (troph + cyst); D,E are not amoebae in this context.</em>"},
+{q:"After treating invasive amoebiasis with metronidazole, what additional treatment is ESSENTIAL?",
+opts:["A) Amphotericin B intrathecal","B) A luminal amoebicide (e.g., diloxanide furoate)","C) Corticosteroids","D) Surgical colectomy","E) No further treatment needed"],
+ans:1, exp:"<strong>Correct: B</strong> — After tissue amoebicide (metronidazole), a luminal agent (diloxanide furoate / paromomycin) is ESSENTIAL to eliminate cysts remaining in the gut lumen and prevent relapse/transmission."},
+{q:"Hyper-chlorination is specifically required to destroy the cysts of which organism in swimming pools?",
+opts:["A) E. histolytica","B) Naegleria fowleri","C) Acanthamoeba castellani","D) Cryptosporidium parvum","E) Giardia lamblia"],
+ans:1, exp:"<strong>Correct: B</strong> — Standard chlorination does NOT destroy Naegleria cysts. Hyper-chlorination is required. <em>This is a preventive measure to avoid PAM.</em>"}
+];
+
+const flashcardsData = [
+{front:"What is the infective stage of E. histolytica?",back:"Mature quadri-nucleate cyst (4 nuclei)",emoji:"🦠"},
+{front:"What stage of E. histolytica is found in tissues?",back:"ONLY trophozoites (never cysts)",emoji:"🔬"},
+{front:"What mediates E. histolytica adherence to colonic mucosa?",back:"Surface lectin (galactose / GalNAc lectin)",emoji:"🧬"},
+{front:"Describe the classic ulcer of intestinal amoebiasis",back:"Flask-shaped: narrow mucosal neck, broad submucosal base",emoji:"🩸"},
+{front:"What is anchovy-sauce pus?",back:"Thick, chocolate-colored, odorless pus from amoebic liver abscess (lysed hepatocytes + bile + fat)",emoji:"🍫"},
+{front:"How does E. histolytica reach the brain?",back:"Hematogenous spread of trophozoites from submucosal blood vessels (intestine → liver → brain)",emoji:"🧠"},
+{front:"What is E. histolytica brain infection called?",back:"SECONDARY Amoebic Meningoencephalitis (primary site is intestine)",emoji:"📌"},
+{front:"How does Naegleria fowleri enter the body?",back:"Nasal route (swimming/sniffing warm water) → olfactory nerve → brain",emoji:"👃"},
+{front:"What is Naegleria brain infection called?",back:"PRIMARY Amoebic Meningoencephalitis (PAM) — direct nose→brain",emoji:"🏊"},
+{front:"How quickly does PAM kill?",back:"3–6 days (rapidly fatal)",emoji:"⏱️"},
+{front:"What stages of Naegleria are found in CSF?",back:"ONLY amoeboid trophozoites (no cysts, no flagellate forms)",emoji:"🧪"},
+{front:"How many morphological forms does Naegleria have?",back:"THREE: amoeboid trophozoite, flagellate trophozoite, cyst",emoji:"🔢"},
+{front:"What triggers Naegleria flagellate transformation?",back:"Contact with water",emoji:"🌊"},
+{front:"What are acanthopodia?",back:"Small spiky pseudopodia characteristic of Acanthamoeba castellani",emoji:"🦔"},
+{front:"What stages of Acanthamoeba are found in tissue?",back:"BOTH trophozoites AND double-walled cysts (key MCQ fact!)",emoji:"⚠️"},
+{front:"What does Acanthamoeba cause in immunocompromised patients?",back:"Granulomatous Amoebic Encephalitis (GAE) — chronic, focal granulomas",emoji:"🧱"},
+{front:"What does Acanthamoeba cause in contact lens users?",back:"Amoebic Keratitis — can cause blindness within a month",emoji:"👁️"},
+{front:"Drug of choice for Naegleria PAM?",back:"Amphotericin B (IV + intrathecal)",emoji:"💊"},
+{front:"Drug of choice for invasive E. histolytica?",back:"Metronidazole (MUST follow with luminal agent like diloxanide furoate)",emoji:"💉"},
+{front:"Drug of choice for Acanthamoeba keratitis?",back:"Topical PHMB or chlorhexidine + propamidine (Brolene)",emoji:"💧"},
+{front:"CSF in PAM resembles what common infection?",back:"Bacterial meningitis (purulent, neutrophilic, ↓glucose) — but Gram stain and cultures NEGATIVE for bacteria!",emoji:"🧫"},
+{front:"How to prevent Acanthamoeba keratitis?",back:"Use commercial STERILE contact lens solutions. Never homemade saline or tap water.",emoji:"👓"},
+{front:"How to prevent PAM?",back:"Avoid swimming in warm stagnant freshwater. Use nose clips. Hyper-chlorinate pools.",emoji:"🏊"},
+{front:"What does trophozoite ingesting RBCs indicate?",back:"E. histolytica (NOT E. dispar) — pathognomonic for tissue invasion",emoji:"🩸"}
+];
+
+const casesData = [
+{num:1,title:"Bloody Diarrhea & Flask Ulcers",
+vignette:"A 24-year-old man presents with frequent bloody mucoid diarrhea for 2 weeks. He recently returned from rural travel. Sigmoidoscopy reveals small, flask-shaped ulcers with broad bases in the caecum. Stool microscopy shows motile trophozoites containing ingested red blood cells.",
+questions:[
+{q:"What is the most likely diagnosis?",a:"<strong>Acute intestinal amoebiasis (amoebic dysentery)</strong> caused by <em>Entamoeba histolytica</em>. The flask-shaped ulcers in the caecum and trophozoites with ingested RBCs are pathognomonic."},
+{q:"What mechanism causes the mucosal damage?",a:"Trophozoites adhere to the colonic epithelium via <strong>galactose/GalNAc lectin</strong>, then secrete <strong>cytolytic enzymes (amoebapore, cysteine proteinases)</strong> that cause necrosis of epithelial cells. This creates a flask-shaped ulcer with a narrow mucosal neck and broad submucosal base."},
+{q:"What is the most serious intestinal complication?",a:"<strong>Perforation and peritonitis</strong> — if ulcers extend completely through the intestinal wall. This carries high mortality."}
+]},
+{num:2,title:"Liver Abscess → Lung Involvement",
+vignette:"A 45-year-old man presents with right upper quadrant pain, fever, and tender hepatomegaly. Ultrasound reveals a large abscess in the right lobe of the liver. Aspiration yields thick, chocolate-colored, odorless pus. One week later, he develops a cough with reddish-brown sputum.",
+questions:[
+{q:"What organism is causing this presentation?",a:"<strong>Entamoeba histolytica</strong>. The chocolate-colored (anchovy-sauce) pus from the liver is characteristic of amoebic liver abscess."},
+{q:"How did the infection reach the lungs?",a:"The liver abscess extended <strong>directly through the diaphragm</strong> into the pleural/pulmonary space (pleuropulmonary amoebiasis). Alternatively, trophozoites could spread hematogenously. The reddish-brown sputum indicates hepato-bronchial fistula."},
+{q:"What treatment approach is needed?",a:"<strong>Metronidazole</strong> (tissue amoebicide) + <strong>closed aspiration/surgical drainage</strong> of the large abscess + <strong>luminal amoebicide</strong> (diloxanide furoate) to eradicate intestinal cysts."}
+]},
+{num:3,title:"Swimming → Rapid Death",
+vignette:"A healthy 12-year-old boy develops severe frontal headache, high fever, vomiting, and neck stiffness 4 days after swimming in a warm freshwater lake during summer. He rapidly deteriorates and becomes comatose. CSF analysis shows elevated WBCs (mostly neutrophils), elevated protein, low glucose, RBCs, and no bacteria on Gram stain. A wet mount reveals motile organisms.",
+questions:[
+{q:"What is the diagnosis and causative organism?",a:"<strong>Primary Amoebic Meningoencephalitis (PAM)</strong> caused by <strong><em>Naegleria fowleri</em></strong>. The history of warm freshwater swimming + rapid onset + purulent CSF with no bacteria + motile amoebae is classic."},
+{q:"What is the route of entry and neural pathway?",a:"Trophozoites enter via the <strong>nasal mucosa</strong> during swimming/sniffing → penetrate the <strong>cribriform plate</strong> → migrate along the <strong>olfactory nerve</strong> to the <strong>olfactory bulb</strong> → spread to the <strong>base of the brain</strong>."},
+{q:"Why might this be misdiagnosed as bacterial meningitis?",a:"The CSF findings (purulent, neutrophilic, ↓glucose, ↑protein) <strong>mimic bacterial meningitis</strong>. However, Gram stain and bacterial cultures are <strong>NEGATIVE</strong>. The key is performing a <strong>wet mount</strong> to see motile amoeboid trophozoites."}
+]},
+{num:4,title:"Immunocompromised + Seizures",
+vignette:"A 50-year-old HIV-positive patient presents with progressive headache, seizures, and confusion over 3 weeks. MRI shows multiple ring-enhancing lesions in the brain. Brain biopsy reveals multinucleated giant cells forming granulomas containing amoeboid organisms with spiky pseudopodia and double-walled cysts.",
+questions:[
+{q:"What is the diagnosis?",a:"<strong>Granulomatous Amoebic Encephalitis (GAE)</strong> caused by <strong><em>Acanthamoeba castellani</em></strong>. The chronic course, immunocompromised state, granulomas, acanthopodia, and double-walled cysts in tissue are diagnostic."},
+{q:"How does this differ from PAM?",a:"GAE is <strong>chronic</strong> (weeks-months) vs PAM is <strong>acute</strong> (days). GAE affects <strong>immunocompromised</strong> patients vs PAM affects <strong>healthy</strong> individuals. GAE spreads <strong>hematogenously</strong> from lungs/skin vs PAM enters via the <strong>nose</strong>. GAE shows <strong>cysts + trophozoites</strong> in tissue vs PAM shows <strong>only trophozoites</strong>."},
+{q:"What treatment is available?",a:"Combination therapy: <strong>Pentamidine + Sulfadiazine ± Fluconazole ± Miltefosine</strong>. Prognosis is poor in immunocompromised patients."}
+]},
+{num:5,title:"Contact Lens Nightmare",
+vignette:"A 22-year-old woman who wears contact lenses and uses a homemade saline solution develops severe eye pain, photophobia, tearing, and corneal opacification in her left eye over 2 weeks. She had also been swimming in a lake while wearing her lenses. Corneal scraping reveals organisms with spiky pseudopodia alongside double-walled cysts.",
+questions:[
+{q:"Diagnosis?",a:"<strong>Amoebic Keratitis</strong> caused by <strong><em>Acanthamoeba castellani</em></strong>. Risk factors: homemade contact lens solution + swimming with lenses. Both trophozoites (acanthopodia) and double-walled cysts on scraping confirm the diagnosis."},
+{q:"What happens without treatment?",a:"Progressive corneal destruction leading to <strong>blindness within a month</strong>."},
+{q:"Treatment and prevention?",a:"<strong>Treatment:</strong> Topical PHMB (polyhexamethylene biguanide) or chlorhexidine + propamidine isethionate. Prolonged therapy (months). May need corneal transplant.<br><strong>Prevention:</strong> Use only <strong>commercial sterile</strong> contact lens solutions. Never use tap water or homemade saline. Remove lenses before swimming."}
+]},
+{num:6,title:"The Integrative Case — Diarrhea → Brain",
+vignette:"A 35-year-old man presents with severe headache, blurring of vision, and focal neurological deficits suggesting a space-occupying lesion. CT shows a brain abscess. Three weeks ago, he had crampy abdominal pain and bloody diarrhea that went untreated. Serological testing reveals high anti-amoebic antibodies.",
+questions:[
+{q:"What is the full diagnosis and explain the pathogenesis step by step?",a:"<strong>Secondary Amoebic Meningoencephalitis</strong> caused by <strong><em>E. histolytica</em></strong>.<br><br><strong>Step-by-step:</strong> Ingestion of mature quadri-nucleate cysts → excystation in large intestine → trophozoites secreted cytolytic enzymes → flask-shaped ulcers (causing his bloody diarrhea) → trophozoites invaded submucosal blood vessels → hematogenous spread via hepatic portal vein → may have formed liver abscess → further hematogenous spread to the brain → necrosis and abscess formation."},
+{q:"Why is this 'secondary' and not 'primary'?",a:"It's <strong>secondary</strong> because the primary site of infection was the <strong>intestine</strong>. The brain is a secondary/ectopic metastatic site reached via the bloodstream. 'Primary' (PAM) would mean direct nose→brain entry, which is <strong><em>Naegleria fowleri</em></strong>."},
+{q:"What investigations confirm this diagnosis?",a:"<strong>CT/MRI brain</strong>: abscess. <strong>Serology</strong>: ELISA showing circulating anti-amoebic antibodies (positive here). <strong>Stool analysis</strong> may or may not show cysts (he's past the acute intestinal phase). <strong>Liver ultrasound</strong> to check for concomitant liver abscess. <strong>History</strong> of preceding dysentery is the crucial clinical clue."}
+]}
+];
+
+// ============================== STATE ==============================
+let state = JSON.parse(localStorage.getItem('amoeba_study_state') || '{}');
+if(!state.quizAnswers) state.quizAnswers = {};
+if(!state.quizCorrect) state.quizCorrect = 0;
+if(!state.quizStreak) state.quizStreak = 0;
+if(!state.bestStreak) state.bestStreak = 0;
+if(!state.flippedCards) state.flippedCards = {};
+if(!state.lastTab) state.lastTab = 'overview';
+function saveState(){ localStorage.setItem('amoeba_study_state', JSON.stringify(state)); }
+
+// ============================== TABS ==============================
+function switchTab(tabId){
+document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+document.getElementById('panel-'+tabId).classList.add('active');
+const btns = document.querySelectorAll('.tab-btn');
+const tabs=['overview','quiz','flashcards','cases','patho','diagnosis','treatment','mnemonics'];
+const idx=tabs.indexOf(tabId);
+if(idx>=0 && btns[idx]) btns[idx].classList.add('active');
+state.lastTab=tabId; saveState();
+updateStats();
+}
+
+// ============================== OVERVIEW HELPERS ==============================
+function toggleExpand(el){ el.classList.toggle('expanded'); }
+function toggleMnemDetail(el){
+const d=el.querySelector('.mnem-detail');
+if(d) d.classList.toggle('show');
+}
+
+// ============================== QUIZ ==============================
+function buildQuiz(){
+const c=document.getElementById('quizContainer');
+let html='';
+quizData.forEach((q,i)=>{
+const answered=state.quizAnswers[i]!==undefined;
+const userAns=state.quizAnswers[i];
+html+=`<div class="card quiz-card" id="quiz-q-${i}">
+<div class="quiz-q"><span class="q-num">${i+1}</span>${q.q}</div>`;
+q.opts.forEach((o,j)=>{
+let cls='quiz-option';
+if(answered){
+cls+=' disabled';
+if(j===q.ans) cls+=' correct show-correct';
+else if(j===userAns && userAns!==q.ans) cls+=' wrong';
+}
+html+=`<button class="${cls}" onclick="answerQuiz(${i},${j})" id="qopt-${i}-${j}">${o}</button>`;
+});
+html+=`<div class="quiz-explanation ${answered?'show':''}" id="qexp-${i}">${q.exp}</div>`;
+html+=`</div>`;
+});
+c.innerHTML=html;
+updateQuizStats();
+}
+function answerQuiz(qi,oi){
+if(state.quizAnswers[qi]!==undefined) return;
+state.quizAnswers[qi]=oi;
+const correct=oi===quizData[qi].ans;
+if(correct){ state.quizCorrect++; state.quizStreak++; if(state.quizStreak>state.bestStreak) state.bestStreak=state.quizStreak; }
+else { state.quizStreak=0; }
+saveState();
+// UI
+const opts=document.querySelectorAll(`[id^="qopt-${qi}-"]`);
+opts.forEach((btn,j)=>{
+btn.classList.add('disabled');
+if(j===quizData[qi].ans) btn.classList.add('correct','show-correct');
+else if(j===oi && !correct) btn.classList.add('wrong');
+});
+document.getElementById('qexp-'+qi).classList.add('show');
+updateQuizStats();
+updateStats();
+}
+function updateQuizStats(){
+const answered=Object.keys(state.quizAnswers).length;
+document.getElementById('quizAnswered').textContent=answered;
+document.getElementById('quizCorrectCount').textContent=state.quizCorrect;
+document.getElementById('quizStreak').textContent=state.quizStreak;
+const pct=Math.round((answered/quizData.length)*100);
+document.getElementById('quizProgressFill').style.width=pct+'%';
+}
+
+// ============================== FLASHCARDS ==============================
+function buildFlashcards(){
+const g=document.getElementById('fcGrid');
+let html='';
+flashcardsData.forEach((f,i)=>{
+const flipped=state.flippedCards[i]?'flipped':'';
+html+=`<div class="fc-wrapper ${flipped}" onclick="flipCard(${i},this)">
+<div class="fc-inner">
+<div class="fc-front">
+<span class="fc-label">QUESTION</span>
+<div class="fc-emoji">${f.emoji}</div>
+<div>${f.front}</div>
+</div>
+<div class="fc-back">
+<span class="fc-label">ANSWER</span>
+<div>${f.back}</div>
+</div>
+</div>
+</div>`;
+});
+g.innerHTML=html;
+updateFCCount();
+}
+function flipCard(i,el){
+el.classList.toggle('flipped');
+if(el.classList.contains('flipped')){
+state.flippedCards[i]=true;
+} else {
+delete state.flippedCards[i];
+}
+saveState(); updateFCCount(); updateStats();
+}
+function updateFCCount(){
+const n=Object.keys(state.flippedCards).length;
+document.getElementById('fcFlipped').textContent=n;
+document.getElementById('stat-flipped').textContent=n+'/'+flashcardsData.length;
+}
+
+// ============================== CLINICAL CASES ==============================
+function buildCases(){
+const c=document.getElementById('casesContainer');
+let html='';
+casesData.forEach((cs,ci)=>{
+html+=`<div class="card case-card">
+<div class="case-header">
+<div class="case-num">${cs.num}</div>
+<div class="case-title">${cs.title}</div>
+</div>
+<div class="case-vignette">${cs.vignette}</div>`;
+cs.questions.forEach((cq,qi)=>{
+html+=`<div class="case-question">❓ ${cq.q}</div>
+<button class="reveal-btn" onclick="revealAnswer('ca-${ci}-${qi}',this)">Reveal Answer</button>
+<div class="case-answer" id="ca-${ci}-${qi}">${cq.a}</div>`;
+});
+html+=`</div>`;
+});
+c.innerHTML=html;
+}
+function revealAnswer(id,btn){
+const el=document.getElementById(id);
+el.classList.toggle('show');
+btn.textContent=el.classList.contains('show')?'Hide Answer':'Reveal Answer';
+}
+
+// ============================== STATS ==============================
+function updateStats(){
+const quizAns=Object.keys(state.quizAnswers).length;
+document.getElementById('stat-score').textContent=state.quizCorrect+'/'+quizData.length;
+document.getElementById('stat-streak').textContent=state.quizStreak;
+const totalItems=quizData.length+flashcardsData.length;
+const done=quizAns+Object.keys(state.flippedCards).length;
+const pct=Math.round((done/totalItems)*100);
+document.getElementById('stat-progress').textContent=pct+'%';
+updateFCCount();
+}
+
+// ============================== SEARCH ==============================
+function handleSearch(val){
+const term=val.toLowerCase().trim();
+// Remove old highlights
+document.querySelectorAll('.highlight-search').forEach(el=>{
+const parent=el.parentNode;
+parent.replaceChild(document.createTextNode(el.textContent),el);
+parent.normalize();
+});
+if(term.length<2) {
+document.querySelectorAll('.card, .click-item, .fc-wrapper, .mnem-card, .quiz-card, .case-card, .flow-step, .timeline-item, tr').forEach(el=>el.style.display='');
+return;
+}
+// Search across active panel
+const activePanel=document.querySelector('.panel.active');
+if(!activePanel) return;
+const allElements=activePanel.querySelectorAll('.card, .click-item, .fc-wrapper, .mnem-card, .quiz-card, .case-card');
+allElements.forEach(el=>{
+const text=el.textContent.toLowerCase();
+if(text.includes(term)){
+el.style.display='';
+} else {
+el.style.display='none';
+}
+});
+}
+
+// ============================== INIT ==============================
+function init(){
+buildQuiz();
+buildFlashcards();
+buildCases();
+updateStats();
+if(state.lastTab && state.lastTab!=='overview') switchTab(state.lastTab);
+}
+init();
+</script>
+</body>
+</html>

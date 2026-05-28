@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cranial Nerves IX–XII | Interactive Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0f1a;
+  --surface: #111827;
+  --surface2: #1a2236;
+  --surface3: #232f48;
+  --border: rgba(255,255,255,0.07);
+  --text: #e8edf5;
+  --text-muted: #7a8ba8;
+  --ix: #f59e0b;
+  --x: #10b981;
+  --xi: #6366f1;
+  --xii: #ef4444;
+  --accent: #38bdf8;
+  --gold: #fbbf24;
+  --correct: #10b981;
+  --wrong: #ef4444;
+  --radius: 12px;
+  --radius-lg: 18px;
+  font-size: 15px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── Animated Background ─── */
+.bg-orbs {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  overflow: hidden;
+}
+.orb {
+  position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.12;
+  animation: drift 20s ease-in-out infinite alternate;
+}
+.orb1 { width: 600px; height: 600px; background: #6366f1; top: -200px; left: -150px; animation-delay: 0s; }
+.orb2 { width: 500px; height: 500px; background: #10b981; bottom: -150px; right: -100px; animation-delay: -7s; }
+.orb3 { width: 350px; height: 350px; background: #f59e0b; top: 40%; left: 60%; animation-delay: -13s; }
+@keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(40px, 30px) scale(1.08); } }
+
+/* ─── Header ─── */
+header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(11,15,26,0.92); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+}
+.header-inner {
+  max-width: 1280px; margin: 0 auto;
+  display: flex; align-items: center; gap: 20px;
+  height: 64px; flex-wrap: wrap;
+}
+.logo {
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem;
+  background: linear-gradient(135deg, var(--accent), #a78bfa);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  white-space: nowrap;
+}
+.stats-bar {
+  display: flex; gap: 16px; margin-left: auto; align-items: center; flex-wrap: wrap;
+}
+.stat-chip {
+  display: flex; align-items: center; gap: 6px; font-size: 0.78rem;
+  background: var(--surface2); border: 1px solid var(--border);
+  padding: 4px 12px; border-radius: 50px; color: var(--text-muted);
+}
+.stat-chip span { color: var(--text); font-weight: 600; font-family: 'DM Mono', monospace; }
+
+/* ─── Tabs ─── */
+.tabs-wrapper {
+  position: sticky; top: 64px; z-index: 99;
+  background: rgba(11,15,26,0.9); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto; scrollbar-width: none;
+}
+.tabs-wrapper::-webkit-scrollbar { display: none; }
+.tabs {
+  max-width: 1280px; margin: 0 auto;
+  display: flex; padding: 0 24px;
+}
+.tab {
+  padding: 14px 18px; cursor: pointer; white-space: nowrap;
+  font-size: 0.82rem; font-weight: 500; color: var(--text-muted);
+  border-bottom: 2px solid transparent; transition: all 0.2s;
+  display: flex; align-items: center; gap: 6px;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ─── Main Content ─── */
+main {
+  max-width: 1280px; margin: 0 auto; padding: 32px 24px 80px;
+  position: relative; z-index: 1;
+}
+.section { display: none; }
+.section.active { display: block; animation: fadeUp 0.35s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ─── Section Title ─── */
+.section-title {
+  font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800;
+  margin-bottom: 8px;
+}
+.section-sub { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 32px; }
+
+/* ─── Overview: Nerve Cards ─── */
+.nerve-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px; }
+.nerve-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 20px; position: relative; overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.nerve-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+.nerve-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--nerve-color);
+}
+.nerve-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 50px;
+  font-size: 0.72rem; font-weight: 700; font-family: 'DM Mono', monospace;
+  background: color-mix(in srgb, var(--nerve-color) 15%, transparent);
+  color: var(--nerve-color); margin-bottom: 10px;
+}
+.nerve-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+.nerve-card ul { list-style: none; }
+.nerve-card ul li { font-size: 0.82rem; color: var(--text-muted); padding: 3px 0; padding-left: 14px; position: relative; }
+.nerve-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--nerve-color); }
+
+/* ─── Tags ─── */
+.tag-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+.tag {
+  padding: 5px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 600;
+  border: 1px solid; cursor: default;
+}
+.tag-exam { background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.3); color: #fbbf24; }
+.tag-motor { background: rgba(99,102,241,0.1); border-color: rgba(99,102,241,0.3); color: #818cf8; }
+.tag-sensory { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.3); color: #34d399; }
+.tag-clinical { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: #f87171; }
+.tag-parasym { background: rgba(56,189,248,0.1); border-color: rgba(56,189,248,0.3); color: #38bdf8; }
+
+/* ─── Table ─── */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 24px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+th {
+  background: var(--surface2); padding: 12px 16px; text-align: left;
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.78rem;
+  color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase;
+}
+td { padding: 11px 16px; border-top: 1px solid var(--border); vertical-align: top; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* ─── Search ─── */
+.search-wrap { position: relative; margin-bottom: 24px; }
+.search-wrap input {
+  width: 100%; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 16px 12px 44px;
+  color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+  outline: none; transition: border-color 0.2s;
+}
+.search-wrap input:focus { border-color: var(--accent); }
+.search-wrap input::placeholder { color: var(--text-muted); }
+.search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.1rem; }
+
+/* ─── Quiz ─── */
+.quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+.progress-bar-wrap { background: var(--surface2); border-radius: 50px; height: 8px; flex: 1; min-width: 200px; }
+.progress-bar-fill { height: 100%; border-radius: 50px; background: linear-gradient(90deg, var(--accent), #818cf8); transition: width 0.4s ease; }
+.quiz-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 28px;
+  animation: fadeUp 0.3s ease;
+}
+.q-number { font-size: 0.78rem; color: var(--text-muted); font-family: 'DM Mono', monospace; margin-bottom: 10px; }
+.q-text { font-size: 1.05rem; font-weight: 500; margin-bottom: 22px; line-height: 1.6; }
+.options { display: grid; gap: 10px; }
+.option {
+  padding: 13px 18px; border-radius: var(--radius); cursor: pointer;
+  border: 1.5px solid var(--border); background: var(--surface2);
+  font-size: 0.9rem; transition: all 0.18s; display: flex; align-items: center; gap: 12px;
+}
+.option:hover:not(.disabled) { border-color: var(--accent); background: rgba(56,189,248,0.05); }
+.option.correct { border-color: var(--correct); background: rgba(16,185,129,0.1); animation: pulse-correct 0.4s ease; }
+.option.wrong { border-color: var(--wrong); background: rgba(239,68,68,0.1); animation: shake 0.4s ease; }
+.option.disabled { cursor: default; }
+.option-letter {
+  width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700; font-family: 'DM Mono', monospace;
+  background: var(--surface3); flex-shrink: 0;
+}
+.option.correct .option-letter { background: var(--correct); color: #fff; }
+.option.wrong .option-letter { background: var(--wrong); color: #fff; }
+.explanation {
+  margin-top: 16px; padding: 14px 18px; border-radius: var(--radius);
+  background: var(--surface2); border-left: 3px solid var(--accent);
+  font-size: 0.87rem; color: var(--text-muted); line-height: 1.6; display: none;
+}
+.explanation.show { display: block; animation: fadeUp 0.25s ease; }
+.explanation strong { color: var(--text); }
+.btn {
+  padding: 11px 22px; border-radius: var(--radius); border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.88rem;
+  transition: all 0.18s;
+}
+.btn-primary { background: var(--accent); color: #0b0f1a; }
+.btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.btn-ghost:hover { background: var(--surface3); }
+.quiz-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; flex-wrap: wrap; gap: 10px; }
+.score-display {
+  font-family: 'DM Mono', monospace; font-size: 0.85rem; color: var(--text-muted);
+}
+@keyframes pulse-correct { 0%,100%{transform:scale(1)} 50%{transform:scale(1.01)} }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+/* ─── Flashcards ─── */
+.flashcard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.flashcard { height: 200px; cursor: pointer; perspective: 1000px; }
+.flashcard-inner {
+  width: 100%; height: 100%; position: relative;
+  transform-style: preserve-3d; transition: transform 0.5s ease;
+}
+.flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+.flashcard-front, .flashcard-back {
+  position: absolute; inset: 0; backface-visibility: hidden;
+  border-radius: var(--radius-lg); padding: 20px;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  text-align: center; border: 1px solid var(--border);
+}
+.flashcard-front {
+  background: var(--surface);
+  background-image: radial-gradient(circle at 80% 20%, rgba(56,189,248,0.06), transparent 60%);
+}
+.flashcard-back {
+  background: var(--surface2); transform: rotateY(180deg);
+  background-image: radial-gradient(circle at 20% 80%, rgba(99,102,241,0.08), transparent 60%);
+}
+.flashcard-front .fc-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 12px; font-family: 'DM Mono', monospace; }
+.flashcard-front .fc-q { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; line-height: 1.4; }
+.flashcard-back .fc-a { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; }
+.flashcard-back .fc-a strong { color: var(--text); }
+.fc-nerve-dot { width: 10px; height: 10px; border-radius: 50%; margin-bottom: 10px; }
+
+/* ─── Cases ─── */
+.case-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 26px; margin-bottom: 20px;
+}
+.case-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px; }
+.case-number {
+  width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Mono', monospace; font-weight: 700; font-size: 0.85rem; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--accent), #818cf8); color: #0b0f1a;
+}
+.case-scenario { font-size: 0.95rem; line-height: 1.65; color: var(--text); }
+.case-question { font-size: 0.9rem; font-weight: 600; color: var(--accent); margin: 14px 0 8px; }
+.reveal-btn {
+  margin-top: 14px; background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); padding: 8px 16px; border-radius: 8px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 0.84rem; transition: all 0.18s;
+}
+.reveal-btn:hover { background: var(--surface3); border-color: var(--accent); }
+.case-answer {
+  display: none; margin-top: 12px; padding: 14px 18px; border-radius: var(--radius);
+  background: rgba(16,185,129,0.05); border-left: 3px solid var(--correct);
+  font-size: 0.87rem; line-height: 1.65; color: var(--text-muted);
+}
+.case-answer.show { display: block; animation: fadeUp 0.25s ease; }
+.case-answer strong { color: var(--correct); }
+
+/* ─── Anatomy Tab ─── */
+.anatomy-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-bottom: 32px; }
+.anatomy-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; cursor: pointer;
+  transition: all 0.2s; position: relative;
+}
+.anatomy-item:hover { border-color: var(--item-color); background: color-mix(in srgb, var(--item-color) 5%, var(--surface)); }
+.anatomy-item h4 { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; margin-bottom: 6px; color: var(--item-color); }
+.anatomy-item p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
+.flowchart { display: flex; flex-direction: column; gap: 0; max-width: 600px; }
+.flow-step {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 18px; font-size: 0.87rem;
+  position: relative; transition: all 0.2s;
+}
+.flow-step:hover { border-color: var(--accent); }
+.flow-step .step-label { font-size: 0.72rem; color: var(--text-muted); font-family: 'DM Mono', monospace; margin-bottom: 4px; }
+.flow-arrow { text-align: center; color: var(--text-muted); font-size: 1.2rem; padding: 4px 0; }
+.flow-highlight { border-color: var(--accent); background: rgba(56,189,248,0.05); }
+
+/* ─── Mnemonics ─── */
+.mnemonic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.mnemonic-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 22px; overflow: hidden; position: relative;
+}
+.mnemonic-card::after {
+  content: ''; position: absolute; top: -40px; right: -40px;
+  width: 130px; height: 130px; border-radius: 50%;
+  background: color-mix(in srgb, var(--mc) 12%, transparent);
+}
+.mnemonic-card h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 800; color: var(--mc); margin-bottom: 6px; }
+.mnemonic-card .acro { font-size: 1.6rem; font-weight: 800; font-family: 'Syne', sans-serif; letter-spacing: 0.15em; margin-bottom: 14px; color: var(--text); }
+.mnemonic-items { list-style: none; }
+.mnemonic-items li { font-size: 0.84rem; padding: 5px 0; color: var(--text-muted); display: flex; gap: 10px; border-bottom: 1px solid var(--border); }
+.mnemonic-items li:last-child { border-bottom: none; }
+.mnemonic-items li strong { color: var(--text); font-family: 'DM Mono', monospace; min-width: 22px; }
+
+/* ─── Score Modal ─── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(8px); z-index: 200; align-items: center; justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 40px; max-width: 420px; width: 90%;
+  text-align: center; animation: fadeUp 0.3s ease;
+}
+.modal .score-big { font-family: 'Syne', sans-serif; font-size: 3.5rem; font-weight: 800; }
+.modal p { color: var(--text-muted); margin: 10px 0 24px; }
+
+/* ─── Responsive ─── */
+@media (max-width: 640px) {
+  .section-title { font-size: 1.4rem; }
+  .tab { padding: 12px 14px; font-size: 0.78rem; }
+  main { padding: 20px 16px 80px; }
+}
+
+/* ─── Utility ─── */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px; }
+.card h3 { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; margin-bottom: 10px; }
+.card p, .card li { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+.card ul { list-style: none; }
+.card ul li { padding: 4px 0 4px 14px; position: relative; }
+.card ul li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-size: 0.8rem; }
+.highlight { color: var(--gold); font-weight: 600; }
+.mt-20 { margin-top: 20px; }
+.mb-20 { margin-bottom: 20px; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.pill {
+  display: inline-block; padding: 2px 9px; border-radius: 50px;
+  font-size: 0.72rem; font-weight: 600; font-family: 'DM Mono', monospace;
+  background: rgba(56,189,248,0.12); color: var(--accent);
+}
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">⚕ CN IX–XII Study Platform</div>
+    <div class="stats-bar">
+      <div class="stat-chip">🔥 Streak <span id="streak-display">0</span></div>
+      <div class="stat-chip">✅ Score <span id="score-display">0/0</span></div>
+      <div class="stat-chip">📊 Progress <span id="progress-display">0%</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="tabs-wrapper">
+  <div class="tabs">
+    <div class="tab active" data-tab="overview">🧠 Overview</div>
+    <div class="tab" data-tab="quiz">❓ Quiz</div>
+    <div class="tab" data-tab="flashcards">🃏 Flashcards</div>
+    <div class="tab" data-tab="cases">🏥 Clinical Cases</div>
+    <div class="tab" data-tab="anatomy">🔬 Anatomy</div>
+    <div class="tab" data-tab="mnemonics">💡 Mnemonics</div>
+    <div class="tab" data-tab="viva">🗣️ Viva</div>
+  </div>
+</div>
+
+<main>
+
+<!-- ══════════════ OVERVIEW ══════════════ -->
+<section id="overview" class="section active">
+  <div class="section-title">Cranial Nerves IX – XII</div>
+  <div class="section-sub">The last four cranial nerves — anatomy, pathways, and clinical lesions</div>
+
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search-input" placeholder="Search nerves, nuclei, structures…" oninput="searchContent(this.value)">
+  </div>
+
+  <div id="search-results" style="display:none;margin-bottom:20px;"></div>
+
+  <div class="nerve-cards" id="nerve-cards">
+    <div class="nerve-card" style="--nerve-color: var(--ix)">
+      <div class="nerve-badge">CN IX</div>
+      <h3>Glossopharyngeal Nerve</h3>
+      <ul>
+        <li>Exits: Post-olivary fissure → Jugular foramen</li>
+        <li>Motor: Nucleus ambiguus → Stylopharyngeus</li>
+        <li>Para: Inferior salivary nucleus → Parotid gland</li>
+        <li>Sensory: Posterior 1/3 tongue (taste + general)</li>
+        <li>Carotid sinus/body baroreceptor reflex</li>
+        <li>Lesion: ↓ Gag reflex (afferent), ↓ Taste post-1/3</li>
+      </ul>
+    </div>
+    <div class="nerve-card" style="--nerve-color: var(--x)">
+      <div class="nerve-badge">CN X</div>
+      <h3>Vagus Nerve</h3>
+      <ul>
+        <li>Exits: Post-olivary fissure → Jugular foramen</li>
+        <li>Motor: Nucleus ambiguus → Pharynx, larynx, palate</li>
+        <li>Para: Dorsal motor nucleus → Heart, lungs, GIT to left colic flexure</li>
+        <li>Recurrent laryngeal → All laryngeal muscles except cricothyroid</li>
+        <li>External laryngeal → Cricothyroid only</li>
+        <li>Lesion: Uvula → normal side; hoarseness; dysphagia</li>
+      </ul>
+    </div>
+    <div class="nerve-card" style="--nerve-color: var(--xi)">
+      <div class="nerve-badge">CN XI</div>
+      <h3>Accessory Nerve</h3>
+      <ul>
+        <li>Cranial root: Nucleus ambiguus → Joins vagus → Pharynx/larynx</li>
+        <li>Spinal root: C1–C5/6 → Foramen magnum → Jugular foramen</li>
+        <li>SCM: Rotate face to opposite side</li>
+        <li>Trapezius: Elevate shoulder</li>
+        <li>Lesion: Cannot shrug; cannot rotate face</li>
+        <li>Irritation: Torticollis (SCM spasm)</li>
+      </ul>
+    </div>
+    <div class="nerve-card" style="--nerve-color: var(--xii)">
+      <div class="nerve-badge">CN XII</div>
+      <h3>Hypoglossal Nerve</h3>
+      <ul>
+        <li>Exits: Pre-olivary fissure → Hypoglossal canal</li>
+        <li>Motor: All tongue muscles EXCEPT palatoglossus</li>
+        <li>C1 hitchhikers: Ansa cervicalis, thyrohyoid, geniohyoid</li>
+        <li>LMN: Tongue → same side + atrophy</li>
+        <li>UMN: Tongue → opposite side, no atrophy</li>
+        <li>Bilateral: Motionless tongue, anarthria</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 style="font-family:'Syne',sans-serif; margin-bottom:16px; font-size:1.1rem;">⚡ High-Yield Tags</h2>
+  <div class="tag-grid mb-20">
+    <span class="tag tag-exam">⚠️ Jugular foramen: CN IX, X, XI</span>
+    <span class="tag tag-exam">⚠️ Hypoglossal canal: CN XII</span>
+    <span class="tag tag-exam">⚠️ Nucleus Ambiguus: shared by IX, X, XI</span>
+    <span class="tag tag-exam">⚠️ LMN XII → ipsilateral deviation + atrophy</span>
+    <span class="tag tag-exam">⚠️ UMN XII → contralateral deviation, no atrophy</span>
+    <span class="tag tag-motor">Motor: Stylopharyngeus = CN IX only</span>
+    <span class="tag tag-motor">Motor: Palatoglossus = CN X (not XII)</span>
+    <span class="tag tag-sensory">Taste anterior 2/3 = CN VII</span>
+    <span class="tag tag-sensory">Taste posterior 1/3 = CN IX</span>
+    <span class="tag tag-sensory">Taste root/epiglottis = CN X</span>
+    <span class="tag tag-parasym">Para CN IX → Inferior salivary nucleus → Parotid</span>
+    <span class="tag tag-parasym">Para CN X → Dorsal motor nucleus → Thorax + Abdomen</span>
+    <span class="tag tag-clinical">Right RLN → hooks subclavian artery</span>
+    <span class="tag tag-clinical">Left RLN → hooks aortic arch</span>
+    <span class="tag tag-clinical">Gag reflex: CN IX afferent, CN X efferent</span>
+    <span class="tag tag-clinical">C1 hitchhikes CN XII → ansa cervicalis sup. root</span>
+  </div>
+
+  <h2 style="font-family:'Syne',sans-serif; margin-bottom:16px; font-size:1.1rem;">📊 Comparison Table</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th style="color:var(--ix)">IX Glossopharyngeal</th>
+          <th style="color:var(--x)">X Vagus</th>
+          <th style="color:var(--xi)">XI Accessory</th>
+          <th style="color:var(--xii)">XII Hypoglossal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Exit from Medulla</td><td>Post-olivary fissure</td><td>Post-olivary fissure</td><td>Post-olivary fissure</td><td><strong>Pre-olivary fissure</strong></td></tr>
+        <tr><td>Skull Exit</td><td>Jugular foramen</td><td>Jugular foramen</td><td>Jugular foramen</td><td><strong>Hypoglossal canal</strong></td></tr>
+        <tr><td>Somatic Motor Nucleus</td><td>Nucleus ambiguus (stylopharyngeus)</td><td>Nucleus ambiguus</td><td>Nucleus ambiguus + C1–C5</td><td>Hypoglossal nucleus</td></tr>
+        <tr><td>Parasympathetic Nucleus</td><td>Inferior salivary nucleus</td><td>Dorsal motor nucleus</td><td>None</td><td>None</td></tr>
+        <tr><td>Sensory (General)</td><td>Spinal trigeminal nucleus</td><td>Spinal trigeminal nucleus (EAM)</td><td>None</td><td>None</td></tr>
+        <tr><td>Special Sensory (Taste)</td><td>Solitary nucleus (post-1/3)</td><td>Solitary nucleus (epiglottis)</td><td>None</td><td>None</td></tr>
+        <tr><td>Target Organ(s)</td><td>Stylopharyngeus, parotid, pharynx</td><td>Pharynx, larynx, heart, lungs, GIT</td><td>SCM, trapezius, pharynx/larynx (via X)</td><td>All tongue muscles (except palatoglossus)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══════════════ QUIZ ══════════════ -->
+<section id="quiz" class="section">
+  <div class="section-title">Quiz Mode ❓</div>
+  <div class="section-sub">25 MCQs from your lecture notes — immediate feedback with explanations</div>
+
+  <div class="quiz-header">
+    <div class="progress-bar-wrap" style="max-width:400px;">
+      <div class="progress-bar-fill" id="quiz-progress" style="width:0%"></div>
+    </div>
+    <div class="score-display" id="quiz-score-text">Question 1 of 25</div>
+  </div>
+
+  <div class="quiz-card" id="quiz-card">
+    <div class="q-number" id="q-number">Q1 of 25</div>
+    <div class="q-text" id="q-text"></div>
+    <div class="options" id="options"></div>
+    <div class="explanation" id="explanation"></div>
+    <div class="quiz-nav">
+      <div class="score-display">✅ <span id="correct-count">0</span> correct &nbsp;|&nbsp; ❌ <span id="wrong-count">0</span> wrong &nbsp;|&nbsp; 🔥 <span id="streak-count">0</span> streak</div>
+      <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" style="display:none">Next →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ FLASHCARDS ══════════════ -->
+<section id="flashcards" class="section">
+  <div class="section-title">Flashcards 🃏</div>
+  <div class="section-sub">Click any card to flip it — test yourself on key concepts</div>
+  <div class="flashcard-grid" id="flashcard-grid"></div>
+</section>
+
+<!-- ══════════════ CLINICAL CASES ══════════════ -->
+<section id="cases" class="section">
+  <div class="section-title">Clinical Cases 🏥</div>
+  <div class="section-sub">Exam-style vignettes — work through the logic, then reveal the answer</div>
+  <div id="cases-container"></div>
+</section>
+
+<!-- ══════════════ ANATOMY ══════════════ -->
+<section id="anatomy" class="section">
+  <div class="section-title">Anatomy & Pathways 🔬</div>
+  <div class="section-sub">Key structures, nuclei, and mechanistic flowcharts</div>
+
+  <h3 style="font-family:'Syne',sans-serif; margin-bottom:14px; font-size:1rem;">🧩 Key Structures</h3>
+  <div class="anatomy-grid" id="anatomy-grid"></div>
+
+  <div class="grid-2 mt-20">
+    <div>
+      <h3 style="font-family:'Syne',sans-serif; margin-bottom:14px; font-size:1rem;">🔄 Parotid Gland Parasympathetic Pathway</h3>
+      <div class="flowchart">
+        <div class="flow-step flow-highlight">
+          <div class="step-label">ORIGIN</div>
+          Inferior Salivary Nucleus (Medulla)
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">
+          <div class="step-label">NERVE</div>
+          CN IX (Glossopharyngeal nerve)
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">
+          <div class="step-label">BRANCH</div>
+          Tympanic branch (Jacobson's nerve)
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">
+          <div class="step-label">PLEXUS</div>
+          Tympanic plexus (middle ear)
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">
+          <div class="step-label">BRANCH</div>
+          Lesser Petrosal Nerve
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step flow-highlight">
+          <div class="step-label">SYNAPSE</div>
+          Otic Ganglion (postganglionic)
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">
+          <div class="step-label">TARGET</div>
+          🦷 Parotid Gland (secretomotor)
+        </div>
+      </div>
+    </div>
+    <div>
+      <h3 style="font-family:'Syne',sans-serif; margin-bottom:14px; font-size:1rem;">🔄 C1 Hitchhiker Pathway</h3>
+      <div class="flowchart">
+        <div class="flow-step flow-highlight">
+          <div class="step-label">ORIGIN</div>
+          C1 Spinal Segment
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">
+          <div class="step-label">JOINS</div>
+          Hypoglossal Nerve (CN XII) below skull
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">
+          <div class="step-label">TRAVELS</div>
+          Descends in carotid sheath
+        </div>
+        <div class="flow-arrow">↓ Divides into 4 branches</div>
+        <div class="flow-step">
+          <div class="step-label">BRANCH 1</div>
+          🧠 Meningeal branch → posterior cranial fossa dura
+        </div>
+        <div class="flow-step" style="margin-top:6px;">
+          <div class="step-label">BRANCH 2</div>
+          🔗 Superior root of ansa cervicalis (joins C2/C3)
+        </div>
+        <div class="flow-step" style="margin-top:6px;">
+          <div class="step-label">BRANCH 3</div>
+          💪 Nerve to thyrohyoid
+        </div>
+        <div class="flow-step" style="margin-top:6px;">
+          <div class="step-label">BRANCH 4</div>
+          💪 Nerve to geniohyoid
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-20">
+    <h3 style="font-family:'Syne',sans-serif; margin-bottom:14px; font-size:1rem;">👅 Tongue Deviation Logic</h3>
+    <div class="grid-2">
+      <div class="card" style="border-color:rgba(239,68,68,0.3);">
+        <h3 style="color:var(--xii)">⬇️ LMN Lesion of CN XII (e.g., Right side)</h3>
+        <ul>
+          <li>Right genioglossus paralyzed → cannot push right</li>
+          <li>Left genioglossus active → pushes tongue forward + right</li>
+          <li>Tongue deviates to <strong style="color:var(--wrong)">SAME (right) side</strong></li>
+          <li>Atrophy + wrinkling on right side</li>
+          <li>Cause: nucleus / nerve damage</li>
+        </ul>
+      </div>
+      <div class="card" style="border-color:rgba(99,102,241,0.3);">
+        <h3 style="color:var(--xi)">⬆️ UMN Lesion of CN XII (e.g., Right side)</h3>
+        <ul>
+          <li>Corticospinal tract damaged above nucleus</li>
+          <li>Tongue deviates to <strong style="color:var(--xi)">OPPOSITE (left) side</strong></li>
+          <li><strong>No atrophy</strong> — muscle intact, nerve intact</li>
+          <li>Spastic tongue possible</li>
+          <li>Cause: stroke, tumour above medulla</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ MNEMONICS ══════════════ -->
+<section id="mnemonics" class="section">
+  <div class="section-title">Mnemonics 💡</div>
+  <div class="section-sub">Custom memory aids built from your lecture content</div>
+  <div class="mnemonic-grid" id="mnemonic-grid"></div>
+</section>
+
+<!-- ══════════════ VIVA ══════════════ -->
+<section id="viva" class="section">
+  <div class="section-title">Viva Questions 🗣️</div>
+  <div class="section-sub">12 viva-style Q&As — click to reveal model answers</div>
+  <div id="viva-container"></div>
+</section>
+
+</main>
+
+<!-- Score Modal -->
+<div class="modal-overlay" id="score-modal">
+  <div class="modal">
+    <div style="font-size:3rem;margin-bottom:8px;">🎉</div>
+    <div class="score-big" id="modal-score"></div>
+    <p id="modal-message"></p>
+    <button class="btn btn-primary" onclick="restartQuiz()">Restart Quiz</button>
+    &nbsp;
+    <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════
+
+const QUIZ_DATA = [
+  { q: "Which nucleus provides the motor supply to the stylopharyngeus muscle?", opts: ["Dorsal motor nucleus of vagus","Nucleus ambiguus","Hypoglossal nucleus","Inferior salivary nucleus","Solitary nucleus"], ans: 1, exp: "The upper part of the <strong>nucleus ambiguus</strong> supplies motor fibers to the stylopharyngeus exclusively via CN IX. The dorsal motor nucleus supplies parasympathetics, the hypoglossal nucleus supplies tongue, inferior salivary gives parasympathetics to parotid, and the solitary nucleus receives taste." },
+  { q: "Which nerve carries general visceral afferent information from the carotid body and sinus?", opts: ["CN VII","CN VIII","CN IX","CN XI","CN XII"], ans: 2, exp: "<strong>CN IX</strong> has a carotid sinus branch that innervates the carotid sinus (baroreceptor) and carotid body (chemoreceptor) to monitor blood pressure and oxygen levels respectively." },
+  { q: "The parasympathetic secretomotor fibers to the parotid gland originate in which nucleus?", opts: ["Superior salivary nucleus","Inferior salivary nucleus","Edinger-Westphal nucleus","Dorsal vagal nucleus","Solitary nucleus"], ans: 1, exp: "The <strong>inferior salivary nucleus</strong> sends preganglionic fibers via CN IX → tympanic plexus → lesser petrosal nerve → otic ganglion → parotid. The superior salivary nucleus serves the submandibular and sublingual glands via CN VII." },
+  { q: "Which cranial nerve emerges from the pre-olivary fissure of the medulla oblongata?", opts: ["CN IX","CN X","CN XI","CN XII","CN VIII"], ans: 3, exp: "The <strong>hypoglossal nerve (CN XII)</strong> uniquely exits from the pre-olivary fissure (between the pyramid and the olive). CN IX, X, and XI all exit from the post-olivary fissure." },
+  { q: "A lesion of the Vagus nerve would cause paralysis of all the following muscles EXCEPT:", opts: ["Palatoglossus","Levator veli palatini","Stylopharyngeus","Cricothyroid","Salpingopharyngeus"], ans: 2, exp: "<strong>Stylopharyngeus</strong> is the only pharyngeal muscle supplied by CN IX, not CN X. All others listed — palatoglossus, levator veli palatini, cricothyroid, and salpingopharyngeus — are innervated by the vagus nerve." },
+  { q: "The cranial root of the accessory nerve joins the vagus to be distributed to which structures?", opts: ["Sternocleidomastoid","Trapezius","Muscles of the tongue","Muscles of the pharynx, palate, and larynx","Parotid gland"], ans: 3, exp: "The <strong>cranial root of CN XI</strong> joins the vagus nerve at its inferior ganglion and is distributed via vagal pharyngeal and recurrent laryngeal branches to the pharynx, palate, and larynx. The spinal root supplies SCM and trapezius." },
+  { q: "Through which foramen does the spinal root of the accessory nerve ENTER the cranial cavity?", opts: ["Jugular foramen","Hypoglossal canal","Foramen magnum","Foramen ovale","Foramen rotundum"], ans: 2, exp: "The spinal root arises from C1–C5/6 spinal cord, ascends through the <strong>foramen magnum</strong> to enter the cranial cavity, then exits the skull through the jugular foramen alongside CN IX and CN X." },
+  { q: "Which muscle of the tongue is NOT supplied by the hypoglossal nerve?", opts: ["Genioglossus","Hyoglossus","Styloglossus","Palatoglossus","Intrinsic tongue muscles"], ans: 3, exp: "<strong>Palatoglossus</strong> is anatomically a muscle of the soft palate, not the tongue, and is innervated by the vagus nerve (CN X) via the pharyngeal plexus. All other tongue muscles are supplied by CN XII." },
+  { q: "Fibers from the first cervical nerve (C1) travel with the hypoglossal nerve to innervate which of the following?", opts: ["Stylohyoid","Mylohyoid","Thyrohyoid","Digastric","Palatoglossus"], ans: 2, exp: "C1 fibers 'hitchhike' on CN XII and later separate to supply the <strong>thyrohyoid</strong>, geniohyoid, meninges of the posterior cranial fossa, and form the superior root of the ansa cervicalis. Stylohyoid and digastric are innervated by CN VII, mylohyoid by CN V3." },
+  { q: "What clinical sign indicates an UPPER motor neuron lesion (UMNL) of the hypoglossal nerve?", opts: ["Tongue deviation to the same side with severe wasting","Tongue deviation to the contralateral side with no wasting","Loss of taste on the anterior tongue","Inability to elevate the shoulder","Motionless tongue"], ans: 1, exp: "An <strong>UMNL of CN XII</strong> (lesion above the nucleus) causes the tongue to deviate to the <em>opposite</em> (contralateral) side because the corticospinal tract controlling the nucleus is damaged on one side, but the nerve and muscle remain intact — so no atrophy occurs." },
+  { q: "The external laryngeal nerve supplies which muscle?", opts: ["Posterior cricoarytenoid","Transverse arytenoid","Cricothyroid","Thyroarytenoid","Lateral cricoarytenoid"], ans: 2, exp: "The <strong>external laryngeal branch</strong> of the superior laryngeal nerve exclusively supplies the cricothyroid muscle, which tenses the vocal cord to raise pitch. All other intrinsic laryngeal muscles are supplied by the recurrent laryngeal nerve." },
+  { q: "Sensory innervation to the mucous membrane of the larynx BELOW the vocal cords is provided by:", opts: ["Internal laryngeal nerve","External laryngeal nerve","Recurrent laryngeal nerve","Glossopharyngeal nerve","Hypoglossal nerve"], ans: 2, exp: "The <strong>recurrent laryngeal nerve</strong> provides both motor (to all intrinsic laryngeal muscles except cricothyroid) and sensory innervation to the laryngeal mucosa below the vocal cords. The internal laryngeal nerve supplies sensation above the vocal cords." },
+  { q: "In the neck, the Vagus nerve descends within the carotid sheath between which two structures superiorly?", opts: ["Internal carotid artery and external carotid artery","Internal jugular vein and internal carotid artery","Internal jugular vein and common carotid artery","External jugular vein and common carotid artery","Subclavian artery and internal jugular vein"], ans: 1, exp: "Superiorly in the neck, CN X lies between the <strong>internal jugular vein and internal carotid artery</strong>. Lower in the neck, it lies between the internal jugular vein and common carotid artery. It descends within the carotid sheath throughout." },
+  { q: "The sensory fibers of the Vagus nerve for taste and general sensation terminate in which nucleus?", opts: ["Spinal trigeminal nucleus","Nucleus ambiguus","Solitary nucleus","Dorsal motor nucleus","Hypoglossal nucleus"], ans: 2, exp: "The <strong>solitary nucleus (nucleus tractus solitarius)</strong> receives all taste and general visceral afferent inputs from the vagus nerve. The spinal trigeminal nucleus handles general somatic pain/temperature, while the nucleus ambiguus is a motor nucleus." },
+  { q: "The right recurrent laryngeal nerve hooks around which structure?", opts: ["Arch of the aorta","Subclavian artery","Internal carotid artery","External carotid artery","Pulmonary trunk"], ans: 1, exp: "The <strong>right recurrent laryngeal nerve</strong> hooks under and around the right subclavian artery. The left recurrent laryngeal nerve hooks around the arch of the aorta. This asymmetry explains why left recurrent nerve palsy is more common in mediastinal diseases like lung cancer." },
+  { q: "Torticollis can be produced by irritation of which cranial nerve?", opts: ["CN IX","CN X","CN XI","CN XII","CN VII"], ans: 2, exp: "Irritation of the <strong>spinal root of CN XI</strong> causes spasm of the sternocleidomastoid muscle, resulting in torticollis (wry neck) — the head is tilted and rotated. A lesion (damage) of CN XI would cause weakness/paralysis, not torticollis." },
+  { q: "The tympanic plexus is formed primarily by a branch of which nerve?", opts: ["Facial","Vestibulocochlear","Glossopharyngeal","Vagus","Trigeminal"], ans: 2, exp: "The <strong>tympanic branch of CN IX</strong> (Jacobson's nerve) enters the tympanic canaliculus and forms the tympanic plexus on the promontorium of the middle ear. This plexus then gives rise to the lesser petrosal nerve carrying preganglionic parasympathetics to the otic ganglion." },
+  { q: "The superior root of the ansa cervicalis (descendens hypoglossi) originates from:", opts: ["The hypoglossal nucleus","C2 and C3","C4 and C5","Cranial root of XI","C1 fibers hitchhiking on CN XII"], ans: 4, exp: "Despite traveling with CN XII, the superior root of the ansa cervicalis is formed by <strong>C1 spinal fibers</strong> that joined the hypoglossal nerve below the skull and then detach to descend in the neck. It joins the inferior root (C2/C3) to form the complete ansa cervicalis loop." },
+  { q: "Which branch of the Vagus nerve supplies the dura mater of the posterior cranial fossa?", opts: ["Auricular branch","Pharyngeal branch","Meningeal branch","Cardiac branch","Carotid branch"], ans: 2, exp: "The <strong>meningeal branch</strong> of CN X arises from the superior ganglion and supplies the dura of the posterior cranial fossa. Interestingly, C1 fibers hitchhiking on CN XII also provide a meningeal branch to the same region." },
+  { q: "Taste sensation from the posterior one-third of the tongue is carried by:", opts: ["Facial nerve","Glossopharyngeal nerve","Vagus nerve","Hypoglossal nerve","Trigeminal nerve"], ans: 1, exp: "<strong>CN IX</strong> carries both taste (special sensory) and general sensation from the posterior 1/3 of the tongue via its lingual branch. CN VII (chorda tympani) handles taste from the anterior 2/3, and CN X handles taste from the epiglottis/root of tongue area." },
+  { q: "Paralysis of the cricothyroid muscle implies damage to the:", opts: ["Recurrent laryngeal nerve","Internal laryngeal nerve","External laryngeal nerve","Pharyngeal plexus","Glossopharyngeal nerve"], ans: 2, exp: "The <strong>external laryngeal branch</strong> of the superior laryngeal nerve is the sole motor supply to the cricothyroid muscle. Damage causes inability to tense the vocal cord, resulting in loss of high-pitched phonation. The recurrent laryngeal nerve supplies all other intrinsic laryngeal muscles." },
+  { q: "The inferior root of the ansa cervicalis (descendens cervicalis) is formed by:", opts: ["C1","C2 & C3","C4 & C5","Cranial root of XI","Hypoglossal nerve proper"], ans: 1, exp: "The <strong>descendens cervicalis (inferior root)</strong> is formed by spinal segments C2 and C3. It joins the superior root (C1 via CN XII) to form the ansa cervicalis loop, which supplies the infrahyoid (strap) muscles." },
+  { q: "Which nerve supplies general somatic sensation to the external acoustic meatus and outer tympanic membrane?", opts: ["Glossopharyngeal","Spinal accessory","Vagus (Auricular branch)","Hypoglossal","Recurrent laryngeal"], ans: 2, exp: "The <strong>auricular branch of CN X</strong> (Arnold's nerve) supplies the external acoustic meatus, outer surface of the tympanic membrane, and the concha of the auricle. This is why vagal stimulation (e.g., ear syringing) can trigger a cough reflex." },
+  { q: "In bilateral hypoglossal nerve lesions, the clinical presentation of the tongue is:", opts: ["Deviated to the right","Deviated to the left","Hyperactive","Motionless with slow articulation","Spastic with brisk reflexes"], ans: 3, exp: "Bilateral LMN lesions of CN XII result in a <strong>motionless tongue</strong> with inability to protrude, severe dysphagia, and anarthria (loss of clear speech). Neither side can push the tongue, so it lies still with bilateral atrophy." },
+  { q: "Which of the following cranial nerves has the longest course and most extensive distribution?", opts: ["CN IX","CN X","CN XI","CN XII","CN V"], ans: 1, exp: "The <strong>Vagus nerve (CN X)</strong> is the most extensive cranial nerve, traveling from the brainstem through the jugular foramen, down the neck in the carotid sheath, through the thorax forming the esophageal plexus, through the diaphragm, and into the abdomen supplying gut to the left colic flexure." }
+];
+
+const FLASHCARD_DATA = [
+  { nerve: "#f59e0b", q: "What are the FOUR nuclei of the Glossopharyngeal nerve (CN IX)?", a: "<strong>1. Nucleus ambiguus</strong> (motor to stylopharyngeus)<br><strong>2. Inferior salivary nucleus</strong> (para to parotid)<br><strong>3. Spinal trigeminal nucleus</strong> (general sensory)<br><strong>4. Solitary nucleus</strong> (taste from post-1/3 tongue)" },
+  { nerve: "#f59e0b", q: "Trace the complete parasympathetic pathway to the parotid gland.", a: "Inferior salivary nucleus → CN IX → Tympanic branch (Jacobson's nerve) → Tympanic plexus → Lesser petrosal nerve → <strong>Otic ganglion</strong> → Postganglionic → Parotid gland" },
+  { nerve: "#10b981", q: "What is the sensory and motor composition of the gag reflex?", a: "<strong>Afferent (sensory):</strong> CN IX — pharyngeal branch detects posterior pharyngeal wall touch<br><strong>Efferent (motor):</strong> CN X — contracts pharyngeal muscles<br>Loss of CN IX = absent gag on that side" },
+  { nerve: "#10b981", q: "Name all muscles supplied by the Recurrent Laryngeal Nerve.", a: "ALL intrinsic laryngeal muscles <strong>EXCEPT cricothyroid</strong>:<br>• Posterior cricoarytenoid (only abductor)<br>• Lateral cricoarytenoid<br>• Thyroarytenoid<br>• Transverse & oblique arytenoids<br>• Vocalis" },
+  { nerve: "#10b981", q: "Where does the Vagus nerve's parasympathetic supply end distally?", a: "Parasympathetics via the <strong>dorsal motor nucleus</strong> supply the thorax and abdomen up to the <strong>left colic (splenic) flexure</strong>. Beyond this, pelvic splanchnics (S2-S4) take over." },
+  { nerve: "#10b981", q: "A vagus nerve lesion causes uvula deviation — which direction and why?", a: "Uvula deviates to the <strong>NORMAL (unaffected) side</strong>. Paralysis of right palatal muscles means the intact left side pulls the uvula left. Remember: uvula runs AWAY from the lesion." },
+  { nerve: "#6366f1", q: "Describe the two-root origin and distribution of the Accessory Nerve (CN XI).", a: "<strong>Cranial root:</strong> Nucleus ambiguus → joins vagus → pharynx, larynx, palate<br><strong>Spinal root:</strong> C1–C5/6 → up foramen magnum → out jugular foramen → SCM + trapezius" },
+  { nerve: "#6366f1", q: "How do you clinically test the spinal root of CN XI?", a: "<strong>Trapezius:</strong> Ask patient to elevate/shrug shoulders against resistance<br><strong>SCM:</strong> Ask patient to turn face to opposite side against resistance<br>Weakness = spinal root lesion of CN XI" },
+  { nerve: "#6366f1", q: "What is torticollis and which nerve causes it?", a: "<strong>Torticollis (wry neck)</strong> = involuntary head tilt with rotation, caused by <strong>irritation</strong> of the spinal root of CN XI → SCM spasm. Contrast with CN XI lesion (damage) which causes SCM weakness." },
+  { nerve: "#ef4444", q: "What are the C1 hitchhiker distributions on CN XII?", a: "C1 joins CN XII below skull, then separates as:<br>1. <strong>Meningeal branch</strong> → posterior cranial fossa dura<br>2. <strong>Superior root ansa cervicalis</strong> (descendens hypoglossi)<br>3. <strong>Nerve to thyrohyoid</strong><br>4. <strong>Nerve to geniohyoid</strong>" },
+  { nerve: "#ef4444", q: "LMN vs UMN lesion of CN XII — tongue deviation rule?", a: "<strong>LMN lesion:</strong> Tongue → SAME side + atrophy (paralyzed side fails, normal side wins)<br><strong>UMN lesion:</strong> Tongue → OPPOSITE side, NO atrophy<br>Memory: LMN = 'leans toward the loser'" },
+  { nerve: "#ef4444", q: "Which tongue muscle is NOT supplied by CN XII, and why?", a: "<strong>Palatoglossus</strong> is NOT supplied by CN XII despite being a tongue muscle. It is classified as a muscle of the soft palate and is innervated by the <strong>Vagus nerve (CN X)</strong> via the pharyngeal plexus." },
+  { nerve: "#38bdf8", q: "Which cranial nerves exit through the jugular foramen?", a: "<strong>CN IX</strong> (Glossopharyngeal)<br><strong>CN X</strong> (Vagus)<br><strong>CN XI</strong> (Accessory — spinal root)<br>Remember: <em>'Nine, Ten, Eleven through the jugular heaven'</em>" },
+  { nerve: "#38bdf8", q: "What exits the hypoglossal canal?", a: "<strong>CN XII (Hypoglossal nerve)</strong> exits exclusively through the hypoglossal canal (anterior condylar canal). It is the ONLY last cranial nerve that does NOT use the jugular foramen." },
+  { nerve: "#38bdf8", q: "What is the Nucleus Ambiguus and what does it supply?", a: "A column of motor neurons in the medulla. It provides somatic motor fibers to:<br>• <strong>CN IX</strong> → stylopharyngeus<br>• <strong>CN X</strong> → pharynx, larynx, palate<br>• <strong>CN XI (cranial root)</strong> → larynx/pharynx via vagus" },
+  { nerve: "#f59e0b", q: "What is the clinical significance of the internal laryngeal nerve lesion?", a: "The <strong>internal laryngeal branch</strong> of the superior laryngeal nerve provides <em>sensory</em> innervation above the vocal cords. A lesion causes anesthesia of this region → <strong>loss of the protective cough reflex</strong> → risk of aspiration." },
+  { nerve: "#10b981", q: "What are the right vs left recurrent laryngeal nerve landmarks?", a: "<strong>Right RLN</strong>: Hooks around the right subclavian artery<br><strong>Left RLN</strong>: Hooks around the arch of the aorta<br>The longer left course explains why aortic aneurysm or Pancoast lung tumour causes hoarseness." },
+  { nerve: "#6366f1", q: "What is the Ansa Cervicalis and what does it supply?", a: "A nerve loop formed by:<br>• <strong>Superior root</strong>: C1 via CN XII (descendens hypoglossi)<br>• <strong>Inferior root</strong>: C2 + C3 (descendens cervicalis)<br>Supplies: Omohyoid, sternohyoid, sternothyroid (infrahyoid/strap muscles)" },
+  { nerve: "#ef4444", q: "Bilateral vs unilateral CN XII lesion — what's the difference?", a: "<strong>Unilateral LMN</strong>: Tongue deviates to affected side + ipsilateral atrophy<br><strong>Bilateral LMN</strong>: Tongue motionless, no protrusion, severe dysphagia, anarthria<br><strong>Unilateral UMN</strong>: Deviates to opposite side, no atrophy" },
+  { nerve: "#38bdf8", q: "What does the auricular branch (Arnold's nerve) of the Vagus supply?", a: "The auricular branch of CN X supplies somatic sensation to:<br>• External acoustic meatus<br>• Outer tympanic membrane<br>• Concha of auricle<br>Clinical: ear syringing stimulating it can trigger a cough or vomiting reflex" }
+];
+
+const CASES_DATA = [
+  {
+    title: "Case 1: The Parotid Problem",
+    scenario: "A 45-year-old patient presents with a progressive decrease in saliva production, specifically noting that their mouth becomes very dry when eating. On examination, the parotid gland appears atrophic. There is no facial weakness. A surgical history reveals a previous middle ear procedure.",
+    questions: [
+      { q: "Q1: Which nerve and pathway mediates secretomotor innervation to the parotid gland?", a: "<strong>Answer:</strong> The <strong>Glossopharyngeal nerve (CN IX)</strong> carries preganglionic parasympathetic fibers from the inferior salivary nucleus. They travel via the tympanic branch (Jacobson's nerve) → tympanic plexus → lesser petrosal nerve → otic ganglion → postganglionic fibers → parotid gland." },
+      { q: "Q2: How might the middle ear surgery have caused this complication?", a: "<strong>Answer:</strong> The <strong>tympanic plexus</strong> (formed by Jacobson's nerve on the promontory of the middle ear) lies in the surgical field. Injury here disrupts the parasympathetic relay before it reaches the otic ganglion, denervating the parotid gland and abolishing secretomotor function." },
+      { q: "Q3: Why is there no facial weakness?", a: "<strong>Answer:</strong> The facial nerve (CN VII) — which supplies the facial muscles — has a separate course through the facial canal and is anatomically distinct from the tympanic plexus. Selective injury to Jacobson's nerve spares CN VII." }
+    ]
+  },
+  {
+    title: "Case 2: The Uvular Deviation",
+    scenario: "A 62-year-old woman presents to the emergency department with sudden onset dysphagia and hoarseness. She mentions food is coming out of her nose when she tries to swallow. On examination, when she says 'Ahh', her uvula deviates to the left. There is also absence of the right-sided gag reflex.",
+    questions: [
+      { q: "Q1: Which nerve is lesioned and on which side?", a: "<strong>Answer:</strong> The <strong>right Vagus nerve (CN X)</strong> is lesioned. The right palatal muscles are paralysed, so the intact left-sided muscles pull the uvula to the LEFT (away from the lesion). Uvula always deviates to the NORMAL side." },
+      { q: "Q2: Explain the mechanism of nasal regurgitation.", a: "<strong>Answer:</strong> Levator veli palatini (supplied by CN X) elevates the soft palate to seal the nasopharynx during swallowing. With right-sided CN X paralysis, the palate cannot elevate properly on the right, allowing food/liquid to pass into the nasopharynx → regurgitation through the nose." },
+      { q: "Q3: Why is the RIGHT gag reflex absent?", a: "<strong>Answer:</strong> The gag reflex has CN IX as afferent (sensory limb) and CN X as efferent (motor limb). If the right CN IX is also affected (e.g., jugular foramen lesion), the sensory input from the right posterior pharynx is lost. The motor loss from right CN X paralysis would also reduce the response amplitude." }
+    ]
+  },
+  {
+    title: "Case 3: Post-Surgical Neck Drop",
+    scenario: "A 35-year-old undergoes radical neck dissection for cervical lymph node clearance. Post-operatively, he complains he cannot raise his right shoulder and has difficulty turning his head to the left. On examination, there is visible wasting of the right trapezius.",
+    questions: [
+      { q: "Q1: Which nerve was damaged and at what level?", a: "<strong>Answer:</strong> The <strong>spinal root of the right Accessory Nerve (CN XI)</strong> was damaged. The spinal root supplies the SCM and trapezius after exiting the jugular foramen and crossing the posterior triangle of the neck — a common site of injury in neck dissection." },
+      { q: "Q2: Explain why there is difficulty turning the head to the LEFT.", a: "<strong>Answer:</strong> The right sternocleidomastoid (SCM), supplied by the right spinal root of CN XI, rotates the head to the <strong>opposite (left) side</strong>. With the right SCM paralysed, turning to the left against resistance is impaired." },
+      { q: "Q3: What is the clinical term for SCM spasm (not paralysis) from CN XI irritation?", a: "<strong>Answer:</strong> <strong>Torticollis (wry neck)</strong> — irritation (not damage) of CN XI causes SCM to go into spasm, pulling the head into a tilted and rotated position." }
+    ]
+  },
+  {
+    title: "Case 4: The Wandering Tongue",
+    scenario: "A 70-year-old man presents with progressive difficulty swallowing and slurred speech over 6 months. On examination, when asked to protrude his tongue, it deviates clearly to the right with visible wrinkling and fasciculations on the right side of the tongue.",
+    questions: [
+      { q: "Q1: What type and side of lesion does this represent?", a: "<strong>Answer:</strong> This is a <strong>right-sided Lower Motor Neuron (LMN) lesion of CN XII</strong>. The tongue deviates to the <em>same (right)</em> side with atrophy and fasciculations — the classic triad of an LMN lesion. The left genioglossus is intact and pushes the tongue right unopposed." },
+      { q: "Q2: How would the presentation differ with an UMN lesion on the right?", a: "<strong>Answer:</strong> A right UMN lesion would cause deviation to the <strong>LEFT (contralateral)</strong> side, with <strong>no atrophy</strong> and no fasciculations (the nerve and muscle are intact; only the descending corticospinal control is disrupted)." },
+      { q: "Q3: What would bilateral CN XII LMN lesion look like?", a: "<strong>Answer:</strong> Bilateral LMN lesion produces a <strong>motionless tongue</strong> with no ability to protrude, profound dysphagia, and anarthria. There is bilateral atrophy visible as a shrunken, wrinkled tongue." }
+    ]
+  },
+  {
+    title: "Case 5: Jugular Foramen Syndrome",
+    scenario: "A 55-year-old presents with severe dysphagia, hoarseness, and loss of taste on the back of the tongue. Examination reveals an absent gag reflex and the uvula deviates to the left. A CT scan reveals a mass at the right jugular foramen.",
+    questions: [
+      { q: "Q1: Which nerves are affected and how does this explain the signs?", a: "<strong>Answer:</strong> The mass compresses <strong>right CN IX + CN X</strong> (and possibly CN XI) at the jugular foramen. CN IX loss → absent right gag reflex (afferent) + loss of taste on right posterior 1/3 tongue. CN X loss → uvula deviates LEFT (away from lesion) + dysphagia + hoarseness from laryngeal paralysis." },
+      { q: "Q2: What is the most likely tumour at the jugular foramen?", a: "<strong>Answer:</strong> A <strong>Glomus jugulare tumour</strong> (paraganglioma) is the classic cause of jugular foramen syndrome. It can compress CN IX, X, and XI together, causing the clinical triad also known as Vernet's syndrome." },
+      { q: "Q3: Would CN XII be affected by this lesion?", a: "<strong>Answer:</strong> <strong>No</strong>. CN XII exits through the separate <strong>hypoglossal canal</strong>, not the jugular foramen. Unless the tumour extends to also compress the hypoglossal canal, tongue function should be preserved — helping localise the lesion anatomically." }
+    ]
+  },
+  {
+    title: "Case 6: The Hoarse Singer",
+    scenario: "A professional soprano notices progressive hoarseness over 3 months following thyroid surgery. She can still increase vocal pitch somewhat. Laryngoscopy reveals the left vocal cord is in the paramedian position and does not adduct or abduct fully.",
+    questions: [
+      { q: "Q1: Which nerve was damaged during thyroid surgery and what does it supply?", a: "<strong>Answer:</strong> The <strong>left Recurrent Laryngeal Nerve (RLN)</strong> was damaged — a common complication of thyroid surgery. The RLN supplies <em>all intrinsic laryngeal muscles except the cricothyroid</em>, including the posterior cricoarytenoid (only abductor), lateral cricoarytenoid, and thyroarytenoid." },
+      { q: "Q2: Why can she still somewhat increase vocal pitch?", a: "<strong>Answer:</strong> Pitch is controlled by tensioning the vocal cords, which is the function of the <strong>cricothyroid muscle</strong> — supplied by the <strong>external laryngeal nerve</strong> (not the RLN). Since this branch was spared, some pitch modulation is preserved, even though adduction and abduction are impaired." },
+      { q: "Q3: How does the left RLN course differ from the right, making it more vulnerable during thyroid surgery?", a: "<strong>Answer:</strong> The <strong>left RLN hooks under the arch of the aorta</strong> and travels a longer course back up to the larynx in the tracheoesophageal groove. The right RLN only hooks around the subclavian artery. The left's longer path near the lower thyroid pole makes it more prone to surgical injury." }
+    ]
+  }
+];
+
+const MNEMONICS_DATA = [
+  { color: "#38bdf8", title: "Jugular Foramen Contents", acro: "9-10-11", items: [
+    { k: "9", v: "CN IX — Glossopharyngeal" },
+    { k: "10", v: "CN X — Vagus" },
+    { k: "11", v: "CN XI — Accessory (spinal root)" },
+    { k: "Tip", v: "XII is the odd one out → Hypoglossal Canal" }
+  ]},
+  { color: "#f59e0b", title: "CN IX Parasympathetic Path", acro: "I-T-T-O-P", items: [
+    { k: "I", v: "Inferior salivary nucleus" },
+    { k: "T", v: "Tympanic branch (Jacobson's nerve)" },
+    { k: "T", v: "Tympanic plexus" },
+    { k: "O", v: "Otic ganglion (synapse)" },
+    { k: "P", v: "Parotid gland (target)" }
+  ]},
+  { color: "#10b981", title: "Vagus Nerve Branches in Neck", acro: "P-S-C-R", items: [
+    { k: "P", v: "Pharyngeal branch → pharynx/palate (with XI)" },
+    { k: "S", v: "Superior laryngeal → internal (sensory) + external (cricothyroid)" },
+    { k: "C", v: "Cardiac branches → heart (upper/lower)" },
+    { k: "R", v: "Recurrent laryngeal → all laryngeal muscles except cricothyroid" }
+  ]},
+  { color: "#ef4444", title: "Hypoglossal Tongue Deviation Rule", acro: "LMN-SAME / UMN-OPP", items: [
+    { k: "LMN", v: "Lesion → tongue to SAME side + atrophy" },
+    { k: "UMN", v: "Lesion → tongue to OPPOSITE side, no atrophy" },
+    { k: "WHY", v: "Genioglossus pushes forward — paralysed side fails" },
+    { k: "TIP", v: "'LMN leans to the Loser (lesion side)'" }
+  ]},
+  { color: "#6366f1", title: "C1 Hitchhiker Branches", acro: "M-S-T-G", items: [
+    { k: "M", v: "Meningeal branch → posterior cranial fossa" },
+    { k: "S", v: "Superior root of ansa cervicalis" },
+    { k: "T", v: "Thyrohyoid nerve" },
+    { k: "G", v: "Geniohyoid nerve" }
+  ]},
+  { color: "#f87171", title: "Recurrent Laryngeal Nerve Hooks", acro: "L-A / R-S", items: [
+    { k: "L", v: "Left RLN hooks around Aortic arch" },
+    { k: "A", v: "(Aorta = Left side of heart/mediastinum)" },
+    { k: "R", v: "Right RLN hooks around Subclavian artery" },
+    { k: "S", v: "Remember: Right-Subclavian (both start with R-S)" }
+  ]}
+];
+
+const ANATOMY_ITEMS = [
+  { color: "#f59e0b", title: "Post-Olivary Fissure", desc: "Exit point for CN IX, X, XI from the medulla — lies between the olive and inferior cerebellar peduncle." },
+  { color: "#ef4444", title: "Pre-Olivary Fissure", desc: "Exit point ONLY for CN XII — lies between the pyramid and the olive. Unique to hypoglossal." },
+  { color: "#38bdf8", title: "Jugular Foramen", desc: "Transmits CN IX, X, and XI. Also transmits the internal jugular vein and inferior petrosal sinus. Common site of glomus jugulare tumours." },
+  { color: "#38bdf8", title: "Hypoglossal Canal", desc: "Anterior condylar canal — transmits CN XII exclusively. Also carries the meningeal branch of the ascending pharyngeal artery." },
+  { color: "#f59e0b", title: "Inferior Salivary Nucleus", desc: "Parasympathetic nucleus for CN IX in the medulla. Preganglionic fibers → otic ganglion → parotid gland." },
+  { color: "#10b981", title: "Dorsal Motor Nucleus of Vagus", desc: "Parasympathetic nucleus for CN X. Supplies heart, lungs, and GIT to the left colic flexure via ganglia in/near target organs." },
+  { color: "#6366f1", title: "Nucleus Ambiguus", desc: "Shared somatic motor nucleus for CN IX, X, and XI (cranial root). Supplies stylopharyngeus, pharynx, larynx, palate." },
+  { color: "#ef4444", title: "Hypoglossal Nucleus", desc: "Motor nucleus for CN XII located in the floor of the 4th ventricle. Supplies all tongue muscles except palatoglossus." },
+  { color: "#10b981", title: "Solitary Nucleus", desc: "Receives taste (special sensory) from CN VII, IX, X. Also receives general visceral afferents. Upper part for taste, lower for visceral." },
+  { color: "#f59e0b", title: "Otic Ganglion", desc: "Parasympathetic ganglion for CN IX. Located below foramen ovale. Postganglionic fibers travel with auriculotemporal nerve (V3) to parotid." },
+  { color: "#10b981", title: "Tympanic Plexus", desc: "Formed by Jacobson's nerve (CN IX branch) on the promontory of the middle ear. Gives rise to the lesser petrosal nerve." },
+  { color: "#6366f1", title: "Ansa Cervicalis", desc: "Nerve loop: superior root (C1 via CN XII) + inferior root (C2, C3). Supplies omohyoid, sternohyoid, sternothyroid." }
+];
+
+const VIVA_DATA = [
+  { q: "Name the deep origins (nuclei) of the Glossopharyngeal nerve.", a: "The CN IX has FOUR nuclei: <strong>1. Nucleus ambiguus</strong> (special visceral motor → stylopharyngeus); <strong>2. Inferior salivary nucleus</strong> (general visceral motor/parasympathetic → parotid); <strong>3. Spinal nucleus of the trigeminal</strong> (general somatic afferent → middle ear, pharynx); <strong>4. Solitary nucleus</strong> (special sensory/taste from posterior 1/3 tongue; general visceral afferent from carotid body/sinus)." },
+  { q: "How do you clinically test the spinal root of the Accessory Nerve?", a: "Two tests: <strong>Trapezius:</strong> Ask the patient to elevate (shrug) their shoulders against downward resistance — tests C1–C5 spinal root. <strong>Sternocleidomastoid:</strong> Ask the patient to turn their face to the opposite side against resistance — tests the same spinal root. Weakness or inability = spinal root CN XI lesion." },
+  { q: "What happens to the tongue in a Lower Motor Neuron Lesion of CN XII?", a: "The protruded tongue deviates toward the <strong>affected (same) side</strong>. Mechanism: the genioglossus pushes the tongue forward. With the right genioglossus paralysed, the intact left genioglossus pushes the tongue unopposed toward the right. Additionally, there will be visible <strong>ipsilateral atrophy and wrinkling/fasciculations</strong>." },
+  { q: "Which cranial nerves exit the skull through the jugular foramen?", a: "The jugular foramen transmits <strong>CN IX (Glossopharyngeal)</strong>, <strong>CN X (Vagus)</strong>, and <strong>CN XI (Accessory — spinal root)</strong>. It also transmits the internal jugular vein, inferior petrosal sinus, and posterior meningeal artery. CN XII is the outlier — it exits through the hypoglossal canal." },
+  { q: "What is the clinical significance of an internal laryngeal nerve lesion?", a: "The internal laryngeal branch of the superior laryngeal nerve (CN X) provides <strong>sensory innervation to the laryngeal mucosa ABOVE the vocal cords</strong>. A lesion causes anaesthesia of this region, which abolishes the <strong>protective cough reflex</strong>, exposing the patient to the risk of aspiration (silent aspiration of food/liquids into the trachea)." },
+  { q: "Detail the parasympathetic distribution of the Vagus nerve.", a: "Arising from the <strong>dorsal motor nucleus</strong>, CN X parasympathetics supply: <br>• <strong>Heart</strong>: SA node (slows rate), AV node (decreases conduction velocity), atrial myocardium <br>• <strong>Lungs</strong>: Bronchoconstriction, increased secretion <br>• <strong>GIT</strong>: Esophagus → stomach → small intestine → large intestine up to the <strong>left colic (splenic) flexure</strong>. Synapse occurs in ganglia within or near target organ walls." },
+  { q: "What muscles form the intrinsic and extrinsic muscles of the tongue, and what is their innervation?", a: "All tongue muscles are supplied by <strong>CN XII (hypoglossal)</strong> EXCEPT palatoglossus (CN X). <br><strong>Extrinsic:</strong> Genioglossus (protrusion), Hyoglossus (depression), Styloglossus (retraction), Palatoglossus (elevation — CN X). <br><strong>Intrinsic:</strong> Superior/inferior longitudinals, transverse, vertical muscles (alter tongue shape). All CN XII." },
+  { q: "Trace the pathway of C1 fibers that hitchhike on the Hypoglossal nerve.", a: "C1 anterior rami join CN XII below the skull base. As they descend in the carotid sheath, C1 fibers separate as: <strong>1. Meningeal branch</strong> → back up to posterior cranial fossa dura; <strong>2. Superior root of ansa cervicalis</strong> (descendens hypoglossi) → joins C2/C3 to supply infrahyoid muscles; <strong>3. Nerve to thyrohyoid</strong>; <strong>4. Nerve to geniohyoid</strong>." },
+  { q: "What structure does the right recurrent laryngeal nerve hook around?", a: "The right recurrent laryngeal nerve hooks under and around the <strong>right subclavian artery</strong>, then ascends in the tracheoesophageal groove to reach the larynx. The LEFT recurrent laryngeal nerve hooks around the <strong>aortic arch</strong>, giving it a longer intrathoracic course — making it more susceptible to mediastinal pathology." },
+  { q: "Explain the sensory and motor limbs of the gag reflex.", a: "<strong>Afferent limb (sensory):</strong> CN IX — the pharyngeal branch detects touch on the posterior pharyngeal wall/soft palate and transmits impulses to the solitary and spinal trigeminal nuclei. <strong>Efferent limb (motor):</strong> CN X — nucleus ambiguus activates the pharyngeal constrictor muscles causing the 'gag'. A lesion of CN IX abolishes the trigger; a lesion of CN X impairs the motor response." },
+  { q: "Where is the carotid sinus located, and what nerve innervates it?", a: "The carotid sinus is located at the <strong>bifurcation of the common carotid artery</strong> (at the level of the upper thyroid cartilage). It functions as a <strong>baroreceptor</strong>, detecting changes in blood pressure. It is innervated by the <strong>carotid sinus nerve (Hering's nerve)</strong>, a branch of the <strong>Glossopharyngeal nerve (CN IX)</strong>." },
+  { q: "What separates the exit point of CN XII from CN IX, X, and XI on the medulla?", a: "<strong>CN XII</strong> exits from the <strong>pre-olivary fissure</strong> (between the pyramid and olive — in a series of rootlets). <strong>CN IX, X, and XI</strong> all exit from the <strong>post-olivary fissure</strong> (between the olive and inferior cerebellar peduncle). This anatomical distinction is a common exam question regarding medullary anatomy." }
+];
+
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+let quizState = { current: 0, correct: 0, wrong: 0, streak: 0, answered: false, totalAnswered: 0 };
+let globalStreak = parseInt(localStorage.getItem('cn_streak') || '0');
+let globalProgress = JSON.parse(localStorage.getItem('cn_progress') || '{}');
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  // Tabs
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => {
+      const id = t.dataset.tab;
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      document.getElementById(id).classList.add('active');
+      localStorage.setItem('cn_tab', id);
+    });
+  });
+  const savedTab = localStorage.getItem('cn_tab');
+  if (savedTab) {
+    document.querySelector(`.tab[data-tab="${savedTab}"]`)?.click();
+  }
+
+  buildFlashcards();
+  buildCases();
+  buildAnatomyGrid();
+  buildMnemonics();
+  buildViva();
+  loadQuiz();
+  updateStats();
+});
+
+// ═══════════════════════════════════════════
+//  QUIZ
+// ═══════════════════════════════════════════
+function loadQuiz() {
+  const q = QUIZ_DATA[quizState.current];
+  document.getElementById('q-number').textContent = `Q${quizState.current + 1} of ${QUIZ_DATA.length}`;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('quiz-score-text').textContent = `Question ${quizState.current + 1} of ${QUIZ_DATA.length}`;
+  document.getElementById('quiz-progress').style.width = `${(quizState.current / QUIZ_DATA.length) * 100}%`;
+  document.getElementById('next-btn').style.display = 'none';
+  document.getElementById('explanation').classList.remove('show');
+  document.getElementById('explanation').innerHTML = '';
+  quizState.answered = false;
+
+  const letters = ['A','B','C','D','E'];
+  const optsEl = document.getElementById('options');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.innerHTML = `<span class="option-letter">${letters[i]}</span> ${opt}`;
+    div.onclick = () => selectAnswer(i, div);
+    optsEl.appendChild(div);
+  });
+
+  updateScoreboard();
+}
+
+function selectAnswer(idx, el) {
+  if (quizState.answered) return;
+  quizState.answered = true;
+  const q = QUIZ_DATA[quizState.current];
+  const opts = document.querySelectorAll('.option');
+
+  opts.forEach(o => o.classList.add('disabled'));
+  opts[q.ans].classList.add('correct');
+  opts[q.ans].querySelector('.option-letter').style.background = '#10b981';
+
+  if (idx === q.ans) {
+    quizState.correct++;
+    quizState.streak++;
+    globalStreak++;
+    if (globalStreak > parseInt(localStorage.getItem('cn_best_streak') || '0')) {
+      localStorage.setItem('cn_best_streak', globalStreak);
+    }
+  } else {
+    el.classList.add('wrong');
+    el.querySelector('.option-letter').style.background = '#ef4444';
+    quizState.wrong++;
+    quizState.streak = 0;
+    globalStreak = 0;
+  }
+
+  quizState.totalAnswered++;
+  localStorage.setItem('cn_streak', globalStreak);
+  globalProgress['quiz_' + quizState.current] = idx === q.ans;
+  localStorage.setItem('cn_progress', JSON.stringify(globalProgress));
+
+  const expEl = document.getElementById('explanation');
+  expEl.innerHTML = `💡 <strong>${idx === q.ans ? '✅ Correct!' : '❌ Incorrect.'}</strong> ${q.exp}`;
+  expEl.classList.add('show');
+  document.getElementById('next-btn').style.display = 'block';
+  updateScoreboard();
+  updateStats();
+}
+
+function nextQuestion() {
+  quizState.current++;
+  if (quizState.current >= QUIZ_DATA.length) {
+    showScoreModal();
+  } else {
+    loadQuiz();
+  }
+}
+
+function updateScoreboard() {
+  document.getElementById('correct-count').textContent = quizState.correct;
+  document.getElementById('wrong-count').textContent = quizState.wrong;
+  document.getElementById('streak-count').textContent = quizState.streak;
+}
+
+function showScoreModal() {
+  const pct = Math.round((quizState.correct / QUIZ_DATA.length) * 100);
+  const modal = document.getElementById('score-modal');
+  document.getElementById('modal-score').textContent = `${quizState.correct}/${QUIZ_DATA.length}`;
+  document.getElementById('modal-score').style.color = pct >= 80 ? '#10b981' : pct >= 60 ? '#f59e0b' : '#ef4444';
+  const msgs = ['Keep practicing! 💪', 'Getting there! 📚', 'Good work! 🎯', 'Excellent! 🏆', 'Outstanding! 🌟'];
+  document.getElementById('modal-message').textContent = `${pct}% — ${msgs[Math.min(Math.floor(pct/20), 4)]}`;
+  modal.classList.add('show');
+  updateStats();
+}
+
+function restartQuiz() {
+  quizState = { current: 0, correct: 0, wrong: 0, streak: 0, answered: false, totalAnswered: 0 };
+  closeModal();
+  loadQuiz();
+}
+
+function closeModal() {
+  document.getElementById('score-modal').classList.remove('show');
+}
+
+function updateStats() {
+  const answeredCount = Object.keys(globalProgress).length;
+  const correctCount = Object.values(globalProgress).filter(Boolean).length;
+  const pct = QUIZ_DATA.length > 0 ? Math.round((answeredCount / QUIZ_DATA.length) * 100) : 0;
+  document.getElementById('streak-display').textContent = globalStreak;
+  document.getElementById('score-display').textContent = `${correctCount}/${answeredCount}`;
+  document.getElementById('progress-display').textContent = `${pct}%`;
+}
+
+// ═══════════════════════════════════════════
+//  FLASHCARDS
+// ═══════════════════════════════════════════
+function buildFlashcards() {
+  const grid = document.getElementById('flashcard-grid');
+  FLASHCARD_DATA.forEach(fc => {
+    const card = document.createElement('div');
+    card.className = 'flashcard';
+    card.innerHTML = `
+      <div class="flashcard-inner">
+        <div class="flashcard-front">
+          <div class="fc-nerve-dot" style="background:${fc.nerve}"></div>
+          <div class="fc-label">Click to flip</div>
+          <div class="fc-q">${fc.q}</div>
+        </div>
+        <div class="flashcard-back">
+          <div class="fc-a">${fc.a}</div>
+        </div>
+      </div>`;
+    card.onclick = () => card.classList.toggle('flipped');
+    grid.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════════
+//  CASES
+// ═══════════════════════════════════════════
+function buildCases() {
+  const container = document.getElementById('cases-container');
+  CASES_DATA.forEach((c, i) => {
+    const card = document.createElement('div');
+    card.className = 'case-card';
+    let qHtml = c.questions.map((qq, qi) => `
+      <div class="case-question">${qq.q}</div>
+      <button class="reveal-btn" onclick="this.nextElementSibling.classList.add('show'); this.style.display='none'">Reveal Answer 👁️</button>
+      <div class="case-answer">${qq.a}</div>
+    `).join('');
+    card.innerHTML = `
+      <div class="case-header">
+        <div class="case-number">${i + 1}</div>
+        <div>
+          <div style="font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:6px;">${c.title}</div>
+          <div class="case-scenario">${c.scenario}</div>
+        </div>
+      </div>
+      ${qHtml}
+    `;
+    container.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════════
+//  ANATOMY GRID
+// ═══════════════════════════════════════════
+function buildAnatomyGrid() {
+  const grid = document.getElementById('anatomy-grid');
+  ANATOMY_ITEMS.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'anatomy-item';
+    div.style.setProperty('--item-color', item.color);
+    div.innerHTML = `<h4>${item.title}</h4><p>${item.desc}</p>`;
+    grid.appendChild(div);
+  });
+}
+
+// ═══════════════════════════════════════════
+//  MNEMONICS
+// ═══════════════════════════════════════════
+function buildMnemonics() {
+  const grid = document.getElementById('mnemonic-grid');
+  MNEMONICS_DATA.forEach(m => {
+    const card = document.createElement('div');
+    card.className = 'mnemonic-card';
+    card.style.setProperty('--mc', m.color);
+    const items = m.items.map(it => `<li><strong>${it.k}</strong> ${it.v}</li>`).join('');
+    card.innerHTML = `<h3>${m.title}</h3><div class="acro">${m.acro}</div><ul class="mnemonic-items">${items}</ul>`;
+    grid.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════════
+//  VIVA
+// ═══════════════════════════════════════════
+function buildViva() {
+  const container = document.getElementById('viva-container');
+  VIVA_DATA.forEach((v, i) => {
+    const card = document.createElement('div');
+    card.className = 'case-card';
+    card.innerHTML = `
+      <div style="font-family:'Syne',sans-serif; font-weight:700; font-size:0.95rem; margin-bottom:12px; color:var(--accent);">V${i+1}: ${v.q}</div>
+      <button class="reveal-btn" onclick="this.nextElementSibling.classList.add('show'); this.style.display='none'">Show Model Answer 👁️</button>
+      <div class="case-answer"><strong style="color:var(--correct)">Model Answer:</strong><br><br>${v.a}</div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════════
+//  SEARCH
+// ═══════════════════════════════════════════
+function searchContent(val) {
+  const results = document.getElementById('search-results');
+  const cards = document.getElementById('nerve-cards');
+  if (!val.trim()) {
+    results.style.display = 'none';
+    cards.style.display = 'grid';
+    return;
+  }
+  const v = val.toLowerCase();
+  const searchable = [
+    ...QUIZ_DATA.map(q => ({ title: 'MCQ', text: q.q + ' ' + q.opts.join(' '), detail: q.exp })),
+    ...FLASHCARD_DATA.map(f => ({ title: 'Flashcard', text: f.q, detail: f.a })),
+    ...ANATOMY_ITEMS.map(a => ({ title: 'Structure', text: a.title, detail: a.desc })),
+    ...VIVA_DATA.map(v => ({ title: 'Viva', text: v.q, detail: v.a })),
+  ];
+  const hits = searchable.filter(s => s.text.toLowerCase().includes(v) || s.detail.toLowerCase().includes(v)).slice(0, 8);
+  if (!hits.length) {
+    results.innerHTML = '<div style="color:var(--text-muted);font-size:0.88rem;padding:12px 0;">No results found.</div>';
+  } else {
+    results.innerHTML = hits.map(h => `
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:8px;">
+        <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--accent);margin-bottom:4px;">${h.title}</div>
+        <div style="font-size:0.88rem;font-weight:600;">${h.text.substring(0,120)}…</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">${h.detail.replace(/<[^>]+>/g,'').substring(0,120)}…</div>
+      </div>
+    `).join('');
+  }
+  results.style.display = 'block';
+  cards.style.display = 'none';
+}
+</script>
+</body>
+</html>

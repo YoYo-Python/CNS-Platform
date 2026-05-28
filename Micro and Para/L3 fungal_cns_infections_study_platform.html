@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍄 Fungal CNS Infections — Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #181c24;
+    --border: rgba(255,255,255,0.07);
+    --text: #e8eaf0;
+    --muted: #7a8099;
+    --crypto: #4fffb0;
+    --crypto-dim: rgba(79,255,176,0.12);
+    --mucor: #ff6b4a;
+    --mucor-dim: rgba(255,107,74,0.12);
+    --accent: #a78bfa;
+    --accent-dim: rgba(167,139,250,0.12);
+    --gold: #fbbf24;
+    --gold-dim: rgba(251,191,36,0.12);
+    --danger: #f87171;
+    --success: #4ade80;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── ANIMATED BACKGROUND ─── */
+  .bg-orbs {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    overflow: hidden;
+  }
+  .orb {
+    position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.18;
+    animation: floatOrb 18s ease-in-out infinite;
+  }
+  .orb1 { width: 500px; height: 500px; background: #4fffb0; top: -100px; left: -100px; animation-delay: 0s; }
+  .orb2 { width: 400px; height: 400px; background: #ff6b4a; bottom: -80px; right: -80px; animation-delay: -6s; }
+  .orb3 { width: 350px; height: 350px; background: #a78bfa; top: 40%; left: 60%; animation-delay: -12s; }
+  @keyframes floatOrb {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(30px,-20px) scale(1.05); }
+    66% { transform: translate(-20px,30px) scale(0.95); }
+  }
+
+  /* ─── LAYOUT ─── */
+  .app { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 16px 60px; }
+
+  /* ─── HEADER ─── */
+  header {
+    padding: 36px 0 28px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0;
+  }
+  .header-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent-dim); border: 1px solid var(--accent);
+    color: var(--accent); border-radius: 20px; padding: 4px 14px;
+    font-size: 12px; font-family: var(--font-mono); letter-spacing: 0.05em;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(26px, 5vw, 44px);
+    font-weight: 800; line-height: 1.1;
+    background: linear-gradient(135deg, var(--crypto) 0%, var(--accent) 50%, var(--mucor) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+  }
+  .header-sub {
+    color: var(--muted); font-size: 14px; display: flex; gap: 16px; flex-wrap: wrap;
+    align-items: center;
+  }
+  .header-sub span { display: flex; align-items: center; gap: 5px; }
+
+  /* ─── STATS BAR ─── */
+  .stats-bar {
+    display: flex; gap: 12px; padding: 16px 0; border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .stat-chip {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 8px 16px; font-size: 13px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .stat-chip b { font-family: var(--font-mono); color: var(--crypto); }
+  #quiz-streak-stat b { color: var(--gold); }
+  #total-score-stat b { color: var(--accent); }
+
+  /* ─── SEARCH ─── */
+  .search-wrap {
+    position: relative; padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .search-wrap input {
+    width: 100%; background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); color: var(--text); font-family: var(--font-body);
+    font-size: 14px; padding: 12px 16px 12px 44px; outline: none;
+    transition: border-color .2s;
+  }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 18px; }
+  .search-results {
+    display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 100;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); max-height: 300px; overflow-y: auto;
+  }
+  .search-result-item {
+    padding: 10px 16px; cursor: pointer; border-bottom: 1px solid var(--border);
+    font-size: 13px; transition: background .15s;
+  }
+  .search-result-item:hover { background: var(--surface); }
+  .search-result-item mark { background: var(--accent-dim); color: var(--accent); border-radius: 3px; padding: 0 2px; }
+
+  /* ─── TABS ─── */
+  .tabs-wrap {
+    display: flex; gap: 4px; padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .tabs-wrap::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex-shrink: 0;
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); font-family: var(--font-body); font-size: 13px;
+    padding: 8px 16px; border-radius: 8px; cursor: pointer;
+    transition: all .2s; white-space: nowrap;
+  }
+  .tab-btn:hover { border-color: var(--accent); color: var(--text); }
+  .tab-btn.active {
+    background: var(--accent); border-color: var(--accent);
+    color: #0a0c10; font-weight: 600;
+  }
+
+  /* ─── TAB PANES ─── */
+  .tab-pane { display: none; padding-top: 24px; }
+  .tab-pane.active { display: block; animation: fadeIn .3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ─── SECTION TITLES ─── */
+  .section-title {
+    font-family: var(--font-display); font-size: 20px; font-weight: 700;
+    margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+  }
+  .section-title span { color: var(--muted); font-size: 14px; font-weight: 400; font-family: var(--font-body); }
+
+  /* ─── CARDS ─── */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+  }
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .cards-grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+
+  /* ─── TAGS ─── */
+  .tag {
+    display: inline-block; border-radius: 6px; padding: 2px 9px;
+    font-size: 11px; font-family: var(--font-mono); letter-spacing: 0.03em;
+    font-weight: 500;
+  }
+  .tag-high { background: rgba(251,191,36,0.15); color: var(--gold); border: 1px solid var(--gold); }
+  .tag-exam { background: rgba(248,113,113,0.12); color: var(--danger); border: 1px solid var(--danger); }
+  .tag-pearl { background: var(--crypto-dim); color: var(--crypto); border: 1px solid var(--crypto); }
+  .tag-crypto { background: var(--crypto-dim); color: var(--crypto); border: 1px solid var(--crypto); }
+  .tag-mucor { background: var(--mucor-dim); color: var(--mucor); border: 1px solid var(--mucor); }
+  .tag-both { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent); }
+
+  /* ─── OVERVIEW ─── */
+  .overview-hero {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;
+  }
+  @media(max-width:640px){ .overview-hero { grid-template-columns: 1fr; } }
+  .hero-card {
+    padding: 22px; border-radius: var(--radius);
+    border: 1px solid;
+  }
+  .hero-card.crypto { background: var(--crypto-dim); border-color: var(--crypto); }
+  .hero-card.mucor { background: var(--mucor-dim); border-color: var(--mucor); }
+  .hero-card h3 {
+    font-family: var(--font-display); font-size: 18px; font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .hero-card.crypto h3 { color: var(--crypto); }
+  .hero-card.mucor h3 { color: var(--mucor); }
+  .hero-card ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .hero-card ul li { font-size: 13px; display: flex; gap: 8px; align-items: baseline; }
+  .hero-card ul li::before { content: '→'; opacity: 0.5; flex-shrink: 0; }
+
+  .flow-container {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 22px; margin-bottom: 24px;
+  }
+  .flow-title { font-family: var(--font-display); font-weight: 700; font-size: 16px; margin-bottom: 14px; }
+  .flow-steps { display: flex; align-items: flex-start; gap: 0; flex-wrap: wrap; }
+  .flow-step {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    min-width: 90px; text-align: center;
+  }
+  .flow-dot {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .flow-arrow { font-size: 18px; color: var(--muted); padding-top: 8px; }
+  .flow-label { font-size: 11px; color: var(--muted); max-width: 80px; line-height: 1.4; }
+  .flow-step-crypto .flow-dot { background: var(--crypto-dim); border: 1px solid var(--crypto); }
+  .flow-step-mucor .flow-dot { background: var(--mucor-dim); border: 1px solid var(--mucor); }
+
+  .clinical-signs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+  .sign-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 14px; display: flex; flex-direction: column; gap: 8px;
+  }
+  .sign-card h4 { font-size: 14px; font-weight: 600; }
+  .sign-card p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* ─── QUIZ ─── */
+  .quiz-progress-bar {
+    background: var(--surface2); border-radius: 4px; height: 6px; margin-bottom: 20px; overflow: hidden;
+  }
+  .quiz-progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--crypto), var(--accent));
+    border-radius: 4px; transition: width .5s ease;
+  }
+  .quiz-stats-row { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .quiz-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 16px; font-size: 13px; }
+  .quiz-card-outer { margin-bottom: 16px; }
+  .quiz-q-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 22px;
+  }
+  .quiz-q-num { font-family: var(--font-mono); color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+  .quiz-q-text { font-size: 15px; font-weight: 500; margin-bottom: 18px; line-height: 1.6; }
+  .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+  .quiz-option {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 12px 16px; cursor: pointer;
+    font-size: 14px; transition: all .2s; display: flex; gap: 10px; align-items: flex-start;
+    text-align: left;
+  }
+  .quiz-option:hover:not(.disabled) { border-color: var(--accent); background: var(--accent-dim); }
+  .quiz-option.correct { background: rgba(74,222,128,0.1); border-color: var(--success); }
+  .quiz-option.wrong { background: rgba(248,113,113,0.1); border-color: var(--danger); }
+  .quiz-option.disabled { cursor: not-allowed; }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+  .quiz-option.anim-correct { animation: pulse .4s; }
+  .quiz-option.anim-wrong { animation: shake .4s; }
+  .opt-letter {
+    width: 22px; height: 22px; border-radius: 50%; background: var(--surface);
+    border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-family: var(--font-mono); flex-shrink: 0; margin-top: 1px;
+  }
+  .quiz-explanation {
+    margin-top: 14px; padding: 14px; background: var(--surface2);
+    border-radius: var(--radius-sm); border-left: 3px solid var(--accent);
+    font-size: 13px; line-height: 1.6; display: none;
+  }
+  .quiz-explanation.show { display: block; animation: fadeIn .3s; }
+  .quiz-controls { display: flex; justify-content: flex-end; margin-top: 14px; gap: 10px; }
+  .btn {
+    background: var(--accent); color: #0a0c10; border: none; border-radius: 8px;
+    padding: 10px 22px; font-family: var(--font-body); font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all .2s;
+  }
+  .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-outline {
+    background: transparent; color: var(--accent); border: 1px solid var(--accent);
+    border-radius: 8px; padding: 10px 22px; font-family: var(--font-body); font-size: 14px;
+    cursor: pointer; transition: all .2s;
+  }
+  .btn-outline:hover { background: var(--accent-dim); }
+  .btn-danger { background: var(--danger); color: #0a0c10; }
+  .btn-success { background: var(--success); color: #0a0c10; }
+  #quiz-complete { display: none; text-align: center; padding: 40px; }
+  #quiz-complete h2 { font-family: var(--font-display); font-size: 32px; margin-bottom: 10px; }
+  .score-ring {
+    width: 120px; height: 120px; border-radius: 50%;
+    border: 4px solid var(--border); margin: 20px auto;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; font-family: var(--font-mono);
+    position: relative;
+  }
+  .score-ring-fill {
+    position: absolute; inset: -4px; border-radius: 50%;
+    background: conic-gradient(var(--crypto) 0deg, transparent 0deg);
+    -webkit-mask: radial-gradient(circle at center, transparent 50px, black 51px);
+    mask: radial-gradient(circle at center, transparent 50px, black 51px);
+    transition: background 1s;
+  }
+  .score-ring-num { font-size: 28px; font-weight: 700; color: var(--crypto); }
+  .score-ring-label { font-size: 11px; color: var(--muted); }
+
+  /* ─── FLASHCARDS ─── */
+  .flashcards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .flashcard-wrap { perspective: 800px; height: 180px; cursor: pointer; }
+  .flashcard-inner {
+    width: 100%; height: 100%;
+    transform-style: preserve-3d;
+    transition: transform .5s cubic-bezier(.4,0,.2,1);
+    position: relative;
+  }
+  .flashcard-wrap.flipped .flashcard-inner { transform: rotateY(180deg); }
+  .flashcard-face {
+    position: absolute; inset: 0; backface-visibility: hidden;
+    border-radius: var(--radius); padding: 20px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .flashcard-front {
+    background: var(--surface); border: 1px solid var(--border);
+  }
+  .flashcard-back {
+    transform: rotateY(180deg);
+    background: var(--surface2); border: 1px solid var(--accent);
+  }
+  .flashcard-q { font-size: 14px; font-weight: 500; line-height: 1.5; flex: 1; }
+  .flashcard-a { font-size: 13px; color: var(--text); line-height: 1.5; flex: 1; }
+  .flashcard-hint { font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
+  .flashcard-tag { align-self: flex-start; }
+
+  /* ─── CLINICAL CASES ─── */
+  .case-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px; margin-bottom: 16px;
+  }
+  .case-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+  .case-num { font-family: var(--font-mono); color: var(--muted); font-size: 12px; }
+  .case-title { font-family: var(--font-display); font-weight: 700; font-size: 17px; margin-bottom: 4px; }
+  .case-vignette {
+    background: var(--surface2); border-radius: var(--radius-sm); padding: 16px;
+    font-size: 14px; line-height: 1.7; margin-bottom: 16px;
+    border-left: 3px solid var(--gold);
+  }
+  .case-questions { display: flex; flex-direction: column; gap: 10px; }
+  .case-q { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+  .reveal-btn {
+    background: var(--surface2); border: 1px dashed var(--accent);
+    color: var(--accent); border-radius: 8px; padding: 10px 16px;
+    cursor: pointer; font-family: var(--font-body); font-size: 13px;
+    width: 100%; text-align: left; transition: all .2s;
+  }
+  .reveal-btn:hover { background: var(--accent-dim); }
+  .case-answer {
+    display: none; background: var(--accent-dim); border: 1px solid var(--accent);
+    border-radius: 8px; padding: 14px; font-size: 13px; line-height: 1.6;
+    margin-top: 8px;
+  }
+  .case-answer.shown { display: block; animation: fadeIn .3s; }
+
+  /* ─── PATHOPHYSIOLOGY ─── */
+  .patho-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .patho-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px; cursor: pointer; transition: all .2s;
+  }
+  .patho-item:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .patho-item.active { border-color: var(--accent); background: var(--accent-dim); }
+  .patho-item h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .patho-item p { font-size: 12px; color: var(--muted); }
+  .patho-detail {
+    background: var(--surface); border: 1px solid var(--accent);
+    border-radius: var(--radius); padding: 20px; display: none; animation: fadeIn .3s;
+    margin-bottom: 16px;
+  }
+  .patho-detail.show { display: block; }
+  .patho-detail h3 { font-family: var(--font-display); font-weight: 700; font-size: 17px; margin-bottom: 10px; color: var(--accent); }
+  .patho-detail p { font-size: 14px; line-height: 1.7; }
+
+  .flowchart {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 22px; overflow-x: auto;
+  }
+  .fc-steps { display: flex; flex-direction: column; gap: 0; }
+  .fc-step {
+    display: flex; align-items: center; gap: 12px; padding: 10px 0;
+  }
+  .fc-icon { font-size: 20px; flex-shrink: 0; }
+  .fc-box {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 16px; font-size: 13px; line-height: 1.5; flex: 1;
+  }
+  .fc-arrow { color: var(--muted); font-size: 16px; text-align: center; padding: 2px 0 2px 32px; }
+
+  /* ─── DIAGNOSIS ─── */
+  .dx-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .dx-tab {
+    padding: 7px 16px; border-radius: 8px; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); cursor: pointer; font-size: 13px;
+    transition: all .2s;
+  }
+  .dx-tab.active { background: var(--crypto); color: #0a0c10; border-color: var(--crypto); font-weight: 600; }
+  .dx-pane { display: none; }
+  .dx-pane.active { display: block; animation: fadeIn .3s; }
+  .test-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 14px; font-size: 13px; margin: 4px;
+    cursor: pointer; transition: all .2s;
+  }
+  .test-badge:hover { border-color: var(--crypto); color: var(--crypto); }
+  .test-badge-result {
+    background: var(--crypto-dim); border-color: var(--crypto); color: var(--crypto);
+  }
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .compare-table th, .compare-table td { padding: 10px 14px; border: 1px solid var(--border); text-align: left; }
+  .compare-table th { background: var(--surface2); font-weight: 600; color: var(--muted); font-size: 12px; }
+  .compare-table tr:hover td { background: var(--surface2); }
+  td.crypto-cell { color: var(--crypto); }
+  td.mucor-cell { color: var(--mucor); }
+  .algo-steps { display: flex; flex-direction: column; gap: 0; }
+  .algo-step {
+    display: flex; gap: 12px; align-items: flex-start; padding: 8px 0;
+  }
+  .algo-num {
+    width: 26px; height: 26px; background: var(--accent); color: #0a0c10;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 2px;
+    font-family: var(--font-mono);
+  }
+  .algo-text { font-size: 13px; line-height: 1.5; padding-top: 4px; }
+  .algo-arrow { color: var(--muted); text-align: left; padding: 2px 0 2px 38px; font-size: 14px; }
+
+  /* ─── TREATMENT ─── */
+  .tx-section { margin-bottom: 24px; }
+  .tx-section h3 {
+    font-family: var(--font-display); font-weight: 700; font-size: 16px;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .tx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+  .tx-card {
+    border-radius: var(--radius-sm); padding: 14px; border: 1px solid;
+    font-size: 13px; line-height: 1.6;
+  }
+  .tx-card.emergency { background: rgba(248,113,113,0.08); border-color: var(--danger); }
+  .tx-card.primary { background: var(--crypto-dim); border-color: var(--crypto); }
+  .tx-card.surgery { background: var(--mucor-dim); border-color: var(--mucor); }
+  .tx-card.supportive { background: var(--accent-dim); border-color: var(--accent); }
+  .tx-card h4 { font-weight: 600; margin-bottom: 6px; }
+  .tx-card.emergency h4 { color: var(--danger); }
+  .tx-card.primary h4 { color: var(--crypto); }
+  .tx-card.surgery h4 { color: var(--mucor); }
+  .tx-card.supportive h4 { color: var(--accent); }
+  .drug-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .drug-table th, .drug-table td { padding: 10px 14px; border: 1px solid var(--border); text-align: left; }
+  .drug-table th { background: var(--surface2); font-size: 12px; color: var(--muted); }
+
+  /* ─── MNEMONICS ─── */
+  .mnemonic-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 22px; margin-bottom: 14px;
+  }
+  .mnemonic-card h3 {
+    font-family: var(--font-display); font-weight: 800; font-size: 26px;
+    margin-bottom: 4px;
+  }
+  .mnemonic-card > p { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+  .mnemonic-expand-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--accent); font-size: 13px; padding: 0;
+    display: flex; align-items: center; gap: 6px; margin-bottom: 10px;
+  }
+  .mnemonic-list { display: none; }
+  .mnemonic-list.show { display: block; animation: fadeIn .3s; }
+  .mnemonic-row {
+    display: flex; gap: 12px; align-items: flex-start; padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .mnemonic-row:last-child { border-bottom: none; }
+  .mnemonic-letter {
+    font-family: var(--font-display); font-weight: 800; font-size: 22px;
+    min-width: 28px; flex-shrink: 0;
+  }
+  .mnemonic-meaning { font-size: 13px; line-height: 1.5; }
+  .mnemonic-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* ─── VIVA ─── */
+  .viva-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-bottom: 10px; overflow: hidden;
+  }
+  .viva-q {
+    padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between;
+    align-items: center; gap: 10px; font-size: 14px; font-weight: 500;
+    transition: background .2s;
+  }
+  .viva-q:hover { background: var(--surface2); }
+  .viva-q .chevron { color: var(--muted); transition: transform .3s; flex-shrink: 0; }
+  .viva-item.open .viva-q .chevron { transform: rotate(180deg); }
+  .viva-a {
+    display: none; padding: 0 20px 16px;
+    font-size: 13px; line-height: 1.7; color: var(--muted);
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+  }
+  .viva-item.open .viva-a { display: block; animation: fadeIn .2s; }
+
+  .exam-flag {
+    background: rgba(251,191,36,0.1); border: 1px solid var(--gold);
+    border-radius: 8px; padding: 12px 16px; margin: 8px 0;
+    font-size: 13px; line-height: 1.6; display: flex; gap: 10px;
+  }
+  .exam-flag-icon { flex-shrink: 0; font-size: 16px; }
+
+  /* ─── MOBILE ─── */
+  @media(max-width:600px){
+    .overview-hero { grid-template-columns: 1fr; }
+    .flashcards-grid { grid-template-columns: 1fr; }
+    .cards-grid { grid-template-columns: 1fr; }
+    h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+<div class="bg-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<div class="app">
+  <!-- HEADER -->
+  <header>
+    <div class="header-badge">🍄 Microbiology · Pathology</div>
+    <h1>Fungal CNS Infections</h1>
+    <div class="header-sub">
+      <span>🦠 Cryptococcus neoformans</span>
+      <span>🔴 Mucormycosis</span>
+      <span>📚 Mansoura Faculty of Medicine</span>
+    </div>
+  </header>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="stat-chip" id="quiz-progress-stat">📊 Quiz: <b id="stat-quiz">0/25</b></div>
+    <div class="stat-chip" id="quiz-streak-stat">🔥 Streak: <b id="stat-streak">0</b></div>
+    <div class="stat-chip" id="total-score-stat">⭐ Score: <b id="stat-score">0</b></div>
+    <div class="stat-chip">🃏 Flashcards: <b id="stat-cards">0/22</b></div>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search-wrap" style="position:relative">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="globalSearch" placeholder="Search any concept, drug, or fact..." autocomplete="off">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs-wrap">
+    <button class="tab-btn active" onclick="switchTab('overview',this)">🗺 Overview</button>
+    <button class="tab-btn" onclick="switchTab('quiz',this)">🎯 Quiz</button>
+    <button class="tab-btn" onclick="switchTab('flashcards',this)">🃏 Flashcards</button>
+    <button class="tab-btn" onclick="switchTab('cases',this)">🏥 Clinical Cases</button>
+    <button class="tab-btn" onclick="switchTab('patho',this)">🔬 Pathophysiology</button>
+    <button class="tab-btn" onclick="switchTab('diagnosis',this)">🧪 Diagnosis</button>
+    <button class="tab-btn" onclick="switchTab('treatment',this)">💊 Treatment</button>
+    <button class="tab-btn" onclick="switchTab('mnemonics',this)">🧠 Mnemonics</button>
+    <button class="tab-btn" onclick="switchTab('viva',this)">🗣 Viva Q&A</button>
+  </div>
+
+  <!-- ═══════════ OVERVIEW ═══════════ -->
+  <div id="tab-overview" class="tab-pane active">
+    <div class="section-title">🗺 Overview <span>Key concepts at a glance</span></div>
+
+    <div class="overview-hero">
+      <div class="hero-card crypto">
+        <h3>🦠 Cryptococcus neoformans</h3>
+        <ul>
+          <li><b>Type:</b> Capsulated true yeast</li>
+          <li><b>Source:</b> Pigeon droppings (excreta)</li>
+          <li><b>Route:</b> Inhalation → lung → CNS</li>
+          <li><b>Host:</b> HIV/AIDS, transplant, steroids</li>
+          <li><b>Key virulence:</b> Polysaccharide capsule</li>
+          <li><b>CNS disease:</b> Subacute/chronic meningoencephalitis</li>
+          <li><b>Most common</b> fungal CNS infection</li>
+        </ul>
+      </div>
+      <div class="hero-card mucor">
+        <h3>🔴 Mucormycosis (Zygomycosis)</h3>
+        <ul>
+          <li><b>Organisms:</b> Rhizopus, Rhizomucor, Mucor</li>
+          <li><b>Type:</b> Opportunistic filamentous mycosis</li>
+          <li><b>Route:</b> Inhalation → nasal/lung hyphae</li>
+          <li><b>Host:</b> DKA, burns, immunosuppressed</li>
+          <li><b>Key virulence:</b> Angioinvasion (angiotrophic)</li>
+          <li><b>CNS disease:</b> Rhino-cerebral (sinuses→eye→brain)</li>
+          <li><b>Requires "free iron"</b> to germinate</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Exam flags -->
+    <div class="exam-flag">
+      <span class="exam-flag-icon">⚠️</span>
+      <div><b>EXAM PEARL:</b> "Crypto" = hidden — the capsule hides the fungus from macrophages. CD4+ T-cells are essential to overcome this evasion, explaining high risk in AIDS patients.</div>
+    </div>
+    <div class="exam-flag">
+      <span class="exam-flag-icon">⚠️</span>
+      <div><b>EXAM PEARL:</b> Pigeons don't get Cryptococcus because their body temperature (40–42°C) is too high for the fungus to reproduce. Optimal growth temp = 37°C.</div>
+    </div>
+    <div class="exam-flag" style="border-color: var(--mucor);">
+      <span class="exam-flag-icon">⚠️</span>
+      <div><b>EXAM PEARL (DKA + Mucor):</b> DKA lowers blood pH → reduces iron binding to transport proteins → increases "free iron" → fuels germination of Mucor spores into invasive hyphae.</div>
+    </div>
+
+    <!-- Infection Pathways -->
+    <div style="margin-top:24px">
+      <div class="flow-container">
+        <div class="flow-title" style="color:var(--crypto)">🦠 Cryptococcus Infection Pathway</div>
+        <div class="fc-steps">
+          <div class="fc-step"><span class="fc-icon">🐦</span><div class="fc-box">Pigeon excreta contaminated with spores</div></div>
+          <div class="fc-arrow">↓</div>
+          <div class="fc-step"><span class="fc-icon">🌬</span><div class="fc-box">Inhalation of dust → lodges in alveoli</div></div>
+          <div class="fc-arrow">↓</div>
+          <div class="fc-step"><span class="fc-icon">🏠</span><div class="fc-box">Primary <b>symptomless granuloma</b> (in immunocompetent)</div></div>
+          <div class="fc-arrow">↓</div>
+          <div class="fc-step"><span class="fc-icon">🛡</span><div class="fc-box">Capsule evades macrophage destruction — requires CD4+ T-cells</div></div>
+          <div class="fc-arrow">↓</div>
+          <div class="fc-step"><span class="fc-icon">🩸</span><div class="fc-box">Hematogenous dissemination (in immunocompromised)</div></div>
+          <div class="fc-arrow">↓</div>
+          <div class="fc-step"><span class="fc-icon">🧠</span><div class="fc-box">Crosses blood-brain barrier → <b>Meningoencephalitis</b> (headache, fever, confusion)</div></div>
+        </div>
+      </div>
+
+      <div class="flow-container" style="border-color:var(--mucor)">
+        <div class="flow-title" style="color:var(--mucor)">🔴 Mucormycosis in DKA Pathway</div>
+        <div class="fc-steps">
+          <div class="fc-step"><span class="fc-icon">🩸</span><div class="fc-box">Diabetic Ketoacidosis → blood pH drops (acidosis)</div></div>
+          <div class="fc-arrow">↓</div>
+          <div class="fc-step"><span class="fc-icon">⛓</span><div class="fc-box">Acidosis reduces iron binding to transport proteins</div></div>
+          <div class="fc-arrow">↓</div>
+          <div class="fc-step"><span class="fc-icon">⚗</span><div class="fc-box">Increased <b>"free iron"</b> in serum</div></div>
+          <div class="fc-arrow">↓</div>
+          <div class="fc-step"><span class="fc-icon">🌬</span><div class="fc-box">Mucor spores inhaled from environment (ubiquitous)</div></div>
+          <div class="fc-arrow">↓</div>
+          <div class="fc-step"><span class="fc-icon">🔩</span><div class="fc-box">Spores utilize free iron → germinate into <b>filamentous hyphae</b></div></div>
+          <div class="fc-arrow">↓</div>
+          <div class="fc-step"><span class="fc-icon">🫀</span><div class="fc-box">Hyphae invade blood vessels (<b>angiotrophic</b>) → thrombosis & ischemia</div></div>
+          <div class="fc-arrow">↓</div>
+          <div class="fc-step"><span class="fc-icon">💀</span><div class="fc-box">Massive tissue necrosis → Rhino-cerebral or Thoracic mucormycosis</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Clinical signs grid -->
+    <div class="section-title" style="margin-top:24px">🩺 Key Clinical Signs <span>Organized by organism</span></div>
+    <div class="clinical-signs-grid">
+      <div class="sign-card">
+        <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag tag-crypto">Crypto</span><span class="tag tag-high">High-yield</span></div>
+        <h4>Subacute Meningoencephalitis</h4>
+        <p>Headache, fever, confusion, stiff neck, photophobia — develops over 10+ days in immunocompromised</p>
+      </div>
+      <div class="sign-card">
+        <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag tag-mucor">Mucor</span><span class="tag tag-exam">Exam fav</span></div>
+        <h4>Black Necrotic Tissue</h4>
+        <p>Pathognomonic black eschar in nasal cavity / sinuses due to vascular thrombosis and ischemic infarction</p>
+      </div>
+      <div class="sign-card">
+        <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag tag-mucor">Mucor</span><span class="tag tag-high">High-yield</span></div>
+        <h4>Facial Swelling & Numbness</h4>
+        <p>Unilateral facial swelling, numbness, ophthalmoplegia — extension of rhino-cerebral disease</p>
+      </div>
+      <div class="sign-card">
+        <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag tag-crypto">Crypto</span><span class="tag tag-pearl">Pearl</span></div>
+        <h4>India Ink Halo</h4>
+        <p>CSF India ink preparation shows spherical yeast cells with a clear "halo" (capsule repels ink particles)</p>
+      </div>
+      <div class="sign-card">
+        <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag tag-both">Both</span><span class="tag tag-high">High-yield</span></div>
+        <h4>CSF Profile</h4>
+        <p>↑ Protein, ↓ Glucose (consumed by fungus), ↑ WBC with 90% lymphocytes</p>
+      </div>
+      <div class="sign-card">
+        <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag tag-mucor">Mucor</span><span class="tag tag-exam">Exam fav</span></div>
+        <h4>Rhino-Cerebral Spread</h4>
+        <p>Nasal → sinuses → orbital tissue → cranial bones → brain parenchyma — rapidly progressive</p>
+      </div>
+      <div class="sign-card">
+        <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag tag-mucor">Mucor</span></div>
+        <h4>Hemoptysis</h4>
+        <p>Thoracic mucormycosis: angioinvasion of lung vessels → ischemic necrosis → coughing blood</p>
+      </div>
+      <div class="sign-card">
+        <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag tag-crypto">Crypto</span></div>
+        <h4>Asymptomatic Granuloma</h4>
+        <p>Primary pulmonary infection in immunocompetent → successfully walled off, no symptoms</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ QUIZ ═══════════ -->
+  <div id="tab-quiz" class="tab-pane">
+    <div class="section-title">🎯 Quiz Mode <span>25 USMLE-style MCQs</span></div>
+
+    <div class="quiz-stats-row">
+      <div class="quiz-stat">Progress: <b id="qprog">0 / 25</b></div>
+      <div class="quiz-stat">Score: <b id="qscore" style="color:var(--success)">0</b></div>
+      <div class="quiz-stat">Streak: <b id="qstreak" style="color:var(--gold)">🔥 0</b></div>
+    </div>
+
+    <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qProgressBar" style="width:0%"></div></div>
+
+    <div id="quiz-questions"></div>
+    <div id="quiz-complete">
+      <div style="font-size:48px">🎉</div>
+      <h2>Quiz Complete!</h2>
+      <div class="score-ring">
+        <div class="score-ring-fill" id="scoreRingFill"></div>
+        <div class="score-ring-num" id="finalScoreNum">0</div>
+        <div class="score-ring-label">/ 25</div>
+      </div>
+      <p id="scoreMsg" style="color:var(--muted);margin-bottom:20px"></p>
+      <button class="btn" onclick="restartQuiz()">🔄 Restart Quiz</button>
+    </div>
+  </div>
+
+  <!-- ═══════════ FLASHCARDS ═══════════ -->
+  <div id="tab-flashcards" class="tab-pane">
+    <div class="section-title">🃏 Flashcards <span>Click to flip · 22 cards</span></div>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Tap any card to reveal the answer. Track cards you've reviewed.</p>
+    <div class="flashcards-grid" id="flashcardsContainer"></div>
+  </div>
+
+  <!-- ═══════════ CLINICAL CASES ═══════════ -->
+  <div id="tab-cases" class="tab-pane">
+    <div class="section-title">🏥 Clinical Cases <span>6 Exam-style vignettes</span></div>
+    <div id="casesContainer"></div>
+  </div>
+
+  <!-- ═══════════ PATHOPHYSIOLOGY ═══════════ -->
+  <div id="tab-patho" class="tab-pane">
+    <div class="section-title">🔬 Pathophysiology <span>Click any structure for details</span></div>
+    <div class="patho-grid" id="pathoGrid"></div>
+    <div class="patho-detail" id="pathoDetail"></div>
+
+    <div class="section-title" style="margin-top:8px">🦠 Fungal Taxonomy</div>
+    <div class="cards-grid-2">
+      <div class="card" style="border-color:var(--crypto)">
+        <div class="tag tag-crypto" style="margin-bottom:8px">True Yeast</div>
+        <h4 style="margin-bottom:6px;font-size:14px">Cryptococcus neoformans</h4>
+        <p style="font-size:12px;color:var(--muted)">Budding yeast, 37°C, polysaccharide capsule, urease (+)</p>
+      </div>
+      <div class="card" style="border-color:var(--mucor)">
+        <div class="tag tag-mucor" style="margin-bottom:8px">Filamentous Fungi</div>
+        <h4 style="margin-bottom:6px;font-size:14px">Mucor / Rhizopus / Aspergillus</h4>
+        <p style="font-size:12px;color:var(--muted)">Broad non-septate hyphae (Mucor), sporangiospores, angiotrophic</p>
+      </div>
+      <div class="card">
+        <div class="tag tag-both" style="margin-bottom:8px">Yeast-like</div>
+        <h4 style="margin-bottom:6px;font-size:14px">Candida species</h4>
+        <p style="font-size:12px;color:var(--muted)">Yeast-like morphology, pseudohyphae, opportunistic</p>
+      </div>
+      <div class="card">
+        <div class="tag tag-high" style="margin-bottom:8px">Dimorphic</div>
+        <h4 style="margin-bottom:6px;font-size:14px">Histoplasma / Blastomyces</h4>
+        <p style="font-size:12px;color:var(--muted)">Mold at 25°C (environment) → Yeast at 37°C (host tissue)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ DIAGNOSIS ═══════════ -->
+  <div id="tab-diagnosis" class="tab-pane">
+    <div class="section-title">🧪 Diagnosis <span>Tests, criteria, and algorithms</span></div>
+
+    <div class="dx-tabs">
+      <button class="dx-tab active" onclick="switchDx('crypto',this)">🦠 Cryptococcus</button>
+      <button class="dx-tab" onclick="switchDx('mucor',this)">🔴 Mucormycosis</button>
+      <button class="dx-tab" onclick="switchDx('compare',this)">⚖️ Comparison Table</button>
+      <button class="dx-tab" onclick="switchDx('algo',this)">🔁 Diagnostic Algorithm</button>
+    </div>
+
+    <div id="dx-crypto" class="dx-pane active">
+      <h3 style="font-family:var(--font-display);margin-bottom:14px;color:var(--crypto)">Cryptococcus Diagnostic Tests</h3>
+      <div style="margin-bottom:16px">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Click each test to see the finding:</p>
+        <div id="cryptoTestBadges"></div>
+      </div>
+      <div id="cryptoTestResult" style="display:none;padding:14px;background:var(--crypto-dim);border:1px solid var(--crypto);border-radius:8px;font-size:13px;margin-top:12px;line-height:1.6"></div>
+    </div>
+
+    <div id="dx-mucor" class="dx-pane">
+      <h3 style="font-family:var(--font-display);margin-bottom:14px;color:var(--mucor)">Mucormycosis Diagnostic Tests</h3>
+      <div style="margin-bottom:16px">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Click each test to see the finding:</p>
+        <div id="mucorTestBadges"></div>
+      </div>
+      <div id="mucorTestResult" style="display:none;padding:14px;background:var(--mucor-dim);border:1px solid var(--mucor);border-radius:8px;font-size:13px;margin-top:12px;line-height:1.6"></div>
+    </div>
+
+    <div id="dx-compare" class="dx-pane">
+      <h3 style="font-family:var(--font-display);margin-bottom:14px">⚖️ Comparison Table</h3>
+      <div style="overflow-x:auto">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th class="crypto-cell">Cryptococcus</th>
+              <th class="mucor-cell">Mucormycosis</th>
+              <th>Dimorphic Fungi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Type</td><td class="crypto-cell">True yeast</td><td class="mucor-cell">Filamentous mold</td><td>Dimorphic (mold+yeast)</td></tr>
+            <tr><td>Risk Group</td><td class="crypto-cell">HIV/AIDS, transplant, steroids</td><td class="mucor-cell">DKA, burns, steroids</td><td>Environmental exposure</td></tr>
+            <tr><td>Virulence</td><td class="crypto-cell">Capsule → evades phagocytosis</td><td class="mucor-cell">Angioinvasion → thrombosis</td><td>Temperature switching</td></tr>
+            <tr><td>Direct Stain</td><td class="crypto-cell">India ink → clear halo</td><td class="mucor-cell">10% KOH → broad non-septate hyphae</td><td>Various</td></tr>
+            <tr><td>Culture (SDA)</td><td class="crypto-cell">Creamy, white, mucoid colonies</td><td class="mucor-cell">Gray-to-black "dirty snow"</td><td>Variable</td></tr>
+            <tr><td>Rapid Antigen</td><td class="crypto-cell">Latex agglutination (CSF)</td><td class="mucor-cell">No standard rapid antigen test</td><td>Antigen assays available</td></tr>
+            <tr><td>Biochemistry</td><td class="crypto-cell">Urease (+)</td><td class="mucor-cell">Requires free iron</td><td>Temperature dependent</td></tr>
+            <tr><td>CSF Profile</td><td class="crypto-cell">↑ Protein, ↓ Glucose, 90% lymphocytes</td><td class="mucor-cell">Often normal (angiotrophic not meningeal)</td><td>Variable</td></tr>
+            <tr><td>CNS Disease</td><td class="crypto-cell">Subacute meningoencephalitis</td><td class="mucor-cell">Rhino-cerebral / Thoracic</td><td>Rare CNS involvement</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="dx-algo" class="dx-pane">
+      <h3 style="font-family:var(--font-display);margin-bottom:14px">🔁 Diagnostic Algorithm</h3>
+      <div class="algo-steps">
+        <div class="algo-step"><div class="algo-num">1</div><div class="algo-text"><b>Clinical Presentation:</b> Immunocompromised patient with headache, fever, confusion → suspect fungal CNS infection</div></div>
+        <div class="algo-arrow">↓</div>
+        <div class="algo-step"><div class="algo-num">2</div><div class="algo-text"><b>Risk Factor Assessment:</b> HIV/AIDS → prioritize Cryptococcus | DKA + facial necrosis → prioritize Mucormycosis</div></div>
+        <div class="algo-arrow">↓</div>
+        <div class="algo-step"><div class="algo-num">3</div><div class="algo-text"><b>CSF Analysis (LP):</b> High protein + low glucose + 90% lymphocytes → fungal meningitis pattern</div></div>
+        <div class="algo-arrow">↓</div>
+        <div class="algo-step"><div class="algo-num">4</div><div class="algo-text"><b>India Ink Stain (CSF):</b> Capsulated yeast with clear halo → Cryptococcus confirmed</div></div>
+        <div class="algo-arrow">↓</div>
+        <div class="algo-step"><div class="algo-num">5</div><div class="algo-text"><b>Latex Agglutination (CSF):</b> Rapid detection of cryptococcal polysaccharide antigen — useful AND rapid</div></div>
+        <div class="algo-arrow">↓</div>
+        <div class="algo-step"><div class="algo-num">6</div><div class="algo-text"><b>Culture on SDA (without cycloheximide):</b> Creamy mucoid = Crypto | Gray-black "dirty snow" = Mucor</div></div>
+        <div class="algo-arrow">↓</div>
+        <div class="algo-step"><div class="algo-num">7</div><div class="algo-text"><b>KOH Mount (tissue/discharge):</b> Broad, non-septate branching hyphae + sporangia = Mucormycosis</div></div>
+        <div class="algo-arrow">↓</div>
+        <div class="algo-step"><div class="algo-num">8</div><div class="algo-text"><b>Biochemical Confirmation:</b> Urease (+) = C. neoformans</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ TREATMENT ═══════════ -->
+  <div id="tab-treatment" class="tab-pane">
+    <div class="section-title">💊 Treatment <span>Urgency-coded management</span></div>
+
+    <div class="tx-section">
+      <h3>🚨 Emergency / Acute Management</h3>
+      <div class="tx-grid">
+        <div class="tx-card emergency">
+          <h4>🚨 Cryptococcal Meningitis</h4>
+          <p><b>Induction:</b> Amphotericin B + Flucytosine (5-FC)<br>
+          <b>Consolidation:</b> Fluconazole (8 weeks)<br>
+          <b>Maintenance:</b> Fluconazole (suppress relapse in HIV)</p>
+        </div>
+        <div class="tx-card emergency">
+          <h4>🚨 Rhino-cerebral Mucormycosis</h4>
+          <p><b>Antifungal:</b> Amphotericin B (drug of choice)<br>
+          <b>Must also:</b> Treat underlying DKA/acidosis<br>
+          <b>Surgery mandatory:</b> Debridement of necrotic tissue</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tx-section">
+      <h3>🔑 Primary Antifungal Drugs</h3>
+      <div style="overflow-x:auto">
+        <table class="drug-table">
+          <thead>
+            <tr><th>Drug</th><th>Use</th><th>Mechanism</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><b>Amphotericin B</b></td><td>Both (first-line severe)</td><td>Binds ergosterol → membrane pores</td><td>Nephrotoxic; gold standard</td></tr>
+            <tr><td><b>Fluconazole</b></td><td>Cryptococcus (consolidation/maintenance)</td><td>Inhibits ergosterol synthesis (CYP51)</td><td>Good CNS penetration</td></tr>
+            <tr><td><b>Flucytosine (5-FC)</b></td><td>Cryptococcus (with AmB)</td><td>Converted to 5-FU → RNA/DNA disruption</td><td>Synergistic with AmB</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tx-section">
+      <h3>🛠 Supportive / Additional Management</h3>
+      <div class="tx-grid">
+        <div class="tx-card supportive">
+          <h4>🧠 ICP Management (Crypto)</h4>
+          <p>Serial lumbar punctures to relieve raised intracranial pressure. Consider external ventricular drain if refractory.</p>
+        </div>
+        <div class="tx-card surgery">
+          <h4>🔪 Surgical Debridement (Mucor)</h4>
+          <p>Aggressive surgical removal of all necrotic tissue is mandatory. Antifungal alone is insufficient.</p>
+        </div>
+        <div class="tx-card primary">
+          <h4>💊 Treat Underlying Cause</h4>
+          <p>Mucormycosis: Correct DKA (IV insulin + fluids). Cryptococcosis: Optimize ART in HIV patients.</p>
+        </div>
+        <div class="tx-card supportive">
+          <h4>🛡 Prophylaxis</h4>
+          <p>In advanced HIV (CD4 &lt;100): Fluconazole prophylaxis to prevent cryptococcal meningitis.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ MNEMONICS ═══════════ -->
+  <div id="tab-mnemonics" class="tab-pane">
+    <div class="section-title">🧠 Mnemonics <span>5 memory tools</span></div>
+    <div id="mnemonicsContainer"></div>
+  </div>
+
+  <!-- ═══════════ VIVA Q&A ═══════════ -->
+  <div id="tab-viva" class="tab-pane">
+    <div class="section-title">🗣 Viva Q&A <span>12 high-yield questions</span></div>
+    <div id="vivaContainer"></div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+
+const quizData = [
+  { q: "Encephalitis caused by a fungus producing 'dirty snow' colonies on SDA. Which is the causative organism?", opts: ["Cryptococcus","Candida","Aspergillus flavus","Mucor"], ans: 3, exp: "Mucor rapidly grows cottony gray-to-black colonies resembling dirty snow on SDA without cycloheximide. Cryptococcus produces creamy white mucoid colonies.", tag:"mucor" },
+  { q: "Encephalitis due to an angiotrophic lesion is caused by which organism?", opts: ["Cryptococcus","Candida","Aspergillus flavus","Mucor"], ans: 3, exp: "Mucormycosis is angiotrophic — hyphae specifically invade blood vessels causing thrombosis and ischemic infarction. Cryptococcus spreads hematogenously but causes meningeal inflammation rather than angiotrophic thrombosis.", tag:"mucor" },
+  { q: "Encephalitis caused by a capsulated budding yeast?", opts: ["Cryptococcus","Mucor","Blastomyces","Histoplasma"], ans: 0, exp: "Cryptococcus neoformans is specifically a capsulated budding yeast. Mucor is a filamentous mold. Blastomyces and Histoplasma are dimorphic fungi without this prominent capsule.", tag:"crypto" },
+  { q: "Encephalitis is caused by which of the following yeast-LIKE fungi?", opts: ["Malassezia furfur","Candida","Mucor","Cryptococcus"], ans: 1, exp: "Candida is classified as a 'yeast-like' fungus. Cryptococcus is a 'true yeast'. Mucor is a filamentous fungus. Malassezia is a lipophilic yeast.", tag:"taxonomy" },
+  { q: "Which immune cells are most heavily relied upon to eradicate Cryptococcus neoformans, explaining its prevalence in HIV?", opts: ["Neutrophils","B-lymphocytes","CD4+ T-helper cells","Eosinophils"], ans: 2, exp: "CD4+ T-cells direct macrophages to destroy the capsulated yeast. The polysaccharide capsule specifically prevents unassisted macrophage/neutrophil phagocytosis — making CD4 depletion in HIV the critical risk factor.", tag:"crypto" },
+  { q: "Why are pigeons unaffected by Cryptococcus neoformans living in their excreta?", opts: ["They have innate humoral immunity","Their body temperature (40–42°C) is too high for the fungus to reproduce","The fungus is entirely commensal in avians","Pigeons do not inhale the dust"], ans: 1, exp: "The optimal growth temperature for Cryptococcus is 37°C. The pigeon's high core temperature (40–42°C) prevents replication — this is a thermodynamic limitation, not an immunological one.", tag:"crypto" },
+  { q: "How does Diabetic Ketoacidosis (DKA) mechanistically facilitate Mucormycosis infection?", opts: ["Acidosis destroys the nasal epithelium","Hyperglycemia directly feeds the fungus","Acidosis reduces iron binding, creating free iron needed for fungal germination","Ketones stimulate hyphal branching"], ans: 2, exp: "Mucor spores require free iron to convert to their invasive filamentous form. DKA acidosis reduces iron binding to transport proteins, making free iron abundantly available for fungal germination.", tag:"mucor" },
+  { q: "What is the most common fungal cause of CNS infections?", opts: ["Candida","Mucor","Cryptococcus","Histoplasma"], ans: 2, exp: "Cryptococcus neoformans is explicitly the most common fungal cause of CNS infection, typically presenting as subacute or chronic meningoencephalitis in immunocompromised patients.", tag:"crypto" },
+  { q: "In fungal meningitis CSF, what happens to glucose and why?", opts: ["Increased — immune cells release glucose","Normal — fungi don't consume glucose","Decreased — fungus utilizes host glucose for energy and replication","Decreased — viral co-infection consumes glucose"], ans: 2, exp: "The fungus actively metabolizes glucose as an energy source, driving down CSF glucose levels. This is distinct from viral meningitis where CSF glucose typically remains normal.", tag:"diagnosis" },
+  { q: "What rapid test detects Cryptococcal antigen in the CSF?", opts: ["10% KOH mount","India ink preparation","Latex agglutination","Lactophenol cotton blue"], ans: 2, exp: "Latex agglutination detects the cryptococcal polysaccharide capsular antigen in CSF. It is both useful and rapid. India ink is a direct microscopic stain, not an antigen test.", tag:"diagnosis" },
+  { q: "10% KOH mount of nasal discharge shows irregular branching broad hyphae with sparse septations. What is the diagnosis?", opts: ["Cryptococcosis","Mucormycosis","Candidiasis","Aspergillosis"], ans: 1, exp: "10% KOH dissolves host cells, revealing Mucor's classic broad, sparsely septated (non-septate) branching hyphae with sporangia. Cryptococcus would show round capsulated yeast cells.", tag:"mucor" },
+  { q: "What biochemical test is positive for C. neoformans?", opts: ["Coagulase","Catalase","Urease","Oxidase"], ans: 2, exp: "C. neoformans is urease positive. This is a specific biochemical marker for the organism. The other listed tests are not characteristic.", tag:"crypto" },
+  { q: "Thoracic mucormycosis causes massive tissue destruction by what mechanism?", opts: ["Endotoxin release","Capsule-mediated immune evasion","Invasion of lung vasculature causing ischemic necrosis","Granuloma formation"], ans: 2, exp: "Mucor is angiotrophic — inhalation into the lungs leads to vascular invasion, thrombosis, and subsequent ischemic necrosis. Unlike bacteria, fungi don't have classic endotoxins.", tag:"mucor" },
+  { q: "The morphological classification of Histoplasma and Blastomyces is:", opts: ["True yeast","Filamentous fungi","Dimorphic fungi","Yeast-like"], ans: 2, exp: "Dimorphic fungi exist in two forms: mold in the environment at 25°C, and yeast in human tissue at 37°C. Temperature is the determining factor for their morphological switch.", tag:"taxonomy" },
+  { q: "What visual phenomenon does India ink create when staining Cryptococcus?", opts: ["A bright fluorescent green outline","A zone of clearance or 'halo' around the cells","Pink budding hyphae","Dark black intracellular spores"], ans: 1, exp: "The large ink particles cannot penetrate the thick polysaccharide capsule surrounding the yeast cell. This creates a clear 'halo' (negative stain effect) against the dark background — pathognomonic for Cryptococcus.", tag:"diagnosis" },
+  { q: "Primary pulmonary cryptococcosis in an immunocompetent host typically presents as:", opts: ["Cavitary lung lesions with hemoptysis","Symptomless granuloma","Rapidly spreading ischemic necrosis","Severe asthma"], ans: 1, exp: "In a healthy immune system, Cryptococcus is successfully contained as a symptomless (asymptomatic) granuloma. Only in immunocompromised patients does it break out and disseminate.", tag:"crypto" },
+  { q: "Which describes Cryptococcus colonies on SDA?", opts: ["Rapidly growing, gray to black","Creamy, white, mucoid","Dry, wrinkled, yellow","Cottony, dirty snow appearance"], ans: 1, exp: "Cryptococcus on SDA without cycloheximide produces creamy, white, mucoid colonies within 1–2 days. The 'mucoid' appearance is due to the massive polysaccharide capsule. 'Dirty snow' = Mucor.", tag:"diagnosis" },
+  { q: "Rhino-cerebral mucormycosis usually begins with:", opts: ["Stiff neck and photophobia","Nasal congestion or discharge","Hemoptysis and dyspnea","Skin lesions on the extremities"], ans: 1, exp: "Infection begins in the nose with germination of spores, presenting initially as nasal congestion/discharge before progressing to facial swelling, numbness, eye involvement, and brain invasion.", tag:"mucor" },
+  { q: "To effectively culture these fungal pathogens, SDA should be prepared:", opts: ["With high concentrations of cycloheximide","Without cycloheximide","Infused with India ink","Mixed with 10% KOH"], ans: 1, exp: "Culture protocol explicitly requires SDA WITHOUT cycloheximide for both Cryptococcus and Mucormycosis. India ink and KOH are for microscopy, not culture media.", tag:"diagnosis" },
+  { q: "What structure contains the sporangiospores in Mucormycosis?", opts: ["The budding yeast membrane","The sporangia","The capsule","The granuloma"], ans: 1, exp: "Microscopic examination of Mucor reveals sporangia (sacs) containing sporangiospores attached to the broad hyphae. Mucor is a mold — it does not bud like yeast.", tag:"mucor" },
+  { q: "Inflammation of both the meninges AND brain parenchyma is termed:", opts: ["Meningitis","Encephalitis","Meningoencephalitis","Angioinvasion"], ans: 2, exp: "Meningoencephalitis = combined inflammation of meninges (meningitis) AND brain parenchyma (encephalitis). Cryptococcus typically causes meningoencephalitis, not just meningitis alone.", tag:"terminology" },
+  { q: "What causes the 'mucoid' appearance of Cryptococcus colonies on SDA?", opts: ["Exudation of pus","Presence of a massive polysaccharide capsule","Thrombosis of the agar","Secretion of 10% KOH"], ans: 1, exp: "The thick polysaccharide capsule — which also creates the India ink halo and enables immune evasion — physically makes cultured colonies appear slimy and mucoid.", tag:"crypto" },
+  { q: "A 45-year-old on high-dose corticosteroids is at increased risk for which infection?", opts: ["Cryptococcosis only","Mucormycosis only","Both Cryptococcosis and Mucormycosis","Neither"], ans: 2, exp: "Corticosteroid treatment is a risk factor for BOTH organisms. Steroids broadly suppress immunity — Cryptococcosis via T-cell suppression; Mucormycosis via general immunosuppression.", tag:"risk" },
+  { q: "In dimorphic fungi, what happens at 37°C?", opts: ["They convert to a filamentous mold","They convert to a yeast form in tissues","They undergo massive sporulation","They die"], ans: 1, exp: "Dimorphic fungi switch from mold form (25°C in environment) to yeast form (37°C in human tissue). This temperature-regulated morphological switch is their defining characteristic.", tag:"taxonomy" },
+  { q: "Which symptom is highly indicative of THORACIC mucormycosis rather than pulmonary cryptococcosis?", opts: ["Asymptomatic granuloma","Hemoptysis","Mild fever","Swollen lymph nodes"], ans: 1, exp: "The angioinvasive nature of Mucor means lung vessel invasion → ischemic necrosis → hemoptysis. In contrast, pulmonary cryptococcosis generally forms asymptomatic granulomas in immunocompetent hosts.", tag:"mucor" }
+];
+
+const flashcardsData = [
+  { q: "What type of fungus is Cryptococcus neoformans?", a: "Capsulated TRUE YEAST — budding yeast cells surrounded by a thick polysaccharide capsule. Grows at 37°C.", tag:"crypto" },
+  { q: "What is the source/vector of Cryptococcus neoformans infection?", a: "Pigeon droppings/excreta. Pigeons carry but don't get sick (their body temp 40–42°C is too high for the fungus to replicate).", tag:"crypto" },
+  { q: "Why does Cryptococcus preferentially affect AIDS patients?", a: "CD4+ T-cells are essential to coordinate macrophage destruction of the encapsulated yeast. HIV depletes CD4+ cells → unopposed fungal dissemination to CNS.", tag:"crypto" },
+  { q: "What does 'Crypto' mean and what does it refer to?", a: "'Crypto' = HIDDEN. The polysaccharide capsule hides the organism from macrophages, preventing phagocytosis without CD4+ T-cell help.", tag:"crypto" },
+  { q: "What is the classic India ink preparation finding in Cryptococcosis?", a: "A clear 'HALO' around yeast cells — ink particles are too large to penetrate the polysaccharide capsule, creating a negative stain effect.", tag:"diagnosis" },
+  { q: "What is the CSF profile in fungal meningitis?", a: "↑ Protein (immune response), ↓ Glucose (fungus consumes it), ↑ WBCs with 90% LYMPHOCYTES (chronic cellular immune response).", tag:"diagnosis" },
+  { q: "What rapid CSF test confirms Cryptococcal meningitis?", a: "LATEX AGGLUTINATION — detects the cryptococcal polysaccharide capsular antigen. Rapid AND useful.", tag:"diagnosis" },
+  { q: "What biochemical test is positive for C. neoformans?", a: "UREASE POSITIVE. Useful for identification in lab settings.", tag:"crypto" },
+  { q: "How do Cryptococcus colonies appear on SDA?", a: "CREAMY, WHITE, MUCOID colonies within 1–2 days. Mucoid = due to large polysaccharide capsule on surface.", tag:"diagnosis" },
+  { q: "What are the causative organisms of Mucormycosis?", a: "Rhizopus, Rhizomucor, and Mucor species — opportunistic filamentous molds (Zygomycetes class).", tag:"mucor" },
+  { q: "What is the key virulence mechanism of Mucormycosis?", a: "ANGIOINVASION (angiotrophic) — hyphae invade blood vessels → thrombosis → ischemic necrosis → massive tissue destruction.", tag:"mucor" },
+  { q: "Why is DKA a risk factor for Mucormycosis?", a: "DKA acidosis → reduces iron binding → INCREASED FREE IRON → Mucor spores use free iron to germinate into invasive filamentous hyphae.", tag:"mucor" },
+  { q: "How does KOH mount appear in Mucormycosis?", a: "Irregular branching BROAD hyphae with SPARSE SEPTATIONS (nearly non-septate) + sporangia containing sporangiospores.", tag:"mucor" },
+  { q: "How do Mucor colonies appear on SDA?", a: "Rapidly growing GRAY-TO-BLACK 'DIRTY SNOW' cottony colonies. The key feature: rapid growth + dark appearance.", tag:"diagnosis" },
+  { q: "What is the SDA preparation requirement for culturing these fungi?", a: "SDA WITHOUT CYCLOHEXIMIDE — cycloheximide inhibits pathogenic fungi, so it must be omitted.", tag:"diagnosis" },
+  { q: "Name the 4 morphological categories of fungi (with examples).", a: "1. True Yeast (Cryptococcus) 2. Yeast-like (Candida) 3. Filamentous (Mucor, Aspergillus) 4. Dimorphic (Histoplasma, Blastomyces)", tag:"taxonomy" },
+  { q: "Define dimorphic fungi.", a: "Fungi with DUAL forms: MOLD at 25°C (environment) and YEAST at 37°C (human tissue). Temperature switches their morphology.", tag:"taxonomy" },
+  { q: "What is meningoencephalitis?", a: "Combined inflammation of the MENINGES + BRAIN PARENCHYMA. Cryptococcus causes this — not just pure meningitis.", tag:"terminology" },
+  { q: "What are the clinical features of Cryptococcal meningoencephalitis?", a: "Subacute/chronic onset: headache, fever, confusion (meningismus), stiff neck, photophobia. Risk in HIV/AIDS.", tag:"crypto" },
+  { q: "What are the clinical features of Rhino-cerebral Mucormycosis?", a: "Nasal congestion → facial swelling, unilateral numbness → black necrotic nasal tissue → eye/orbital involvement → intracranial invasion.", tag:"mucor" },
+  { q: "What is the antifungal treatment for Cryptococcal meningitis?", a: "INDUCTION: Amphotericin B + Flucytosine. CONSOLIDATION: Fluconazole 8 weeks. MAINTENANCE: Fluconazole (prevent relapse in HIV).", tag:"treatment" },
+  { q: "What is the antifungal treatment for Mucormycosis?", a: "Amphotericin B (drug of choice) + Surgical debridement of all necrotic tissue + Treat underlying cause (correct DKA).", tag:"treatment" }
+];
+
+const casesData = [
+  {
+    num: 1, title: "Classic HIV + Cryptococcal Meningitis",
+    tag: "crypto",
+    vignette: "Maria, 28F, HIV-positive (non-adherent to ART), presents with 10-day history of worsening frontal headache, fever, confusion, stiff neck, and light sensitivity. India ink smear of her CSF shows capsulated budding yeast surrounded by a clear halo.",
+    questions: [
+      { q: "1. What is the diagnosis and causative organism?", a: "Cryptococcal meningoencephalitis caused by Cryptococcus neoformans. The India ink halo is pathognomonic." },
+      { q: "2. Trace the pathogenesis step by step.", a: "HIV → CD4+ T-cell depletion → inhaled pigeon excreta spores evade pulmonary macrophages (capsule) → hematogenous dissemination → crosses BBB → meningeal and parenchymal inflammation → headache, fever, confusion." },
+      { q: "3. What CSF profile is expected?", a: "↑ Protein (immune exudate), ↓ Glucose (fungus consumes it), ↑ WBCs with 90% lymphocytes (chronic cellular response)." },
+      { q: "4. What confirmatory/rapid test would you order?", a: "Latex agglutination for cryptococcal antigen in CSF — both rapid and useful. Also culture on SDA (without cycloheximide) → creamy white mucoid colonies." },
+      { q: "5. What treatment regimen do you initiate?", a: "Induction: IV Amphotericin B + Flucytosine. Consolidation: Fluconazole 8 weeks. Maintenance: Fluconazole. Restart/optimize ART. Serial LPs to reduce ICP." }
+    ]
+  },
+  {
+    num: 2, title: "DKA + Rapid Facial Necrosis",
+    tag: "mucor",
+    vignette: "A 52-year-old male with poorly controlled T2DM presents in diabetic coma. Over 48 hours he develops rapid facial swelling, unilateral periorbital edema, and black necrotic tissue in the left nasal cavity. His blood gas shows pH 7.1.",
+    questions: [
+      { q: "1. What is the diagnosis?", a: "Rhino-cerebral Mucormycosis (Zygomycosis). The combination of DKA + black necrotic nasal tissue is classic." },
+      { q: "2. Explain the mechanism linking DKA to this infection.", a: "Acidosis (pH↓) reduces iron binding to transport proteins → increased 'free iron' in serum → Mucor spores (ubiquitous in environment) utilize free iron to germinate into invasive filamentous hyphae → angioinvasion." },
+      { q: "3. What would KOH mount of nasal discharge show?", a: "Broad, irregular branching hyphae with sparse septations (nearly non-septate) + sporangia containing sporangiospores." },
+      { q: "4. What are the treatment priorities?", a: "1) Immediate IV Amphotericin B. 2) Aggressive surgical debridement of ALL necrotic tissue — antifungal alone is insufficient. 3) Correct the DKA: IV insulin + aggressive fluid resuscitation." }
+    ]
+  },
+  {
+    num: 3, title: "CSF Analysis in Fungal Meningitis",
+    tag: "both",
+    vignette: "A 35-year-old organ transplant recipient (on tacrolimus) presents with 2 weeks of worsening headache and confusion. Lumbar puncture results: Protein 180 mg/dL (↑), Glucose 28 mg/dL (↓, serum glucose 90), WBC 120 cells/μL with 92% lymphocytes.",
+    questions: [
+      { q: "1. What does this CSF profile suggest?", a: "Fungal meningitis (or other chronic meningitis). The pattern of ↑ protein, ↓ glucose, and predominant lymphocytes is characteristic of a fungal or mycobacterial process." },
+      { q: "2. Why is glucose decreased?", a: "The fungus actively metabolizes glucose for energy and replication, consuming CSF glucose and driving levels down." },
+      { q: "3. Why does the lymphocyte predominance occur?", a: "Fungal infection triggers a chronic cellular immune response (T-cell/lymphocyte mediated), unlike bacterial meningitis which triggers neutrophil predominance." },
+      { q: "4. What test would you order next?", a: "India ink preparation (if Cryptococcus suspected — would show capsulated yeast with halo) + Latex agglutination for cryptococcal antigen. Culture on SDA without cycloheximide." }
+    ]
+  },
+  {
+    num: 4, title: "Lab Culture Identification",
+    tag: "diagnosis",
+    vignette: "A CSF sample from an immunocompromised patient is cultured on SDA without cycloheximide. After 2 days, creamy, white, mucoid colonies are seen. A separate culture from a nasal biopsy in a DKA patient shows rapidly growing gray-to-black cottony colonies.",
+    questions: [
+      { q: "1. Identify Organism A (creamy white mucoid).", a: "Cryptococcus neoformans. The mucoid texture is due to the large polysaccharide capsule coating the colonies." },
+      { q: "2. Identify Organism B (gray-to-black dirty snow).", a: "Mucormycosis species (Mucor/Rhizopus). The 'dirty snow' appearance with rapid growth is pathognomonic." },
+      { q: "3. Why is cycloheximide omitted from the SDA?", a: "Cycloheximide inhibits pathogenic fungi. Omitting it allows the pathogenic organisms (Crypto, Mucor) to grow successfully." },
+      { q: "4. What additional stain would differentiate them under the microscope?", a: "India ink → Cryptococcus shows capsulated yeast with halo. 10% KOH → Mucor shows broad non-septate hyphae with sporangia." }
+    ]
+  },
+  {
+    num: 5, title: "Pigeon Breeder with Latent Infection",
+    tag: "crypto",
+    vignette: "A 45-year-old pigeon breeder, currently healthy and immunocompetent, undergoes a chest CT for unrelated reasons. An incidental finding reveals small calcified granulomas in both lower lung fields. He denies any symptoms. Biopsy of a granuloma would show fungal elements.",
+    questions: [
+      { q: "1. What is the diagnosis?", a: "Primary pulmonary cryptococcosis — asymptomatic (latent) form. The granulomas represent successful immune containment." },
+      { q: "2. Why is the patient asymptomatic?", a: "In an immunocompetent host, macrophages (coordinated by CD4+ T-cells) successfully wall off the inhaled spores, forming a contained granuloma without systemic disease." },
+      { q: "3. What is the danger if this patient becomes immunocompromised?", a: "If CD4+ T-cells are depleted (e.g., HIV), the granuloma breaks down → fungus re-activates → hematogenous dissemination to CNS → Cryptococcal meningoencephalitis." },
+      { q: "4. Why don't the pigeons themselves get sick?", a: "Pigeon body temperature is 40–42°C, which is above the optimal growth temperature of Cryptococcus (37°C), preventing replication in the birds." }
+    ]
+  },
+  {
+    num: 6, title: "Corticosteroid-Induced Susceptibility",
+    tag: "both",
+    vignette: "A 55-year-old woman with rheumatoid arthritis has been on high-dose prednisone for 8 months. She develops a 3-week history of headache, fever, and confusion. No obvious source of infection is found on initial workup.",
+    questions: [
+      { q: "1. What fungal organisms should be highest on your differential?", a: "BOTH Cryptococcus AND Mucormycosis. Corticosteroids suppress broad cellular immunity — they are risk factors for both organisms." },
+      { q: "2. How would you distinguish between the two clinically?", a: "Cryptococcus: subacute meningitis symptoms, no tissue necrosis. Mucormycosis: look for nasal/sinus involvement, black tissue, facial swelling/numbness, rapid progression." },
+      { q: "3. What is the most important initial diagnostic test?", a: "Lumbar puncture for CSF analysis including India ink stain and latex agglutination (if Cryptococcus suspected). Imaging (MRI/CT) for Mucormycosis (sinus involvement)." }
+    ]
+  }
+];
+
+const pathoData = [
+  { title: "Polysaccharide Capsule (Crypto)", emoji: "🛡", detail: "The defining virulence factor of Cryptococcus. This thick capsule prevents phagocytosis by alveolar macrophages. CD4+ T-cells are required to 'activate' macrophages sufficiently to overcome this evasion. Without CD4+ cells (HIV), the yeast multiplies unchecked.", tag:"crypto" },
+  { title: "Angioinvasion / Angiotrophism (Mucor)", emoji: "🩸", detail: "Mucor hyphae have a unique tropism for blood vessel walls. Once germinated, hyphae penetrate vessel walls → thrombosis (blood clotting within vessels) → downstream ischemia → ischemic necrosis. This explains the black eschar seen clinically.", tag:"mucor" },
+  { title: "Free Iron Mechanism (Mucor)", emoji: "⚗", detail: "Mucor spores REQUIRE free (unbound) iron to germinate into their pathogenic filamentous form. In DKA, blood pH drops → acidosis reduces the binding affinity of iron transport proteins → free iron floods the serum → Mucor spores seize this opportunity to germinate.", tag:"mucor" },
+  { title: "Hematogenous Dissemination (Crypto)", emoji: "🩸", detail: "After evading lung macrophages, Cryptococcus enters the bloodstream. The capsule prevents complement-mediated destruction in blood. The yeast crosses the blood-brain barrier, establishing meningoencephalitis. This step requires failure of CD4+ T-cell directed immunity.", tag:"crypto" },
+  { title: "CD4+ T-cell Dependency", emoji: "🧬", detail: "C. neoformans requires CD4+ T-helper cells for effective clearance. These cells produce cytokines (IFN-γ) that activate macrophages to kill the encapsulated yeast. HIV depletes CD4+ cells below 100/μL → complete loss of fungal containment.", tag:"crypto" },
+  { title: "Rhino-Cerebral Spread (Mucor)", emoji: "🔴", detail: "Mucor starts in the nose → invades nasal mucosa → spreads to paranasal sinuses → orbital tissue (proptosis, ophthalmoplegia) → cranial bones → brain parenchyma. The angiotrophic spread with infarction creates the black necrotic tissue.", tag:"mucor" },
+  { title: "Spore Germination", emoji: "🌱", detail: "Both organisms begin as inhaled spores. Crypto spores form granulomas (controlled). Mucor spores remain dormant unless conditions (free iron) trigger germination into invasive hyphae. Temperature is key for Crypto; iron is key for Mucor.", tag:"both" },
+  { title: "CSF Changes in Meningitis", emoji: "🧪", detail: "Fungal metabolism consumes CSF glucose. The chronic cellular immune response (lymphocytes + macrophages) deposits protein-rich exudate. The T-cell dominated response explains 90% lymphocytes vs. neutrophil predominance in bacterial meningitis.", tag:"both" }
+];
+
+const mnemonicsData = [
+  {
+    title: "PIGEON", color: "var(--crypto)", subtitle: "Cryptococcus neoformans facts",
+    rows: [
+      { l: "P", meaning: "Pigeon droppings — the environmental source", sub: "Pigeons carry but don't get sick (temp 40–42°C too high)" },
+      { l: "I", meaning: "India ink — the diagnostic stain showing the halo", sub: "Ink can't penetrate the polysaccharide capsule" },
+      { l: "G", meaning: "Granuloma — primary pulmonary form in immunocompetent", sub: "Silent granuloma breaks down if immunity fails" },
+      { l: "E", meaning: "Evasion — capsule hides organism from macrophages", sub: "'Crypto' = hidden" },
+      { l: "O", meaning: "Opportunistic — targets HIV/AIDS, transplant, steroids", sub: "Especially when CD4+ <100 cells/μL" },
+      { l: "N", meaning: "Neurotropic — loves the CNS (meningoencephalitis)", sub: "Most common fungal CNS infection" }
+    ]
+  },
+  {
+    title: "DARK IRON", color: "var(--mucor)", subtitle: "Mucormycosis in DKA",
+    rows: [
+      { l: "D", meaning: "DKA — the key risk factor (Diabetic KetoacidosisAcidosis)", sub: "Low pH → changes iron binding" },
+      { l: "A", meaning: "Acidosis reduces iron transport protein binding", sub: "Sets the stage for fungal fuel" },
+      { l: "R", meaning: "Released 'free iron' fuels germination", sub: "Spores → hyphae only with free iron" },
+      { l: "K", meaning: "Kills vessels (angiotrophic) → thrombosis + ischemia", sub: "Black eschar = infarcted tissue" },
+      { l: "I", meaning: "Invades: nose → sinuses → eye → brain", sub: "Rhino-cerebral progression" },
+      { l: "R", meaning: "Rhino-cerebral = classic clinical syndrome", sub: "Starts with nasal congestion" },
+      { l: "O", meaning: "Operates as broad non-septate hyphae (ID feature)", sub: "KOH mount diagnostic finding" },
+      { l: "N", meaning: "Necrosis is rapid and fatal if untreated", sub: "Emergency: AmB + Surgery + Fix DKA" }
+    ]
+  },
+  {
+    title: "YUCKY MOLD", color: "var(--accent)", subtitle: "Fungal taxonomy cheat sheet",
+    rows: [
+      { l: "Y", meaning: "Yeast (True) = Cryptococcus", sub: "Budding cells with capsule" },
+      { l: "U", meaning: "Unusual morphology = Dimorphic (Histo, Blasto)", sub: "Mold at 25°C, yeast at 37°C" },
+      { l: "C", meaning: "Candida = Yeast-like (pseudohyphae)", sub: "Not true yeast, not true hyphae" },
+      { l: "K", meaning: "KOH → reveals Mucor's broad non-septate hyphae", sub: "10% KOH dissolves host tissue" },
+      { l: "Y", meaning: "Yes, Mucor is filamentous (not yeast)", sub: "Key distinction from Crypto" },
+      { l: "M", meaning: "Mucor = mold = filamentous = NO budding", sub: "Has sporangiospores in sporangia" },
+      { l: "O", meaning: "Optimal temp for Crypto = 37°C (human body)", sub: "Pigeons > 37°C → safe" },
+      { l: "L", meaning: "Latex agglutination = rapid Crypto antigen test", sub: "Detects polysaccharide capsule" },
+      { l: "D", meaning: "Dirty snow = Mucor on SDA", sub: "Gray-to-black cottony colonies" }
+    ]
+  },
+  {
+    title: "HALO SIGN", color: "var(--gold)", subtitle: "India Ink preparation memory",
+    rows: [
+      { l: "H", meaning: "Halo = clear zone around Cryptococcus cells", sub: "Pathognomonic on India ink prep" },
+      { l: "A", meaning: "Acid (polysaccharide) capsule repels ink particles", sub: "Negative stain phenomenon" },
+      { l: "L", meaning: "Large ink particles cannot penetrate", sub: "Ink = dark background only" },
+      { l: "O", meaning: "Only works for encapsulated organisms", sub: "Unique to Cryptococcus in CNS fungi" }
+    ]
+  },
+  {
+    title: "ABC-TX", color: "var(--success)", subtitle: "Treatment essentials",
+    rows: [
+      { l: "A", meaning: "Amphotericin B = antifungal of choice for BOTH", sub: "Binds ergosterol, creates membrane pores" },
+      { l: "B", meaning: "Both Crypto: + Flucytosine (5-FC) in induction", sub: "Synergistic combination" },
+      { l: "C", meaning: "Consolidation = Fluconazole (Crypto only)", sub: "8 weeks of oral fluconazole" },
+      { l: "-", meaning: "Correct DKA = mandatory in Mucormycosis", sub: "Without treating acidosis, antifungal fails" },
+      { l: "T", meaning: "Tissue (necrotic) must be surgically removed", sub: "Mucormycosis: surgery is non-negotiable" },
+      { l: "X", meaning: "Xtra step: Maintenance Fluconazole in HIV/Crypto", sub: "Prevents relapse when CD4 remains low" }
+    ]
+  }
+];
+
+const vivaData = [
+  { q: "Name the four morphological categories of fungal CNS infections with examples.", a: "1. Yeast — Cryptococcus neoformans\n2. Yeast-like — Candida\n3. Filamentous fungi — Mucor, Aspergillus\n4. Dimorphic fungi — Blastomyces, Histoplasma" },
+  { q: "How is Cryptococcus neoformans transmitted?", a: "Inhalation of dust contaminated by pigeon excreta. Pigeons themselves don't get sick because their body temperature (40–42°C) is too high for the fungus to reproduce — optimal growth is at 37°C." },
+  { q: "What is the most common fungal cause of CNS infection?", a: "Cryptococcus neoformans — typically presents as subacute or chronic meningoencephalitis, particularly in HIV/AIDS patients." },
+  { q: "Explain the pathogenesis of rhino-cerebral Mucormycosis.", a: "Spores are inhaled and germinate in the nasal passages, converting to invasive hyphae. These hyphae invade blood vessels (angiotrophic lesion) causing thrombosis and infarction. Disease spreads: sinuses → eye → cranial bone → brain." },
+  { q: "Why are patients with DKA at high risk for Mucormycosis?", a: "⚠️ EXAM: Mucor requires 'free iron' to convert from spores into pathogenic hyphae. Acidosis in DKA reduces binding of iron to transport proteins, freeing it for the fungus to utilize — a massive risk factor." },
+  { q: "Describe the expected CSF profile in fungal meningitis.", a: "↑ Protein (immune exudate + BBB dysfunction), ↓ Glucose (consumed by fungus for energy), ↑ WBC with 90% LYMPHOCYTES (chronic T-cell mediated response)." },
+  { q: "What rapid diagnostic test is preferred for Cryptococcal meningitis?", a: "Latex agglutination test for cryptococcal capsular antigen in CSF — both useful and rapid. India ink provides direct morphological confirmation." },
+  { q: "Describe the appearance of Mucor on a 10% KOH mount.", a: "Irregular branching BROAD hyphae with SPARSE (non-) septations, along with sporangia containing sporangiospores. The non-septate nature is a key distinguishing feature." },
+  { q: "What is the significance of the 'halo' seen in India ink preparation?", a: "The halo represents the thick polysaccharide capsule surrounding Cryptococcus yeast cells. India ink particles are too large to penetrate, highlighting the capsule as a clear zone against the dark ink background." },
+  { q: "Contrast the culture appearances of Cryptococcus and Mucormycosis on SDA.", a: "Cryptococcus: creamy, white, mucoid colonies (1–2 days). Mucormycosis: rapidly growing cottony gray-to-black colonies resembling 'dirty snow'. Both require SDA WITHOUT cycloheximide." },
+  { q: "What is a dimorphic fungus?", a: "A fungus existing in two morphological stages: mold in the environment at 25°C, and yeast in host tissue at 37°C. Examples: Histoplasma capsulatum, Blastomyces dermatitidis." },
+  { q: "What biochemical test helps identify C. neoformans?", a: "C. neoformans is UREASE POSITIVE — a biochemical marker useful in laboratory identification." }
+];
+
+const cryptoTests = [
+  { name: "🖋 India Ink (CSF)", result: "POSITIVE: Capsulated budding yeast cells surrounded by a clear HALO. The polysaccharide capsule repels the ink particles, creating a pathognomonic negative stain." },
+  { name: "🧪 Latex Agglutination (CSF)", result: "POSITIVE: Detects polysaccharide capsular antigen. Rapid AND highly sensitive. Preferred for quick diagnosis in the clinical setting." },
+  { name: "🧫 SDA Culture", result: "Creamy, WHITE, MUCOID colonies after 1–2 days. Mucoid appearance = due to massive polysaccharide capsule coating the colonies." },
+  { name: "⚗ Urease Test", result: "POSITIVE. C. neoformans produces urease — a key biochemical identifier for this organism." },
+  { name: "🔬 CSF Analysis", result: "↑ Protein | ↓ Glucose (consumed by fungus) | ↑ WBC with 90% LYMPHOCYTES. Classic fungal meningitis pattern." }
+];
+
+const mucorTests = [
+  { name: "🔬 10% KOH Mount", result: "POSITIVE: Broad, irregular BRANCHING HYPHAE with SPARSE (nearly absent) septations + sporangia containing sporangiospores. Non-septate hyphae = key feature." },
+  { name: "🧫 SDA Culture", result: "Rapidly growing cottony colonies with GRAY-TO-BLACK 'DIRTY SNOW' appearance. Requires SDA WITHOUT cycloheximide." },
+  { name: "🏥 Clinical Context", result: "KEY: DKA + facial swelling + black necrotic tissue = Mucormycosis until proven otherwise. Rapid progression is the hallmark." },
+  { name: "🖼 Imaging (CT/MRI)", result: "CT Sinuses: mucosal thickening → erosion of bony walls → orbital invasion. MRI brain: infarction pattern from thrombosed vessels." }
+];
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let quizState = {
+  current: 0, answered: 0, score: 0, streak: 0, maxStreak: 0,
+  answered_arr: new Array(25).fill(null)
+};
+let flashState = { flipped: {}, reviewed: 0 };
+
+// ─── LOCALSTORAGE ────────────────────────────────────────────────────────────
+function saveState() {
+  try {
+    localStorage.setItem('fungal_quiz', JSON.stringify(quizState));
+    localStorage.setItem('fungal_flash', JSON.stringify(flashState));
+    localStorage.setItem('fungal_tab', document.querySelector('.tab-btn.active')?.textContent || '');
+  } catch(e) {}
+}
+function loadState() {
+  try {
+    const q = localStorage.getItem('fungal_quiz');
+    const f = localStorage.getItem('fungal_flash');
+    if(q) quizState = {...quizState, ...JSON.parse(q)};
+    if(f) flashState = {...flashState, ...JSON.parse(f)};
+  } catch(e) {}
+}
+
+// ─── TABS ────────────────────────────────────────────────────────────────────
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  saveState();
+}
+function switchDx(id, btn) {
+  document.querySelectorAll('.dx-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.dx-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('dx-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ─── STATS UPDATE ────────────────────────────────────────────────────────────
+function updateStats() {
+  document.getElementById('stat-quiz').textContent = quizState.answered + '/25';
+  document.getElementById('stat-streak').textContent = quizState.streak;
+  document.getElementById('stat-score').textContent = quizState.score;
+  document.getElementById('qprog').textContent = quizState.answered + ' / 25';
+  document.getElementById('qscore').textContent = quizState.score;
+  document.getElementById('qstreak').textContent = '🔥 ' + quizState.streak;
+  document.getElementById('qProgressBar').style.width = (quizState.answered/25*100) + '%';
+  document.getElementById('stat-cards').textContent = flashState.reviewed + '/22';
+}
+
+// ─── QUIZ ────────────────────────────────────────────────────────────────────
+function buildQuiz() {
+  const container = document.getElementById('quiz-questions');
+  container.innerHTML = '';
+  quizData.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-card-outer';
+    div.id = 'qq-' + i;
+    const answered = quizState.answered_arr[i];
+    let optsHTML = q.opts.map((o, j) => {
+      let cls = 'quiz-option';
+      if(answered !== null) {
+        cls += ' disabled';
+        if(j === q.ans) cls += ' correct';
+        else if(j === answered && answered !== q.ans) cls += ' wrong';
+      }
+      return `<button class="${cls}" onclick="answerQ(${i},${j})" id="opt-${i}-${j}">
+        <span class="opt-letter">${String.fromCharCode(65+j)}</span>
+        <span>${o}</span>
+      </button>`;
+    }).join('');
+    div.innerHTML = `<div class="quiz-q-card">
+      <div class="quiz-q-num">Q${i+1} · <span class="tag tag-${q.tag === 'crypto' ? 'crypto' : q.tag === 'mucor' ? 'mucor' : 'high'}">${q.tag}</span></div>
+      <div class="quiz-q-text">${q.q}</div>
+      <div class="quiz-options">${optsHTML}</div>
+      <div class="quiz-explanation ${answered !== null ? 'show' : ''}" id="exp-${i}">
+        ${answered !== null ? (answered === q.ans ? '✅ ' : '❌ ') + q.exp : q.exp}
+      </div>
+    </div>`;
+    container.appendChild(div);
+  });
+  if(quizState.answered === 25) showQuizComplete();
+}
+
+function answerQ(qi, selected) {
+  if(quizState.answered_arr[qi] !== null) return;
+  const q = quizData[qi];
+  const correct = selected === q.ans;
+  quizState.answered_arr[qi] = selected;
+  quizState.answered++;
+  if(correct) {
+    quizState.score++;
+    quizState.streak++;
+    if(quizState.streak > quizState.maxStreak) quizState.maxStreak = quizState.streak;
+  } else {
+    quizState.streak = 0;
+  }
+  // Animate options
+  for(let j = 0; j < q.opts.length; j++) {
+    const btn = document.getElementById(`opt-${qi}-${j}`);
+    btn.classList.add('disabled');
+    if(j === q.ans) { btn.classList.add('correct'); if(correct && j === selected) btn.classList.add('anim-correct'); }
+    else if(j === selected) { btn.classList.add('wrong'); btn.classList.add('anim-wrong'); }
+  }
+  const exp = document.getElementById(`exp-${qi}`);
+  exp.textContent = (correct ? '✅ ' : '❌ ') + q.exp;
+  exp.classList.add('show');
+  updateStats();
+  saveState();
+  if(quizState.answered === 25) setTimeout(showQuizComplete, 800);
+}
+
+function showQuizComplete() {
+  document.getElementById('quiz-questions').style.display = 'none';
+  const comp = document.getElementById('quiz-complete');
+  comp.style.display = 'block';
+  const pct = quizState.score / 25;
+  document.getElementById('finalScoreNum').textContent = quizState.score;
+  const deg = Math.round(pct * 360);
+  document.getElementById('scoreRingFill').style.background =
+    `conic-gradient(var(--crypto) ${deg}deg, transparent ${deg}deg)`;
+  const msgs = ['Keep studying — you'll get it! 💪', 'Good effort — review the explanations! 📖', 'Not bad! A bit more review needed 🔄', 'Great work! Almost there 👍', 'Excellent! Outstanding performance! 🏆'];
+  document.getElementById('scoreMsg').textContent = msgs[Math.min(4, Math.floor(pct * 5))];
+}
+
+function restartQuiz() {
+  quizState = { current: 0, answered: 0, score: 0, streak: 0, maxStreak: 0, answered_arr: new Array(25).fill(null) };
+  saveState();
+  document.getElementById('quiz-questions').style.display = 'block';
+  document.getElementById('quiz-complete').style.display = 'none';
+  buildQuiz();
+  updateStats();
+}
+
+// ─── FLASHCARDS ──────────────────────────────────────────────────────────────
+function buildFlashcards() {
+  const container = document.getElementById('flashcardsContainer');
+  container.innerHTML = '';
+  flashcardsData.forEach((card, i) => {
+    const div = document.createElement('div');
+    div.className = 'flashcard-wrap' + (flashState.flipped[i] ? ' flipped' : '');
+    div.onclick = () => flipCard(i, div);
+    const tagCls = card.tag === 'crypto' ? 'tag-crypto' : card.tag === 'mucor' ? 'tag-mucor' : card.tag === 'diagnosis' ? 'tag-exam' : card.tag === 'treatment' ? 'tag-pearl' : 'tag-high';
+    div.innerHTML = `<div class="flashcard-inner">
+      <div class="flashcard-face flashcard-front">
+        <div class="flashcard-q">${card.q}</div>
+        <div class="flashcard-hint">Click to flip 👆 · Card ${i+1}/22</div>
+      </div>
+      <div class="flashcard-face flashcard-back">
+        <div class="flashcard-a">${card.a}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span class="tag ${tagCls} flashcard-tag">${card.tag}</span>
+          <span class="flashcard-hint">Click to flip back</span>
+        </div>
+      </div>
+    </div>`;
+    container.appendChild(div);
+  });
+}
+function flipCard(i, el) {
+  el.classList.toggle('flipped');
+  if(!flashState.flipped[i]) {
+    flashState.flipped[i] = true;
+    flashState.reviewed = Object.keys(flashState.flipped).length;
+    updateStats();
+    saveState();
+  }
+}
+
+// ─── CLINICAL CASES ──────────────────────────────────────────────────────────
+function buildCases() {
+  const container = document.getElementById('casesContainer');
+  container.innerHTML = '';
+  casesData.forEach((c, ci) => {
+    const tagCls = c.tag === 'crypto' ? 'tag-crypto' : c.tag === 'mucor' ? 'tag-mucor' : 'tag-both';
+    const qs = c.questions.map((q, qi) => `
+      <div>
+        <div class="case-q">${q.q}</div>
+        <button class="reveal-btn" onclick="revealCase(${ci},${qi},this)">🔍 Reveal Answer</button>
+        <div class="case-answer" id="ca-${ci}-${qi}">${q.a}</div>
+      </div>
+    `).join('');
+    const div = document.createElement('div');
+    div.className = 'case-card';
+    div.innerHTML = `
+      <div class="case-header">
+        <div>
+          <div class="case-num">Case ${c.num} of ${casesData.length}</div>
+          <div class="case-title">${c.title}</div>
+        </div>
+        <span class="tag ${tagCls}">${c.tag}</span>
+      </div>
+      <div class="case-vignette">${c.vignette}</div>
+      <div class="case-questions">${qs}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+function revealCase(ci, qi, btn) {
+  const el = document.getElementById(`ca-${ci}-${qi}`);
+  el.classList.toggle('shown');
+  btn.textContent = el.classList.contains('shown') ? '🔼 Hide Answer' : '🔍 Reveal Answer';
+}
+
+// ─── PATHOPHYSIOLOGY ─────────────────────────────────────────────────────────
+function buildPatho() {
+  const grid = document.getElementById('pathoGrid');
+  grid.innerHTML = '';
+  pathoData.forEach((p, i) => {
+    const tagCls = p.tag === 'crypto' ? 'tag-crypto' : p.tag === 'mucor' ? 'tag-mucor' : 'tag-both';
+    const div = document.createElement('div');
+    div.className = 'patho-item';
+    div.innerHTML = `<div style="font-size:24px;margin-bottom:6px">${p.emoji}</div>
+      <h4>${p.title}</h4>
+      <span class="tag ${tagCls}" style="margin-top:6px">${p.tag}</span>`;
+    div.onclick = () => showPathoDetail(i, div);
+    grid.appendChild(div);
+  });
+}
+function showPathoDetail(i, el) {
+  document.querySelectorAll('.patho-item').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
+  const p = pathoData[i];
+  const detail = document.getElementById('pathoDetail');
+  const tagCls = p.tag === 'crypto' ? 'tag-crypto' : p.tag === 'mucor' ? 'tag-mucor' : 'tag-both';
+  detail.innerHTML = `<h3>${p.emoji} ${p.title} <span class="tag ${tagCls}" style="margin-left:8px">${p.tag}</span></h3><p>${p.detail}</p>`;
+  detail.classList.add('show');
+  detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ─── DIAGNOSIS TESTS ─────────────────────────────────────────────────────────
+function buildDxTests() {
+  const cb = document.getElementById('cryptoTestBadges');
+  cryptoTests.forEach((t, i) => {
+    const b = document.createElement('span');
+    b.className = 'test-badge';
+    b.textContent = t.name;
+    b.onclick = () => {
+      document.getElementById('cryptoTestResult').textContent = t.result;
+      document.getElementById('cryptoTestResult').style.display = 'block';
+      document.querySelectorAll('#cryptoTestBadges .test-badge').forEach(x => x.classList.remove('test-badge-result'));
+      b.classList.add('test-badge-result');
+    };
+    cb.appendChild(b);
+  });
+  const mb = document.getElementById('mucorTestBadges');
+  mucorTests.forEach((t, i) => {
+    const b = document.createElement('span');
+    b.className = 'test-badge';
+    b.textContent = t.name;
+    b.onclick = () => {
+      document.getElementById('mucorTestResult').textContent = t.result;
+      document.getElementById('mucorTestResult').style.display = 'block';
+      document.querySelectorAll('#mucorTestBadges .test-badge').forEach(x => x.classList.remove('test-badge-result'));
+      b.classList.add('test-badge-result');
+    };
+    mb.appendChild(b);
+  });
+}
+
+// ─── MNEMONICS ───────────────────────────────────────────────────────────────
+function buildMnemonics() {
+  const container = document.getElementById('mnemonicsContainer');
+  container.innerHTML = '';
+  mnemonicsData.forEach((m, mi) => {
+    const rows = m.rows.map(r => `
+      <div class="mnemonic-row">
+        <div class="mnemonic-letter" style="color:${m.color}">${r.l}</div>
+        <div>
+          <div class="mnemonic-meaning">${r.meaning}</div>
+          <div class="mnemonic-sub">${r.sub}</div>
+        </div>
+      </div>
+    `).join('');
+    const div = document.createElement('div');
+    div.className = 'mnemonic-card';
+    div.innerHTML = `
+      <h3 style="color:${m.color}">${m.title}</h3>
+      <p>${m.subtitle}</p>
+      <button class="mnemonic-expand-btn" onclick="toggleMnemonic(${mi},this)">
+        <span>▶</span> Expand / See breakdown
+      </button>
+      <div class="mnemonic-list" id="mn-${mi}">${rows}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+function toggleMnemonic(i, btn) {
+  const list = document.getElementById('mn-' + i);
+  list.classList.toggle('show');
+  btn.querySelector('span').textContent = list.classList.contains('show') ? '▼' : '▶';
+}
+
+// ─── VIVA ────────────────────────────────────────────────────────────────────
+function buildViva() {
+  const container = document.getElementById('vivaContainer');
+  container.innerHTML = '';
+  vivaData.forEach((v, i) => {
+    const div = document.createElement('div');
+    div.className = 'viva-item';
+    div.innerHTML = `
+      <div class="viva-q" onclick="toggleViva(${i},this.parentElement)">
+        <span>V${i+1}: ${v.q}</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="viva-a">${v.a.replace(/\n/g,'<br>')}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+function toggleViva(i, el) {
+  el.classList.toggle('open');
+}
+
+// ─── SEARCH ──────────────────────────────────────────────────────────────────
+const searchIndex = [];
+quizData.forEach((q, i) => { searchIndex.push({ text: q.q + ' ' + q.opts.join(' ') + ' ' + q.exp, label: 'Q' + (i+1) + ': ' + q.q.substring(0,60) + '...', tab: 'quiz' }); });
+flashcardsData.forEach((f, i) => { searchIndex.push({ text: f.q + ' ' + f.a, label: '🃏 ' + f.q.substring(0,60) + '...', tab: 'flashcards' }); });
+vivaData.forEach((v, i) => { searchIndex.push({ text: v.q + ' ' + v.a, label: '🗣 ' + v.q.substring(0,60) + '...', tab: 'viva' }); });
+
+document.getElementById('globalSearch').addEventListener('input', function() {
+  const val = this.value.trim().toLowerCase();
+  const res = document.getElementById('searchResults');
+  if(val.length < 2) { res.style.display = 'none'; return; }
+  const matches = searchIndex.filter(x => x.text.toLowerCase().includes(val)).slice(0, 8);
+  if(!matches.length) { res.style.display = 'none'; return; }
+  res.innerHTML = matches.map(m => `<div class="search-result-item" onclick="goToSearchResult('${m.tab}')">
+    ${m.label.replace(new RegExp(val,'gi'), match => `<mark>${match}</mark>`)}
+  </div>`).join('');
+  res.style.display = 'block';
+});
+document.addEventListener('click', e => {
+  if(!e.target.closest('.search-wrap')) document.getElementById('searchResults').style.display = 'none';
+});
+function goToSearchResult(tab) {
+  const btn = [...document.querySelectorAll('.tab-btn')].find(b => b.textContent.toLowerCase().includes(tab.substring(0,5)));
+  if(btn) switchTab(tab, btn);
+  document.getElementById('searchResults').style.display = 'none';
+  document.getElementById('globalSearch').value = '';
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+loadState();
+buildQuiz();
+buildFlashcards();
+buildCases();
+buildPatho();
+buildDxTests();
+buildMnemonics();
+buildViva();
+updateStats();
+</script>
+</body>
+</html>

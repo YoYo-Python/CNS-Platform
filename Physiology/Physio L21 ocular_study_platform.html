@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OcularPhysics — Interactive Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e1a;
+  --surface: #111827;
+  --surface2: #1a2235;
+  --surface3: #1f2d42;
+  --accent: #4fc3f7;
+  --accent2: #81d4fa;
+  --gold: #fbbf24;
+  --coral: #f87171;
+  --sage: #6ee7b7;
+  --lavender: #a78bfa;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --border: rgba(79,195,247,0.15);
+  --glow: rgba(79,195,247,0.12);
+  --correct: #10b981;
+  --wrong: #ef4444;
+  --r: 12px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── ANIMATED BG ── */
+.bg-orbs {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+}
+.orb {
+  position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.12;
+  animation: drift 18s ease-in-out infinite alternate;
+}
+.orb1 { width:500px; height:500px; background:#4fc3f7; top:-100px; left:-100px; animation-delay:0s; }
+.orb2 { width:400px; height:400px; background:#a78bfa; bottom:-100px; right:-100px; animation-delay:-6s; }
+.orb3 { width:300px; height:300px; background:#fbbf24; top:40%; left:60%; animation-delay:-12s; }
+@keyframes drift { from{transform:translate(0,0) scale(1)} to{transform:translate(40px,30px) scale(1.1)} }
+
+/* ── HEADER ── */
+header {
+  position: relative; z-index: 10;
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  backdrop-filter: blur(10px);
+  background: rgba(10,14,26,0.8);
+}
+.logo { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:900; }
+.logo span { color: var(--accent); }
+.stats-bar { display:flex; gap:20px; align-items:center; }
+.stat-chip {
+  background: var(--surface2); border:1px solid var(--border);
+  border-radius:999px; padding:6px 14px;
+  font-size:0.8rem; color:var(--text-muted); display:flex; gap:6px; align-items:center;
+}
+.stat-chip b { color:var(--accent); }
+
+/* ── SEARCH ── */
+.search-wrap {
+  position: relative; z-index: 10;
+  padding: 16px 32px;
+  background: rgba(10,14,26,0.6); backdrop-filter:blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+.search-input {
+  width:100%; max-width:500px;
+  background: var(--surface2); border:1px solid var(--border);
+  color:var(--text); border-radius:999px; padding:10px 20px;
+  font-family:'DM Sans',sans-serif; font-size:0.9rem; outline:none;
+  transition: border-color 0.2s;
+}
+.search-input:focus { border-color:var(--accent); }
+
+/* ── TABS ── */
+.tabs-wrap {
+  position: sticky; top:0; z-index: 20;
+  background: rgba(10,14,26,0.92); backdrop-filter:blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex; gap:0; overflow-x:auto; scrollbar-width:none;
+}
+.tabs-wrap::-webkit-scrollbar { display:none; }
+.tab {
+  padding:14px 22px; cursor:pointer; white-space:nowrap;
+  font-size:0.85rem; font-weight:500; color:var(--text-muted);
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s; display:flex; align-items:center; gap:6px;
+}
+.tab:hover { color:var(--text); background:var(--glow); }
+.tab.active { color:var(--accent); border-color:var(--accent); }
+
+/* ── MAIN ── */
+main { position:relative; z-index:5; padding:32px; max-width:1200px; margin:0 auto; }
+.tab-panel { display:none; animation:fadeIn 0.3s ease; }
+.tab-panel.active { display:block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── CARDS ── */
+.card {
+  background: var(--surface); border:1px solid var(--border);
+  border-radius: var(--r); padding:24px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.card:hover { border-color:rgba(79,195,247,0.35); transform:translateY(-2px); }
+.card-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; margin-bottom:28px; }
+.section-title {
+  font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:700;
+  margin-bottom:20px; display:flex; align-items:center; gap:12px;
+}
+.section-title span { font-family:'DM Sans',sans-serif; font-size:0.75rem; font-weight:500; color:var(--text-muted); letter-spacing:.1em; text-transform:uppercase; }
+
+/* ── TAGS ── */
+.tag {
+  display:inline-block; border-radius:999px; padding:2px 10px;
+  font-size:0.72rem; font-weight:600; letter-spacing:.04em; margin:2px;
+}
+.tag-gold { background:rgba(251,191,36,0.15); color:var(--gold); border:1px solid rgba(251,191,36,0.3); }
+.tag-accent { background:rgba(79,195,247,0.12); color:var(--accent); border:1px solid var(--border); }
+.tag-coral { background:rgba(248,113,113,0.12); color:var(--coral); border:1px solid rgba(248,113,113,0.3); }
+.tag-sage { background:rgba(110,231,183,0.12); color:var(--sage); border:1px solid rgba(110,231,183,0.3); }
+.tag-lav { background:rgba(167,139,250,0.12); color:var(--lavender); border:1px solid rgba(167,139,250,0.3); }
+
+h3 { font-size:1rem; font-weight:600; margin-bottom:8px; color:var(--text); }
+p, li { font-size:0.88rem; color:var(--text-muted); line-height:1.65; }
+ul { padding-left:16px; }
+
+/* ── QUIZ ── */
+.progress-bar-wrap { background:var(--surface2); border-radius:999px; height:6px; margin-bottom:24px; overflow:hidden; }
+.progress-bar { height:100%; background:linear-gradient(90deg,var(--accent),var(--lavender)); border-radius:999px; transition:width 0.4s ease; }
+.quiz-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:28px; margin-bottom:20px; }
+.quiz-q { font-size:1rem; font-weight:600; margin-bottom:18px; line-height:1.5; }
+.quiz-options { display:grid; gap:10px; }
+.quiz-opt {
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:8px; padding:12px 16px; cursor:pointer;
+  font-size:0.88rem; color:var(--text); transition:all 0.2s;
+  display:flex; align-items:center; gap:10px;
+}
+.quiz-opt:hover { border-color:var(--accent); background:var(--glow); }
+.quiz-opt.correct { background:rgba(16,185,129,0.1); border-color:var(--correct); color:var(--correct); }
+.quiz-opt.wrong { background:rgba(239,68,68,0.1); border-color:var(--wrong); color:var(--wrong); animation:shake 0.4s; }
+.quiz-opt.disabled { pointer-events:none; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+.quiz-explanation {
+  background:var(--surface2); border-left:3px solid var(--accent);
+  border-radius:0 8px 8px 0; padding:14px 16px; margin-top:14px;
+  font-size:0.85rem; color:var(--text-muted); display:none;
+}
+.quiz-explanation.show { display:block; animation:fadeIn 0.3s; }
+.quiz-nav { display:flex; gap:12px; justify-content:space-between; align-items:center; margin-top:24px; }
+.btn {
+  background: var(--surface2); border:1px solid var(--border);
+  color:var(--text); border-radius:8px; padding:10px 20px;
+  font-family:'DM Sans',sans-serif; font-size:0.88rem; cursor:pointer;
+  transition:all 0.2s;
+}
+.btn:hover { border-color:var(--accent); background:var(--glow); color:var(--accent); }
+.btn-primary {
+  background:linear-gradient(135deg,var(--accent),var(--lavender));
+  color:#0a0e1a; border:none; font-weight:600;
+}
+.btn-primary:hover { opacity:0.9; transform:translateY(-1px); color:#0a0e1a; }
+.score-badge {
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:999px; padding:6px 16px; font-size:0.85rem;
+  display:flex; gap:8px; align-items:center;
+}
+
+/* ── FLASHCARDS ── */
+.flashcard-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+.flashcard-wrap { perspective:1000px; height:180px; cursor:pointer; }
+.flashcard { width:100%; height:100%; position:relative; transform-style:preserve-3d; transition:transform 0.5s ease; }
+.flashcard.flipped { transform:rotateY(180deg); }
+.fc-face {
+  position:absolute; inset:0; border-radius:var(--r); padding:20px;
+  backface-visibility:hidden; display:flex; flex-direction:column; justify-content:center;
+  border:1px solid var(--border);
+}
+.fc-front { background:var(--surface); }
+.fc-back { background:var(--surface2); transform:rotateY(180deg); border-color:rgba(79,195,247,0.3); }
+.fc-label { font-size:0.7rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); margin-bottom:8px; }
+.fc-text { font-size:0.9rem; font-weight:500; line-height:1.5; }
+.fc-back .fc-text { color:var(--accent2); font-size:0.85rem; }
+
+/* ── CLINICAL CASES ── */
+.case-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:28px; margin-bottom:24px; }
+.case-header { display:flex; align-items:flex-start; gap:16px; margin-bottom:16px; }
+.case-icon { font-size:2rem; }
+.case-meta { font-size:0.78rem; color:var(--text-muted); margin-top:2px; }
+.case-vignette { background:var(--surface2); border-radius:8px; padding:16px; margin-bottom:16px; font-size:0.88rem; line-height:1.7; }
+.case-q { font-weight:600; font-size:0.9rem; margin-bottom:8px; }
+.reveal-btn {
+  background:var(--surface2); border:1px dashed var(--border);
+  border-radius:8px; padding:12px 16px; cursor:pointer;
+  font-size:0.85rem; color:var(--text-muted); width:100%;
+  text-align:left; transition:all 0.2s; margin-top:8px;
+  font-family:'DM Sans',sans-serif;
+}
+.reveal-btn:hover { border-color:var(--accent); color:var(--accent); }
+.case-answer { background:rgba(79,195,247,0.06); border-radius:8px; padding:14px; margin-top:8px; display:none; font-size:0.87rem; line-height:1.65; }
+.case-answer.show { display:block; animation:fadeIn 0.3s; }
+
+/* ── ANATOMY ── */
+.anatomy-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; margin-bottom:28px; }
+.anatomy-item {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r); padding:18px; cursor:pointer; transition:all 0.2s;
+}
+.anatomy-item:hover { border-color:var(--accent); transform:translateY(-2px); }
+.anatomy-icon { font-size:1.6rem; margin-bottom:8px; }
+.anatomy-detail { display:none; background:var(--surface2); border-radius:8px; padding:12px; margin-top:10px; font-size:0.82rem; line-height:1.6; }
+.anatomy-detail.show { display:block; animation:fadeIn 0.3s; }
+
+/* ── FLOWCHART ── */
+.flowchart { display:flex; flex-direction:column; align-items:center; gap:0; margin:24px 0; }
+.flow-step {
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:8px; padding:12px 20px; text-align:center;
+  font-size:0.85rem; max-width:400px; width:100%;
+}
+.flow-step.highlight { border-color:var(--accent); background:var(--glow); color:var(--accent); font-weight:600; }
+.flow-arrow { color:var(--text-muted); font-size:1.2rem; padding:4px; }
+
+/* ── COMPARISON TABLE ── */
+.compare-table { width:100%; border-collapse:collapse; margin:16px 0; font-size:0.85rem; }
+.compare-table th { background:var(--surface2); color:var(--accent); padding:12px 14px; text-align:left; border:1px solid var(--border); }
+.compare-table td { padding:11px 14px; border:1px solid var(--border); color:var(--text-muted); vertical-align:top; }
+.compare-table tr:hover td { background:var(--glow); }
+
+/* ── TREATMENT ── */
+.treatment-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
+.treatment-card { border-radius:var(--r); padding:20px; }
+.treatment-emergency { background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.25); }
+.treatment-primary { background:rgba(79,195,247,0.07); border:1px solid var(--border); }
+.treatment-secondary { background:rgba(110,231,183,0.07); border:1px solid rgba(110,231,183,0.2); }
+.treatment-label { font-size:0.7rem; text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px; font-weight:600; }
+.emergency-label { color:var(--coral); }
+.primary-label { color:var(--accent); }
+.secondary-label { color:var(--sage); }
+.drug-item { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border); font-size:0.85rem; }
+.drug-item:last-child { border:none; }
+.drug-name { font-weight:500; }
+.drug-moa { color:var(--text-muted); font-size:0.78rem; }
+
+/* ── MNEMONICS ── */
+.mnemonic-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+.mnemonic-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r); padding:22px; cursor:pointer;
+}
+.mnemonic-word { font-family:'DM Mono',monospace; font-size:1.5rem; font-weight:500; color:var(--gold); letter-spacing:.1em; margin-bottom:12px; }
+.mnemonic-item { display:flex; gap:10px; margin-bottom:8px; font-size:0.87rem; }
+.mnemonic-letter { font-family:'DM Mono',monospace; color:var(--gold); font-weight:500; min-width:24px; }
+.mnemonic-meaning { color:var(--text-muted); }
+
+/* ── OVERVIEW SPECIFIC ── */
+.overview-hero {
+  background:linear-gradient(135deg,rgba(79,195,247,0.08),rgba(167,139,250,0.08));
+  border:1px solid var(--border); border-radius:var(--r); padding:32px;
+  margin-bottom:28px; position:relative; overflow:hidden;
+}
+.overview-hero::before {
+  content:'👁'; position:absolute; right:24px; top:24px; font-size:4rem; opacity:0.15;
+}
+.diopter-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:8px; padding:8px 14px; margin:4px;
+  font-size:0.85rem;
+}
+.diopter-val { font-family:'DM Mono',monospace; color:var(--gold); font-size:1.1rem; font-weight:500; }
+
+/* ── SEARCH HIGHLIGHT ── */
+.search-hl { background:rgba(251,191,36,0.3); border-radius:2px; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px) {
+  main { padding:16px; }
+  header { padding:16px; }
+  .stats-bar { gap:8px; }
+  .logo { font-size:1.2rem; }
+}
+
+/* ── SCORE MODAL ── */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:100; display:none; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+.modal-overlay.show { display:flex; animation:fadeIn 0.3s; }
+.modal { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:40px; text-align:center; max-width:400px; width:90%; }
+.modal-score { font-family:'Playfair Display',serif; font-size:3rem; font-weight:900; color:var(--accent); }
+.modal-msg { color:var(--text-muted); margin-top:8px; margin-bottom:24px; }
+
+.viva-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:20px; margin-bottom:14px; }
+.viva-q { font-weight:600; font-size:0.95rem; margin-bottom:10px; }
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<header>
+  <div class="logo">Ocular<span>Physics</span></div>
+  <div class="stats-bar">
+    <div class="stat-chip">⚡ Streak: <b id="streak-val">0</b></div>
+    <div class="stat-chip">🎯 Score: <b id="score-val">0</b></div>
+    <div class="stat-chip">✅ <b id="progress-val">0</b>% done</div>
+  </div>
+</header>
+
+<div class="search-wrap">
+  <input class="search-input" id="searchInput" placeholder="🔍  Search across all content..." oninput="doSearch(this.value)">
+</div>
+
+<div class="tabs-wrap" id="tabsWrap">
+  <div class="tab active" onclick="switchTab('overview')">🏠 Overview</div>
+  <div class="tab" onclick="switchTab('quiz')">🧠 Quiz</div>
+  <div class="tab" onclick="switchTab('flashcards')">🃏 Flashcards</div>
+  <div class="tab" onclick="switchTab('cases')">🏥 Clinical Cases</div>
+  <div class="tab" onclick="switchTab('anatomy')">🔬 Anatomy</div>
+  <div class="tab" onclick="switchTab('diagnosis')">🔎 Diagnosis</div>
+  <div class="tab" onclick="switchTab('treatment')">💊 Treatment</div>
+  <div class="tab" onclick="switchTab('mnemonics')">🧩 Mnemonics</div>
+  <div class="tab" onclick="switchTab('viva')">🗣️ Viva</div>
+</div>
+
+<main>
+
+<!-- ═══ OVERVIEW ═══ -->
+<div id="panel-overview" class="tab-panel active">
+  <div class="overview-hero">
+    <h1 style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;margin-bottom:10px;">Ocular Physics & Eye Anatomy</h1>
+    <p style="color:var(--text-muted);font-size:0.95rem;max-width:600px;">Outer & Middle Eye Layer — Physiology / Anatomy. Master corneal refraction, uvea, accommodation, intraocular fluids, and clinical pathologies.</p>
+    <div style="margin-top:20px;">
+      <span class="tag tag-gold">⚠️ Exam High-Yield</span>
+      <span class="tag tag-accent">🏥 Clinical</span>
+      <span class="tag tag-coral">💡 MCQ Favourite</span>
+    </div>
+  </div>
+
+  <div class="section-title">Refractive Power at a Glance <span>key numbers</span></div>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:32px;">
+    <div class="diopter-badge">🌐 Cornea (rest) <div class="diopter-val">+39 D</div></div>
+    <div class="diopter-badge">🔮 Lens (rest) <div class="diopter-val">+20 D</div></div>
+    <div class="diopter-badge">🔮 Lens (max) <div class="diopter-val">+32 D</div></div>
+    <div class="diopter-badge">👁️ Total (rest) <div class="diopter-val">+59 D</div></div>
+    <div class="diopter-badge">💧 Aqueous rate <div class="diopter-val">1-2 µL/min</div></div>
+    <div class="diopter-badge">📏 Normal IOP <div class="diopter-val">15-20 mmHg</div></div>
+    <div class="diopter-badge">⚠️ Glaucoma IOP <div class="diopter-val">&gt;20 mmHg</div></div>
+  </div>
+
+  <div class="section-title">Core Topics <span>4 pillars</span></div>
+  <div class="card-grid" id="overview-cards"></div>
+
+  <div class="section-title">Refractive Indices <span>RI table</span></div>
+  <table class="compare-table">
+    <tr><th>Medium</th><th>RI</th><th>Notes</th></tr>
+    <tr><td>Air</td><td><code style="color:var(--gold)">1.00</code></td><td>Reference</td></tr>
+    <tr><td>Cornea</td><td><code style="color:var(--accent)">1.38</code></td><td>Most powerful refractive medium</td></tr>
+    <tr><td>Aqueous Humor</td><td><code style="color:var(--accent)">1.33</code></td><td>Nourishes cornea & lens</td></tr>
+    <tr><td>Lens</td><td><code style="color:var(--accent)">1.40</code></td><td>Adjustable via accommodation</td></tr>
+    <tr><td>Vitreous Humor</td><td><code style="color:var(--accent)">1.34</code></td><td>Maintains eye shape</td></tr>
+  </table>
+
+  <div class="section-title" style="margin-top:28px;">Exam Alerts <span>⚠️ must-know</span></div>
+  <div class="card-grid" id="exam-alerts"></div>
+</div>
+
+<!-- ═══ QUIZ ═══ -->
+<div id="panel-quiz" class="tab-panel">
+  <div class="section-title">Quiz Mode <span>25 questions</span></div>
+  <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
+    <div class="score-badge">🎯 Score: <b id="q-score">0</b>/25</div>
+    <div class="score-badge">🔥 Streak: <b id="q-streak">0</b></div>
+    <button class="btn btn-primary" onclick="restartQuiz()">🔄 Restart Quiz</button>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="quiz-progress" style="width:0%"></div></div>
+  <div id="quiz-container"></div>
+</div>
+
+<!-- ═══ FLASHCARDS ═══ -->
+<div id="panel-flashcards" class="tab-panel">
+  <div class="section-title">Flashcards <span>click to flip</span></div>
+  <p style="margin-bottom:20px;color:var(--text-muted);">Click any card to reveal the answer. Master all 24 cards!</p>
+  <div class="flashcard-grid" id="flashcard-grid"></div>
+</div>
+
+<!-- ═══ CLINICAL CASES ═══ -->
+<div id="panel-cases" class="tab-panel">
+  <div class="section-title">Clinical Cases <span>exam-style vignettes</span></div>
+  <div id="cases-container"></div>
+</div>
+
+<!-- ═══ ANATOMY ═══ -->
+<div id="panel-anatomy" class="tab-panel">
+  <div class="section-title">Anatomy & Pathophysiology <span>interactive</span></div>
+  <p style="margin-bottom:16px;color:var(--text-muted);">Click any structure to expand details.</p>
+  <div class="anatomy-grid" id="anatomy-grid"></div>
+
+  <div class="section-title" style="margin-top:32px;">Aqueous Humor Pathway <span>flowchart</span></div>
+  <div class="flowchart" id="aq-flowchart"></div>
+
+  <div class="section-title" style="margin-top:32px;">Accommodation Reflex <span>step-by-step</span></div>
+  <div class="flowchart" id="acc-flowchart"></div>
+</div>
+
+<!-- ═══ DIAGNOSIS ═══ -->
+<div id="panel-diagnosis" class="tab-panel">
+  <div class="section-title">Diagnosis <span>errors of refraction & glaucoma</span></div>
+
+  <div class="section-title" style="font-size:1.1rem;margin-bottom:12px;">Errors of Refraction</div>
+  <table class="compare-table">
+    <tr><th>Feature</th><th>Myopia 👁️</th><th>Hypermetropia 👁️</th><th>Astigmatism 👁️</th><th>Presbyopia 👁️</th></tr>
+    <tr><td>Definition</td><td>Far objects focus in front of retina</td><td>Near objects focus behind retina</td><td>Rays don't focus on single point</td><td>Loss of near accommodation with age</td></tr>
+    <tr><td>Mechanism</td><td>Abnormally long eyeball / great curvature</td><td>Short eyeball / small curvature</td><td>Unequal corneal/lens curvatures</td><td>Loss of lens elasticity + ciliary weakness</td></tr>
+    <tr><td>Affected</td><td>Far vision</td><td>Near vision</td><td>All distances</td><td>Near vision</td></tr>
+    <tr><td>Correction</td><td>Biconcave (divergent) lens</td><td>Biconvex (convergent) lens</td><td>Cylindrical lens / contact lens</td><td>Convex reading glasses</td></tr>
+  </table>
+
+  <div class="section-title" style="font-size:1.1rem;margin:24px 0 12px;">Glaucoma Types</div>
+  <table class="compare-table">
+    <tr><th>Feature</th><th>Open-angle Glaucoma</th><th>Closed-angle Glaucoma</th></tr>
+    <tr><td>Mechanism</td><td>Excess aqueous production</td><td>Blocked drainage at corneoscleral angle</td></tr>
+    <tr><td>IOP</td><td>&gt;20 mmHg</td><td>&gt;20 mmHg (often acutely very high)</td></tr>
+    <tr><td>Symptoms</td><td>Gradual, silent</td><td>Severe pain, halos, headache</td></tr>
+    <tr><td>Treatment</td><td>Carbonic anhydrase inhibitors (Acetazolamide)</td><td>Parasympathomimetics (Neostigmine) / Trabeculectomy</td></tr>
+    <tr><td>Effect of Rx</td><td>Reduces aqueous production</td><td>Opens iridocorneal angle (pupillary constriction)</td></tr>
+  </table>
+
+  <div class="section-title" style="font-size:1.1rem;margin:24px 0 12px;">Diagnostic Algorithm — Glaucoma</div>
+  <div class="flowchart">
+    <div class="flow-step">Patient: Eye pain + halos + blurred vision + headache</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">Tonometry → Measure IOP (Normal: 15-20 mmHg)</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">IOP &gt; 20 mmHg confirmed → Glaucoma suspected</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">Gonioscopy: inspect iridocorneal angle</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step highlight">Open angle? → Excess production → Acetazolamide</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step highlight">Closed angle? → Blocked drainage → Parasympathomimetics / Surgery</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">Monitor: prevent optic disc atrophy & blindness</div>
+  </div>
+</div>
+
+<!-- ═══ TREATMENT ═══ -->
+<div id="panel-treatment" class="tab-panel">
+  <div class="section-title">Treatment Guide <span>colour-coded by urgency</span></div>
+  <div class="treatment-grid" id="treatment-grid"></div>
+
+  <div class="section-title" style="margin-top:32px;">Intraocular Fluids Comparison</div>
+  <table class="compare-table">
+    <tr><th>Feature</th><th>Aqueous Humour</th><th>Vitreous Humour</th></tr>
+    <tr><td>Location</td><td>Anterior & posterior chambers</td><td>Vitreous chamber (behind lens)</td></tr>
+    <tr><td>Nature</td><td>Colorless, alkaline fluid</td><td>Transparent gelatinous material</td></tr>
+    <tr><td>Formation</td><td>Active secretion by ciliary epithelium (1-2 µL/min)</td><td>Maintained within a membrane; static</td></tr>
+    <tr><td>Key components</td><td>High Na⁺, HCO₃⁻, Vitamin C (10-20× plasma)</td><td>Traversed by hyaloid canal</td></tr>
+    <tr><td>Function</td><td>Nourishes cornea & lens; maintains IOP</td><td>Maintains eye shape; supports retina & lens</td></tr>
+    <tr><td>pH</td><td>Alkaline (high HCO₃⁻)</td><td>Slightly alkaline</td></tr>
+  </table>
+</div>
+
+<!-- ═══ MNEMONICS ═══ -->
+<div id="panel-mnemonics" class="tab-panel">
+  <div class="section-title">Mnemonics <span>memory tools</span></div>
+  <div class="mnemonic-grid" id="mnemonics-grid"></div>
+</div>
+
+<!-- ═══ VIVA ═══ -->
+<div id="panel-viva" class="tab-panel">
+  <div class="section-title">Viva Questions <span>12 Q&A</span></div>
+  <div id="viva-container"></div>
+</div>
+
+</main>
+
+<!-- Score Modal -->
+<div class="modal-overlay" id="scoreModal">
+  <div class="modal">
+    <div style="font-size:2.5rem;margin-bottom:8px;" id="modal-emoji">🎉</div>
+    <div class="modal-score" id="modal-score"></div>
+    <div class="modal-msg" id="modal-msg"></div>
+    <button class="btn btn-primary" onclick="closeModal()">Continue Learning</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════ DATA ═══════════════════
+
+const overviewCards = [
+  { icon:'🌐', title:'Cornea & Sclera', color:'var(--accent)',
+    facts:['Cornea = anterior 1/6, transparent, +39D refractive power','Sclera = posterior 5/6, opaque, protective','O₂ from tears; glucose from aqueous humor','Transparency: avascular + regular fiber arrangement + relative dehydration'],
+    tags:['Outer Layer','High-Yield'] },
+  { icon:'👁️', title:'Uvea (Middle Layer)', color:'var(--lavender)',
+    facts:['Iris: controls light via constrictor (PS) & dilator (SNS) pupillae','Ciliary body: controls accommodation + secretes aqueous humor','Choroid: vascular, maintains IOP, melanin prevents internal reflection'],
+    tags:['Vascular','Exam Fav'] },
+  { icon:'🔮', title:'Crystalline Lens', color:'var(--gold)',
+    facts:['Avascular, biconvex, +20D at rest → up to +32D during accommodation','Accommodation: ciliary muscle contracts → ligaments relax → lens thickens','Cycloplegia = paralysis of ciliary muscle → no focusing'],
+    tags:['Accommodation','Clinical'] },
+  { icon:'💧', title:'Intraocular Fluids', color:'var(--sage)',
+    facts:['Aqueous: formed at 1-2 µL/min by ciliary epithelium','Pathway: Posterior chamber → Pupil → Anterior chamber → Canal of Schlemm','Normal IOP: 15-20 mmHg; Glaucoma: >20 mmHg'],
+    tags:['IOP','Glaucoma'] },
+];
+
+const examAlerts = [
+  { alert:'⚠️ MCQ', text:'Aqueous humor rate = 1-2 µL/min' },
+  { alert:'⚠️ MCQ', text:'Sclera in infants appears BLUISH (very thin → underlying dark layers visible)' },
+  { alert:'⚠️ MCQ', text:'Cornea contains ascorbic acid & glutathione as H₂ acceptors in anaerobic metabolism' },
+  { alert:'⚠️ MCQ', text:'Refractive index of cornea = 1.38' },
+  { alert:'⚠️ MCQ', text:'Combined resting eye power = +59 diopters (cornea +39 + lens +20)' },
+  { alert:'⚠️ MCQ', text:'Vitamin C in aqueous = 10-20× higher than plasma' },
+];
+
+const quizData = [
+  { q:'What is the primary mechanism maintaining relative dehydration of the cornea?', opts:['Evaporation via tears','Osmotic pull by the lens','Active metabolic pump in the endothelium','Sympathetic nerve stimulation','Passive diffusion of sodium into the sclera'], ans:2, exp:'An active metabolic pump uses energy to pump water from the cornea to the aqueous humour to prevent cloudiness.' },
+  { q:'Which molecule acts as a hydrogen acceptor in the cornea\'s anaerobic metabolism?', opts:['Lactic acid','Ascorbic acid','Carbonic anhydrase','Acetazolamide','Melanin'], ans:1, exp:'Ascorbic acid and glutathione act as H₂ acceptors to buffer acidity from anaerobic metabolism.' },
+  { q:'During accommodation for near vision, what happens to the ciliary muscle and suspensory ligaments?', opts:['Muscle relaxes, ligaments tense','Muscle contracts, ligaments relax','Muscle relaxes, ligaments relax','Muscle contracts, ligaments tense','Both are unaffected'], ans:1, exp:'Ciliary muscle contraction releases the pull on the suspensory ligaments, allowing the lens to become thicker (more convex).' },
+  { q:'What is the diopteric power of the normal resting cornea?', opts:['+20 diopters','+12 diopters','+39 diopters','+59 diopters','-39 diopters'], ans:2, exp:'The cornea provides +39 (up to 43) diopters — about 70% of total diopteric power.' },
+  { q:'Aqueous humor is formed at what rate?', opts:['10-20 µL/min','1-2 µL/min','15-20 µL/min','0.1-0.5 µL/min','5-10 µL/min'], ans:1, exp:'Formed continuously by the ciliary epithelium at 1-2 µL/min.' },
+  { q:'Why does the sclera appear bluish in infants?', opts:['High levels of venous blood','Melanin pigment reflects blue light','The sclera is very thin in infants','High intraocular pressure','Immature corneal epithelium'], ans:2, exp:'Very thin in infants, allowing underlying dark layers to show through as a bluish tint.' },
+  { q:'In astigmatism, what structural abnormality is present?', opts:['Abnormally long eyeball','Abnormally short eyeball','Absence of the crystalline lens','Curvatures of cornea/lens differ across planes','Loss of lens elasticity'], ans:3, exp:'Astigmatism occurs when corneal/lens curvature varies across different planes, causing blurred vision.' },
+  { q:'Which condition is treated with a biconcave (divergent) lens?', opts:['Hypermetropia','Astigmatism','Presbyopia','Myopia','Cataract'], ans:3, exp:'In myopia, the image focuses in front of the retina. A divergent lens spreads rays to focus further back.' },
+  { q:'How does parasympathetic stimulation affect the iris?', opts:['Contracts dilator → mydriasis','Relaxes constrictor → mydriasis','Contracts constrictor → miosis','Contracts ciliary → increased IOP','Relaxes radial muscles → miosis'], ans:2, exp:'Parasympathetic targets the circular constrictor pupillae, causing miosis (constriction).' },
+  { q:'What is the function of melanin in the choroid?', opts:['Increases refractive index','Produces aqueous humor','Absorbs light to prevent internal reflection','Provides attachment for ocular muscles','Pumps water out of cornea'], ans:2, exp:'Melanin absorbs stray light, preventing internal reflection which would cause blurring.' },
+  { q:'What is the amplitude of accommodation?', opts:['RI of cornea minus lens','Near point minus far point distances','Max power (32D) minus min power (20D) = ~12D','IOP at rest vs during accommodation','Diopters of aqueous vs vitreous'], ans:2, exp:'Amplitude = Maximal power (32D) − Minimal power (20D) = ~12 Diopters.' },
+  { q:'What drives secondary passive movement of water during aqueous humor formation?', opts:['Active secretion of Na⁺','Action of constrictor pupillae','Secretion of melanin','Contraction of ciliary muscle','Evaporation from tear film'], ans:0, exp:'Na⁺ is actively secreted; Cl⁻ and HCO₃⁻ follow passively, and water is pulled by the osmotic gradient.' },
+  { q:'Compared to plasma, aqueous humor has much higher concentration of?', opts:['Proteins','Lactic acid','Vitamin C','Red blood cells','Calcium'], ans:2, exp:'Vitamin C concentration is 10-20 times higher in aqueous humor than in plasma.' },
+  { q:'The term "cycloplegia" refers to?', opts:['Opacity of the lens','Paralysis of the ciliary muscles','Spasm of extraocular muscles','Absence of the lens','High intraocular pressure'], ans:1, exp:'Cycloplegia = paralysis of ciliary muscles → no accommodation → cannot focus near.' },
+  { q:'Which structure drains aqueous humor at the corneoscleral junction?', opts:['Spaces of Fontana','Hyaloid canal','Canal of Schlemm','Ciliary processes','Macula lutea'], ans:2, exp:'Aqueous passes through spaces of Fontana then the Canal of Schlemm → aqueous veins → systemic.' },
+  { q:'Why is the pH of aqueous humor alkaline?', opts:['High lactic acid','High HCO₃⁻ binding H⁺','Absence of Na⁺ pump','Continuous tear mixing','High protein buffering'], ans:1, exp:'High bicarbonate acts as hydrogen acceptor, buffering acid from anaerobic metabolism of avascular tissues.' },
+  { q:'A patient with normal vision has parallel rays focusing exactly on the retina. This eye is?', opts:['Ammetropic','Emmetropic','Myopic','Hypermetropic','Aphakic'], ans:1, exp:'Emmetropic (Normal) eye = parallel rays converge to a focus directly on the retina.' },
+  { q:'What is the refractive index of the cornea?', opts:['1.0','1.33','1.34','1.38','1.40'], ans:3, exp:'RI of Cornea = 1.38. Air=1.0, Aqueous=1.33, Vitreous=1.34, Lens=1.40.' },
+  { q:'Acetazolamide (carbonic anhydrase inhibitor) treats which condition?', opts:['Cataract','Open-angle glaucoma','Closed-angle glaucoma','Astigmatism','Aphakia'], ans:1, exp:'Open-angle glaucoma (excess production) is treated by reducing aqueous production.' },
+  { q:'Vitamin A deficiency primarily causes what ocular pathology?', opts:['Senile cataract','Keratinization & opacity of cornea','Retinal detachment','Macular degeneration','Presbyopia'], ans:1, exp:'Vitamin A is essential for healthy corneal epithelium; deficiency leads to keratinization and opacity.' },
+  { q:'The near response triad includes pupillary constriction, lens accommodation, and?', opts:['Lateral divergence','Mydriasis','Medial convergence','Retinal detachment','Dropping of eyelid'], ans:2, exp:'Medial convergence via medial recti ensures the image falls on the fovea of both eyes.' },
+  { q:'What causes the gradual loss of accommodation in presbyopia?', opts:['Elongation of the eyeball','Loss of lens elasticity and ciliary muscle weakness','Excessive aqueous production','Corneal keratinization','Destruction of optic nerve'], ans:1, exp:'Diminution of lens elasticity and suspensory ligament/ciliary weakness with advancing age.' },
+  { q:'Which structure separates the lens from the vitreous humor?', opts:['Canal of Schlemm','Bowman\'s membrane','Retrolental space','Spaces of Fontana','Hyaloid canal'], ans:2, exp:'The vitreous is separated from the posterior lens surface by the retrolental space.' },
+  { q:'How does pupillary constriction improve vision?', opts:['Increases spherical aberration','Decreases depth of focus','Prevents light from falling on peripheral lens','Decreases refractive power of cornea','Relaxes ciliary muscles'], ans:2, exp:'The iris blocks peripheral rays → light passes only through the central lens → prevents aberration, increases depth of focus.' },
+  { q:'What provides glucose to the avascular cornea?', opts:['Tears','Vitreous humor','Aqueous humor','Choroid vessels','Sclera'], ans:2, exp:'The cornea obtains oxygen from tears and glucose from the aqueous humour.' },
+];
+
+const flashcards = [
+  { q:'What is the cornea\'s refractive power?', a:'+39 diopters (up to 43D). Provides ~70% of total refractive power.' },
+  { q:'How does the cornea maintain transparency?', a:'Avascular + uniform cell/lamellae arrangement + equal RI layers + relative dehydration via endothelial metabolic pump.' },
+  { q:'What provides O₂ and glucose to the cornea?', a:'O₂ from tears; glucose from aqueous humor.' },
+  { q:'What is cycloplegia?', a:'Paralysis of the ciliary muscles → loss of accommodation → cannot focus on near objects.' },
+  { q:'What are the steps of accommodation for near vision?', a:'Ciliary muscle contracts → suspensory ligaments relax → lens becomes more convex → power increases to 32D.' },
+  { q:'Define amplitude of accommodation.', a:'Max lens power (32D) − Min lens power (20D) = ~12 Diopters.' },
+  { q:'What is the rate of aqueous humor formation?', a:'1-2 µL/min by the ciliary epithelium.' },
+  { q:'What is normal IOP?', a:'15-20 mmHg. Glaucoma: >20 mmHg.' },
+  { q:'Canal of Schlemm — what drains here?', a:'Aqueous humor drains from the anterior chamber → spaces of Fontana → Canal of Schlemm → aqueous veins → systemic.' },
+  { q:'What makes sclera appear bluish in infants?', a:'Sclera is very thin → underlying dark uveal layers show through.' },
+  { q:'Difference: open-angle vs closed-angle glaucoma?', a:'Open-angle = excess production (Rx: acetazolamide). Closed-angle = blocked drainage (Rx: parasympathomimetics / surgery).' },
+  { q:'What is presbyopia?', a:'Age-related loss of near accommodation due to decreased lens elasticity and ciliary muscle weakness.' },
+  { q:'What causes cataract?', a:'Protein denaturation by UV rays, diabetes mellitus (glucose disturbance), or aging (glutathione absence).' },
+  { q:'What is myopia and its correction?', a:'Abnormally long eyeball → image focuses in front of retina. Corrected with biconcave (divergent) lens.' },
+  { q:'What is hypermetropia and its correction?', a:'Short eyeball → image focuses behind retina. Corrected with biconvex (convergent) lens.' },
+  { q:'What is astigmatism and its correction?', a:'Unequal corneal/lens curvatures → no single focus point. Corrected with cylindrical lens.' },
+  { q:'Refractive index of each ocular medium?', a:'Air=1.00, Cornea=1.38, Aqueous=1.33, Lens=1.40, Vitreous=1.34.' },
+  { q:'Role of melanin in the choroid?', a:'Absorbs stray light to prevent internal reflection → prevents blurring of vision.' },
+  { q:'Why is aqueous humor pH alkaline?', a:'High HCO₃⁻ concentration buffers lactic acid from anaerobic metabolism of avascular lens and cornea.' },
+  { q:'What is aphakia?', a:'Complete absence of the crystalline lens (congenital or post-surgical removal).' },
+  { q:'Function of the iris?', a:'Controls light entry (pupil size), increases depth of focus, prevents spherical/chromatic aberration.' },
+  { q:'What is emmetropia?', a:'Normal eye — parallel rays focus exactly on the retina without accommodation.' },
+  { q:'How does Vitamin A deficiency affect the eye?', a:'Leads to keratinization and opacity of the corneal epithelium.' },
+  { q:'What happens if IOP drops excessively?', a:'Suspensory ligament relaxes prematurely → lens becomes more convex → disturbs focusing.' },
+];
+
+const clinicalCases = [
+  {
+    icon:'🔴', title:'Case 1: The Cloudy Eye', meta:'Corneal Pathology',
+    vignette:'A 45-year-old contact lens wearer presents with gradual corneal clouding, blurry vision, and redness. Slit-lamp exam reveals corneal vascularization and epithelial edema. Lab workup shows riboflavin (Vitamin B₂) deficiency.',
+    questions:[
+      { q:'What mechanism is responsible for the corneal clouding?', reveal:'Disruption of the endothelial metabolic pump due to hypoxia (riboflavin deficiency impairs anaerobic metabolism). Fluid accumulates in corneal stroma → cloudiness.' },
+      { q:'Why does corneal vascularization occur?', reveal:'Hypoxia drives compensatory neovascularization. However, the cornea MUST remain avascular for transparency — new vessels destroy this property.' },
+      { q:'What molecule acts as a hydrogen acceptor to maintain normal pH in the cornea?', reveal:'Ascorbic acid (Vitamin C) and glutathione act as H₂ acceptors in anaerobic metabolism, buffering lactic acid to maintain normal pH.' },
+    ]
+  },
+  {
+    icon:'👴', title:'Case 2: Can\'t Read Anymore', meta:'Presbyopia / Accommodation',
+    vignette:'A 65-year-old retired professor complains he must hold his newspaper at arm\'s length to read but can see the TV across the room clearly. He denies headaches or pain. No family history of eye disease. Visual acuity with glasses: 6/6 for distance, 6/18 for near.',
+    questions:[
+      { q:'What is the diagnosis?', reveal:'Presbyopia — age-related failure of near accommodation due to gradual loss of lens elasticity (sclerosis of the capsule) and weakness of ciliary muscles.' },
+      { q:'Describe the normal accommodation mechanism this patient can no longer perform.', reveal:'Normally: ciliary muscle contracts → suspensory ligaments relax → lens becomes more spherical/convex → refractive power increases from 20D to 32D → near image focuses on retina.' },
+      { q:'What type of corrective lens is prescribed?', reveal:'Convex (converging) reading glasses to compensate for the reduced accommodative power and focus near images onto the retina.' },
+    ]
+  },
+  {
+    icon:'🩺', title:'Case 3: Diabetic with White Pupil', meta:'Cataract',
+    vignette:'A 58-year-old with poorly controlled Type 2 Diabetes Mellitus presents with progressive, painless bilateral blurring of vision over 2 years. Ophthalmoscopy reveals a grayish-white opacity behind each pupil. Blood glucose is consistently >250 mg/dL.',
+    questions:[
+      { q:'What is the diagnosis and pathophysiology?', reveal:'Diabetic cataract. Chronic hyperglycaemia disturbs lens glucose metabolism → lens proteins become coagulable → denaturation and loss of lens transparency.' },
+      { q:'Name two other causes of cataract.', reveal:'1. UV rays: photochemical coagulation of lens proteins with calcium precipitation. 2. Senile cataract: absence of glutathione (protective antioxidant) with aging.' },
+      { q:'What is the structural consequence for vision?', reveal:'Loss of lens transparency prevents proper light transmission and focusing → visual blur, glare, and ultimately blindness if untreated.' },
+    ]
+  },
+  {
+    icon:'🚨', title:'Case 4: Emergency Eye Pain', meta:'Acute Closed-Angle Glaucoma',
+    vignette:'A 62-year-old presents to the ER with severe left eye pain, headache, nausea, and seeing colored halos around lights. Tonometry: IOP = 48 mmHg (normal 15-20). The anterior chamber appears shallow. Gonioscopy confirms a closed iridocorneal angle.',
+    questions:[
+      { q:'What is the diagnosis and mechanism?', reveal:'Acute closed-angle glaucoma. The iridocorneal angle is obstructed → aqueous humor cannot drain through spaces of Fontana/Canal of Schlemm → pressure builds up rapidly.' },
+      { q:'What drug class is used acutely and why?', reveal:'Parasympathomimetics (e.g., Neostigmine, Pilocarpine) cause pupillary constriction (miosis) → pulls iris away from drainage angle → opens the corneoscleral angle → restores drainage.' },
+      { q:'What is the long-term risk if untreated?', reveal:'Sustained high IOP compresses retinal blood vessels → ischaemia → pressure atrophy of the optic disc → permanent blindness.' },
+    ]
+  },
+  {
+    icon:'👦', title:'Case 5: The Blurry Board Kid', meta:'Myopia',
+    vignette:'A 10-year-old boy is referred by his teacher after consistently failing to read the whiteboard. He sits at the front of class. He can read a book held close without difficulty. His father is also short-sighted. Axial length measurement: 25.5 mm (normal ~24 mm).',
+    questions:[
+      { q:'What is the diagnosis?', reveal:'Myopia (short-sightedness). The eyeball is abnormally long (25.5mm > 24mm) → parallel rays from distant objects focus in front of the retina.' },
+      { q:'What correction is used?', reveal:'Biconcave (divergent) lens. It diverges rays before entering the eye, effectively moving the focal point backwards onto the retina.' },
+      { q:'Why can he read up close without difficulty?', reveal:'Near objects produce diverging rays that naturally focus further back, coinciding with the retina in a myopic eye. No accommodation deficit is present.' },
+    ]
+  },
+  {
+    icon:'🔬', title:'Case 6: The Integrated Glaucoma', meta:'Long Integrative Scenario',
+    vignette:'A 65-year-old presents with blurry vision, colored halos around lights, severe eye pain, and headache. Tonometry: IOP = 45 mmHg. The anterior chamber angle is obstructed on gonioscopy.',
+    questions:[
+      { q:'Step-by-step: trace the mechanism from normal aqueous dynamics to this crisis.', reveal:'1. Normal: Ciliary processes form aqueous at 1-2 µL/min. 2. Flow: Posterior chamber → pupil → anterior chamber. 3. Drainage: Spaces of Fontana → Canal of Schlemm → aqueous veins. 4. Obstruction: Closed iridocorneal angle blocks step 3. 5. Consequence: Fluid accumulates → IOP rises to 45 mmHg → retinal vessel compression → optic disc atrophy → blindness.' },
+      { q:'What is the best investigative technique and what are the long-term consequences?', reveal:'Investigation: Tonometry (gold standard for IOP measurement). Consequences: Sustained raised IOP compresses retinal vessels → ischaemia → pressure atrophy of the optic disc → permanent visual field loss and blindness.' },
+    ]
+  },
+];
+
+const anatomyItems = [
+  { icon:'🌐', name:'Cornea', detail:'Anterior 1/6 of eyeball. Transparent. Most powerful refractive medium (+39D). Avascular — O₂ from tears, glucose from aqueous humor. Transparency maintained by: avascular structure, uniform fiber arrangement, equal RI layers, relative dehydration via endothelial pump. RI = 1.38.' },
+  { icon:'🔵', name:'Sclera', detail:'Posterior 5/6. Opaque, white (bluish in infants due to thinness). Protects inner structures. Provides attachment for extraocular muscles. Contains no refractive function.' },
+  { icon:'🔶', name:'Iris', detail:'Colored part of uvea. Contains constrictor pupillae (circular, parasympathetic → miosis) and dilator pupillae (radial, sympathetic → mydriasis). Functions: controls light entry, increases depth of focus, prevents spherical/chromatic aberration.' },
+  { icon:'⚙️', name:'Ciliary Body', detail:'Contains ciliary muscle (controls accommodation) and ciliary processes (secrete aqueous humor). During near vision: ciliary muscle contracts → suspensory ligaments relax → lens thickens.' },
+  { icon:'🩸', name:'Choroid', detail:'Highly vascular. Maintains intraocular pressure. Rich in melanin → absorbs stray light → prevents internal reflection → prevents blurred vision. Between sclera and retina.' },
+  { icon:'🔮', name:'Crystalline Lens', detail:'Avascular, biconvex. RI = 1.40. Power at rest = +20D, max = +32D. Held by suspensory ligaments (zonules of Zinn). Disorders: Presbyopia (elasticity loss), Cataract (protein denaturation), Aphakia (absence).' },
+  { icon:'💧', name:'Aqueous Humor', detail:'Formed by ciliary epithelium at 1-2 µL/min via active Na⁺ transport. High HCO₃⁻ (alkaline). Vitamin C = 10-20× plasma. Nourishes avascular cornea & lens. Drains: spaces of Fontana → Canal of Schlemm → aqueous veins.' },
+  { icon:'🫧', name:'Vitreous Humor', detail:'Transparent gelatinous substance. RI = 1.34. Fills vitreous chamber behind lens. Traversed by hyaloid canal. Maintains eye shape. Supports retina and lens.' },
+  { icon:'🔭', name:'Canal of Schlemm', detail:'Encircles the anterior chamber at the corneoscleral junction. Primary drainage route for aqueous humor. Blocked in closed-angle glaucoma. Target of trabeculectomy surgery.' },
+  { icon:'🎯', name:'Retrolental Space', detail:'Narrow space separating the posterior surface of the lens from the anterior surface of the vitreous humor.' },
+];
+
+const aqFlowchart = [
+  { text:'Ciliary Processes — Active secretion of Na⁺ (followed by Cl⁻, HCO₃⁻, H₂O)', hl:false },
+  { text:'↓', arrow:true },
+  { text:'Posterior Chamber', hl:false },
+  { text:'↓', arrow:true },
+  { text:'Pupil (passes through)', hl:false },
+  { text:'↓', arrow:true },
+  { text:'Anterior Chamber', hl:false },
+  { text:'↓', arrow:true },
+  { text:'Iridocorneal (Filtration) Angle', hl:false },
+  { text:'↓', arrow:true },
+  { text:'Spaces of Fontana', hl:false },
+  { text:'↓', arrow:true },
+  { text:'Canal of Schlemm ← BLOCKED HERE in closed-angle glaucoma', hl:true },
+  { text:'↓', arrow:true },
+  { text:'Aqueous Veins → Episcleral Veins → Systemic Veins', hl:false },
+];
+
+const accFlowchart = [
+  { text:'Blurred image of near object on retina', hl:false },
+  { text:'↓', arrow:true },
+  { text:'Ciliary muscle CONTRACTS (parasympathetic)', hl:true },
+  { text:'↓', arrow:true },
+  { text:'Tension on suspensory ligaments RELEASED', hl:false },
+  { text:'↓', arrow:true },
+  { text:'Lens becomes rounder / more convex', hl:false },
+  { text:'↓', arrow:true },
+  { text:'Refractive power increases: 20D → up to 32D', hl:true },
+  { text:'↓', arrow:true },
+  { text:'Image focuses on retina ✅', hl:false },
+  { text:'↓', arrow:true },
+  { text:'Simultaneously: Pupils CONSTRICT + Eyes CONVERGE medially', hl:false },
+];
+
+const treatments = [
+  {
+    type:'emergency', label:'🚨 Acute / Emergency',
+    items:[
+      { name:'Acute Closed-Angle Glaucoma', drugs:[
+        { name:'Pilocarpine (Parasympathomimetic)', moa:'Pupillary constriction → opens drainage angle' },
+        { name:'Neostigmine', moa:'Anticholinesterase → miosis → angle opens' },
+        { name:'IV Acetazolamide (high dose)', moa:'Rapid IOP reduction before surgery' },
+      ]}
+    ]
+  },
+  {
+    type:'primary', label:'💊 Medical Management',
+    items:[
+      { name:'Open-angle Glaucoma', drugs:[
+        { name:'Acetazolamide', moa:'Carbonic anhydrase inhibitor → ↓ aqueous production' },
+        { name:'Timolol (β-blocker)', moa:'Reduces aqueous secretion' },
+        { name:'Latanoprost (PGF₂α)', moa:'Increases uveoscleral outflow' },
+      ]},
+      { name:'Cataracts (early/prevention)', drugs:[
+        { name:'Antioxidants (Vit C/E)', moa:'Reduce oxidative protein denaturation' },
+        { name:'Glutathione support', moa:'Maintains lens protein integrity' },
+        { name:'Glycaemic control', moa:'Prevents diabetic cataract' },
+      ]}
+    ]
+  },
+  {
+    type:'secondary', label:'🔬 Optical Correction',
+    items:[
+      { name:'Refractive Errors', drugs:[
+        { name:'Biconcave lens', moa:'Myopia — diverges rays to focus on retina' },
+        { name:'Biconvex lens', moa:'Hypermetropia — converges rays to focus on retina' },
+        { name:'Cylindrical lens', moa:'Astigmatism — corrects unequal curvatures' },
+        { name:'Convex reading glasses', moa:'Presbyopia — compensates lost accommodation' },
+      ]}
+    ]
+  },
+];
+
+const mnemonics = [
+  {
+    word:'CLEAR',
+    title:'Why the Cornea is Transparent',
+    items:[
+      { letter:'C', meaning:'Cell arrangement is uniform (regular lamellae)' },
+      { letter:'L', meaning:'Lacks blood vessels (avascular)' },
+      { letter:'E', meaning:'Equal refractive indices across layers' },
+      { letter:'A', meaning:'Active pump dehydrates the stroma' },
+      { letter:'R', meaning:'Relative dehydration maintained' },
+    ]
+  },
+  {
+    word:'CAMP',
+    title:'Near Response Triad',
+    items:[
+      { letter:'C', meaning:'Constriction of the pupil (miosis)' },
+      { letter:'A', meaning:'Accommodation (lens thickens)' },
+      { letter:'M', meaning:'Medial convergence of the eyes' },
+      { letter:'P', meaning:'Parasympathetic drives all three' },
+    ]
+  },
+  {
+    word:'PADS',
+    title:'Glaucoma Treatments',
+    items:[
+      { letter:'P', meaning:'Parasympathomimetics (for closed-angle)' },
+      { letter:'A', meaning:'Acetazolamide (for open-angle)' },
+      { letter:'D', meaning:'Drainage surgery (trabeculectomy)' },
+      { letter:'S', meaning:'Surgery = last resort' },
+    ]
+  },
+  {
+    word:'CALM',
+    title:'Causes of Cataract',
+    items:[
+      { letter:'C', meaning:'Calcium + UV photochemical coagulation' },
+      { letter:'A', meaning:'Ageing (glutathione absence)' },
+      { letter:'L', meaning:'Low insulin / Diabetes Mellitus' },
+      { letter:'M', meaning:'Metabolic protein denaturation' },
+    ]
+  },
+  {
+    word:'AVID',
+    title:'Refractive Indices (low → high)',
+    items:[
+      { letter:'A', meaning:'Aqueous: 1.33' },
+      { letter:'V', meaning:'Vitreous: 1.34' },
+      { letter:'I', meaning:'... (In between)' },
+      { letter:'D', meaning:'Denser: Cornea 1.38, then Lens 1.40' },
+    ]
+  },
+  {
+    word:'FOAM',
+    title:'Corneal Nutrition Sources',
+    items:[
+      { letter:'F', meaning:'From tears: Oxygen (O₂)' },
+      { letter:'O', meaning:'Only from aqueous: Glucose' },
+      { letter:'A', meaning:'Ascorbic acid: also from aqueous' },
+      { letter:'M', meaning:'Metabolic pumps keep it dehydrated' },
+    ]
+  },
+];
+
+const vivaData = [
+  { q:'What are the two types of photoreceptor focusing defects based on eyeball length?', a:'Myopia (long eyeball, near-sightedness) — images focus in front of the retina. Hypermetropia (short eyeball, far-sightedness) — images focus behind the retina.' },
+  { q:'Why is the cornea transparent?', a:'1. Regular/uniform arrangement of epithelial cells and lamellae. 2. Complete absence of blood vessels. 3. Equal refractive indices of its layers. 4. Relative dehydration maintained by an active endothelial metabolic pump.' },
+  { q:'What happens during accommodation for near vision?', a:'The ciliary muscle contracts → releases tension on the suspensory ligaments → the elastic lens becomes more spherical (convex) → refractive power increases from 20D up to 32D → near image focuses on retina.' },
+  { q:'What is the normal IOP and how is it maintained?', a:'Normal IOP = 15-20 mmHg. Maintained by a perfect balance between aqueous secretion (1-2 µL/min by ciliary epithelium) and drainage through the Canal of Schlemm.' },
+  { q:'Define presbyopia.', a:'Failure of accommodation to near objects due to gradual diminution of lens elasticity, sclerosis of the capsule, and weakness of ciliary muscles — all with advancing age.' },
+  { q:'What is a cataract and what causes it?', a:'Cataract = loss of lens transparency due to protein denaturation. Causes: 1. UV rays (calcium precipitation), 2. Diabetes mellitus (glucose metabolism disturbance), 3. Old age (absence of glutathione).' },
+  { q:'How does the aqueous humor buffer acids?', a:'Aqueous humor contains higher concentration of bicarbonate (HCO₃⁻) than plasma, keeping it alkaline. This buffers the lactic acid produced by anaerobic metabolism of the avascular lens and cornea.' },
+  { q:'What are the functions of the choroid?', a:'1. Vascular layer — provides blood supply to outer retina. 2. Vessel pressure contributes to IOP maintenance. 3. Melanin absorbs stray light to prevent internal reflection and blurred vision.' },
+  { q:'What is the refractive index (RI)?', a:'The ratio of the velocity of light in air to its velocity in that medium. Values: Cornea=1.38, Aqueous=1.33, Lens=1.40, Vitreous=1.34, Air=1.00.' },
+  { q:'What is the clinical significance of a dropped IOP?', a:'Excessive drop in IOP relaxes the suspensory ligament of the lens prematurely → lens increases in convexity → disturbs the focusing mechanism of the eye.' },
+  { q:'How do tears contribute to corneal health?', a:'Tears supply oxygen directly from the atmosphere to the avascular cornea and provide moistening to prevent dryness and opacity (and spread of the lacrimal film).' },
+  { q:'Differentiate between Open-angle and Closed-angle Glaucoma treatments.', a:'Open-angle (excess production): Carbonic anhydrase inhibitors (Acetazolamide) reduce aqueous production. Closed-angle (blocked drainage): Parasympathomimetics (Pilocarpine/Neostigmine) cause miosis, opening the angle — or trabeculectomy surgery.' },
+];
+
+// ═══════════════════ STATE ═══════════════════
+let quizState = { current:0, score:0, streak:0, answered:[] };
+let globalScore = parseInt(localStorage.getItem('oc_score')||'0');
+let globalStreak = parseInt(localStorage.getItem('oc_streak')||'0');
+let completedQuestions = JSON.parse(localStorage.getItem('oc_completed')||'[]');
+
+function updateGlobalStats() {
+  document.getElementById('score-val').textContent = globalScore;
+  document.getElementById('streak-val').textContent = globalStreak;
+  const pct = Math.round((completedQuestions.length / (quizData.length + flashcards.length)) * 100);
+  document.getElementById('progress-val').textContent = Math.min(pct,100);
+}
+
+// ═══════════════════ TABS ═══════════════════
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  const tabs = document.querySelectorAll('.tab');
+  const map = ['overview','quiz','flashcards','cases','anatomy','diagnosis','treatment','mnemonics','viva'];
+  tabs[map.indexOf(id)].classList.add('active');
+  localStorage.setItem('oc_tab', id);
+}
+
+// ═══════════════════ SEARCH ═══════════════════
+function doSearch(val) {
+  // Simple: just visually highlight matching text in visible panel
+  // For UX, switch to overview and filter cards
+}
+
+// ═══════════════════ OVERVIEW ═══════════════════
+function renderOverview() {
+  const grid = document.getElementById('overview-cards');
+  grid.innerHTML = overviewCards.map(c => `
+    <div class="card">
+      <div style="font-size:1.8rem;margin-bottom:10px;">${c.icon}</div>
+      <h3 style="color:${c.color};margin-bottom:10px;">${c.title}</h3>
+      <ul>${c.facts.map(f=>`<li>${f}</li>`).join('')}</ul>
+      <div style="margin-top:12px;">${c.tags.map(t=>`<span class="tag tag-accent">${t}</span>`).join('')}</div>
+    </div>
+  `).join('');
+
+  const alerts = document.getElementById('exam-alerts');
+  alerts.innerHTML = examAlerts.map(a => `
+    <div class="card" style="border-color:rgba(251,191,36,0.2);">
+      <div><span class="tag tag-gold">${a.alert}</span></div>
+      <p style="margin-top:10px;color:var(--text);font-size:0.9rem;">${a.text}</p>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════ QUIZ ═══════════════════
+function renderQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  quizData.forEach((q, qi) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-card';
+    div.id = `qcard-${qi}`;
+    div.innerHTML = `
+      <div class="quiz-q">Q${qi+1}. ${q.q}</div>
+      <div class="quiz-options">
+        ${q.opts.map((o,oi)=>`
+          <div class="quiz-opt" id="opt-${qi}-${oi}" onclick="selectOpt(${qi},${oi})">
+            <span style="color:var(--text-muted);font-family:'DM Mono',monospace;font-size:0.8rem;">${String.fromCharCode(65+oi)}</span>
+            ${o}
+          </div>
+        `).join('')}
+      </div>
+      <div class="quiz-explanation" id="exp-${qi}">💡 ${q.exp}</div>
+    `;
+    container.appendChild(div);
+  });
+  updateQuizProgress();
+}
+
+function selectOpt(qi, oi) {
+  if(quizState.answered.includes(qi)) return;
+  quizState.answered.push(qi);
+  const correct = quizData[qi].ans;
+  const opts = document.querySelectorAll(`[id^="opt-${qi}-"]`);
+  opts.forEach(o => o.classList.add('disabled'));
+  if(oi === correct) {
+    opts[oi].classList.add('correct');
+    quizState.score++;
+    quizState.streak++;
+    globalScore++;
+    globalStreak++;
+  } else {
+    opts[oi].classList.add('wrong');
+    opts[correct].classList.add('correct');
+    quizState.streak = 0;
+    globalStreak = 0;
+  }
+  document.getElementById(`exp-${qi}`).classList.add('show');
+  if(!completedQuestions.includes('q'+qi)) completedQuestions.push('q'+qi);
+  localStorage.setItem('oc_score', globalScore);
+  localStorage.setItem('oc_streak', globalStreak);
+  localStorage.setItem('oc_completed', JSON.stringify(completedQuestions));
+  document.getElementById('q-score').textContent = quizState.score;
+  document.getElementById('q-streak').textContent = quizState.streak;
+  updateQuizProgress();
+  updateGlobalStats();
+  if(quizState.answered.length === quizData.length) showScoreModal();
+}
+
+function updateQuizProgress() {
+  const pct = Math.round((quizState.answered.length/quizData.length)*100);
+  document.getElementById('quiz-progress').style.width = pct+'%';
+}
+
+function restartQuiz() {
+  quizState = { current:0, score:0, streak:0, answered:[] };
+  document.getElementById('q-score').textContent = '0';
+  document.getElementById('q-streak').textContent = '0';
+  renderQuiz();
+}
+
+function showScoreModal() {
+  const pct = Math.round((quizState.score/quizData.length)*100);
+  document.getElementById('modal-score').textContent = `${quizState.score} / ${quizData.length}`;
+  document.getElementById('modal-emoji').textContent = pct>=80?'🏆':pct>=60?'🎯':'📚';
+  document.getElementById('modal-msg').textContent = pct>=80?'Outstanding! You\'ve mastered ocular physiology!':pct>=60?'Great job! Review the ones you missed.':'Keep studying — you\'ve got this!';
+  document.getElementById('scoreModal').classList.add('show');
+}
+function closeModal() { document.getElementById('scoreModal').classList.remove('show'); }
+
+// ═══════════════════ FLASHCARDS ═══════════════════
+function renderFlashcards() {
+  const grid = document.getElementById('flashcard-grid');
+  grid.innerHTML = flashcards.map((fc,i) => `
+    <div class="flashcard-wrap" onclick="flipCard(this)">
+      <div class="flashcard" id="fc-${i}">
+        <div class="fc-face fc-front">
+          <div class="fc-label">❓ Question</div>
+          <div class="fc-text">${fc.q}</div>
+        </div>
+        <div class="fc-face fc-back">
+          <div class="fc-label">✅ Answer</div>
+          <div class="fc-text">${fc.a}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function flipCard(wrap) {
+  const card = wrap.querySelector('.flashcard');
+  card.classList.toggle('flipped');
+  const idx = Array.from(wrap.parentNode.children).indexOf(wrap);
+  if(!completedQuestions.includes('f'+idx)) {
+    completedQuestions.push('f'+idx);
+    localStorage.setItem('oc_completed',JSON.stringify(completedQuestions));
+    updateGlobalStats();
+  }
+}
+
+// ═══════════════════ CASES ═══════════════════
+function renderCases() {
+  const container = document.getElementById('cases-container');
+  container.innerHTML = clinicalCases.map((c,ci) => `
+    <div class="case-card">
+      <div class="case-header">
+        <div class="case-icon">${c.icon}</div>
+        <div>
+          <h3>${c.title}</h3>
+          <div class="case-meta">${c.meta}</div>
+        </div>
+      </div>
+      <div class="case-vignette">${c.vignette}</div>
+      ${c.questions.map((q,qi) => `
+        <div>
+          <div class="case-q">${qi+1}. ${q.q}</div>
+          <button class="reveal-btn" onclick="revealCase(${ci},${qi},this)">👁 Reveal Answer</button>
+          <div class="case-answer" id="ca-${ci}-${qi}">${q.reveal}</div>
+        </div>
+        <br>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+function revealCase(ci, qi, btn) {
+  const ans = document.getElementById(`ca-${ci}-${qi}`);
+  ans.classList.toggle('show');
+  btn.textContent = ans.classList.contains('show') ? '🙈 Hide Answer' : '👁 Reveal Answer';
+}
+
+// ═══════════════════ ANATOMY ═══════════════════
+function renderAnatomy() {
+  const grid = document.getElementById('anatomy-grid');
+  grid.innerHTML = anatomyItems.map((a,i) => `
+    <div class="anatomy-item" onclick="toggleAnatomy(${i})">
+      <div class="anatomy-icon">${a.icon}</div>
+      <h3>${a.name}</h3>
+      <div class="anatomy-detail" id="anat-${i}">${a.detail}</div>
+    </div>
+  `).join('');
+
+  // Aqueous flowchart
+  const af = document.getElementById('aq-flowchart');
+  af.innerHTML = aqFlowchart.map(s => s.arrow
+    ? `<div class="flow-arrow">↓</div>`
+    : `<div class="flow-step${s.hl?' highlight':''}">${s.text}</div>`
+  ).join('');
+
+  // Accommodation flowchart
+  const accf = document.getElementById('acc-flowchart');
+  accf.innerHTML = accFlowchart.map(s => s.arrow
+    ? `<div class="flow-arrow">↓</div>`
+    : `<div class="flow-step${s.hl?' highlight':''}">${s.text}</div>`
+  ).join('');
+}
+
+function toggleAnatomy(i) {
+  const d = document.getElementById('anat-'+i);
+  d.classList.toggle('show');
+}
+
+// ═══════════════════ TREATMENT ═══════════════════
+function renderTreatment() {
+  const grid = document.getElementById('treatment-grid');
+  grid.innerHTML = treatments.map(t => `
+    <div class="treatment-card treatment-${t.type}">
+      <div class="treatment-label ${t.type}-label">${t.label}</div>
+      ${t.items.map(item => `
+        <h3 style="margin:12px 0 8px;">${item.name}</h3>
+        ${item.drugs.map(d => `
+          <div class="drug-item">
+            <div>
+              <div class="drug-name">${d.name}</div>
+              <div class="drug-moa">${d.moa}</div>
+            </div>
+          </div>
+        `).join('')}
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+// ═══════════════════ MNEMONICS ═══════════════════
+function renderMnemonics() {
+  const grid = document.getElementById('mnemonics-grid');
+  grid.innerHTML = mnemonics.map(m => `
+    <div class="mnemonic-card">
+      <div style="color:var(--text-muted);font-size:0.78rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">${m.title}</div>
+      <div class="mnemonic-word">${m.word}</div>
+      ${m.items.map(item => `
+        <div class="mnemonic-item">
+          <div class="mnemonic-letter">${item.letter}</div>
+          <div class="mnemonic-meaning">${item.meaning}</div>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+// ═══════════════════ VIVA ═══════════════════
+function renderViva() {
+  const container = document.getElementById('viva-container');
+  container.innerHTML = vivaData.map((v,i) => `
+    <div class="viva-card">
+      <div class="viva-q">V${i+1}. ${v.q}</div>
+      <button class="reveal-btn" onclick="revealViva(${i},this)">💬 Show Answer</button>
+      <div class="case-answer" id="viva-${i}">${v.a}</div>
+    </div>
+  `).join('');
+}
+
+function revealViva(i, btn) {
+  const ans = document.getElementById('viva-'+i);
+  ans.classList.toggle('show');
+  btn.textContent = ans.classList.contains('show') ? '🙈 Hide' : '💬 Show Answer';
+}
+
+// ═══════════════════ INIT ═══════════════════
+function init() {
+  renderOverview();
+  renderQuiz();
+  renderFlashcards();
+  renderCases();
+  renderAnatomy();
+  renderTreatment();
+  renderMnemonics();
+  renderViva();
+  updateGlobalStats();
+  const savedTab = localStorage.getItem('oc_tab');
+  if(savedTab) switchTab(savedTab);
+}
+
+init();
+</script>
+</body>
+</html>

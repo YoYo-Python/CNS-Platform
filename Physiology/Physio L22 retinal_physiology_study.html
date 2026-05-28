@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retinal Physiology — Interactive Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #070b14;
+  --bg2: #0d1525;
+  --bg3: #111c30;
+  --surface: #131f35;
+  --surface2: #1a2a44;
+  --border: rgba(99,179,237,0.12);
+  --teal: #38bdf8;
+  --teal2: #0ea5e9;
+  --amber: #f59e0b;
+  --rose: #f43f5e;
+  --emerald: #10b981;
+  --violet: #8b5cf6;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --radius: 14px;
+  --shadow: 0 8px 40px rgba(0,0,0,0.5);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden;}
+
+/* ── BG EFFECTS ── */
+.bg-orbs{position:fixed;inset:0;pointer-events:none;z-index:0;}
+.orb{position:absolute;border-radius:50%;filter:blur(120px);opacity:0.08;}
+.orb1{width:600px;height:600px;background:radial-gradient(circle,#38bdf8,transparent);top:-150px;right:-100px;animation:drift1 20s ease-in-out infinite alternate;}
+.orb2{width:500px;height:500px;background:radial-gradient(circle,#8b5cf6,transparent);bottom:-100px;left:-100px;animation:drift2 25s ease-in-out infinite alternate;}
+.orb3{width:300px;height:300px;background:radial-gradient(circle,#f59e0b,transparent);top:40%;left:40%;animation:drift3 18s ease-in-out infinite alternate;}
+@keyframes drift1{to{transform:translate(-80px,60px);}}
+@keyframes drift2{to{transform:translate(80px,-60px);}}
+@keyframes drift3{to{transform:translate(-40px,80px);}}
+
+/* ── LAYOUT ── */
+.wrapper{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 20px;}
+
+/* ── HEADER ── */
+header{padding:36px 0 0;text-align:center;}
+.logo-tag{display:inline-block;background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.25);color:var(--teal);font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;padding:6px 16px;border-radius:50px;margin-bottom:20px;}
+header h1{font-family:var(--font-display);font-size:clamp(2rem,5vw,3.6rem);font-weight:900;line-height:1.1;color:#fff;margin-bottom:12px;}
+header h1 span{color:var(--teal);}
+header p{color:var(--text2);font-size:15px;max-width:500px;margin:0 auto 32px;}
+
+/* ── STATS BAR ── */
+.stats-bar{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:32px;}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 20px;display:flex;align-items:center;gap:10px;}
+.stat-val{font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:var(--teal);}
+.stat-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:6px;flex-wrap:wrap;justify-content:center;margin-bottom:32px;}
+.tab{padding:10px 18px;border-radius:12px;border:none;cursor:pointer;font-family:var(--font-body);font-size:13px;font-weight:600;color:var(--text2);background:transparent;transition:all .25s;white-space:nowrap;}
+.tab:hover{color:var(--text);background:var(--surface);}
+.tab.active{background:var(--teal2);color:#fff;box-shadow:0 4px 20px rgba(14,165,233,0.3);}
+.tab-emoji{margin-right:6px;}
+
+/* ── PANELS ── */
+.panel{display:none;animation:fadeUp .35s ease;}
+.panel.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── SECTION HEADER ── */
+.section-header{margin-bottom:28px;}
+.section-header h2{font-family:var(--font-display);font-size:2rem;font-weight:700;color:#fff;margin-bottom:6px;}
+.section-header p{color:var(--text2);font-size:14px;}
+
+/* ── CARDS GRID ── */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:32px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;transition:all .2s;}
+.card:hover{border-color:rgba(56,189,248,0.3);transform:translateY(-2px);box-shadow:0 8px 30px rgba(56,189,248,0.1);}
+.card-icon{font-size:2rem;margin-bottom:12px;}
+.card h3{font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:8px;}
+.card p{font-size:13px;color:var(--text2);line-height:1.7;}
+.tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:50px;margin:4px 3px 4px 0;}
+.tag-exam{background:rgba(244,63,94,0.15);color:#fb7185;border:1px solid rgba(244,63,94,0.2);}
+.tag-key{background:rgba(56,189,248,0.1);color:var(--teal);border:1px solid rgba(56,189,248,0.2);}
+.tag-pearl{background:rgba(245,158,11,0.1);color:var(--amber);border:1px solid rgba(245,158,11,0.2);}
+
+/* ── TIMELINE ── */
+.timeline{position:relative;padding:24px 0;margin-bottom:32px;}
+.timeline::before{content:'';position:absolute;left:24px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--teal),var(--violet));}
+.timeline-item{display:flex;gap:20px;margin-bottom:24px;padding-left:8px;}
+.timeline-dot{width:12px;height:12px;border-radius:50%;background:var(--teal);border:3px solid var(--bg);flex-shrink:0;margin-top:4px;box-shadow:0 0 12px rgba(56,189,248,0.6);}
+.timeline-content{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;flex:1;}
+.timeline-content h4{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;}
+.timeline-content p{font-size:12px;color:var(--text2);line-height:1.6;}
+.timeline-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 10px;border-radius:50px;background:rgba(56,189,248,0.1);color:var(--teal);margin-bottom:8px;}
+
+/* ── FLOWCHART ── */
+.flowchart{display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:32px;}
+.flow-step{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 24px;text-align:center;max-width:520px;width:100%;font-size:13px;color:var(--text);font-weight:500;transition:all .2s;cursor:default;}
+.flow-step:hover{border-color:rgba(56,189,248,0.4);background:var(--surface2);}
+.flow-step.highlight{border-color:rgba(56,189,248,0.5);background:rgba(56,189,248,0.07);color:var(--teal);}
+.flow-arrow{color:var(--teal);font-size:1.4rem;padding:4px 0;}
+.flow-step .flow-detail{font-size:11px;color:var(--text3);margin-top:4px;}
+
+/* ── QUIZ ── */
+.quiz-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+.progress-bar{flex:1;height:8px;background:var(--surface2);border-radius:50px;overflow:hidden;min-width:200px;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--violet));border-radius:50px;transition:width .4s ease;}
+.quiz-meta{display:flex;gap:16px;font-size:13px;color:var(--text2);}
+.quiz-meta span{display:flex;align-items:center;gap:6px;}
+.q-num{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.q-text{font-size:16px;color:#fff;font-weight:600;margin-bottom:20px;line-height:1.5;}
+.q-options{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.q-option{padding:14px 18px;border-radius:12px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:14px;color:var(--text);transition:all .2s;display:flex;align-items:flex-start;gap:12px;}
+.q-option:hover{border-color:rgba(56,189,248,0.35);background:var(--surface2);}
+.q-option.correct{border-color:var(--emerald);background:rgba(16,185,129,0.1);color:#6ee7b7;animation:pulse-green .4s ease;}
+.q-option.wrong{border-color:var(--rose);background:rgba(244,63,94,0.1);color:#fda4af;animation:shake .35s ease;}
+.q-option.disabled{pointer-events:none;}
+.q-option-letter{width:28px;height:28px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;}
+.correct .q-option-letter{background:rgba(16,185,129,0.3);border-color:var(--emerald);}
+.wrong .q-option-letter{background:rgba(244,63,94,0.2);border-color:var(--rose);}
+@keyframes pulse-green{0%,100%{transform:scale(1);}50%{transform:scale(1.02);}}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}50%{transform:translateX(-4px);}}
+.q-explanation{background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.15);border-radius:12px;padding:16px;margin-bottom:20px;font-size:13px;color:var(--text2);line-height:1.7;display:none;}
+.q-explanation.visible{display:block;animation:fadeUp .25s ease;}
+.q-explanation strong{color:var(--teal);}
+.btn{padding:12px 24px;border-radius:10px;border:none;cursor:pointer;font-family:var(--font-body);font-size:14px;font-weight:700;transition:all .2s;}
+.btn-primary{background:var(--teal2);color:#fff;}
+.btn-primary:hover{background:var(--teal);box-shadow:0 4px 20px rgba(14,165,233,0.35);}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-secondary:hover{background:var(--surface);border-color:rgba(56,189,248,0.3);}
+.quiz-done{text-align:center;padding:40px 20px;}
+.score-circle{width:140px;height:140px;border-radius:50%;border:4px solid var(--teal);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 0 40px rgba(56,189,248,0.2);}
+.score-pct{font-family:var(--font-display);font-size:2.5rem;font-weight:900;color:var(--teal);}
+.score-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;}
+
+/* ── FLASHCARDS ── */
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:32px;}
+.fc-card{height:200px;cursor:pointer;perspective:1000px;}
+.fc-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .5s cubic-bezier(0.4,0,0.2,1);}
+.fc-card.flipped .fc-inner{transform:rotateY(180deg);}
+.fc-front,.fc-back{position:absolute;inset:0;border-radius:var(--radius);padding:22px;backface-visibility:hidden;display:flex;flex-direction:column;justify-content:center;}
+.fc-front{background:var(--surface);border:1px solid var(--border);}
+.fc-back{background:var(--surface2);border:1px solid rgba(56,189,248,0.25);transform:rotateY(180deg);}
+.fc-front-label{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--text3);margin-bottom:12px;}
+.fc-front h4{font-size:14px;font-weight:700;color:#fff;line-height:1.5;}
+.fc-back-label{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--teal);margin-bottom:10px;}
+.fc-back p{font-size:13px;color:var(--text);line-height:1.6;}
+.fc-flip-hint{font-size:11px;color:var(--text3);margin-top:auto;text-align:right;}
+
+/* ── CASES ── */
+.case-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:24px;overflow:hidden;}
+.case-header{padding:22px 24px 16px;border-bottom:1px solid var(--border);}
+.case-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--amber);background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);padding:4px 12px;border-radius:50px;display:inline-block;margin-bottom:12px;}
+.case-header h3{font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:10px;}
+.case-vignette{font-size:14px;color:var(--text2);line-height:1.8;background:rgba(56,189,248,0.03);border-radius:8px;padding:14px;}
+.case-body{padding:22px 24px;}
+.case-q{font-size:14px;font-weight:600;color:#fff;margin-bottom:14px;}
+.reveal-btn{padding:10px 20px;border-radius:10px;border:1px solid rgba(56,189,248,0.3);background:transparent;color:var(--teal);font-family:var(--font-body);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+.reveal-btn:hover{background:rgba(56,189,248,0.1);}
+.case-answer{display:none;background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:16px;margin-top:14px;font-size:13px;color:var(--text2);line-height:1.7;}
+.case-answer.visible{display:block;animation:fadeUp .25s ease;}
+.case-answer strong{color:#6ee7b7;}
+.case-qs{display:flex;flex-direction:column;gap:18px;}
+
+/* ── PHYSIO TAB ── */
+.physio-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:32px;}
+.physio-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;cursor:pointer;transition:all .2s;}
+.physio-item:hover{border-color:rgba(56,189,248,0.4);background:var(--surface2);}
+.physio-item.open{border-color:var(--teal2);background:rgba(14,165,233,0.08);}
+.physio-item h4{font-size:13px;font-weight:700;color:#fff;margin-bottom:6px;}
+.physio-item .pi-icon{font-size:1.5rem;margin-bottom:10px;}
+.physio-detail{max-height:0;overflow:hidden;transition:max-height .3s ease;font-size:12px;color:var(--text2);line-height:1.7;}
+.physio-item.open .physio-detail{max-height:400px;margin-top:10px;}
+
+/* ── COMPARE TABLE ── */
+.compare-table{width:100%;border-collapse:collapse;margin-bottom:32px;font-size:13px;}
+.compare-table th{background:var(--surface2);color:var(--teal);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1px;padding:12px 16px;text-align:left;border-bottom:2px solid rgba(56,189,248,0.2);}
+.compare-table td{padding:12px 16px;color:var(--text2);border-bottom:1px solid var(--border);}
+.compare-table tr:hover td{background:var(--surface);color:var(--text);}
+.compare-table tr:last-child td{border-bottom:none;}
+
+/* ── MNEMONICS ── */
+.mnemonic-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px;}
+.mnemonic-letter{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;font-family:var(--font-display);font-size:1.2rem;font-weight:900;margin-right:10px;flex-shrink:0;}
+.mnemonic-row{display:flex;align-items:flex-start;gap:0;padding:8px 0;border-bottom:1px solid var(--border);}
+.mnemonic-row:last-child{border-bottom:none;}
+.mnemonic-meaning{font-size:14px;color:var(--text2);padding-top:6px;}
+.mnemonic-title{font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:6px;}
+.mnemonic-subtitle{font-size:12px;color:var(--text3);margin-bottom:16px;}
+
+/* ── SEARCH ── */
+.search-bar{position:relative;margin-bottom:24px;}
+.search-bar input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 20px 14px 48px;font-family:var(--font-body);font-size:14px;color:var(--text);outline:none;transition:border .2s;}
+.search-bar input:focus{border-color:rgba(56,189,248,0.4);}
+.search-bar input::placeholder{color:var(--text3);}
+.search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:1.1rem;}
+
+/* ── DARK/LIGHT ADAPT ── */
+.adapt-split{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:32px;}
+@media(max-width:640px){.adapt-split{grid-template-columns:1fr;}}
+.adapt-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;}
+.adapt-title{font-family:var(--font-display);font-size:1.1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.adapt-list{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.adapt-list li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6;}
+.adapt-list li::before{content:'▸';color:var(--teal);flex-shrink:0;margin-top:1px;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .tabs{gap:3px;}
+  .tab{padding:8px 12px;font-size:12px;}
+  .adapt-split{grid-template-columns:1fr;}
+  .quiz-meta{flex-wrap:wrap;}
+}
+
+/* ── BADGE / HIGHLIGHT ── */
+.highlight-exam{display:inline-flex;align-items:center;gap:6px;background:rgba(244,63,94,0.1);border:1px solid rgba(244,63,94,0.2);color:#fb7185;font-size:11px;font-weight:700;padding:4px 10px;border-radius:50px;}
+.info-box{background:rgba(56,189,248,0.05);border-left:3px solid var(--teal);border-radius:0 10px 10px 0;padding:14px 18px;margin-bottom:16px;font-size:13px;color:var(--text2);line-height:1.7;}
+.info-box strong{color:var(--teal);}
+.warn-box{background:rgba(245,158,11,0.05);border-left:3px solid var(--amber);border-radius:0 10px 10px 0;padding:14px 18px;margin-bottom:16px;font-size:13px;color:var(--text2);line-height:1.7;}
+.warn-box strong{color:var(--amber);}
+
+/* ── BUTTONS ROW ── */
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;}
+</style>
+</head>
+<body>
+<div class="bg-orbs"><div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div></div>
+
+<div class="wrapper">
+<header>
+  <div class="logo-tag">📡 Physiology · Retinal System</div>
+  <h1>Retinal <span>Physiology</span></h1>
+  <p>Phototransduction & Adaptation Mechanisms — Complete Interactive Study Platform</p>
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-val" id="quizScore">0/25</div><div class="stat-label">Quiz Score</div></div>
+    <div class="stat"><div class="stat-val" id="streakVal">0🔥</div><div class="stat-label">Streak</div></div>
+    <div class="stat"><div class="stat-val" id="fcCount">0/22</div><div class="stat-label">Cards Done</div></div>
+    <div class="stat"><div class="stat-val" id="totalPct">0%</div><div class="stat-label">Progress</div></div>
+  </div>
+</header>
+
+<nav>
+  <div class="tabs" id="tabNav">
+    <button class="tab active" onclick="switchTab('overview',this)"><span class="tab-emoji">🏠</span>Overview</button>
+    <button class="tab" onclick="switchTab('quiz',this)"><span class="tab-emoji">🧠</span>Quiz</button>
+    <button class="tab" onclick="switchTab('flashcards',this)"><span class="tab-emoji">🃏</span>Flashcards</button>
+    <button class="tab" onclick="switchTab('cases',this)"><span class="tab-emoji">🏥</span>Clinical Cases</button>
+    <button class="tab" onclick="switchTab('physio',this)"><span class="tab-emoji">⚡</span>Phototransduction</button>
+    <button class="tab" onclick="switchTab('adaptation',this)"><span class="tab-emoji">🌙</span>Adaptation</button>
+    <button class="tab" onclick="switchTab('mnemonics',this)"><span class="tab-emoji">✨</span>Mnemonics</button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════ OVERVIEW ══════════════════════════════════════════════ -->
+<div id="panel-overview" class="panel active">
+  <div class="section-header"><h2>🏠 Overview</h2><p>Master the retinal physiology landscape — key structures, functions, and exam high-yields</p></div>
+
+  <div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="overviewSearch" placeholder="Search overview concepts…" oninput="filterCards()">
+  </div>
+
+  <div class="warn-box"><strong>⚠️ Exam Alert:</strong> High-yield topics: Pigmented Epithelium (Vit A storage), Fovea (only cones, acute vision), Dark Adaptation (30 min, regeneration), Light Adaptation (5 min, degeneration), Phototransduction cascade.</div>
+
+  <div class="section-header"><h2 style="font-size:1.3rem;">🧬 Key Structure Cards</h2></div>
+  <div class="cards-grid" id="overviewCards">
+    <div class="card" data-search="pigmented epithelium melanin vitamin a rhodopsin">
+      <div class="card-icon">🖤</div>
+      <h3>Pigmented Epithelium</h3>
+      <p>Outermost physiological retinal layer. Contains <strong>melanin</strong> to absorb unabsorbed light, preventing reflection. Stores <strong>Vitamin A</strong> for photopigment recycling. Phagocytoses old outer segment tips.</p>
+      <span class="tag tag-exam">⚠️ Exam</span><span class="tag tag-key">Vit A Storage</span>
+    </div>
+    <div class="card" data-search="rods rhodopsin scotopic night vision 120 million peripheral">
+      <div class="card-icon">🌑</div>
+      <h3>Rods</h3>
+      <p>120 million. Use <strong>Rhodopsin</strong> (visual purple). Peripheral distribution. 300:1 convergence → high sensitivity, low accuracy. Mediate <strong>scotopic (night) vision</strong>. No color detection.</p>
+      <span class="tag tag-key">Scotopic</span><span class="tag tag-pearl">300:1 ratio</span>
+    </div>
+    <div class="card" data-search="cones iodopsin photopic day vision fovea 6 million color">
+      <div class="card-icon">☀️</div>
+      <h3>Cones</h3>
+      <p>6–7 million. Use <strong>Iodopsin</strong> (3 types = 3 colors). Central/foveal distribution. 1:1 convergence → high accuracy. Mediate <strong>photopic (day) vision</strong>. Color discrimination.</p>
+      <span class="tag tag-key">Photopic</span><span class="tag tag-pearl">1:1 ratio</span>
+    </div>
+    <div class="card" data-search="fovea centralis macula acute vision cones avascular">
+      <div class="card-icon">🎯</div>
+      <h3>Fovea Centralis</h3>
+      <p>1.5 mm depression in the 4.5 mm macula lutea. Contains <strong>ONLY cones</strong>. Layers shifted aside → direct light hit. 1:1 convergence. Avascular. Area of <strong>most acute vision</strong>.</p>
+      <span class="tag tag-exam">⚠️ Exam</span><span class="tag tag-key">Only Cones</span>
+    </div>
+    <div class="card" data-search="optic disc blind spot ganglion axons blood vessels">
+      <div class="card-icon">🕳️</div>
+      <h3>Optic Disc (Blind Spot)</h3>
+      <p>Located 4 mm medial to fovea. <strong>No photoreceptors</strong> — hence blind spot. Exit point for optic nerve axons and entry/exit for blood vessels. Clinically: <em>papilledema</em> (protrusion) or optic atrophy (depression).</p>
+      <span class="tag tag-exam">⚠️ Exam</span><span class="tag tag-pearl">Papilledema</span>
+    </div>
+    <div class="card" data-search="bipolar cells 1st order neuron photoreceptors ganglion">
+      <div class="card-icon">🔗</div>
+      <h3>Bipolar Cells (1st Order)</h3>
+      <p>Transmit signals from photoreceptors → ganglion cells. <strong>1st order neurons</strong> of the visual pathway. Inhibited by glutamate in the dark via Cl⁻ channels.</p>
+      <span class="tag tag-exam">⚠️ MCQ</span><span class="tag tag-key">1st Neuron</span>
+    </div>
+    <div class="card" data-search="ganglion cells 2nd order optic nerve action potential">
+      <div class="card-icon">⚡</div>
+      <h3>Ganglion Cells (2nd Order)</h3>
+      <p><strong>Only cells generating action potentials</strong> in the retinal pathway. Their axons form the optic nerve. 2nd order neurons transmitting signals to the brain.</p>
+      <span class="tag tag-key">Action Potential</span><span class="tag tag-exam">⚠️ MCQ</span>
+    </div>
+    <div class="card" data-search="horizontal cells lateral inhibition stop spread visual accuracy">
+      <div class="card-icon">↔️</div>
+      <h3>Horizontal Cells</h3>
+      <p>Connect photoreceptors ↔ bipolar cells. Provide <strong>lateral inhibition</strong> — stops lateral spread of excitation. Increases visual contrast and accuracy.</p>
+      <span class="tag tag-key">Lateral Inhibition</span>
+    </div>
+    <div class="card" data-search="amacrine cells 30 types bipolar ganglion analyze signals">
+      <div class="card-icon">🔀</div>
+      <h3>Amacrine Cells</h3>
+      <p>~30 types. Connect bipolar ↔ ganglion cells. Help <strong>analyze visual signals</strong> before they leave the retina (e.g., motion, onset/offset of light).</p>
+      <span class="tag tag-key">Signal Analysis</span>
+    </div>
+    <div class="card" data-search="dark current cgmp sodium channels -40mv depolarization glutamate">
+      <div class="card-icon">🌊</div>
+      <h3>Dark Current</h3>
+      <p>In darkness: high cGMP keeps Na⁺ channels open. Na⁺ flows in → <strong>-40 mV depolarization</strong>. Continuous glutamate release inhibits bipolar cells → no optic nerve firing.</p>
+      <span class="tag tag-key">-40 mV</span><span class="tag tag-exam">⚠️ Exam</span>
+    </div>
+    <div class="card" data-search="phototransduction light metarhodopsin transducin phosphodiesterase cgmp -80mv">
+      <div class="card-icon">💡</div>
+      <h3>Light Response</h3>
+      <p>Light → Metarhodopsin II → Transducin → PDE → ↓cGMP → closes Na⁺ channels → <strong>-80 mV hyperpolarization</strong> → ↓ glutamate → excites pathway.</p>
+      <span class="tag tag-exam">⚠️ Exam</span><span class="tag tag-key">-80 mV</span>
+    </div>
+    <div class="card" data-search="duplicity theory photopic scotopic rod cone day night vision">
+      <div class="card-icon">🌓</div>
+      <h3>Duplicity Theory</h3>
+      <p>Retinal function is <strong>double in nature</strong> depending on its 2 photoreceptors. <em>Photopic vision</em> (cones, day, high accuracy, color) vs. <em>Scotopic vision</em> (rods, night, high sensitivity, no color).</p>
+      <span class="tag tag-exam">⚠️ Written Q</span>
+    </div>
+  </div>
+
+  <div class="section-header"><h2 style="font-size:1.3rem;">🔄 Signal Transmission Timeline</h2></div>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div style="width:50px;display:flex;justify-content:center;"><div class="timeline-dot"></div></div>
+      <div class="timeline-content"><span class="timeline-badge">Layer 1</span><h4>Pigmented Epithelium</h4><p>Absorbs stray light. Stores Vitamin A. Recycles all-trans retinal → 11-cis retinal via isomerase.</p></div>
+    </div>
+    <div class="timeline-item">
+      <div style="width:50px;display:flex;justify-content:center;"><div class="timeline-dot" style="background:var(--violet);box-shadow:0 0 12px rgba(139,92,246,0.6);"></div></div>
+      <div class="timeline-content"><span class="timeline-badge" style="background:rgba(139,92,246,0.1);color:var(--violet);">Layer 2</span><h4>Photoreceptors (Rods & Cones)</h4><p>Transduce light into electrical signals via phototransduction cascade in outer segment disks.</p></div>
+    </div>
+    <div class="timeline-item">
+      <div style="width:50px;display:flex;justify-content:center;"><div class="timeline-dot" style="background:var(--amber);box-shadow:0 0 12px rgba(245,158,11,0.6);"></div></div>
+      <div class="timeline-content"><span class="timeline-badge" style="background:rgba(245,158,11,0.1);color:var(--amber);">Layer 3</span><h4>Bipolar Cells (1st Order Neurons)</h4><p>Receive signals from photoreceptors. Modulated by horizontal cells. Pass signals to ganglion cells.</p></div>
+    </div>
+    <div class="timeline-item">
+      <div style="width:50px;display:flex;justify-content:center;"><div class="timeline-dot" style="background:var(--emerald);box-shadow:0 0 12px rgba(16,185,129,0.6);"></div></div>
+      <div class="timeline-content"><span class="timeline-badge" style="background:rgba(16,185,129,0.1);color:var(--emerald);">Layer 4</span><h4>Ganglion Cells (2nd Order Neurons)</h4><p>Generate <strong>action potentials</strong>. Axons form the optic nerve. Exit via optic disc to visual cortex.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ QUIZ ══════════════════════════════════════════════ -->
+<div id="panel-quiz" class="panel">
+  <div class="section-header"><h2>🧠 Quiz Mode</h2><p>25 MCQs based on your lecture content — immediate feedback with detailed explanations</p></div>
+  <div id="quiz-container"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════ FLASHCARDS ══════════════════════════════════════════════ -->
+<div id="panel-flashcards" class="panel">
+  <div class="section-header"><h2>🃏 Flashcards</h2><p>Click any card to reveal the answer — 22 cards covering every key concept</p></div>
+  <div class="fc-grid" id="fcGrid"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════ CASES ══════════════════════════════════════════════ -->
+<div id="panel-cases" class="panel">
+  <div class="section-header"><h2>🏥 Clinical Cases</h2><p>Exam-style vignettes with step-by-step answers</p></div>
+  <div id="casesContainer"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════ PHOTOTRANSDUCTION ══════════════════════════════════════════════ -->
+<div id="panel-physio" class="panel">
+  <div class="section-header"><h2>⚡ Phototransduction</h2><p>Interactive cascade — click any structure to expand its role</p></div>
+
+  <div class="info-box"><strong>Core Concept:</strong> Phototransduction converts light energy into an electrical signal via a G-protein cascade in the outer segment discs of rods and cones.</div>
+
+  <div class="section-header"><h2 style="font-size:1.2rem;">🌑 In the Dark — The "Dark Current"</h2></div>
+  <div class="flowchart" id="darkFlow"></div>
+
+  <div class="section-header" style="margin-top:32px;"><h2 style="font-size:1.2rem;">☀️ In the Light — Phototransduction Cascade</h2></div>
+  <div class="flowchart" id="lightFlow"></div>
+
+  <div class="section-header" style="margin-top:32px;"><h2 style="font-size:1.2rem;">🔁 Termination & Regeneration</h2></div>
+  <div class="flowchart" id="termFlow"></div>
+
+  <div class="section-header" style="margin-top:32px;"><h2 style="font-size:1.2rem;">🧩 Interactive Structure Explorer</h2></div>
+  <div class="physio-grid" id="physioGrid"></div>
+
+  <div class="section-header" style="margin-top:32px;"><h2 style="font-size:1.2rem;">📊 Rods vs Cones Comparison</h2></div>
+  <table class="compare-table">
+    <thead><tr><th>Feature</th><th>🌑 Rods</th><th>☀️ Cones</th></tr></thead>
+    <tbody>
+      <tr><td>Count</td><td>~120 million</td><td>6–7 million</td></tr>
+      <tr><td>Shape</td><td>Cylindrical</td><td>Conical</td></tr>
+      <tr><td>Photopigment</td><td>Rhodopsin</td><td>Iodopsin (3 types)</td></tr>
+      <tr><td>Distribution</td><td>Peripheral retina</td><td>Central / fovea</td></tr>
+      <tr><td>Convergence</td><td>300:1 (many → one)</td><td>1:1 (one → one)</td></tr>
+      <tr><td>Vision type</td><td>Scotopic (night)</td><td>Photopic (day)</td></tr>
+      <tr><td>Sensitivity</td><td>Very high (low threshold)</td><td>Lower (high threshold)</td></tr>
+      <tr><td>Accuracy</td><td>Low (no fine detail)</td><td>High (fine detail)</td></tr>
+      <tr><td>Color vision</td><td>No</td><td>Yes (3 types = RGB)</td></tr>
+      <tr><td>Adaptation speed</td><td>Slow (30 min)</td><td>Fast (5 min)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════ ADAPTATION ══════════════════════════════════════════════ -->
+<div id="panel-adaptation" class="panel">
+  <div class="section-header"><h2>🌙 Retinal Adaptation</h2><p>Dark and light adaptation — mechanisms, timelines, and physiological changes</p></div>
+
+  <div class="adapt-split">
+    <div class="adapt-panel" style="border-color:rgba(139,92,246,0.3);">
+      <div class="adapt-title" style="color:var(--violet);">🌑 Dark Adaptation</div>
+      <ul class="adapt-list">
+        <li>Ability of retina to <strong>increase sensitivity</strong> to faint light (up to 100,000×)</li>
+        <li>Mechanism: <strong>Slow regeneration</strong> of photopigments (rhodopsin & iodopsin)</li>
+        <li>Cone adaptation: completes in <strong>5 minutes</strong></li>
+        <li>Rod adaptation: completes in <strong>30 minutes</strong></li>
+        <li>Pupil <strong>dilates</strong> to allow more light entry</li>
+        <li>Visual acuity <strong>decreases</strong> (no fine detail)</li>
+        <li>Peak luminous spectrum shifts to <strong>blue-green</strong></li>
+        <li>All-trans retinal → pigmented epithelium → isomerase → 11-cis retinal → rhodopsin restored</li>
+      </ul>
+    </div>
+    <div class="adapt-panel" style="border-color:rgba(245,158,11,0.3);">
+      <div class="adapt-title" style="color:var(--amber);">☀️ Light Adaptation</div>
+      <ul class="adapt-list">
+        <li>Decrease in retinal sensitivity occurring in <strong>bright light</strong></li>
+        <li>Mechanism: <strong>Rapid degeneration</strong> (breakdown) of photopigments</li>
+        <li>Completes within <strong>5 minutes</strong></li>
+        <li>Pupil <strong>constricts (miosis)</strong> to reduce light entry</li>
+        <li>Visual sensitivity <strong>decreases</strong></li>
+        <li>Peak luminous spectrum shifts to <strong>yellow-green</strong></li>
+        <li>Both rods and cones are affected</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section-header"><h2 style="font-size:1.2rem;">📊 Adaptation Comparison Table</h2></div>
+  <table class="compare-table">
+    <thead><tr><th>Feature</th><th>🌑 Dark Adaptation</th><th>☀️ Light Adaptation</th></tr></thead>
+    <tbody>
+      <tr><td>Definition</td><td>↑ Sensitivity in dim light</td><td>↓ Sensitivity in bright light</td></tr>
+      <tr><td>Mechanism</td><td>Pigment <strong>regeneration</strong></td><td>Pigment <strong>degeneration</strong></td></tr>
+      <tr><td>Duration</td><td>Up to 30 minutes (rods)</td><td>~5 minutes</td></tr>
+      <tr><td>Pupil response</td><td>Dilation (mydriasis)</td><td>Constriction (miosis)</td></tr>
+      <tr><td>Sensitivity change</td><td>Increases ×10,000–100,000</td><td>Decreases</td></tr>
+      <tr><td>Peak spectrum</td><td>Blue-green</td><td>Yellow-green</td></tr>
+      <tr><td>Visual acuity</td><td>Decreases</td><td>Increases</td></tr>
+      <tr><td>MCQ keyword</td><td>"Regeneration"</td><td>"Degeneration"</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warn-box"><strong>⚠️ High-Yield MCQ Trap:</strong> Dark adaptation = pigment <em>regeneration</em> (SLOW, 30 min). Light adaptation = pigment <em>degeneration</em> (FAST, 5 min). Don't confuse them!</div>
+
+  <div class="section-header"><h2 style="font-size:1.2rem;">🌊 Dark Adaptation Curve</h2></div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:32px;">
+    <svg viewBox="0 0 600 280" style="width:100%;max-width:600px;display:block;margin:0 auto;">
+      <defs>
+        <linearGradient id="gr1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8b5cf6"/><stop offset="1" stop-color="#38bdf8"/></linearGradient>
+      </defs>
+      <!-- Axes -->
+      <line x1="60" y1="20" x2="60" y2="240" stroke="#64748b" stroke-width="1.5"/>
+      <line x1="60" y1="240" x2="560" y2="240" stroke="#64748b" stroke-width="1.5"/>
+      <!-- Axis labels -->
+      <text x="30" y="130" fill="#94a3b8" font-size="11" text-anchor="middle" transform="rotate(-90,30,130)">Sensitivity →</text>
+      <text x="310" y="265" fill="#94a3b8" font-size="11" text-anchor="middle">Time in dark (minutes)</text>
+      <!-- Time marks -->
+      <text x="160" y="255" fill="#64748b" font-size="10" text-anchor="middle">5</text>
+      <text x="260" y="255" fill="#64748b" font-size="10" text-anchor="middle">10</text>
+      <text x="360" y="255" fill="#64748b" font-size="10" text-anchor="middle">20</text>
+      <text x="460" y="255" fill="#64748b" font-size="10" text-anchor="middle">30</text>
+      <!-- Cone curve (flattens at 5 min) -->
+      <path d="M60,220 C100,200 130,160 160,140 C180,135 200,135 560,134" stroke="#f59e0b" stroke-width="2.5" fill="none" stroke-dasharray="5,3"/>
+      <!-- Rod curve (continuous until 30 min) -->
+      <path d="M60,220 C80,215 100,210 120,200 C160,175 200,150 260,110 C320,75 400,45 460,35 C500,30 530,28 560,27" stroke="url(#gr1)" stroke-width="2.5" fill="none"/>
+      <!-- Rod/Cone break -->
+      <line x1="160" y1="20" x2="160" y2="240" stroke="#64748b" stroke-width="1" stroke-dasharray="4,4"/>
+      <!-- Labels -->
+      <text x="115" y="100" fill="#f59e0b" font-size="11">Cones (5 min)</text>
+      <text x="380" y="50" fill="#38bdf8" font-size="11">Rods (30 min)</text>
+      <text x="162" y="35" fill="#64748b" font-size="10">↑ Cone-Rod break</text>
+    </svg>
+    <p style="font-size:12px;color:var(--text3);text-align:center;margin-top:8px;">Biphasic dark adaptation curve — cones plateau at ~5 min; rods continue until ~30 min</p>
+  </div>
+
+  <div class="section-header"><h2 style="font-size:1.2rem;">🔬 Clinical: Night Blindness (Nyctalopia)</h2></div>
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-icon">🥕</div>
+      <h3>Vitamin A Deficiency</h3>
+      <p>Most common cause. Pigmented epithelium cannot store adequate Vitamin A → isomerase cannot regenerate 11-cis retinal → rhodopsin cannot reform → impaired dark adaptation → <strong>night blindness</strong>.</p>
+      <span class="tag tag-exam">⚠️ High-Yield</span>
+    </div>
+    <div class="card">
+      <div class="card-icon">📏</div>
+      <h3>Assessment: Dark Adaptometry</h3>
+      <p>Measures the threshold of light detection over time in the dark. Electroretinography (ERG) measures retinal electrical responses. Standard diagnostic tools for adaptation disorders.</p>
+      <span class="tag tag-pearl">Clinical Pearl</span>
+    </div>
+    <div class="card">
+      <div class="card-icon">🌍</div>
+      <h3>Scotopic vs Photopic Range</h3>
+      <p>The retina can adapt to a difference of <strong>10 billion times</strong> between starlight and sunlight. Dark adaptation contributes up to 100,000× sensitivity increase; pupil dilation adds ×16 more light.</p>
+      <span class="tag tag-key">Key Fact</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ MNEMONICS ══════════════════════════════════════════════ -->
+<div id="panel-mnemonics" class="panel">
+  <div class="section-header"><h2>✨ Mnemonics</h2><p>Custom memory aids built from your lecture content</p></div>
+  <div id="mnemonicsContainer"></div>
+</div>
+
+</div><!-- /wrapper -->
+
+<script>
+// ══════════ DATA ══════════
+const QUIZ = [
+  {q:"During phototransduction in light, what directly causes closure of cGMP-dependent Na⁺ channels?",opts:["A) Activation of transducin","B) Breakdown of cGMP by phosphodiesterase","C) Activation of rhodopsin kinase","D) Continuous glutamate release","E) Conversion of 11-cis to all-trans retinal"],ans:1,exp:"Metarhodopsin II → activates transducin → activates phosphodiesterase (PDE) → PDE breaks down cGMP → closure of Na⁺ channels. Transducin (A) is upstream; rhodopsin kinase (C) terminates the response; glutamate (D) is released in the dark."},
+  {q:"What is the resting membrane potential (dark current) of a photoreceptor in complete darkness?",opts:["A) -80 mV","B) -90 mV","C) +40 mV","D) -40 mV","E) 0 mV"],ans:3,exp:"In darkness, high cGMP keeps Na⁺ channels open, allowing Na⁺ influx which depolarizes the photoreceptor to about -40 mV. The -80 mV occurs during hyperpolarization in light when Na⁺ channels close."},
+  {q:"What is the primary function of the pigmented epithelium regarding Vitamin A?",opts:["A) Synthesizes Vitamin A from light","B) Excretes excess Vitamin A to the choroid","C) Stores large amounts of Vitamin A for photopigment recycling","D) Converts Vitamin A into melanin","E) Uses Vitamin A to generate action potentials"],ans:2,exp:"The pigmented epithelium stores large amounts of Vitamin A (all-trans retinol) needed for recycling photopigments. It uses the enzyme isomerase to convert all-trans retinal back to 11-cis retinal."},
+  {q:"Which cells are considered the 1st order neurons in the visual pathway?",opts:["A) Photoreceptors","B) Bipolar cells","C) Ganglion cells","D) Horizontal cells","E) Amacrine cells"],ans:1,exp:"Bipolar cells are the 1st order neurons, transmitting signals from photoreceptors to ganglion cells. Ganglion cells are 2nd order. Photoreceptors are sensory receptors, not order neurons. Horizontal and amacrine cells are lateral/modulatory."},
+  {q:"What is the convergence ratio of rods to one ganglion cell?",opts:["A) 1:1","B) 10:1","C) 50:1","D) 300:1","E) 1000:1"],ans:3,exp:"Many rods converge to one bipolar cell, and many bipolar cells converge to one ganglion cell, resulting in approximately 300:1 ratio. This provides high sensitivity but low visual accuracy. Cones in the fovea have a 1:1 ratio."},
+  {q:"Why is the fovea centralis the most sensitive spot for acute vision?",opts:["A) Contains a high density of rods","B) All retinal layers shifted aside — light hits outer segments directly","C) Has the thickest layer of blood vessels","D) Relies heavily on amacrine cell amplification","E) Covered by a thick pigmented layer"],ans:1,exp:"The fovea has all overlying retinal layers shifted aside so light hits the photoreceptors directly, minimizing scatter. It also contains exclusively cones with 1:1 convergence, is avascular, and has wide cortical representation."},
+  {q:"In dark adaptation, what is the maximum time required for rod adaptation to complete?",opts:["A) 1 second","B) 5 minutes","C) 15 minutes","D) 30 minutes","E) 60 minutes"],ans:3,exp:"Rod adaptation is a slow process relying on the slow regeneration of rhodopsin and completes after 30 minutes. Cone adaptation completes in only 5 minutes."},
+  {q:"Which structural feature characterizes the optic disc?",opts:["A) High density of cones","B) Presence of the macula lutea","C) Absence of photoreceptors (blind spot)","D) A central depression called the fovea","E) Responsible for highest visual acuity"],ans:2,exp:"The optic disc (blind spot) contains NO photoreceptors — it is where ganglion cell axons exit as the optic nerve and blood vessels enter/exit the retina. All other options describe the fovea centralis."},
+  {q:"Which photopigment is specifically found in rods?",opts:["A) Iodopsin","B) Photopsin","C) Melanin","D) Rhodopsin","E) Cyanopsin"],ans:3,exp:"Rhodopsin (visual purple) is the photosensitive pigment in rods. Iodopsin (also called photopsin) is found in cones, with 3 types for 3 primary colors. Melanin is in the pigmented epithelium."},
+  {q:"How does light exposure affect glutamate release from photoreceptors?",opts:["A) Increases glutamate release, exciting bipolar cells","B) No effect on glutamate release","C) Decreases glutamate release, which stimulates bipolar cells","D) Glutamate binds to transducin","E) Transforms glutamate into cGMP"],ans:2,exp:"In light, hyperpolarization (-80mV) decreases glutamate release. Since glutamate continuously inhibits bipolar cells in the dark, its decrease removes inhibition — effectively stimulating bipolar cells → ganglion cells fire."},
+  {q:"Which form of rhodopsin directly activates the G-protein transducin?",opts:["A) Bathorhodopsin","B) Lumirhodopsin","C) Metarhodopsin I","D) Metarhodopsin II","E) Scotopsin"],ans:3,exp:"Metarhodopsin II is the activated form of rhodopsin that directly activates the G-protein transducin. Bathorhodopsin and Lumirhodopsin are earlier intermediate forms. Scotopsin is opsin alone (without retinal)."},
+  {q:"The duplicity theory states that photopic vision is characterized by:",opts:["A) High sensitivity in dim light","B) Low visual accuracy","C) Night vision mediated by rods","D) Day vision, color differentiation, high accuracy mediated by cones","E) Peripheral vision only"],ans:3,exp:"Photopic vision uses cones — features high threshold to light, high accuracy, color discrimination, and rapid adaptation. Scotopic vision (rods) features low threshold, high sensitivity, no color, low accuracy."},
+  {q:"How is photoreceptor excitation terminated?",opts:["A) Rhodopsin kinase inactivates metarhodopsin II (splits into opsin + all-trans retinal)","B) PDE irreversibly binds cGMP","C) Light directly closes potassium channels","D) Amacrine cells release inhibitory neurotransmitters","E) Na+/K+ pump reverses direction"],ans:0,exp:"Rhodopsin kinase phosphorylates and inactivates metarhodopsin II, splitting it into opsin and all-trans retinal. This stops transducin/PDE activation, cGMP levels rise, and Na⁺ channels reopen → return to dark state."},
+  {q:"What occurs during light adaptation regarding retinal sensitivity?",opts:["A) Increases ×100,000","B) Stays the same","C) Decreases due to degeneration of photosensitive pigments","D) Increases due to pupil constriction","E) Relies solely on horizontal cells"],ans:2,exp:"Light adaptation = decrease in retinal sensitivity due to rapid breakdown (degeneration) of photosensitive pigments (rhodopsin and iodopsin). Pupil constriction reduces light entry but is not the primary sensitivity mechanism."},
+  {q:"In the dark, the dark current is maintained by influx of which ions into the outer segment?",opts:["A) K+ and Cl-","B) Na+ and small fractions of Ca2+","C) Ca2+ only","D) Mg2+ and K+","E) Cl- and HCO3-"],ans:1,exp:"Na+ (mainly) and a small fraction of Ca2+ enter through cGMP-dependent cation channels in the outer segment. K+ is pumped out by the Na+/K+ ATPase pump in the inner segment. Cl- channels are on bipolar cells."},
+  {q:"What is the clinical significance of an exaggerated depression of the optic disc?",opts:["A) Papilledema due to high intracranial pressure","B) Retinal detachment","C) Optic atrophy — loss of ganglion cell axons","D) Macular degeneration","E) Glaucoma only"],ans:2,exp:"Exaggerated depression of the optic disc indicates optic atrophy — loss of ganglion cell axons. In contrast, papilledema causes protrusion (not depression) of the optic disc due to increased intracranial pressure."},
+  {q:"Which cells provide lateral connections between bipolar cells and ganglion cells?",opts:["A) Horizontal cells","B) Pigmented epithelial cells","C) Müller cells","D) Amacrine cells","E) Rod cells"],ans:3,exp:"Amacrine cells (~30 types) provide lateral connections between bipolar cells and ganglion cells. Horizontal cells connect photoreceptors and bipolar cells (not BC-GC). Müller cells are glial support cells."},
+  {q:"During dark adaptation, which part of the light spectrum becomes the most luminous?",opts:["A) Red-yellow zone","B) Blue-green zone","C) Pure red zone","D) Yellow-green zone","E) Infrared zone"],ans:1,exp:"In dark adaptation (rod vision), the blue-green part of the spectrum becomes most luminous (Purkinje shift). In light adaptation (cone vision), yellow-green is most luminous."},
+  {q:"Which process requires the enzyme isomerase in the pigmented epithelium?",opts:["A) Conversion of 11-cis retinal to all-trans retinal","B) Conversion of all-trans retinal to 11-cis retinal","C) Splitting of metarhodopsin II","D) Breakdown of cGMP","E) Production of glutamate"],ans:1,exp:"Isomerase in the pigmented epithelium converts all-trans retinal (taken up after rhodopsin breakdown) back to 11-cis retinal. The 11-cis retinal is then sent back to recombine with opsin to regenerate rhodopsin."},
+  {q:"Which retinal layer contains melanin to prevent light reflection?",opts:["A) Ganglion cell layer","B) Bipolar cell layer","C) Photoreceptor layer","D) Pigmented epithelium","E) Amacrine cell layer"],ans:3,exp:"The pigmented epithelium (outermost physiological layer) contains large amounts of melanin pigment which absorbs unabsorbed light to prevent its reflection and scattering within the eye."},
+  {q:"Why is rod vision less accurate than cone vision?",opts:["A) Rods are only in the fovea","B) Rods lack ability to adapt to dark","C) Many rods converge onto a single bipolar cell (high convergence ~300:1)","D) Rods do not produce a receptor potential","E) Rods use iodopsin instead of rhodopsin"],ans:2,exp:"The 300:1 convergence ratio of rods means signals from many receptors are pooled (summation), which increases sensitivity to dim light but drastically reduces visual resolution/accuracy. Cones have 1:1 convergence for maximal detail."},
+  {q:"What structure in the inner segment sustains the dark current by pumping ions?",opts:["A) Mitochondria","B) Na+/K+ ATPase pump","C) cGMP-dependent cation channels","D) Nucleus","E) Outer segment disks"],ans:1,exp:"The Na+/K+ pump in the inner segment continuously pumps Na+ out, maintaining the ion gradient that drives the dark current. Mitochondria supply the ATP needed for this pump. cGMP channels let Na+ INTO the outer segment."},
+  {q:"Which cells are the ONLY ones generating action potentials in the retinal visual pathway?",opts:["A) Rods","B) Cones","C) Bipolar cells","D) Ganglion cells","E) Horizontal cells"],ans:3,exp:"Ganglion cells are the only retinal cells that generate true action potentials. Photoreceptors and bipolar cells use graded (electrotonic) potentials. Ganglion cell axons form the optic nerve carrying APs to the brain."},
+  {q:"Which mechanism stops the lateral spread of excitation in the retina?",opts:["A) Amacrine cell stimulation","B) Lateral inhibition by horizontal cells","C) Constant glutamate release by rods","D) Papillary dilation","E) Isomerase activity"],ans:1,exp:"Horizontal cells provide lateral inhibition, connecting photoreceptors and bipolar cells laterally to stop the lateral spread of excitation, thereby increasing visual contrast and accuracy."},
+  {q:"What happens to the pupil during light adaptation?",opts:["A) Dilation to allow more light","B) Constriction (miosis) to reduce light entering the eye","C) Becomes completely fixed","D) Rapidly fluctuates in size","E) Changes to oval shape"],ans:1,exp:"Pupil constriction (miosis) occurs during light adaptation to reduce the amount of light entering the eye. The opposite — dilation (mydriasis) — occurs during dark adaptation."}
+];
+
+const FLASHCARDS = [
+  {q:"What are the 4 physiologically important layers of the retina?",a:"1) Pigmented Epithelium, 2) Photoreceptors (rods & cones), 3) Bipolar cells (1st order neurons), 4) Ganglion cells (2nd order neurons)"},
+  {q:"What is the 'dark current' and its membrane potential?",a:"Continuous flow of Na+ (and some Ca2+) into the outer segment in darkness, maintaining the photoreceptor at -40 mV (depolarized state)"},
+  {q:"What happens to membrane potential when light hits a rod?",a:"Hyperpolarization from -40 mV → -80 mV. Na+ channels close, pump continues removing Na+"},
+  {q:"What form of rhodopsin activates transducin?",a:"Metarhodopsin II (activated rhodopsin) — the final step in rhodopsin's light-induced conversion sequence"},
+  {q:"Sequence: how does light lead to closing of Na+ channels?",a:"Light → 11-cis → all-trans retinal → Metarhodopsin II → Transducin (G-protein) → Phosphodiesterase (PDE) → ↓cGMP → channels close"},
+  {q:"What enzyme terminates phototransduction excitation?",a:"Rhodopsin kinase — inactivates metarhodopsin II by splitting it into opsin + all-trans retinal"},
+  {q:"What enzyme regenerates 11-cis retinal in the pigmented epithelium?",a:"Isomerase — converts all-trans retinal back to 11-cis retinal for rhodopsin regeneration"},
+  {q:"Why is Vitamin A deficiency causes night blindness?",a:"Pigmented epithelium stores Vit A needed for isomerase to regenerate 11-cis retinal → no rhodopsin formation → impaired dark adaptation"},
+  {q:"What is dark adaptation and how long does it take?",a:"↑ retinal sensitivity via photopigment regeneration. Cones: 5 min. Rods: 30 min. Sensitivity increases ×10,000–100,000"},
+  {q:"What is light adaptation and how long does it take?",a:"↓ retinal sensitivity via photopigment degeneration. Completes in ~5 min. Pupil constricts (miosis)"},
+  {q:"What spectrum is most luminous in dark adaptation vs light adaptation?",a:"Dark: Blue-green. Light: Yellow-green. (Purkinje shift)"},
+  {q:"Describe the convergence of foveal cones vs peripheral rods",a:"Foveal cones: 1:1:1 (cone→bipolar→ganglion) = high accuracy. Rods: ~300:1 (many→one) = high sensitivity, low accuracy"},
+  {q:"Why is the fovea the area of most acute vision? (4 reasons)",a:"1) Layers shifted aside → direct light, 2) High density thin cones, 3) 1:1 convergence, 4) Wide occipital cortex representation + avascular"},
+  {q:"What is the optic disc and why is it a blind spot?",a:"Located 4mm medial to fovea. Contains NO photoreceptors — it is where optic nerve exits and blood vessels enter/exit"},
+  {q:"What is papilledema and what causes it?",a:"Protrusion of the optic disc due to increased intracranial pressure compressing the optic nerve head"},
+  {q:"What is the duplicity theory?",a:"Retinal function is double: Photopic (cones, day, color, high accuracy) and Scotopic (rods, night, high sensitivity, no color)"},
+  {q:"Role of horizontal cells?",a:"Connect photoreceptors ↔ bipolar cells. Provide LATERAL INHIBITION to stop lateral spread of excitation → improves visual contrast/accuracy"},
+  {q:"Role of amacrine cells?",a:"~30 types. Connect bipolar ↔ ganglion cells. Analyze visual signals (motion, onset/offset of light) before they leave the retina"},
+  {q:"Which retinal cells generate action potentials?",a:"ONLY ganglion cells. All other retinal cells (photoreceptors, bipolar, horizontal, amacrine) use graded/electrotonic potentials"},
+  {q:"What neurotransmitter do photoreceptors release and when?",a:"Glutamate — released continuously in the DARK (depolarized state). Inhibits bipolar cells. Decreased in LIGHT (hyperpolarized state)"},
+  {q:"What is in the outer segment vs inner segment of a photoreceptor?",a:"Outer: folded disks with photopigments, transducin, PDE, cGMP channels. Inner: mitochondria, nucleus, Na+/K+ pump"},
+  {q:"What ions flow during the dark current?",a:"Na+ (mainly) and small fraction of Ca2+ flow INTO outer segment via cGMP-dependent channels. Na+ pumped OUT by Na+/K+ ATPase in inner segment"}
+];
+
+const CASES = [
+  {
+    tag:"Vitamin A Deficiency", title:"Case 1: Night Blindness in a Malnourished Patient",
+    vignette:"A 28-year-old male from a rural area presents with difficulty seeing at night for the past 3 months. He has a poor diet lacking in fruits and vegetables. On examination, his daytime vision is normal. Dark adaptometry shows significantly prolonged and incomplete dark adaptation.",
+    qs:[
+      {q:"Q1: What is the underlying physiological mechanism causing this patient's symptoms?",a:"<strong>Answer:</strong> Vitamin A (retinol) deficiency impairs the function of the pigmented epithelium. Normally, the pigmented epithelium stores large amounts of Vitamin A needed for the enzyme isomerase to convert all-trans retinal back to 11-cis retinal. Without adequate Vitamin A, rhodopsin cannot be regenerated after light exposure. Since rods depend on rhodopsin for scotopic (night) vision, impaired regeneration leads to defective dark adaptation and night blindness (nyctalopia)."},
+      {q:"Q2: Which specific enzyme is non-functional in this scenario?",a:"<strong>Answer:</strong> Isomerase — the enzyme in the pigmented epithelium that converts all-trans retinal (released from activated rhodopsin) back to 11-cis retinal. Without adequate Vitamin A substrate, this conversion fails."},
+      {q:"Q3: Why is his daytime vision preserved?",a:"<strong>Answer:</strong> Daytime vision (photopic) relies on cones and iodopsin. Cones have higher light thresholds and adapt more quickly (5 min). In bright light conditions, even partial pigment regeneration is sufficient for cone function, so daytime vision remains relatively normal."}
+    ]
+  },
+  {
+    tag:"Increased ICP", title:"Case 2: Papilledema on Fundoscopy",
+    vignette:"A 35-year-old female presents with severe headaches and visual disturbances for 2 weeks. Fundoscopic examination reveals bilateral protrusion of the optic discs. CT scan of the head shows findings consistent with increased intracranial pressure.",
+    qs:[
+      {q:"Q1: What is the fundoscopic finding called and what causes it?",a:"<strong>Answer:</strong> Papilledema — protrusion/swelling of the optic disc caused by increased intracranial pressure (ICP). The elevated ICP is transmitted along the subarachnoid space surrounding the optic nerve, compressing venous drainage at the optic nerve head and causing disc swelling."},
+      {q:"Q2: What structure is affected anatomically and why is it at risk?",a:"<strong>Answer:</strong> The optic disc (blind spot) — located 4mm medial to the fovea centralis, it is the site where all ganglion cell axons exit as the optic nerve and where blood vessels enter/exit. Because it is a natural communication point between the intracranial and intraocular spaces, it is vulnerable to ICP changes."},
+      {q:"Q3: What would exaggerated excavation (cupping) of the optic disc suggest instead?",a:"<strong>Answer:</strong> Exaggerated depression/cupping suggests optic atrophy — loss of ganglion cell axons. This can occur in glaucoma (chronic high intraocular pressure causing axonal death) or as a sequela of optic nerve injury."}
+    ]
+  },
+  {
+    tag:"Drug Mechanism", title:"Case 3: Experimental PDE Inhibitor",
+    vignette:"An experimental drug that irreversibly inhibits phosphodiesterase (PDE) enzyme in retinal photoreceptors is tested in mice. The mice are found to be unable to perceive light despite intact photoreceptors and an intact visual cortex.",
+    qs:[
+      {q:"Q1: Explain why inhibiting PDE causes blindness.",a:"<strong>Answer:</strong> Normally in light: light → metarhodopsin II → transducin → activates PDE → PDE breaks down cGMP → ↓cGMP → cGMP-dependent Na+ channels CLOSE → hyperpolarization (-80mV) → ↓ glutamate → bipolar cell excitation → ganglion cell action potentials. If PDE is blocked: cGMP cannot be broken down even in light → Na+ channels remain OPEN → photoreceptors stay depolarized at -40mV → continuous glutamate release → bipolar cells remain inhibited → no ganglion cell firing → no visual signal."},
+      {q:"Q2: What would you expect the membrane potential of rods to be in both dark and light conditions in these mice?",a:"<strong>Answer:</strong> In BOTH dark and light: approximately -40 mV (persistently depolarized). The cell cannot hyperpolarize because cGMP remains high regardless of light exposure, keeping Na+ channels permanently open."}
+    ]
+  },
+  {
+    tag:"Light Adaptation", title:"Case 4: Exiting a Dark Movie Theater",
+    vignette:"A 22-year-old exits a 2-hour movie in a dark theater into bright afternoon sunlight. He experiences intense, uncomfortable glare and cannot see clearly for approximately 5 minutes before vision normalizes.",
+    qs:[
+      {q:"Q1: What physiological process is occurring?",a:"<strong>Answer:</strong> Light adaptation — the retina is decreasing its sensitivity to cope with the sudden bright light. Mechanism: rapid degeneration (breakdown) of photosensitive pigments (rhodopsin and iodopsin) that had been accumulating during dark adaptation in the theater. Until pigments break down and retinal sensitivity decreases, the overstimulated retina perceives everything as painfully bright (glare)."},
+      {q:"Q2: What changes occur in the pupil and which spectrum of light becomes most luminous?",a:"<strong>Answer:</strong> Pupil constricts (miosis) to reduce the amount of light entering the eye. The yellow-green part of the spectrum becomes the most luminous portion during light adaptation (contrast to blue-green in dark adaptation — the Purkinje shift)."},
+      {q:"Q3: How long does light adaptation take and why is it faster than dark adaptation?",a:"<strong>Answer:</strong> Light adaptation completes in ~5 minutes. It is faster because pigment breakdown (degeneration) is a passive photochemical process driven by light energy itself, while dark adaptation requires active enzymatic regeneration (isomerase converting all-trans → 11-cis retinal), which is metabolically slower."}
+    ]
+  },
+  {
+    tag:"Lateral Inhibition", title:"Case 5: Neurotoxin Targeting Horizontal Cells",
+    vignette:"A research neurotoxin selectively destroys horizontal cells in the retina of an experimental animal while leaving all other retinal cell types intact. Post-exposure testing shows the animal can detect lights and objects but has poor visual contrast discrimination.",
+    qs:[
+      {q:"Q1: Why does destruction of horizontal cells cause poor visual contrast?",a:"<strong>Answer:</strong> Horizontal cells provide lateral inhibition — they connect photoreceptors and bipolar cells laterally to inhibit surrounding (less-stimulated) bipolar cells when a central area is bright. This lateral inhibition sharpens the boundary between bright and dim areas (contrast enhancement). Without horizontal cells, excitation spreads laterally without inhibition, smearing the boundaries between light/dark areas and reducing visual accuracy."},
+      {q:"Q2: Would the animal still be able to see in dim light?",a:"<strong>Answer:</strong> Yes — the animal could still detect light and see objects because the primary phototransduction pathway (photoreceptors → bipolar → ganglion cells) is intact. Horizontal cells modulate signal quality (contrast/accuracy), not signal generation itself. The animal would lack fine contrast discrimination but would retain basic light detection."}
+    ]
+  },
+  {
+    tag:"Integrative", title:"Case 6: Entering a Dark Room (Full Dark Adaptation)",
+    vignette:"A subject moves from bright sunlight into a completely dark room. Initially completely blind, over 30 minutes their visual sensitivity increases approximately 100,000 times, eventually allowing navigation.",
+    qs:[
+      {q:"Q1: Describe the complete mechanism of dark adaptation step by step.",a:"<strong>Step 1:</strong> Pupillary dilation (mydriasis) — rapid reflex response allowing more light to enter.<br><strong>Step 2:</strong> All-trans retinal (broken down during bright light) is taken up by pigmented epithelium.<br><strong>Step 3:</strong> Isomerase in pigmented epithelium converts all-trans retinal → 11-cis retinal.<br><strong>Step 4:</strong> 11-cis retinal sent back to rods → combines with opsin → rhodopsin regenerated.<br><strong>Step 5:</strong> Cone adaptation completes at ~5 minutes. Rod adaptation continues until ~30 minutes.<br><strong>Step 6:</strong> As rhodopsin accumulates, rods become increasingly sensitive to dim light."},
+      {q:"Q2: Why is there a two-phase dark adaptation curve?",a:"<strong>Answer:</strong> The biphasic curve reflects the different adaptation kinetics of cones vs rods. PHASE 1 (first 5 min): Cone adaptation — cones rapidly regenerate iodopsin. PHASE 2 (5–30 min): Rod adaptation — rods slowly regenerate rhodopsin. After 5 minutes, rods surpass cones in sensitivity (cone-rod break), and sensitivity continues to rise steeply as more rhodopsin accumulates."},
+      {q:"Q3: What clinical condition results if this process is disrupted?",a:"<strong>Answer:</strong> Night blindness (Nyctalopia) — most commonly due to Vitamin A deficiency, which prevents the pigmented epithelium from providing adequate substrate for isomerase to regenerate 11-cis retinal, halting rhodopsin regeneration. Can also occur in retinitis pigmentosa (rod degeneration) or other retinal diseases."}
+    ]
+  }
+];
+
+const PHYSIO_STRUCTS = [
+  {icon:"💿",name:"Outer Segment Disks",detail:"Contain folded membrane disks loaded with photopigments (rhodopsin/iodopsin), G-protein transducin, phosphodiesterase (PDE), and cGMP-dependent cation channels. Site of phototransduction."},
+  {icon:"⚡",name:"cGMP-dependent Na⁺ Channels",detail:"Located in outer segment. OPEN when cGMP is high (dark) → Na⁺ influx → depolarization (-40mV). CLOSE when cGMP is low (light) → hyperpolarization (-80mV)."},
+  {icon:"🔄",name:"G-protein Transducin",detail:"G-protein activated by Metarhodopsin II. Activates phosphodiesterase (PDE). The molecular amplifier — one activated rhodopsin activates hundreds of transducin molecules."},
+  {icon:"✂️",name:"Phosphodiesterase (PDE)",detail:"Enzyme activated by transducin. Breaks down cGMP → 5'-GMP. Reducing cGMP closes Na⁺ channels. BLOCKED by some drugs (e.g., sildenafil in rods) → channels stay open → constant depolarization."},
+  {icon:"🔑",name:"Rhodopsin",detail:"Visual purple in rods. Made of opsin (protein) + 11-cis retinal (chromophore). Light converts 11-cis retinal → all-trans retinal, changing conformation through: Batho → Lumir → Meta I → Meta II (active)."},
+  {icon:"🔧",name:"Rhodopsin Kinase",detail:"Terminates phototransduction by phosphorylating and inactivating Metarhodopsin II, splitting it into opsin + all-trans retinal. This stops PDE activation and allows cGMP to rise → channels reopen."},
+  {icon:"🔋",name:"Na⁺/K⁺ ATPase Pump",detail:"Located in inner segment. Continuously pumps Na⁺ OUT and K⁺ IN. Maintains the ion gradient driving dark current. Requires ATP from inner segment mitochondria. Active in both light and dark."},
+  {icon:"🏭",name:"Pigmented Epithelium (Isomerase)",detail:"Phagocytoses old outer segment tips. Stores Vitamin A. Converts all-trans retinal → 11-cis retinal via isomerase during photopigment regeneration. Critical for dark adaptation."},
+];
+
+const DARK_FLOW = [
+  {text:"High cGMP levels in outer segment",detail:"In darkness, guanylate cyclase maintains high cGMP",highlight:false},
+  {text:"cGMP-dependent Na⁺ channels OPEN",detail:"Na⁺ and small Ca²⁺ flow into outer segment",highlight:true},
+  {text:"Na⁺ diffuses to inner segment",detail:"Creates ion gradient maintained by Na⁺/K⁺ pump",highlight:false},
+  {text:"Dark Current → -40 mV (Depolarization)",detail:"Membrane potential held at -40 mV",highlight:true},
+  {text:"Continuous glutamate release",detail:"Photoreceptor is tonically depolarized → continuous neurotransmitter release",highlight:false},
+  {text:"Glutamate hyperpolarizes bipolar cells (Cl⁻ channels)",detail:"Bipolar cells are inhibited in darkness",highlight:false},
+  {text:"Ganglion cells inhibited → NO action potentials",detail:"No visual signal in complete darkness",highlight:true},
+];
+const LIGHT_FLOW = [
+  {text:"Light photon absorbed by 11-cis retinal",highlight:false},
+  {text:"11-cis retinal → all-trans retinal (isomerization)",highlight:false},
+  {text:"Rhodopsin → Bathorhodopsin → Lumirhodopsin → Meta I → Metarhodopsin II",highlight:true},
+  {text:"Metarhodopsin II activates Transducin (G-protein)",highlight:false},
+  {text:"Transducin activates Phosphodiesterase (PDE)",highlight:false},
+  {text:"PDE breaks down cGMP → 5'-GMP",highlight:true},
+  {text:"cGMP-dependent Na⁺ channels CLOSE",highlight:false},
+  {text:"Na⁺/K⁺ pump continues → Hyperpolarization (-80 mV)",highlight:true},
+  {text:"↓ Glutamate release → Bipolar cells activated",highlight:false},
+  {text:"Ganglion cells excited → Action potential in optic nerve ⚡",highlight:true},
+];
+const TERM_FLOW = [
+  {text:"Rhodopsin kinase phosphorylates Metarhodopsin II",highlight:false},
+  {text:"Metarhodopsin II splits → Opsin + All-trans retinal",highlight:true},
+  {text:"PDE activity stops → cGMP levels rise",highlight:false},
+  {text:"Na⁺ channels reopen → Return to -40 mV",highlight:false},
+  {text:"All-trans retinal taken up by Pigmented Epithelium",highlight:false},
+  {text:"Isomerase converts all-trans → 11-cis retinal",highlight:true},
+  {text:"11-cis retinal + Opsin → Rhodopsin REGENERATED",highlight:false},
+];
+
+const MNEMONICS = [
+  {
+    title:"P-B-G Order",
+    subtitle:"Layers of retinal signal transmission (outer → inner)",
+    acronym:"P B G",
+    color:"var(--teal)",
+    rows:[
+      {letter:"P",color:"rgba(56,189,248,0.15)",meaning:"Pigmented Epithelium — absorbs light, stores Vit A"},
+      {letter:"B",color:"rgba(245,158,11,0.15)",meaning:"(Photo)receptors → Bipolar cells (1st order neurons)"},
+      {letter:"G",color:"rgba(16,185,129,0.15)",meaning:"Ganglion cells (2nd order) → Optic nerve to brain"}
+    ]
+  },
+  {
+    title:"BLMM — Rhodopsin Intermediates",
+    subtitle:"Light-activated rhodopsin conversion sequence",
+    acronym:"Bright Light Makes Metarhodopsin",
+    color:"var(--amber)",
+    rows:[
+      {letter:"B",color:"rgba(245,158,11,0.15)",meaning:"Bathorhodopsin — 1st intermediate"},
+      {letter:"L",color:"rgba(245,158,11,0.15)",meaning:"Lumirhodopsin — 2nd intermediate"},
+      {letter:"M",color:"rgba(245,158,11,0.15)",meaning:"Metarhodopsin I — 3rd intermediate"},
+      {letter:"M",color:"rgba(244,63,94,0.15)",meaning:"Metarhodopsin II — ACTIVE (activates transducin)"}
+    ]
+  },
+  {
+    title:"TPC Cascade",
+    subtitle:"Phototransduction signaling: Transducin → PDE → Close channels",
+    acronym:"The Photo Cascade",
+    color:"var(--violet)",
+    rows:[
+      {letter:"T",color:"rgba(139,92,246,0.15)",meaning:"Transducin (G-protein) — activated by Metarhodopsin II"},
+      {letter:"P",color:"rgba(139,92,246,0.15)",meaning:"Phosphodiesterase — activated by transducin, breaks cGMP"},
+      {letter:"C",color:"rgba(139,92,246,0.15)",meaning:"Channels CLOSE (Na⁺) → hyperpolarization → visual signal"}
+    ]
+  },
+  {
+    title:"DR 30 / LA 5",
+    subtitle:"Adaptation timelines — never confuse again",
+    acronym:"Dark Rooms need 30; Light Arrives in 5",
+    color:"var(--emerald)",
+    rows:[
+      {letter:"D",color:"rgba(16,185,129,0.15)",meaning:"Dark adaptation: 30 minutes (rods); 5 min (cones)"},
+      {letter:"R",color:"rgba(16,185,129,0.15)",meaning:"Regeneration is the mechanism (slow, enzymatic)"},
+      {letter:"L",color:"rgba(56,189,248,0.15)",meaning:"Light adaptation: 5 minutes total"},
+      {letter:"A",color:"rgba(56,189,248,0.15)",meaning:"Active degeneration of pigments (fast, photochemical)"}
+    ]
+  },
+  {
+    title:"FOVEA → F.I.N.E.",
+    subtitle:"Why the fovea has the finest vision",
+    acronym:"F.I.N.E.",
+    color:"var(--rose)",
+    rows:[
+      {letter:"F",color:"rgba(244,63,94,0.15)",meaning:"Flattened layers shifted aside → direct light access"},
+      {letter:"I",color:"rgba(244,63,94,0.15)",meaning:"Individual 1:1 convergence (cone:bipolar:ganglion)"},
+      {letter:"N",color:"rgba(244,63,94,0.15)",meaning:"No blood vessels (avascular) — no light obstruction"},
+      {letter:"E",color:"rgba(244,63,94,0.15)",meaning:"Extended cortical representation in occipital lobe"}
+    ]
+  },
+  {
+    title:"VIPER for Pigmented Epithelium",
+    subtitle:"5 key functions of the pigmented epithelium",
+    acronym:"V.I.P.E.R.",
+    color:"var(--teal)",
+    rows:[
+      {letter:"V",color:"rgba(56,189,248,0.12)",meaning:"Vitamin A — stores large amounts for photopigment recycling"},
+      {letter:"I",color:"rgba(56,189,248,0.12)",meaning:"Isomerase — converts all-trans → 11-cis retinal"},
+      {letter:"P",color:"rgba(56,189,248,0.12)",meaning:"Phagocytosis — removes old outer segment tips"},
+      {letter:"E",color:"rgba(56,189,248,0.12)",meaning:"Extracellular matrix — keeps outer segments straight"},
+      {letter:"R",color:"rgba(56,189,248,0.12)",meaning:"Reflection prevention — melanin absorbs unabsorbed light"}
+    ]
+  }
+];
+
+// ══════════ STATE ══════════
+let quizState={current:0,score:0,streak:0,answered:false,done:false};
+let fcDone=new Set();
+let stats={quizScore:0,quizTotal:0,fcDone:0,totalPct:0};
+
+// ══════════ TABS ══════════
+function switchTab(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  btn.classList.add('active');
+  localStorage.setItem('retina_tab',id);
+}
+
+// ══════════ OVERVIEW SEARCH ══════════
+function filterCards(){
+  const q=document.getElementById('overviewSearch').value.toLowerCase();
+  document.querySelectorAll('#overviewCards .card').forEach(c=>{
+    const text=(c.dataset.search+' '+(c.textContent||'')).toLowerCase();
+    c.style.display=text.includes(q)?'':'none';
+  });
+}
+
+// ══════════ QUIZ ══════════
+function buildQuiz(){
+  const c=document.getElementById('quiz-container');
+  if(quizState.done){renderQuizDone(c);return;}
+  const q=QUIZ[quizState.current];
+  const pct=Math.round((quizState.current/QUIZ.length)*100);
+  c.innerHTML=`
+    <div class="quiz-header">
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="quiz-meta">
+        <span>📋 ${quizState.current+1}/${QUIZ.length}</span>
+        <span>✅ ${quizState.score}</span>
+        <span>🔥 ${quizState.streak}</span>
+      </div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;">
+      <div class="q-num">Question ${quizState.current+1}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="q-options" id="qOpts">
+        ${q.opts.map((o,i)=>`<div class="q-option" onclick="selectAnswer(${i})" id="opt${i}"><div class="q-option-letter">${String.fromCharCode(65+i)}</div><span>${o.substring(3)}</span></div>`).join('')}
+      </div>
+      <div class="q-explanation" id="qExp">💡 <strong>Explanation:</strong> ${q.exp}</div>
+      <div class="btn-row" id="qBtns"></div>
+    </div>`;
+}
+
+function selectAnswer(idx){
+  if(quizState.answered)return;
+  quizState.answered=true;
+  const q=QUIZ[quizState.current];
+  const opts=document.querySelectorAll('.q-option');
+  opts.forEach(o=>o.classList.add('disabled'));
+  opts[idx].classList.add(idx===q.ans?'correct':'wrong');
+  if(idx!==q.ans)opts[q.ans].classList.add('correct');
+  if(idx===q.ans){quizState.score++;quizState.streak++;}
+  else quizState.streak=0;
+  document.getElementById('qExp').classList.add('visible');
+  const btns=document.getElementById('qBtns');
+  btns.innerHTML=`<button class="btn btn-primary" onclick="nextQuestion()">${quizState.current<QUIZ.length-1?'Next Question →':'See Results 🎉'}</button>`;
+  updateStats();
+}
+
+function nextQuestion(){
+  quizState.current++;
+  quizState.answered=false;
+  if(quizState.current>=QUIZ.length){quizState.done=true;renderQuizDone(document.getElementById('quiz-container'));return;}
+  buildQuiz();
+}
+
+function renderQuizDone(c){
+  const pct=Math.round((quizState.score/QUIZ.length)*100);
+  const msg=pct>=90?'🏆 Outstanding! Exam-ready!':pct>=70?'💪 Great work! Review weak areas.':pct>=50?'📚 Keep studying — you\'re getting there!':'🔄 Review the material and try again!';
+  c.innerHTML=`<div class="quiz-done">
+    <div class="score-circle"><div class="score-pct">${pct}%</div><div class="score-label">Score</div></div>
+    <h2 style="font-family:var(--font-display);font-size:1.6rem;color:#fff;margin-bottom:8px;">${msg}</h2>
+    <p style="color:var(--text2);margin-bottom:24px;">You answered ${quizState.score}/${QUIZ.length} correctly</p>
+    <button class="btn btn-primary" onclick="resetQuiz()">Retake Quiz 🔄</button>
+  </div>`;
+}
+
+function resetQuiz(){quizState={current:0,score:0,streak:0,answered:false,done:false};buildQuiz();}
+
+// ══════════ FLASHCARDS ══════════
+function buildFlashcards(){
+  const g=document.getElementById('fcGrid');
+  g.innerHTML=FLASHCARDS.map((fc,i)=>`
+    <div class="fc-card" id="fc${i}" onclick="flipCard(${i})">
+      <div class="fc-inner">
+        <div class="fc-front">
+          <div class="fc-front-label">❓ Question</div>
+          <h4>${fc.q}</h4>
+          <div class="fc-flip-hint">Tap to reveal →</div>
+        </div>
+        <div class="fc-back">
+          <div class="fc-back-label">✅ Answer</div>
+          <p>${fc.a}</p>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function flipCard(i){
+  const card=document.getElementById('fc'+i);
+  card.classList.toggle('flipped');
+  if(card.classList.contains('flipped'))fcDone.add(i);
+  document.getElementById('fcCount').textContent=`${fcDone.size}/22`;
+  updateProgress();
+}
+
+// ══════════ CASES ══════════
+function buildCases(){
+  const c=document.getElementById('casesContainer');
+  c.innerHTML=CASES.map((cs,ci)=>`
+    <div class="case-card">
+      <div class="case-header">
+        <span class="case-tag">🏥 ${cs.tag}</span>
+        <h3>${cs.title}</h3>
+        <div class="case-vignette">${cs.vignette}</div>
+      </div>
+      <div class="case-body">
+        <div class="case-qs">
+          ${cs.qs.map((cq,qi)=>`
+            <div>
+              <div class="case-q">${cq.q}</div>
+              <button class="reveal-btn" onclick="revealCase(${ci},${qi})">🔍 Reveal Answer</button>
+              <div class="case-answer" id="case_${ci}_${qi}">${cq.a}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function revealCase(ci,qi){
+  const el=document.getElementById(`case_${ci}_${qi}`);
+  el.classList.toggle('visible');
+}
+
+// ══════════ PHYSIO FLOWS ══════════
+function buildFlows(){
+  renderFlow('darkFlow',DARK_FLOW);
+  renderFlow('lightFlow',LIGHT_FLOW);
+  renderFlow('termFlow',TERM_FLOW);
+}
+function renderFlow(id,steps){
+  const el=document.getElementById(id);
+  el.innerHTML=steps.map((s,i)=>`
+    ${i>0?'<div class="flow-arrow">↓</div>':''}
+    <div class="flow-step ${s.highlight?'highlight':''}">
+      ${s.text}
+      ${s.detail?`<div class="flow-detail">${s.detail}</div>`:''}
+    </div>`).join('');
+}
+
+// ══════════ PHYSIO STRUCTS ══════════
+function buildPhysioGrid(){
+  const g=document.getElementById('physioGrid');
+  g.innerHTML=PHYSIO_STRUCTS.map((s,i)=>`
+    <div class="physio-item" id="pi${i}" onclick="togglePhysio(${i})">
+      <div class="pi-icon">${s.icon}</div>
+      <h4>${s.name}</h4>
+      <div class="physio-detail">${s.detail}</div>
+    </div>`).join('');
+}
+function togglePhysio(i){document.getElementById('pi'+i).classList.toggle('open');}
+
+// ══════════ MNEMONICS ══════════
+function buildMnemonics(){
+  const c=document.getElementById('mnemonicsContainer');
+  c.innerHTML=MNEMONICS.map(m=>`
+    <div class="mnemonic-card">
+      <div class="mnemonic-title">✨ ${m.title}</div>
+      <div class="mnemonic-subtitle">${m.subtitle}</div>
+      <div style="background:rgba(56,189,248,0.05);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--text2);">
+        📝 <em>"${m.acronym}"</em>
+      </div>
+      ${m.rows.map(r=>`
+        <div class="mnemonic-row">
+          <div class="mnemonic-letter" style="background:${r.color};color:${m.color};">${r.letter}</div>
+          <div class="mnemonic-meaning">${r.meaning}</div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+// ══════════ STATS ══════════
+function updateStats(){
+  document.getElementById('quizScore').textContent=`${quizState.score}/${QUIZ.length}`;
+  document.getElementById('streakVal').textContent=`${quizState.streak}🔥`;
+  updateProgress();
+}
+function updateProgress(){
+  const qPct=QUIZ.length>0?quizState.score/QUIZ.length:0;
+  const fcPct=fcDone.size/FLASHCARDS.length;
+  const total=Math.round(((qPct+fcPct)/2)*100);
+  document.getElementById('totalPct').textContent=total+'%';
+  document.getElementById('fcCount').textContent=`${fcDone.size}/${FLASHCARDS.length}`;
+}
+
+// ══════════ INIT ══════════
+window.addEventListener('DOMContentLoaded',()=>{
+  buildQuiz();
+  buildFlashcards();
+  buildCases();
+  buildFlows();
+  buildPhysioGrid();
+  buildMnemonics();
+  // Restore last tab
+  const lastTab=localStorage.getItem('retina_tab');
+  if(lastTab){
+    const btn=document.querySelector(`[onclick*="'${lastTab}'"]`);
+    if(btn){switchTab(lastTab,btn);}
+  }
+});
+</script>
+</body>
+</html>

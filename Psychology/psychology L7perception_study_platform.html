@@ -1,0 +1,1807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧠 Perception & Sensory Processing — Interactive Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060a14;
+    --bg2: #0d1424;
+    --bg3: #111c30;
+    --card: #0f1a2e;
+    --card2: #162038;
+    --border: #1e3254;
+    --border2: #263f6a;
+    --accent: #00c8ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --accent4: #f59e0b;
+    --accent5: #ef4444;
+    --text: #e8f0fe;
+    --text2: #8ba4c8;
+    --text3: #4a6590;
+    --glow: 0 0 20px rgba(0,200,255,0.15);
+    --glow2: 0 0 30px rgba(124,58,237,0.2);
+    --r: 14px;
+    --r2: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── ANIMATED BACKGROUND ── */
+  .bg-layer {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  }
+  .bg-layer::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 15% 20%, rgba(0,200,255,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 50% at 85% 75%, rgba(124,58,237,0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 50% 50%, rgba(16,185,129,0.04) 0%, transparent 70%);
+    animation: bgPulse 12s ease-in-out infinite alternate;
+  }
+  @keyframes bgPulse {
+    0% { opacity: 0.6; }
+    100% { opacity: 1; }
+  }
+
+  .neuron-grid {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(30,50,84,0.3) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(30,50,84,0.3) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative; z-index: 10;
+    padding: 32px 40px 0;
+    text-align: center;
+  }
+  .header-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(0,200,255,0.08);
+    border: 1px solid rgba(0,200,255,0.2);
+    border-radius: 50px;
+    padding: 6px 16px;
+    font-size: 12px; font-weight: 600; letter-spacing: 1.5px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #e8f0fe 0%, var(--accent) 50%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+  }
+  .header-sub {
+    color: var(--text2);
+    font-size: 15px; font-weight: 400;
+    margin-bottom: 28px;
+  }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    display: flex; justify-content: center; gap: 12px;
+    flex-wrap: wrap;
+    padding: 0 40px 24px;
+    position: relative; z-index: 10;
+  }
+  .stat-chip {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 8px 20px;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 500;
+  }
+  .stat-chip .val {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  /* ── TABS ── */
+  .tabs-wrapper {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(6,10,20,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+  }
+  .tabs {
+    display: flex; overflow-x: auto; gap: 4px;
+    max-width: 1100px; margin: 0 auto;
+    padding: 10px 0;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex-shrink: 0;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--r2);
+    padding: 8px 16px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px; font-weight: 500;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.25s;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--text); background: var(--card); }
+  .tab-btn.active {
+    background: rgba(0,200,255,0.12);
+    border-color: rgba(0,200,255,0.3);
+    color: var(--accent);
+  }
+
+  /* ── MAIN CONTENT ── */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+    position: relative; z-index: 10;
+  }
+  .section { display: none; }
+  .section.active { display: block; animation: fadeIn 0.35s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── CARDS & LAYOUT ── */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px; font-weight: 800;
+    margin-bottom: 6px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-desc {
+    color: var(--text2); font-size: 14px;
+    margin-bottom: 28px;
+  }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 20px;
+    transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+  }
+  .card:hover {
+    border-color: var(--border2);
+    box-shadow: var(--glow);
+    transform: translateY(-2px);
+  }
+  .card-icon {
+    font-size: 28px; margin-bottom: 10px;
+    display: block;
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px; font-weight: 700;
+    letter-spacing: 0.3px;
+    margin-bottom: 8px;
+  }
+  .card-body {
+    font-size: 13px; color: var(--text2);
+    line-height: 1.6;
+  }
+
+  /* Tags */
+  .tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 50px;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin: 2px;
+  }
+  .tag-exam { background: rgba(239,68,68,0.15); color: #fc8181; border: 1px solid rgba(239,68,68,0.3); }
+  .tag-yield { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+  .tag-pearl { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+  .tag-key { background: rgba(0,200,255,0.12); color: var(--accent); border: 1px solid rgba(0,200,255,0.25); }
+
+  /* ── SEARCH BAR ── */
+  .search-wrap {
+    position: relative; margin-bottom: 24px;
+  }
+  .search-input {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 12px 20px 12px 48px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px; color: var(--text);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search-input:focus { border-color: rgba(0,200,255,0.4); box-shadow: var(--glow); }
+  .search-input::placeholder { color: var(--text3); }
+  .search-icon {
+    position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+    color: var(--text3); font-size: 18px;
+  }
+
+  /* ── OVERVIEW ── */
+  .process-flow {
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: 8px; margin: 24px 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 20px;
+  }
+  .flow-step {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--r2);
+    padding: 10px 16px;
+    font-size: 13px; font-weight: 500;
+  }
+  .flow-step .num {
+    width: 22px; height: 22px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+  }
+  .flow-arrow { color: var(--text3); font-size: 18px; }
+
+  /* ── QUIZ ── */
+  .quiz-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+  }
+  .quiz-progress-bar {
+    width: 100%; height: 6px;
+    background: var(--card2);
+    border-radius: 50px;
+    margin-bottom: 24px; overflow: hidden;
+  }
+  .quiz-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 50px;
+    transition: width 0.5s ease;
+  }
+  .quiz-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 28px;
+    margin-bottom: 16px;
+  }
+  .quiz-q-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--text3);
+    letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .quiz-q-text {
+    font-size: 16px; font-weight: 500;
+    line-height: 1.6; margin-bottom: 20px;
+  }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-opt {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--r2);
+    padding: 12px 18px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex; align-items: flex-start; gap: 12px;
+    transition: all 0.2s;
+  }
+  .quiz-opt:hover:not(.disabled) {
+    border-color: rgba(0,200,255,0.3);
+    background: rgba(0,200,255,0.05);
+  }
+  .quiz-opt.correct {
+    border-color: var(--accent3);
+    background: rgba(16,185,129,0.1);
+    animation: pulse-correct 0.4s ease;
+  }
+  .quiz-opt.wrong {
+    border-color: var(--accent5);
+    background: rgba(239,68,68,0.1);
+    animation: shake 0.4s ease;
+  }
+  .quiz-opt.disabled { pointer-events: none; }
+  .opt-letter {
+    width: 24px; height: 24px; flex-shrink: 0;
+    border: 1px solid var(--border2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: var(--text2);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .quiz-opt.correct .opt-letter { background: var(--accent3); border-color: var(--accent3); color: #fff; }
+  .quiz-opt.wrong .opt-letter { background: var(--accent5); border-color: var(--accent5); color: #fff; }
+
+  .quiz-explanation {
+    margin-top: 16px;
+    background: var(--bg3);
+    border-left: 3px solid var(--accent3);
+    border-radius: 0 var(--r2) var(--r2) 0;
+    padding: 14px 18px;
+    font-size: 13px; color: var(--text2);
+    line-height: 1.6;
+    display: none;
+  }
+  .quiz-explanation.show { display: block; animation: fadeIn 0.3s ease; }
+
+  .quiz-nav-btn {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border: none; border-radius: 50px;
+    padding: 12px 32px;
+    color: #fff; font-family: 'Outfit', sans-serif;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: opacity 0.2s, transform 0.15s;
+  }
+  .quiz-nav-btn:hover { opacity: 0.9; transform: scale(1.02); }
+
+  .score-display {
+    text-align: center; padding: 40px 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+  }
+  .score-big {
+    font-family: 'Syne', sans-serif;
+    font-size: 72px; font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .streak-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(245,158,11,0.15);
+    border: 1px solid rgba(245,158,11,0.3);
+    color: var(--accent4);
+    padding: 6px 16px; border-radius: 50px;
+    font-size: 13px; font-weight: 600;
+    margin-top: 12px;
+  }
+
+  @keyframes pulse-correct {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+
+  /* ── FLASHCARDS ── */
+  .fc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; }
+  .fc-wrapper {
+    perspective: 1000px;
+    height: 200px;
+    cursor: pointer;
+  }
+  .fc-inner {
+    position: relative; width: 100%; height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
+    border-radius: var(--r);
+  }
+  .fc-wrapper.flipped .fc-inner { transform: rotateY(180deg); }
+  .fc-front, .fc-back {
+    position: absolute; inset: 0;
+    backface-visibility: hidden;
+    border-radius: var(--r);
+    padding: 20px;
+    display: flex; flex-direction: column; justify-content: center;
+    border: 1px solid var(--border);
+  }
+  .fc-front {
+    background: var(--card);
+  }
+  .fc-back {
+    background: linear-gradient(135deg, #0d2040, #1a1040);
+    border-color: rgba(124,58,237,0.3);
+    transform: rotateY(180deg);
+  }
+  .fc-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text3);
+    letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .fc-q { font-size: 14px; font-weight: 500; line-height: 1.5; }
+  .fc-a { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .fc-flip-hint {
+    margin-top: auto; padding-top: 12px;
+    font-size: 11px; color: var(--text3);
+    text-align: right;
+  }
+
+  /* ── CASES ── */
+  .case-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .case-header {
+    background: linear-gradient(135deg, rgba(0,200,255,0.08), rgba(124,58,237,0.08));
+    border-bottom: 1px solid var(--border);
+    padding: 18px 24px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .case-num {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 14px; color: #fff;
+    flex-shrink: 0;
+  }
+  .case-title-text { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; }
+  .case-body { padding: 24px; }
+  .case-vignette {
+    background: var(--bg3);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 var(--r2) var(--r2) 0;
+    padding: 16px 20px;
+    font-size: 14px; line-height: 1.7;
+    margin-bottom: 20px;
+  }
+  .case-question {
+    font-size: 14px; font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+  .reveal-btn {
+    background: transparent;
+    border: 1px solid var(--border2);
+    border-radius: var(--r2);
+    padding: 10px 20px;
+    color: var(--text2);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 12px;
+  }
+  .reveal-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .case-answer {
+    background: rgba(16,185,129,0.08);
+    border: 1px solid rgba(16,185,129,0.2);
+    border-radius: var(--r2);
+    padding: 16px 20px;
+    font-size: 13px; color: var(--text2);
+    line-height: 1.7;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  .case-answer.show { display: block; }
+  .case-sep { height: 1px; background: var(--border); margin: 20px 0; }
+
+  /* ── CONCEPTS ── */
+  .concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .concept-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative; overflow: hidden;
+  }
+  .concept-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--accent-stripe, linear-gradient(90deg, var(--accent), var(--accent2)));
+  }
+  .concept-card:hover { border-color: var(--border2); box-shadow: var(--glow); transform: translateY(-2px); }
+  .concept-card .c-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .concept-card .c-def { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 10px; }
+  .concept-detail {
+    display: none;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    font-size: 12px; color: var(--text2);
+    line-height: 1.6;
+  }
+  .concept-detail.show { display: block; animation: fadeIn 0.3s ease; }
+
+  /* Comparison Table */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 20px 0;
+  }
+  .compare-table th {
+    background: var(--bg3);
+    padding: 12px 16px;
+    text-align: left;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--text2);
+    border-bottom: 2px solid var(--border);
+  }
+  .compare-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+    line-height: 1.5;
+  }
+  .compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .compare-table .t-head { color: var(--text); font-weight: 600; }
+
+  /* Flowchart */
+  .flowchart {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    margin: 24px 0;
+  }
+  .fc-box {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: var(--r2);
+    padding: 12px 24px;
+    font-size: 13px; font-weight: 500;
+    text-align: center;
+    min-width: 220px;
+    position: relative;
+  }
+  .fc-box.highlight {
+    background: rgba(0,200,255,0.08);
+    border-color: rgba(0,200,255,0.3);
+    color: var(--accent);
+  }
+  .fc-box.highlight2 {
+    background: rgba(124,58,237,0.08);
+    border-color: rgba(124,58,237,0.3);
+    color: #a78bfa;
+  }
+  .fc-down { color: var(--text3); font-size: 20px; }
+
+  /* ── MNEMONICS ── */
+  .mnem-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .mnem-header {
+    padding: 16px 20px;
+    display: flex; align-items: center; gap: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .mnem-header:hover { background: rgba(255,255,255,0.02); }
+  .mnem-letter {
+    width: 42px; height: 42px; flex-shrink: 0;
+    border-radius: var(--r2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 18px; font-weight: 800;
+  }
+  .mnem-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; }
+  .mnem-phrase { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .mnem-expand { margin-left: auto; color: var(--text3); font-size: 20px; transition: transform 0.3s; }
+  .mnem-card.open .mnem-expand { transform: rotate(180deg); }
+  .mnem-body {
+    display: none;
+    padding: 0 20px 20px;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+  .mnem-card.open .mnem-body { display: block; animation: fadeIn 0.3s ease; }
+  .mnem-row {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .mnem-row:last-child { border-bottom: none; }
+  .mnem-l {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px; font-weight: 800;
+    min-width: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .mnem-word { font-weight: 600; font-size: 14px; display: block; }
+  .mnem-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+  /* ── VIVA ── */
+  .viva-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 0;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .viva-q {
+    padding: 16px 20px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 12px;
+    transition: background 0.2s;
+  }
+  .viva-q:hover { background: rgba(255,255,255,0.02); }
+  .viva-icon { font-size: 16px; flex-shrink: 0; }
+  .viva-q-text { font-size: 14px; font-weight: 500; flex: 1; }
+  .viva-toggle { color: var(--text3); transition: transform 0.3s; }
+  .viva-card.open .viva-toggle { transform: rotate(180deg); }
+  .viva-a {
+    display: none;
+    padding: 0 20px 20px 52px;
+    font-size: 13px; color: var(--text2);
+    line-height: 1.7;
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+    margin-top: 0;
+  }
+  .viva-card.open .viva-a { display: block; animation: fadeIn 0.3s ease; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    header { padding: 20px 16px 0; }
+    .stats-bar { padding: 0 16px 16px; }
+    main { padding: 20px 12px 60px; }
+    .process-flow { flex-direction: column; }
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+  .btn-primary { background: linear-gradient(135deg, var(--accent2), var(--accent)); color: #fff; }
+  .btn-primary:hover { opacity: 0.9; transform: scale(1.03); }
+  .btn-outline { background: transparent; border: 1px solid var(--border2); color: var(--text2); }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+  .divider { height: 1px; background: var(--border); margin: 32px 0; }
+  .mt-24 { margin-top: 24px; }
+  .mb-16 { margin-bottom: 16px; }
+  .text-accent { color: var(--accent); }
+  .text-green { color: var(--accent3); }
+  .text-orange { color: var(--accent4); }
+  .text-red { color: var(--accent5); }
+  .text-purple { color: #a78bfa; }
+  .bold { font-weight: 600; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+
+<div class="bg-layer"></div>
+<div class="neuron-grid"></div>
+
+<header>
+  <div class="header-badge">🧠 Psychiatry / Behavioral Sciences</div>
+  <h1>Perception & Sensory Processing</h1>
+  <p class="header-sub">Interactive Medical Study Platform · Academic Year 2024–2025</p>
+</header>
+
+<div class="stats-bar">
+  <div class="stat-chip">📝 <span>25 MCQs</span> <span class="val" id="quizScore">0/0</span></div>
+  <div class="stat-chip">🃏 <span>Flashcards</span> <span class="val">20</span></div>
+  <div class="stat-chip">🔥 <span>Streak</span> <span class="val" id="streakCount">0</span></div>
+  <div class="stat-chip">✅ <span>Progress</span> <span class="val" id="progressPct">0%</span></div>
+  <div class="stat-chip">💬 <span>Viva Qs</span> <span class="val">12</span></div>
+</div>
+
+<div class="tabs-wrapper">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="overview">🏠 Overview</button>
+    <button class="tab-btn" data-tab="quiz">📝 Quiz</button>
+    <button class="tab-btn" data-tab="flashcards">🃏 Flashcards</button>
+    <button class="tab-btn" data-tab="cases">🩺 Clinical Cases</button>
+    <button class="tab-btn" data-tab="concepts">💡 Key Concepts</button>
+    <button class="tab-btn" data-tab="compare">📊 Compare</button>
+    <button class="tab-btn" data-tab="mnemonics">🧩 Mnemonics</button>
+    <button class="tab-btn" data-tab="viva">💬 Viva</button>
+  </div>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- OVERVIEW -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section active" id="section-overview">
+  <div class="section-title">🏠 Overview</div>
+  <p class="section-desc">Your complete roadmap to Perception & Sensory Processing — all high-yield points at a glance.</p>
+
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" id="overviewSearch" type="text" placeholder="Search topics, concepts, terms…">
+  </div>
+
+  <!-- Perceptual Process Flow -->
+  <div class="card mb-16">
+    <div class="card-title" style="font-family:'Syne',sans-serif;font-size:16px;margin-bottom:14px;">⚡ The Perceptual Process — Sequential Flow</div>
+    <div class="process-flow">
+      <div class="flow-step"><span class="num">1</span>Receive Stimuli<br><small style="color:var(--text3)">Sense organs</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="num">2</span>Sensation<br><small style="color:var(--text3)">Meaningless signals</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="num">3</span>Selection<br><small style="color:var(--text3)">Filtering</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="num">4</span>Organization<br><small style="color:var(--text3)">Gestalt rules</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="num">5</span>Interpretation<br><small style="color:var(--text3)">Association areas</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="num">6</span>Action<br><small style="color:var(--text3)">Overt / Covert</small></div>
+    </div>
+  </div>
+
+  <!-- Topic Cards -->
+  <div class="grid-2" id="overviewCards">
+    <div class="card searchable">
+      <span class="card-icon">👁️</span>
+      <div class="card-title">Sensation vs Perception</div>
+      <div class="card-body">
+        <strong>Sensation:</strong> First awareness of a stimulus → meaningless bits of information.<br><br>
+        <strong>Perception:</strong> Selection + Organization + Interpretation + Action. Assigns meaning.
+      </div>
+      <div style="margin-top:10px;"><span class="tag tag-key">Foundational</span></div>
+    </div>
+    <div class="card searchable">
+      <span class="card-icon">🔲</span>
+      <div class="card-title">Gestalt Principles (Grouping)</div>
+      <div class="card-body">
+        <strong>Continuity</strong> — resists breaking lines<br>
+        <strong>Proximity</strong> — groups nearby items<br>
+        <strong>Similarity</strong> — groups by color/shape<br>
+        <strong>Closure</strong> — fills in missing info
+      </div>
+      <div style="margin-top:10px;"><span class="tag tag-yield">High Yield</span></div>
+    </div>
+    <div class="card searchable">
+      <span class="card-icon">🔭</span>
+      <div class="card-title">Depth Perception Cues</div>
+      <div class="card-body">
+        <strong>Monocular (1 eye):</strong> texture gradient, linear perspective, superposition, shadowing, speed of movement, aerial perspective<br><br>
+        <strong>Binocular (2 eyes):</strong> convergence, retinal disparity
+      </div>
+      <div style="margin-top:10px;"><span class="tag tag-yield">High Yield</span></div>
+    </div>
+    <div class="card searchable">
+      <span class="card-icon">⚠️</span>
+      <div class="card-title">Illusion vs Hallucination</div>
+      <div class="card-body">
+        <strong class="text-accent">Illusion:</strong> Misinterpretation of a <em>real</em> external stimulus<br><br>
+        <strong class="text-red">Hallucination:</strong> Vivid sensory impression with <em>NO</em> external stimulus
+      </div>
+      <div style="margin-top:10px;"><span class="tag tag-exam">⚠️ Exam Fav</span><span class="tag tag-yield">High Yield</span></div>
+    </div>
+    <div class="card searchable">
+      <span class="card-icon">🔄</span>
+      <div class="card-title">Perceptual Constancy (4 types)</div>
+      <div class="card-body">
+        <strong>Brightness</strong> — stable light perception<br>
+        <strong>Color</strong> — stable color despite lighting<br>
+        <strong>Size</strong> — person doesn't "shrink" when far<br>
+        <strong>Shape</strong> — object shape stable despite angle
+      </div>
+      <div style="margin-top:10px;"><span class="tag tag-pearl">Clinical Pearl</span></div>
+    </div>
+    <div class="card searchable">
+      <span class="card-icon">🧪</span>
+      <div class="card-title">Perceptual Pitfalls</div>
+      <div class="card-body">
+        <strong>Halo Effect:</strong> 1 positive trait → all good<br>
+        <strong>Devil Effect:</strong> 1 negative trait → all bad<br>
+        <strong>Stereotypy:</strong> judged by group membership<br>
+        <strong>Contrast Effect:</strong> skewed by comparison
+      </div>
+      <div style="margin-top:10px;"><span class="tag tag-exam">⚠️ MCQ</span></div>
+    </div>
+    <div class="card searchable">
+      <span class="card-icon">🌀</span>
+      <div class="card-title">Special Phenomena</div>
+      <div class="card-body">
+        <strong>De Jà Vu:</strong> foreign seems familiar<br>
+        <strong>Jamais Vu:</strong> familiar seems foreign<br>
+        <strong>Depersonalization:</strong> self feels different<br>
+        <strong>Derealization:</strong> world feels different
+      </div>
+      <div style="margin-top:10px;"><span class="tag tag-pearl">Pearl</span></div>
+    </div>
+    <div class="card searchable">
+      <span class="card-icon">🌐</span>
+      <div class="card-title">Extrasensory Perception (ESP)</div>
+      <div class="card-body">
+        <strong>Telepathy:</strong> mind-to-mind communication<br>
+        <strong>Clairvoyance:</strong> knowing distant events<br>
+        <strong>Precognition:</strong> knowing future events<br>
+        <strong>Psychokinesis:</strong> mind moves matter
+      </div>
+      <div style="margin-top:10px;"><span class="tag tag-key">Know for MCQ</span></div>
+    </div>
+  </div>
+
+  <!-- High-Yield Warning -->
+  <div style="margin-top:24px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:var(--r);padding:18px 22px;">
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:#fc8181;margin-bottom:8px;">⚠️ Exam Alert — Most Tested Concepts</div>
+    <p style="font-size:13px;color:var(--text2);line-height:1.7;">
+      1. <strong>Illusion vs Hallucination</strong> — the #1 MCQ differentiator — stimulus present? = illusion; no stimulus = hallucination.<br>
+      2. <strong>Monocular vs Binocular cues</strong> — know each cue by name and mechanism.<br>
+      3. <strong>Gestalt principles</strong> — especially Closure and Figure-Ground reversibility.<br>
+      4. <strong>Halo / Devil / Contrast effects</strong> — interpersonal pitfalls appear frequently.
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- QUIZ -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="section-quiz">
+  <div class="quiz-header">
+    <div>
+      <div class="section-title">📝 Quiz Mode</div>
+      <p class="section-desc" style="margin-bottom:0;">25 exam-style MCQs · Immediate feedback · Explanations included</p>
+    </div>
+    <button class="btn btn-outline" id="restartQuiz">↺ Restart</button>
+  </div>
+  <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quizProgressFill" style="width:0%"></div></div>
+  <div id="quizContainer"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- FLASHCARDS -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="section-flashcards">
+  <div class="section-title">🃏 Flashcards</div>
+  <p class="section-desc">Click any card to reveal the answer. 3D flip animation included!</p>
+  <div class="fc-grid" id="fcGrid"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- CLINICAL CASES -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="section-cases">
+  <div class="section-title">🩺 Clinical Cases</div>
+  <p class="section-desc">5 exam-style vignettes — each with a structured presentation and reveal answers.</p>
+  <div id="casesContainer"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- KEY CONCEPTS -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="section-concepts">
+  <div class="section-title">💡 Key Concepts</div>
+  <p class="section-desc">Click any concept card for full detail. Organized by topic block.</p>
+
+  <div class="card-title" style="margin-bottom:12px;font-family:'Syne',sans-serif;">Topic 1 — Perception Process</div>
+  <div class="concept-grid">
+    <div class="concept-card" onclick="toggleConcept(this)" style="--accent-stripe:linear-gradient(90deg,var(--accent),#0080a0)">
+      <div class="c-title">🔵 Sensation</div>
+      <div class="c-def">First awareness of an outside stimulus via sense organs — produces meaningless bits of information.</div>
+      <span class="tag tag-key">Foundation</span>
+      <div class="concept-detail">
+        <strong>Mechanism:</strong> Stimuli activate sensory receptors → electrical signals → brain → raw data.<br>
+        <strong>Key point:</strong> The signals at this stage are MEANINGLESS — meaning is assigned later during interpretation.<br>
+        <strong>Regulation:</strong> Stimulus intensity and perceiver factors determine which stimuli are received.
+      </div>
+    </div>
+    <div class="concept-card" onclick="toggleConcept(this)" style="--accent-stripe:linear-gradient(90deg,#7c3aed,#a78bfa)">
+      <div class="c-title">🟣 Perception</div>
+      <div class="c-def">Analysis, organization, and meaningful interpretation of sensory input.</div>
+      <span class="tag tag-yield">High Yield</span>
+      <div class="concept-detail">
+        <strong>Steps:</strong> Selection → Organization (Gestalt) → Interpretation (association areas) → Action.<br>
+        <strong>External factors:</strong> Size, intensity, movement, color, contrast of stimulus.<br>
+        <strong>Internal factors:</strong> Age, learning, interest, emotions, drive, set (expectation).
+      </div>
+    </div>
+    <div class="concept-card" onclick="toggleConcept(this)" style="--accent-stripe:linear-gradient(90deg,var(--accent3),#047857)">
+      <div class="c-title">🟢 Interpretation</div>
+      <div class="c-def">Assigning meaning to raw data in sensory association areas of the brain.</div>
+      <span class="tag tag-key">Process</span>
+      <div class="concept-detail">
+        <strong>Location:</strong> Sensory association areas (beyond primary sensory cortex).<br>
+        <strong>Dependence:</strong> Strongly shaped by past experience and cognitive sets.<br>
+        <strong>Significance:</strong> Bridges raw sensation and adaptive behavioral output.
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="card-title" style="margin-bottom:12px;font-family:'Syne',sans-serif;">Topic 2 — Gestalt Organization</div>
+  <div class="concept-grid">
+    <div class="concept-card" onclick="toggleConcept(this)">
+      <div class="c-title">🔲 Figure-Ground</div>
+      <div class="c-def">Brain separates a focal object (figure) from its background (ground).</div>
+      <span class="tag tag-exam">Exam Fav</span>
+      <div class="concept-detail">
+        <strong>Reversible:</strong> Ambiguous images (vase/faces) allow figure and ground to alternate.<br>
+        <strong>Cannot perceive both simultaneously</strong> — only one at a time.<br>
+        <strong>Example:</strong> Rubin's vase — vase OR two faces, never both at once.
+      </div>
+    </div>
+    <div class="concept-card" onclick="toggleConcept(this)">
+      <div class="c-title">📐 Continuity</div>
+      <div class="c-def">Tendency to continue patterns in their established direction without breaking.</div>
+      <span class="tag tag-key">Gestalt</span>
+      <div class="concept-detail">The brain resists breaking lines or sequences and continues them in their established direction. Makes it hard to see overlapping shapes as separate.</div>
+    </div>
+    <div class="concept-card" onclick="toggleConcept(this)">
+      <div class="c-title">📍 Proximity</div>
+      <div class="c-def">Items close together are perceived as a group.</div>
+      <span class="tag tag-key">Gestalt</span>
+      <div class="concept-detail">Spatial closeness is a powerful grouping signal. The brain automatically clusters nearby objects even if they differ in shape, color, or size.</div>
+    </div>
+    <div class="concept-card" onclick="toggleConcept(this)">
+      <div class="c-title">🎨 Similarity</div>
+      <div class="c-def">Items sharing color or shape are grouped together.</div>
+      <span class="tag tag-key">Gestalt</span>
+      <div class="concept-detail">The brain groups elements that share visual characteristics (shape, color, size, orientation), even if they are not close to each other spatially.</div>
+    </div>
+    <div class="concept-card" onclick="toggleConcept(this)">
+      <div class="c-title">⭕ Closure</div>
+      <div class="c-def">Brain fills in missing information to perceive complete familiar objects.</div>
+      <span class="tag tag-exam">MCQ Fav</span>
+      <div class="concept-detail">
+        <strong>Example:</strong> Dotted circle → perceived as full circle.<br>
+        <strong>Key feature:</strong> Automatic and inborn — does not require effort.<br>
+        <strong>Clinical relevance:</strong> Related to why we "see" faces in random patterns (pareidolia).
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="card-title" style="margin-bottom:12px;font-family:'Syne',sans-serif;">Topic 3 — Depth Perception</div>
+  <div class="concept-grid">
+    <div class="concept-card" onclick="toggleConcept(this)" style="--accent-stripe:linear-gradient(90deg,#f59e0b,#d97706)">
+      <div class="c-title">👁️ Monocular Cues (6)</div>
+      <div class="c-def">Depth cues available to one eye alone.</div>
+      <span class="tag tag-yield">High Yield</span>
+      <div class="concept-detail">
+        <strong>1. Texture Gradient:</strong> Fine textures = distant; coarse = near.<br>
+        <strong>2. Linear Perspective:</strong> Parallel lines converge in distance (railroad tracks).<br>
+        <strong>3. Superposition:</strong> Near object partially hides far object (chicken in front of farmer).<br>
+        <strong>4. Shadowing:</strong> Light & shadow convey 3D shape.<br>
+        <strong>5. Speed of Movement:</strong> Near objects cross field faster.<br>
+        <strong>6. Aerial Perspective:</strong> Distant objects appear bluish/hazy (water vapor scatter).
+      </div>
+    </div>
+    <div class="concept-card" onclick="toggleConcept(this)" style="--accent-stripe:linear-gradient(90deg,var(--accent),var(--accent2))">
+      <div class="c-title">👀 Binocular Cues (2)</div>
+      <div class="c-def">Depth cues requiring both eyes working together.</div>
+      <span class="tag tag-yield">High Yield</span>
+      <div class="concept-detail">
+        <strong>1. Convergence:</strong> Extraocular muscles angle both eyes inward for near objects. More angle = closer object.<br>
+        <strong>2. Retinal Disparity:</strong> Eyes ~6.5 cm apart see slightly different images. Brain uses this difference to triangulate precise depth — especially effective for near objects.
+      </div>
+    </div>
+    <div class="concept-card" onclick="toggleConcept(this)">
+      <div class="c-title">🔄 Perceptual Constancy</div>
+      <div class="c-def">Stable perception despite changing retinal input.</div>
+      <span class="tag tag-pearl">Pearl</span>
+      <div class="concept-detail">
+        <strong>Brightness:</strong> White paper looks white in dim or bright light.<br>
+        <strong>Color:</strong> Apple looks red under incandescent or LED light.<br>
+        <strong>Size:</strong> Friend walking away doesn't seem to shrink.<br>
+        <strong>Shape:</strong> Round pot looks round even viewed at an angle.
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="card-title" style="margin-bottom:12px;font-family:'Syne',sans-serif;">Topic 4 — Pitfalls & Faulty Perception</div>
+  <div class="concept-grid">
+    <div class="concept-card" onclick="toggleConcept(this)" style="--accent-stripe:linear-gradient(90deg,#ef4444,#b91c1c)">
+      <div class="c-title">👻 Hallucination</div>
+      <div class="c-def">Vivid sensory experience with <strong>NO</strong> external stimulus present.</div>
+      <span class="tag tag-exam">⚠️ #1 Exam</span>
+      <div class="concept-detail">
+        <strong>Types:</strong> Auditory (most common in psychosis), Visual, Tactile, Olfactory, Gustatory.<br>
+        <strong>Hypnagogic:</strong> Hallucination at sleep onset (normal variant).<br>
+        <strong>Hypnopompic:</strong> At waking (normal variant).<br>
+        <strong>Clinical sign:</strong> Key indicator for psychiatric evaluation — no stimulus, yet perception exists.
+      </div>
+    </div>
+    <div class="concept-card" onclick="toggleConcept(this)" style="--accent-stripe:linear-gradient(90deg,#f59e0b,#92400e)">
+      <div class="c-title">🎭 Illusion</div>
+      <div class="c-def">Misinterpretation of a <strong>real</strong> external stimulus.</div>
+      <span class="tag tag-exam">⚠️ #1 Exam</span>
+      <div class="concept-detail">
+        <strong>Causes:</strong> Physical (mirrors, light), Habit/familiarity, Set/expectation (waiting for a call → doorbell sounds like phone), Camouflage, Emotional state.<br>
+        <strong>Key distinction:</strong> A real stimulus EXISTS but is misinterpreted. Unlike hallucination where nothing exists.
+      </div>
+    </div>
+    <div class="concept-card" onclick="toggleConcept(this)">
+      <div class="c-title">😶 Depersonalization</div>
+      <div class="c-def">Perceiving oneself as changed or different.</div>
+      <span class="tag tag-key">Know Def</span>
+      <div class="concept-detail">The person feels detached from their own thoughts, feelings, or body — like an outside observer. No stimulus is fabricated; reality testing is intact.</div>
+    </div>
+    <div class="concept-card" onclick="toggleConcept(this)">
+      <div class="c-title">🌫️ Derealization</div>
+      <div class="c-def">Perceiving the external world as changed or unreal.</div>
+      <span class="tag tag-key">Know Def</span>
+      <div class="concept-detail">The person experiences their surroundings as dreamlike, foggy, or unreal. Contrast with depersonalization (self) — derealization affects the perception of the external world.</div>
+    </div>
+    <div class="concept-card" onclick="toggleConcept(this)">
+      <div class="c-title">⭐ Halo Effect</div>
+      <div class="c-def">One positive dominant trait → assume all traits are positive.</div>
+      <span class="tag tag-exam">MCQ</span>
+      <div class="concept-detail"><strong>Example:</strong> Attractive person assumed to be also intelligent, kind, and honest.<br><strong>Mechanism:</strong> Cognitive shortcut bypassing objective evaluation of each trait.</div>
+    </div>
+    <div class="concept-card" onclick="toggleConcept(this)">
+      <div class="c-title">😈 Devil Effect</div>
+      <div class="c-def">One negative dominant trait → assume all traits are negative.</div>
+      <span class="tag tag-exam">MCQ</span>
+      <div class="concept-detail"><strong>Example:</strong> Unattractive person assumed to be dumb or dishonest.<br><strong>Opposite:</strong> Halo effect (positive). Devil effect → horns effect in some texts.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- COMPARE -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="section-compare">
+  <div class="section-title">📊 Comparison Tables</div>
+  <p class="section-desc">Side-by-side comparison of the most tested differentials.</p>
+
+  <div class="card mb-16">
+    <div class="card-title" style="font-family:'Syne',sans-serif;font-size:16px;margin-bottom:16px;">⚡ Illusion vs Hallucination <span class="tag tag-exam">⚠️ Most Tested</span></div>
+    <div style="overflow-x:auto;">
+      <table class="compare-table">
+        <thead><tr><th>Feature</th><th>Illusion</th><th>Hallucination</th></tr></thead>
+        <tbody>
+          <tr><td class="t-head">External Stimulus?</td><td class="text-green">✅ Present (real)</td><td class="text-red">❌ Absent</td></tr>
+          <tr><td class="t-head">Definition</td><td>Misinterpretation of a real stimulus</td><td>Vivid sensory impression with no stimulus</td></tr>
+          <tr><td class="t-head">Mechanism</td><td>Manipulation of cues, expectation, habit</td><td>Internally generated neurological signals</td></tr>
+          <tr><td class="t-head">Example</td><td>Coat in dim room looks like a person</td><td>Hearing voices in an empty, silent room</td></tr>
+          <tr><td class="t-head">Normal Occurrence?</td><td>Yes — everyone experiences them</td><td>Mostly pathological (except hypnagogic/pompic)</td></tr>
+          <tr><td class="t-head">Regulation</td><td>Habit, set, emotional state</td><td>Pathological states, psychosis, drugs</td></tr>
+          <tr><td class="t-head">Clinical Significance</td><td>Shows perceptual processing limits</td><td>Key psychiatric evaluation indicator</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card mb-16">
+    <div class="card-title" style="font-family:'Syne',sans-serif;font-size:16px;margin-bottom:16px;">👁️ Monocular vs Binocular Depth Cues</div>
+    <div style="overflow-x:auto;">
+      <table class="compare-table">
+        <thead><tr><th>Feature</th><th>Monocular Cues</th><th>Binocular Cues</th></tr></thead>
+        <tbody>
+          <tr><td class="t-head">Eyes Required</td><td>One eye</td><td>Both eyes</td></tr>
+          <tr><td class="t-head">Number of Cues</td><td>6 (texture, linear, super, shadow, speed, aerial)</td><td>2 (convergence, retinal disparity)</td></tr>
+          <tr><td class="t-head">Best For Distance</td><td>Far distances (landscapes)</td><td>Near object precision</td></tr>
+          <tr><td class="t-head">Mechanism</td><td>Environmental/retinal processing</td><td>Eye muscle angle + dual retinal input</td></tr>
+          <tr><td class="t-head">Example</td><td>Railroad tracks converging (linear perspective)</td><td>Eyes crossing for a near pen (convergence)</td></tr>
+          <tr><td class="t-head">Paintings/Art</td><td>Used by artists for 3D effect on 2D canvas</td><td>Cannot replicate binocular cues on flat surface</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card mb-16">
+    <div class="card-title" style="font-family:'Syne',sans-serif;font-size:16px;margin-bottom:16px;">🌀 Perceptual Phenomena — Quick Differentials</div>
+    <div style="overflow-x:auto;">
+      <table class="compare-table">
+        <thead><tr><th>Phenomenon</th><th>Definition</th><th>Key Feature</th></tr></thead>
+        <tbody>
+          <tr><td class="t-head">De Jà Vu</td><td>Novel situation feels familiar</td><td>Foreign → Familiar</td></tr>
+          <tr><td class="t-head">Jamais Vu</td><td>Familiar situation feels novel/strange</td><td>Familiar → Foreign</td></tr>
+          <tr><td class="t-head">Depersonalization</td><td>Self feels changed/unreal</td><td>Altered SELF perception</td></tr>
+          <tr><td class="t-head">Derealization</td><td>World feels changed/unreal</td><td>Altered WORLD perception</td></tr>
+          <tr><td class="t-head">Halo Effect</td><td>1 positive trait → all positive</td><td>Positive overgeneralization</td></tr>
+          <tr><td class="t-head">Devil Effect</td><td>1 negative trait → all negative</td><td>Negative overgeneralization</td></tr>
+          <tr><td class="t-head">Contrast Effect</td><td>Judged relative to another person</td><td>Comparison-based skew</td></tr>
+          <tr><td class="t-head">Stereotypy</td><td>Judged by group membership</td><td>Group-based assumption</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="font-family:'Syne',sans-serif;font-size:16px;margin-bottom:16px;">🌐 Extrasensory Perception Types</div>
+    <div style="overflow-x:auto;">
+      <table class="compare-table">
+        <thead><tr><th>Type</th><th>Definition</th><th>Direction</th></tr></thead>
+        <tbody>
+          <tr><td class="t-head">Telepathy</td><td>Mind-to-mind communication of thoughts</td><td>Person → Person</td></tr>
+          <tr><td class="t-head">Clairvoyance</td><td>Knowing events at another time or place</td><td>Remote location/time</td></tr>
+          <tr><td class="t-head">Precognition</td><td>Knowing future events before they happen</td><td>Present → Future</td></tr>
+          <tr><td class="t-head">Psychokinesis</td><td>Mind exerts force on physical objects</td><td>Mind → Matter</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- MNEMONICS -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="section-mnemonics">
+  <div class="section-title">🧩 Mnemonics</div>
+  <p class="section-desc">Memory aids custom-crafted from your lecture content. Click to expand!</p>
+  <div id="mnemContainer"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- VIVA -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="section-viva">
+  <div class="section-title">💬 Viva Questions</div>
+  <p class="section-desc">12 classic viva questions with model answers. Practice out loud!</p>
+  <div id="vivaContainer"></div>
+</div>
+
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+//  DATA
+// ════════════════════════════════════════════════════════════════
+
+const quizData = [
+  {
+    q: "Which process represents the physiological aspect of receiving meaningless bits of information from external stimuli?",
+    opts: ["Interpretation","Sensation","Perceptual Grouping","Halo Effect","Superposition"],
+    ans: 1,
+    explain: "Sensation is our first awareness of a stimulus — sense organs produce electrical signals the brain converts into meaningless bits of data. Meaning is only assigned later during interpretation."
+  },
+  {
+    q: "What mechanism allows individuals to perceive missing sensory information in familiar figures as complete wholes?",
+    opts: ["Proximity","Similarity","Closure","Continuity","Camouflage"],
+    ans: 2,
+    explain: "Closure is the automatic Gestalt tendency to fill in gaps in familiar patterns. For example, a dotted circle is perceived as a complete circle."
+  },
+  {
+    q: "A vase that can also be viewed as two faces facing each other demonstrates which Gestalt rule?",
+    opts: ["Retinal Disparity","Reversible Figure-Ground","Texture Gradient","Size Constancy","Illusion"],
+    ans: 1,
+    explain: "This is Rubin's vase — the classic figure-ground reversibility example. The brain can alternate between seeing a vase (figure) or faces (figure), but never both simultaneously."
+  },
+  {
+    q: "Which depth cue mechanism involves the eyes angling inward more sharply for near objects?",
+    opts: ["Retinal Disparity","Convergence","Linear Perspective","Shadowing","Texture Gradient"],
+    ans: 1,
+    explain: "Convergence uses information from extraocular muscles. The more sharply the eyes turn inward, the closer the object. It's a binocular cue requiring both eyes."
+  },
+  {
+    q: "How does Retinal Disparity function to provide depth perception?",
+    opts: ["By interpreting water vapor scattering light","By evaluating the shadow cast by an object","By comparing the slightly different images seen by the two eyes","By assessing parallel lines converging","By viewing overlapping objects"],
+    ans: 2,
+    explain: "The two eyes are ~6.5 cm apart, so they receive slightly different retinal images. The brain uses this disparity to compute precise 3D depth — especially effective at near distances."
+  },
+  {
+    q: "Why do distant objects appear to have a bluish, hazy appearance?",
+    opts: ["Brightness constancy","Speed of movement","Aerial perspective","Camouflage","Stereotypy"],
+    ans: 2,
+    explain: "Aerial perspective occurs because atmospheric water vapor and pollution scatter light waves, making distant objects appear bluer and hazier. It's a monocular depth cue used especially for vast distances."
+  },
+  {
+    q: "Which term defines a misinterpretation of a REAL external stimulus?",
+    opts: ["Hallucination","Illusion","Sensation","Depersonalization","Telepathy"],
+    ans: 1,
+    explain: "An illusion requires a real external stimulus that is misinterpreted. This is the key MCQ differentiator — unlike hallucination, where NO stimulus exists."
+  },
+  {
+    q: "Which condition is defined by a mental impression of sensory vividness in the ABSENCE of an external stimulus?",
+    opts: ["Illusion","Figure-Ground","Hallucination","Derealization","Superposition"],
+    ans: 2,
+    explain: "Hallucination = vivid sensory experience without any external trigger. It can be auditory, visual, tactile, olfactory, or gustatory. It is a critical psychiatric evaluation marker."
+  },
+  {
+    q: "Expecting an important call and mistakenly perceiving the doorbell as the phone is an illusion caused by:",
+    opts: ["Physical causes","Unanalyzed total impression","Set and expectation","Camouflage","Habit"],
+    ans: 2,
+    explain: "Set is a selective preparedness shaped by our current expectation. We are 'primed' to hear the phone, so the doorbell is misinterpreted. This differs from habit (long-term) and physical causes (environmental)."
+  },
+  {
+    q: "Evaluating an unattractive person as inherently less intelligent is known as:",
+    opts: ["Halo Effect","Devil Effect","Stereotypy","Contrast Effect","Jamais Vu"],
+    ans: 1,
+    explain: "The Devil Effect (also called the horns effect) means one negative dominant trait (unattractiveness) causes the observer to negatively generalize all other traits. The opposite of the Halo Effect."
+  },
+  {
+    q: "The phenomenon where a person feels they have experienced a novel situation before is:",
+    opts: ["Jamais Vu","Depersonalization","De Jà Vu","Derealization","Clairvoyance"],
+    ans: 2,
+    explain: "De Jà Vu is incorrectly recognizing a foreign/novel subject as familiar. Jamais Vu is the inverse — denying familiarity of something well-known."
+  },
+  {
+    q: "Which regulatory mechanism causes lovers to disregard the faults of their partners?",
+    opts: ["Habit and familiarity","Emotions","Aesthetic factor","Drive and motivation","Hypnosis"],
+    ans: 1,
+    explain: "Feelings and emotions are powerful internal factors that distort objective perception, causing people to overlook flaws in those they love — a real-world example of internal factors influencing perception."
+  },
+  {
+    q: "In extrasensory perception, knowing an event happening at another time or place is:",
+    opts: ["Telepathy","Precognition","Psychokinesis","Clairvoyance","Hallucination"],
+    ans: 3,
+    explain: "Clairvoyance = remote knowledge of events at another location or time. Telepathy = mind-to-mind. Precognition = future events. Psychokinesis = mind affecting matter."
+  },
+  {
+    q: "The Primacy and Recency theory suggests the mind privileges things that come:",
+    opts: ["In the middle","Only at the end","First and last","Consecutively","In groups of three"],
+    ans: 2,
+    explain: "The mind best retains items that come first (primacy effect) and last (recency effect) in a series. Items in the middle are most often forgotten — directly relevant to studying and memory!"
+  },
+  {
+    q: "Which monocular cue explains why a chicken closer to the camera obscures part of the farmer standing behind it?",
+    opts: ["Linear perspective","Shadowing","Superposition","Texture gradient","Convergence"],
+    ans: 2,
+    explain: "Superposition (interposition) = a nearer object partially covering a more distant object. This partial occlusion signals depth without requiring two eyes."
+  },
+  {
+    q: "Perceiving a pot as retaining its shape despite viewing it from different retinal angles relies on:",
+    opts: ["Size constancy","Shape constancy","Brightness constancy","Illusion","Closure"],
+    ans: 1,
+    explain: "Shape constancy — the brain automatically adjusts for viewing angle and maintains the learned physical shape of objects. A round pot looks round even viewed obliquely."
+  },
+  {
+    q: "The physiological signal resulting from a stimulus reaching the sensory receptors is initially:",
+    opts: ["Meaningful","An action","Meaningless bits of information","An illusion","An interpretation"],
+    ans: 2,
+    explain: "Sensation produces meaningless electrical signals. Meaning is ONLY assigned in sensory association areas during the interpretation phase — NOT during initial reception."
+  },
+  {
+    q: "A proofreader missing a typo ('amatomy' instead of 'anatomy') experiences an illusion primarily due to:",
+    opts: ["Physical causes","Habit and familiarity","Set and expectation","Unanalyzed total impression","Contrast effect"],
+    ans: 1,
+    explain: "Long-term familiarity with the correct word causes the brain to overlook the misprint — it 'auto-corrects' based on habit. Different from set (immediate expectation) which is situational."
+  },
+  {
+    q: "Perceiving the world using multiple sense organs simultaneously is termed:",
+    opts: ["Monocular integration","Perceptual constancy","Multisensory integration","Telepathy","Continuity"],
+    ans: 2,
+    explain: "Multisensory integration = the brain simultaneously processing and interpreting input from multiple sense organs (sight, sound, touch, smell, taste) to create a unified percept."
+  },
+  {
+    q: "Seeing objects farther away as moving more slowly across the visual field than closer ones relates to:",
+    opts: ["Aerial perspective","Linear perspective","Speed of movement","Convergence","Psychokinesis"],
+    ans: 2,
+    explain: "Speed of movement is a monocular cue: objects closer to us appear to move across the visual field faster than distant ones, even if moving at the same actual speed — think of trees vs. distant hills from a car."
+  },
+  {
+    q: "Grouping objects by similar colors or shapes is driven by the Gestalt principle of:",
+    opts: ["Proximity","Closure","Similarity","Continuity","Set"],
+    ans: 2,
+    explain: "Similarity groups elements sharing visual characteristics (shape, color, size) even if spatially apart. Proximity groups by nearness. Closure fills in gaps. Continuity maintains direction."
+  },
+  {
+    q: "Derealization is defined as:",
+    opts: ["Perceiving oneself as different","Perceiving the world as different","Denying familiarity of a known object","False perception of an external stimulus","Predicting future events"],
+    ans: 1,
+    explain: "Derealization = the external world appears strange, unreal, or dreamlike. Contrast with depersonalization (altered perception of the SELF). Reality testing is intact in both."
+  },
+  {
+    q: "Camouflage causes faulty perception primarily by:",
+    opts: ["Creating a hallucination","Making others blind to presence","Inducing clairvoyance","Changing the observer's set","Increasing retinal disparity"],
+    ans: 1,
+    explain: "Camouflage is an intentional visual strategy that uses the principle of figure-ground to make a subject blend with its background, preventing detection. It does not create hallucinations."
+  },
+  {
+    q: "Evaluating a candidate as below-average because you just interviewed an outstanding candidate is an example of:",
+    opts: ["Halo effect","Stereotypy","Contrast effect","Devil effect","Set"],
+    ans: 2,
+    explain: "Contrast Effect = a person's characteristics are judged as artificially lower or higher due to comparison with someone ranked much higher or lower immediately before. Halo/Devil are about a single trait, not comparison."
+  },
+  {
+    q: "Which factor distinguishes a binocular cue from a monocular cue in depth perception?",
+    opts: ["Binocular cues only work at distances >100m","Monocular cues require brain processing; binocular do not","Binocular cues require input from two eyes; monocular cues work with one","Binocular cues are learned; monocular are innate","Monocular cues use shadow; binocular use texture"],
+    ans: 2,
+    explain: "The defining distinction: binocular cues (convergence + retinal disparity) require both eyes simultaneously. Monocular cues work perfectly with just one eye — useful for people with monocular vision loss."
+  }
+];
+
+const flashcards = [
+  {q:"What is sensation?", a:"The first awareness of an outside stimulus. Sensory receptors convert stimuli into electrical signals — initially meaningless bits of information, before perceptual processing."},
+  {q:"What is perception?", a:"The active cognitive process of selecting, organizing, and interpreting sensory input to assign meaningful understanding to our experiences."},
+  {q:"What is the Gestalt principle of Closure?", a:"The automatic tendency to fill in missing information to perceive incomplete figures of familiar objects as complete wholes (e.g., dotted circle seen as full circle)."},
+  {q:"Define Figure-Ground reversibility.", a:"The brain separates visual scenes into a focal object (figure) and background (ground). In ambiguous images, this relationship can reverse — but both cannot be perceived simultaneously."},
+  {q:"Name the 6 monocular depth cues.", a:"1. Texture gradient  2. Linear perspective  3. Superposition (interposition)  4. Shadowing  5. Speed of movement  6. Aerial perspective"},
+  {q:"Name the 2 binocular depth cues.", a:"1. Convergence — extraocular muscles angle eyes inward for near objects.  2. Retinal Disparity — slightly different images on each retina allow depth triangulation."},
+  {q:"Illusion vs Hallucination — key difference?", a:"Illusion: REAL stimulus is MISINTERPRETED.  Hallucination: VIVID sensory experience with NO external stimulus at all."},
+  {q:"Define the Halo Effect.", a:"One positive dominant trait (e.g., attractiveness) causes the observer to assume all other traits are also positive (intelligent, kind, honest) — bypassing objective evaluation."},
+  {q:"Define the Devil Effect.", a:"One negative dominant trait causes the observer to negatively generalize ALL other traits of the person. The negative mirror of the Halo Effect."},
+  {q:"What is the Contrast Effect?", a:"Evaluating someone's characteristics as artificially lower or higher because you just evaluated someone who ranked much higher or lower immediately before."},
+  {q:"De Jà Vu vs Jamais Vu — difference?", a:"De Jà Vu: novel subject feels familiar.  Jamais Vu: familiar subject feels novel/foreign."},
+  {q:"Depersonalization vs Derealization — difference?", a:"Depersonalization: altered perception of the SELF.  Derealization: altered perception of the EXTERNAL WORLD."},
+  {q:"What are the 4 types of Perceptual Constancy?", a:"1. Brightness — stable despite light changes  2. Color — stable despite lighting  3. Size — stable despite distance  4. Shape — stable despite viewing angle"},
+  {q:"What is the Primacy and Recency theory?", a:"The mind privileges and best remembers items that come FIRST (primacy) and LAST (recency) in a series. Middle items are most often forgotten."},
+  {q:"What is Aerial Perspective?", a:"A monocular depth cue — distant objects appear bluish and hazy because atmospheric water vapor and pollution scatter light waves reaching the retina."},
+  {q:"What is Superposition (interposition)?", a:"A monocular depth cue — a closer object partially overlaps and obscures a more distant one, signaling relative depth without needing two eyes."},
+  {q:"What is Clairvoyance?", a:"A form of extrasensory perception involving knowledge of events occurring at a different time or place, beyond normal sensory range."},
+  {q:"Name the 4 Gestalt grouping principles.", a:"1. Continuity — resists pattern breaks  2. Proximity — nearness = grouping  3. Similarity — like shapes/colors grouped  4. Closure — fills missing info"},
+  {q:"What is Stereotypy in perception?", a:"A perceptual pitfall where a person is evaluated solely based on membership in a group, rather than as an individual."},
+  {q:"What is multisensory integration?", a:"The brain's ability to simultaneously process and combine information from multiple sense organs (sight, sound, touch, etc.) to form a unified, coherent percept."}
+];
+
+const casesData = [
+  {
+    num: 1,
+    title: "The Mirage in the Desert",
+    vignette: "A dehydrated traveler in the desert is convinced he sees a pool of water shimmering in the distance. He walks toward it for 20 minutes before realizing it is just sand and heat haze. No actual water was present anywhere near his path.",
+    questions: [
+      {
+        q: "Q1: What type of perceptual error is this and why?",
+        reveal: "This is an ILLUSION. A real external stimulus exists (heat haze, light refraction on sand), which the brain misinterprets as water due to a strong internal drive (thirst/dehydration). The stimulus is real; the interpretation is faulty."
+      },
+      {
+        q: "Q2: What internal factor is the primary driver of this misperception?",
+        reveal: "Drive and motivation — specifically the physiological drive of extreme thirst. Internal states like hunger, thirst, or fear can powerfully override accurate sensory interpretation, causing the brain to 'see' what it desperately needs."
+      },
+      {
+        q: "Q3: Why is this NOT classified as a hallucination?",
+        reveal: "Because a real physical stimulus EXISTS — the heat haze and light refraction are real optical phenomena. A hallucination would require an experience with absolutely no external stimulus at all. In this case, the sensory input exists but is misread."
+      }
+    ]
+  },
+  {
+    num: 2,
+    title: "The Whispering Patient",
+    vignette: "A 28-year-old patient presents to the psychiatry clinic stating he has been hearing people whispering his name repeatedly for the past 3 weeks. His family confirms the house is completely quiet during these episodes. No ambient noise sources are present. He is fully alert and oriented.",
+    questions: [
+      {
+        q: "Q1: What is the most likely perceptual phenomenon occurring?",
+        reveal: "Auditory HALLUCINATION. There is no external stimulus — the room is confirmed to be silent — yet the patient perceives vivid, meaningful sound (voices whispering his name). This is the defining criterion for hallucination."
+      },
+      {
+        q: "Q2: What is the clinical significance of this finding?",
+        reveal: "Auditory hallucinations are the most common hallucination type in psychotic disorders, especially schizophrenia. Their presence in a clear sensorium (alert and oriented patient) is a major psychiatric red flag requiring urgent evaluation. This differentiates from hypnagogic hallucinations (at sleep onset) which are normal."
+      }
+    ]
+  },
+  {
+    num: 3,
+    title: "The Reversible Vase",
+    vignette: "During a psychology experiment, a subject is shown the Rubin's Vase image — an ambiguous figure that can be seen as either a white vase on a black background, or two black faces looking at each other. Simultaneously, a loud unexpected bang occurs in the next room. The subject, who has been waiting for a friend to knock, assumes it was a knock at the door.",
+    questions: [
+      {
+        q: "Q1: Which Gestalt principle does the vase image demonstrate?",
+        reveal: "Figure-Ground reversibility. The brain can alternate between perceiving the white shape (vase = figure, black = ground) or the black shapes (faces = figure, white = ground). Crucially, both cannot be perceived simultaneously — only one at a time."
+      },
+      {
+        q: "Q2: What type of perceptual error is the sound misidentification, and what caused it?",
+        reveal: "The sound misidentification is an ILLUSION caused by Set and Expectation. A real sound (the bang) exists and is misinterpreted as a knock because the subject is primed to hear a knock. This is 'set' — a selective preparedness based on immediate expectation."
+      },
+      {
+        q: "Q3: Under what condition would the sound be classified as a hallucination instead?",
+        reveal: "If there was NO actual sound in the next room — if the bang never occurred — and the subject heard it anyway, it would be a hallucination. The key criterion: no external sound stimulus = hallucination; real sound misinterpreted = illusion."
+      }
+    ]
+  },
+  {
+    num: 4,
+    title: "The Railroad Tracks",
+    vignette: "A medical student studying perceptual cues photographs a long, straight railway track stretching into the distance. Looking at the photo, the parallel tracks appear to converge to a point at the horizon, even though in reality the rails are a constant distance apart. A second photo shows distant mountains looking slightly bluish and indistinct compared to nearby hills.",
+    questions: [
+      {
+        q: "Q1: What monocular depth cue is demonstrated by the railway tracks?",
+        reveal: "Linear Perspective. Parallel lines that we know to be equidistant appear to converge as they recede into the distance. The brain interprets this convergence as a depth cue — the more they converge, the farther away they are perceived to be."
+      },
+      {
+        q: "Q2: What monocular depth cue explains the bluish appearance of distant mountains?",
+        reveal: "Aerial Perspective (atmospheric perspective). Water vapor and atmospheric particles scatter shorter wavelengths of light (blue), giving distant objects a hazy, bluish tint. Artists use this cue to create illusions of great depth in 2D paintings."
+      },
+      {
+        q: "Q3: Why are both of these classified as MONOCULAR cues?",
+        reveal: "They both work with just one eye — they don't rely on the comparison between two retinal images (retinal disparity) or eye muscle positioning (convergence). A person with monocular vision can still use all these environmental cues to perceive depth."
+      }
+    ]
+  },
+  {
+    num: 5,
+    title: "The Interview Panel",
+    vignette: "A hospital hiring committee interviews 3 candidates back-to-back. Candidate A is exceptional with outstanding credentials. Candidate B is average, but after interviewing A, the panel rates B significantly below their objective performance. Separately, another evaluator rates Candidate C as 'brilliant, kind, and ethical' primarily because C is physically attractive. A fourth candidate is rated as 'probably lazy and unreliable' because they seem unattractive.",
+    questions: [
+      {
+        q: "Q1: What perceptual pitfall affects the rating of Candidate B?",
+        reveal: "The Contrast Effect. Candidate B's characteristics are evaluated as artificially lower because they are compared immediately after an outstanding performer (Candidate A). The same candidate evaluated without this comparison would likely receive a more accurate rating."
+      },
+      {
+        q: "Q2: What perceptual pitfall affects the evaluation of Candidate C?",
+        reveal: "The Halo Effect. Physical attractiveness (one positive trait) is causing the evaluator to assume all other traits (intelligence, kindness, ethics) are also positive. The evaluator is bypassing objective assessment of each trait individually."
+      },
+      {
+        q: "Q3: What pitfall affects the evaluation of the unattractive candidate?",
+        reveal: "The Devil Effect (Horns Effect). One negative dominant trait (unattractiveness) causes the evaluator to negatively generalize ALL other traits (lazy, unreliable). This is the negative mirror image of the Halo Effect."
+      }
+    ]
+  }
+];
+
+const mnemData = [
+  {
+    name: "SOCIA",
+    phrase: "The 5-step Perceptual Process",
+    color: "#00c8ff",
+    bgColor: "rgba(0,200,255,0.1)",
+    items: [
+      {letter:"S", word:"Stimuli Reception", desc:"Sense organs receive the external stimuli as the starting point"},
+      {letter:"O", word:"Organization", desc:"Gestalt principles organize raw data into meaningful patterns"},
+      {letter:"C", word:"Cognition / Interpretation", desc:"Sensory association areas assign meaning to organized data"},
+      {letter:"I", word:"Internal + External filtering", desc:"Selection is regulated by both internal (emotion, drive) and external (size, movement) factors"},
+      {letter:"A", word:"Action Output", desc:"Final output — overt behavior or covert attitude change"}
+    ]
+  },
+  {
+    name: "GAPSCL",
+    phrase: "6 Monocular Depth Cues",
+    color: "#f59e0b",
+    bgColor: "rgba(245,158,11,0.1)",
+    items: [
+      {letter:"G", word:"Gradient (Texture)", desc:"Fine textures = far; coarse textures = near"},
+      {letter:"A", word:"Aerial Perspective", desc:"Distant objects look bluish and hazy"},
+      {letter:"P", word:"Perspective (Linear)", desc:"Parallel lines appear to converge in the distance"},
+      {letter:"S", word:"Superposition", desc:"Closer objects partially overlap distant ones"},
+      {letter:"C", word:"Cast Shadow / Shadowing", desc:"Light & shadow convey 3D form"},
+      {letter:"L", word:"Locomotion Speed", desc:"Near objects cross the visual field faster"}
+    ]
+  },
+  {
+    name: "CPSS",
+    phrase: "4 Gestalt Grouping Rules",
+    color: "#10b981",
+    bgColor: "rgba(16,185,129,0.1)",
+    items: [
+      {letter:"C", word:"Continuity", desc:"Patterns continue in their established direction — no breaking"},
+      {letter:"P", word:"Proximity", desc:"Nearby items are grouped together automatically"},
+      {letter:"S", word:"Similarity", desc:"Items sharing color/shape are grouped together"},
+      {letter:"S", word:"(C)losure", desc:"Missing info is filled in to complete familiar shapes"}
+    ]
+  },
+  {
+    name: "HiDe",
+    phrase: "Illusion vs Hallucination — Quick Rule",
+    color: "#ef4444",
+    bgColor: "rgba(239,68,68,0.1)",
+    items: [
+      {letter:"H", word:"Has a stimulus? → Illusion!", desc:"If a real external stimulus exists and is misread → ILLUSION"},
+      {letter:"i", word:"is absent? → Hallucination!", desc:"If NO stimulus exists but you still perceive → HALLUCINATION"},
+      {letter:"D", word:"De Jà Vu = familiar feeling for new things", desc:"Foreign → Familiar. Jamais Vu is the opposite."},
+      {letter:"e", word:"Effect (Halo/Devil) = 1 trait → all traits", desc:"Halo = 1 positive trait overgeneralizes. Devil = 1 negative trait overgeneralizes."}
+    ]
+  },
+  {
+    name: "TCPP",
+    phrase: "4 Extrasensory Perception Types",
+    color: "#a78bfa",
+    bgColor: "rgba(124,58,237,0.1)",
+    items: [
+      {letter:"T", word:"Telepathy", desc:"Thought-to-thought communication between minds"},
+      {letter:"C", word:"Clairvoyance", desc:"Clear sight of remote events — different time or place"},
+      {letter:"P", word:"Precognition", desc:"Pre-knowing: knowledge of future events"},
+      {letter:"P", word:"Psychokinesis", desc:"Physical movement of objects using mental power only"}
+    ]
+  },
+  {
+    name: "BSCS",
+    phrase: "4 Perceptual Constancies",
+    color: "#06b6d4",
+    bgColor: "rgba(6,182,212,0.1)",
+    items: [
+      {letter:"B", word:"Brightness Constancy", desc:"White stays white in dim or bright light"},
+      {letter:"S", word:"Size Constancy", desc:"Friend walking away doesn't appear to shrink"},
+      {letter:"C", word:"Color Constancy", desc:"Apple looks red under any lighting"},
+      {letter:"S", word:"Shape Constancy", desc:"Round pot looks round at any viewing angle"}
+    ]
+  }
+];
+
+const vivaData = [
+  {q:"What is the difference between sensation and perception?", a:"Sensation is the physiological reception of raw, meaningless stimuli via sense organs — producing electrical signals without interpretation. Perception is the active cognitive process of organizing and assigning meaning to those stimuli through selection, organization (Gestalt), interpretation (association areas), and producing an action output.", icon:"🔬"},
+  {q:"How does the Gestalt rule of Closure work?", a:"Closure is the automatic, inborn tendency of the brain to fill in missing sensory information. When we see an incomplete but familiar figure (e.g., a dotted circle), the brain automatically completes it into a full circle without conscious effort. It simplifies complex environments by completing familiar patterns.", icon:"⭕"},
+  {q:"Define Perceptual Constancy and give examples.", a:"Perceptual constancy means the brain maintains stable perception of the physical world despite changing sensory input at the retina. Types: Brightness (white paper stays white in dim or bright light), Color (apple looks red under any light), Size (friend walking away doesn't appear smaller), Shape (round pot looks round from any angle).", icon:"🔄"},
+  {q:"Give two examples of monocular cues and explain each.", a:"1. Linear Perspective: parallel lines (e.g., railroad tracks) appear to converge in the distance — the brain interprets convergence as depth. 2. Aerial Perspective: distant objects appear bluish and hazy because atmospheric water vapor scatters light waves, providing a cue that the object is far away.", icon:"👁️"},
+  {q:"What are the two binocular cues?", a:"1. Convergence: extraocular muscles angle both eyes inward when viewing near objects — more inward angle = closer object. 2. Retinal Disparity: because the eyes are ~6.5 cm apart, each retina receives a slightly different image. The brain computes depth from this difference — especially precise for near objects.", icon:"👀"},
+  {q:"What is the defining difference between an illusion and a hallucination? (⚠️ Exam Favorite)", a:"An ILLUSION is a misinterpretation of a REAL external stimulus that actually exists. A HALLUCINATION is a vivid sensory impression occurring in the TOTAL ABSENCE of any external stimulus. Memory tip: Illusion = real stimulus mis-read. Hallucination = nothing there, yet perceived.", icon:"⚠️"},
+  {q:"Explain the Halo Effect with a clinical example.", a:"The Halo Effect is a perceptual error where one positive dominant characteristic causes the observer to assume all other traits are also positive. Example: An attractive, well-dressed patient is assumed to be educated, cooperative, and reliable by a clinician who hasn't yet spoken with them — bypassing objective clinical assessment.", icon:"⭐"},
+  {q:"What is Stereotypy in interpersonal perception?", a:"Stereotypy is a perceptual pitfall where a person is judged and evaluated solely based on their membership in a group (ethnic, professional, social), rather than on their individual characteristics. It bypasses objective individual assessment and leads to systematic perceptual errors.", icon:"👥"},
+  {q:"Differentiate De Jà Vu from Jamais Vu.", a:"De Jà Vu: incorrectly recognizing a novel/foreign subject or situation as familiar — 'I've been here before' when you haven't. Jamais Vu: denying familiarity of something you know very well — 'I don't recognize this' when it's completely familiar. They are exact opposites.", icon:"🌀"},
+  {q:"Differentiate Depersonalization from Derealization.", a:"Depersonalization: altered or distorted perception of the SELF — the person feels detached from their own thoughts, feelings, or body, as if an outside observer. Derealization: altered perception of the EXTERNAL WORLD — surroundings seem dreamlike, foggy, or unreal. Reality testing is intact in both.", icon:"🌫️"},
+  {q:"How do internal states affect perception?", a:"Internal factors including emotions (love distorts fault perception), drive/motivation (thirst causes desert mirages), expectations/set (waiting for a phone call causes doorbell to sound like a phone), and learning/habit (proofreaders miss typos) — all powerfully override or modify objective sensory reality.", icon:"🧠"},
+  {q:"What is multisensory integration?", a:"Multisensory integration is the brain's ability to simultaneously receive, process, and combine information from multiple sense organs (vision, hearing, touch, smell, taste) to form a single, unified percept. It provides a richer, more accurate model of reality than any single sense could alone.", icon:"🌐"}
+];
+
+// ════════════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════════════
+let currentQ = 0;
+let score = 0;
+let streak = 0;
+let answered = 0;
+let savedTab = localStorage.getItem('percTab') || 'overview';
+
+// ════════════════════════════════════════════════════════════════
+//  TABS
+// ════════════════════════════════════════════════════════════════
+function initTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('section-' + tab).classList.add('active');
+      localStorage.setItem('percTab', tab);
+    });
+  });
+  // Restore last tab
+  const restoreBtn = document.querySelector(`[data-tab="${savedTab}"]`);
+  if (restoreBtn) restoreBtn.click();
+}
+
+// ════════════════════════════════════════════════════════════════
+//  QUIZ
+// ════════════════════════════════════════════════════════════════
+function buildQuiz() {
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = '';
+  if (currentQ >= quizData.length) {
+    renderScore();
+    return;
+  }
+  const q = quizData[currentQ];
+  const letters = ['A','B','C','D','E'];
+  const pct = Math.round((currentQ / quizData.length) * 100);
+  document.getElementById('quizProgressFill').style.width = pct + '%';
+  document.getElementById('quizScore').textContent = score + '/' + currentQ;
+  document.getElementById('progressPct').textContent = pct + '%';
+
+  const html = `
+    <div class="quiz-card">
+      <div class="quiz-q-num">Question ${currentQ + 1} of ${quizData.length}</div>
+      <div class="quiz-q-text">${q.q}</div>
+      <div class="quiz-options" id="optContainer">
+        ${q.opts.map((opt, i) => `
+          <div class="quiz-opt" data-idx="${i}" onclick="selectOpt(this, ${i}, ${q.ans})">
+            <span class="opt-letter">${letters[i]}</span>
+            <span>${opt}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="quiz-explanation" id="quizExp">
+        <strong>Explanation:</strong> ${q.explain}
+      </div>
+    </div>
+    <div style="text-align:right; margin-top:8px; display:none;" id="nextWrap">
+      <button class="quiz-nav-btn" onclick="nextQuestion()">
+        ${currentQ < quizData.length - 1 ? 'Next Question →' : 'View Results 🏆'}
+      </button>
+    </div>
+  `;
+  container.innerHTML = html;
+}
+
+function selectOpt(el, idx, ans) {
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.classList.add('disabled'));
+  if (idx === ans) {
+    el.classList.add('correct');
+    score++;
+    streak++;
+  } else {
+    el.classList.add('wrong');
+    opts[ans].classList.add('correct');
+    streak = 0;
+  }
+  answered++;
+  document.getElementById('streakCount').textContent = streak;
+  document.getElementById('quizExp').classList.add('show');
+  document.getElementById('nextWrap').style.display = 'block';
+}
+
+function nextQuestion() {
+  currentQ++;
+  buildQuiz();
+}
+
+function renderScore() {
+  const pct = Math.round((score / quizData.length) * 100);
+  const msg = pct >= 90 ? '🏆 Excellent! Ready for the exam!' : pct >= 70 ? '💪 Good work! Review weak areas.' : '📚 Keep studying — you have got this!';
+  document.getElementById('quizProgressFill').style.width = '100%';
+  document.getElementById('quizScore').textContent = score + '/' + quizData.length;
+  document.getElementById('progressPct').textContent = '100%';
+  document.getElementById('quizContainer').innerHTML = `
+    <div class="score-display">
+      <div style="font-size:40px;margin-bottom:12px;">🎓</div>
+      <div class="score-big">${pct}%</div>
+      <div style="font-size:18px;font-family:'Syne',sans-serif;font-weight:700;margin-top:8px;">${score} / ${quizData.length} Correct</div>
+      <p style="color:var(--text2);margin-top:12px;font-size:15px;">${msg}</p>
+      <div class="streak-badge" style="margin:16px auto;">🔥 Best Streak: ${streak}</div>
+      <button class="btn btn-primary" style="margin-top:20px;" onclick="resetQuiz()">↺ Try Again</button>
+    </div>
+  `;
+}
+
+function resetQuiz() {
+  currentQ = 0; score = 0; streak = 0; answered = 0;
+  document.getElementById('quizScore').textContent = '0/0';
+  document.getElementById('streakCount').textContent = '0';
+  document.getElementById('progressPct').textContent = '0%';
+  buildQuiz();
+}
+
+document.getElementById('restartQuiz').addEventListener('click', resetQuiz);
+
+// ════════════════════════════════════════════════════════════════
+//  FLASHCARDS
+// ════════════════════════════════════════════════════════════════
+function buildFlashcards() {
+  const grid = document.getElementById('fcGrid');
+  grid.innerHTML = flashcards.map((fc, i) => `
+    <div class="fc-wrapper" onclick="this.classList.toggle('flipped')">
+      <div class="fc-inner">
+        <div class="fc-front">
+          <div class="fc-label">❓ Question</div>
+          <div class="fc-q">${fc.q}</div>
+          <div class="fc-flip-hint">Click to reveal →</div>
+        </div>
+        <div class="fc-back">
+          <div class="fc-label">✅ Answer</div>
+          <div class="fc-a">${fc.a}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ════════════════════════════════════════════════════════════════
+//  CASES
+// ════════════════════════════════════════════════════════════════
+function buildCases() {
+  document.getElementById('casesContainer').innerHTML = casesData.map(c => `
+    <div class="case-card">
+      <div class="case-header">
+        <div class="case-num">${c.num}</div>
+        <div>
+          <div class="case-title-text">📋 ${c.title}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:2px;">Clinical Vignette · ${c.questions.length} Questions</div>
+        </div>
+      </div>
+      <div class="case-body">
+        <div class="case-vignette">${c.vignette}</div>
+        ${c.questions.map((cq, qi) => `
+          <div class="case-question">${cq.q}</div>
+          <button class="reveal-btn" onclick="revealAnswer(this)">
+            👁 Reveal Answer
+          </button>
+          <div class="case-answer">${cq.reveal}</div>
+          ${qi < c.questions.length - 1 ? '<div class="case-sep"></div>' : ''}
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function revealAnswer(btn) {
+  const ansDiv = btn.nextElementSibling;
+  ansDiv.classList.toggle('show');
+  btn.textContent = ansDiv.classList.contains('show') ? '🙈 Hide Answer' : '👁 Reveal Answer';
+}
+
+// ════════════════════════════════════════════════════════════════
+//  CONCEPTS
+// ════════════════════════════════════════════════════════════════
+function toggleConcept(el) {
+  const detail = el.querySelector('.concept-detail');
+  detail.classList.toggle('show');
+}
+
+// ════════════════════════════════════════════════════════════════
+//  MNEMONICS
+// ════════════════════════════════════════════════════════════════
+function buildMnemonics() {
+  document.getElementById('mnemContainer').innerHTML = mnemData.map((m, i) => `
+    <div class="mnem-card" id="mnem${i}">
+      <div class="mnem-header" onclick="toggleMnem(${i})">
+        <div class="mnem-letter" style="background:${m.bgColor};color:${m.color};">${m.name[0]}</div>
+        <div>
+          <div class="mnem-name" style="color:${m.color};">${m.name}</div>
+          <div class="mnem-phrase">${m.phrase}</div>
+        </div>
+        <div class="mnem-expand">▼</div>
+      </div>
+      <div class="mnem-body">
+        ${m.items.map(item => `
+          <div class="mnem-row">
+            <div class="mnem-l">${item.letter}</div>
+            <div>
+              <span class="mnem-word">${item.word}</span>
+              <span class="mnem-desc">${item.desc}</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleMnem(i) {
+  document.getElementById('mnem' + i).classList.toggle('open');
+}
+
+// ════════════════════════════════════════════════════════════════
+//  VIVA
+// ════════════════════════════════════════════════════════════════
+function buildViva() {
+  document.getElementById('vivaContainer').innerHTML = vivaData.map((v, i) => `
+    <div class="viva-card" id="viva${i}">
+      <div class="viva-q" onclick="toggleViva(${i})">
+        <span class="viva-icon">${v.icon}</span>
+        <span class="viva-q-text">${v.q}</span>
+        <span class="viva-toggle">▼</span>
+      </div>
+      <div class="viva-a">${v.a}</div>
+    </div>
+  `).join('');
+}
+
+function toggleViva(i) {
+  document.getElementById('viva' + i).classList.toggle('open');
+}
+
+// ════════════════════════════════════════════════════════════════
+//  SEARCH
+// ════════════════════════════════════════════════════════════════
+document.getElementById('overviewSearch').addEventListener('input', function() {
+  const term = this.value.toLowerCase();
+  document.querySelectorAll('.searchable').forEach(el => {
+    el.style.display = el.textContent.toLowerCase().includes(term) ? '' : 'none';
+  });
+});
+
+// ════════════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════════════
+buildQuiz();
+buildFlashcards();
+buildCases();
+buildMnemonics();
+buildViva();
+initTabs();
+</script>
+</body>
+</html>

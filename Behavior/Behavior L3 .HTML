@@ -1,0 +1,2385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Psychology of Emotions - Interactive Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #6C5CE7;
+  --primary-dark: #5A4BD1;
+  --secondary: #00CEC9;
+  --accent: #FD79A8;
+  --warning: #FDCB6E;
+  --success: #00B894;
+  --danger: #E17055;
+  --bg-dark: #0a0a1a;
+  --bg-card: rgba(255,255,255,0.05);
+  --bg-card-hover: rgba(255,255,255,0.1);
+  --text-primary: #FFFFFF;
+  --text-secondary: rgba(255,255,255,0.7);
+  --text-muted: rgba(255,255,255,0.4);
+  --border: rgba(255,255,255,0.1);
+  --glass: rgba(255,255,255,0.08);
+  --glass-border: rgba(255,255,255,0.12);
+  --gradient-1: linear-gradient(135deg, #6C5CE7, #a855f7);
+  --gradient-2: linear-gradient(135deg, #00CEC9, #0984e3);
+  --gradient-3: linear-gradient(135deg, #FD79A8, #e84393);
+  --gradient-4: linear-gradient(135deg, #FDCB6E, #f39c12);
+  --gradient-5: linear-gradient(135deg, #00B894, #55efc4);
+  --gradient-6: linear-gradient(135deg, #E17055, #d63031);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.3);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Animated Background */
+.bg-animation {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  animation: orbFloat 20s ease-in-out infinite;
+}
+
+.bg-orb:nth-child(1) {
+  width: 500px; height: 500px;
+  background: var(--primary);
+  top: -10%; left: -10%;
+  animation-delay: 0s;
+}
+.bg-orb:nth-child(2) {
+  width: 400px; height: 400px;
+  background: var(--secondary);
+  top: 50%; right: -10%;
+  animation-delay: -7s;
+}
+.bg-orb:nth-child(3) {
+  width: 350px; height: 350px;
+  background: var(--accent);
+  bottom: -5%; left: 30%;
+  animation-delay: -14s;
+}
+.bg-orb:nth-child(4) {
+  width: 300px; height: 300px;
+  background: var(--warning);
+  top: 30%; left: 50%;
+  animation-delay: -3s;
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(60px, -40px) scale(1.1); }
+  50% { transform: translate(-30px, 60px) scale(0.95); }
+  75% { transform: translate(40px, 30px) scale(1.05); }
+}
+
+/* Main Layout */
+.app-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  padding: 40px 20px 30px;
+  margin-bottom: 10px;
+}
+
+.header-badge {
+  display: inline-block;
+  padding: 6px 18px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--secondary);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.header h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 900;
+  background: linear-gradient(135deg, #fff 0%, var(--secondary) 50%, var(--primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+
+.header p {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Stats Bar */
+.stats-bar {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 24px 0 20px;
+}
+
+.stat-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.stat-chip:hover { background: var(--bg-card-hover); transform: translateY(-2px); }
+
+.stat-chip .stat-icon { font-size: 1.1rem; }
+.stat-chip .stat-val { color: var(--secondary); }
+
+/* Search Bar */
+.search-container {
+  max-width: 500px;
+  margin: 0 auto 20px;
+  position: relative;
+}
+
+.search-container input {
+  width: 100%;
+  padding: 14px 20px 14px 48px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 50px;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: var(--transition);
+}
+
+.search-container input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(108,92,231,0.2);
+}
+
+.search-container input::placeholder { color: var(--text-muted); }
+
+.search-icon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+  color: var(--text-muted);
+}
+
+/* Tab Navigation */
+.tab-nav {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 8px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  margin-bottom: 28px;
+  scrollbar-width: none;
+}
+
+.tab-nav::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  flex-shrink: 0;
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tab-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+
+.tab-btn.active {
+  color: #fff;
+  background: var(--gradient-1);
+  box-shadow: 0 4px 15px rgba(108,92,231,0.4);
+}
+
+.tab-btn .tab-emoji { font-size: 1.1rem; }
+
+/* Tab Content */
+.tab-content { display: none; animation: fadeIn 0.4s ease; }
+.tab-content.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Card Styles */
+.card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 16px;
+  transition: var(--transition);
+}
+
+.card:hover { background: var(--bg-card-hover); transform: translateY(-2px); }
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.card-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Grid Layouts */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+
+/* Tags */
+.tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tag-high-yield { background: rgba(253,203,110,0.2); color: var(--warning); border: 1px solid rgba(253,203,110,0.3); }
+.tag-exam { background: rgba(232,67,147,0.2); color: var(--accent); border: 1px solid rgba(232,67,147,0.3); }
+.tag-clinical { background: rgba(0,206,201,0.2); color: var(--secondary); border: 1px solid rgba(0,206,201,0.3); }
+.tag-mechanism { background: rgba(108,92,231,0.2); color: var(--primary); border: 1px solid rgba(108,92,231,0.3); }
+
+/* Section Title */
+.section-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title .emoji { font-size: 1.5rem; }
+
+/* Key Points List */
+.key-point {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  background: rgba(255,255,255,0.03);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  border-left: 3px solid var(--primary);
+  transition: var(--transition);
+}
+
+.key-point:hover { background: rgba(255,255,255,0.06); }
+
+.key-point-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+
+.key-point-text { font-size: 0.92rem; line-height: 1.6; color: var(--text-secondary); }
+
+.key-point-text strong { color: var(--text-primary); }
+
+/* Exam Alert */
+.exam-alert {
+  padding: 16px 20px;
+  background: rgba(232,67,147,0.1);
+  border: 1px solid rgba(232,67,147,0.25);
+  border-radius: var(--radius-sm);
+  margin: 12px 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--accent);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.exam-alert-icon { font-size: 1.2rem; flex-shrink: 0; }
+
+/* Timeline */
+.timeline {
+  position: relative;
+  padding-left: 30px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--primary), var(--secondary), var(--accent));
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 24px;
+  padding: 18px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+
+.timeline-item:hover { background: var(--bg-card-hover); transform: translateX(5px); }
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 24px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--bg-dark);
+}
+
+.timeline-item:nth-child(2)::before { background: var(--secondary); }
+.timeline-item:nth-child(3)::before { background: var(--accent); }
+.timeline-item:nth-child(4)::before { background: var(--warning); }
+
+.timeline-title {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+.timeline-desc {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Quiz Styles */
+.quiz-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.quiz-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--glass);
+  border-radius: 50px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.quiz-progress-fill {
+  height: 100%;
+  background: var(--gradient-1);
+  border-radius: 50px;
+  transition: width 0.5s ease;
+}
+
+.quiz-question-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 32px;
+  margin-bottom: 20px;
+}
+
+.quiz-q-number {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.quiz-q-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+
+.quiz-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  background: rgba(255,255,255,0.04);
+  border: 2px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.quiz-option:hover:not(.disabled) {
+  background: rgba(108,92,231,0.1);
+  border-color: var(--primary);
+  transform: translateX(5px);
+}
+
+.quiz-option.correct {
+  background: rgba(0,184,148,0.15);
+  border-color: var(--success);
+  animation: pulseCorrect 0.5s ease;
+}
+
+.quiz-option.wrong {
+  background: rgba(225,112,85,0.15);
+  border-color: var(--danger);
+  animation: shakeWrong 0.5s ease;
+}
+
+.quiz-option.disabled { pointer-events: none; opacity: 0.6; }
+.quiz-option.correct.disabled { opacity: 1; }
+
+.quiz-option-letter {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--glass);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.quiz-explanation {
+  margin-top: 16px;
+  padding: 18px;
+  background: rgba(108,92,231,0.1);
+  border: 1px solid rgba(108,92,231,0.2);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  display: none;
+}
+
+.quiz-explanation.show { display: block; animation: fadeIn 0.3s ease; }
+
+.quiz-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+@keyframes pulseCorrect {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shakeWrong {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+
+/* Button */
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: var(--gradient-1);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(108,92,231,0.3);
+}
+
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(108,92,231,0.5); }
+
+.btn-secondary {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+}
+
+.btn-secondary:hover { background: var(--bg-card-hover); }
+
+.btn-success {
+  background: var(--gradient-5);
+  color: #fff;
+}
+
+.btn-danger {
+  background: var(--gradient-6);
+  color: #fff;
+}
+
+/* Flashcard */
+.flashcard-container {
+  perspective: 1000px;
+  height: 280px;
+  cursor: pointer;
+}
+
+.flashcard {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.flashcard.flipped { transform: rotateY(180deg); }
+
+.flashcard-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: var(--radius);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border: 1px solid var(--glass-border);
+}
+
+.flashcard-front {
+  background: var(--glass);
+}
+
+.flashcard-back {
+  background: rgba(108,92,231,0.15);
+  border-color: rgba(108,92,231,0.3);
+  transform: rotateY(180deg);
+}
+
+.flashcard-front .fc-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--primary);
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.flashcard-front .fc-question {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.flashcard-back .fc-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--success);
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.flashcard-back .fc-answer {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.flashcard-hint {
+  position: absolute;
+  bottom: 14px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Clinical Case */
+.case-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.case-header {
+  padding: 20px 24px;
+  background: rgba(108,92,231,0.1);
+  border-bottom: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.case-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--gradient-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.case-title { font-weight: 700; font-size: 1.05rem; }
+
+.case-body { padding: 24px; }
+
+.case-vignette {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  padding: 16px;
+  background: rgba(255,255,255,0.03);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--secondary);
+}
+
+.case-question {
+  font-weight: 600;
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+}
+
+.case-answer {
+  display: none;
+  padding: 16px;
+  background: rgba(0,184,148,0.08);
+  border: 1px solid rgba(0,184,148,0.2);
+  border-radius: var(--radius-sm);
+  margin-top: 12px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  animation: fadeIn 0.3s ease;
+}
+
+.case-answer.show { display: block; }
+
+.reveal-btn {
+  padding: 10px 20px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xs);
+  color: var(--secondary);
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-top: 8px;
+}
+
+.reveal-btn:hover { background: rgba(0,206,201,0.1); border-color: var(--secondary); }
+
+/* Flow Chart */
+.flow-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 20px 0;
+}
+
+.flow-step {
+  padding: 16px 28px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  max-width: 400px;
+  width: 100%;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.flow-step:hover { background: rgba(108,92,231,0.15); border-color: var(--primary); transform: scale(1.02); }
+
+.flow-arrow {
+  font-size: 1.5rem;
+  color: var(--primary);
+  padding: 4px 0;
+}
+
+.flow-step-detail {
+  display: none;
+  padding: 12px 16px;
+  background: rgba(108,92,231,0.08);
+  border-radius: var(--radius-xs);
+  margin-top: 8px;
+  font-size: 0.82rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  text-align: left;
+}
+
+.flow-step-detail.show { display: block; }
+
+/* Anatomy Grid */
+.anatomy-item {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+}
+
+.anatomy-item:hover { background: var(--bg-card-hover); transform: translateY(-3px); border-color: var(--primary); }
+
+.anatomy-item .anat-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.anatomy-item .anat-name { font-weight: 700; margin-bottom: 6px; }
+.anatomy-item .anat-role { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5; }
+
+.anatomy-detail {
+  display: none;
+  margin-top: 12px;
+  padding: 14px;
+  background: rgba(108,92,231,0.1);
+  border-radius: var(--radius-xs);
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  text-align: left;
+}
+
+.anatomy-detail.show { display: block; animation: fadeIn 0.3s ease; }
+
+/* Comparison Table */
+.comp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  margin: 16px 0;
+}
+
+.comp-table th {
+  padding: 14px 16px;
+  background: rgba(108,92,231,0.15);
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--primary);
+}
+
+.comp-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.comp-table tr:hover td { background: rgba(255,255,255,0.03); }
+
+/* Treatment Cards */
+.treatment-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: var(--transition);
+}
+
+.treatment-card:hover { background: var(--bg-card-hover); transform: translateY(-2px); }
+
+.treatment-card .treat-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.treatment-card .treat-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.treatment-card .treat-title { font-weight: 700; font-size: 0.95rem; }
+
+.treatment-card .treat-body {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.treatment-card .treat-body ul {
+  list-style: none;
+  padding: 0;
+}
+
+.treatment-card .treat-body li {
+  padding: 6px 0;
+  padding-left: 18px;
+  position: relative;
+}
+
+.treatment-card .treat-body li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: var(--primary);
+}
+
+/* Urgency Colors */
+.urgency-critical { border-left: 4px solid var(--danger); }
+.urgency-important { border-left: 4px solid var(--warning); }
+.urgency-standard { border-left: 4px solid var(--success); }
+.urgency-info { border-left: 4px solid var(--secondary); }
+
+/* Mnemonic Card */
+.mnemonic-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 24px;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.mnemonic-card:hover { background: var(--bg-card-hover); transform: translateY(-2px); }
+
+.mnemonic-title {
+  font-size: 1.3rem;
+  font-weight: 900;
+  background: var(--gradient-3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 6px;
+}
+
+.mnemonic-subtitle {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.mnemonic-list {
+  list-style: none;
+  padding: 0;
+}
+
+.mnemonic-list li {
+  padding: 8px 0;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.mnemonic-list li:last-child { border-bottom: none; }
+
+.mnemonic-letter {
+  font-weight: 900;
+  font-size: 1.1rem;
+  color: var(--accent);
+  min-width: 22px;
+}
+
+.mnemonic-expanded {
+  display: none;
+  margin-top: 12px;
+}
+
+.mnemonic-expanded.show { display: block; animation: fadeIn 0.3s ease; }
+
+/* Diagnostic Badge */
+.diag-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 50px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin: 4px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.diag-badge:hover {
+  background: rgba(108,92,231,0.15);
+  border-color: var(--primary);
+  transform: scale(1.05);
+}
+
+.diag-badge .badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* Motivational Message */
+.motivational {
+  text-align: center;
+  padding: 20px;
+  margin: 20px 0;
+  font-style: italic;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* Score Display */
+.score-display {
+  text-align: center;
+  padding: 40px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+}
+
+.score-number {
+  font-size: 4rem;
+  font-weight: 900;
+  background: var(--gradient-5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.score-label {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .app-container { padding: 12px; }
+  .header { padding: 24px 12px 20px; }
+  .header h1 { font-size: 1.8rem; }
+  .tab-btn { padding: 10px 14px; font-size: 0.78rem; }
+  .quiz-question-card { padding: 20px; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .comp-table { font-size: 0.78rem; }
+  .comp-table th, .comp-table td { padding: 10px; }
+  .flashcard-container { height: 260px; }
+}
+
+.hidden { display: none !important; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+</style>
+</head>
+<body>
+
+<div class="bg-animation">
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+</div>
+
+<div class="app-container">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-badge">🧠 Academic Medical Study Guide</div>
+    <h1>Psychology of Emotions</h1>
+    <p>Master the neurobiology, theories, and clinical applications of human emotions</p>
+
+    <div class="stats-bar">
+      <div class="stat-chip">
+        <span class="stat-icon">📊</span>
+        <span>Progress: <span class="stat-val" id="overall-progress">0%</span></span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-icon">🎯</span>
+        <span>Quiz Score: <span class="stat-val" id="quiz-score-display">0/25</span></span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-icon">🔥</span>
+        <span>Streak: <span class="stat-val" id="streak-display">0</span></span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-icon">🃏</span>
+        <span>Cards Flipped: <span class="stat-val" id="cards-flipped-display">0/20</span></span>
+      </div>
+    </div>
+
+    <div class="search-container">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="global-search" placeholder="Search across all topics...">
+    </div>
+  </header>
+
+  <!-- Tab Navigation -->
+  <nav class="tab-nav" id="tab-nav">
+    <button class="tab-btn active" data-tab="overview">
+      <span class="tab-emoji">📋</span> Overview
+    </button>
+    <button class="tab-btn" data-tab="quiz">
+      <span class="tab-emoji">❓</span> Quiz Mode
+    </button>
+    <button class="tab-btn" data-tab="flashcards">
+      <span class="tab-emoji">🃏</span> Flashcards
+    </button>
+    <button class="tab-btn" data-tab="cases">
+      <span class="tab-emoji">🏥</span> Clinical Cases
+    </button>
+    <button class="tab-btn" data-tab="anatomy">
+      <span class="tab-emoji">🧬</span> Neurobiology
+    </button>
+    <button class="tab-btn" data-tab="diagnosis">
+      <span class="tab-emoji">🔬</span> Theories & Diagnosis
+    </button>
+    <button class="tab-btn" data-tab="treatment">
+      <span class="tab-emoji">💊</span> Clinical Application
+    </button>
+    <button class="tab-btn" data-tab="mnemonics">
+      <span class="tab-emoji">💡</span> Mnemonics
+    </button>
+  </nav>
+
+  <!-- ==================== OVERVIEW TAB ==================== -->
+  <div class="tab-content active" id="tab-overview">
+    <div class="section-title"><span class="emoji">📋</span> Overview — Psychology of Emotions</div>
+
+    <!-- Quick Summary Cards -->
+    <div class="grid-3" style="margin-bottom:24px;">
+      <div class="card" style="border-top: 3px solid var(--primary);">
+        <div class="card-header">
+          <div class="card-icon" style="background: var(--gradient-1);">🧩</div>
+          <div><div class="card-title">3 Components</div><div class="card-subtitle">Core Elements of Emotion</div></div>
+        </div>
+        <div style="font-size:0.88rem; color: var(--text-secondary); line-height:1.6;">
+          <strong>Subjective Experience</strong> • <strong>Physiological Response</strong> • <strong>Behavioral/Expressive Response</strong> — Every emotion involves all three interacting simultaneously.
+        </div>
+        <div style="margin-top:10px;"><span class="tag tag-high-yield">High Yield</span></div>
+      </div>
+
+      <div class="card" style="border-top: 3px solid var(--secondary);">
+        <div class="card-header">
+          <div class="card-icon" style="background: var(--gradient-2);">🧠</div>
+          <div><div class="card-title">Limbic System</div><div class="card-subtitle">Biological Core</div></div>
+        </div>
+        <div style="font-size:0.88rem; color: var(--text-secondary); line-height:1.6;">
+          <strong>Amygdala</strong> (fear) • <strong>Hypothalamus</strong> (hormones/SNS) • <strong>Hippocampus</strong> (memory) • <strong>Thalamus</strong> (relay) — Defects → mental illness.
+        </div>
+        <div style="margin-top:10px;"><span class="tag tag-exam">Exam Favorite</span></div>
+      </div>
+
+      <div class="card" style="border-top: 3px solid var(--accent);">
+        <div class="card-header">
+          <div class="card-icon" style="background: var(--gradient-3);">📐</div>
+          <div><div class="card-title">4 Theories</div><div class="card-subtitle">Models of Emotion</div></div>
+        </div>
+        <div style="font-size:0.88rem; color: var(--text-secondary); line-height:1.6;">
+          <strong>James-Lange</strong> (arousal→emotion) • <strong>Cannon-Bard</strong> (simultaneous) • <strong>Schachter-Singer</strong> (arousal+label) • <strong>Cognitive Appraisal</strong> (threat+capability)
+        </div>
+        <div style="margin-top:10px;"><span class="tag tag-exam">Exam Favorite</span></div>
+      </div>
+    </div>
+
+    <!-- Theories Timeline -->
+    <div class="section-title" style="margin-top:30px;"><span class="emoji">📜</span> Evolution of Emotion Theories</div>
+    <div class="timeline" style="margin-bottom:30px;">
+      <div class="timeline-item">
+        <div class="timeline-title">🔵 James-Lange Theory (1880s)</div>
+        <div class="timeline-desc">External event → <strong>Physiological arousal first</strong> → Perceived as emotion. "I am afraid because my heart is racing."</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-title">🟢 Cannon-Bard Theory (1920s)</div>
+        <div class="timeline-desc">Event → Arousal & emotion <strong>simultaneously but independently</strong>. Thalamus sends signals to cortex AND body at the same time.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-title">🟣 Schachter-Singer Two-Factor (1960s)</div>
+        <div class="timeline-desc">Event → Arousal → <strong>Cognitive labeling of arousal</strong> = Emotion. Requires both physiological arousal AND cognitive reasoning.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-title">🔴 Cognitive Appraisal Theory (Modern)</div>
+        <div class="timeline-desc">Event → Evaluate <strong>BOTH the threat AND your own capability</strong> to handle it. If capabilities are sufficient → no fear triggers.</div>
+      </div>
+    </div>
+
+    <!-- Key Clinical Signs Grid -->
+    <div class="section-title"><span class="emoji">🚨</span> Key Exam Concepts</div>
+    <div class="grid-2" style="margin-bottom:24px;">
+      <div class="key-point" style="border-left-color: var(--accent);">
+        <div class="key-point-icon">⚠️</div>
+        <div class="key-point-text">
+          <strong>Memory & Emotion:</strong> Memories linked to emotion are recorded better. Sadness doesn't erase memory — it creates a <strong>"mask" over the memory</strong>.
+          <div style="margin-top:6px;"><span class="tag tag-exam">Exam Favorite</span></div>
+        </div>
+      </div>
+      <div class="key-point" style="border-left-color: var(--accent);">
+        <div class="key-point-icon">⚠️</div>
+        <div class="key-point-text">
+          <strong>Mental Illness & Limbic System:</strong> Most mental illnesses (schizophrenia, bipolar disorder) are due to a <strong>defect in the limbic system</strong>.
+          <div style="margin-top:6px;"><span class="tag tag-exam">Exam Favorite</span></div>
+        </div>
+      </div>
+      <div class="key-point" style="border-left-color: var(--warning);">
+        <div class="key-point-icon">🔑</div>
+        <div class="key-point-text">
+          <strong>Amygdala & Inappropriate Fear:</strong> The amygdala can store feelings for dangerous situations and <strong>inappropriately repeat them</strong> in non-dangerous situations → origin of mental illness.
+          <div style="margin-top:6px;"><span class="tag tag-high-yield">High Yield</span> <span class="tag tag-exam">Exam Favorite</span></div>
+        </div>
+      </div>
+      <div class="key-point" style="border-left-color: var(--success);">
+        <div class="key-point-icon">👨‍⚕️</div>
+        <div class="key-point-text">
+          <strong>Doctor's Emotional Regulation:</strong> Putting yourself in the patient's place and <strong>accepting their feelings</strong> facilitates communication and treatment.
+          <div style="margin-top:6px;"><span class="tag tag-clinical">Clinical Pearl</span></div>
+        </div>
+      </div>
+      <div class="key-point" style="border-left-color: var(--primary);">
+        <div class="key-point-icon">🔑</div>
+        <div class="key-point-text">
+          <strong>Cognitive Appraisal Key Difference:</strong> You evaluate BOTH the dangerous event AND your own capacity to overcome it. If you can overcome it, <strong>fear does NOT trigger</strong>.
+          <div style="margin-top:6px;"><span class="tag tag-exam">Exam Favorite</span> <span class="tag tag-mechanism">Mechanism</span></div>
+        </div>
+      </div>
+      <div class="key-point" style="border-left-color: var(--secondary);">
+        <div class="key-point-icon">🔑</div>
+        <div class="key-point-text">
+          <strong>Limbic vs. Prefrontal Cortex:</strong> The limbic system can <strong>override the rational prefrontal cortex</strong> during intense emotions, causing people to act "out of character."
+          <div style="margin-top:6px;"><span class="tag tag-high-yield">High Yield</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Functions of Emotion -->
+    <div class="section-title"><span class="emoji">⚡</span> Functions of Emotion</div>
+    <div class="grid-4" style="margin-bottom:24px;">
+      <div class="card" style="text-align:center; padding:20px;">
+        <div style="font-size:2.2rem; margin-bottom:10px;">🛡️</div>
+        <div style="font-weight:700; margin-bottom:6px;">Survival</div>
+        <div style="font-size:0.82rem; color: var(--text-secondary);">Adaptive responses that protect from danger</div>
+      </div>
+      <div class="card" style="text-align:center; padding:20px;">
+        <div style="font-size:2.2rem; margin-bottom:10px;">🎯</div>
+        <div style="font-weight:700; margin-bottom:6px;">Motivation</div>
+        <div style="font-size:0.82rem; color: var(--text-secondary);">Source of drive and goal-directed behavior</div>
+      </div>
+      <div class="card" style="text-align:center; padding:20px;">
+        <div style="font-size:2.2rem; margin-bottom:10px;">🚀</div>
+        <div style="font-weight:700; margin-bottom:6px;">Achievement</div>
+        <div style="font-size:0.82rem; color: var(--text-secondary);">Speed up accomplishment of goals</div>
+      </div>
+      <div class="card" style="text-align:center; padding:20px;">
+        <div style="font-size:2.2rem; margin-bottom:10px;">📝</div>
+        <div style="font-weight:700; margin-bottom:6px;">Memory</div>
+        <div style="font-size:0.82rem; color: var(--text-secondary);">Enhance learning and memory recording</div>
+      </div>
+    </div>
+
+    <div class="motivational">💪 "Understanding emotions is the foundation of medical empathy — master this, master patient care."</div>
+  </div>
+
+  <!-- ==================== QUIZ TAB ==================== -->
+  <div class="tab-content" id="tab-quiz">
+    <div class="section-title"><span class="emoji">❓</span> Quiz Mode — 25 Questions</div>
+
+    <div class="quiz-header">
+      <div>
+        <span style="font-weight:700;">Question <span id="q-current">1</span>/25</span>
+        <span style="color: var(--text-muted); margin-left:10px;">Score: <span id="q-score">0</span> | Streak: 🔥<span id="q-streak">0</span></span>
+      </div>
+      <button class="btn btn-secondary" onclick="resetQuiz()">🔄 Reset Quiz</button>
+    </div>
+
+    <div class="quiz-progress-bar">
+      <div class="quiz-progress-fill" id="quiz-progress" style="width: 4%;"></div>
+    </div>
+
+    <div id="quiz-container"></div>
+
+    <div class="quiz-nav">
+      <button class="btn btn-secondary" id="prev-q-btn" onclick="prevQuestion()" disabled>⬅ Previous</button>
+      <button class="btn btn-primary" id="next-q-btn" onclick="nextQuestion()">Next ➡</button>
+    </div>
+
+    <div id="quiz-results" class="hidden">
+      <div class="score-display">
+        <div class="score-number" id="final-score">0%</div>
+        <div class="score-label">Final Score</div>
+        <div style="margin-top:20px; color: var(--text-secondary);" id="final-msg"></div>
+        <button class="btn btn-primary" style="margin-top:20px;" onclick="resetQuiz()">🔄 Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== FLASHCARDS TAB ==================== -->
+  <div class="tab-content" id="tab-flashcards">
+    <div class="section-title"><span class="emoji">🃏</span> Flashcards — Click to Flip</div>
+    <p style="color: var(--text-muted); margin-bottom:20px; font-size:0.9rem;">Click any card to reveal the answer. Track your progress below.</p>
+    <div class="grid-3" id="flashcards-grid"></div>
+  </div>
+
+  <!-- ==================== CLINICAL CASES TAB ==================== -->
+  <div class="tab-content" id="tab-cases">
+    <div class="section-title"><span class="emoji">🏥</span> Clinical Cases — Applied Scenarios</div>
+    <p style="color: var(--text-muted); margin-bottom:24px; font-size:0.9rem;">Exam-style vignettes integrating neurobiology, theories, and clinical application.</p>
+    <div id="cases-container"></div>
+  </div>
+
+  <!-- ==================== ANATOMY/NEUROBIOLOGY TAB ==================== -->
+  <div class="tab-content" id="tab-anatomy">
+    <div class="section-title"><span class="emoji">🧬</span> Neurobiology of Emotion</div>
+
+    <div class="exam-alert" style="margin-bottom:24px;">
+      <div class="exam-alert-icon">⚠️</div>
+      <div>The <strong>Limbic System</strong> is the primary brain area for emotion and memory. It functions automatically to preserve life, often <strong>overriding the rational brain (prefrontal cortex)</strong>. Most mental illnesses stem from limbic system defects.</div>
+    </div>
+
+    <div class="section-title" style="font-size:1.1rem;"><span class="emoji">🏗️</span> Key Brain Structures — Click for Details</div>
+    <div class="grid-4" id="anatomy-grid" style="margin-bottom:30px;"></div>
+
+    <div class="section-title" style="font-size:1.1rem; margin-top:30px;"><span class="emoji">🔄</span> Emotional Pathway — Fear Response</div>
+    <div class="flow-chart" id="fear-flow"></div>
+
+    <div class="section-title" style="font-size:1.1rem; margin-top:30px;"><span class="emoji">⚔️</span> Limbic System vs. Prefrontal Cortex</div>
+    <div class="card">
+      <table class="comp-table">
+        <tr>
+          <th>Feature</th>
+          <th>🧠 Limbic System</th>
+          <th>🎯 Prefrontal Cortex</th>
+        </tr>
+        <tr>
+          <td><strong>Function</strong></td>
+          <td>Emotion generation, survival instincts</td>
+          <td>Judgment, discrimination, rational choice</td>
+        </tr>
+        <tr>
+          <td><strong>Processing</strong></td>
+          <td>Automatic, unconscious</td>
+          <td>Deliberate, conscious</td>
+        </tr>
+        <tr>
+          <td><strong>Speed</strong></td>
+          <td>Fast — reacts immediately</td>
+          <td>Slower — evaluates before acting</td>
+        </tr>
+        <tr>
+          <td><strong>During Intense Emotion</strong></td>
+          <td>Dominates — overrides rational brain</td>
+          <td>Suppressed — loses control</td>
+        </tr>
+        <tr>
+          <td><strong>Pathology</strong></td>
+          <td>Defects → schizophrenia, bipolar disorder</td>
+          <td>Damage → poor decision-making</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ==================== DIAGNOSIS/THEORIES TAB ==================== -->
+  <div class="tab-content" id="tab-diagnosis">
+    <div class="section-title"><span class="emoji">🔬</span> Theories of Emotion — Comparative Analysis</div>
+
+    <!-- Comparison Table -->
+    <div class="card" style="margin-bottom:24px;">
+      <div class="card-header">
+        <div class="card-icon" style="background: var(--gradient-1);">📐</div>
+        <div><div class="card-title">Theory Comparison Matrix</div><div class="card-subtitle">The key differentiator: sequence of arousal vs. emotion</div></div>
+      </div>
+      <table class="comp-table">
+        <tr>
+          <th>Theory</th>
+          <th>Sequence</th>
+          <th>Key Feature</th>
+          <th>Example</th>
+        </tr>
+        <tr>
+          <td><strong>James-Lange</strong></td>
+          <td>Arousal → Emotion</td>
+          <td>Body sensations create feeling</td>
+          <td>Heart races → "I feel fear"</td>
+        </tr>
+        <tr>
+          <td><strong>Cannon-Bard</strong></td>
+          <td>Arousal ∥ Emotion (simultaneous)</td>
+          <td>Independent parallel activation</td>
+          <td>Heart races AND fear at same time</td>
+        </tr>
+        <tr>
+          <td><strong>Schachter-Singer</strong></td>
+          <td>Arousal + Cognitive Label → Emotion</td>
+          <td>Two factors: arousal + reasoning</td>
+          <td>Heart races + "dog is dangerous" = fear</td>
+        </tr>
+        <tr>
+          <td><strong>Cognitive Appraisal</strong></td>
+          <td>Evaluate threat + Evaluate self-capacity</td>
+          <td>Dual appraisal determines emotion</td>
+          <td>Dog barks but I know I can handle it → no fear</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Diagnostic Badges -->
+    <div class="section-title" style="font-size:1.1rem;"><span class="emoji">🏷️</span> Investigative Tools & Findings</div>
+    <div style="margin-bottom:24px;">
+      <div class="diag-badge" onclick="toggleBadgeInfo(this)">
+        <span class="badge-dot" style="background:var(--success);"></span>
+        Brain Imaging (fMRI)
+        <div style="display:none;" class="badge-info">Shows amygdala activation when subjects view threatening images</div>
+      </div>
+      <div class="diag-badge" onclick="toggleBadgeInfo(this)">
+        <span class="badge-dot" style="background:var(--primary);"></span>
+        Lesion Studies
+        <div style="display:none;" class="badge-info">Amygdala damage → impaired fear response to threatening stimuli</div>
+      </div>
+      <div class="diag-badge" onclick="toggleBadgeInfo(this)">
+        <span class="badge-dot" style="background:var(--warning);"></span>
+        Autonomic Monitoring
+        <div style="display:none;" class="badge-info">Measures sympathetic NS activation: heart rate, galvanic skin response</div>
+      </div>
+      <div class="diag-badge" onclick="toggleBadgeInfo(this)">
+        <span class="badge-dot" style="background:var(--accent);"></span>
+        Clinical Observation
+        <div style="display:none;" class="badge-info">Behavioral/expressive response assessment: facial expressions, body language</div>
+      </div>
+      <div class="diag-badge" onclick="toggleBadgeInfo(this)">
+        <span class="badge-dot" style="background:var(--secondary);"></span>
+        Psychiatric Assessment
+        <div style="display:none;" class="badge-info">Limbic system defect evaluation for schizophrenia, bipolar disorder</div>
+      </div>
+    </div>
+    <div id="badge-detail" class="card hidden" style="background:rgba(108,92,231,0.1); border-color:rgba(108,92,231,0.3); margin-bottom:24px;">
+      <span id="badge-detail-text" style="font-size:0.9rem; color: var(--text-secondary);"></span>
+    </div>
+
+    <!-- Diagnostic Algorithm -->
+    <div class="section-title" style="font-size:1.1rem;"><span class="emoji">🗺️</span> Diagnostic Algorithm — Identifying the Emotion Theory</div>
+    <div class="flow-chart" id="theory-flow"></div>
+
+    <!-- Primary vs Secondary Emotions -->
+    <div class="section-title" style="font-size:1.1rem; margin-top:30px;"><span class="emoji">🎨</span> Primary vs. Secondary Emotions (Plutchik's Model)</div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background: var(--gradient-4);">🌈</div>
+          <div><div class="card-title">Primary Emotions</div><div class="card-subtitle">Universal, innate emotional states</div></div>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          <span class="tag" style="background:rgba(225,112,85,0.2); color:#E17055; border:1px solid rgba(225,112,85,0.3);">😨 Fear</span>
+          <span class="tag" style="background:rgba(214,48,49,0.2); color:#d63031; border:1px solid rgba(214,48,49,0.3);">😡 Anger</span>
+          <span class="tag" style="background:rgba(0,184,148,0.2); color:#00B894; border:1px solid rgba(0,184,148,0.3);">😊 Joy</span>
+          <span class="tag" style="background:rgba(9,132,227,0.2); color:#0984e3; border:1px solid rgba(9,132,227,0.3);">😢 Sadness</span>
+          <span class="tag" style="background:rgba(253,203,110,0.2); color:#FDCB6E; border:1px solid rgba(253,203,110,0.3);">😮 Surprise</span>
+          <span class="tag" style="background:rgba(162,155,254,0.2); color:#a29bfe; border:1px solid rgba(162,155,254,0.3);">🤢 Disgust</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background: var(--gradient-3);">🔀</div>
+          <div><div class="card-title">Secondary Emotions</div><div class="card-subtitle">Combinations of primary emotions</div></div>
+        </div>
+        <div style="font-size:0.88rem; color: var(--text-secondary); line-height:1.8;">
+          Like mixing primary colors on an artist's palette:<br>
+          <strong>Joy + Trust</strong> → Love<br>
+          <strong>Fear + Surprise</strong> → Awe<br>
+          <strong>Frustration at sadness</strong> → Secondary emotion (reacting TO a primary emotion)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TREATMENT/CLINICAL APPLICATION TAB ==================== -->
+  <div class="tab-content" id="tab-treatment">
+    <div class="section-title"><span class="emoji">💊</span> Clinical Application — Emotional Regulation</div>
+
+    <div class="exam-alert" style="margin-bottom:24px;">
+      <div class="exam-alert-icon">👨‍⚕️</div>
+      <div><strong>For Doctors:</strong> Emotional regulation means putting yourself in the patient's place; accepting their feelings facilitates communication and treatment.</div>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:24px;">
+      <div class="treatment-card urgency-critical">
+        <div class="treat-header">
+          <div class="treat-icon" style="background: rgba(225,112,85,0.2);">🚨</div>
+          <div class="treat-title">Acute Emotional Crisis Management</div>
+        </div>
+        <div class="treat-body">
+          <ul>
+            <li>Recognize limbic system override of prefrontal cortex</li>
+            <li>Allow the emotional response before rational intervention</li>
+            <li>Identify fight-or-flight activation (tachycardia, sweating)</li>
+            <li>Safety first — protect patient from acting on extreme emotions</li>
+          </ul>
+          <div style="margin-top:8px;"><span class="tag tag-clinical">Clinical Pearl</span></div>
+        </div>
+      </div>
+
+      <div class="treatment-card urgency-important">
+        <div class="treat-header">
+          <div class="treat-icon" style="background: rgba(253,203,110,0.2);">⚡</div>
+          <div class="treat-title">Sympathetic NS Response Management</div>
+        </div>
+        <div class="treat-body">
+          <ul>
+            <li>Heart palpitations from emotional arousal ≠ cardiac pathology</li>
+            <li>Halted digestion during stress is normal SNS activation</li>
+            <li>Educate patients on physiological basis of anxiety symptoms</li>
+            <li>Hypothalamus → SNS → visceral organ changes</li>
+          </ul>
+          <div style="margin-top:8px;"><span class="tag tag-mechanism">Mechanism</span></div>
+        </div>
+      </div>
+
+      <div class="treatment-card urgency-standard">
+        <div class="treat-header">
+          <div class="treat-icon" style="background: rgba(0,184,148,0.2);">🧠</div>
+          <div class="treat-title">Cognitive Reappraisal Strategies</div>
+        </div>
+        <div class="treat-body">
+          <ul>
+            <li>Based on Cognitive Appraisal Theory</li>
+            <li>Help patients re-evaluate both the threat AND their capabilities</li>
+            <li>Build self-efficacy to reduce inappropriate fear responses</li>
+            <li>Challenge amygdala's storage of inappropriate danger memories</li>
+          </ul>
+          <div style="margin-top:8px;"><span class="tag tag-high-yield">High Yield</span></div>
+        </div>
+      </div>
+
+      <div class="treatment-card urgency-info">
+        <div class="treat-header">
+          <div class="treat-icon" style="background: rgba(0,206,201,0.2);">💬</div>
+          <div class="treat-title">Doctor-Patient Communication</div>
+        </div>
+        <div class="treat-body">
+          <ul>
+            <li>Recognize patient's emotional state (read behavioral responses)</li>
+            <li>Accept and validate emotions before proceeding</li>
+            <li>Use empathy — put yourself in the patient's place</li>
+            <li>Emotional intelligence improves treatment compliance</li>
+          </ul>
+          <div style="margin-top:8px;"><span class="tag tag-clinical">Clinical Pearl</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison Table for Emotional Disorders -->
+    <div class="section-title" style="font-size:1.1rem;"><span class="emoji">📊</span> Limbic System Pathology — Clinical Correlations</div>
+    <div class="card">
+      <table class="comp-table">
+        <tr>
+          <th>Condition</th>
+          <th>Affected Structure</th>
+          <th>Mechanism</th>
+          <th>Key Feature</th>
+        </tr>
+        <tr>
+          <td><strong>Schizophrenia</strong></td>
+          <td>Limbic System</td>
+          <td>Defective emotional processing</td>
+          <td>Inappropriate emotional responses</td>
+        </tr>
+        <tr>
+          <td><strong>Bipolar Disorder</strong></td>
+          <td>Limbic System</td>
+          <td>Dysregulated mood cycling</td>
+          <td>Severe mood & emotional disturbances</td>
+        </tr>
+        <tr>
+          <td><strong>Phobias / PTSD</strong></td>
+          <td>Amygdala</td>
+          <td>Stores danger memories, repeats inappropriately</td>
+          <td>Fear in non-dangerous situations</td>
+        </tr>
+        <tr>
+          <td><strong>Impulsive Behavior</strong></td>
+          <td>Limbic override of Prefrontal Cortex</td>
+          <td>Rational brain suppressed</td>
+          <td>Acting "out of character"</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Emotional Regulation Methods -->
+    <div class="section-title" style="font-size:1.1rem; margin-top:30px;"><span class="emoji">🎯</span> Emotional Regulation Methods</div>
+    <div class="grid-3">
+      <div class="card" style="text-align:center; padding:20px;">
+        <div style="font-size:2.2rem; margin-bottom:10px;">🧘</div>
+        <div style="font-weight:700; margin-bottom:6px;">Cognitive Reappraisal</div>
+        <div style="font-size:0.82rem; color: var(--text-secondary);">Re-evaluate threat AND self-capacity (based on Cognitive Appraisal Theory)</div>
+      </div>
+      <div class="card" style="text-align:center; padding:20px;">
+        <div style="font-size:2.2rem; margin-bottom:10px;">🤝</div>
+        <div style="font-weight:700; margin-bottom:6px;">Empathic Engagement</div>
+        <div style="font-size:0.82rem; color: var(--text-secondary);">Accept patient's emotional state to build therapeutic alliance</div>
+      </div>
+      <div class="card" style="text-align:center; padding:20px;">
+        <div style="font-size:2.2rem; margin-bottom:10px;">📚</div>
+        <div style="font-weight:700; margin-bottom:6px;">Psychoeducation</div>
+        <div style="font-size:0.82rem; color: var(--text-secondary);">Teach patients about SNS activation to reduce anxiety</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MNEMONICS TAB ==================== -->
+  <div class="tab-content" id="tab-mnemonics">
+    <div class="section-title"><span class="emoji">💡</span> Mnemonics — Memory Aids</div>
+    <p style="color: var(--text-muted); margin-bottom:24px; font-size:0.9rem;">Custom-crafted mnemonics for maximum retention. Click to expand details.</p>
+    <div class="grid-2" id="mnemonics-grid"></div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+
+const quizData = [
+  {
+    q: "According to the Schachter-Singer Two-Factor Theory, which two elements are required to experience an emotion?",
+    options: ["Physiological arousal and behavioral response", "Physiological arousal and cognitive labeling", "Hypothalamic activation and memory masking", "Simultaneous cortical and visceral independent activation", "Subjective experience and primary emotion"],
+    correct: 1,
+    explanation: "✅ B — The theory asserts emotion is based on physiological arousal AND cognitive labeling/reasoning of that arousal. ❌ A lacks cognition. C is unrelated. D describes Cannon-Bard. E is a generic definition."
+  },
+  {
+    q: "What is the specific role of the hypothalamus in the physiological response to emotion?",
+    options: ["Integrating emotional experience with cognition", "Serving as a sensory relay center", "Activating the sympathetic nervous system", "Interpreting incoming cognitive stimuli", "Modulating facial expressions"],
+    correct: 2,
+    explanation: "✅ C — The hypothalamus activates the sympathetic nervous system during an emotional reaction. ❌ A is hippocampus. B is thalamus. D is cerebral cortex. E is behavioral."
+  },
+  {
+    q: "Based on the Cognitive Appraisal Theory, why might a person facing a wide river with a crocodile NOT feel fear?",
+    options: ["Their amygdala is temporarily deactivated by the thalamus", "They experience arousal but fail to label it", "They evaluated both the threat and their own capability to easily jump over it", "The physiological response precedes the cognitive response", "Their limbic system overrode their prefrontal cortex"],
+    correct: 2,
+    explanation: "✅ C — The latest cognitive theory states that if a person evaluates their capabilities as sufficient to handle the stimulus, the emotion of fear will NOT trigger. ❌ A is anatomically incorrect. B is Schachter-Singer. D is James-Lange. E would cause panic."
+  },
+  {
+    q: "How does the Cannon-Bard theory explain the sequence of an emotional reaction?",
+    options: ["Arousal occurs before emotion", "Emotion occurs before arousal", "Arousal and emotion occur simultaneously but independently", "Emotion relies on cognitive labeling of arousal", "Arousal is interpreted by the prefrontal cortex to form emotion"],
+    correct: 2,
+    explanation: "✅ C — Visceral-physiological arousal and the generation of emotional attributes occur simultaneously, yet independently. ❌ A is James-Lange. B is incorrect. D is Schachter-Singer. E is Cognitive theory."
+  },
+  {
+    q: "A patient with amygdala damage is shown a picture of a venomous snake. What physiological/behavioral outcome is most likely?",
+    options: ["Heightened sympathetic activation", "Impaired fear response", "Immediate fight-or-flight running", "Frustration at feeling sad (secondary emotion)", "Enhanced memory integration"],
+    correct: 1,
+    explanation: "✅ B — Damage to the amygdala has been shown to specifically impair the fear response. ❌ A, C require intact fear signaling. D is unrelated. E involves the hippocampus."
+  },
+  {
+    q: "Which part of the brain acts as a sensory relay center, projecting neurons to both the amygdala and cortical regions during an emotional event?",
+    options: ["Hypothalamus", "Hippocampus", "Thalamus", "Prefrontal cortex", "Autonomic nervous system"],
+    correct: 2,
+    explanation: "✅ C — The thalamus serves as a sensory relay center projecting to the amygdala and higher cortex. ❌ A activates sympathetic NS. B is for memory. D evaluates choices. E is peripheral."
+  },
+  {
+    q: "During extreme emotional arousal, why might a person behave completely out of character?",
+    options: ["The primary emotions convert to secondary emotions", "The parasympathetic nervous system masks memory", "Emotions dominate the limbic system, which suppresses or overrides the rational prefrontal cortex", "The thalamus bypasses the amygdala", "Sociocultural norms are permanently rewritten"],
+    correct: 2,
+    explanation: "✅ C — The limbic system preserves life automatically and can override the prefrontal (frontal) lobe, which normally discriminates choices. ❌ A, D, E are nonsense. B is anatomically mixed."
+  },
+  {
+    q: "According to the James-Lange theory, what directly causes the feeling component of an emotion?",
+    options: ["The external stimulus itself", "The cognitive interpretation of the context", "The perceived pattern of bodily sensations/physiological arousal", "The simultaneous activation of the thalamus", "Emotional intelligence"],
+    correct: 2,
+    explanation: "✅ C — The feeling derives directly from perceiving bodily sensations following an external event ('I feel sad because I cry'). ❌ A is common sense, not James-Lange. B is cognitive theory. D is Cannon-Bard. E is social."
+  },
+  {
+    q: "How does the cognitive theory of emotion trace the path of an external stimulus?",
+    options: ["Thalamus → Amygdala → Cortex", "Cortex (interpreted) → Limbic System → Autonomic NS (arousal)", "Hypothalamus → Thalamus → Cortex", "Amygdala → Prefrontal cortex → Hippocampus", "Autonomic NS → Cortex → Limbic System"],
+    correct: 1,
+    explanation: "✅ B — Information travels first to the cerebral cortex for interpretation, then a message is sent to the limbic system and ANS. Other paths do not match the specific 2-step cognitive interpretation model."
+  },
+  {
+    q: "What role does the hippocampus play in the limbic system's processing of emotion?",
+    options: ["It initiates the fight-or-flight response", "It serves as a sensory relay", "It processes immediate fear", "It integrates emotional experience with cognition and memory", "It suppresses the prefrontal cortex"],
+    correct: 3,
+    explanation: "✅ D — The hippocampus integrates emotional experience with cognition and memory. ❌ A is hypothalamus. B is thalamus. C is amygdala. E is the limbic system generally."
+  },
+  {
+    q: "Why do memories associated with strong emotions tend to be remembered better?",
+    options: ["The emotion destroys competing neural pathways", "Emotional events bypass the hippocampus", "The emotion links to cognition, recording the memory more deeply", "Sadness completely erases memory", "The sympathetic nervous system stores memories directly"],
+    correct: 2,
+    explanation: "✅ C — Memories linked to emotion are recorded better; even sadness acts to 'mask' rather than erase memory. ❌ A, B, E are false. D contradicts the text (it masks, doesn't erase)."
+  },
+  {
+    q: "What initiates the physiological arousal in visceral organs during an emotional response?",
+    options: ["Parasympathetic nervous system", "Somatic nervous system", "Autonomic nervous system and endocrine glands", "The visual cortex directly", "Sociocultural norms"],
+    correct: 2,
+    explanation: "✅ C — The autonomic nervous system and endocrine glands create physiological arousal in visceral organs. ❌ A relaxes the body. B controls voluntary muscle. D is sensory. E is environmental."
+  },
+  {
+    q: "In Plutchik's model, how are secondary emotions formed?",
+    options: ["By bypassing the amygdala", "By combining or mixing primary emotions, similar to mixing primary colors", "By eliminating physiological arousal", "Through pure cognitive appraisal without stimulus", "By activating the parasympathetic nervous system"],
+    correct: 1,
+    explanation: "✅ B — Plutchik's wheel demonstrates how basic emotions mix together to create secondary emotions, like an artist mixing colors. All other options do not describe Plutchik's model."
+  },
+  {
+    q: "What occurs during the 'Interpretation of Body Stimuli' step in Cognitive Theory?",
+    options: ["The brain ignores autonomic arousal", "The cerebral cortex sends a signal to the heart", "The individual interprets stimuli resulting from autonomic arousal and bodily actions", "The thalamus separates the emotional and physiological signals", "The person evaluates their capability to defeat a threat"],
+    correct: 2,
+    explanation: "✅ C — The second step is the interpretation of stimuli from the body resulting from autonomic arousal. ❌ A is opposite. B is step 1. D is Cannon-Bard. E is Cognitive Appraisal's extra step."
+  },
+  {
+    q: "A patient reports feeling fear at the exact same moment their heart rate spikes. Which theory best explains this?",
+    options: ["James-Lange Theory", "Schachter-Singer Two-Factor Theory", "Cannon-Bard Theory", "Cognitive Appraisal Theory", "Plutchik's Model"],
+    correct: 2,
+    explanation: "✅ C — Cannon-Bard posits that visceral arousal and the generation of emotion occur simultaneously yet independently."
+  },
+  {
+    q: "Which component of emotion involves facial expressions, body language, and social communication?",
+    options: ["Subjective experience", "Physiological response", "Behavioral/expressive response", "Cognitive labeling", "Autonomic activation"],
+    correct: 2,
+    explanation: "✅ C — The behavioral/expressive response is the actual expression of emotion (facial expressions, body language), which facilitates social interaction and emotional intelligence."
+  },
+  {
+    q: "An individual observes a barking dog, their heart begins to race, and ONLY AFTER perceiving their racing heart do they feel fear. Which theory does this illustrate?",
+    options: ["Cannon-Bard Theory", "Schachter-Singer Theory", "Cognitive Appraisal Theory", "James-Lange Theory", "Somatic marker hypothesis"],
+    correct: 3,
+    explanation: "✅ D — James-Lange Theory: external event → physiological arousal → emotion. The fear comes AFTER perceiving the bodily change."
+  },
+  {
+    q: "What is a 'secondary emotion' according to the lecture material?",
+    options: ["An emotion that occurs after the primary response fades", "A variation or direct response to a primary emotion (e.g., being frustrated at being sad)", "An emotion controlled by the secondary motor cortex", "An emotion that is purely cognitive without arousal", "A subcortical emotional state"],
+    correct: 1,
+    explanation: "✅ B — A secondary emotion is a variation or direct response to a primary emotion, such as being frustrated at being sad."
+  },
+  {
+    q: "Which structure stores feelings associated with dangerous situations and can inappropriately repeat them in non-dangerous contexts?",
+    options: ["Hippocampus", "Thalamus", "Hypothalamus", "Amygdala", "Prefrontal cortex"],
+    correct: 3,
+    explanation: "✅ D — The amygdala can store feelings for dangerous situations and inappropriately repeat them in non-dangerous situations, which is where mental illness stems from."
+  },
+  {
+    q: "A student is terrified of an upcoming exam, experiencing a racing heart and halted digestion. Which system is primarily responsible?",
+    options: ["Parasympathetic nervous system", "Somatic nervous system", "Sympathetic nervous system (activated by the hypothalamus)", "Central motor system", "Enteric nervous system"],
+    correct: 2,
+    explanation: "✅ C — The hypothalamus activates the sympathetic nervous system, causing physiological arousal in visceral organs (fight-or-flight)."
+  },
+  {
+    q: "Emotional regulation for a doctor specifically involves which of the following?",
+    options: ["Suppressing all personal emotions", "Ignoring the patient's emotional state", "Putting yourself in the patient's place and accepting their feelings", "Maintaining emotional distance at all times", "Using James-Lange theory to diagnose"],
+    correct: 2,
+    explanation: "✅ C — Emotional regulation for a doctor means putting yourself in the patient's place; accepting their feelings facilitates communication and treatment."
+  },
+  {
+    q: "Which region of the brain is called the 'higher brain' responsible for judgment, discrimination, and choice?",
+    options: ["Amygdala", "Thalamus", "Hypothalamus", "Prefrontal cortex", "Hippocampus"],
+    correct: 3,
+    explanation: "✅ D — The prefrontal cortex is the 'higher brain' region responsible for judgment, discrimination, and choice, but is often overridden by strong limbic emotions."
+  },
+  {
+    q: "Which statement about sadness and memory is TRUE according to the lecture?",
+    options: ["Sadness causes permanent memory loss", "Sadness enhances memory recall equally to joy", "Sadness doesn't cause loss of memory; it creates a mask over the memory", "Sadness only affects procedural memory", "Sadness has no relationship to memory"],
+    correct: 2,
+    explanation: "✅ C — 'Sadness doesn't cause loss of memory, it creates a mask over the memory.' The memory is still there but masked."
+  },
+  {
+    q: "Most mental illnesses, according to the lecture, are attributed to defects in which brain system?",
+    options: ["Somatic nervous system", "Cerebellar system", "Reticular activating system", "Limbic system", "Basal ganglia"],
+    correct: 3,
+    explanation: "✅ D — 'Most mental illnesses, such as schizophrenia and bipolar disorder, are due to a defect in the limbic system.'"
+  },
+  {
+    q: "In the Schachter-Singer theory, what happens if there is physiological arousal but NO cognitive label for the stimulus?",
+    options: ["A full emotional response occurs", "The emotion defaults to fear", "No specific emotion is experienced", "The Cannon-Bard mechanism takes over", "The amygdala produces anger"],
+    correct: 2,
+    explanation: "✅ C — Schachter-Singer requires BOTH arousal AND cognitive labeling. Without a cognitive label, there is no specific identifiable emotion — just ambiguous arousal."
+  }
+];
+
+const flashcardData = [
+  { q: "What are the 3 components of an emotion?", a: "1) Subjective Experience 2) Physiological Response 3) Behavioral/Expressive Response" },
+  { q: "What is the main role of the Amygdala?", a: "Processing emotional information, specifically FEAR. Activates when viewing threatening images." },
+  { q: "What does the Hypothalamus control in emotions?", a: "Hormonal changes and activating the Sympathetic Nervous System as part of the emotional reaction." },
+  { q: "How does the James-Lange theory sequence work?", a: "External event → Physiological arousal FIRST → Perceived as emotion. 'I am afraid because my heart races.'" },
+  { q: "How does Cannon-Bard differ from James-Lange?", a: "Arousal and emotion occur SIMULTANEOUSLY but INDEPENDENTLY (vs. James-Lange where arousal comes first)." },
+  { q: "What 2 factors does Schachter-Singer require?", a: "1) Physiological arousal AND 2) Cognitive labeling (reasoning about the stimulus danger)." },
+  { q: "What makes Cognitive Appraisal Theory unique?", a: "You evaluate BOTH the threat AND your own capacity to overcome it. If capable → no fear triggers." },
+  { q: "What is the Limbic System's primary function?", a: "Primary brain area for emotion and memory. Functions automatically to preserve life, can override rational brain." },
+  { q: "What mental illnesses relate to limbic system defects?", a: "Schizophrenia and Bipolar Disorder are both due to defects in the limbic system." },
+  { q: "How does the Amygdala cause mental illness?", a: "It stores danger feelings and can INAPPROPRIATELY REPEAT them in non-dangerous situations." },
+  { q: "What role does the Thalamus play?", a: "Sensory relay center — projects neurons to both the amygdala and cortical regions during emotional events." },
+  { q: "What does the Hippocampus do for emotions?", a: "Integrates emotional experience with cognition and memory — linking feelings to memories." },
+  { q: "What is the Prefrontal Cortex's role?", a: "The 'higher brain' for judgment, discrimination, and choice. Often OVERRIDDEN by strong limbic emotions." },
+  { q: "How does sadness affect memory?", a: "It does NOT cause memory loss — it creates a MASK over the memory. The memory still exists underneath." },
+  { q: "What are secondary emotions?", a: "Variations or responses TO primary emotions (e.g., being frustrated AT being sad). Like mixing primary colors." },
+  { q: "What is Plutchik's emotion model?", a: "A wheel showing how basic/primary emotions MIX to create secondary emotions, like mixing primary colors." },
+  { q: "What activates visceral organ arousal?", a: "The Autonomic Nervous System and endocrine glands create physiological arousal in visceral organs." },
+  { q: "Name 4 functions of emotion.", a: "1) Survival (adaptive) 2) Motivation 3) Speed up achievement 4) Influence learning & memory." },
+  { q: "What is emotional regulation for a doctor?", a: "Putting yourself in the patient's place; accepting their feelings facilitates communication and treatment." },
+  { q: "What happens when limbic system overrides prefrontal cortex?", a: "People behave 'out of character' — rational judgment is suppressed by intense emotional arousal." }
+];
+
+const caseData = [
+  {
+    title: "Amygdala Lesion Case",
+    vignette: "A 38-year-old patient suffers localized brain trauma after a motorcycle accident. Post-recovery, neurological assessment reveals that when shown rapidly approaching threatening images (snakes, spiders, aggressive faces), the patient shows NO fear response — no change in facial expression, no startle, no autonomic arousal.",
+    questions: [
+      { q: "What mechanism is disrupted?", a: "The processing of emotional/threat information. The amygdala, which is essential for processing fear-related stimuli, has been damaged. Brain scans reveal that the amygdala normally activates upon seeing threatening images; its damage distinctly impairs the fear response." },
+      { q: "What structure is most likely damaged?", a: "The Amygdala — the specific limbic structure responsible for detecting and processing fear signals. It activates when individuals are shown threatening images, and its damage leads to inability to recognize or exhibit fear." },
+      { q: "Could this patient develop PTSD? Why or why not?", a: "Unlikely in the typical sense. The amygdala stores feelings for dangerous situations to repeat them later. Without a functioning amygdala, the patient cannot form the fear-associated memories that drive PTSD's inappropriate repetition of danger responses in safe contexts." }
+    ]
+  },
+  {
+    title: "Exam Anxiety — Fight-or-Flight",
+    vignette: "A 22-year-old medical student arrives at clinic before an important exam. She reports a racing heart, dry mouth, 'butterflies in stomach,' and inability to eat breakfast. She is otherwise healthy with no cardiac history. She asks you, 'Am I having a heart attack?'",
+    questions: [
+      { q: "What system is causing these symptoms?", a: "The Sympathetic Nervous System (a branch of the ANS), activated by the Hypothalamus as part of the fight-or-flight response. This causes heart palpitations, altered blood flow, and halted digestion — all involuntary physiological reactions to emotional stress." },
+      { q: "How would you explain this to the patient using your knowledge of emotion theories?", a: "Using Schachter-Singer theory: Your body is experiencing physiological arousal (racing heart), and your brain is labeling the upcoming exam as a threat → producing the emotion of anxiety. These symptoms are NORMAL emotional responses, not cardiac pathology. Educating the patient about the SNS basis of these symptoms reduces anxiety." },
+      { q: "Using Cognitive Appraisal Theory, how could you help this student feel less afraid?", a: "Help her evaluate BOTH the threat (the exam) AND her own capability to handle it. If she recognizes that she has studied adequately and has the capacity to perform well, the emotion of fear will not trigger as strongly. This is the unique element of Cognitive Appraisal Theory." }
+    ]
+  },
+  {
+    title: "Bipolar Disorder & Limbic Dysfunction",
+    vignette: "A 45-year-old male presents with severe mood and emotional disturbances — cycling between extreme euphoria and profound depression over weeks. He has been diagnosed with bipolar disorder and asks about the biological basis of his condition.",
+    questions: [
+      { q: "What brain system is implicated?", a: "The Limbic System. Most mental illnesses, including bipolar disorder and schizophrenia, are due to functional defects in the limbic system, which is the primary brain area involved in emotion generation and regulation." },
+      { q: "Why does the amygdala contribute to psychiatric symptoms?", a: "The amygdala can store feelings for dangerous situations and inappropriately repeat them in non-dangerous situations. This mechanism of inappropriate emotional repetition is where mental illness stems from — the emotional system fires when it shouldn't." },
+      { q: "How does this relate to the conflict between the limbic system and prefrontal cortex?", a: "During intense emotional episodes, the limbic system dominates and overrides the prefrontal cortex (the rational brain responsible for judgment and choice). This explains why patients with mood disorders may act impulsively or 'out of character' during emotional episodes." }
+    ]
+  },
+  {
+    title: "James-Lange Theory in Action",
+    vignette: "An individual is walking through a dark alley at night. A large dog suddenly begins barking aggressively behind a fence. The person's heart begins to race, their palms sweat, and they start running. Only AFTER they notice their racing heart and running do they consciously think: 'I am terrified!'",
+    questions: [
+      { q: "Which theory of emotion does this scenario best illustrate? Why?", a: "The James-Lange Theory. This theory proposes that physiological activity (arousal) PRECEDES the emotional experience. The person's heart raced and they ran (physiological arousal first), and only AFTER perceiving these bodily changes did they consciously feel fear." },
+      { q: "How would the same scenario be explained differently by Cannon-Bard?", a: "Cannon-Bard would argue that the heart racing AND the feeling of fear occurred simultaneously but independently. The thalamus would relay the stimulus to both the body (for arousal) and the cortex/amygdala (for fear) at the same time." },
+      { q: "According to James-Lange, would fear occur WITHOUT bodily arousal?", a: "No — according to James-Lange, without bodily arousal (racing heart, sweating, running), the emotion of fear would NOT occur. The feeling IS the perception of the physiological change." }
+    ]
+  },
+  {
+    title: "Secondary Emotion Recognition",
+    vignette: "A 30-year-old woman comes to her therapist and says: 'I feel so angry at myself for being sad. I know I shouldn't be sad about this breakup — it's been months! But I can't stop, and that makes me furious.' She is crying while clenching her fists.",
+    questions: [
+      { q: "What type of emotion is her anger?", a: "Her anger is a SECONDARY EMOTION — it is a direct response to her primary emotion of sadness. Secondary emotions are variations or reactions TO primary emotions (e.g., being frustrated/angry at being sad). This represents higher cognitive processing layered onto universal primary emotional states." },
+      { q: "How does this relate to Plutchik's model?", a: "Plutchik's model shows that complex emotional experiences arise from combinations and reactions among primary emotions, similar to mixing primary colors to create new ones. Her experience demonstrates how primary emotions (sadness) can generate additional emotional layers (anger/frustration)." },
+      { q: "What would disruption of this ability look like?", a: "If the higher cognitive processing centers were disrupted, the person would only experience basic, primary emotional states without complex self-reflection. They would feel sad but NOT be able to feel frustrated ABOUT feeling sad — the meta-emotional layer would be absent." }
+    ]
+  },
+  {
+    title: "Long Integrative Case — Brain Mapping Study",
+    vignette: "A 45-year-old patient is participating in a clinical trial where they are shown rapidly approaching objects on a screen. Researchers are mapping their brain activity with fMRI and monitoring physiological output. The patient reports feeling fear at the EXACT same moment their heart rate spikes — the two responses appear simultaneous and independent of each other.",
+    questions: [
+      { q: "Step 1: Identify the structure/process involved.", a: "The thalamus relays the visual stimulus simultaneously to the amygdala (generating the emotion of fear) and the hypothalamus → autonomic nervous system (causing the heart rate spike). This parallel processing explains the simultaneous occurrence." },
+      { q: "Step 2: Describe the mechanism step by step.", a: "Visual stimulus → Thalamus (sensory relay) → simultaneously activates: (1) Cerebral cortex/Amygdala → generates conscious fear, AND (2) Hypothalamus → activates sympathetic nervous system → heart rate spikes. Both pathways fire in parallel." },
+      { q: "Step 3: Which theory is best supported? What's an alternative?", a: "BEST SUPPORTED: Cannon-Bard Theory — visceral arousal and emotion occur simultaneously yet independently. ALTERNATIVE: Schachter-Singer would argue the heart rate spiked first, and the cortex cognitively labeled the approaching object as a threat to produce the fear." },
+      { q: "Step 4: What is the best investigative technique?", a: "Brain imaging studies (fMRI/PET scans), which show amygdala activation when subjects view threatening images. Combined with autonomic monitoring (heart rate, galvanic skin response) to correlate physiological and neural data." },
+      { q: "Step 5: What if the amygdala were damaged?", a: "If the amygdala is damaged, the fear response is impaired — the patient would show no emotional reaction to threatening stimuli. If the broader limbic system is defective, it can lead to psychiatric disorders like bipolar disorder or schizophrenia." }
+    ]
+  }
+];
+
+const anatomyData = [
+  { icon: "🔴", name: "Amygdala", role: "Fear processing & threat detection", detail: "Essential for processing emotional information, specifically FEAR. Brain scans show activation when viewing threatening images. Can store danger memories and INAPPROPRIATELY REPEAT them in non-dangerous situations — this is where mental illness stems from. Damage → impaired fear response." },
+  { icon: "🟡", name: "Hypothalamus", role: "Hormones & SNS activation", detail: "Responsible for hormonal changes and activating the Sympathetic Nervous System as part of the emotional reaction. Controls the fight-or-flight response causing heart palpitations, altered blood flow, and halted digestion in visceral organs." },
+  { icon: "🔵", name: "Hippocampus", role: "Memory integration", detail: "Integrates emotional experience with cognition and memory. Memories linked to emotion are recorded better. Sadness doesn't cause memory loss — it creates a MASK over the memory. Critical for linking feelings to specific events." },
+  { icon: "🟢", name: "Thalamus", role: "Sensory relay center", detail: "Acts as the brain's relay station — projects sensory neurons to BOTH the amygdala (emotion pathway) and cortical regions (rational pathway) during emotional events. Central to Cannon-Bard theory's simultaneous processing." },
+  { icon: "🟣", name: "Prefrontal Cortex", role: "Judgment & rational choice", detail: "The 'higher brain' responsible for judgment, discrimination, and choice. Evaluates actions rationally BUT is often suppressed or OVERRIDDEN when strong limbic emotions take over. This explains why people act 'out of character' during intense emotions." },
+  { icon: "⚡", name: "Sympathetic NS", role: "Fight-or-flight arousal", detail: "A branch of the Autonomic Nervous System that controls involuntary fight-or-flight reactions. Causes heart palpitations, sweating, dry mouth, halted digestion, increased blood pressure — all physiological components of the emotional response." },
+  { icon: "🧪", name: "Endocrine Glands", role: "Hormonal arousal", detail: "Work with the ANS to create physiological arousal in visceral organs. Release stress hormones (e.g., cortisol, adrenaline) that amplify and sustain the emotional physiological response." },
+  { icon: "🧠", name: "Cerebral Cortex", role: "Cognitive interpretation", detail: "In cognitive theories, the cortex INTERPRETS the external stimulus first, then sends a message to the limbic system and ANS. Responsible for the cognitive labeling that Schachter-Singer theory requires for emotion generation." }
+];
+
+const fearFlowSteps = [
+  { text: "👁️ External Stimulus (e.g., threatening image)", detail: "A visual, auditory, or other sensory stimulus is detected by sensory organs and transmitted as neural signals." },
+  { text: "🟢 Thalamus (Sensory Relay Center)", detail: "The thalamus receives the sensory input and acts as a relay station, sending signals simultaneously to multiple brain regions." },
+  { text: "⬇️ Splits into TWO pathways", detail: "The thalamus projects to BOTH the amygdala/cortex for emotional processing AND the hypothalamus for physiological activation — this is the basis of Cannon-Bard's simultaneous processing." },
+  { text: "🔴 Amygdala → FEAR generated", detail: "The amygdala processes the threat information and generates the emotional fear response. Can store this danger memory for future (sometimes inappropriate) activation." },
+  { text: "🟡 Hypothalamus → SNS activated", detail: "The hypothalamus activates the sympathetic nervous system, triggering fight-or-flight: heart rate ↑, blood pressure ↑, digestion ↓, sweating ↑." },
+  { text: "🔵 Hippocampus → Memory recorded", detail: "The emotional experience is integrated with cognition and stored in memory. The stronger the emotion, the better the memory is recorded." },
+  { text: "💪 Behavioral Response (run, scream, freeze)", detail: "The final output: facial expressions, body language, and behavioral actions that express the emotion and facilitate survival." }
+];
+
+const theoryFlowSteps = [
+  { text: "🔍 Does physiological arousal occur BEFORE the emotional feeling?", detail: "If YES → consider James-Lange Theory (arousal precedes emotion)" },
+  { text: "⬇️ If YES → James-Lange Theory", detail: "Event → Body reacts (heart races, sweat) → Brain PERCEIVES these changes as emotion. 'I am afraid because my heart is racing.'" },
+  { text: "🔍 Do arousal and emotion occur at the SAME TIME independently?", detail: "If YES → consider Cannon-Bard Theory (simultaneous independent pathways)" },
+  { text: "⬇️ If YES → Cannon-Bard Theory", detail: "Thalamus sends signals simultaneously to cortex (emotion) and body (arousal). Both happen at the same time but independently." },
+  { text: "🔍 Is a COGNITIVE LABEL required alongside arousal?", detail: "If YES → consider Schachter-Singer (two factors needed)" },
+  { text: "⬇️ If YES → Schachter-Singer Two-Factor", detail: "Emotion = Arousal + Cognitive labeling. Without labeling the stimulus, arousal alone produces no specific emotion." },
+  { text: "🔍 Does the person evaluate BOTH threat AND self-capability?", detail: "If YES → Cognitive Appraisal Theory (latest theory)" },
+  { text: "⬇️ If YES → Cognitive Appraisal Theory", detail: "Dual evaluation: (1) How dangerous is the threat? (2) Can I handle it? If yes to #2 → no fear. This is the KEY differentiator." }
+];
+
+const mnemonicsData = [
+  {
+    title: "S.P.B.",
+    subtitle: "Three Components of Emotion",
+    items: [
+      { letter: "S", text: "Subjective Experience — personal, internal feeling" },
+      { letter: "P", text: "Physiological Response — SNS activation, heart rate, sweating" },
+      { letter: "B", text: "Behavioral Response — facial expressions, body language, actions" }
+    ]
+  },
+  {
+    title: "J.C.S.C.",
+    subtitle: "Four Theories of Emotion (Chronological)",
+    items: [
+      { letter: "J", text: "James-Lange — body first, then feeling (Just Cried, So sad)" },
+      { letter: "C", text: "Cannon-Bard — simultaneous, independent (Concurrent)" },
+      { letter: "S", text: "Schachter-Singer — arousal + cognitive label (Sense + Say)" },
+      { letter: "C", text: "Cognitive Appraisal — evaluate threat + self-capacity (Can I Cope?)" }
+    ]
+  },
+  {
+    title: "A.H.H.T.",
+    subtitle: "Limbic System Structures — 'A Hat for Thoughts'",
+    items: [
+      { letter: "A", text: "Amygdala — fear processing & threat detection" },
+      { letter: "H", text: "Hypothalamus — hormones & SNS activation" },
+      { letter: "H", text: "Hippocampus — memory integration with emotion" },
+      { letter: "T", text: "Thalamus — sensory relay to all regions" }
+    ]
+  },
+  {
+    title: "S.M.A.L.",
+    subtitle: "Functions of Emotion — 'Emotions are SMALL but powerful'",
+    items: [
+      { letter: "S", text: "Survival — adaptive responses to danger" },
+      { letter: "M", text: "Motivation — source of drive and energy" },
+      { letter: "A", text: "Achievement — speed up goal accomplishment" },
+      { letter: "L", text: "Learning — enhance memory recording" }
+    ]
+  },
+  {
+    title: "FEAR MASK",
+    subtitle: "Key Exam Facts About Emotion",
+    items: [
+      { letter: "F", text: "Fear processed by Amygdala" },
+      { letter: "E", text: "Emotions override rational prefrontal cortex" },
+      { letter: "A", text: "Amygdala stores & repeats danger inappropriately" },
+      { letter: "R", text: "Remember: emotions enhance memory recording" },
+      { letter: "M", text: "Mental illness = limbic system defect" },
+      { letter: "A", text: "Appraisal theory: evaluate threat + self-capacity" },
+      { letter: "S", text: "Sadness MASKS memory (doesn't erase)" },
+      { letter: "K", text: "Kindness in medicine: accept patient's feelings" }
+    ]
+  },
+  {
+    title: "TWO-STEP",
+    subtitle: "Cognitive Appraisal Theory Key Difference",
+    items: [
+      { letter: "1", text: "Step 1: Evaluate the STIMULUS — How dangerous is it?" },
+      { letter: "2", text: "Step 2: Evaluate YOUR CAPACITY — Can I handle it?" },
+      { letter: "=", text: "If capacity ≥ threat → NO FEAR triggers" },
+      { letter: "≠", text: "If capacity < threat → FEAR triggers" }
+    ]
+  }
+];
+
+
+// ============================================================
+// APP STATE
+// ============================================================
+
+let state = {
+  currentTab: 'overview',
+  quizIndex: 0,
+  quizScore: 0,
+  quizStreak: 0,
+  quizMaxStreak: 0,
+  quizAnswered: new Array(quizData.length).fill(null),
+  cardsFlipped: new Set(),
+  totalProgress: 0
+};
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('emotionStudyState');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      state = { ...state, ...parsed };
+      state.cardsFlipped = new Set(parsed.cardsFlipped || []);
+      state.quizAnswered = parsed.quizAnswered || new Array(quizData.length).fill(null);
+    }
+  } catch(e) {}
+}
+
+function saveState() {
+  try {
+    const toSave = { ...state, cardsFlipped: [...state.cardsFlipped] };
+    localStorage.setItem('emotionStudyState', JSON.stringify(toSave));
+  } catch(e) {}
+}
+
+
+// ============================================================
+// TAB NAVIGATION
+// ============================================================
+
+function initTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      switchTab(tab);
+    });
+  });
+  switchTab(state.currentTab || 'overview');
+}
+
+function switchTab(tabName) {
+  state.currentTab = tabName;
+  saveState();
+
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById(`tab-${tabName}`).classList.add('active');
+}
+
+
+// ============================================================
+// QUIZ
+// ============================================================
+
+function renderQuiz() {
+  const container = document.getElementById('quiz-container');
+  const q = quizData[state.quizIndex];
+  const answered = state.quizAnswered[state.quizIndex];
+
+  let optionsHTML = q.options.map((opt, i) => {
+    const letters = ['A', 'B', 'C', 'D', 'E'];
+    let cls = 'quiz-option';
+    if (answered !== null) {
+      cls += ' disabled';
+      if (i === q.correct) cls += ' correct';
+      else if (i === answered && i !== q.correct) cls += ' wrong';
+    }
+    return `<div class="${cls}" onclick="answerQuiz(${i})">
+      <div class="quiz-option-letter">${letters[i]}</div>
+      <div>${opt}</div>
+    </div>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="quiz-question-card">
+      <div class="quiz-q-number">Question ${state.quizIndex + 1} of ${quizData.length}</div>
+      <div class="quiz-q-text">${q.q}</div>
+      <div class="quiz-options">${optionsHTML}</div>
+      <div class="quiz-explanation ${answered !== null ? 'show' : ''}" id="quiz-explanation">
+        ${q.explanation}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('q-current').textContent = state.quizIndex + 1;
+  document.getElementById('q-score').textContent = state.quizScore;
+  document.getElementById('q-streak').textContent = state.quizStreak;
+  document.getElementById('quiz-progress').style.width = `${((state.quizIndex + 1) / quizData.length) * 100}%`;
+
+  document.getElementById('prev-q-btn').disabled = state.quizIndex === 0;
+
+  const nextBtn = document.getElementById('next-q-btn');
+  if (state.quizIndex === quizData.length - 1 && answered !== null) {
+    nextBtn.textContent = '🏁 Finish';
+    nextBtn.onclick = showResults;
+  } else {
+    nextBtn.textContent = 'Next ➡';
+    nextBtn.onclick = nextQuestion;
+  }
+
+  updateStats();
+}
+
+function answerQuiz(idx) {
+  if (state.quizAnswered[state.quizIndex] !== null) return;
+
+  state.quizAnswered[state.quizIndex] = idx;
+  const correct = quizData[state.quizIndex].correct;
+
+  if (idx === correct) {
+    state.quizScore++;
+    state.quizStreak++;
+    if (state.quizStreak > state.quizMaxStreak) state.quizMaxStreak = state.quizStreak;
+  } else {
+    state.quizStreak = 0;
+  }
+
+  saveState();
+  renderQuiz();
+}
+
+function nextQuestion() {
+  if (state.quizIndex < quizData.length - 1) {
+    state.quizIndex++;
+    saveState();
+    renderQuiz();
+  }
+}
+
+function prevQuestion() {
+  if (state.quizIndex > 0) {
+    state.quizIndex--;
+    saveState();
+    renderQuiz();
+  }
+}
+
+function showResults() {
+  document.getElementById('quiz-container').classList.add('hidden');
+  document.querySelector('.quiz-nav').classList.add('hidden');
+  document.querySelector('.quiz-progress-bar').classList.add('hidden');
+  document.querySelector('.quiz-header').classList.add('hidden');
+
+  const results = document.getElementById('quiz-results');
+  results.classList.remove('hidden');
+
+  const pct = Math.round((state.quizScore / quizData.length) * 100);
+  document.getElementById('final-score').textContent = pct + '%';
+
+  let msg = '';
+  if (pct >= 90) msg = '🌟 Outstanding! You\'ve mastered the Psychology of Emotions!';
+  else if (pct >= 75) msg = '💪 Great job! A few more reviews and you\'ll be perfect!';
+  else if (pct >= 60) msg = '📚 Good effort! Focus on the areas you missed.';
+  else msg = '🔄 Keep studying! Review the overview and try again.';
+  document.getElementById('final-msg').textContent = msg;
+
+  updateStats();
+}
+
+function resetQuiz() {
+  state.quizIndex = 0;
+  state.quizScore = 0;
+  state.quizStreak = 0;
+  state.quizAnswered = new Array(quizData.length).fill(null);
+  saveState();
+
+  document.getElementById('quiz-container').classList.remove('hidden');
+  document.querySelector('.quiz-nav').classList.remove('hidden');
+  document.querySelector('.quiz-progress-bar').classList.remove('hidden');
+  document.querySelector('.quiz-header').classList.remove('hidden');
+  document.getElementById('quiz-results').classList.add('hidden');
+
+  renderQuiz();
+}
+
+
+// ============================================================
+// FLASHCARDS
+// ============================================================
+
+function renderFlashcards() {
+  const grid = document.getElementById('flashcards-grid');
+  grid.innerHTML = flashcardData.map((fc, i) => `
+    <div class="flashcard-container" onclick="flipCard(this, ${i})">
+      <div class="flashcard ${state.cardsFlipped.has(i) ? 'flipped' : ''}">
+        <div class="flashcard-face flashcard-front">
+          <div class="fc-label">Question ${i + 1}</div>
+          <div class="fc-question">${fc.q}</div>
+          <div class="flashcard-hint">Click to flip 🔄</div>
+        </div>
+        <div class="flashcard-face flashcard-back">
+          <div class="fc-label">✅ Answer</div>
+          <div class="fc-answer">${fc.a}</div>
+          <div class="flashcard-hint">Click to flip back 🔄</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function flipCard(el, idx) {
+  const card = el.querySelector('.flashcard');
+  card.classList.toggle('flipped');
+  if (!state.cardsFlipped.has(idx)) {
+    state.cardsFlipped.add(idx);
+    saveState();
+    updateStats();
+  }
+}
+
+
+// ============================================================
+// CLINICAL CASES
+// ============================================================
+
+function renderCases() {
+  const container = document.getElementById('cases-container');
+  container.innerHTML = caseData.map((c, ci) => `
+    <div class="case-card">
+      <div class="case-header">
+        <div class="case-number">${ci + 1}</div>
+        <div class="case-title">${c.title}</div>
+      </div>
+      <div class="case-body">
+        <div class="case-vignette">${c.vignette}</div>
+        ${c.questions.map((qq, qi) => `
+          <div style="margin-bottom:16px;">
+            <div class="case-question">❓ ${qq.q}</div>
+            <button class="reveal-btn" onclick="revealCaseAnswer(this)">👁️ Reveal Answer</button>
+            <div class="case-answer" id="case-${ci}-${qi}">
+              ✅ ${qq.a}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function revealCaseAnswer(btn) {
+  const answer = btn.nextElementSibling;
+  answer.classList.toggle('show');
+  btn.textContent = answer.classList.contains('show') ? '🙈 Hide Answer' : '👁️ Reveal Answer';
+}
+
+
+// ============================================================
+// ANATOMY / NEUROBIOLOGY
+// ============================================================
+
+function renderAnatomy() {
+  const grid = document.getElementById('anatomy-grid');
+  grid.innerHTML = anatomyData.map((a, i) => `
+    <div class="anatomy-item" onclick="toggleAnatomyDetail(${i})">
+      <div class="anat-icon">${a.icon}</div>
+      <div class="anat-name">${a.name}</div>
+      <div class="anat-role">${a.role}</div>
+      <div class="anatomy-detail" id="anat-detail-${i}">${a.detail}</div>
+    </div>
+  `).join('');
+
+  // Fear Flow
+  const flow = document.getElementById('fear-flow');
+  flow.innerHTML = fearFlowSteps.map((s, i) => `
+    ${i > 0 ? '<div class="flow-arrow">⬇️</div>' : ''}
+    <div class="flow-step" onclick="toggleFlowDetail(this)">
+      ${s.text}
+      <div class="flow-step-detail">${s.detail}</div>
+    </div>
+  `).join('');
+}
+
+function toggleAnatomyDetail(idx) {
+  const el = document.getElementById(`anat-detail-${idx}`);
+  el.classList.toggle('show');
+}
+
+function toggleFlowDetail(el) {
+  const detail = el.querySelector('.flow-step-detail');
+  detail.classList.toggle('show');
+}
+
+
+// ============================================================
+// DIAGNOSIS / THEORIES
+// ============================================================
+
+function renderDiagnosis() {
+  const flow = document.getElementById('theory-flow');
+  flow.innerHTML = theoryFlowSteps.map((s, i) => `
+    ${i > 0 ? '<div class="flow-arrow">⬇️</div>' : ''}
+    <div class="flow-step" onclick="toggleFlowDetail(this)" style="${i % 2 === 1 ? 'background:rgba(108,92,231,0.12); border-color:rgba(108,92,231,0.3);' : ''}">
+      ${s.text}
+      <div class="flow-step-detail">${s.detail}</div>
+    </div>
+  `).join('');
+}
+
+function toggleBadgeInfo(el) {
+  const info = el.querySelector('.badge-info');
+  const detailBox = document.getElementById('badge-detail');
+  const detailText = document.getElementById('badge-detail-text');
+
+  if (info) {
+    detailBox.classList.remove('hidden');
+    detailText.textContent = info.textContent;
+  }
+}
+
+
+// ============================================================
+// MNEMONICS
+// ============================================================
+
+function renderMnemonics() {
+  const grid = document.getElementById('mnemonics-grid');
+  grid.innerHTML = mnemonicsData.map((m, mi) => `
+    <div class="mnemonic-card" onclick="toggleMnemonic(${mi})">
+      <div class="mnemonic-title">${m.title}</div>
+      <div class="mnemonic-subtitle">${m.subtitle}</div>
+      <ul class="mnemonic-list">
+        ${m.items.map(item => `
+          <li>
+            <span class="mnemonic-letter">${item.letter}</span>
+            <span>${item.text}</span>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+  `).join('');
+}
+
+function toggleMnemonic(idx) {
+  // Visual feedback on click
+  const cards = document.querySelectorAll('.mnemonic-card');
+  cards[idx].style.borderColor = 'var(--accent)';
+  setTimeout(() => { cards[idx].style.borderColor = ''; }, 600);
+}
+
+
+// ============================================================
+// SEARCH
+// ============================================================
+
+function initSearch() {
+  const input = document.getElementById('global-search');
+  input.addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase().trim();
+    if (!term) {
+      // Show all searchable items
+      document.querySelectorAll('.key-point, .card, .timeline-item, .anatomy-item, .treatment-card, .mnemonic-card').forEach(el => {
+        el.style.display = '';
+      });
+      return;
+    }
+
+    // Search in overview tab
+    document.querySelectorAll('.key-point, .card, .timeline-item, .anatomy-item, .treatment-card, .mnemonic-card').forEach(el => {
+      const text = el.textContent.toLowerCase();
+      el.style.display = text.includes(term) ? '' : 'none';
+    });
+  });
+}
+
+
+// ============================================================
+// STATS
+// ============================================================
+
+function updateStats() {
+  const answeredCount = state.quizAnswered.filter(a => a !== null).length;
+  const quizPct = Math.round((answeredCount / quizData.length) * 100);
+  const cardPct = Math.round((state.cardsFlipped.size / flashcardData.length) * 100);
+  const overall = Math.round((quizPct + cardPct) / 2);
+
+  document.getElementById('overall-progress').textContent = overall + '%';
+  document.getElementById('quiz-score-display').textContent = `${state.quizScore}/${quizData.length}`;
+  document.getElementById('streak-display').textContent = state.quizStreak;
+  document.getElementById('cards-flipped-display').textContent = `${state.cardsFlipped.size}/${flashcardData.length}`;
+}
+
+
+// ============================================================
+// INIT
+// ============================================================
+
+function init() {
+  loadState();
+  initTabs();
+  initSearch();
+  renderQuiz();
+  renderFlashcards();
+  renderCases();
+  renderAnatomy();
+  renderDiagnosis();
+  renderMnemonics();
+  updateStats();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synaptic Transmission | Neurophysiology Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #050c1a;
+  --bg2: #0a1628;
+  --bg3: #0f1e38;
+  --surface: #111f3a;
+  --surface2: #172845;
+  --border: rgba(100,180,255,0.12);
+  --border2: rgba(100,180,255,0.22);
+  --accent: #38bdf8;
+  --accent2: #818cf8;
+  --accent3: #34d399;
+  --accent4: #fb923c;
+  --accent5: #f472b6;
+  --danger: #f87171;
+  --text: #e2eaf8;
+  --text2: #94afd4;
+  --text3: #5a7ba8;
+  --gold: #fbbf24;
+  --glow: rgba(56,189,248,0.18);
+  --glow2: rgba(129,140,248,0.15);
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── BACKGROUND ── */
+.bg-canvas{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  overflow:hidden;
+}
+.orb{
+  position:absolute;border-radius:50%;filter:blur(80px);opacity:0.18;
+  animation:drift 20s ease-in-out infinite alternate;
+}
+.orb:nth-child(1){width:700px;height:700px;background:radial-gradient(circle,#1a6fbf,transparent);top:-200px;left:-200px;animation-duration:25s;}
+.orb:nth-child(2){width:500px;height:500px;background:radial-gradient(circle,#4f46e5,transparent);top:30%;right:-150px;animation-duration:18s;animation-delay:-5s;}
+.orb:nth-child(3){width:400px;height:400px;background:radial-gradient(circle,#0e7490,transparent);bottom:-100px;left:30%;animation-duration:22s;animation-delay:-10s;}
+.orb:nth-child(4){width:350px;height:350px;background:radial-gradient(circle,#7c3aed,transparent);bottom:10%;right:10%;animation-duration:28s;animation-delay:-3s;}
+@keyframes drift{0%{transform:translate(0,0) scale(1);}100%{transform:translate(40px,30px) scale(1.1);}}
+
+/* ── LAYOUT ── */
+#app{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 20px 60px;}
+
+/* ── HEADER ── */
+.header{
+  padding:40px 0 30px;
+  text-align:center;
+  position:relative;
+}
+.header-badge{
+  display:inline-block;
+  background:rgba(56,189,248,0.12);
+  border:1px solid rgba(56,189,248,0.3);
+  color:var(--accent);
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  letter-spacing:2px;
+  padding:6px 16px;
+  border-radius:100px;
+  margin-bottom:18px;
+  text-transform:uppercase;
+}
+.header h1{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(28px,5vw,52px);
+  font-weight:800;
+  line-height:1.1;
+  background:linear-gradient(135deg,#e2eaf8 0%,#38bdf8 40%,#818cf8 80%,#34d399 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:12px;
+}
+.header-sub{
+  color:var(--text2);font-size:15px;font-weight:300;letter-spacing:0.3px;
+}
+.stats-bar{
+  display:flex;gap:20px;justify-content:center;flex-wrap:wrap;
+  margin-top:24px;
+}
+.stat-pill{
+  display:flex;align-items:center;gap:8px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:100px;padding:8px 18px;font-size:13px;
+  transition:transform 0.2s,border-color 0.2s;
+}
+.stat-pill:hover{transform:translateY(-2px);border-color:var(--border2);}
+.stat-pill .num{font-family:'Syne',sans-serif;font-weight:700;color:var(--accent);font-size:16px;}
+.stat-pill .lbl{color:var(--text3);font-size:12px;}
+
+/* ── NAV ── */
+.tab-nav{
+  display:flex;gap:6px;flex-wrap:wrap;justify-content:center;
+  padding:6px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  margin:24px 0;
+  position:sticky;top:10px;z-index:100;
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+}
+.tab-btn{
+  padding:9px 16px;border-radius:10px;border:none;
+  background:transparent;color:var(--text2);
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
+  cursor:pointer;transition:all 0.2s;white-space:nowrap;
+}
+.tab-btn:hover{background:rgba(56,189,248,0.1);color:var(--text);}
+.tab-btn.active{
+  background:linear-gradient(135deg,rgba(56,189,248,0.2),rgba(129,140,248,0.2));
+  color:var(--accent);
+  border:1px solid rgba(56,189,248,0.35);
+  box-shadow:0 0 16px rgba(56,189,248,0.15);
+}
+
+/* ── SEARCH ── */
+.search-wrap{
+  position:relative;margin-bottom:24px;
+}
+.search-wrap input{
+  width:100%;padding:14px 20px 14px 48px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;
+  outline:none;transition:border-color 0.2s,box-shadow 0.2s;
+}
+.search-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,0.1);}
+.search-wrap input::placeholder{color:var(--text3);}
+.search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:18px;}
+
+/* ── SECTION ── */
+.tab-content{display:none;animation:fadeUp 0.35s ease;}
+.tab-content.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── SECTION HEADERS ── */
+.section-title{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:22px;
+  color:var(--text);margin-bottom:6px;
+  display:flex;align-items:center;gap:10px;
+}
+.section-title span.accent{color:var(--accent);}
+.section-sub{color:var(--text3);font-size:13px;margin-bottom:24px;}
+
+/* ── CARDS ── */
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:22px;
+  transition:border-color 0.2s,transform 0.2s,box-shadow 0.2s;
+}
+.card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,0.3);}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;}
+
+/* ── TAGS ── */
+.tag{
+  display:inline-block;padding:3px 10px;border-radius:100px;
+  font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;
+}
+.tag-exam{background:rgba(251,146,60,0.15);color:var(--accent4);border:1px solid rgba(251,146,60,0.3);}
+.tag-yield{background:rgba(52,211,153,0.12);color:var(--accent3);border:1px solid rgba(52,211,153,0.25);}
+.tag-pearl{background:rgba(129,140,248,0.15);color:var(--accent2);border:1px solid rgba(129,140,248,0.3);}
+.tag-key{background:rgba(56,189,248,0.12);color:var(--accent);border:1px solid rgba(56,189,248,0.25);}
+
+/* ── OVERVIEW ── */
+.overview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:28px;}
+.topic-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;
+  border-left:3px solid var(--accent);
+  transition:all 0.2s;
+}
+.topic-card:nth-child(2){border-left-color:var(--accent2);}
+.topic-card:nth-child(3){border-left-color:var(--accent3);}
+.topic-card:nth-child(4){border-left-color:var(--accent4);}
+.topic-card:nth-child(5){border-left-color:var(--accent5);}
+.topic-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.35);}
+.topic-card h3{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:10px;color:var(--text);}
+.topic-card p{font-size:13px;color:var(--text2);line-height:1.6;}
+.high-yield-box{
+  background:linear-gradient(135deg,rgba(251,146,60,0.08),rgba(248,113,113,0.06));
+  border:1px solid rgba(251,146,60,0.25);
+  border-radius:var(--radius);padding:20px;margin-bottom:24px;
+}
+.high-yield-box h3{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:14px;
+  color:var(--accent4);margin-bottom:14px;display:flex;align-items:center;gap:8px;
+}
+.hy-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 0;border-bottom:1px solid rgba(251,146,60,0.1);
+  font-size:13.5px;color:var(--text2);line-height:1.6;
+}
+.hy-item:last-child{border-bottom:none;}
+.hy-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--accent4);
+  margin-top:7px;flex-shrink:0;
+}
+.flow-chart{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:24px;margin-bottom:24px;
+}
+.flow-chart h3{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:14px;
+  color:var(--accent);margin-bottom:18px;
+}
+.flow-steps{display:flex;flex-wrap:wrap;gap:0;align-items:center;}
+.flow-step{
+  background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);
+  border-radius:var(--radius-sm);padding:10px 14px;
+  font-size:12.5px;color:var(--text2);
+  max-width:180px;text-align:center;line-height:1.4;
+  flex-shrink:0;
+}
+.flow-step strong{display:block;color:var(--accent);font-size:11px;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;}
+.flow-arrow{color:var(--accent);font-size:18px;padding:0 6px;flex-shrink:0;}
+
+/* ── COMPARISON TABLES ── */
+.compare-table{width:100%;border-collapse:collapse;margin-bottom:24px;}
+.compare-table th{
+  background:rgba(56,189,248,0.1);color:var(--accent);
+  font-family:'Syne',sans-serif;font-weight:600;font-size:12px;
+  text-transform:uppercase;letter-spacing:0.8px;
+  padding:12px 16px;text-align:left;
+  border-bottom:1px solid var(--border2);
+}
+.compare-table td{
+  padding:11px 16px;font-size:13px;color:var(--text2);
+  border-bottom:1px solid var(--border);vertical-align:top;line-height:1.5;
+}
+.compare-table tr:hover td{background:rgba(56,189,248,0.04);}
+.compare-table td:first-child{color:var(--text);font-weight:500;}
+
+/* ── QUIZ ── */
+.quiz-header{
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  margin-bottom:20px;
+}
+.quiz-progress-wrap{flex:1;min-width:200px;}
+.quiz-progress-label{font-size:12px;color:var(--text3);margin-bottom:6px;display:flex;justify-content:space-between;}
+.progress-bar{height:6px;background:rgba(255,255,255,0.08);border-radius:100px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:100px;transition:width 0.4s ease;}
+.streak-badge{
+  background:linear-gradient(135deg,rgba(251,191,36,0.15),rgba(251,146,60,0.1));
+  border:1px solid rgba(251,191,36,0.3);
+  border-radius:100px;padding:8px 16px;
+  display:flex;align-items:center;gap:6px;
+  font-size:13px;font-weight:600;color:var(--gold);
+}
+.score-badge{
+  background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.25);
+  border-radius:100px;padding:8px 16px;
+  font-size:13px;font-weight:600;color:var(--accent3);
+}
+.question-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:26px;margin-bottom:16px;
+}
+.q-num{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--text3);letter-spacing:1px;margin-bottom:10px;
+}
+.q-text{font-size:15px;font-weight:500;line-height:1.6;margin-bottom:18px;color:var(--text);}
+.q-options{display:flex;flex-direction:column;gap:8px;}
+.q-option{
+  padding:12px 16px;border-radius:var(--radius-sm);
+  border:1px solid var(--border);background:transparent;
+  color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13.5px;
+  cursor:pointer;transition:all 0.18s;text-align:left;
+  display:flex;align-items:center;gap:10px;
+}
+.q-option .opt-key{
+  width:22px;height:22px;border-radius:50%;border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-family:'JetBrains Mono',monospace;
+  color:var(--text3);flex-shrink:0;
+}
+.q-option:hover:not(.answered){border-color:var(--border2);background:rgba(56,189,248,0.06);color:var(--text);}
+.q-option.correct{
+  border-color:var(--accent3);background:rgba(52,211,153,0.1);color:var(--accent3);
+  animation:pulse-correct 0.4s ease;
+}
+.q-option.wrong{
+  border-color:var(--danger);background:rgba(248,113,113,0.08);color:var(--danger);
+  animation:shake 0.4s ease;
+}
+.q-option.show-correct{
+  border-color:var(--accent3);background:rgba(52,211,153,0.06);color:var(--accent3);
+}
+@keyframes pulse-correct{0%{transform:scale(1);}50%{transform:scale(1.02);}100%{transform:scale(1);}}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+.q-explanation{
+  margin-top:14px;padding:14px;
+  background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.15);
+  border-radius:var(--radius-sm);
+  font-size:13px;color:var(--text2);line-height:1.6;
+  display:none;
+}
+.q-explanation.show{display:block;animation:fadeUp 0.25s ease;}
+.q-explanation strong{color:var(--accent);}
+.q-source{font-size:11px;color:var(--text3);margin-top:6px;font-family:'JetBrains Mono',monospace;}
+
+/* ── FLASHCARDS ── */
+.flash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+.flash-card{
+  height:200px;cursor:pointer;perspective:1000px;
+}
+.flash-inner{
+  width:100%;height:100%;position:relative;
+  transform-style:preserve-3d;transition:transform 0.55s cubic-bezier(.4,2,.3,1);
+}
+.flash-card.flipped .flash-inner{transform:rotateY(180deg);}
+.flash-front,.flash-back{
+  position:absolute;inset:0;border-radius:var(--radius);
+  backface-visibility:hidden;display:flex;flex-direction:column;
+  padding:20px;
+}
+.flash-front{
+  background:var(--surface);border:1px solid var(--border);
+  justify-content:space-between;
+}
+.flash-back{
+  background:linear-gradient(135deg,var(--surface2),rgba(56,189,248,0.07));
+  border:1px solid rgba(56,189,248,0.25);
+  transform:rotateY(180deg);justify-content:center;
+}
+.flash-front .f-cat{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--text3);letter-spacing:1px;text-transform:uppercase;
+}
+.flash-front .f-q{
+  font-size:14px;font-weight:500;color:var(--text);line-height:1.5;
+  flex:1;display:flex;align-items:center;
+}
+.flash-front .f-hint{
+  font-size:11px;color:var(--text3);display:flex;align-items:center;gap:4px;
+}
+.flash-back .f-a{
+  font-size:13.5px;color:var(--text);line-height:1.6;
+}
+.flash-back .f-a strong{color:var(--accent);}
+
+/* ── CASES ── */
+.case-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:24px;margin-bottom:20px;
+  position:relative;overflow:hidden;
+}
+.case-card::before{
+  content:'';position:absolute;top:0;left:0;
+  width:4px;height:100%;
+  background:linear-gradient(180deg,var(--accent),var(--accent2));
+}
+.case-num{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--text3);letter-spacing:1px;margin-bottom:10px;
+}
+.case-vignette{
+  background:rgba(14,116,144,0.08);border:1px solid rgba(14,116,144,0.18);
+  border-radius:var(--radius-sm);padding:16px;
+  margin-bottom:16px;font-size:14px;color:var(--text2);line-height:1.7;
+}
+.case-questions{list-style:none;margin-bottom:16px;}
+.case-questions li{
+  padding:10px 0;border-bottom:1px solid var(--border);
+  font-size:13.5px;color:var(--text);display:flex;gap:8px;
+}
+.case-questions li::before{
+  content:attr(data-n);
+  background:rgba(56,189,248,0.15);color:var(--accent);
+  width:22px;height:22px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-family:'JetBrains Mono',monospace;flex-shrink:0;
+}
+.reveal-btn{
+  padding:10px 20px;border-radius:var(--radius-sm);
+  background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.25);
+  color:var(--accent);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
+  cursor:pointer;transition:all 0.2s;
+}
+.reveal-btn:hover{background:rgba(56,189,248,0.18);transform:translateY(-1px);}
+.case-answer{
+  margin-top:14px;padding:16px;
+  background:rgba(52,211,153,0.05);border:1px solid rgba(52,211,153,0.15);
+  border-radius:var(--radius-sm);
+  font-size:13px;color:var(--text2);line-height:1.7;
+  display:none;
+}
+.case-answer.show{display:block;animation:fadeUp 0.3s ease;}
+.case-answer strong{color:var(--accent3);}
+
+/* ── PATHOPHYSIOLOGY ── */
+.patho-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:28px;}
+.patho-item{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px;cursor:pointer;
+  transition:all 0.2s;
+}
+.patho-item:hover,.patho-item.expanded{
+  border-color:var(--accent2);background:rgba(129,140,248,0.06);
+}
+.patho-item h4{
+  font-family:'Syne',sans-serif;font-weight:600;font-size:14px;
+  color:var(--text);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;
+}
+.patho-item h4 .pi-icon{color:var(--accent2);transition:transform 0.2s;}
+.patho-item.expanded h4 .pi-icon{transform:rotate(90deg);}
+.patho-item p{font-size:12.5px;color:var(--text3);}
+.patho-detail{
+  font-size:13px;color:var(--text2);line-height:1.6;
+  margin-top:12px;padding-top:12px;border-top:1px solid var(--border);
+  display:none;
+}
+.patho-item.expanded .patho-detail{display:block;animation:fadeUp 0.25s ease;}
+
+/* ── TREATMENT ── */
+.treatment-section{margin-bottom:28px;}
+.treatment-section h3{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:16px;
+  color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px;
+}
+.drug-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
+.drug-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:16px;
+  transition:all 0.2s;
+}
+.drug-card:hover{border-color:var(--border2);transform:translateY(-2px);}
+.drug-card .drug-name{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:14px;
+  color:var(--text);margin-bottom:6px;
+}
+.drug-card .drug-class{
+  font-size:11px;color:var(--text3);text-transform:uppercase;
+  letter-spacing:0.5px;margin-bottom:8px;font-family:'JetBrains Mono',monospace;
+}
+.drug-card p{font-size:12.5px;color:var(--text2);line-height:1.5;}
+
+/* ── MNEMONICS ── */
+.mnemonic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+.mnemonic-card{
+  background:var(--surface);
+  border-radius:var(--radius);padding:22px;
+  border-top:2px solid var(--accent2);
+  position:relative;overflow:hidden;
+}
+.mnemonic-card::after{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:120px;height:120px;border-radius:50%;
+  background:rgba(129,140,248,0.06);
+}
+.mnemonic-card h3{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:18px;
+  color:var(--accent2);margin-bottom:6px;
+}
+.mnemonic-card .m-topic{
+  font-size:11px;color:var(--text3);text-transform:uppercase;
+  letter-spacing:0.8px;margin-bottom:14px;font-family:'JetBrains Mono',monospace;
+}
+.mnemonic-letters{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.mnemonic-letters li{
+  display:flex;gap:10px;align-items:flex-start;
+  font-size:13px;color:var(--text2);
+}
+.mnemonic-letters li strong{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:16px;
+  color:var(--accent2);width:18px;flex-shrink:0;
+}
+
+/* ── VIVA ── */
+.viva-list{display:flex;flex-direction:column;gap:12px;}
+.viva-item{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+}
+.viva-q{
+  padding:16px 20px;cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:14px;font-weight:500;color:var(--text);
+  transition:background 0.2s;
+}
+.viva-q:hover{background:rgba(56,189,248,0.04);}
+.viva-q .vq-num{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--text3);margin-right:12px;flex-shrink:0;
+}
+.viva-q .vq-arrow{
+  color:var(--text3);transition:transform 0.2s;font-size:12px;flex-shrink:0;
+}
+.viva-item.open .vq-arrow{transform:rotate(90deg);}
+.viva-a{
+  padding:0 20px;max-height:0;overflow:hidden;
+  transition:max-height 0.35s ease,padding 0.25s ease;
+  font-size:13.5px;color:var(--text2);line-height:1.7;
+  border-top:0px solid var(--border);
+}
+.viva-item.open .viva-a{
+  max-height:400px;padding:16px 20px;
+  border-top:1px solid var(--border);
+}
+.viva-a strong{color:var(--accent);}
+.viva-a .exam-flag{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(251,146,60,0.12);border:1px solid rgba(251,146,60,0.25);
+  border-radius:var(--radius-sm);padding:8px 12px;
+  font-size:12px;color:var(--accent4);margin-top:10px;
+}
+
+/* ── QUIZ RESULTS ── */
+.quiz-result{
+  text-align:center;padding:40px 20px;
+  display:none;
+}
+.quiz-result.show{display:block;animation:fadeUp 0.4s ease;}
+.result-score{
+  font-family:'Syne',sans-serif;font-size:72px;font-weight:800;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  line-height:1;margin-bottom:12px;
+}
+.result-label{font-size:18px;color:var(--text2);margin-bottom:24px;}
+.restart-btn{
+  padding:12px 28px;border-radius:var(--radius);
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;color:#fff;font-family:'Syne',sans-serif;
+  font-size:14px;font-weight:700;cursor:pointer;
+  transition:opacity 0.2s,transform 0.2s;
+}
+.restart-btn:hover{opacity:0.9;transform:translateY(-2px);}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(56,189,248,0.25);border-radius:100px;}
+::-webkit-scrollbar-thumb:hover{background:rgba(56,189,248,0.4);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  .tab-btn{font-size:11.5px;padding:8px 10px;}
+  .flow-steps{flex-direction:column;align-items:flex-start;}
+  .flow-arrow{transform:rotate(90deg);}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="orb"></div><div class="orb"></div><div class="orb"></div><div class="orb"></div>
+</div>
+
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-badge">Faculty of Medicine · Mansoura University</div>
+    <h1>Synaptic Transmission</h1>
+    <div class="header-sub">Neurophysiological Principles · Interactive Study Platform</div>
+    <div class="stats-bar">
+      <div class="stat-pill"><span class="num" id="stat-score">0</span><span class="lbl">Quiz Score</span></div>
+      <div class="stat-pill"><span class="num" id="stat-streak">0</span><span class="lbl">🔥 Streak</span></div>
+      <div class="stat-pill"><span class="num" id="stat-progress">0%</span><span class="lbl">Progress</span></div>
+      <div class="stat-pill"><span class="num">5</span><span class="lbl">Topics</span></div>
+      <div class="stat-pill"><span class="num">25</span><span class="lbl">MCQs</span></div>
+    </div>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="globalSearch" placeholder="Search concepts, drugs, mechanisms... (e.g. 'Ca2+', 'GABA', 'axon hillock')" oninput="handleSearch(this.value)">
+  </div>
+  <div id="searchResults" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;"></div>
+
+  <!-- NAV -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="showTab('overview',this)">📚 Overview</button>
+    <button class="tab-btn" onclick="showTab('quiz',this)">🎯 Quiz</button>
+    <button class="tab-btn" onclick="showTab('flashcards',this)">🃏 Flashcards</button>
+    <button class="tab-btn" onclick="showTab('cases',this)">🏥 Cases</button>
+    <button class="tab-btn" onclick="showTab('patho',this)">⚡ Pathophysiology</button>
+    <button class="tab-btn" onclick="showTab('compare',this)">📊 Compare</button>
+    <button class="tab-btn" onclick="showTab('mnemonics',this)">🧠 Mnemonics</button>
+    <button class="tab-btn" onclick="showTab('viva',this)">🗣️ Viva</button>
+  </nav>
+
+  <!-- ══════════════════ OVERVIEW ══════════════════ -->
+  <div id="tab-overview" class="tab-content active">
+    <div class="section-title">📚 <span class="accent">Overview</span> — Synaptic Transmission</div>
+    <div class="section-sub">5 major topics · 20+ key concepts · USMLE-style prep</div>
+
+    <div class="high-yield-box">
+      <h3>⚠️ EXAM CRITICAL — High-Yield Facts</h3>
+      <div class="hy-item"><div class="hy-dot"></div><div><strong>G-Protein Coupled Receptors cause STRUCTURAL changes</strong> (via gene transcription/protein synthesis) — NOT just electrical changes. Metabotropic ≠ immediate ion flux. Memorize this!</div></div>
+      <div class="hy-item"><div class="hy-dot"></div><div><strong>Axon Hillock</strong> = site of Action Potential generation due to the highest density of voltage-gated Na⁺ channels in the neuron.</div></div>
+      <div class="hy-item"><div class="hy-dot"></div><div><strong>EPSPs have variable amplitudes (~0.5 mV)</strong> and MUST be summated (spatial or temporal) to reach threshold — unlike APs which follow the all-or-none law.</div></div>
+      <div class="hy-item"><div class="hy-dot"></div><div><strong>Synaptic Fatigue</strong> is a PROTECTIVE mechanism (e.g., terminates epileptic fits) caused by depletion of NT stores during rapid stimulation.</div></div>
+      <div class="hy-item"><div class="hy-dot"></div><div><strong>Na⁺ influx is ~7.5× greater than K⁺ efflux</strong> through cation channels — this net inward current produces the EPSP depolarization.</div></div>
+    </div>
+
+    <div class="overview-grid">
+      <div class="topic-card">
+        <h3>🔌 Topic 1 — Synapse Types</h3>
+        <p>Electrical (gap junctions/connexons): bidirectional, fast, fatigue-resistant. Chemical: unidirectional, slower, fatigable — represents almost ALL CNS synapses.</p>
+        <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="tag tag-yield">High-Yield</span><span class="tag tag-key">Connexons</span>
+        </div>
+      </div>
+      <div class="topic-card">
+        <h3>⚗️ Topic 2 — Transmission Mechanism</h3>
+        <p>AP → Ca²⁺ influx → vesicle exocytosis → NT diffuses cleft → ionotropic (fast) or metabotropic (slow, structural) receptor activation.</p>
+        <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="tag tag-exam">Exam ⚠️</span><span class="tag tag-key">G-Protein</span>
+        </div>
+      </div>
+      <div class="topic-card">
+        <h3>⚡ Topic 3 — PSPs & Summation</h3>
+        <p>EPSP = cation channel → depolarization. IPSP = anion/K⁺ channel → hyperpolarization. Spatial + temporal summation required at axon hillock.</p>
+        <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="tag tag-exam">Exam ⚠️</span><span class="tag tag-pearl">Pearl</span>
+        </div>
+      </div>
+      <div class="topic-card">
+        <h3>🚫 Topic 4 — Inhibition</h3>
+        <p>Presynaptic: GABA opens Cl⁻ channels on excitatory terminal → ↓AP amplitude → ↓Ca²⁺ → ↓NT release. Postsynaptic: direct hyperpolarization. Recurrent: feedback loop.</p>
+        <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="tag tag-yield">High-Yield</span><span class="tag tag-key">GABA</span>
+        </div>
+      </div>
+      <div class="topic-card">
+        <h3>🕐 Topic 5 — Synaptic Properties</h3>
+        <p>Delay (0.5 msec), Fatigue (NT depletion, protective), Post-tetanic facilitation (presynaptic Ca²⁺), LTP (postsynaptic Ca²⁺, days, memory). pH: alkalosis → convulsions; acidosis → coma.</p>
+        <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="tag tag-yield">High-Yield</span><span class="tag tag-pearl">Memory</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chemical Synapse Flow -->
+    <div class="flow-chart">
+      <h3>⚡ Chemical Synaptic Transmission — Step-by-Step</h3>
+      <div class="flow-steps">
+        <div class="flow-step"><strong>Step 1</strong>AP arrives at synaptic knob</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><strong>Step 2</strong>Voltage-gated Ca²⁺ channels open</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><strong>Step 3</strong>Ca²⁺ enters → binds vesicle docking proteins</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><strong>Step 4</strong>Exocytosis of NT into cleft</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><strong>Step 5</strong>NT binds ionotropic OR metabotropic receptor</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><strong>Step 6</strong>EPSP/IPSP or Gene Transcription</div>
+      </div>
+    </div>
+
+    <!-- Presynaptic Inhibition Flow -->
+    <div class="flow-chart" style="border-color:rgba(248,113,113,0.2);">
+      <h3 style="color:var(--danger);">🚫 Presynaptic Inhibition — Mechanism</h3>
+      <div class="flow-steps">
+        <div class="flow-step" style="border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.06);"><strong>Step 1</strong>Inhibitory interneuron fires</div>
+        <div class="flow-arrow" style="color:var(--danger);">→</div>
+        <div class="flow-step" style="border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.06);"><strong>Step 2</strong>GABA released onto excitatory presynaptic terminal</div>
+        <div class="flow-arrow" style="color:var(--danger);">→</div>
+        <div class="flow-step" style="border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.06);"><strong>Step 3</strong>Cl⁻ channels open → Cl⁻ influx</div>
+        <div class="flow-arrow" style="color:var(--danger);">→</div>
+        <div class="flow-step" style="border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.06);"><strong>Step 4</strong>↓ AP amplitude in terminal</div>
+        <div class="flow-arrow" style="color:var(--danger);">→</div>
+        <div class="flow-step" style="border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.06);"><strong>Step 5</strong>↓ Ca²⁺ influx → ↓ NT released → ↓ EPSP</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ QUIZ ══════════════════ -->
+  <div id="tab-quiz" class="tab-content">
+    <div class="section-title">🎯 <span class="accent">Quiz Mode</span></div>
+    <div class="section-sub">25 USMLE-style MCQs · Immediate feedback · Streak tracking</div>
+
+    <div class="quiz-header">
+      <div class="quiz-progress-wrap">
+        <div class="quiz-progress-label">
+          <span id="qProgressLabel">Question 0 of 25</span>
+          <span id="qProgressPct">0%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="quizProgressBar" style="width:0%"></div></div>
+      </div>
+      <div class="streak-badge">🔥 <span id="quizStreak">0</span> streak</div>
+      <div class="score-badge">✅ <span id="quizScore">0</span>/<span id="quizTotal">25</span></div>
+    </div>
+
+    <div id="quizContainer"></div>
+    <div class="quiz-result" id="quizResult">
+      <div class="result-score" id="resultScore">0/25</div>
+      <div class="result-label" id="resultLabel"></div>
+      <button class="restart-btn" onclick="initQuiz()">🔄 Restart Quiz</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════ FLASHCARDS ══════════════════ -->
+  <div id="tab-flashcards" class="tab-content">
+    <div class="section-title">🃏 <span class="accent">Flashcards</span></div>
+    <div class="section-sub">Click any card to reveal the answer · 24 cards covering all topics</div>
+    <div class="flash-grid" id="flashGrid"></div>
+  </div>
+
+  <!-- ══════════════════ CASES ══════════════════ -->
+  <div id="tab-cases" class="tab-content">
+    <div class="section-title">🏥 <span class="accent">Clinical Cases</span></div>
+    <div class="section-sub">Exam-style vignettes with detailed model answers</div>
+    <div id="casesContainer"></div>
+  </div>
+
+  <!-- ══════════════════ PATHO ══════════════════ -->
+  <div id="tab-patho" class="tab-content">
+    <div class="section-title">⚡ <span class="accent">Pathophysiology</span></div>
+    <div class="section-sub">Click any concept for detailed explanation</div>
+    <div class="patho-grid" id="pathoGrid"></div>
+  </div>
+
+  <!-- ══════════════════ COMPARE ══════════════════ -->
+  <div id="tab-compare" class="tab-content">
+    <div class="section-title">📊 <span class="accent">Comparison Tables</span></div>
+    <div class="section-sub">Side-by-side comparison of key concepts</div>
+
+    <div class="section-title" style="font-size:16px;margin-bottom:14px;">⚡ Electrical vs Chemical Synapses</div>
+    <div style="overflow-x:auto;margin-bottom:28px;">
+      <table class="compare-table">
+        <tr><th>Feature</th><th>Electrical Synapses</th><th>Chemical Synapses</th></tr>
+        <tr><td>Structure</td><td>Gap junctions made of connexon proteins</td><td>Presynaptic terminal + synaptic cleft + postsynaptic membrane</td></tr>
+        <tr><td>Directionality</td><td>Bidirectional</td><td>Unidirectional only</td></tr>
+        <tr><td>Speed</td><td>Faster (no delay)</td><td>Slower (~0.5 msec delay)</td></tr>
+        <tr><td>Fatigue</td><td>Resistant to fatigue</td><td>Shows fatigue (NT depletion)</td></tr>
+        <tr><td>Key molecule</td><td>Connexons (ions flow directly)</td><td>Neurotransmitter vesicles</td></tr>
+        <tr><td>CNS location</td><td>Hippocampus & Retina mainly</td><td>Almost ALL CNS synapses</td></tr>
+        <tr><td>Transmission</td><td>Ion flow through connexons</td><td>NT exocytosis → receptor binding</td></tr>
+      </table>
+    </div>
+
+    <div class="section-title" style="font-size:16px;margin-bottom:14px;">🔬 Ionotropic vs Metabotropic Receptors</div>
+    <div style="overflow-x:auto;margin-bottom:28px;">
+      <table class="compare-table">
+        <tr><th>Feature</th><th>Ionotropic (Ligand-Gated)</th><th>Metabotropic (G-Protein)</th></tr>
+        <tr><td>Speed</td><td>Fast (milliseconds)</td><td>Slow (seconds to minutes)</td></tr>
+        <tr><td>Duration</td><td>Brief</td><td>Long-lasting</td></tr>
+        <tr><td>Mechanism</td><td>Direct ion channel opening</td><td>G-protein → second messengers</td></tr>
+        <tr><td>Effect type</td><td>Electrical changes (EPSP/IPSP)</td><td>⚠️ STRUCTURAL changes (protein synthesis)</td></tr>
+        <tr><td>Key step</td><td>Ion flux within 0.5 msec</td><td>GDP → GTP exchange on alpha subunit</td></tr>
+        <tr><td>Downstream</td><td>Na⁺/K⁺/Cl⁻ flux</td><td>cAMP, cGMP, IP₃, DAG, gene transcription</td></tr>
+        <tr><td>Examples</td><td>Glutamate AMPA, GABA-A, nAChR</td><td>Opioid, mGluR, muscarinic M1</td></tr>
+      </table>
+    </div>
+
+    <div class="section-title" style="font-size:16px;margin-bottom:14px;">⚡ EPSP vs IPSP</div>
+    <div style="overflow-x:auto;margin-bottom:28px;">
+      <table class="compare-table">
+        <tr><th>Feature</th><th>EPSP</th><th>IPSP</th></tr>
+        <tr><td>Direction of change</td><td>Depolarization (toward threshold)</td><td>Hyperpolarization (away from threshold)</td></tr>
+        <tr><td>Channel type</td><td>Ligand-gated cation channels (negative inner lining)</td><td>Ligand-gated anion channels (small bore)</td></tr>
+        <tr><td>Ions involved</td><td>Na⁺ influx (×7.5 > K⁺ efflux)</td><td>Cl⁻ influx OR K⁺ efflux</td></tr>
+        <tr><td>Amplitude</td><td>~0.5 mV (graded)</td><td>Variable (graded)</td></tr>
+        <tr><td>Effect on firing</td><td>Increases excitability</td><td>Decreases excitability</td></tr>
+        <tr><td>Summation</td><td>Required to reach threshold</td><td>Opposes EPSPs</td></tr>
+      </table>
+    </div>
+
+    <div class="section-title" style="font-size:16px;margin-bottom:14px;">🕐 Post-Tetanic Facilitation vs LTP</div>
+    <div style="overflow-x:auto;margin-bottom:28px;">
+      <table class="compare-table">
+        <tr><th>Feature</th><th>Post-Tetanic Facilitation</th><th>Long-Term Potentiation (LTP)</th></tr>
+        <tr><td>Duration</td><td>Seconds to minutes</td><td>Days</td></tr>
+        <tr><td>Location of change</td><td>Presynaptic terminal</td><td>Postsynaptic neuron</td></tr>
+        <tr><td>Mechanism</td><td>Excess Ca²⁺ in presynaptic knob → ↑ NT release</td><td>Ca²⁺ in postsynaptic neuron as 2nd messenger</td></tr>
+        <tr><td>Role</td><td>Short-term memory</td><td>Learning and long-term memory</td></tr>
+        <tr><td>Changes caused</td><td>Functional (more vesicle release)</td><td>Structural (protein synthesis)</td></tr>
+      </table>
+    </div>
+
+    <div class="section-title" style="font-size:16px;margin-bottom:14px;">🌡️ pH Effects on CNS</div>
+    <div style="overflow-x:auto;">
+      <table class="compare-table">
+        <tr><th>Condition</th><th>pH Value</th><th>CNS Effect</th><th>Clinical Manifestation</th></tr>
+        <tr><td>Alkalosis</td><td>7.8 – 8.0</td><td>↑ neuronal excitability</td><td>Severe convulsions</td></tr>
+        <tr><td>Normal</td><td>7.35 – 7.45</td><td>Normal excitability</td><td>Normal function</td></tr>
+        <tr><td>Acidosis</td><td>~7.0</td><td>↓ neuronal excitability</td><td>Coma</td></tr>
+        <tr><td>Hypoxia</td><td>N/A</td><td>Stops synaptic transmission</td><td>Coma in &lt;7 seconds</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════ MNEMONICS ══════════════════ -->
+  <div id="tab-mnemonics" class="tab-content">
+    <div class="section-title">🧠 <span class="accent">Mnemonics</span></div>
+    <div class="section-sub">Custom memory aids derived from lecture content</div>
+    <div class="mnemonic-grid" id="mnemonicsGrid"></div>
+  </div>
+
+  <!-- ══════════════════ VIVA ══════════════════ -->
+  <div id="tab-viva" class="tab-content">
+    <div class="section-title">🗣️ <span class="accent">Viva Questions</span></div>
+    <div class="section-sub">12 oral exam questions with model answers · Click to expand</div>
+    <div class="viva-list" id="vivaList"></div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════ DATA ═══════════════════════
+
+const QUIZ_DATA = [
+  {q:"What is the primary defining feature of an electrical synapse?",opts:["Presence of a synaptic cleft","Use of G-protein coupled receptors","Presence of gap junctions formed by connexons","High vulnerability to fatigue","Unidirectional conduction"],ans:2,exp:"Electrical synapses are gap junctions composed of connexon proteins that allow ions (e.g., Na⁺) to pass directly between neurons. Options A, B, D, and E are features of chemical synapses."},
+  {q:"Where are electrical synapses most commonly found in the CNS?",opts:["Cerebral cortex","Reticular activating system","Hippocampus and retina","Raphe magnus nuclei","Inner ear"],ans:2,exp:"The lecture sources explicitly state electrical synapses are present mainly in the hippocampus and retina."},
+  {q:"Where does the generation of the action potential typically occur in the postsynaptic neuron?",opts:["Dendritic spines","Soma","Axon terminal","Axon hillock","Synaptic cleft"],ans:3,exp:"⚠️ EXAM: The axon hillock is the site of summation and AP generation due to its very high density of voltage-gated Na⁺ channels. The soma and dendrites receive the signal but the AP fires at the hillock."},
+  {q:"Why are ligand-gated anion channels impermeable to Na⁺, K⁺, and Ca²⁺?",opts:["They are lined with negative charges","They have a small bore — hydrated cations are too large","They require a G-protein to open","They rely on active transport pumps","They are blocked by magnesium"],ans:1,exp:"Anion channels have a small bore, preventing the passage of large hydrated Na⁺, K⁺, and Ca²⁺ ions. Note: cation channels are lined with negative charges (a different mechanism)."},
+  {q:"Which step immediately follows the arrival of an action potential at the presynaptic knob?",opts:["Release of neurotransmitter by exocytosis","Opening of ligand-gated channels","Opening of voltage-gated Ca²⁺ channels","Activation of G-proteins","Degradation of neurotransmitter"],ans:2,exp:"The action potential directly opens voltage-sensitive Ca²⁺ channels. Exocytosis happens AFTER Ca²⁺ influx. Ligand-gated channels and G-proteins are postsynaptic events."},
+  {q:"What causes the release of neurotransmitter vesicles into the synaptic cleft?",opts:["Influx of Na⁺ into the presynaptic terminal","Efflux of K⁺ from the presynaptic terminal","Ca²⁺ binds the vesicles, fusing them with the knob membrane","Activation of adenylyl cyclase","Influx of Cl⁻ into the presynaptic terminal"],ans:2,exp:"Ca²⁺ binds to docking proteins on vesicles, causing exocytosis. Na⁺ and K⁺ mediate the action potential itself, but Ca²⁺ specifically triggers vesicle fusion and NT release."},
+  {q:"What is required to activate a G-protein coupled receptor?",opts:["Influx of Ca²⁺","Replacement of GDP with GTP on the alpha subunit","Phosphorylation of the synaptic vesicle","Opening of a chloride channel","Enzymatic degradation of the transmitter"],ans:1,exp:"When NT binds the GPCR, it allows the G-protein to become activated via the replacement of GDP with GTP, causing the alpha subunit to separate and become active."},
+  {q:"Which action can the active alpha subunit of a G-protein directly perform?",opts:["Pump Na⁺ out of the cell","Close voltage-gated Ca²⁺ channels","Regulate gene transcription to control protein synthesis","Immediate degradation of the neurotransmitter","Reuptake of NT into the presynaptic terminal"],ans:2,exp:"⚠️ EXAM: The active alpha subunit can: (1) open specific ion channels, (2) activate enzymes (adenylyl cyclase → cAMP), or (3) regulate gene transcription causing STRUCTURAL changes."},
+  {q:"What ionic movement primarily accounts for the EPSP?",opts:["Total influx of Na⁺ being 7.5× greater than K⁺ efflux","Massive Cl⁻ influx","Total efflux of K⁺ being greater than Na⁺ influx","Ca²⁺ efflux","Active transport of Na⁺"],ans:0,exp:"When cation channels open, both Na⁺ influx and K⁺ efflux occur, but the driving force for Na⁺ is ~7.5× greater, leading to net depolarization (EPSP)."},
+  {q:"How does temporal summation differ from spatial summation?",opts:["Temporal requires multiple presynaptic fibers","Temporal = repetitive stimulation of one neuron within <15 msec","Temporal only applies to IPSPs","Temporal relies on metabotropic receptors","Temporal decreases membrane excitability"],ans:1,exp:"Temporal summation: one presynaptic neuron fires repeatedly within a very short period (<15 msec). Spatial summation: multiple different presynaptic terminals converge and fire simultaneously."},
+  {q:"What is the primary mechanism of Presynaptic Inhibition?",opts:["Hyperpolarization of the postsynaptic soma","Depletion of neurotransmitter stores","GABA opens Cl⁻ channels on the excitatory presynaptic terminal → ↓AP amplitude → ↓Ca²⁺ influx","Activation of recurrent inhibitory circuits","Enzymatic destruction of excitatory NT in the cleft"],ans:2,exp:"GABA is released onto the excitatory PRESYNAPTIC terminal. It opens Cl⁻ channels there → Cl⁻ influx → decreases the incoming AP amplitude → less Ca²⁺ enters → less NT released."},
+  {q:"By which ionic mechanism does an IPSP hyperpolarize the membrane?",opts:["Opening of Na⁺ channels","Closing of K⁺ channels","Opening of Cl⁻ channels (Cl⁻ influx) OR increased K⁺ efflux","Blocking Ca²⁺ channels","Activating the Na⁺/K⁺ pump"],ans:2,exp:"Opening Cl⁻ channels allows Cl⁻ to enter (adding negative charge inside), OR K⁺ channels open allowing K⁺ to leave — both cause hyperpolarization (IPSP)."},
+  {q:"How is chemical synaptic transmission most commonly terminated?",opts:["NT permanently bonds to the receptor","Active reuptake of the NT into the presynaptic terminal","Endocytosis of the postsynaptic receptor","Complete diffusion into the bloodstream","Post-tetanic potentiation"],ans:1,exp:"Termination occurs via: (1) Active reuptake into presynaptic terminal, (2) Enzymatic degradation (hydrolysis/oxidation), (3) Diffusion into interstitial fluid. Active reuptake is primary."},
+  {q:"What causes the 0.5 msec 'Synaptic Delay' in chemical synapses?",opts:["Time for AP to travel down the axon","Refractory period of the presynaptic neuron","Time for NT release, diffusion, receptor binding, and EPSP generation","Time taken for gene transcription","Time required for active reuptake"],ans:2,exp:"The synaptic delay represents the physical and chemical time needed for: exocytosis → crossing the cleft → binding receptors → channel opening → generating the EPSP."},
+  {q:"During post-tetanic facilitation, why does the synapse become more responsive?",opts:["Because postsynaptic receptors multiply","Excess Ca²⁺ remains in the synaptic knob, causing more vesicles to release NT","Ca²⁺ in postsynaptic neuron acts as 2nd messenger","NT switches from inhibitory to excitatory","Because of an increase in blood pH"],ans:1,exp:"After rapid presynaptic stimulation, Ca²⁺ accumulates in the presynaptic knob. This lingering excess Ca²⁺ means more vesicles release NT upon subsequent stimuli — lasts seconds/minutes."},
+  {q:"Long-Term Potentiation (LTP) is distinct from post-tetanic facilitation primarily because:",opts:["It lasts for seconds instead of minutes","It relies on presynaptic Ca²⁺ accumulation","It is caused by postsynaptic Ca²⁺ acting as a 2nd messenger, lasting days","It occurs only in electrical synapses","It causes synaptic fatigue"],ans:2,exp:"LTP involves POSTSYNAPTIC intracellular Ca²⁺ as a second messenger, causes structural changes, and lasts DAYS — playing a role in learning and memory. Post-tetanic facilitation uses presynaptic Ca²⁺."},
+  {q:"Which condition causes severe convulsions by increasing neuronal excitability?",opts:["Hypoxia","Acidosis (pH ~7.0)","Alkalosis (pH 7.8–8.0)","Synaptic fatigue","Presynaptic inhibition"],ans:2,exp:"Alkalosis (pH 7.8–8.0) greatly increases neuronal excitability → convulsions. Hypoxia stops transmission (coma in <7 sec). Acidosis (pH 7.0) decreases excitability → coma."},
+  {q:"Synaptic transmission can be inhibited by:",opts:["Alkalosis","Acidosis","Excess oxygen","Hypercalcemia","Post-tetanic facilitation"],ans:1,exp:"Acidosis (↓ pH) decreases neuronal excitability and depresses synaptic transmission. Alkalosis, hypercalcemia (increases Ca²⁺ → more NT release), and facilitation all increase transmission."},
+  {q:"What characterizes the amplitude of a single EPSP?",opts:["Large enough to always trigger an AP","It is around -70 mV","Very small (~0.5 mV) — must be summated to reach threshold","Follows the all-or-none principle like an AP","Directly activates gene transcription"],ans:2,exp:"⚠️ EXAM: A single EPSP is only ~0.5 mV. This is far below the threshold. Multiple EPSPs must be summated (spatial or temporal) at the axon hillock to fire an AP. Unlike APs, EPSPs are GRADED."},
+  {q:"Large molecular weight slowly acting neuropeptide neurotransmitters primarily function to:",opts:["Transmit fast sensory information","Open ion channels directly within 0.5 msec","Prolong the actions of low molecular weight transmitters","Cause immediate synaptic fatigue","Reuptake small molecular weight transmitters"],ans:2,exp:"Neuropeptides (like Substance-P, opioid peptides) act slowly and can prolong or modulate the actions of fast, low-molecular-weight transmitters (like ACh, Glutamate)."},
+  {q:"Recurrent inhibition involves:",opts:["An excitatory interneuron","A single presynaptic neuron firing repeatedly","Inhibitory interneuron circuits looping back to inhibit the originating or adjacent neurons","Alkalosis","Electrical gap junctions"],ans:2,exp:"Recurrent (feedback) inhibition: an activated motor neuron sends a collateral branch to an inhibitory interneuron (e.g., Renshaw cell), which loops back to inhibit the same or adjacent motor neurons — preventing over-excitation."},
+  {q:"Which is an example of a small molecular weight rapidly acting INHIBITORY amino acid neurotransmitter?",opts:["Glutamate","Substance-P","Acetylcholine","GABA","Nitric oxide"],ans:3,exp:"GABA (gamma-aminobutyric acid) and glycine are the classic small MW rapidly acting INHIBITORY amino acid NTs. Glutamate is excitatory. Substance-P is a large MW neuropeptide."},
+  {q:"Which structure ensures chemical synaptic transmission is strictly one-way?",opts:["Connexons","Neurotransmitter vesicles exclusively in the presynaptic terminal","The axon hillock","Gap junctions","Dendritic spines"],ans:1,exp:"Unidirectional conduction in chemical synapses occurs because ONLY the presynaptic terminal contains NT vesicles. The postsynaptic membrane has only receptors, not vesicles. Connexons/gap junctions enable TWO-way flow in electrical synapses."},
+  {q:"What is the immediate result if blood supply to the brain is markedly reduced (hypoxia)?",opts:["Long-term potentiation","Synaptic facilitation","Severe convulsions","Coma in <7 seconds due to stopped synaptic transmission","Alkalosis"],ans:3,exp:"Marked hypoxia stops synaptic transmission rapidly — coma occurs in LESS THAN 7 SECONDS. This highlights the extreme vulnerability of the brain to oxygen deprivation."},
+  {q:"In the context of synaptic properties, what does 'fatigue' represent physiologically?",opts:["Pathological failure of the Na⁺/K⁺ pump","Exhaustion of electrical gap junctions","A protective mechanism against excessive neuronal discharge","Breakdown of postsynaptic receptors","Permanent brain damage from acidosis"],ans:2,exp:"Synaptic fatigue = NT store depletion during rapid intense stimulation. It is PROTECTIVE — for example, it helps terminate an epileptic fit by exhausting the presynaptic NT stores and forcing cessation."}
+];
+
+const FLASH_DATA = [
+  {cat:"Synapse Types",q:"What proteins form electrical synapses?",a:"<strong>Connexons</strong> — proteins that form gap junctions, allowing direct ion flow (Na⁺, etc.) between neurons. Highly permeable, bidirectional, fatigue-resistant."},
+  {cat:"Synapse Types",q:"Which type of synapse shows fatigue, and why?",a:"<strong>Chemical synapses</strong> show fatigue because neurotransmitter stores deplete during rapid intense stimulation, and resynthesis/reuptake can't keep up."},
+  {cat:"Synapse Types",q:"Where are electrical synapses found in the CNS?",a:"Mainly in the <strong>hippocampus</strong> and <strong>retina</strong>. Chemical synapses represent almost ALL CNS synapses."},
+  {cat:"Mechanism",q:"What triggers exocytosis of NT vesicles?",a:"Arrival of AP opens <strong>voltage-gated Ca²⁺ channels</strong> → Ca²⁺ enters presynaptic knob → Ca²⁺ binds vesicle docking proteins → exocytosis into cleft."},
+  {cat:"Mechanism",q:"What is the key difference between ionotropic and metabotropic receptors?",a:"Ionotropic = <strong>fast electrical changes</strong> (direct ion channel). Metabotropic = <strong>STRUCTURAL changes</strong> (G-protein → 2nd messengers → gene transcription/protein synthesis). ⚠️ EXAM POINT."},
+  {cat:"Mechanism",q:"List 3 ways NT action is terminated in the cleft",a:"1. <strong>Active reuptake</strong> into presynaptic terminal<br>2. <strong>Enzymatic degradation</strong> (hydrolysis/oxidation)<br>3. <strong>Diffusion</strong> into interstitial fluid"},
+  {cat:"Mechanism",q:"What is the sequence of G-protein activation?",a:"NT binds GPCR → GDP on alpha subunit replaced by <strong>GTP</strong> → alpha subunit separates → opens ion channels, activates adenylyl cyclase (cAMP), or enters nucleus for gene transcription."},
+  {cat:"PSPs",q:"Why does Na⁺ influx dominate over K⁺ efflux in EPSP?",a:"The driving force (electrochemical gradient) for <strong>Na⁺ influx is ~7.5× greater</strong> than K⁺ efflux. Net inward positive current → depolarization (EPSP)."},
+  {cat:"PSPs",q:"What type of channels mediate IPSP and how?",a:"<strong>Ligand-gated anion channels</strong> (small bore → allows only Cl⁻) OR K⁺ channels. Cl⁻ influx or K⁺ efflux both increase intracellular negativity → hyperpolarization."},
+  {cat:"PSPs",q:"Why is the axon hillock the AP generation site?",a:"⚠️ EXAM: It has the <strong>highest density of voltage-gated Na⁺ channels</strong> in the neuron, making it most likely to reach threshold when EPSPs are summated there."},
+  {cat:"Summation",q:"Differentiate spatial vs temporal summation",a:"<strong>Spatial</strong>: multiple presynaptic fibers fire simultaneously → EPSPs add up.<br><strong>Temporal</strong>: single presynaptic neuron fires repeatedly within <15 msec → EPSPs stack."},
+  {cat:"Summation",q:"What is the amplitude of a single EPSP and why does it matter?",a:"Only <strong>~0.5 mV</strong> — far below threshold. This means a single EPSP CANNOT trigger an AP alone. Summation is ALWAYS required. EPSPs are graded, NOT all-or-none."},
+  {cat:"Inhibition",q:"Describe the exact mechanism of presynaptic inhibition",a:"Inhibitory interneuron → releases GABA onto <strong>excitatory presynaptic terminal</strong> → opens Cl⁻ channels → Cl⁻ influx → ↓ AP amplitude → ↓ Ca²⁺ influx → ↓ NT release → ↓ EPSP."},
+  {cat:"Inhibition",q:"What is recurrent inhibition?",a:"<strong>Feedback inhibition</strong>: activated motor neuron sends collateral to inhibitory interneuron (Renshaw cell) → loops back to inhibit same/adjacent neurons → prevents over-excitation."},
+  {cat:"Inhibition",q:"How does postsynaptic inhibition differ from presynaptic?",a:"Postsynaptic: NT acts directly on <strong>postsynaptic membrane</strong> → Cl⁻ influx or K⁺ efflux → direct hyperpolarization. Presynaptic: acts on PRESYNAPTIC terminal to reduce NT release BEFORE signal crosses."},
+  {cat:"Properties",q:"What causes synaptic delay (0.5 msec)?",a:"Time for: NT <strong>exocytosis</strong> → diffusion across cleft → binding to receptors → channel opening → generating the EPSP. This delay is unavoidable in chemical synapses."},
+  {cat:"Properties",q:"Why is synaptic fatigue physiologically protective?",a:"Fatigue (NT depletion) limits excessive neuronal discharge. Key example: <strong>terminates epileptic fits</strong> by exhausting the presynaptic NT stores during sustained over-activity."},
+  {cat:"Memory",q:"How does post-tetanic facilitation differ from LTP?",a:"Post-tetanic: <strong>presynaptic Ca²⁺</strong> excess → ↑ NT release — lasts seconds/minutes (short-term memory). LTP: <strong>postsynaptic Ca²⁺</strong> as 2nd messenger → structural changes — lasts days (long-term memory/learning)."},
+  {cat:"Memory",q:"Where does Ca²⁺ accumulate in LTP vs post-tetanic facilitation?",a:"Post-tetanic: Ca²⁺ in <strong>presynaptic knob</strong>. LTP: Ca²⁺ in <strong>postsynaptic neuron</strong> acting as 2nd messenger → structural changes via gene transcription."},
+  {cat:"Environment",q:"What pH range causes convulsions? Coma?",a:"<strong>Alkalosis (pH 7.8–8.0)</strong> → convulsions (↑ excitability).<br><strong>Acidosis (pH ~7.0)</strong> → coma (↓ excitability).<br><strong>Hypoxia</strong> → coma in <7 seconds."},
+  {cat:"Neuropeptides",q:"What is the role of large MW neuropeptide neurotransmitters?",a:"Slow-acting; they <strong>prolong the actions of low-MW fast NTs</strong> at the postsynaptic neuron. Examples: Substance-P (pain), opioid peptides (analgesia), VIP."},
+  {cat:"Mechanism",q:"Why does blocking Ca²⁺ channels completely abolish synaptic transmission?",a:"Ca²⁺ influx is the <strong>essential trigger for vesicle exocytosis</strong>. No Ca²⁺ → no docking protein binding → no exocytosis → no NT in cleft → complete block of transmission (as in botulinum toxin mechanism)."},
+  {cat:"Synapse Types",q:"List 3 components of a chemical synapse",a:"1. <strong>Presynaptic terminal</strong> (contains mitochondria + NT vesicles)<br>2. <strong>Synaptic cleft</strong> (extracellular gap)<br>3. <strong>Postsynaptic membrane</strong> (receptors: ionotropic or metabotropic)"},
+  {cat:"Inhibition",q:"Which neurotransmitter mediates presynaptic inhibition?",a:"<strong>GABA</strong> (gamma-aminobutyric acid) — opens Cl⁻ channels on the excitatory presynaptic terminal, reducing AP amplitude and Ca²⁺ influx."}
+];
+
+const CASES_DATA = [
+  {
+    num:"Case 01",
+    title:"Descending Paralysis after Canned Beans",
+    vignette:"A 47-year-old woman presents to the ER with progressive descending paralysis starting from her head and neck, following consumption of home-canned beans at a family gathering 18 hours ago. Botulinum neurotoxin type A is confirmed in her serum. Her pupils are reactive, and she is afebrile.",
+    questions:["What synaptic mechanism does botulinum toxin target?","Which specific structure/molecule is implicated?","What is the consequence of this disruption, and why is it descending?"],
+    answer:"<strong>Mechanism:</strong> Botulinum toxin cleaves SNARE/docking proteins on synaptic vesicles in the presynaptic terminal of the neuromuscular junction. This prevents the Ca²⁺-mediated binding of vesicles to the presynaptic membrane, blocking exocytosis of acetylcholine.\n\n<strong>Structure:</strong> The presynaptic terminal and its vesicle docking proteins (SNAREs). Without Ca²⁺-mediated exocytosis, no acetylcholine crosses the synaptic cleft.\n\n<strong>Consequence:</strong> Complete block of neuromuscular transmission → flaccid paralysis. It is DESCENDING because cranial nerve motor neurons (controlling eye/face muscles) have smaller NT reserves and are affected first, followed by respiratory and limb muscles."
+  },
+  {
+    num:"Case 02",
+    title:"Firing Neuron Suddenly Goes Silent",
+    vignette:"In a laboratory neurophysiology experiment, a motor neuron is stimulated continuously at high frequency (100 Hz). During the first 30 seconds, robust action potentials are recorded in the postsynaptic muscle. After 90 seconds of continuous stimulation, the postsynaptic response abruptly drops to zero despite unchanged presynaptic stimulation. When stimulation is paused for 3 minutes, the response gradually recovers.",
+    questions:["What physiological phenomenon caused the cessation of postsynaptic response?","What is depleted and why can't it keep up?","What is the clinical relevance of this phenomenon?"],
+    answer:"<strong>Phenomenon:</strong> Synaptic fatigue — the progressive decline in synaptic transmission during rapid, intense stimulation.\n\n<strong>Mechanism:</strong> The presynaptic terminal exhausted its stored neurotransmitter vesicles. At 100 Hz, the rate of NT depletion far exceeds the rate of resynthesis (which requires metabolic energy and precursor molecules) and active reuptake from the cleft. Result: no NT to release → no EPSP → no AP in postsynaptic neuron.\n\n<strong>Clinical relevance:</strong> Synaptic fatigue is PROTECTIVE. During an epileptic seizure, massive uncontrolled neuronal firing eventually depletes NT stores, which helps TERMINATE the seizure. It is a built-in safety mechanism against excitotoxicity."
+  },
+  {
+    num:"Case 03",
+    title:"Respiratory Failure Leading to Coma",
+    vignette:"A 62-year-old COPD patient with a severe exacerbation is found obtunded in the ICU. ABG shows pH 7.04, PaCO₂ 92 mmHg, PaO₂ 48 mmHg. He does not respond to verbal commands and has minimal response to pain. His EEG shows diffuse slowing.",
+    questions:["What CNS mechanism explains his altered consciousness?","Which pH-related effect specifically explains the coma?","How does hypoxia separately contribute?"],
+    answer:"<strong>Primary mechanism:</strong> Severe acidosis (pH 7.04) profoundly DECREASES neuronal excitability. When blood pH drops to approximately 7.0, synaptic transmission is globally suppressed across the CNS — particularly in the reticular activating system — causing loss of consciousness and coma.\n\n<strong>pH effect:</strong> Acidosis likely alters ion channel function and membrane excitability thresholds. The combined CO₂ retention (→ H₂CO₃ → H⁺) and metabolic acidosis create an environment that suppresses all synaptic transmission.\n\n<strong>Hypoxia contribution:</strong> Separately, marked hypoxia (PaO₂ 48 mmHg) stops synaptic transmission in less than 7 seconds by depriving neurons of the ATP needed for the Na⁺/K⁺ pump and neurotransmitter resynthesis, reinforcing the comatose state."
+  },
+  {
+    num:"Case 04",
+    title:"Hippocampal Recording After Tetanic Stimulation",
+    vignette:"A researcher records from a postsynaptic CA1 neuron in a hippocampal slice. A single stimulus to the Schaffer collateral produces a 0.5 mV EPSP. After delivering a tetanic burst (100 Hz for 1 second), two observations are made: (1) For the next 2 minutes, a single stimulus produces a 2.0 mV EPSP. (2) When the experiment is repeated 24 hours later, the EPSP is still significantly larger than baseline (1.8 mV), even without further tetanic stimulation.",
+    questions:["What explains the 2-minute enhanced response?","What explains the 24-hour persistent enhancement?","What are the key mechanistic differences between these two phenomena?"],
+    answer:"<strong>Observation 1 — Post-tetanic facilitation:</strong> The tetanic burst caused excess Ca²⁺ accumulation in the PRESYNAPTIC terminal. This residual Ca²⁺ persists for minutes and causes more vesicles to fuse and release NT with subsequent stimuli → larger EPSP. Duration: seconds to minutes.\n\n<strong>Observation 2 — Long-Term Potentiation (LTP):</strong> The sustained high-frequency stimulation caused intracellular Ca²⁺ to accumulate in the POSTSYNAPTIC neuron, where it acts as a second messenger. This triggers gene transcription and protein synthesis → STRUCTURAL changes in the synapse (more receptors, dendritic spine remodeling) that persist for DAYS. This is the cellular mechanism of learning and memory.\n\n<strong>Key difference:</strong> Post-tetanic = presynaptic Ca²⁺, functional, transient. LTP = postsynaptic Ca²⁺, structural, lasting."
+  },
+  {
+    num:"Case 05",
+    title:"The Mystery Drug — Receptor Identification",
+    vignette:"A pharmacologist applies three different drugs to isolated neurons: Drug A causes membrane depolarization within 1 msec of application. Drug B causes no immediate electrical change, but 10 minutes later, the neuron shows increased expression of a novel protein and has structurally changed synapses. Drug C, when applied to a presynaptic terminal, causes Cl⁻ influx into that terminal, reducing the amplitude of any incoming action potential.",
+    questions:["What receptor type does Drug A act on?","What receptor type does Drug B act on, and why are structural changes expected?","What is Drug C mimicking physiologically?"],
+    answer:"<strong>Drug A — Ionotropic receptor:</strong> The immediate (1 msec) depolarization indicates activation of a ligand-gated CATION channel (ionotropic receptor). NT binding causes a structural change opening the channel → Na⁺ influx > K⁺ efflux → EPSP within milliseconds.\n\n<strong>Drug B — Metabotropic (GPCR) receptor:</strong> ⚠️ KEY EXAM POINT: No immediate electrical change, but delayed structural/protein changes = classic metabotropic receptor. Drug B activates a GPCR → GDP replaced by GTP on alpha subunit → alpha subunit separates → activates enzymes → 2nd messengers (cAMP, IP₃) → enters nucleus → regulates gene transcription → new protein synthesis = STRUCTURAL changes in the postsynaptic neuron.\n\n<strong>Drug C — Presynaptic Inhibition (GABA):</strong> Drug C mimics GABA acting on the excitatory presynaptic terminal. Cl⁻ influx into the terminal decreases the incoming AP amplitude → less Ca²⁺ influx → less NT release = presynaptic inhibition."
+  },
+  {
+    num:"Case 06",
+    title:"Summation at the Axon Hillock",
+    vignette:"A neurophysiology recording shows: (1) Stimulating a single presynaptic fiber (Fiber A) once produces a 0.5 mV depolarization in the postsynaptic neuron — no AP fires. (2) Stimulating Fiber A ten times in rapid succession (within 10 msec) produces a full AP. (3) Stimulating three different presynaptic fibers (A, B, and C) simultaneously, each producing 0.5 mV, also produces a full AP. (4) Applying an inhibitory neurotransmitter to the postsynaptic soma hyperpolarizes it to -80 mV and completely prevents AP generation even with condition 2 or 3.",
+    questions:["Name the phenomenon in observations 1 vs 2.","Name the phenomenon in observation 3.","What do observations 2 and 3 tell you about EPSP amplitude vs action potential?","What type of inhibition is shown in observation 4?"],
+    answer:"<strong>Observations 1 vs 2 — Temporal Summation:</strong> A single EPSP of 0.5 mV is sub-threshold. Repetitive firing of the SAME presynaptic fiber within <15 msec causes successive EPSPs to add up at the axon hillock before the membrane repolarizes, eventually reaching threshold and firing an AP.\n\n<strong>Observation 3 — Spatial Summation:</strong> Multiple DIFFERENT presynaptic fibers (A, B, C) fire simultaneously. Their individual 0.5 mV EPSPs converge at the axon hillock simultaneously and add up (0.5+0.5+0.5=1.5 mV or more depending on location) to reach threshold.\n\n<strong>EPSP vs AP:</strong> ⚠️ EPSPs are GRADED potentials with variable amplitude (~0.5 mV each). They do NOT follow the all-or-none law. Only when summated EPSPs reach THRESHOLD at the axon hillock is an all-or-none AP generated.\n\n<strong>Observation 4 — Postsynaptic Inhibition:</strong> The inhibitory NT acts directly on the postsynaptic soma → opens Cl⁻ or K⁺ channels → hyperpolarization (IPSP, here -80 mV) → moves membrane AWAY from threshold → no AP possible. This is POSTSYNAPTIC inhibition (directly on the postsynaptic neuron, not on the terminal)."
+  }
+];
+
+const PATHO_DATA = [
+  {title:"Voltage-Gated Ca²⁺ Channels",summary:"Trigger exocytosis",detail:"Located on the presynaptic terminal membrane. When an action potential arrives and depolarizes the knob, these channels open. Ca²⁺ rushes in down its electrochemical gradient. The amount of Ca²⁺ entering directly determines how many vesicles undergo exocytosis — and thus how much NT is released. Blocking these channels (e.g., botulinum toxin indirectly, or Ca²⁺ channel blockers directly) abolishes synaptic transmission."},
+  {title:"Connexon Proteins",summary:"Form electrical synapses",detail:"Connexons are protein subunits (6 per connexon) that align between adjacent cells to form a gap junction pore ~1.5 nm in diameter. Highly permeable to small ions (Na⁺, K⁺, Ca²⁺) and small molecules. Allow bidirectional flow of ionic current, making transmission virtually instantaneous and resistant to fatigue. Found mainly in hippocampus and retina in the CNS."},
+  {title:"G-Protein Alpha Subunit",summary:"Key 2nd messenger activator",detail:"In resting state, the alpha subunit has GDP bound and is inactive (associated with beta-gamma subunits). When NT binds the GPCR, conformational change causes GDP to be replaced by GTP. The active alpha-GTP subunit dissociates and can: (1) open K⁺ or Ca²⁺ channels, (2) activate adenylyl cyclase → cAMP → PKA, (3) activate phospholipase C → IP₃ + DAG, or (4) enter nucleus → regulate gene transcription → STRUCTURAL changes. ⚠️ EXAM: This is STRUCTURAL, not just electrical."},
+  {title:"Synaptic Vesicle Docking",summary:"SNARE proteins & exocytosis",detail:"Synaptic vesicles must dock at the active zone of the presynaptic membrane via SNARE proteins (synaptobrevin, syntaxin, SNAP-25). Ca²⁺ binding to synaptotagmin (a Ca²⁺ sensor) triggers SNARE complex zippering → membrane fusion → exocytosis. Botulinum toxin and tetanus toxin cleave specific SNARE proteins, blocking this step."},
+  {title:"Axon Hillock",summary:"AP generation zone",detail:"⚠️ EXAM: The axon hillock is the initial segment of the axon where it emerges from the soma. Its membrane contains the HIGHEST DENSITY of voltage-gated Na⁺ channels in the entire neuron — approximately 100-1000× higher than the dendritic/somatic membrane. This makes it the 'integrating zone' where summated EPSPs and IPSPs converge; if the net depolarization reaches threshold here, an all-or-none AP is triggered."},
+  {title:"GABA-A Receptor",summary:"Presynaptic inhibition mediator",detail:"GABA-A is an ionotropic receptor (ligand-gated Cl⁻ channel). In PRESYNAPTIC inhibition, GABA-A receptors are located on the EXCITATORY presynaptic terminal (axo-axonic synapse). GABA binding → Cl⁻ influx → decreases AP amplitude in the terminal → less Ca²⁺ influx → less NT released. In postsynaptic inhibition, GABA-A on the soma/dendrites → direct IPSP."},
+  {title:"Na⁺/K⁺ ATPase Pump",summary:"Restores resting potential",detail:"After each AP and during NT reuptake, the Na⁺/K⁺ pump restores ionic gradients: pumps 3 Na⁺ out and 2 K⁺ in per cycle, powered by ATP. This is why hypoxia (stops ATP production) abolishes synaptic transmission in <7 seconds — the pump fails, gradients collapse, and neurons can no longer fire APs or reuptake NT."},
+  {title:"Renshaw Cell",summary:"Mediates recurrent inhibition",detail:"A classic example of recurrent inhibition. Motor neurons in the spinal cord send axon collaterals to Renshaw cells (inhibitory glycinergic interneurons). Renshaw cells synapse back onto the same motor neurons or adjacent ones. This negative feedback circuit prevents repetitive, uncontrolled motor neuron firing — a self-limiting regulatory mechanism."},
+  {title:"Cation Channel Inner Lining",summary:"Selects for cations in EPSP",detail:"Ligand-gated CATION channels (mediating EPSP) have their inner channel walls lined with NEGATIVE charges. This electrostatic attraction allows positively charged ions (Na⁺, K⁺, Ca²⁺) to pass through. The driving force for Na⁺ (outside concentration ~145 mM, inside ~12 mM, AND electrically attracted by the negative resting potential) is ~7.5× greater than for K⁺ efflux, producing net depolarization."},
+  {title:"Anion Channel Small Bore",summary:"Selects for Cl⁻ in IPSP",detail:"Ligand-gated ANION channels (mediating IPSP) have a small pore diameter. Hydrated Na⁺, K⁺, and Ca²⁺ cations are too large to pass through. Only the small Cl⁻ ion (with its water shell) can pass. Cl⁻ flows in along its electrochemical gradient (outside ~116 mM, inside ~4 mM) → hyperpolarization (IPSP). Alternatively, K⁺ efflux through separate K⁺ channels also causes IPSP."},
+  {title:"Post-tetanic Facilitation vs LTP",summary:"Two phases of synaptic enhancement",detail:"Post-tetanic facilitation: residual Ca²⁺ INSIDE THE PRESYNAPTIC KNOB from rapid stimulation enhances subsequent NT release — lasts seconds to minutes. LTP: Ca²⁺ accumulation INSIDE THE POSTSYNAPTIC NEURON acts as a 2nd messenger → activates kinases → gene transcription → new synaptic proteins → STRUCTURAL changes (more AMPA receptors, spine enlargement) that persist for DAYS. LTP in hippocampus CA1 is the cellular basis of declarative memory."},
+  {title:"Synaptic Delay Determinants",summary:"Why chemical synapses are slow",detail:"The ~0.5 msec synaptic delay is comprised of: (1) Ca²⁺ channel opening time, (2) Ca²⁺ diffusion to vesicle docking sites, (3) SNARE-mediated membrane fusion, (4) NT diffusion across the ~20 nm synaptic cleft, (5) NT binding to postsynaptic receptor, (6) channel opening, (7) ion flux sufficient to generate measurable EPSP. In reflex arcs with many synapses (polysynaptic), total synaptic delay determines reflex speed."}
+];
+
+const MNEMONICS_DATA = [
+  {
+    title:"C.A.S.H.",
+    topic:"Mechanisms of NT Termination",
+    letters:[
+      {l:"C",w:"Cleavage (enzymatic hydrolysis/oxidation)"},
+      {l:"A",w:"Active reuptake into presynaptic terminal"},
+      {l:"S",w:"Simple diffusion into interstitial fluid"},
+      {l:"H",w:"Hydrolysis in the cleft (e.g., AChE for ACh)"}
+    ]
+  },
+  {
+    title:"E.P.S.P.",
+    topic:"EPSP Key Facts",
+    letters:[
+      {l:"E",w:"Excitatory (depolarizing) potential"},
+      {l:"P",w:"Partial — only ~0.5 mV, never triggers AP alone"},
+      {l:"S",w:"Summation required (spatial or temporal)"},
+      {l:"P",w:"Produced by Na⁺ influx > K⁺ efflux (×7.5)"}
+    ]
+  },
+  {
+    title:"G.A.P.S.",
+    topic:"G-Protein Activation Steps",
+    letters:[
+      {l:"G",w:"GDP replaced by GTP on alpha subunit"},
+      {l:"A",w:"Alpha subunit separates from beta-gamma"},
+      {l:"P",w:"Phosphodiesterases + 2nd messengers activated (cAMP, IP₃)"},
+      {l:"S",w:"Structural changes via gene transcription"}
+    ]
+  },
+  {
+    title:"C.O.F.F.",
+    topic:"Chemical Synapse vs Electrical Synapse — Key Disadvantages of Chemical",
+    letters:[
+      {l:"C",w:"Can fatigue (NT stores deplete)"},
+      {l:"O",w:"One-way only (unidirectional)"},
+      {l:"F",w:"Fails in acidosis / hypoxia"},
+      {l:"F",w:"Fifty times slower (0.5 msec delay)"}
+    ]
+  },
+  {
+    title:"P.A.C.M.A.N.",
+    topic:"What the Active Alpha Subunit Can Do",
+    letters:[
+      {l:"P",w:"Protein synthesis (via gene transcription) — STRUCTURAL"},
+      {l:"A",w:"Adenylyl cyclase activation → cAMP"},
+      {l:"C",w:"Channel opening (K⁺, Ca²⁺ channels)"},
+      {l:"M",w:"Membrane changes (long-lasting modulation)"},
+      {l:"A",w:"Amplification via 2nd messenger cascades"},
+      {l:"N",w:"Nucleus entry for gene regulation"}
+    ]
+  },
+  {
+    title:"P.R.E. vs P.O.S.T.",
+    topic:"Presynaptic vs Postsynaptic Inhibition",
+    letters:[
+      {l:"P",w:"Presynaptic: on Presynaptic terminal (axo-axonic)"},
+      {l:"R",w:"Reduces Ca²⁺ influx → Reduces NT Release"},
+      {l:"E",w:"Effects AP amplitude before signal crosses the cleft"},
+      {l:"P",w:"Postsynaptic: on Postsynaptic soma/dendrites"},
+      {l:"O",w:"Opens Cl⁻ or K⁺ channels directly"},
+      {l:"S",w:"Suppresses neuron with direct IPSP"},
+      {l:"T",w:"Total hyperpolarization prevents AP firing"}
+    ]
+  }
+];
+
+const VIVA_DATA = [
+  {q:"Differentiate between electrical and chemical synapses regarding conduction direction.",a:"<strong>Electrical synapses</strong> allow conduction in BOTH directions (bidirectional) because gap junctions connect the cytoplasm of both neurons — ions can flow either way. <strong>Chemical synapses</strong> allow ONE-WAY conduction only, from presynaptic to postsynaptic, because neurotransmitter vesicles are exclusively in the presynaptic terminal."},
+  {q:"Describe the role of calcium in synaptic transmission.",a:"When an AP reaches the synaptic knob, voltage-sensitive <strong>Ca²⁺ channels open</strong>. Calcium influx causes transmitter vesicles to bind to docking proteins (SNAREs) on the presynaptic membrane → exocytosis. The amount of Ca²⁺ entering directly determines how much NT is released. Blocking Ca²⁺ channels abolishes transmission completely."},
+  {q:"What is the difference between ionotropic and metabotropic receptors?",a:"<strong>Ionotropic:</strong> Ligand-gated ion channels — immediate electrical change (ms) when NT binds → fast EPSP/IPSP.<br><strong>Metabotropic (GPCR):</strong> Slow, long-lasting — NT binding activates G-protein (GDP→GTP on alpha subunit) → second messengers → gene transcription.<br><span class='exam-flag'>⚠️ EXAM: Metabotropic = STRUCTURAL changes (protein synthesis), NOT just electrical!</span>"},
+  {q:"How does a cation channel create an EPSP?",a:"Cation channels have inner walls <strong>lined with negative charges</strong> allowing Na⁺, K⁺, Ca²⁺ to pass (but repelling Cl⁻). The electrochemical driving force for Na⁺ influx is ~7.5× greater than for K⁺ efflux → net positive charge enters cell → membrane depolarizes → EPSP (~0.5 mV)."},
+  {q:"Explain spatial vs temporal summation.",a:"<strong>Spatial summation:</strong> Multiple DIFFERENT presynaptic fibers synapsing on the same postsynaptic neuron all fire SIMULTANEOUSLY → EPSPs converge and add up at the axon hillock.<br><strong>Temporal summation:</strong> ONE presynaptic fiber fires REPETITIVELY within <15 msec → successive EPSPs stack before membrane repolarizes → sum reaches threshold."},
+  {q:"What is presynaptic inhibition?",a:"An inhibitory interneuron forms an <strong>axo-axonic synapse</strong> on an excitatory presynaptic terminal. It releases GABA → opens Cl⁻ channels in the terminal → Cl⁻ influx → decreases incoming AP amplitude → fewer Ca²⁺ channels open → less Ca²⁺ influx → less NT released → reduced EPSP in the postsynaptic neuron."},
+  {q:"What causes synaptic delay?",a:"Synaptic delay (~0.5 msec) is the time required for: NT <strong>exocytosis</strong> → diffusion across the synaptic cleft → binding to postsynaptic receptors → ion channel opening → generation of the EPSP. This delay is unavoidable and accumulates in polysynaptic pathways."},
+  {q:"Why is synaptic fatigue considered protective?",a:"Synaptic fatigue = NT store depletion during rapid intense stimulation (resynthesis/reuptake can't keep pace). It is <strong>PROTECTIVE</strong> because it prevents excitotoxicity. Classic example: during an epileptic seizure, fatigue eventually depletes NT stores → transmission ceases → seizure terminates spontaneously."},
+  {q:"Differentiate post-tetanic facilitation from LTP.",a:"<strong>Post-tetanic facilitation:</strong> Excess Ca²⁺ in <strong>presynaptic knob</strong> → more vesicles released → lasts seconds/minutes → short-term memory.<br><strong>LTP:</strong> Ca²⁺ in <strong>postsynaptic neuron</strong> as 2nd messenger → gene transcription → structural changes → lasts DAYS → basis of learning and long-term memory."},
+  {q:"What is the effect of severe acidosis on the CNS?",a:"Acidosis (pH ~7.0) <strong>decreases neuronal excitability</strong> — synaptic transmission is globally suppressed → patient loses consciousness → enters COMA. Contrast with alkalosis (pH 7.8–8.0) which INCREASES excitability → CONVULSIONS. And hypoxia → coma in <7 seconds."},
+  {q:"Where is the AP generated in the postsynaptic neuron and why?",a:"<span class='exam-flag'>⚠️ EXAM: The axon hillock</span> — because this segment contains the HIGHEST DENSITY of voltage-gated Na⁺ channels in the entire neuron. All summated EPSPs and IPSPs converge here; if the net depolarization reaches threshold, an all-or-none AP is triggered here first."},
+  {q:"Name three ways neurotransmitter action is terminated.",a:"1. <strong>Active reuptake</strong> — transporter proteins pump NT back into the presynaptic terminal (e.g., SERT for serotonin, DAT for dopamine).<br>2. <strong>Enzymatic degradation</strong> — e.g., acetylcholinesterase cleaves ACh; MAO oxidizes monoamines.<br>3. <strong>Diffusion</strong> — NT diffuses away from the synaptic cleft into the surrounding interstitial fluid."}
+];
+
+// ═══════════════════════ STATE ═══════════════════════
+let quizState = {
+  answered: {},
+  score: 0,
+  streak: 0,
+  maxStreak: 0
+};
+
+// ═══════════════════════ FUNCTIONS ═══════════════════════
+
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  localStorage.setItem('activeTab', id);
+}
+
+function handleSearch(val) {
+  const res = document.getElementById('searchResults');
+  if (!val || val.length < 2) { res.style.display = 'none'; return; }
+  const v = val.toLowerCase();
+  const hits = [];
+  QUIZ_DATA.forEach((q, i) => {
+    if (q.q.toLowerCase().includes(v) || q.exp.toLowerCase().includes(v)) {
+      hits.push(`<div style="padding:8px 0;border-bottom:1px solid var(--border);"><span style="color:var(--accent3);font-size:11px;font-family:'JetBrains Mono',monospace;">MCQ ${i+1}</span><br><span style="font-size:13px;">${q.q}</span></div>`);
+    }
+  });
+  FLASH_DATA.forEach((f, i) => {
+    if (f.q.toLowerCase().includes(v) || f.a.toLowerCase().includes(v)) {
+      hits.push(`<div style="padding:8px 0;border-bottom:1px solid var(--border);"><span style="color:var(--accent2);font-size:11px;font-family:'JetBrains Mono',monospace;">FLASHCARD</span><br><span style="font-size:13px;">${f.q}</span></div>`);
+    }
+  });
+  PATHO_DATA.forEach(p => {
+    if (p.title.toLowerCase().includes(v) || p.detail.toLowerCase().includes(v)) {
+      hits.push(`<div style="padding:8px 0;border-bottom:1px solid var(--border);"><span style="color:var(--accent4);font-size:11px;font-family:'JetBrains Mono',monospace;">PATHOPHYSIOLOGY</span><br><span style="font-size:13px;">${p.title}</span></div>`);
+    }
+  });
+  if (hits.length === 0) {
+    res.innerHTML = `<div style="color:var(--text3);font-size:13px;">No results for "${val}"</div>`;
+  } else {
+    res.innerHTML = `<div style="color:var(--text3);font-size:11px;margin-bottom:8px;">${hits.length} results for "${val}"</div>` + hits.slice(0,6).join('');
+  }
+  res.style.display = 'block';
+}
+
+function initQuiz() {
+  quizState = { answered: {}, score: 0, streak: 0, maxStreak: 0 };
+  document.getElementById('quizResult').classList.remove('show');
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = '';
+  QUIZ_DATA.forEach((q, i) => {
+    const opts = q.opts.map((o, j) => {
+      const keys = ['A','B','C','D','E'];
+      return `<button class="q-option" id="opt-${i}-${j}" onclick="answerQ(${i},${j})">
+        <span class="opt-key">${keys[j]}</span>${o}
+      </button>`;
+    }).join('');
+    container.innerHTML += `
+      <div class="question-card" id="qcard-${i}">
+        <div class="q-num">QUESTION ${i+1} OF ${QUIZ_DATA.length}</div>
+        <div class="q-text">${q.q}</div>
+        <div class="q-options">${opts}</div>
+        <div class="q-explanation" id="exp-${i}">
+          <strong>✅ Explanation:</strong> ${q.exp}
+          <div class="q-source">Source: Lecture notes & Mansoura Physiology</div>
+        </div>
+      </div>`;
+  });
+  updateQuizStats();
+}
+
+function answerQ(qi, oi) {
+  if (quizState.answered[qi] !== undefined) return;
+  quizState.answered[qi] = oi;
+  const correct = oi === QUIZ_DATA[qi].ans;
+  if (correct) {
+    quizState.score++;
+    quizState.streak++;
+    if (quizState.streak > quizState.maxStreak) quizState.maxStreak = quizState.streak;
+  } else {
+    quizState.streak = 0;
+    document.getElementById(`opt-${qi}-${QUIZ_DATA[qi].ans}`).classList.add('show-correct');
+  }
+  document.getElementById(`opt-${qi}-${oi}`).classList.add(correct ? 'correct' : 'wrong');
+  document.querySelectorAll(`[id^="opt-${qi}-"]`).forEach(b => b.classList.add('answered'));
+  document.getElementById(`exp-${qi}`).classList.add('show');
+  updateQuizStats();
+  const answered = Object.keys(quizState.answered).length;
+  if (answered === QUIZ_DATA.length) {
+    setTimeout(() => {
+      const r = document.getElementById('quizResult');
+      document.getElementById('resultScore').textContent = `${quizState.score}/${QUIZ_DATA.length}`;
+      const pct = Math.round(quizState.score / QUIZ_DATA.length * 100);
+      document.getElementById('resultLabel').textContent = pct >= 80 ? '🎉 Excellent! Ready for the exam!' : pct >= 60 ? '📚 Good effort! Review the explanations.' : '💪 Keep studying — you\'ve got this!';
+      r.classList.add('show');
+      r.scrollIntoView({behavior:'smooth'});
+    }, 600);
+  }
+}
+
+function updateQuizStats() {
+  const answered = Object.keys(quizState.answered).length;
+  const pct = Math.round(answered / QUIZ_DATA.length * 100);
+  document.getElementById('qProgressLabel').textContent = `Question ${answered} of ${QUIZ_DATA.length}`;
+  document.getElementById('qProgressPct').textContent = pct + '%';
+  document.getElementById('quizProgressBar').style.width = pct + '%';
+  document.getElementById('quizStreak').textContent = quizState.streak;
+  document.getElementById('quizScore').textContent = quizState.score;
+  document.getElementById('stat-score').textContent = `${quizState.score}/${QUIZ_DATA.length}`;
+  document.getElementById('stat-streak').textContent = quizState.maxStreak;
+  document.getElementById('stat-progress').textContent = pct + '%';
+  localStorage.setItem('quizState', JSON.stringify(quizState));
+}
+
+function initFlashcards() {
+  const grid = document.getElementById('flashGrid');
+  grid.innerHTML = FLASH_DATA.map((f, i) => `
+    <div class="flash-card" id="fc-${i}" onclick="flipCard(${i})">
+      <div class="flash-inner">
+        <div class="flash-front">
+          <div class="f-cat">${f.cat}</div>
+          <div class="f-q">${f.q}</div>
+          <div class="f-hint">👆 Click to reveal answer</div>
+        </div>
+        <div class="flash-back">
+          <div class="f-a">${f.a}</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function flipCard(i) {
+  document.getElementById('fc-' + i).classList.toggle('flipped');
+}
+
+function initCases() {
+  const c = document.getElementById('casesContainer');
+  c.innerHTML = CASES_DATA.map((cs, i) => {
+    const qs = cs.questions.map((q, j) => `<li data-n="${j+1}">${q}</li>`).join('');
+    return `
+    <div class="case-card">
+      <div class="case-num">${cs.num} · CLINICAL VIGNETTE</div>
+      <h3 style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:12px;">${cs.title}</h3>
+      <div class="case-vignette">${cs.vignette}</div>
+      <ul class="case-questions">${qs}</ul>
+      <button class="reveal-btn" onclick="revealCase(${i}, this)">🔍 Reveal Model Answer</button>
+      <div class="case-answer" id="ca-${i}">${cs.answer.replace(/\n\n/g,'<br><br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div>
+    </div>`;
+  }).join('');
+}
+
+function revealCase(i, btn) {
+  const el = document.getElementById('ca-' + i);
+  el.classList.toggle('show');
+  btn.textContent = el.classList.contains('show') ? '🙈 Hide Answer' : '🔍 Reveal Model Answer';
+}
+
+function initPatho() {
+  const g = document.getElementById('pathoGrid');
+  g.innerHTML = PATHO_DATA.map((p, i) => `
+    <div class="patho-item" id="pi-${i}" onclick="togglePatho(${i})">
+      <h4>${p.title} <span class="pi-icon">▶</span></h4>
+      <p>${p.summary}</p>
+      <div class="patho-detail">${p.detail}</div>
+    </div>`).join('');
+}
+
+function togglePatho(i) {
+  document.getElementById('pi-' + i).classList.toggle('expanded');
+}
+
+function initMnemonics() {
+  const g = document.getElementById('mnemonicsGrid');
+  g.innerHTML = MNEMONICS_DATA.map(m => {
+    const letters = m.letters.map(l => `<li><strong>${l.l}</strong>${l.w}</li>`).join('');
+    return `
+    <div class="mnemonic-card">
+      <h3>${m.title}</h3>
+      <div class="m-topic">${m.topic}</div>
+      <ul class="mnemonic-letters">${letters}</ul>
+    </div>`;
+  }).join('');
+}
+
+function initViva() {
+  const v = document.getElementById('vivaList');
+  v.innerHTML = VIVA_DATA.map((vi, i) => `
+    <div class="viva-item" id="vi-${i}">
+      <div class="viva-q" onclick="toggleViva(${i})">
+        <div style="display:flex;align-items:flex-start;gap:10px;flex:1;">
+          <span class="vq-num">V${i+1}</span>
+          <span>${vi.q}</span>
+        </div>
+        <span class="vq-arrow">▶</span>
+      </div>
+      <div class="viva-a">${vi.a}</div>
+    </div>`).join('');
+}
+
+function toggleViva(i) {
+  document.getElementById('vi-' + i).classList.toggle('open');
+}
+
+// ═══════════════════════ INIT ═══════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  initQuiz();
+  initFlashcards();
+  initCases();
+  initPatho();
+  initMnemonics();
+  initViva();
+  // restore tab
+  const saved = localStorage.getItem('activeTab');
+  if (saved) {
+    const btn = [...document.querySelectorAll('.tab-btn')].find(b => b.getAttribute('onclick')?.includes("'" + saved + "'"));
+    if (btn) showTab(saved, btn);
+  }
+  // restore quiz
+  const savedQuiz = localStorage.getItem('quizState');
+  if (savedQuiz) {
+    try {
+      const s = JSON.parse(savedQuiz);
+      // update stat bar only
+      document.getElementById('stat-score').textContent = `${s.score}/${QUIZ_DATA.length}`;
+      document.getElementById('stat-streak').textContent = s.maxStreak || 0;
+      const pct = Math.round(Object.keys(s.answered).length / QUIZ_DATA.length * 100);
+      document.getElementById('stat-progress').textContent = pct + '%';
+    } catch(e){}
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔬 Histology Master Command Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050811;
+            --surface: #0a0f24;
+            --surface-card: #111738;
+            --border: rgba(79, 255, 176, 0.15);
+            --accent: #4fffb0;
+            --accent2: #00d4ff;
+            --accent3: #ff6b6b;
+            --text: #e2eaf5;
+            --text-muted: #7a8ba8;
+            --radius: 14px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Fluid Glass Backdrop Architecture */
+        .bg-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+        .orb {
+            position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.12;
+            animation: drift 20s ease-in-out infinite alternate;
+        }
+        .orb:nth-child(1) { width: 550px; height: 550px; background: #4fffb0; top: -100px; left: -100px; }
+        .orb:nth-child(2) { width: 450px; height: 450px; background: #00d4ff; bottom: -120px; right: -80px; animation-delay: -5s; }
+        @keyframes drift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(40px,30px) scale(1.08); } }
+
+        .wrapper { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 40px 20px 80px; }
+
+        header { text-align: center; margin-bottom: 40px; }
+        .badge {
+            display: inline-block; background: rgba(79, 255, 176, 0.1); border: 1px solid rgba(79, 255, 176, 0.25);
+            color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 11px;
+            letter-spacing: 2px; padding: 6px 16px; border-radius: 100px; margin-bottom: 16px; text-transform: uppercase;
+        }
+        header h1 {
+            font-family: 'Syne', sans-serif; font-size: clamp(26px, 4.5vw, 42px); font-weight: 800; line-height: 1.1;
+            background: linear-gradient(135deg, #fff 20%, var(--accent) 60%, var(--accent2) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        header p { color: var(--text-muted); margin-top: 10px; font-size: 15px; }
+
+        .search-wrap { position: relative; max-width: 500px; margin: 0 auto 40px; }
+        .search-input {
+            width: 100%; padding: 14px 20px 14px 45px; background: var(--surface);
+            border: 1px solid var(--border); border-radius: 100px; color: var(--text);
+            font-size: 14px; outline: none; transition: all 0.2s;
+        }
+        .search-input:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(79, 255, 176, 0.2); }
+        .search-wrap::before { content: '🔍'; position: absolute; left: 18px; top: 50%; transform: translateY(-50%); font-size: 14px; opacity: 0.5; }
+
+        .lecture-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+
+        .card {
+            background: var(--surface-card); border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 24px; transition: all 0.25s ease; display: flex; flex-direction: column;
+            text-decoration: none; color: inherit; position: relative; overflow: hidden;
+        }
+        .card::after {
+            content: ''; position: absolute; inset: 0; border-radius: var(--radius);
+            border: 2px solid var(--accent); opacity: 0; transition: opacity 0.25s; pointer-events: none;
+        }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.5); border-color: transparent; }
+        .card:hover::after { opacity: 0.3; }
+        
+        .card-num {
+            font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent);
+            font-weight: 600; text-transform: uppercase; margin-bottom: 12px; display: inline-block;
+            background: rgba(79, 255, 176, 0.08); padding: 2px 10px; border-radius: 4px; width: max-content;
+        }
+        .card-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; margin-bottom: 10px; line-height: 1.4; color: #fff; }
+        .card-desc { font-size: 12.5px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; flex: 1; }
+        
+        .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 14px; font-size: 12px; }
+        .card-tag { font-family: 'JetBrains Mono', monospace; color: var(--accent2); font-weight: 600; }
+        .launch-icon { color: var(--accent); font-weight: bold; }
+        .no-results { grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="bg-canvas"><div class="orb"></div><div class="orb"></div></div>
+
+    <div class="wrapper">
+        <header>
+            <div class="badge">Medical Histology &amp; Microanatomy</div>
+            <h1>Histology System Dashboard</h1>
+            <p>Direct tracking index grid for cellular staining patterns and microscopy engines</p>
+        </header>
+
+        <div class="search-wrap">
+            <input type="text" class="search-input" id="globalSearch" placeholder="Filter cells, silver stains, nuclei, or sensory structures...">
+        </div>
+
+        <div class="lecture-grid">
+            <a href="L1 spinal_cord_histology_study.html" class="card">
+                <span class="card-num">Module 01</span>
+                <h3 class="card-title">Spinal Cord Histology</h3>
+                <p class="card-desc">White matter vs. Gray matter layout, multipolar anterior horn motor cells, euchromatic nuclei configurations, Nissl granule aggregations, and silver-stained neurofibril structures.</p>
+                <div class="card-footer"><span class="card-tag">CNS Microanatomy</span><span class="launch-icon">Open Platform ↗</span></div>
+            </a>
+
+            <a href="L2 neuro_histology_study_platform.html" class="card">
+                <span class="card-num">Module 02</span>
+                <h3 class="card-title">Cerebrum &amp; Cerebellum Histology</h3>
+                <p class="card-desc">Six-layered neocortex pyramidal tracking, cerebellar trilaminar architecture (molecular, Purkinje, and granular layer arrays), and central nervous support neuroglia.</p>
+                <div class="card-footer"><span class="card-tag">CNS Microanatomy</span><span class="launch-icon">Open Platform ↗</span></div>
+            </a>
+
+            <a href="L3 Ear,histo .html" class="card">
+                <span class="card-num">Module 03</span>
+                <h3 class="card-title">Sensory Receptors &amp; Ear Histology</h3>
+                <p class="card-desc">Somatic encapsulated receptors, vestibular inner ear maculae, crista ampullaris cupula matrices, and organ of Corti hair-cell shearing microanatomy.</p>
+                <div class="card-footer"><span class="card-tag">Special Senses</span><span class="launch-icon">Open Platform ↗</span></div>
+            </a>
+
+            <a href="L4 histology_eye_adnexa_platform.html" class="card">
+                <span class="card-num">Module 04</span>
+                <h3 class="card-title">Histology of the Eye &amp; Adnexa</h3>
+                <p class="card-desc">Fibrous, vascular (uveal), and nervous layers of the globe, 10-layer retinal cellular sheets, photoreceptor segments, corneal transparency setups, and palpebral adnexa glads.</p>
+                <div class="card-footer"><span class="card-tag">Ocular Microanatomy</span><span class="launch-icon">Open Platform ↗</span></div>
+            </a>
+
+            <div class="no-results" id="emptyState">No histology modules match that tissue or staining parameter.</div>
+        </div>
+    </div>
+
+    <script>
+        const searchField = document.getElementById('globalSearch');
+        searchField.addEventListener('input', () => {
+            const query = searchField.value.trim().toLowerCase();
+            const cards = document.querySelectorAll('.card');
+            const emptyNotice = document.getElementById('emptyState');
+            let visibleCounter = 0;
+
+            cards.forEach(card => {
+                const titleText = card.querySelector('.card-title').textContent.toLowerCase();
+                const descText = card.querySelector('.card-desc').textContent.toLowerCase();
+                const moduleTag = card.querySelector('.card-num').textContent.toLowerCase();
+
+                if (titleText.includes(query) || descText.includes(query) || moduleTag.includes(query)) {
+                    card.style.display = 'flex';
+                    visibleCounter++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            if (visibleCounter === 0) {
+                emptyNotice.style.display = 'block';
+            } else {
+                emptyNotice.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

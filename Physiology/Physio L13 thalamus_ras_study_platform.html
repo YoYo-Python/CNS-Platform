@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thalamus & RAS — Neural Nexus Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c14;
+  --surface: #0e1420;
+  --surface2: #141b2a;
+  --surface3: #1a2236;
+  --border: rgba(100,160,255,0.12);
+  --border2: rgba(100,160,255,0.22);
+  --accent: #4a9eff;
+  --accent2: #7c5fff;
+  --accent3: #ff5f87;
+  --accent4: #00e5b4;
+  --accent5: #ffb347;
+  --text: #e8eef8;
+  --text2: #8899bb;
+  --text3: #4a5a7a;
+  --glow: rgba(74,158,255,0.15);
+  --glow2: rgba(124,95,255,0.12);
+  --red: #ff4d6d;
+  --green: #00e5b4;
+  --yellow: #ffb347;
+  --font-display: 'DM Serif Display', serif;
+  --font-body: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== ANIMATED BG ===== */
+.bg-layer {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  overflow: hidden;
+}
+.bg-orb {
+  position: absolute; border-radius: 50%;
+  filter: blur(80px); opacity: 0.06;
+  animation: orbFloat 12s ease-in-out infinite;
+}
+.bg-orb:nth-child(1) { width:600px;height:600px;background:var(--accent);top:-200px;left:-200px;animation-delay:0s; }
+.bg-orb:nth-child(2) { width:400px;height:400px;background:var(--accent2);top:40%;right:-150px;animation-delay:-4s; }
+.bg-orb:nth-child(3) { width:300px;height:300px;background:var(--accent4);bottom:-100px;left:30%;animation-delay:-8s; }
+.bg-grid {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(74,158,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74,158,255,0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+@keyframes orbFloat { 0%,100%{transform:translate(0,0)scale(1)} 33%{transform:translate(30px,-30px)scale(1.05)} 66%{transform:translate(-20px,20px)scale(0.95)} }
+
+/* ===== HEADER ===== */
+.header {
+  position: relative; z-index: 10;
+  padding: 28px 40px 0;
+  display: flex; align-items: flex-start; justify-content: space-between;
+  flex-wrap: wrap; gap: 16px;
+}
+.header-left {}
+.breadcrumb {
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--text3); font-family: var(--font-mono);
+  margin-bottom: 8px;
+}
+.breadcrumb span { color: var(--accent); }
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 48px);
+  line-height: 1.1;
+  background: linear-gradient(135deg, #fff 0%, var(--accent) 50%, var(--accent2) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.subtitle { color: var(--text2); font-size: 14px; margin-top: 6px; }
+
+.stats-bar {
+  display: flex; gap: 12px; flex-wrap: wrap;
+  align-items: center;
+}
+.stat-pill {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 24px; padding: 8px 16px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px;
+}
+.stat-pill .val { color: var(--accent); font-weight: 700; font-family: var(--font-mono); }
+.stat-pill .lbl { color: var(--text2); }
+
+/* ===== SEARCH ===== */
+.search-wrap {
+  position: relative; z-index: 10;
+  padding: 20px 40px 0;
+}
+.search-box {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 12px; padding: 12px 18px;
+  max-width: 520px;
+  transition: border-color .2s, box-shadow .2s;
+}
+.search-box:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--glow);
+}
+.search-box input {
+  background: none; border: none; outline: none;
+  color: var(--text); font-family: var(--font-body);
+  font-size: 14px; flex: 1;
+}
+.search-box input::placeholder { color: var(--text3); }
+.search-icon { color: var(--text3); font-size: 16px; }
+#searchResults {
+  display: none;
+  position: absolute; top: calc(100% + 8px); left: 0; right: 0; max-width: 520px;
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 12px; max-height: 280px; overflow-y: auto;
+  z-index: 100; box-shadow: 0 20px 60px rgba(0,0,0,.5);
+}
+.search-result-item {
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+  cursor: pointer; font-size: 13px; color: var(--text2);
+  transition: background .15s;
+}
+.search-result-item:hover { background: var(--surface3); }
+.search-result-item .sh { color: var(--text); font-weight: 600; }
+.search-result-item .st { color: var(--accent); font-size: 11px; }
+
+/* ===== TABS ===== */
+.tabs-wrap {
+  position: relative; z-index: 10;
+  padding: 24px 40px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs-wrap::-webkit-scrollbar { display: none; }
+.tabs {
+  display: flex; gap: 6px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+  min-width: max-content;
+}
+.tab-btn {
+  background: none; border: none; cursor: pointer;
+  padding: 10px 18px 14px;
+  font-family: var(--font-body); font-size: 13px; font-weight: 500;
+  color: var(--text3);
+  position: relative; white-space: nowrap;
+  transition: color .2s;
+  border-radius: 8px 8px 0 0;
+}
+.tab-btn:hover { color: var(--text2); }
+.tab-btn.active { color: var(--accent); }
+.tab-btn.active::after {
+  content: ''; position: absolute;
+  bottom: 0; left: 0; right: 0; height: 2px;
+  background: var(--accent);
+  border-radius: 2px 2px 0 0;
+}
+.tab-btn .tab-icon { margin-right: 6px; }
+
+/* ===== CONTENT ===== */
+.content {
+  position: relative; z-index: 10;
+  padding: 32px 40px 80px;
+}
+.tab-pane { display: none; }
+.tab-pane.active { display: block; animation: fadeIn .3s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* ===== COMMON COMPONENTS ===== */
+.section-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+.section-subtitle {
+  color: var(--text2); font-size: 14px; margin-bottom: 28px;
+}
+
+.card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 20px;
+  transition: border-color .2s, transform .2s, box-shadow .2s;
+}
+.card:hover {
+  border-color: var(--border2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 40px rgba(0,0,0,.3);
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 600; letter-spacing: .5px;
+}
+.badge-blue { background: rgba(74,158,255,.15); color: var(--accent); border: 1px solid rgba(74,158,255,.3); }
+.badge-purple { background: rgba(124,95,255,.15); color: var(--accent2); border: 1px solid rgba(124,95,255,.3); }
+.badge-red { background: rgba(255,77,109,.15); color: var(--red); border: 1px solid rgba(255,77,109,.3); }
+.badge-green { background: rgba(0,229,180,.15); color: var(--green); border: 1px solid rgba(0,229,180,.3); }
+.badge-yellow { background: rgba(255,179,71,.15); color: var(--yellow); border: 1px solid rgba(255,179,71,.3); }
+
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 14px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 12px; }
+
+/* ===== TAB 1: OVERVIEW ===== */
+.overview-hero {
+  background: linear-gradient(135deg, var(--surface2), var(--surface3));
+  border: 1px solid var(--border2);
+  border-radius: 20px; padding: 30px;
+  margin-bottom: 28px;
+  position: relative; overflow: hidden;
+}
+.overview-hero::before {
+  content: '🧠';
+  position: absolute; right: 30px; top: 50%; transform: translateY(-50%);
+  font-size: 80px; opacity: .15;
+}
+.overview-hero h2 { font-family: var(--font-display); font-size: 22px; margin-bottom: 10px; }
+.overview-hero p { color: var(--text2); font-size: 14px; line-height: 1.7; max-width: 600px; }
+
+.key-concepts-grid .concept-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 18px;
+  transition: all .2s;
+}
+.key-concepts-grid .concept-card:hover {
+  border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 8px 30px var(--glow);
+}
+.concept-card .cc-icon { font-size: 28px; margin-bottom: 10px; }
+.concept-card .cc-title { font-weight: 600; font-size: 15px; margin-bottom: 6px; }
+.concept-card .cc-body { color: var(--text2); font-size: 13px; line-height: 1.6; }
+.concept-card .cc-tags { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+
+.nuclei-table {
+  width: 100%; border-collapse: collapse; margin-top: 20px;
+  font-size: 13px;
+}
+.nuclei-table th {
+  background: var(--surface3); color: var(--accent);
+  padding: 12px 14px; text-align: left;
+  font-weight: 600; border: 1px solid var(--border);
+}
+.nuclei-table td {
+  padding: 11px 14px; border: 1px solid var(--border);
+  color: var(--text2);
+  vertical-align: top;
+  transition: background .15s;
+}
+.nuclei-table tr:hover td { background: var(--surface3); color: var(--text); }
+
+.flowchart {
+  display: flex; flex-direction: column; align-items: center; gap: 0;
+  margin: 20px 0;
+}
+.flow-node {
+  background: var(--surface3); border: 1px solid var(--border2);
+  border-radius: 12px; padding: 12px 22px;
+  font-size: 13px; font-weight: 600;
+  text-align: center; min-width: 260px;
+  position: relative;
+}
+.flow-node.accent { border-color: var(--accent); box-shadow: 0 0 20px var(--glow); color: var(--accent); }
+.flow-node.accent2 { border-color: var(--accent2); box-shadow: 0 0 20px var(--glow2); color: var(--accent2); }
+.flow-node.green { border-color: var(--green); box-shadow: 0 0 20px rgba(0,229,180,.1); color: var(--green); }
+.flow-arrow {
+  width: 2px; height: 28px; background: var(--border2);
+  position: relative;
+}
+.flow-arrow::after {
+  content: '▼'; position: absolute; bottom: -6px; left: 50%;
+  transform: translateX(-50%); color: var(--text3); font-size: 10px;
+}
+
+/* ===== TAB 2: QUIZ ===== */
+.quiz-header {
+  display: flex; align-items: center; gap: 16px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 20px 24px; margin-bottom: 24px;
+}
+.quiz-progress-bar {
+  flex: 1; height: 8px; background: var(--surface3);
+  border-radius: 4px; overflow: hidden;
+}
+.quiz-progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 4px; transition: width .4s ease;
+}
+.quiz-score-display { font-family: var(--font-mono); font-size: 14px; color: var(--accent); white-space: nowrap; }
+.streak-display { display: flex; align-items: center; gap: 4px; font-size: 13px; color: var(--yellow); }
+
+.question-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 16px; padding: 28px;
+  margin-bottom: 16px;
+}
+.q-number { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); font-family: var(--font-mono); margin-bottom: 8px; }
+.q-exam-flag { display: inline-block; background: rgba(255,179,71,.1); border: 1px solid rgba(255,179,71,.3); color: var(--yellow); padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-bottom: 10px; }
+.q-text { font-size: 16px; font-weight: 500; line-height: 1.6; margin-bottom: 20px; }
+.q-options { display: flex; flex-direction: column; gap: 10px; }
+.q-option {
+  background: var(--surface3); border: 1px solid var(--border);
+  border-radius: 10px; padding: 13px 16px;
+  cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; gap: 12px;
+  transition: all .2s;
+  user-select: none;
+}
+.q-option:hover:not(.answered) { border-color: var(--border2); background: var(--surface2); }
+.q-option.selected { border-color: var(--accent); background: rgba(74,158,255,.08); }
+.q-option.correct { border-color: var(--green); background: rgba(0,229,180,.08); animation: pulseGreen .4s; }
+.q-option.wrong { border-color: var(--red); background: rgba(255,77,109,.08); animation: shakeIt .3s; }
+.q-option .opt-letter {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--surface2); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; flex-shrink: 0;
+}
+.q-option.correct .opt-letter { background: var(--green); color: #000; border-color: var(--green); }
+.q-option.wrong .opt-letter { background: var(--red); color: #fff; border-color: var(--red); }
+
+@keyframes pulseGreen { 0%{transform:scale(1)} 50%{transform:scale(1.01)} 100%{transform:scale(1)} }
+@keyframes shakeIt { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+.q-explanation {
+  display: none; margin-top: 16px;
+  background: var(--surface3); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 14px 18px;
+  font-size: 13px; color: var(--text2); line-height: 1.7;
+  animation: fadeIn .3s ease;
+}
+.q-explanation.show { display: block; }
+.q-explanation .exp-title { color: var(--accent); font-weight: 600; margin-bottom: 4px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+
+.quiz-nav {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 20px;
+}
+.btn {
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 10px; padding: 12px 24px;
+  font-family: var(--font-body); font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all .2s;
+}
+.btn:hover { opacity: .85; transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn-outline {
+  background: none; color: var(--text2);
+  border: 1px solid var(--border2); border-radius: 10px;
+  padding: 12px 24px; font-family: var(--font-body); font-size: 14px;
+  cursor: pointer; transition: all .2s;
+}
+.btn-outline:hover { color: var(--text); border-color: var(--text2); }
+.btn-secondary { background: var(--surface3); color: var(--text2); border: 1px solid var(--border); }
+
+/* ===== TAB 3: FLASHCARDS ===== */
+.flashcard-grid {
+  display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr));
+  gap: 18px;
+}
+.flashcard-wrap {
+  height: 200px; perspective: 1000px; cursor: pointer;
+}
+.flashcard-inner {
+  position: relative; width: 100%; height: 100%;
+  transform-style: preserve-3d;
+  transition: transform .5s cubic-bezier(.4,.2,.2,1);
+}
+.flashcard-wrap.flipped .flashcard-inner { transform: rotateY(180deg); }
+.flashcard-face {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  border-radius: 14px; padding: 20px;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  text-align: center;
+}
+.flashcard-front {
+  background: var(--surface2); border: 1px solid var(--border2);
+}
+.flashcard-back {
+  background: linear-gradient(135deg, rgba(74,158,255,.1), rgba(124,95,255,.1));
+  border: 1px solid var(--accent);
+  transform: rotateY(180deg);
+}
+.fc-emoji { font-size: 28px; margin-bottom: 10px; }
+.fc-q { font-size: 14px; font-weight: 600; line-height: 1.5; color: var(--text); }
+.fc-a { font-size: 13px; line-height: 1.6; color: var(--text2); }
+.fc-tap { font-size: 11px; color: var(--text3); margin-top: 10px; font-family: var(--font-mono); }
+
+/* ===== TAB 4: CLINICAL CASES ===== */
+.case-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 16px; overflow: hidden; margin-bottom: 20px;
+}
+.case-header {
+  background: var(--surface3); border-bottom: 1px solid var(--border);
+  padding: 18px 22px;
+  display: flex; align-items: center; gap: 14px;
+}
+.case-num {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 15px; flex-shrink: 0;
+}
+.case-title { font-size: 16px; font-weight: 600; }
+.case-scenario { font-size: 11px; color: var(--accent); font-family: var(--font-mono); margin-top: 2px; }
+.case-body { padding: 22px; }
+.case-vignette {
+  background: rgba(74,158,255,.05); border: 1px solid rgba(74,158,255,.15);
+  border-radius: 10px; padding: 16px; margin-bottom: 16px;
+  font-size: 14px; line-height: 1.8; color: var(--text2);
+}
+.case-question { font-weight: 600; font-size: 15px; margin: 14px 0 10px; }
+.case-reveal-btn {
+  background: var(--surface3); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 10px 18px;
+  font-family: var(--font-body); font-size: 13px; color: var(--text2);
+  cursor: pointer; transition: all .2s;
+  margin-top: 8px;
+}
+.case-reveal-btn:hover { color: var(--accent); border-color: var(--accent); }
+.case-answer {
+  display: none; margin-top: 12px;
+  background: rgba(0,229,180,.05); border: 1px solid rgba(0,229,180,.2);
+  border-radius: 10px; padding: 14px;
+  font-size: 13px; line-height: 1.7; color: var(--text2);
+  animation: fadeIn .3s;
+}
+.case-answer.show { display: block; }
+.case-answer .ans-label { color: var(--green); font-weight: 700; margin-bottom: 6px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+.case-step { display: flex; gap: 10px; margin-bottom: 6px; }
+.case-step .step-num { background: var(--accent); color: #fff; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+
+/* ===== TAB 5: ANATOMY/PATH ===== */
+.nuclei-interactive-grid {
+  display: grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr));
+  gap: 12px; margin-bottom: 28px;
+}
+.nucleus-item {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px;
+  cursor: pointer; transition: all .2s;
+}
+.nucleus-item:hover, .nucleus-item.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 6px 20px var(--glow);
+}
+.nucleus-item .ni-abbr { font-family: var(--font-mono); font-size: 18px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+.nucleus-item .ni-name { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.nucleus-item .ni-type { font-size: 11px; color: var(--text3); }
+
+.nucleus-detail {
+  display: none;
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 14px; padding: 22px; margin-bottom: 24px;
+  animation: fadeIn .25s;
+}
+.nucleus-detail.show { display: block; }
+.nd-title { font-size: 18px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+.nd-body { color: var(--text2); font-size: 14px; line-height: 1.7; }
+.nd-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+/* ===== TAB 6: DIAGNOSIS ===== */
+.diag-section { margin-bottom: 32px; }
+.diag-algo {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 24px;
+}
+.algo-step {
+  display: flex; gap: 14px; margin-bottom: 14px;
+  align-items: flex-start;
+}
+.algo-step .step-circle {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px;
+}
+.algo-step.step-a .step-circle { background: rgba(74,158,255,.2); color: var(--accent); border: 1px solid var(--accent); }
+.algo-step.step-b .step-circle { background: rgba(124,95,255,.2); color: var(--accent2); border: 1px solid var(--accent2); }
+.algo-step.step-c .step-circle { background: rgba(0,229,180,.2); color: var(--green); border: 1px solid var(--green); }
+.algo-step.step-d .step-circle { background: rgba(255,179,71,.2); color: var(--yellow); border: 1px solid var(--yellow); }
+.algo-step.step-e .step-circle { background: rgba(255,95,135,.2); color: var(--red); border: 1px solid var(--red); }
+.algo-step .step-content { flex: 1; }
+.algo-step .step-title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+.algo-step .step-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+.compare-table {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+}
+.compare-table th {
+  background: var(--surface3); border: 1px solid var(--border);
+  padding: 11px 14px; color: var(--text); font-weight: 600; text-align: left;
+}
+.compare-table td {
+  border: 1px solid var(--border); padding: 10px 14px;
+  color: var(--text2); vertical-align: top;
+}
+.compare-table tr:hover td { background: var(--surface3); }
+.compare-table tr:first-child th:first-child { color: var(--accent); }
+
+/* ===== TAB 7: TREATMENT ===== */
+.treatment-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 16px; }
+.treatment-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden;
+}
+.treatment-card .tc-header {
+  padding: 14px 18px; font-weight: 700; font-size: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.tc-header.emergency { background: rgba(255,77,109,.1); color: var(--red); border-bottom: 1px solid rgba(255,77,109,.2); }
+.tc-header.primary { background: rgba(74,158,255,.1); color: var(--accent); border-bottom: 1px solid rgba(74,158,255,.2); }
+.tc-header.secondary { background: rgba(0,229,180,.1); color: var(--green); border-bottom: 1px solid rgba(0,229,180,.2); }
+.tc-header.caution { background: rgba(255,179,71,.1); color: var(--yellow); border-bottom: 1px solid rgba(255,179,71,.2); }
+.treatment-card .tc-body { padding: 14px 18px; }
+.drug-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.drug-item:last-child { border-bottom: none; }
+.drug-item .di-name { font-weight: 600; color: var(--text); }
+.drug-item .di-note { color: var(--text2); font-size: 12px; }
+.drug-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+
+/* ===== TAB 8: MNEMONICS ===== */
+.mnemonic-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 16px; padding: 24px; margin-bottom: 16px;
+  transition: all .2s;
+}
+.mnemonic-card:hover { border-color: var(--border2); }
+.mc-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.mc-emoji { font-size: 36px; }
+.mc-title-wrap {}
+.mc-title { font-size: 18px; font-weight: 700; }
+.mc-subtitle { font-size: 13px; color: var(--text2); margin-top: 2px; }
+.mnemonic-word {
+  font-family: var(--font-mono); font-size: 28px; font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 4px; margin-bottom: 14px;
+}
+.mnemonic-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.mnemonic-list li {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 14px;
+}
+.mnemonic-list .ml-letter {
+  font-family: var(--font-mono); font-weight: 700; font-size: 20px;
+  color: var(--accent); width: 28px;
+}
+.mnemonic-list .ml-word { font-weight: 600; color: var(--text); }
+.mnemonic-list .ml-means { color: var(--text2); font-size: 13px; }
+
+/* ===== TAB 9: VIVA ===== */
+.viva-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 14px; margin-bottom: 14px; overflow: hidden;
+}
+.viva-q {
+  padding: 18px 22px;
+  cursor: pointer; display: flex; justify-content: space-between;
+  align-items: center; gap: 14px;
+  transition: background .2s;
+}
+.viva-q:hover { background: var(--surface3); }
+.viva-q-text { font-size: 15px; font-weight: 500; }
+.viva-toggle { color: var(--text3); font-size: 18px; transition: transform .3s; flex-shrink: 0; }
+.viva-card.open .viva-toggle { transform: rotate(90deg); }
+.viva-a {
+  display: none; padding: 0 22px 18px;
+  font-size: 14px; color: var(--text2); line-height: 1.8;
+  border-top: 1px solid var(--border); padding-top: 14px;
+}
+.viva-card.open .viva-a { display: block; animation: fadeIn .2s; }
+.viva-exam-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  background: rgba(255,179,71,.1); color: var(--yellow);
+  border: 1px solid rgba(255,179,71,.3); text-transform: uppercase;
+  margin-left: 8px; vertical-align: middle; flex-shrink: 0;
+}
+
+/* ===== COMPLETION ===== */
+#completionModal {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.85); z-index: 1000;
+  align-items: center; justify-content: center;
+}
+#completionModal.show { display: flex; }
+.completion-box {
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 20px; padding: 40px; text-align: center;
+  max-width: 400px; width: 90%;
+  animation: fadeIn .4s;
+}
+.completion-box .big-emoji { font-size: 60px; margin-bottom: 16px; }
+.completion-box h2 { font-family: var(--font-display); font-size: 28px; margin-bottom: 8px; }
+.completion-box p { color: var(--text2); margin-bottom: 24px; }
+
+@media (max-width: 768px) {
+  .header, .search-wrap, .tabs-wrap, .content { padding-left: 20px; padding-right: 20px; }
+  .nuclei-table { font-size: 12px; }
+  .nuclei-table td, .nuclei-table th { padding: 8px 10px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-layer">
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+  <div class="bg-grid"></div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="breadcrumb">Mansoura University · <span>Physiology &amp; Neuroanatomy</span> · Year 3</div>
+    <div class="title">Thalamus, RAS &amp; Consciousness</div>
+    <div class="subtitle">The Neural Nexus — Interactive Study Platform</div>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-pill"><span class="val" id="statProgress">0%</span><span class="lbl">Done</span></div>
+    <div class="stat-pill"><span class="val" id="statScore">0/25</span><span class="lbl">Quiz</span></div>
+    <div class="stat-pill"><span class="val" id="statStreak">🔥 0</span><span class="lbl">Streak</span></div>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-wrap" style="position:relative;">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="globalSearch" placeholder="Search nuclei, pathways, drugs, concepts…" autocomplete="off">
+  </div>
+  <div id="searchResults"></div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="overview"><span class="tab-icon">🧠</span>Overview</button>
+    <button class="tab-btn" data-tab="quiz"><span class="tab-icon">📝</span>Quiz</button>
+    <button class="tab-btn" data-tab="flashcards"><span class="tab-icon">🃏</span>Flashcards</button>
+    <button class="tab-btn" data-tab="cases"><span class="tab-icon">🏥</span>Clinical Cases</button>
+    <button class="tab-btn" data-tab="anatomy"><span class="tab-icon">🔬</span>Anatomy & Pathways</button>
+    <button class="tab-btn" data-tab="diagnosis"><span class="tab-icon">🔎</span>Diagnosis</button>
+    <button class="tab-btn" data-tab="treatment"><span class="tab-icon">💊</span>Pharmacology</button>
+    <button class="tab-btn" data-tab="mnemonics"><span class="tab-icon">✨</span>Mnemonics</button>
+    <button class="tab-btn" data-tab="viva"><span class="tab-icon">🎓</span>Viva</button>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+<!-- ==================== TAB 1: OVERVIEW ==================== -->
+<div class="tab-pane active" id="tab-overview">
+  <div class="overview-hero">
+    <h2>The Thalamus — Relay Hub of Consciousness</h2>
+    <p>An ovoid gray mass in the diencephalon — the thalamus integrates <strong>all sensory input</strong> (except olfaction), coordinates motor output, and via the Reticular Activating System, governs the very state of consciousness itself.</p>
+    <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
+      <span class="badge badge-red">⚠️ High Yield</span>
+      <span class="badge badge-blue">25 MCQs Mapped</span>
+      <span class="badge badge-purple">12 Viva Qs</span>
+      <span class="badge badge-green">5 Clinical Cases</span>
+    </div>
+  </div>
+
+  <div class="section-title">Key Concepts</div>
+  <div class="section-subtitle">Tap any card to review — these are the most frequently tested concepts</div>
+
+  <div class="key-concepts-grid grid-3" style="margin-bottom:32px;">
+    <div class="concept-card card">
+      <div class="cc-icon">🏛️</div>
+      <div class="cc-title">Structure</div>
+      <div class="cc-body">Paired ovoid mass in diencephalon, separated by 3rd ventricle, connected by inter-thalamic adhesion. Divided by white matter laminae into nuclear groups.</div>
+      <div class="cc-tags"><span class="badge badge-blue">Anatomy</span></div>
+    </div>
+    <div class="concept-card card">
+      <div class="cc-icon">🎯</div>
+      <div class="cc-title">Specific Nuclei</div>
+      <div class="cc-body">Receive well-defined afferents, project to exact cortical zones. Two subtypes: Relay Nuclei (→ primary cortex) and Association Nuclei (→ association cortex).</div>
+      <div class="cc-tags"><span class="badge badge-red">⚠️ Exam MCQ</span></div>
+    </div>
+    <div class="concept-card card">
+      <div class="cc-icon">📡</div>
+      <div class="cc-title">Non-Specific Nuclei</div>
+      <div class="cc-body">Intralaminar, Midline, Reticular. Input mainly from RAS. Project diffusely to ALL neocortex → generalized arousal & consciousness.</div>
+      <div class="cc-tags"><span class="badge badge-red">⚠️ Intralaminar MCQ</span></div>
+    </div>
+    <div class="concept-card card">
+      <div class="cc-icon">🔒</div>
+      <div class="cc-title">Sensory Gating</div>
+      <div class="cc-body">Cortex sends inhibitory corticofugal impulses back to thalamus, reducing transmission when input is too high. Prevents sensory overload.</div>
+      <div class="cc-tags"><span class="badge badge-purple">Key Mechanism</span></div>
+    </div>
+    <div class="concept-card card">
+      <div class="cc-icon">⚡</div>
+      <div class="cc-title">RAS Pathway</div>
+      <div class="cc-body">Excitatory RF (Pons + Midbrain) → Non-specific thalamic nuclei → Diffuse neocortex activation = Wakefulness. Pain/proprioception are strongest activators.</div>
+      <div class="cc-tags"><span class="badge badge-red">⚠️ High Yield</span></div>
+    </div>
+    <div class="concept-card card">
+      <div class="cc-icon">😴</div>
+      <div class="cc-title">Sleep Regulation</div>
+      <div class="cc-body">Serotonin from Raphe Nuclei suppresses RAS → sleep. NREM: slow large waves. REM: rapid beta-like waves. Adult: 8h sleep, 16h wakefulness.</div>
+      <div class="cc-tags"><span class="badge badge-green">Serotonin MCQ</span></div>
+    </div>
+  </div>
+
+  <div class="section-title">Thalamic Nuclei — Complete Reference</div>
+  <div class="section-subtitle">All nuclei, their inputs, outputs, and functions</div>
+
+  <div style="overflow-x:auto; margin-bottom:32px;">
+    <table class="nuclei-table">
+      <thead>
+        <tr>
+          <th>Nucleus</th>
+          <th>Type</th>
+          <th>Input From</th>
+          <th>Projects To</th>
+          <th>Function</th>
+          <th>Exam?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>VPL</strong></td><td><span class="badge badge-blue">Relay</span></td><td>Medial lemniscus / spinothalamic (body)</td><td>Primary somatosensory cortex</td><td>Fine touch, proprioception, pain/temp — trunk & limbs</td><td><span class="badge badge-red">⚠️ MCQ</span></td></tr>
+        <tr><td><strong>VPM</strong></td><td><span class="badge badge-blue">Relay</span></td><td>Trigeminal tracts (head/face), Taste</td><td>Primary somatosensory cortex</td><td>Sensations from head, face + taste</td><td><span class="badge badge-red">⚠️ MCQ</span></td></tr>
+        <tr><td><strong>LGB</strong></td><td><span class="badge badge-blue">Relay</span></td><td>Optic tract (both retinae)</td><td>Visual cortex (Area 17)</td><td>Vision relay</td><td><span class="badge badge-red">⚠️ MCQ</span></td></tr>
+        <tr><td><strong>MGB</strong></td><td><span class="badge badge-blue">Relay</span></td><td>Inferior colliculus (both ears)</td><td>Primary auditory cortex</td><td>Hearing relay</td><td></td></tr>
+        <tr><td><strong>VA</strong></td><td><span class="badge badge-blue">Relay (Motor)</span></td><td>Basal ganglia</td><td>Motor + Premotor cortex</td><td>Motor coordination</td><td><span class="badge badge-red">⚠️ MCQ</span></td></tr>
+        <tr><td><strong>VL</strong></td><td><span class="badge badge-blue">Relay (Motor)</span></td><td>Cerebellum</td><td>Motor + Premotor cortex</td><td>Cerebellar coordination</td><td><span class="badge badge-red">⚠️ MCQ</span></td></tr>
+        <tr><td><strong>Anterior</strong></td><td><span class="badge badge-purple">Association</span></td><td>Mammillary bodies (Papez circuit)</td><td>Limbic / Cingulate cortex</td><td>Emotion, memory, limbic integration</td><td></td></tr>
+        <tr><td><strong>DM (Dorsomedial)</strong></td><td><span class="badge badge-purple">Association</span></td><td>Amygdala, Hypothalamus, Olfactory</td><td>Prefrontal cortex</td><td>Memory coding/recall, Olfaction</td><td><span class="badge badge-red">⚠️ MCQ</span></td></tr>
+        <tr><td><strong>LD (Lateral Dorsal)</strong></td><td><span class="badge badge-purple">Association</span></td><td>Hippocampus</td><td>Limbic cortex</td><td>Emotion, motivation</td><td></td></tr>
+        <tr><td><strong>Pulvinar</strong></td><td><span class="badge badge-purple">Association</span></td><td>Superior colliculus, Visual areas</td><td>Parieto-occipito-temporal</td><td>Visual attention, multimodal integration</td><td></td></tr>
+        <tr><td><strong>Intralaminar</strong></td><td><span class="badge badge-green">Non-Specific</span></td><td>Reticular Activating System (RAS)</td><td>Diffuse neocortex</td><td>General arousal, consciousness</td><td><span class="badge badge-red">⚠️ KEY MCQ</span></td></tr>
+        <tr><td><strong>Midline</strong></td><td><span class="badge badge-green">Non-Specific</span></td><td>RAS</td><td>Diffuse neocortex</td><td>Arousal modulation</td><td></td></tr>
+        <tr><td><strong>Reticular (thalamic)</strong></td><td><span class="badge badge-green">Non-Specific</span></td><td>RAS + Corticothalamic</td><td>Other thalamic nuclei</td><td>Modulates thalamic output, gating</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Reticulo-Thalamo-Cortical Arousal Pathway</div>
+  <div class="section-subtitle">How the RAS keeps you awake — step by step</div>
+  <div class="flowchart" style="margin-bottom:32px;">
+    <div class="flow-node">🤕 Pain / Proprioception / Sensory Stimuli</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node accent">⚡ Excitatory Reticular Formation (Pons & Midbrain) — RAS<br><small style="font-weight:400;opacity:.8;">+ Norepinephrine / Epinephrine</small></div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node accent2">📡 Non-specific Thalamic Nuclei<br><small style="font-weight:400;opacity:.8;">Intralaminar · Midline · Reticular</small></div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node green">🌐 Diffuse Neocortex Projection → Arousal &amp; Wakefulness</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node" style="border-color:var(--accent2);color:var(--accent2);">🔄 Positive Cortical Feedback → Sustains RAS Activation</div>
+  </div>
+</div>
+
+<!-- ==================== TAB 2: QUIZ ==================== -->
+<div class="tab-pane" id="tab-quiz">
+  <div class="section-title">📝 Quiz Mode</div>
+  <div class="section-subtitle">25 MCQs — all sourced from your lecture notes. Get immediate feedback + explanations.</div>
+
+  <div class="quiz-header">
+    <div style="flex:1;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+        <span class="quiz-score-display" id="qProgressLabel">Question 0 / 25</span>
+        <span class="quiz-score-display" id="qScoreLabel">Score: 0</span>
+      </div>
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qProgressFill" style="width:0%"></div></div>
+    </div>
+    <div class="streak-display" id="qStreakDisplay">🔥 <span id="qStreakVal">0</span></div>
+  </div>
+
+  <div id="quizContainer"></div>
+
+  <div class="quiz-nav">
+    <button class="btn-outline" onclick="resetQuiz()">↺ Restart</button>
+    <div style="display:flex;gap:10px;">
+      <button class="btn-outline" id="prevBtn" onclick="navigateQ(-1)" style="display:none;">← Prev</button>
+      <button class="btn" id="nextBtn" onclick="navigateQ(1)" style="display:none;">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB 3: FLASHCARDS ==================== -->
+<div class="tab-pane" id="tab-flashcards">
+  <div class="section-title">🃏 Flashcards</div>
+  <div class="section-subtitle">Click any card to flip — 24 key concepts from thalamus & RAS</div>
+  <div class="flashcard-grid" id="flashcardGrid"></div>
+</div>
+
+<!-- ==================== TAB 4: CLINICAL CASES ==================== -->
+<div class="tab-pane" id="tab-cases">
+  <div class="section-title">🏥 Clinical Cases</div>
+  <div class="section-subtitle">Exam-style vignettes — think through each case before revealing the answer</div>
+  <div id="casesContainer"></div>
+</div>
+
+<!-- ==================== TAB 5: ANATOMY ==================== -->
+<div class="tab-pane" id="tab-anatomy">
+  <div class="section-title">🔬 Anatomy & Pathways</div>
+  <div class="section-subtitle">Click any nucleus to see its full details</div>
+
+  <div class="nuclei-interactive-grid" id="nucleiGrid"></div>
+  <div class="nucleus-detail" id="nucleusDetail"></div>
+
+  <div class="section-title">Sensory Gating Mechanism</div>
+  <div class="section-subtitle">How the cortex prevents sensory overload</div>
+  <div class="flowchart" style="margin:16px 0 32px;">
+    <div class="flow-node">🌊 High-Intensity Ascending Sensory Input</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node accent">🎯 Specific Thalamic Nuclei (VPL / VPM / LGB / MGB)</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node green">🧠 Primary Sensory Cortex — Activated</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node" style="border-color:var(--red);color:var(--red);">⬇️ Inhibitory Corticofugal Impulses → Back to Thalamus</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node accent2">🔒 Thalamic Transmission DECREASED — Sensory Overload Prevented</div>
+  </div>
+
+  <div class="section-title">Sleep-Wake Regulation Mechanism</div>
+  <div class="section-subtitle">The reciprocal oscillation between wakefulness and sleep</div>
+  <div class="flowchart" style="margin:16px 0 0;">
+    <div class="flow-node accent">☀️ WAKEFULNESS: RAS Active (Pons + Midbrain)<br><small>NE/Epinephrine dominant</small></div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node" style="border-color:var(--accent2);color:var(--accent2);">🌙 Serotonin from Raphe Nuclei (Pons + Medulla) suppresses RAS</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node" style="border-color:var(--green);color:var(--green);">😴 Reticular Inhibitory Area (Medulla) activated → NREM Sleep<br><small>Large amplitude, slow EEG waves</small></div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node accent2">👁️ REM Sleep: Beta-like rapid waves, rapid eye movements</div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node accent">🔁 Cycle repeats ~90 min — Cortex feedback reactivates RAS</div>
+  </div>
+</div>
+
+<!-- ==================== TAB 6: DIAGNOSIS ==================== -->
+<div class="tab-pane" id="tab-diagnosis">
+  <div class="section-title">🔎 Diagnosis & Investigation</div>
+  <div class="section-subtitle">Diagnostic approach to thalamic & consciousness disorders</div>
+
+  <div class="diag-section">
+    <div class="section-title" style="font-size:20px;">Consciousness Disorder Diagnostic Algorithm</div>
+    <div class="diag-algo">
+      <div class="algo-step step-a">
+        <div class="step-circle">1</div>
+        <div class="step-content">
+          <div class="step-title">Clinical Assessment — Level of Consciousness</div>
+          <div class="step-desc">Determine if patient is alert, drowsy, stuporous, or comatose. Use GCS. Assess for unarousability (suggests bilateral RAS or thalamic disruption).</div>
+        </div>
+      </div>
+      <div class="algo-step step-b">
+        <div class="step-circle">2</div>
+        <div class="step-content">
+          <div class="step-title">EEG Analysis — Cortical Activity Pattern</div>
+          <div class="step-desc">Wakefulness → Beta waves (13–30 Hz). NREM Sleep → Large amplitude slow waves (delta). REM Sleep → Beta-like rapid waves. Coma → Absent beta, diffuse slowing or suppression.</div>
+        </div>
+      </div>
+      <div class="algo-step step-c">
+        <div class="step-circle">3</div>
+        <div class="step-content">
+          <div class="step-title">Neuroimaging — MRI Brain</div>
+          <div class="step-desc">MRI to assess structural integrity of brainstem (pons/midbrain — location of excitatory RF), thalamic nuclei (intralaminar/specific), and cortical areas.</div>
+        </div>
+      </div>
+      <div class="algo-step step-d">
+        <div class="step-circle">4</div>
+        <div class="step-content">
+          <div class="step-title">Sensory Testing — Crude vs Fine Perception</div>
+          <div class="step-desc">If patient perceives crude protopathic pain/temperature but not fine epicritic sensation → thalamus intact but cortex compromised. Loss of all sensation → thalamic or brainstem lesion.</div>
+        </div>
+      </div>
+      <div class="algo-step step-e">
+        <div class="step-circle">5</div>
+        <div class="step-content">
+          <div class="step-title">Drug/Toxicology Screen</div>
+          <div class="step-desc">Hypnotics and anesthetics act by decreasing synaptic conduction through RAS. Opioids, barbiturates, and benzodiazepines suppress RAS → unconsciousness.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="diag-section">
+    <div class="section-title" style="font-size:20px;">Comparison: NREM vs REM Sleep</div>
+    <div style="overflow-x:auto;">
+      <table class="compare-table">
+        <thead>
+          <tr><th>Feature</th><th>NREM (Slow-Wave)</th><th>REM Sleep</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>EEG Pattern</td><td>Large amplitude, slow frequency waves</td><td>Rapid beta-like waves</td></tr>
+          <tr><td>Eye Movement</td><td>Absent / slow rolling</td><td>Rapid oscillatory movements</td></tr>
+          <tr><td>Muscle Tone</td><td>Reduced but present</td><td>Paralysed (atonia)</td></tr>
+          <tr><td>Dreaming</td><td>Rare / non-vivid</td><td>Vivid, complex dreams</td></tr>
+          <tr><td>Heart Rate/BP</td><td>Decreased</td><td>Variable/irregular</td></tr>
+          <tr><td>Regulation</td><td>Serotonin + RIA (Medulla)</td><td>Brainstem oscillatory circuits</td></tr>
+          <tr><td>Duration (adult)</td><td>~75% of total sleep</td><td>~25% of total sleep</td></tr>
+          <tr><td>Arousal threshold</td><td>Higher</td><td>Lower (easily awakened)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="diag-section">
+    <div class="section-title" style="font-size:20px;">Comparison: Specific vs Non-Specific Thalamic Nuclei</div>
+    <div style="overflow-x:auto;">
+      <table class="compare-table">
+        <thead>
+          <tr><th>Feature</th><th>Specific Nuclei</th><th>Non-Specific Nuclei</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Projection Pattern</td><td>Point-to-point (precise zones)</td><td>Diffuse to all neocortex</td></tr>
+          <tr><td>Main Input</td><td>Specific sensory/motor/limbic tracts</td><td>Reticular Activating System (RAS)</td></tr>
+          <tr><td>Key Examples</td><td>VPL, VPM, LGB, MGB, VA, VL, DM, Anterior</td><td>Intralaminar, Midline, Reticular</td></tr>
+          <tr><td>Function</td><td>Precise modality transfer; exact perception</td><td>General arousal, wakefulness, consciousness</td></tr>
+          <tr><td>Cortical Effect</td><td>Activates specific primary/association areas</td><td>Adjusts overall excitability level</td></tr>
+          <tr><td>Lesion Result</td><td>Specific sensory/motor deficit</td><td>Altered consciousness, coma</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB 7: TREATMENT/PHARMACOLOGY ==================== -->
+<div class="tab-pane" id="tab-treatment">
+  <div class="section-title">💊 Pharmacology of Consciousness</div>
+  <div class="section-subtitle">Drugs that modulate the RAS, sleep, and consciousness — exam-focused</div>
+
+  <div class="treatment-grid" style="margin-bottom:28px;">
+    <div class="treatment-card">
+      <div class="tc-header emergency">🚨 RAS SUPPRESSANTS — Cause Unconsciousness</div>
+      <div class="tc-body">
+        <div class="drug-item">
+          <div class="drug-dot" style="background:var(--red)"></div>
+          <div><div class="di-name">Hypnotics (e.g., Barbiturates)</div><div class="di-note">Decrease synaptic conduction through RAS → unconsciousness</div></div>
+        </div>
+        <div class="drug-item">
+          <div class="drug-dot" style="background:var(--red)"></div>
+          <div><div class="di-name">General Anesthetics</div><div class="di-note">Profound RAS synapse suppression → surgical anesthesia</div></div>
+        </div>
+        <div class="drug-item">
+          <div class="drug-dot" style="background:var(--red)"></div>
+          <div><div class="di-name">Benzodiazepines</div><div class="di-note">GABAergic enhancement → RAS depression → sedation/sleep</div></div>
+        </div>
+        <div class="drug-item">
+          <div class="drug-dot" style="background:var(--red)"></div>
+          <div><div class="di-name">Opioids</div><div class="di-note">Suppress ascending pain signals that activate RAS → sedation</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="treatment-card">
+      <div class="tc-header primary">⚡ RAS ACTIVATORS — Promote Wakefulness</div>
+      <div class="tc-body">
+        <div class="drug-item">
+          <div class="drug-dot" style="background:var(--accent)"></div>
+          <div><div class="di-name">Amphetamines</div><div class="di-note">Release catecholamines (NE/DA) → stimulate excitatory RF → alertness</div></div>
+        </div>
+        <div class="drug-item">
+          <div class="drug-dot" style="background:var(--accent)"></div>
+          <div><div class="di-name">Caffeine</div><div class="di-note">Adenosine antagonist → increases RAS activity → wakefulness</div></div>
+        </div>
+        <div class="drug-item">
+          <div class="drug-dot" style="background:var(--accent)"></div>
+          <div><div class="di-name">Epinephrine / Norepinephrine</div><div class="di-note">Lower threshold of RAS neurons → heightened arousal</div></div>
+        </div>
+        <div class="drug-item">
+          <div class="drug-dot" style="background:var(--accent)"></div>
+          <div><div class="di-name">Modafinil</div><div class="di-note">Promotes wakefulness via NE/DA pathways — used in narcolepsy</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="treatment-card">
+      <div class="tc-header secondary">😴 SLEEP-PROMOTING — Serotonergic</div>
+      <div class="tc-body">
+        <div class="drug-item">
+          <div class="drug-dot" style="background:var(--green)"></div>
+          <div><div class="di-name">Serotonin (5-HT)</div><div class="di-note">Released by Raphe Nuclei → suppresses excitatory RAS → promotes sleep onset</div></div>
+        </div>
+        <div class="drug-item">
+          <div class="drug-dot" style="background:var(--green)"></div>
+          <div><div class="di-name">Tryptophan (precursor)</div><div class="di-note">Dietary → converted to serotonin → mild sleep promotion</div></div>
+        </div>
+        <div class="drug-item">
+          <div class="drug-dot" style="background:var(--green)"></div>
+          <div><div class="di-name">SSRIs (e.g., Fluoxetine)</div><div class="di-note">Increase serotonin → can suppress REM sleep</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="treatment-card">
+      <div class="tc-header caution">⚠️ ANTI-SEROTONIN DRUGS — Cause Insomnia</div>
+      <div class="tc-body">
+        <div class="drug-item">
+          <div class="drug-dot" style="background:var(--yellow)"></div>
+          <div><div class="di-name">Anti-Serotonin Agents</div><div class="di-note">Remove serotonergic suppression of RAS → RAS stays active → INSOMNIA ⚠️ Exam MCQ</div></div>
+        </div>
+        <div class="drug-item">
+          <div class="drug-dot" style="background:var(--yellow)"></div>
+          <div><div class="di-name">Raphe Nucleus Lesion</div><div class="di-note">Destroys serotonin source → profound insomnia (experimentally demonstrated)</div></div>
+        </div>
+        <div class="drug-item">
+          <div class="drug-dot" style="background:var(--yellow)"></div>
+          <div><div class="di-name">Cyproheptadine</div><div class="di-note">5-HT antagonist → possible insomnia side effect via RAS disinhibition</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title" style="font-size:20px;">Drug Mechanism Summary Table</div>
+  <div style="overflow-x:auto;">
+    <table class="compare-table">
+      <thead>
+        <tr><th>Drug/Substance</th><th>Mechanism on RAS</th><th>Effect on Consciousness</th><th>Clinical Use</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Barbiturates</td><td>↓ synaptic conduction in RAS</td><td>↓↓↓ → unconsciousness</td><td>Anesthesia, sedation</td></tr>
+        <tr><td>Benzodiazepines</td><td>↑ GABA → ↓ RAS</td><td>↓ → sedation/sleep</td><td>Anxiety, insomnia</td></tr>
+        <tr><td>General Anesthetics</td><td>Profound RAS suppression</td><td>↓↓↓↓ → surgical unconsciousness</td><td>Surgery</td></tr>
+        <tr><td>Amphetamines</td><td>↑ NE/DA → ↑ RAS excitation</td><td>↑↑ → hyperalertness</td><td>ADHD, narcolepsy</td></tr>
+        <tr><td>Caffeine</td><td>Adenosine antagonism → ↑ RAS</td><td>↑ → wakefulness</td><td>Social stimulant</td></tr>
+        <tr><td>Serotonin</td><td>↓ excitatory RF activity (via RIA)</td><td>↓ → sleep onset</td><td>Endogenous sleep regulator</td></tr>
+        <tr><td>Opioids</td><td>Suppress pain signals activating RAS</td><td>↓ → sedation/sleep</td><td>Pain management</td></tr>
+        <tr><td>Anti-serotonin drugs</td><td>Remove serotonin inhibition of RAS</td><td>↑ → Insomnia</td><td>Side effect to know!</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== TAB 8: MNEMONICS ==================== -->
+<div class="tab-pane" id="tab-mnemonics">
+  <div class="section-title">✨ Memory Mnemonics</div>
+  <div class="section-subtitle">Custom mnemonics created from your lecture content — never forget these again</div>
+  <div id="mnemonicsContainer"></div>
+</div>
+
+<!-- ==================== TAB 9: VIVA ==================== -->
+<div class="tab-pane" id="tab-viva">
+  <div class="section-title">🎓 Viva Questions</div>
+  <div class="section-subtitle">12 structured viva Q&As — click to expand each answer</div>
+  <div id="vivaContainer"></div>
+</div>
+
+</div><!-- /content -->
+
+<!-- Completion Modal -->
+<div id="completionModal">
+  <div class="completion-box">
+    <div class="big-emoji">🏆</div>
+    <h2>Quiz Complete!</h2>
+    <p id="completionMsg">Great work, Khaled!</p>
+    <button class="btn" onclick="resetQuiz()">Retake Quiz</button>
+  </div>
+</div>
+
+<script>
+// ========== DATA ==========
+
+const quizData = [
+  { q: "Which of the following nuclei is classified as a NON-SPECIFIC thalamic nucleus?", opts: ["Anterior nucleus","Ventral posterolateral (VPL)","Intralaminar nucleus","Lateral geniculate body (LGB)","Dorsomedial (DM)"], ans: 2, exp: "Intralaminar nuclei are non-specific, receiving input mainly from the RAS and projecting DIFFUSELY to all neocortex. VPL, LGB, Anterior, and DM are all specific nuclei.", exam: true },
+  { q: "Fine epicritic sensations from the opposite side of the body (excluding the face) relay in which thalamic nucleus?", opts: ["VPM","VPL","VA","VL","MGB"], ans: 1, exp: "VPL (Ventral Posterolateral) relays somatic sensory pathways (medial lemniscus / spinothalamic) from trunk and limbs to the primary somatosensory cortex.", exam: true },
+  { q: "Auditory fibers from both ears primarily relay in:", opts: ["LGB","MGB","VPM","Dorsomedial","Pulvinar"], ans: 1, exp: "MGB (Medial Geniculate Body) receives from the inferior colliculus (both ears) and projects to the primary auditory cortex (Heschl's gyrus)." },
+  { q: "Which nucleus forms reciprocal connections with the prefrontal cortex for coding and storing memory, AND recently shown to relay olfaction?", opts: ["Anterior","Dorsomedial (DM)","Lateral Dorsal (LD)","Pulvinar","VA"], ans: 1, exp: "The Dorsomedial (DM) nucleus connects bidirectionally with the prefrontal cortex for memory, and recent research shows it also relays olfactory signals.", exam: true },
+  { q: "The recently discovered pathway for olfaction passes through which thalamic structure?", opts: ["MGB","Intralaminar","Dorsomedial (DM)","VPM","Pulvinar"], ans: 2, exp: "Olfaction was classically thought to bypass the thalamus, but recent evidence shows it passes through the Dorsomedial (DM) nucleus to the orbitofrontal cortex." },
+  { q: "Sensory gating (preventing cortical overload) is achieved through:", opts: ["Excitatory corticofugal impulses","Inhibitory corticofugal impulses","Excitatory reticulofugal impulses","Serotonergic inputs","Motor cortex output"], ans: 1, exp: "The cortex sends INHIBITORY corticofugal (descending) impulses back to thalamic relay nuclei to decrease transmission when sensory input is too high." },
+  { q: "Without cortical involvement, the thalamus can consciously perceive:", opts: ["Two-point discrimination","Fine touch","Crude protopathic pain and extreme temperature","Visual shapes","Spoken words"], ans: 2, exp: "The thalamus acts as a sensory center for diffuse protopathic sensations (crude pain, crude touch, extreme temperatures) even without cortical involvement.", exam: true },
+  { q: "Motor signals from the BASAL GANGLIA and CEREBELLUM are relayed to the motor cortex via:", opts: ["VPL and VPM","VA and VL","Anterior and LD","Pulvinar","Reticular"], ans: 1, exp: "Ventral Anterior (VA) receives from basal ganglia; Ventral Lateral (VL) receives from cerebellum — both relay to motor and premotor cortex for coordination.", exam: true },
+  { q: "Non-specific thalamic nuclei function to:", opts: ["Relay specific sensory modalities","Adjust general excitability of the motor cortex and cortex broadly","Relay motor signals from cerebellum","Relay limbic emotional signals","Provide two-point discrimination"], ans: 1, exp: "Non-specific nuclei (Intralaminar, Midline, Reticular) adjust the general level of excitability (arousal) of the cerebral cortex via diffuse projection." },
+  { q: "Integration of visceral and somatic motor responses during emotional reactions involves which nuclei?", opts: ["VA and VL","LGB and MGB","Anterior and Medial (DM) nuclei","Pulvinar","Reticular"], ans: 2, exp: "Anterior nucleus (connected to limbic system/hypothalamus) and DM nucleus interact for emotional and visceral-somatic integration." },
+  { q: "The RAS produces cortical arousal primarily by projecting:", opts: ["Directly to spinal cord","Through specific relay nuclei only","Through non-specific thalamic nuclei → diffuse neocortex","Via the vagus nerve","Via the basal ganglia"], ans: 2, exp: "The Reticulo-Thalamo-Cortical pathway: excitatory RF (pons/midbrain) → NON-SPECIFIC thalamic nuclei → diffuse projection to all neocortex = arousal." },
+  { q: "Which neurotransmitter LOWERS the threshold for excitation in RAS neurons (promotes wakefulness)?", opts: ["Serotonin","GABA","Glycine","Epinephrine / Norepinephrine","Endorphin"], ans: 3, exp: "Epinephrine and Norepinephrine lower the threshold of neurons in the excitatory reticular formation, increasing RAS activity and promoting wakefulness." },
+  { q: "The Reticular Inhibitory Area (which suppresses the RAS) is located in the:", opts: ["Midbrain","Pons","Medulla Oblongata","Thalamus","Cerebral Cortex"], ans: 2, exp: "The Reticular Inhibitory Area is in the MEDULLA oblongata. It inhibits the RAS, likely via serotonin, creating the alternating sleep-wake cycle." },
+  { q: "Administration of anti-serotonin drugs most likely leads to:", opts: ["Coma","Insomnia","Blindness","Tremors","Deafness"], ans: 1, exp: "Serotonin (from raphe nuclei) suppresses the RAS to promote sleep. Blocking serotonin → RAS remains constantly active → INSOMNIA. ⚠️ Favorite exam MCQ!", exam: true },
+  { q: "Hypnotic and anesthetic drugs cause unconsciousness primarily by:", opts: ["Exciting the medulla","Decreasing synaptic conduction through RAS","Stimulating specific relay nuclei","Inhibiting primary motor cortex","Destroying raphe nuclei"], ans: 1, exp: "Hypnotics decrease synaptic transmission throughout the RAS, preventing the upward arousal signal from reaching the cortex → unconsciousness." },
+  { q: "During NREM (Slow-wave) sleep, the EEG demonstrates:", opts: ["Rapid beta-like waves","Large amplitude, slow frequency waves","Flatline","Continuous spikes","Alpha waves only"], ans: 1, exp: "NREM (slow-wave sleep) = large amplitude, slow frequency (delta) waves on EEG. REM sleep shows rapid beta-like waves.", exam: true },
+  { q: "Which type of sensory signal is MOST stimulatory to the RAS?", opts: ["Fine touch","Olfaction","Pain and proprioception","Taste","Temperature"], ans: 2, exp: "Pain and proprioceptive signals are the MOST powerful activators of the ascending RAS, which is why pain prevents sleep and proprioception during exercise promotes alertness." },
+  { q: "The inter-thalamic adhesion:", opts: ["Separates the two thalami","Connects the two thalami ACROSS the 3rd ventricle","Connects thalamus to hypothalamus","Connects thalamus to midbrain","Divides specific from non-specific nuclei"], ans: 1, exp: "The inter-thalamic adhesion (massa intermedia) is a narrow band connecting the two thalami across the 3rd ventricle. The 3rd ventricle separates them; the adhesion reconnects them." },
+  { q: "Which is a Specific RELAY Nucleus (projects to primary cortex) rather than a Specific ASSOCIATION Nucleus?", opts: ["Anterior","Lateral Dorsal (LD)","Ventral Posterior (VP)","Pulvinar","Dorsomedial (DM)"], ans: 2, exp: "VP (VPL+VPM = Ventral Posterior) projects to PRIMARY somatosensory cortex = specific relay. DM, Anterior, LD, Pulvinar all project to association cortices." },
+  { q: "VPM nucleus specifically relays:", opts: ["Vision from both retinae","Hearing from both ears","Tactile sensation from the trunk","Head/face sensation plus TASTE","Proprioception from the limbs"], ans: 3, exp: "VPM (Ventral Posteromedial) relays somatosensory input from the head and face (trigeminal) AND taste from the tongue, projecting to primary somatosensory cortex.", exam: true },
+  { q: "Caffeine and Amphetamines affect consciousness by:", opts: ["Increasing serotonin release","Stimulating reticular inhibitory area","Increasing activity of the RAS","Blocking cortical feedback","Inhibiting VA nucleus"], ans: 2, exp: "Stimulants increase excitatory RAS activity (caffeine via adenosine antagonism; amphetamines via catecholamine release) → sustained wakefulness." },
+  { q: "Feedback signals from cerebral cortex during intense thinking:", opts: ["Inhibit the RAS","Inhibit specific relay nuclei only","Provide POSITIVE feedback to activate the RAS","Excite the reticular inhibitory area","Decrease epinephrine"], ans: 2, exp: "Cortical activity (thinking) sends POSITIVE (excitatory) corticofugal feedback to the RAS, which sends more signals to the cortex — creating a self-sustaining loop of alertness." },
+  { q: "Normal sleep duration for an adult is approximately:", opts: ["18 hours","12 hours","6 hours","8 hours","4 hours"], ans: 3, exp: "Adults: 8 hours sleep, 16 hours wakefulness. Infants sleep ~18 hours. Elderly sleep ~6 hours. This changes with age." },
+  { q: "In the lateral group of thalamic nuclei, the principal nucleus of the DORSAL subgroup is:", opts: ["Pulvinar","Lateral Dorsal (LD)","VA","VL","VP"], ans: 1, exp: "The lateral group has dorsal (LD, LP, Pulvinar) and ventral (VA, VL, VP) subgroups. LD (Lateral Dorsal) is the principal nucleus of the dorsal subgroup." },
+  { q: "REM sleep is characterized by:", opts: ["High amplitude slow waves","Total loss of brain electrical activity","Rapid beta-like waves on EEG","Extreme muscle rigidity","Sleepwalking"], ans: 2, exp: "REM (Rapid Eye Movement) sleep: beta-like rapid waves on EEG (similar to wakefulness), rapid oscillatory eye movements, muscle atonia (paralysis of skeletal muscles).", exam: true }
+];
+
+const flashcardData = [
+  { emoji: "🏛️", q: "What is the structural location of the thalamus?", a: "Ovoid gray mass in the diencephalon, forming the lateral wall of the 3rd ventricle. The two thalami are connected by the inter-thalamic adhesion." },
+  { emoji: "✂️", q: "What divides the thalamus into nuclear groups?", a: "White matter laminae (internal medullary laminae) divide the thalamus into Anterior, Medial, and Lateral nuclear groups." },
+  { emoji: "🎯", q: "Define a Specific Relay Nucleus", a: "Receives well-defined afferent inputs and projects to a specific PRIMARY area of the cerebral cortex (e.g., VPL → primary somatosensory cortex)." },
+  { emoji: "🔗", q: "Define a Specific Association Nucleus", a: "Receives inputs and projects to ASSOCIATION areas of cerebral cortex (not primary). Examples: DM → prefrontal; Anterior → limbic/cingulate; Pulvinar → parieto-occipito-temporal." },
+  { emoji: "📡", q: "What are the Non-Specific Thalamic Nuclei?", a: "Intralaminar, Midline, and Reticular nuclei. They receive from RAS and project DIFFUSELY to ALL neocortex → generalized arousal." },
+  { emoji: "🦵", q: "VPL nucleus — input and output?", a: "INPUT: Medial lemniscus + spinothalamic tract (from body/trunk/limbs). OUTPUT: Primary somatosensory cortex. Function: Fine touch, proprioception, pain/temp from body." },
+  { emoji: "😬", q: "VPM nucleus — input and output?", a: "INPUT: Trigeminal tracts (face/head) + Taste fibers. OUTPUT: Primary somatosensory cortex. Function: Sensations from head/face + taste." },
+  { emoji: "👁️", q: "LGB nucleus — function?", a: "Lateral Geniculate Body: Relay station for VISION. Receives from BOTH retinae via optic tract → projects to visual cortex (area 17). ⚠️ MCQ Exam." },
+  { emoji: "👂", q: "MGB nucleus — function?", a: "Medial Geniculate Body: Relay station for HEARING. Receives from inferior colliculus (both ears) → projects to primary auditory cortex (Heschl's gyrus)." },
+  { emoji: "🕹️", q: "VA and VL nuclei — functions?", a: "Motor relay nuclei. VA receives from BASAL GANGLIA; VL receives from CEREBELLUM. Both project to motor + premotor cortex for movement planning/coordination." },
+  { emoji: "💭", q: "Dorsomedial (DM) nucleus — key functions?", a: "1) Reciprocal connections with PREFRONTAL cortex → memory coding and recall. 2) Recently shown to relay OLFACTION. Connected to amygdala + hypothalamus." },
+  { emoji: "😌", q: "What is sensory gating and where does it occur?", a: "The thalamus protects the cortex from overload. High sensory input → cortex sends INHIBITORY corticofugal impulses back to thalamic relay nuclei → reduces transmission." },
+  { emoji: "⚡", q: "Describe the RAS arousal pathway", a: "Sensory stimuli → Excitatory RF (pons + midbrain) → Non-specific thalamic nuclei → Diffuse neocortex → Arousal. Positive cortical feedback sustains it." },
+  { emoji: "🌊", q: "Which sensory signals are MOST stimulatory to the RAS?", a: "Pain and proprioception are the most powerful activators of the ascending RAS. All sensory signals stimulate it, but pain is strongest." },
+  { emoji: "😴", q: "How does Serotonin regulate sleep?", a: "Serotonin released by RAPHE NUCLEI (pons + medulla) suppresses the excitatory RAS → promotes sleep. Anti-serotonin drugs → insomnia. ⚠️ MCQ." },
+  { emoji: "🧪", q: "Where is the Reticular Inhibitory Area?", a: "MEDULLA oblongata. When excited, it inhibits the RAS (likely via serotonin), creating the sleep-wake oscillation cycle." },
+  { emoji: "💤", q: "NREM vs REM EEG?", a: "NREM (slow-wave sleep): Large amplitude, slow frequency delta waves. REM: Rapid beta-like waves (similar to wakefulness) + rapid eye movements." },
+  { emoji: "💊", q: "How do hypnotics and anesthetics work?", a: "They decrease synaptic conduction through the RAS synapses → prevent upward arousal signal → cortical depression → unconsciousness." },
+  { emoji: "☕", q: "How do Caffeine and Amphetamines work?", a: "Both increase RAS excitatory activity. Caffeine: adenosine receptor antagonism. Amphetamines: release norepinephrine/dopamine. Both → prolonged wakefulness." },
+  { emoji: "🔁", q: "What is the positive feedback loop of consciousness?", a: "Thinking → cortex activates → cortex sends positive (excitatory) corticofugal feedback to RAS → RAS activates cortex more → self-sustaining alertness loop." },
+  { emoji: "🏥", q: "What can the thalamus perceive without the cortex?", a: "CRUDE protopathic sensations: diffuse pain, crude touch, extreme temperature. Fine epicritic sensations (2-point discrimination, texture) require cortical processing." },
+  { emoji: "👶", q: "How does sleep duration change with age?", a: "Infants: ~18h. Adults: ~8h (16h awake). Elderly: ~6h. Sleep duration progressively decreases with age." },
+  { emoji: "🔊", q: "Positive feedback to RAS from cortex — when?", a: "During thinking, motor activity, or any sustained cognitive effort. The activated cortex sends excitatory signals back to the RAS, maintaining the alert state." },
+  { emoji: "🧠", q: "What is the overall functional significance of the thalamus?", a: "The thalamus is the MASTER INTEGRATOR: relay of all sensory (except historically olfaction), motor coordination (VA/VL), emotion/memory (Anterior/DM), and consciousness (non-specific via RAS)." },
+];
+
+const casesData = [
+  {
+    title: "The Post-Stroke Patient",
+    scenario: "Cortical Stroke + Thalamic Preservation",
+    vignette: "A 68-year-old man presents after a right-sided cortical stroke. On examination, he cannot identify objects by touch, cannot perceive two-point discrimination, and has impaired proprioception on the left side. However, he withdraws from painful stimuli and screams when hot water is accidentally spilled on him.",
+    questions: [
+      { q: "Q1: What explains his retained pain and temperature perception?", a: "The thalamus acts as a sensory center capable of independently perceiving CRUDE PROTOPATHIC sensations (diffuse pain, extreme temperature, crude touch) without cortical involvement. The cortex is needed only for FINE epicritic perception." },
+      { q: "Q2: Which thalamic nucleus is responsible?", a: "The VP (VPL/VPM complex) relays crude sensations. Thalamic perception is primitive and diffuse — it cannot localize or discriminate, but it can detect and respond to crude stimuli." },
+      { q: "Q3: What would happen if the thalamus itself was damaged?", a: "Complete loss of all conscious sensory awareness, including crude pain and temperature — the patient would not respond to painful stimuli at all. This is distinct from cortical damage where crude perception is preserved." }
+    ]
+  },
+  {
+    title: "The Insomnia Researcher",
+    scenario: "RAS Pharmacology & Serotonin Disruption",
+    vignette: "A researcher is investigating the neurobiology of sleep. In an animal model, they selectively lesion the raphe nuclei in the pons and medulla using a targeted neurotoxin. Within 48 hours, the animals show profound, sustained wakefulness, becoming increasingly agitated and showing behavioral signs consistent with total sleep deprivation.",
+    questions: [
+      { q: "Q1: Explain the mechanism of insomnia produced?", a: "The raphe nuclei release SEROTONIN, which suppresses the excitatory Reticular Activating System (RAS) in the pons and midbrain. Destruction of raphe nuclei → serotonin loss → RAS is no longer suppressed → constant activation of non-specific thalamic nuclei → continuous diffuse cortical arousal = insomnia." },
+      { q: "Q2: What drugs could produce the same effect?", a: "Anti-serotonin drugs (serotonin antagonists like cyproheptadine) would remove serotonin's inhibitory effect on the RAS, similarly producing insomnia. This is an important exam MCQ!" },
+      { q: "Q3: What drug could REVERSE this insomnia in the model?", a: "Hypnotics (barbiturates, benzodiazepines) or serotonin precursors (tryptophan, 5-HTP) could be given to directly suppress the RAS or restore serotonergic suppression, restoring sleep." }
+    ]
+  },
+  {
+    title: "The Lecture Hall Student",
+    scenario: "RAS, Sensory Stimulation & Wakefulness",
+    vignette: "A medical student sits in a bright, noisy lecture hall and finds it impossible to fall asleep despite being severely sleep-deprived. Later that night in a quiet, dark room, they fall asleep within minutes of lying down.",
+    questions: [
+      { q: "Q1: Explain why the bright, noisy environment prevents sleep?", a: "Visual and auditory stimuli from the environment continuously stimulate ascending sensory pathways. These signals activate the EXCITATORY RETICULAR FORMATION in the pons and midbrain, which projects via non-specific thalamic nuclei to the neocortex → sustained arousal." },
+      { q: "Q2: Why does darkness and quiet facilitate sleep?", a: "Reduced sensory input → reduced stimulation of the RAS → decreased upward arousal signal → Reticular Inhibitory Area (medulla) relatively dominant → serotonin suppresses RAS → sleep onset facilitated." },
+      { q: "Q3: What type of stimuli are MOST effective at activating the RAS?", a: "Pain and proprioceptive signals are the MOST stimulatory to the RAS. This is why pain prevents sleep more effectively than any other stimulus, and why exercise (proprioception) temporarily increases alertness." }
+    ]
+  },
+  {
+    title: "The Ataxic Patient",
+    scenario: "Motor Coordination — Thalamic Motor Nuclei",
+    vignette: "A 55-year-old woman presents with progressive inability to coordinate voluntary movements. She can initiate movements, and muscle strength is normal, but movements are dysmetric, jerky, and poorly coordinated. MRI shows a lesion in the left thalamus affecting the VA and VL nuclei.",
+    questions: [
+      { q: "Q1: Why are VA and VL nuclei important for movement?", a: "VA (Ventral Anterior) receives motor signals from the BASAL GANGLIA; VL (Ventral Lateral) receives from the CEREBELLUM. Both relay to the motor and premotor cortex of the frontal lobe to coordinate and plan smooth, voluntary movements." },
+      { q: "Q2: What is the difference between basal ganglia (VA) vs cerebellar (VL) contributions?", a: "Basal ganglia (via VA): selection, initiation, and sequencing of movements; inhibit competing motor programs. Cerebellum (via VL): timing, accuracy, and fine coordination of ongoing movements — correction of errors." },
+      { q: "Q3: How would non-specific nuclei dysfunction differ from this presentation?", a: "Non-specific nuclei (Intralaminar etc.) dysfunction would affect CONSCIOUSNESS and AROUSAL — not specifically motor coordination. This patient is alert, so non-specific nuclei are intact; the problem is specifically VA/VL motor relay failure." }
+    ]
+  },
+  {
+    title: "The Brainstem Degeneration",
+    scenario: "Long Integrative — Bilateral RAS Disruption",
+    vignette: "A 62-year-old presents with a progressive neurodegenerative disease. He alternates between states of unarousable coma-like behavior and sudden, poorly controlled jerky movements. Sensory perception is diffusely impaired, and his wife notes severe personality changes and memory loss over the past year.",
+    questions: [
+      { q: "Q1: Identify the structures involved and predict the MRI findings?", a: "1) Brainstem (pons/midbrain) — excitatory RF of RAS disrupted → coma-like states. 2) VA/VL nuclei — motor relay failure → jerky dyscoordinated movements. 3) DM/Anterior nuclei — memory and personality changes. MRI: bilateral signal changes in brainstem tegmentum and thalamic nuclei." },
+      { q: "Q2: What investigations would you order and why?", a: "EEG: check for loss of beta waves, persistent slow-wave patterns indicating failure of cortical arousal. MRI Brain (with contrast): assess brainstem and thalamic structural integrity. Sleep study (polysomnography): assess sleep architecture disruption." },
+      { q: "Q3: What compensatory mechanisms exist, if any?", a: "Very few. The system is largely non-redundant. The reticular inhibitory area (medulla) might downregulate, but without the excitatory RAS (pons/midbrain), adequate cortical arousal cannot be achieved. The thalamus cannot compensate for brainstem destruction." }
+    ]
+  }
+];
+
+const nucleiDetailData = {
+  "VPL": { name: "Ventral Posterolateral", type: "Specific Relay", input: "Medial lemniscus, spinothalamic tract (body/trunk/limbs)", output: "Primary somatosensory cortex (contralateral)", function: "Relays all somatic sensations from opposite side of body: fine touch, proprioception, vibration, pain, temperature. The body's main sensory gateway.", tags: ["High Yield", "MCQ Exam", "Sensory Relay"], color: "accent" },
+  "VPM": { name: "Ventral Posteromedial", type: "Specific Relay", input: "Trigeminal pathways (face/head) + Taste (VII, IX, X)", output: "Primary somatosensory cortex", function: "Relays somatic sensation from head, face, and taste from tongue. The face's sensory gateway.", tags: ["High Yield", "MCQ Exam", "Taste Relay"], color: "accent" },
+  "LGB": { name: "Lateral Geniculate Body", type: "Specific Relay (Vision)", input: "Optic tract — from BOTH retinae", output: "Visual cortex Area 17 (calcarine cortex)", function: "Vision relay station. ALL optic fibers from both eyes relay here before reaching visual cortex.", tags: ["MCQ Exam", "Vision", "Optic Tract"], color: "accent2" },
+  "MGB": { name: "Medial Geniculate Body", type: "Specific Relay (Hearing)", input: "Inferior colliculus (from both ears)", output: "Primary auditory cortex (Heschl's gyrus)", function: "Hearing relay station. Bilateral input means unilateral MGB lesion doesn't cause deafness.", tags: ["Hearing", "Bilateral Input"], color: "accent2" },
+  "VA": { name: "Ventral Anterior", type: "Specific Motor Relay", input: "Basal ganglia (substantia nigra, globus pallidus)", output: "Motor + Premotor cortex", function: "Relays motor programs from the basal ganglia to plan and sequence voluntary movements.", tags: ["MCQ Exam", "Motor", "Basal Ganglia"], color: "yellow" },
+  "VL": { name: "Ventral Lateral", type: "Specific Motor Relay", input: "Cerebellum (dentate nucleus, via superior peduncle)", output: "Motor + Premotor cortex", function: "Relays cerebellar signals for coordination, timing, and error correction of movements.", tags: ["MCQ Exam", "Motor", "Cerebellum"], color: "yellow" },
+  "DM": { name: "Dorsomedial", type: "Specific Association", input: "Amygdala, hypothalamus, olfactory system, other thalamic nuclei", output: "Prefrontal cortex", function: "Memory coding, storage and recall (reciprocal connections with prefrontal). Recently shown to relay olfaction to orbitofrontal cortex.", tags: ["MCQ Exam", "Memory", "Olfaction", "Prefrontal"], color: "accent" },
+  "Anterior": { name: "Anterior Group", type: "Specific Association (Limbic)", input: "Mammillary bodies (via mammillothalamic tract, part of Papez circuit)", output: "Limbic system, cingulate gyrus", function: "Emotion, memory, visceral motor integration. Part of the Papez circuit for emotional memory.", tags: ["Limbic", "Emotion", "Papez Circuit"], color: "red" },
+  "Intralaminar": { name: "Intralaminar Nuclei", type: "NON-Specific", input: "Reticular Activating System (pons + midbrain)", output: "DIFFUSE projection to ALL neocortex", function: "KEY non-specific nuclei. Main relay of RAS signals to produce generalized cortical arousal and wakefulness. INTRALAMINAR = top MCQ answer for non-specific nucleus.", tags: ["⚠️ TOP MCQ", "Non-Specific", "Arousal", "RAS"], color: "green" },
+  "Pulvinar": { name: "Pulvinar", type: "Specific Association", input: "Superior colliculus, visual association areas", output: "Parieto-occipito-temporal association cortex", function: "Visual attention, multimodal sensory integration, language processing. Largest thalamic nucleus.", tags: ["Visual Attention", "Multimodal", "Association"], color: "accent2" },
+};
+
+const mnemonicsData = [
+  {
+    emoji: "🎯",
+    title: "Specific Relay Nuclei — Sensory",
+    subtitle: "Remember which nuclei relay which sensory modalities",
+    word: "VPL-VPM-LGB-MGB",
+    items: [
+      { letter: "V", word: "VP-L", means: "= Body/Limbs (L = Lateral = Limbs)" },
+      { letter: "V", word: "VP-M", means: "= Medial = Mouth/face/Mastication" },
+      { letter: "L", word: "LGB", means: "= Lateral = Light (Vision)" },
+      { letter: "M", word: "MGB", means: "= Medial = Music (Hearing)" }
+    ]
+  },
+  {
+    emoji: "🤸",
+    title: "Motor Thalamic Nuclei",
+    subtitle: "VA gets Basal ganglia; VL gets aLateral (Cerebellum)",
+    word: "VA-VL",
+    items: [
+      { letter: "A", word: "VA", means: "= 'A' for Arteries of Basal ganglia = Basal Ganglia relay" },
+      { letter: "L", word: "VL", means: "= 'L' for aLateraL/Lateral cerebellum = Cerebellar relay" },
+      { letter: "→", word: "BOTH", means: "→ Motor + Premotor cortex = Movement coordination" }
+    ]
+  },
+  {
+    emoji: "😴",
+    title: "RAS Sleep-Wake: PINE SLEEP",
+    subtitle: "Factors promoting sleep vs wakefulness",
+    word: "PINE SLEEP",
+    items: [
+      { letter: "P", word: "Pain/Proprioception", means: "activate RAS = AWAKE" },
+      { letter: "I", word: "Inhibitory area (Medulla)", means: "= Reticular Inhibitory Area" },
+      { letter: "N", word: "Norepinephrine", means: "= lowers threshold = AWAKE" },
+      { letter: "E", word: "Excitatory RF (Pons+Midbrain)", means: "= RAS core" },
+      { letter: "S", word: "Serotonin", means: "= suppresses RAS = SLEEP" },
+      { letter: "L", word: "Low sensory input", means: "= dark, quiet room = SLEEP" },
+      { letter: "E", word: "Epinephrine", means: "= stress = AWAKE" },
+      { letter: "E", word: "EEG slow waves", means: "= NREM sleep" },
+      { letter: "P", word: "Pons/Medulla", means: "= location of sleep-wake centers" }
+    ]
+  },
+  {
+    emoji: "🧠",
+    title: "Non-Specific Nuclei: I'M Reticular",
+    subtitle: "Three groups of non-specific thalamic nuclei",
+    word: "I.M.R.",
+    items: [
+      { letter: "I", word: "Intralaminar", means: "= KEY — receives RAS, diffuse projection (⚠️ Exam MCQ)" },
+      { letter: "M", word: "Midline", means: "= receives RAS, near 3rd ventricle" },
+      { letter: "R", word: "Reticular", means: "= modulates other thalamic nuclei, gating function" }
+    ]
+  },
+  {
+    emoji: "🏛️",
+    title: "Thalamic Association Nuclei: AMD-P",
+    subtitle: "Specific ASSOCIATION nuclei and where they project",
+    word: "AMD-P",
+    items: [
+      { letter: "A", word: "Anterior", means: "→ Limbic/Cingulate (Emotion, Papez circuit)" },
+      { letter: "M", word: "Medial (DM)", means: "→ Prefrontal (Memory, Olfaction) ⚠️ Exam" },
+      { letter: "D", word: "Dorsal Lateral (LD)", means: "→ Limbic (Motivation, Emotion)" },
+      { letter: "P", word: "Pulvinar", means: "→ Parieto-Occipito-Temporal (Visual attention)" }
+    ]
+  }
+];
+
+const vivaData = [
+  { q: "What divides the thalamus internally into separate nuclear groups?", a: "The gray matter of the thalamus is divided internally by laminae of white matter (internal medullary laminae) into many separate nuclei arranged in three main groups: Anterior, Medial, and Lateral.", exam: false },
+  { q: "Define a 'Specific Thalamic Nucleus' and distinguish between its two subtypes.", a: "Specific nuclei receive well-defined afferents and project to specific cortical areas. TWO SUBTYPES: (1) Specific RELAY nuclei — project to primary cortical areas (e.g., VPL → primary somatosensory). (2) Specific ASSOCIATION nuclei — project to cortical association areas (e.g., DM → prefrontal association cortex).", exam: false },
+  { q: "Differentiate between the somatic sensory projections of the VPL and VPM nuclei.", a: "VPL (Ventral Posterolateral): relays sensory data from trunk and limbs (via medial lemniscus and spinothalamic tract) — fine touch, proprioception, pain, temperature of the body. VPM (Ventral Posteromedial): relays sensory data from the face and head (via trigeminal pathways) AND taste. Both project to the primary somatosensory cortex.", exam: true },
+  { q: "How does the thalamus protect the cortex from sensory overload? Describe the mechanism.", a: "Through a 'GATING' mechanism. When high-intensity sensory input overwhelms thalamic relay nuclei → the sensory cortex responds by sending INHIBITORY CORTICOFUGAL impulses (descending) back to the same thalamic relay nuclei → transmission through the thalamus is DECREASED → prevents cortical overload. This is a negative feedback loop.", exam: false },
+  { q: "What role do VA and VL nuclei play in motor function?", a: "Ventral Anterior (VA): receives from the BASAL GANGLIA. Ventral Lateral (VL): receives from the CEREBELLUM. BOTH project to the primary motor cortex and premotor areas to relay motor programs, control movement initiation, and coordinate smooth voluntary movement.", exam: true },
+  { q: "What is the main function of the Dorsomedial (DM) nucleus?", a: "TWO MAIN FUNCTIONS: (1) Forms RECIPROCAL connections with the prefrontal association cortex → role in coding, storing, and recalling memory. (2) Recently shown to relay OLFACTORY signals to the orbitofrontal cortex — explaining why olfaction is not truly a thalamus bypass as previously thought.", exam: true },
+  { q: "Define the Reticular Activating System (RAS) and describe its anatomical basis.", a: "The RAS consists of the EXCITATORY RETICULAR FORMATION in the pons and midbrain. It sends upward projections to the NON-SPECIFIC thalamic nuclei (Intralaminar, Midline, Reticular), which then project DIFFUSELY to all areas of the neocortex, producing generalized activation, arousal, and wakefulness.", exam: false },
+  { q: "Which stimuli are most effective at activating the RAS?", a: "Sensory signals from ALL ascending pathways stimulate the RAS. However, PAIN and PROPRIOCEPTIVE signals are by far the MOST stimulatory. This explains why pain prevents sleep so effectively and why a quiet dark room facilitates sleep (minimal sensory input to the RAS).", exam: false },
+  { q: "Explain the positive feedback loop between the cortex and RAS.", a: "When the cortex is activated (by thinking, solving problems, or motor activity) → the activated cortex sends POSITIVE (excitatory) CORTICOFUGAL feedback signals to the RAS → the RAS sends more excitatory signals back to the cortex → the cortex becomes even more activated → self-sustaining loop of alertness. This is why thinking keeps you awake!", exam: false },
+  { q: "What is the role of Serotonin in consciousness regulation?", a: "Serotonin is released by the RAPHE NUCLEI in the pons and medulla. It acts on the RETICULAR INHIBITORY AREA (medulla), which inhibits the excitatory RAS. Result: RAS suppression → decreased cortical arousal → SLEEP INDUCTION. Anti-serotonin drugs → remove this suppression → INSOMNIA.", exam: true },
+  { q: "Where is the reticular inhibitory area located and what is its function?", a: "Located in the MEDULLA OBLONGATA. When activated (by serotonin from raphe nuclei), it INHIBITS the excitatory reticular formation (pons/midbrain). This creates a reciprocal oscillation with the excitatory RAS — when one is active, it partially suppresses the other — generating the alternating SLEEP-WAKE cycle.", exam: false },
+  { q: "Contrast EEG findings in NREM vs REM sleep. What characterizes each?", a: "NREM (Slow-Wave Sleep): EEG shows LARGE AMPLITUDE, SLOW FREQUENCY (delta) waves. No rapid eye movements. Muscle tone reduced. Deep, restorative sleep. // REM Sleep: EEG shows RAPID BETA-LIKE waves (similar to wakefulness). RAPID OSCILLATORY EYE MOVEMENTS. MUSCLE ATONIA (paralysis of skeletal muscles). Vivid dreaming occurs.", exam: true }
+];
+
+const searchIndex = [];
+quizData.forEach((item, i) => {
+  searchIndex.push({ title: item.q.slice(0,60)+"…", tag: "Quiz Q"+(i+1), tab: "quiz" });
+  searchIndex.push({ title: item.exp.slice(0,60)+"…", tag: "Quiz Explanation", tab: "quiz" });
+});
+flashcardData.forEach((item, i) => {
+  searchIndex.push({ title: item.q, tag: "Flashcard "+(i+1), tab: "flashcards" });
+  searchIndex.push({ title: item.a.slice(0,60)+"…", tag: "Flashcard Answer", tab: "flashcards" });
+});
+Object.entries(nucleiDetailData).forEach(([k, v]) => {
+  searchIndex.push({ title: v.name + " — " + v.function.slice(0,50), tag: "Nucleus: "+k, tab: "anatomy" });
+});
+mnemonicsData.forEach(m => {
+  searchIndex.push({ title: m.title + " — " + m.subtitle, tag: "Mnemonic", tab: "mnemonics" });
+});
+vivaData.forEach((v, i) => {
+  searchIndex.push({ title: v.q, tag: "Viva Q"+(i+1), tab: "viva" });
+});
+
+// ========== STATE ==========
+let quizState = { current: 0, score: 0, streak: 0, answered: new Array(quizData.length).fill(null) };
+loadProgress();
+
+// ========== INIT ==========
+function init() {
+  renderFlashcards();
+  renderCases();
+  renderNuclei();
+  renderMnemonics();
+  renderViva();
+  renderCurrentQuestion();
+  updateStats();
+}
+
+// ========== TABS ==========
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    saveProgress();
+  });
+});
+
+// ========== SEARCH ==========
+document.getElementById('globalSearch').addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  const box = document.getElementById('searchResults');
+  if (!q) { box.style.display = 'none'; return; }
+  const results = searchIndex.filter(item =>
+    item.title.toLowerCase().includes(q) || item.tag.toLowerCase().includes(q)
+  ).slice(0, 8);
+  if (!results.length) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  box.innerHTML = results.map(r => `
+    <div class="search-result-item" onclick="goToTab('${r.tab}')">
+      <div class="sh">${highlight(r.title, q)}</div>
+      <div class="st">${r.tag}</div>
+    </div>`).join('');
+});
+
+function highlight(text, q) {
+  const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+  return text.replace(re, '<mark style="background:rgba(74,158,255,.3);color:var(--text);border-radius:2px;">$1</mark>');
+}
+
+function goToTab(tab) {
+  document.getElementById('globalSearch').value = '';
+  document.getElementById('searchResults').style.display = 'none';
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    if (b.dataset.tab === tab) b.click();
+  });
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap')) document.getElementById('searchResults').style.display = 'none';
+});
+
+// ========== QUIZ ==========
+function renderCurrentQuestion() {
+  const container = document.getElementById('quizContainer');
+  const i = quizState.current;
+  const q = quizData[i];
+  const answered = quizState.answered[i];
+
+  document.getElementById('qProgressLabel').textContent = `Question ${i+1} / ${quizData.length}`;
+  document.getElementById('qScoreLabel').textContent = `Score: ${quizState.score}`;
+  document.getElementById('qStreakVal').textContent = quizState.streak;
+  document.getElementById('qProgressFill').style.width = ((i / quizData.length) * 100) + '%';
+
+  const opts = q.opts.map((opt, oi) => {
+    let cls = 'q-option';
+    if (answered !== null) {
+      cls += ' answered';
+      if (oi === q.ans) cls += ' correct';
+      else if (oi === answered && oi !== q.ans) cls += ' wrong';
+    }
+    const letters = ['A','B','C','D','E'];
+    return `<div class="${cls}" onclick="answerQ(${oi})">
+      <div class="opt-letter">${letters[oi]}</div>
+      <div>${opt}</div>
+    </div>`;
+  }).join('');
+
+  const expShow = answered !== null ? 'show' : '';
+  container.innerHTML = `
+    <div class="question-card">
+      <div class="q-number">Question ${i+1} of ${quizData.length}</div>
+      ${q.exam ? '<div class="q-exam-flag">⚠️ EXAM FAVOURITE</div>' : ''}
+      <div class="q-text">${q.q}</div>
+      <div class="q-options">${opts}</div>
+      <div class="q-explanation ${expShow}">
+        <div class="exp-title">💡 Explanation</div>
+        ${q.exp}
+      </div>
+    </div>`;
+
+  document.getElementById('nextBtn').style.display = answered !== null ? 'inline-flex' : 'none';
+  document.getElementById('prevBtn').style.display = i > 0 ? 'inline-flex' : 'none';
+  document.getElementById('nextBtn').textContent = i === quizData.length - 1 ? 'Finish ✓' : 'Next →';
+}
+
+function answerQ(oi) {
+  const i = quizState.current;
+  if (quizState.answered[i] !== null) return;
+  quizState.answered[i] = oi;
+  if (oi === quizData[i].ans) {
+    quizState.score++;
+    quizState.streak++;
+  } else {
+    quizState.streak = 0;
+  }
+  updateStats();
+  saveProgress();
+  renderCurrentQuestion();
+}
+
+function navigateQ(dir) {
+  quizState.current += dir;
+  if (quizState.current >= quizData.length) {
+    showCompletion();
+    quizState.current = quizData.length - 1;
+  } else if (quizState.current < 0) {
+    quizState.current = 0;
+  }
+  renderCurrentQuestion();
+}
+
+function resetQuiz() {
+  quizState = { current: 0, score: 0, streak: 0, answered: new Array(quizData.length).fill(null) };
+  document.getElementById('completionModal').classList.remove('show');
+  renderCurrentQuestion();
+  updateStats();
+  saveProgress();
+}
+
+function showCompletion() {
+  const pct = Math.round((quizState.score / quizData.length) * 100);
+  const msg = pct >= 80 ? `Excellent! ${quizState.score}/${quizData.length} (${pct}%) 🌟 Ready for exams!` :
+              pct >= 60 ? `Good work! ${quizState.score}/${quizData.length} (${pct}%) — Review the wrong ones.` :
+              `${quizState.score}/${quizData.length} (${pct}%) — Keep studying, you've got this! 💪`;
+  document.getElementById('completionMsg').textContent = msg;
+  document.getElementById('completionModal').classList.add('show');
+}
+
+// ========== FLASHCARDS ==========
+function renderFlashcards() {
+  const grid = document.getElementById('flashcardGrid');
+  grid.innerHTML = flashcardData.map((fc, i) => `
+    <div class="flashcard-wrap" id="fc-${i}" onclick="flipCard(${i})">
+      <div class="flashcard-inner">
+        <div class="flashcard-face flashcard-front">
+          <div class="fc-emoji">${fc.emoji}</div>
+          <div class="fc-q">${fc.q}</div>
+          <div class="fc-tap">↻ tap to flip</div>
+        </div>
+        <div class="flashcard-face flashcard-back">
+          <div class="fc-a">${fc.a}</div>
+          <div class="fc-tap">↻ tap to flip back</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function flipCard(i) {
+  document.getElementById('fc-' + i).classList.toggle('flipped');
+}
+
+// ========== CASES ==========
+function renderCases() {
+  const container = document.getElementById('casesContainer');
+  container.innerHTML = casesData.map((c, ci) => `
+    <div class="case-card">
+      <div class="case-header">
+        <div class="case-num">${ci+1}</div>
+        <div>
+          <div class="case-title">${c.title}</div>
+          <div class="case-scenario">${c.scenario}</div>
+        </div>
+      </div>
+      <div class="case-body">
+        <div class="case-vignette">${c.vignette}</div>
+        ${c.questions.map((q, qi) => `
+          <div class="case-question">${q.q}</div>
+          <button class="case-reveal-btn" onclick="revealCase(${ci},${qi})">🔍 Reveal Answer</button>
+          <div class="case-answer" id="case-${ci}-${qi}">
+            <div class="ans-label">✅ Answer</div>
+            ${q.a}
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+function revealCase(ci, qi) {
+  const el = document.getElementById(`case-${ci}-${qi}`);
+  el.classList.toggle('show');
+}
+
+// ========== NUCLEI ==========
+function renderNuclei() {
+  const grid = document.getElementById('nucleiGrid');
+  const colorMap = { accent: 'var(--accent)', accent2: 'var(--accent2)', green: 'var(--green)', yellow: 'var(--yellow)', red: 'var(--red)' };
+  grid.innerHTML = Object.entries(nucleiDetailData).map(([abbr, nd]) => `
+    <div class="nucleus-item" onclick="showNucleus('${abbr}')">
+      <div class="ni-abbr" style="color:${colorMap[nd.color]||'var(--accent)'};">${abbr}</div>
+      <div class="ni-name">${nd.name}</div>
+      <div class="ni-type">${nd.type}</div>
+    </div>`).join('');
+}
+
+function showNucleus(abbr) {
+  const nd = nucleiDetailData[abbr];
+  if (!nd) return;
+  const detail = document.getElementById('nucleusDetail');
+  const colorMap = { accent: 'var(--accent)', accent2: 'var(--accent2)', green: 'var(--green)', yellow: 'var(--yellow)', red: 'var(--red)' };
+  detail.classList.add('show');
+  detail.innerHTML = `
+    <div class="nd-title" style="color:${colorMap[nd.color]||'var(--accent)'};">${abbr} — ${nd.name}</div>
+    <div style="color:var(--text2);font-size:12px;margin-bottom:12px;">${nd.type}</div>
+    <div class="nd-body">
+      <strong>📥 Input:</strong> ${nd.input}<br>
+      <strong>📤 Projects to:</strong> ${nd.output}<br>
+      <strong>⚙️ Function:</strong> ${nd.function}
+    </div>
+    <div class="nd-tags">
+      ${nd.tags.map(t => `<span class="badge badge-${t.includes('⚠️')||t.includes('MCQ')||t.includes('Exam') ? 'red' : 'blue'}">${t}</span>`).join('')}
+    </div>`;
+  detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  document.querySelectorAll('.nucleus-item').forEach(el => el.classList.remove('active'));
+  const items = document.querySelectorAll('.nucleus-item');
+  const keys = Object.keys(nucleiDetailData);
+  const idx = keys.indexOf(abbr);
+  if (items[idx]) items[idx].classList.add('active');
+}
+
+// ========== MNEMONICS ==========
+function renderMnemonics() {
+  const container = document.getElementById('mnemonicsContainer');
+  container.innerHTML = mnemonicsData.map(m => `
+    <div class="mnemonic-card">
+      <div class="mc-header">
+        <div class="mc-emoji">${m.emoji}</div>
+        <div class="mc-title-wrap">
+          <div class="mc-title">${m.title}</div>
+          <div class="mc-subtitle">${m.subtitle}</div>
+        </div>
+      </div>
+      <div class="mnemonic-word">${m.word}</div>
+      <ul class="mnemonic-list">
+        ${m.items.map(item => `
+          <li>
+            <span class="ml-letter">${item.letter}</span>
+            <span class="ml-word">${item.word}</span>
+            <span class="ml-means">→ ${item.means}</span>
+          </li>`).join('')}
+      </ul>
+    </div>`).join('');
+}
+
+// ========== VIVA ==========
+function renderViva() {
+  const container = document.getElementById('vivaContainer');
+  container.innerHTML = vivaData.map((v, i) => `
+    <div class="viva-card" id="viva-${i}">
+      <div class="viva-q" onclick="toggleViva(${i})">
+        <div class="viva-q-text">
+          V${i+1}: ${v.q}
+          ${v.exam ? '<span class="viva-exam-badge">⚠️ EXAM</span>' : ''}
+        </div>
+        <div class="viva-toggle">›</div>
+      </div>
+      <div class="viva-a">${v.a}</div>
+    </div>`).join('');
+}
+function toggleViva(i) {
+  document.getElementById('viva-' + i).classList.toggle('open');
+}
+
+// ========== STATS ==========
+function updateStats() {
+  const done = quizState.answered.filter(a => a !== null).length;
+  const pct = Math.round((done / quizData.length) * 100);
+  document.getElementById('statProgress').textContent = pct + '%';
+  document.getElementById('statScore').textContent = quizState.score + '/' + quizData.length;
+  document.getElementById('statStreak').textContent = '🔥 ' + quizState.streak;
+}
+
+// ========== PERSIST ==========
+function saveProgress() {
+  try {
+    localStorage.setItem('thalamus_ras_quiz', JSON.stringify(quizState));
+  } catch(e) {}
+}
+function loadProgress() {
+  try {
+    const saved = localStorage.getItem('thalamus_ras_quiz');
+    if (saved) {
+      const p = JSON.parse(saved);
+      if (p.answered && p.answered.length === quizData.length) quizState = p;
+    }
+  } catch(e) {}
+}
+
+init();
+</script>
+</body>
+</html>

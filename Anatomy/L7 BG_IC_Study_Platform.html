@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧠 Basal Ganglia & Internal Capsule — Mansoura Anatomy</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c14;
+  --bg2: #0f1220;
+  --bg3: #161b2e;
+  --surface: #1a2035;
+  --surface2: #202840;
+  --border: #2a3555;
+  --border2: #3a4870;
+  --accent1: #4f9cf9;   /* electric blue - motor */
+  --accent2: #f97b4f;   /* coral - sensory */
+  --accent3: #7af9a0;   /* mint - anatomy */
+  --accent4: #f9d94f;   /* gold - exam */
+  --accent5: #c97af9;   /* violet - path */
+  --accent6: #f94f7a;   /* rose - high yield */
+  --text: #e8eaf0;
+  --text2: #9ba8c4;
+  --text3: #6478a0;
+  --radius: 12px;
+  --radius2: 8px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Mono',monospace;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── ANIMATED BACKGROUND ── */
+.bg-canvas{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:0;overflow:hidden;
+}
+.orb{
+  position:absolute;border-radius:50%;filter:blur(80px);opacity:0.12;
+  animation:drift 18s ease-in-out infinite alternate;
+}
+.orb1{width:500px;height:500px;background:var(--accent1);top:-100px;left:-100px;animation-delay:0s}
+.orb2{width:400px;height:400px;background:var(--accent5);bottom:-80px;right:-80px;animation-delay:-6s}
+.orb3{width:300px;height:300px;background:var(--accent3);top:50%;left:50%;transform:translate(-50%,-50%);animation-delay:-12s}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(40px,60px) scale(1.15)}}
+
+/* ── HEADER ── */
+.header{
+  position:relative;z-index:10;
+  padding:24px 32px 0;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;
+}
+.logo{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;
+  letter-spacing:0.05em;color:var(--accent1);
+}
+.logo span{color:var(--text2)}
+.stats-bar{
+  display:flex;gap:12px;flex-wrap:wrap;
+}
+.stat-chip{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:20px;padding:6px 14px;
+  font-size:0.72rem;font-family:'Syne',sans-serif;font-weight:600;
+  display:flex;align-items:center;gap:6px;color:var(--text2);
+}
+.stat-chip .val{color:var(--text);font-size:0.85rem}
+
+/* ── HERO ── */
+.hero{
+  position:relative;z-index:10;
+  padding:32px 32px 0;
+  text-align:center;
+}
+.hero-title{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(1.8rem,5vw,3.2rem);
+  line-height:1.1;
+  background:linear-gradient(135deg,var(--accent1) 0%,var(--accent5) 50%,var(--accent3) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{
+  font-family:'Lora',serif;font-style:italic;
+  color:var(--text2);margin-top:8px;font-size:1rem;
+}
+
+/* ── SEARCH ── */
+.search-wrap{
+  position:relative;z-index:10;
+  max-width:500px;margin:20px auto 0;padding:0 32px;
+}
+.search-input{
+  width:100%;background:var(--surface);border:1px solid var(--border2);
+  border-radius:30px;padding:12px 20px 12px 44px;
+  color:var(--text);font-family:'DM Mono',monospace;font-size:0.85rem;
+  outline:none;transition:border 0.2s,box-shadow 0.2s;
+}
+.search-input:focus{border-color:var(--accent1);box-shadow:0 0 0 3px rgba(79,156,249,0.15)}
+.search-icon{
+  position:absolute;left:48px;top:50%;transform:translateY(-50%);
+  font-size:1rem;pointer-events:none;color:var(--text3);
+}
+.search-results{
+  position:absolute;top:calc(100% + 6px);left:32px;right:32px;
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:var(--radius);max-height:280px;overflow-y:auto;
+  display:none;z-index:100;
+}
+.search-results.active{display:block}
+.sr-item{
+  padding:10px 16px;cursor:pointer;font-size:0.8rem;
+  border-bottom:1px solid var(--border);transition:background 0.15s;
+}
+.sr-item:hover{background:var(--surface2)}
+.sr-item strong{color:var(--accent1);display:block;font-family:'Syne',sans-serif}
+
+/* ── TABS ── */
+.tabs-wrap{
+  position:relative;z-index:10;
+  padding:24px 20px 0;
+  overflow-x:auto;
+}
+.tabs{
+  display:flex;gap:6px;
+  min-width:max-content;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:16px;padding:6px;
+  width:max-content;margin:0 auto;
+}
+.tab-btn{
+  padding:10px 16px;border:none;
+  background:transparent;color:var(--text2);
+  font-family:'Syne',sans-serif;font-size:0.78rem;font-weight:600;
+  border-radius:10px;cursor:pointer;transition:all 0.2s;
+  white-space:nowrap;letter-spacing:0.03em;
+}
+.tab-btn:hover{background:var(--surface);color:var(--text)}
+.tab-btn.active{
+  background:var(--accent1);color:#fff;
+  box-shadow:0 4px 16px rgba(79,156,249,0.35);
+}
+
+/* ── MAIN CONTENT ── */
+.main{
+  position:relative;z-index:10;
+  padding:24px 20px 60px;
+  max-width:1100px;margin:0 auto;
+}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── SECTION HEADER ── */
+.sec-head{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:1.5rem;
+  margin-bottom:6px;
+  display:flex;align-items:center;gap:10px;
+}
+.sec-sub{font-family:'Lora',serif;font-style:italic;color:var(--text2);margin-bottom:24px;font-size:0.9rem}
+
+/* ── CARDS GRID ── */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px}
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;
+  transition:border-color 0.2s,transform 0.2s,box-shadow 0.2s;
+  position:relative;overflow:hidden;
+}
+.card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:var(--shadow)}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  border-radius:var(--radius) var(--radius) 0 0;
+}
+.card.blue::before{background:var(--accent1)}
+.card.orange::before{background:var(--accent2)}
+.card.green::before{background:var(--accent3)}
+.card.gold::before{background:var(--accent4)}
+.card.violet::before{background:var(--accent5)}
+.card.rose::before{background:var(--accent6)}
+.card-icon{font-size:1.6rem;margin-bottom:8px}
+.card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;margin-bottom:6px}
+.card-body{font-size:0.82rem;color:var(--text2);line-height:1.65}
+
+/* ── TAG BADGES ── */
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tag{
+  font-size:0.68rem;font-family:'Syne',sans-serif;font-weight:600;
+  padding:3px 10px;border-radius:20px;letter-spacing:0.03em;
+}
+.tag-hy{background:rgba(249,93,122,0.2);color:var(--accent6);border:1px solid rgba(249,93,122,0.3)}
+.tag-exam{background:rgba(249,217,79,0.2);color:var(--accent4);border:1px solid rgba(249,217,79,0.3)}
+.tag-pearl{background:rgba(122,249,160,0.2);color:var(--accent3);border:1px solid rgba(122,249,160,0.3)}
+.tag-path{background:rgba(201,122,249,0.2);color:var(--accent5);border:1px solid rgba(201,122,249,0.3)}
+
+/* ── QUIZ ── */
+.quiz-header{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;margin-bottom:20px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.progress-bar{
+  flex:1;min-width:200px;height:8px;
+  background:var(--bg3);border-radius:4px;overflow:hidden;
+}
+.progress-fill{
+  height:100%;background:linear-gradient(90deg,var(--accent1),var(--accent3));
+  border-radius:4px;transition:width 0.4s ease;
+}
+.quiz-score{
+  font-family:'Syne',sans-serif;font-size:0.85rem;color:var(--text2);
+}
+.quiz-score span{color:var(--accent3);font-size:1rem;font-weight:700}
+.streak-badge{
+  background:linear-gradient(135deg,#f97b4f,#f9d94f);
+  color:#000;font-family:'Syne',sans-serif;font-weight:700;
+  font-size:0.75rem;padding:4px 12px;border-radius:20px;
+}
+
+.q-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:24px;margin-bottom:16px;
+}
+.q-num{
+  font-family:'Syne',sans-serif;font-size:0.7rem;font-weight:700;
+  color:var(--accent1);letter-spacing:0.08em;margin-bottom:8px;
+}
+.q-text{font-family:'Lora',serif;font-size:1rem;line-height:1.6;margin-bottom:16px}
+.q-options{display:grid;gap:8px}
+.q-opt{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--radius2);padding:12px 16px;
+  font-size:0.85rem;cursor:pointer;transition:all 0.2s;
+  display:flex;align-items:flex-start;gap:10px;text-align:left;width:100%;
+  color:var(--text);font-family:'DM Mono',monospace;
+}
+.q-opt:hover:not(:disabled){background:var(--surface2);border-color:var(--border2)}
+.q-opt.correct{
+  background:rgba(122,249,160,0.15);border-color:var(--accent3);color:var(--accent3);
+  animation:pulse-green 0.4s ease;
+}
+.q-opt.wrong{
+  background:rgba(249,93,122,0.15);border-color:var(--accent6);color:var(--accent6);
+  animation:shake 0.4s ease;
+}
+@keyframes pulse-green{0%,100%{transform:scale(1)}50%{transform:scale(1.01)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.q-opt-letter{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:0.8rem;
+  min-width:22px;color:var(--text3);
+}
+.q-explanation{
+  margin-top:14px;padding:14px;
+  background:rgba(79,156,249,0.08);border:1px solid rgba(79,156,249,0.2);
+  border-radius:var(--radius2);font-size:0.82rem;line-height:1.6;
+  display:none;color:var(--text2);
+}
+.q-explanation.show{display:block;animation:fadeIn 0.3s ease}
+.q-explanation strong{color:var(--accent3);display:block;margin-bottom:4px}
+.q-explanation .wrong-note{color:var(--text3);font-size:0.78rem;margin-top:6px}
+
+/* ── FLASHCARDS ── */
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.fc{
+  height:200px;perspective:1000px;cursor:pointer;
+}
+.fc-inner{
+  width:100%;height:100%;
+  transition:transform 0.55s ease;
+  transform-style:preserve-3d;
+  position:relative;
+}
+.fc.flipped .fc-inner{transform:rotateY(180deg)}
+.fc-front,.fc-back{
+  position:absolute;inset:0;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border-radius:var(--radius);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:20px;text-align:center;
+}
+.fc-front{
+  background:var(--surface);border:1px solid var(--border);
+}
+.fc-back{
+  transform:rotateY(180deg);
+  background:var(--surface2);border:1px solid var(--border2);
+}
+.fc-label{
+  font-family:'Syne',sans-serif;font-size:0.65rem;font-weight:700;
+  letter-spacing:0.1em;margin-bottom:10px;opacity:0.5;
+}
+.fc-q{font-family:'Lora',serif;font-size:0.9rem;line-height:1.5;color:var(--text)}
+.fc-a{font-size:0.83rem;line-height:1.55;color:var(--accent3);font-family:'DM Mono',monospace}
+.fc-icon{font-size:1.5rem;margin-bottom:8px}
+
+/* ── CLINICAL CASES ── */
+.case-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:24px;margin-bottom:20px;
+}
+.case-header{
+  display:flex;align-items:flex-start;gap:14px;margin-bottom:16px;
+}
+.case-num{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:1.5rem;
+  color:var(--accent5);min-width:40px;line-height:1;
+}
+.case-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--text);margin-bottom:4px}
+.case-vignette{
+  background:var(--bg3);border-left:3px solid var(--accent5);
+  border-radius:0 var(--radius2) var(--radius2) 0;
+  padding:16px;margin-bottom:16px;font-family:'Lora',serif;
+  font-size:0.92rem;line-height:1.7;color:var(--text);
+}
+.case-qs{display:grid;gap:10px;margin-bottom:16px}
+.case-q{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius2);padding:12px 16px;
+  font-size:0.85rem;color:var(--text2);
+  display:flex;gap:8px;align-items:flex-start;
+}
+.case-q::before{
+  content:'?';font-family:'Syne',sans-serif;font-weight:800;
+  color:var(--accent5);min-width:16px;
+}
+.reveal-btn{
+  background:linear-gradient(135deg,var(--accent5),var(--accent1));
+  border:none;color:#fff;font-family:'Syne',sans-serif;font-weight:700;
+  font-size:0.8rem;padding:10px 20px;border-radius:30px;cursor:pointer;
+  transition:opacity 0.2s,transform 0.2s;letter-spacing:0.04em;
+}
+.reveal-btn:hover{opacity:0.9;transform:translateY(-1px)}
+.case-answer{
+  display:none;margin-top:14px;
+  background:rgba(122,249,160,0.06);border:1px solid rgba(122,249,160,0.2);
+  border-radius:var(--radius2);padding:16px;
+}
+.case-answer.open{display:block;animation:fadeIn 0.3s ease}
+.case-answer h4{font-family:'Syne',sans-serif;font-size:0.75rem;font-weight:700;color:var(--accent3);letter-spacing:0.08em;margin-bottom:10px}
+.case-answer p{font-size:0.83rem;line-height:1.65;color:var(--text2);margin-bottom:8px}
+.case-answer .step{
+  display:flex;gap:8px;margin-bottom:6px;font-size:0.82rem;
+}
+.step-n{
+  background:var(--accent3);color:#000;font-family:'Syne',sans-serif;
+  font-weight:700;font-size:0.65rem;min-width:22px;height:22px;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px;
+}
+
+/* ── PATHOPHYSIOLOGY ── */
+.flow-chart{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:24px;margin-bottom:20px;
+}
+.flow-title{font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;color:var(--accent4);margin-bottom:20px;letter-spacing:0.04em}
+.flow-steps{display:flex;flex-direction:column;gap:0}
+.flow-step{
+  display:flex;gap:16px;align-items:flex-start;
+  padding:14px 0;border-bottom:1px solid var(--border);
+}
+.flow-step:last-child{border-bottom:none;padding-bottom:0}
+.flow-arrow{display:flex;flex-direction:column;align-items:center;min-width:32px;padding-top:2px}
+.flow-circle{
+  width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:0.75rem;
+  flex-shrink:0;
+}
+.flow-line{width:2px;flex:1;background:var(--border);min-height:16px}
+.flow-content{flex:1;padding-bottom:4px}
+.flow-content strong{font-family:'Syne',sans-serif;font-size:0.85rem;display:block;margin-bottom:3px}
+.flow-content span{font-size:0.8rem;color:var(--text2);line-height:1.5}
+
+.struct-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:24px}
+.struct-item{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px;cursor:pointer;
+  transition:all 0.2s;
+}
+.struct-item:hover{border-color:var(--accent1);background:var(--surface2)}
+.struct-name{font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;margin-bottom:4px}
+.struct-detail{font-size:0.8rem;color:var(--text2);line-height:1.55;display:none}
+.struct-item.open .struct-detail{display:block;animation:fadeIn 0.25s ease}
+.struct-item.open{border-color:var(--accent3)}
+.struct-hint{font-size:0.68rem;color:var(--text3);margin-top:6px}
+
+/* ── DIAGNOSIS ── */
+.diag-table{
+  width:100%;border-collapse:collapse;margin-bottom:24px;
+  background:var(--surface);border-radius:var(--radius);overflow:hidden;
+  font-size:0.82rem;
+}
+.diag-table th{
+  background:var(--surface2);color:var(--text2);
+  font-family:'Syne',sans-serif;font-weight:600;font-size:0.75rem;
+  letter-spacing:0.05em;padding:12px 16px;text-align:left;
+}
+.diag-table td{
+  padding:12px 16px;border-top:1px solid var(--border);
+  line-height:1.55;color:var(--text);
+}
+.diag-table tr:hover td{background:var(--surface2)}
+.badge{
+  display:inline-block;font-size:0.68rem;font-family:'Syne',sans-serif;
+  font-weight:700;padding:3px 10px;border-radius:20px;
+}
+.badge-blue{background:rgba(79,156,249,0.2);color:var(--accent1);border:1px solid rgba(79,156,249,0.3)}
+.badge-orange{background:rgba(249,123,79,0.2);color:var(--accent2);border:1px solid rgba(249,123,79,0.3)}
+.badge-green{background:rgba(122,249,160,0.2);color:var(--accent3);border:1px solid rgba(122,249,160,0.3)}
+.badge-gold{background:rgba(249,217,79,0.2);color:var(--accent4);border:1px solid rgba(249,217,79,0.3)}
+.badge-rose{background:rgba(249,79,122,0.2);color:var(--accent6);border:1px solid rgba(249,79,122,0.3)}
+
+.algo{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:20px}
+.algo-title{font-family:'Syne',sans-serif;font-weight:700;font-size:0.85rem;color:var(--accent4);margin-bottom:16px;letter-spacing:0.05em}
+.algo-item{
+  display:flex;gap:12px;margin-bottom:12px;align-items:flex-start;
+}
+.algo-dot{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--accent4);color:#000;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:0.7rem;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.algo-text{font-size:0.83rem;line-height:1.6;padding-top:4px}
+.algo-text strong{color:var(--text);font-family:'Syne',sans-serif;display:block;font-size:0.82rem}
+.algo-text span{color:var(--text2);font-size:0.79rem}
+
+/* ── TREATMENT ── */
+.tx-section{margin-bottom:24px}
+.tx-title{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:0.8rem;
+  letter-spacing:0.08em;padding:8px 16px;border-radius:var(--radius2);
+  margin-bottom:12px;display:inline-block;
+}
+.tx-title.urgent{background:rgba(249,93,122,0.2);color:var(--accent6);border:1px solid rgba(249,93,122,0.3)}
+.tx-title.moderate{background:rgba(249,217,79,0.2);color:var(--accent4);border:1px solid rgba(249,217,79,0.3)}
+.tx-title.low{background:rgba(122,249,160,0.2);color:var(--accent3);border:1px solid rgba(122,249,160,0.3)}
+.tx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.tx-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px;
+}
+.tx-drug{font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;margin-bottom:4px}
+.tx-detail{font-size:0.8rem;color:var(--text2);line-height:1.55}
+.drug-row{display:grid;gap:0}
+.drug-table{width:100%;border-collapse:collapse;font-size:0.8rem;margin-bottom:20px;background:var(--surface);border-radius:var(--radius);overflow:hidden}
+.drug-table th{background:var(--surface2);color:var(--text2);font-family:'Syne',sans-serif;font-size:0.72rem;padding:10px 14px;text-align:left;letter-spacing:0.04em}
+.drug-table td{padding:10px 14px;border-top:1px solid var(--border);color:var(--text)}
+.drug-table tr:hover td{background:var(--surface2)}
+
+/* ── MNEMONICS ── */
+.mnemonic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.mnemonic-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+}
+.mnemonic-head{
+  padding:16px 20px;
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+  transition:background 0.2s;
+}
+.mnemonic-head:hover{background:var(--surface2)}
+.mnemonic-emoji{font-size:1.8rem}
+.mnemonic-name{font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem}
+.mnemonic-tag{font-size:0.72rem;color:var(--text3);margin-top:2px}
+.mnemonic-body{
+  border-top:1px solid var(--border);padding:16px 20px;
+  display:none;
+}
+.mnemonic-card.open .mnemonic-body{display:block;animation:fadeIn 0.25s ease}
+.mnem-letter{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:8px 0;border-bottom:1px solid var(--border);
+}
+.mnem-letter:last-child{border-bottom:none}
+.mnem-char{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;
+  min-width:28px;line-height:1;
+}
+.mnem-word{font-size:0.82rem;color:var(--text2);line-height:1.5}
+.mnem-word strong{color:var(--text);display:block;font-family:'DM Mono',monospace}
+
+/* ── VIVA TAB ── */
+.viva-list{display:grid;gap:10px}
+.viva-item{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+}
+.viva-q{
+  padding:14px 18px;font-family:'Lora',serif;font-size:0.92rem;
+  cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;
+  transition:background 0.2s;
+}
+.viva-q:hover{background:var(--surface2)}
+.viva-a{
+  padding:14px 18px;font-size:0.83rem;color:var(--text2);
+  line-height:1.6;border-top:1px solid var(--border);
+  display:none;background:var(--bg2);
+}
+.viva-item.open .viva-a{display:block;animation:fadeIn 0.25s ease}
+.viva-chevron{font-size:0.7rem;color:var(--text3);transition:transform 0.2s;flex-shrink:0}
+.viva-item.open .viva-chevron{transform:rotate(180deg)}
+
+/* ── HIGHLIGHT CALLOUT ── */
+.callout{
+  border-radius:var(--radius);padding:16px 20px;
+  margin-bottom:20px;display:flex;gap:12px;align-items:flex-start;
+}
+.callout-exam{
+  background:rgba(249,217,79,0.08);
+  border:1px solid rgba(249,217,79,0.25);
+}
+.callout-exam .callout-icon{color:var(--accent4);font-size:1.1rem;margin-top:1px}
+.callout-exam p{font-size:0.83rem;color:var(--text2);line-height:1.6}
+.callout-exam p strong{color:var(--accent4);font-family:'Syne',sans-serif}
+
+/* ── MISC ── */
+.divider{height:1px;background:var(--border);margin:24px 0}
+.section-label{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:0.7rem;
+  letter-spacing:0.12em;color:var(--text3);margin-bottom:14px;
+}
+.empty{color:var(--text3);font-size:0.85rem;text-align:center;padding:32px}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+@media(max-width:600px){
+  .header,.hero,.search-wrap,.main{padding-left:14px;padding-right:14px}
+  .hero-title{font-size:1.6rem}
+  .tabs-wrap{padding:16px 10px 0}
+}
+</style>
+</head>
+<body>
+
+<!-- Animated background -->
+<div class="bg-canvas">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<!-- Header -->
+<div class="header">
+  <div class="logo">🧠 NEURO<span>ATLAS</span></div>
+  <div class="stats-bar">
+    <div class="stat-chip">🔥 Streak <span class="val" id="streakVal">0</span></div>
+    <div class="stat-chip">✅ Score <span class="val" id="scoreVal">0/0</span></div>
+    <div class="stat-chip">📚 Progress <span class="val" id="progressVal">0%</span></div>
+  </div>
+</div>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-title">Basal Ganglia &amp;<br>Internal Capsule</div>
+  <div class="hero-sub">Mansoura University — Anatomy · Deep Brain Structures</div>
+</div>
+
+<!-- Search -->
+<div class="search-wrap">
+  <span class="search-icon">🔍</span>
+  <input class="search-input" id="searchInput" type="text" placeholder="Search structures, syndromes, fibers..." autocomplete="off">
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs-wrap">
+  <div class="tabs" id="tabsContainer">
+    <button class="tab-btn active" data-tab="overview">🗺 Overview</button>
+    <button class="tab-btn" data-tab="quiz">🎯 Quiz</button>
+    <button class="tab-btn" data-tab="flashcards">🃏 Flashcards</button>
+    <button class="tab-btn" data-tab="cases">🏥 Cases</button>
+    <button class="tab-btn" data-tab="pathophys">🔬 Pathophys</button>
+    <button class="tab-btn" data-tab="diagnosis">🧪 Diagnosis</button>
+    <button class="tab-btn" data-tab="treatment">💊 Treatment</button>
+    <button class="tab-btn" data-tab="mnemonics">🧩 Mnemonics</button>
+    <button class="tab-btn" data-tab="viva">🗣 Viva</button>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+<!-- ═══════════════════════════════════════ OVERVIEW ═══ -->
+<div class="tab-panel active" id="tab-overview">
+  <div class="sec-head">🗺 Overview</div>
+  <div class="sec-sub">Your complete visual summary of Basal Ganglia & Internal Capsule anatomy</div>
+
+  <div class="callout callout-exam">
+    <div class="callout-icon">⚠️</div>
+    <p><strong>EXAM PEARL:</strong> Internal capsule stroke is the <em>only</em> lesion producing simultaneous motor + sensory + visual + auditory deficits — because all projection fibers condense into this tiny V-shaped band. Think "4-hit combo"!</p>
+  </div>
+
+  <div class="section-label">BASAL GANGLIA — CORE CONCEPTS</div>
+  <div class="cards-grid">
+    <div class="card blue">
+      <div class="card-icon">🧬</div>
+      <div class="card-title">Definition &amp; Function</div>
+      <div class="card-body">Group of nuclei deep in cerebral hemispheres. Part of the <strong>extrapyramidal motor system</strong> — inhibits unwanted motor activity to produce proper movement. No direct spinal cord connections.</div>
+      <div class="tags"><span class="tag tag-hy">HIGH YIELD</span></div>
+    </div>
+    <div class="card violet">
+      <div class="card-icon">🗂</div>
+      <div class="card-title">Anatomical Classification</div>
+      <div class="card-body"><strong>Corpus Striatum</strong> (Caudate + Lentiform nucleus), <strong>Amygdaloid nucleus</strong>, and <strong>Claustrum</strong>. Subthalamic nucleus &amp; Substantia Nigra are functionally related but anatomically distinct.</div>
+      <div class="tags"><span class="tag tag-exam">EXAM FAV</span></div>
+    </div>
+    <div class="card green">
+      <div class="card-icon">⚡</div>
+      <div class="card-title">Functional Classification</div>
+      <div class="card-body"><strong>Neostriatum (Striatum):</strong> Caudate + Putamen<br><strong>Paleostriatum (Pallidum):</strong> Globus Pallidus<br>Regulation by <strong>dopamine</strong> from Substantia Nigra → Striatum.</div>
+      <div class="tags"><span class="tag tag-pearl">CLINICAL PEARL</span></div>
+    </div>
+    <div class="card orange">
+      <div class="card-icon">🏗</div>
+      <div class="card-title">Corpus Striatum Shape</div>
+      <div class="card-body"><strong>Caudate:</strong> C-shaped. Head = lateral wall of anterior horn LV. Body = floor of central part. Tail ends at amygdala.<br><strong>Lentiform:</strong> Wedge-shaped. Putamen laterally, Globus Pallidus medially.</div>
+      <div class="tags"><span class="tag tag-exam">EXAM FAV</span></div>
+    </div>
+    <div class="card rose">
+      <div class="card-icon">💉</div>
+      <div class="card-title">Blood Supply — Corpus Striatum</div>
+      <div class="card-body"><strong>Anterior part:</strong> Medial striate (ACA)<br><strong>Main portion:</strong> Lateral striate (MCA) — "Arteries of cerebral haemorrhage"<br><strong>Tail + Amygdala:</strong> Anterior choroidal artery (ICA)</div>
+      <div class="tags"><span class="tag tag-hy">HIGH YIELD</span></div>
+    </div>
+    <div class="card gold">
+      <div class="card-icon">🔗</div>
+      <div class="card-title">Claustrum Boundaries</div>
+      <div class="card-body">Thin gray matter deep to insula.<br><strong>Medially:</strong> External capsule (from lentiform)<br><strong>Laterally:</strong> Extreme capsule (from insula)<br>Function: largely unknown.</div>
+      <div class="tags"><span class="tag tag-pearl">CLINICAL PEARL</span></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">INTERNAL CAPSULE — CORE CONCEPTS</div>
+  <div class="cards-grid">
+    <div class="card blue">
+      <div class="card-icon">🔀</div>
+      <div class="card-title">Structure</div>
+      <div class="card-body">V-shaped band of <strong>projection fibers</strong> — the elevator going up &amp; down between cortex and subcortical centers. Divided into: Anterior limb, Genu, Posterior limb (3 parts).</div>
+      <div class="tags"><span class="tag tag-hy">HIGH YIELD</span></div>
+    </div>
+    <div class="card green">
+      <div class="card-icon">🅰</div>
+      <div class="card-title">Anterior Limb</div>
+      <div class="card-body">Between lentiform nucleus and head of caudate.<br>Contains: <strong>Anterior thalamic radiation</strong> (thalamus → cingulate/prefrontal cortex) and <strong>Frontopontine fibers</strong>.</div>
+    </div>
+    <div class="card gold">
+      <div class="card-icon">🫀</div>
+      <div class="card-title">Genu</div>
+      <div class="card-body">At the apex of the lentiform nucleus.<br>Contains ONLY: <strong>Corticobulbar fibers</strong> → to cranial nerve motor nuclei.<br>Lesion → contralateral cranial nerve motor deficits.</div>
+      <div class="tags"><span class="tag tag-exam">EXAM FAV</span></div>
+    </div>
+    <div class="card orange">
+      <div class="card-icon">🅿</div>
+      <div class="card-title">Posterior Limb — Lenticulothalamic</div>
+      <div class="card-body">Between lentiform &amp; thalamus.<br><strong>Motor:</strong> Corticospinal, Frontorubral, Thalamocortical<br><strong>Sensory:</strong> Main sensory thalamic radiation<br>Lesion → hemiplegia + hemianesthesia</div>
+      <div class="tags"><span class="tag tag-hy">HIGH YIELD</span></div>
+    </div>
+    <div class="card violet">
+      <div class="card-icon">👁</div>
+      <div class="card-title">Retrolenticular Part</div>
+      <div class="card-body">Behind the lentiform nucleus.<br>Contains: <strong>Optic radiation</strong> (lateral geniculate → Area 17)<br>Lesion → Contralateral homonymous hemianopia</div>
+      <div class="tags"><span class="tag tag-exam">EXAM FAV</span></div>
+    </div>
+    <div class="card rose">
+      <div class="card-icon">👂</div>
+      <div class="card-title">Sublenticular Part</div>
+      <div class="card-body">Below the lentiform nucleus.<br>Contains: <strong>Auditory radiation</strong> (medial geniculate → Area 41/42) + Nonfrontopontine fibers<br>Lesion → Bilateral diminution of hearing</div>
+    </div>
+  </div>
+
+  <div class="callout callout-exam">
+    <div class="callout-icon">⚠️</div>
+    <p><strong>EXAM TIP:</strong> Case with combined motor + sensory + visual + hearing → immediately suspect <strong>Internal Capsule</strong>. It's the only site where all these fibers run together in a tiny space!</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ QUIZ ═══ -->
+<div class="tab-panel" id="tab-quiz">
+  <div class="sec-head">🎯 Quiz Mode</div>
+  <div class="sec-sub">25 MCQs — USMLE-style with detailed explanations</div>
+  <div class="quiz-header">
+    <div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:200px">
+      <div style="font-family:'Syne',sans-serif;font-size:0.75rem;color:var(--text3)">PROGRESS</div>
+      <div class="progress-bar"><div class="progress-fill" id="quizProgress" style="width:0%"></div></div>
+    </div>
+    <div class="quiz-score">Score: <span id="quizScore">0</span> / <span id="quizTotal">0</span></div>
+    <div class="streak-badge" id="streakBadge">🔥 0 streak</div>
+    <button onclick="resetQuiz()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);font-family:'Syne',sans-serif;font-size:0.75rem;padding:8px 14px;border-radius:8px;cursor:pointer">Reset</button>
+  </div>
+  <div id="quizContainer"></div>
+</div>
+
+<!-- ═══════════════════════════════════════ FLASHCARDS ═══ -->
+<div class="tab-panel" id="tab-flashcards">
+  <div class="sec-head">🃏 Flashcards</div>
+  <div class="sec-sub">Tap a card to flip it — front: question, back: answer</div>
+  <div class="fc-grid" id="fcGrid"></div>
+</div>
+
+<!-- ═══════════════════════════════════════ CASES ═══ -->
+<div class="tab-panel" id="tab-cases">
+  <div class="sec-head">🏥 Clinical Cases</div>
+  <div class="sec-sub">Exam-style vignettes — work through the reasoning, then reveal</div>
+  <div id="casesContainer"></div>
+</div>
+
+<!-- ═══════════════════════════════════════ PATHOPHYS ═══ -->
+<div class="tab-panel" id="tab-pathophys">
+  <div class="sec-head">🔬 Pathophysiology &amp; Anatomy</div>
+  <div class="sec-sub">Clickable structures and mechanistic flowcharts</div>
+
+  <div class="section-label">CLICKABLE STRUCTURES — tap to expand</div>
+  <div class="struct-grid" id="structGrid"></div>
+
+  <div class="divider"></div>
+  <div class="section-label">FLOWCHART — PARKINSON'S DISEASE MECHANISM</div>
+  <div class="flow-chart">
+    <div class="flow-title">⚙️ FROM NIGRAL DEGENERATION → PARKINSON'S SIGNS</div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-arrow"><div class="flow-circle" style="background:var(--accent5);color:#000">1</div><div class="flow-line"></div></div>
+        <div class="flow-content"><strong>Substantia Nigra Degeneration</strong><span>Dopamine-producing cells in S. nigra (pars compacta) progressively degenerate — etiology multifactorial.</span></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-arrow"><div class="flow-circle" style="background:var(--accent2);color:#000">2</div><div class="flow-line"></div></div>
+        <div class="flow-content"><strong>Striatal Dopamine Depletion</strong><span>Dopamine normally travels the nigrostriatal pathway to regulate striatum (caudate + putamen). Without it, inhibitory control is lost.</span></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-arrow"><div class="flow-circle" style="background:var(--accent4);color:#000">3</div><div class="flow-line"></div></div>
+        <div class="flow-content"><strong>Loss of Extrapyramidal Inhibition</strong><span>The basal ganglia can no longer properly inhibit unwanted motor activity. Excess motor output is unleashed.</span></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-arrow"><div class="flow-circle" style="background:var(--accent6);color:#fff">4</div><div class="flow-line"></div></div>
+        <div class="flow-content"><strong>Classic Parkinsonian Triad</strong><span>🤝 Resting "pill-rolling" tremor &nbsp;|&nbsp; Cogwheel rigidity &nbsp;|&nbsp; Bradykinesia. <em>No paralysis, no sensory loss — extrapyramidal, not pyramidal!</em></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">FLOWCHART — INTERNAL CAPSULE STROKE DEFICITS</div>
+  <div class="flow-chart">
+    <div class="flow-title">🧠 POSTERIOR LIMB INFARCT → DEFICITS MAP</div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-arrow"><div class="flow-circle" style="background:var(--accent1);color:#000">A</div><div class="flow-line"></div></div>
+        <div class="flow-content"><strong>Corticospinal Tract (Lenticulothalamic)</strong><span>Descending → Anterior horn cells. Lesion = <em>Contralateral hemiplegia</em> (UMN type — no wasting, hyperreflexia).</span></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-arrow"><div class="flow-circle" style="background:var(--accent2);color:#000">B</div><div class="flow-line"></div></div>
+        <div class="flow-content"><strong>Main Sensory Thalamic Radiation (Lenticulothalamic)</strong><span>VPL → Postcentral gyrus. Lesion = <em>Contralateral hemianesthesia</em>.</span></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-arrow"><div class="flow-circle" style="background:var(--accent3);color:#000">C</div><div class="flow-line"></div></div>
+        <div class="flow-content"><strong>Optic Radiation (Retrolenticular)</strong><span>Lateral geniculate → Area 17. Lesion = <em>Contralateral homonymous hemianopia</em>.</span></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-arrow"><div class="flow-circle" style="background:var(--accent4);color:#000">D</div></div>
+        <div class="flow-content"><strong>Auditory Radiation (Sublenticular)</strong><span>Medial geniculate → Area 41/42. Lesion = <em>Bilateral diminution of hearing</em> (because bilateral representation).</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">PROJECTION FIBER PATHWAYS</div>
+  <div class="flow-chart">
+    <div class="flow-title">🔀 TRACING FIBERS THROUGH THE INTERNAL CAPSULE</div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-arrow"><div class="flow-circle" style="background:var(--accent5);color:#000">→</div></div>
+        <div class="flow-content"><strong>Cortex (Frontal) → Frontopontine → Anterior Limb → Pontine nuclei</strong><span>Part of cortico-ponto-cerebellar pathway.</span></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-arrow"><div class="flow-circle" style="background:var(--accent1);color:#000">→</div></div>
+        <div class="flow-content"><strong>Motor Cortex → Corticospinal → Lenticulothalamic → Anterior Horn Cells SC</strong><span>Main voluntary motor pathway of body.</span></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-arrow"><div class="flow-circle" style="background:var(--accent2);color:#000">→</div></div>
+        <div class="flow-content"><strong>Thalamus VPL → Main Sensory Radiation → Lenticulothalamic → Postcentral Gyrus</strong><span>General somatic sensation ascending pathway.</span></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-arrow"><div class="flow-circle" style="background:var(--accent3);color:#000">→</div></div>
+        <div class="flow-content"><strong>Lateral Geniculate → Optic Radiation → Retrolenticular → Area 17 (Calcarine Sulcus)</strong><span>Visual pathway after optic tract.</span></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-arrow"><div class="flow-circle" style="background:var(--accent4);color:#000">→</div></div>
+        <div class="flow-content"><strong>Medial Geniculate → Auditory Radiation → Sublenticular → Area 41/42 (STG)</strong><span>Auditory pathway after inferior colliculus relay.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ DIAGNOSIS ═══ -->
+<div class="tab-panel" id="tab-diagnosis">
+  <div class="sec-head">🧪 Diagnosis &amp; Localization</div>
+  <div class="sec-sub">Lesion localization + investigation algorithm</div>
+
+  <div class="section-label">CLINICAL DEFICIT → LESION LOCALIZATION TABLE</div>
+  <div style="overflow-x:auto">
+  <table class="diag-table">
+    <thead>
+      <tr>
+        <th>Deficit</th><th>Fiber/Structure</th><th>Location in IC</th><th>Laterality</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Hemiplegia</td><td>Corticospinal tract</td><td>Lenticulothalamic (posterior limb)</td><td><span class="badge badge-rose">Contralateral</span></td></tr>
+      <tr><td>Hemianesthesia</td><td>Main sensory thalamic radiation</td><td>Lenticulothalamic (posterior half)</td><td><span class="badge badge-rose">Contralateral</span></td></tr>
+      <tr><td>Homonymous hemianopia</td><td>Optic radiation</td><td>Retrolenticular</td><td><span class="badge badge-rose">Contralateral</span></td></tr>
+      <tr><td>Hearing loss</td><td>Auditory radiation</td><td>Sublenticular</td><td><span class="badge badge-orange">Bilateral ↓</span></td></tr>
+      <tr><td>Cranial nerve palsy</td><td>Corticobulbar fibers</td><td>Genu</td><td><span class="badge badge-rose">Contralateral</span></td></tr>
+      <tr><td>Resting tremor + rigidity</td><td>Dopamine depletion</td><td>Substantia nigra → Striatum</td><td><span class="badge badge-blue">Bilateral</span></td></tr>
+      <tr><td>Hemiballismus</td><td>STN circuit disruption</td><td>Subthalamic nucleus</td><td><span class="badge badge-rose">Contralateral</span></td></tr>
+      <tr><td>Chorea</td><td>Striatal neurons</td><td>Striatum (putamen/caudate)</td><td><span class="badge badge-orange">Variable</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="section-label">BASAL GANGLIA DISEASE — DIFFERENTIAL COMPARISON</div>
+  <div style="overflow-x:auto">
+  <table class="diag-table">
+    <thead>
+      <tr><th>Feature</th><th>Parkinson's Disease</th><th>Hemiballismus</th><th>Chorea</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Lesion Site</td><td>Substantia nigra</td><td>Subthalamic nucleus / lentiform connections</td><td>Striatum (caudate/putamen)</td></tr>
+      <tr><td>Movement Type</td><td>Resting tremor (pill-rolling)</td><td>Wild flailing (proximal limb)</td><td>Jerky involuntary</td></tr>
+      <tr><td>Mechanism</td><td>Dopamine depletion → excess tone</td><td>Loss of STN inhibition on globus pallidus</td><td>Striatal dysfunction</td></tr>
+      <tr><td>Paralysis?</td><td><span class="badge badge-green">No</span></td><td><span class="badge badge-green">No</span></td><td><span class="badge badge-green">No</span></td></tr>
+      <tr><td>Sensory loss?</td><td><span class="badge badge-green">No</span></td><td><span class="badge badge-green">No</span></td><td><span class="badge badge-green">No</span></td></tr>
+      <tr><td>Laterality</td><td>Bilateral</td><td>Contralateral</td><td>Variable</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="section-label">DIAGNOSTIC ALGORITHM — SUSPECTED DEEP HEMISPHERE LESION</div>
+  <div class="algo">
+    <div class="algo-title">🔍 STEP-BY-STEP LOCALIZATION ALGORITHM</div>
+    <div class="algo-item"><div class="algo-dot">1</div><div class="algo-text"><strong>Does the patient have motor deficit?</strong><span>UMN hemiplegia (no wasting, hyperreflexia) → involves descending motor pathway.</span></div></div>
+    <div class="algo-item"><div class="algo-dot">2</div><div class="algo-text"><strong>Is there sensory loss on the same side as motor loss?</strong><span>If yes → lesion above the decussation; both corticospinal + sensory thalamic radiation affected simultaneously → suspect Internal Capsule.</span></div></div>
+    <div class="algo-item"><div class="algo-dot">3</div><div class="algo-text"><strong>Add visual field defect (hemianopia)?</strong><span>If yes → retrolenticular part (optic radiation) also involved → highly specific for IC.</span></div></div>
+    <div class="algo-item"><div class="algo-dot">4</div><div class="algo-text"><strong>Add bilateral hearing reduction?</strong><span>If yes → sublenticular part also affected → complete posterior limb infarct.</span></div></div>
+    <div class="algo-item"><div class="algo-dot">5</div><div class="algo-text"><strong>No paralysis / sensory loss, but movement disorder?</strong><span>Resting tremor + rigidity = Parkinson's (S. nigra). Flailing = Hemiballismus (STN). Jerky = Chorea (striatum).</span></div></div>
+    <div class="algo-item"><div class="algo-dot">6</div><div class="algo-text"><strong>Imaging: MRI/CT brain</strong><span>MRI superior for delineating deep nuclei and internal capsule lesions. CT adequate for acute hemorrhage from lateral striate artery rupture.</span></div></div>
+  </div>
+
+  <div class="section-label">BLOOD SUPPLY — INVESTIGATION RELEVANCE</div>
+  <div class="cards-grid">
+    <div class="card blue">
+      <div class="card-icon">🩸</div>
+      <div class="card-title">Lateral Striate Arteries (MCA)</div>
+      <div class="card-body">Supply main corpus striatum (excluding anterior/tail). Called <strong>"arteries of cerebral haemorrhage"</strong> — spontaneous rupture = most common cause of IC stroke/basal ganglia bleed.</div>
+      <div class="tags"><span class="tag tag-hy">HIGH YIELD</span></div>
+    </div>
+    <div class="card orange">
+      <div class="card-icon">🩸</div>
+      <div class="card-title">Anterior Choroidal Artery (ICA)</div>
+      <div class="card-body">Supplies tail of caudate + amygdala. Also supplies part of the IC. Stroke → can cause classic IC syndrome including hemianopia due to optic radiation involvement.</div>
+    </div>
+    <div class="card green">
+      <div class="card-icon">🩸</div>
+      <div class="card-title">Medial Striate (ACA)</div>
+      <div class="card-body">Supplies anterior part of corpus striatum (head of caudate, anterior putamen). Also called <strong>Heubner's artery</strong>.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ TREATMENT ═══ -->
+<div class="tab-panel" id="tab-treatment">
+  <div class="sec-head">💊 Treatment &amp; Management</div>
+  <div class="sec-sub">Disease-specific management for basal ganglia disorders and IC stroke</div>
+
+  <div class="tx-section">
+    <div class="tx-title urgent">🚨 ACUTE — Internal Capsule Stroke</div>
+    <div class="tx-grid">
+      <div class="tx-card" style="border-color:rgba(249,93,122,0.4)">
+        <div class="tx-drug">Acute Ischaemic Stroke</div>
+        <div class="tx-detail">IV tPA (alteplase) within 4.5 hrs of symptom onset. Imaging to exclude haemorrhage first. Aspirin 300mg loading if thrombolysis not given.</div>
+      </div>
+      <div class="tx-card" style="border-color:rgba(249,93,122,0.4)">
+        <div class="tx-drug">Haemorrhagic Stroke</div>
+        <div class="tx-detail">Reverse anticoagulation if applicable. Blood pressure control. Neurosurgical consult for significant haematoma volume causing mass effect.</div>
+      </div>
+      <div class="tx-card" style="border-color:rgba(249,93,122,0.4)">
+        <div class="tx-drug">Supportive Care</div>
+        <div class="tx-detail">Airway / swallowing assessment (corticobulbar involvement). Physiotherapy for hemiplegia. Visual field rehabilitation for hemianopia.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tx-section">
+    <div class="tx-title moderate">⚠️ MODERATE — Parkinson's Disease</div>
+    <div class="section-label" style="margin-top:0">DRUG COMPARISON TABLE</div>
+    <div style="overflow-x:auto">
+    <table class="drug-table">
+      <thead>
+        <tr><th>Drug Class</th><th>Example</th><th>Mechanism</th><th>Key Use</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Levodopa + Carbidopa</td><td>Co-careldopa</td><td>Dopamine precursor; carbidopa prevents peripheral conversion</td><td>Gold standard — replaces dopamine</td></tr>
+        <tr><td>Dopamine Agonists</td><td>Pramipexole, Ropinirole</td><td>Direct D2/D3 receptor agonism</td><td>Early Parkinson's; delays levodopa need</td></tr>
+        <tr><td>MAO-B Inhibitors</td><td>Selegiline, Rasagiline</td><td>Inhibit dopamine breakdown in striatum</td><td>Neuroprotective adjunct</td></tr>
+        <tr><td>COMT Inhibitors</td><td>Entacapone</td><td>Prevent peripheral dopamine breakdown</td><td>Adjunct to levodopa</td></tr>
+        <tr><td>Anticholinergics</td><td>Benztropine, Trihexyphenidyl</td><td>Reduce excess cholinergic activity</td><td>Tremor-dominant Parkinson's</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="callout callout-exam">
+      <div class="callout-icon">⚠️</div>
+      <p><strong>ANATOMY EXAM NOTE:</strong> In this anatomy course, treatment detail is not the primary focus. Know the <strong>mechanism</strong>: dopamine depletion from S. nigra degeneration. Treatment (levodopa) restores dopamine. No surgery on IC itself — IC lesions from stroke are managed medically/rehab.</p>
+    </div>
+  </div>
+
+  <div class="tx-section">
+    <div class="tx-title low">✅ SYMPTOMATIC — Hemiballismus</div>
+    <div class="tx-grid">
+      <div class="tx-card">
+        <div class="tx-drug">Dopamine Antagonists</div>
+        <div class="tx-detail">Haloperidol or other antipsychotics reduce hemiballismus severity by antagonising dopamine in the basal ganglia circuit.</div>
+      </div>
+      <div class="tx-card">
+        <div class="tx-drug">Tetrabenazine</div>
+        <div class="tx-detail">Depletes presynaptic monoamines (dopamine). Used in severe, refractory hemiballismus and chorea.</div>
+      </div>
+      <div class="tx-card">
+        <div class="tx-drug">Underlying Cause</div>
+        <div class="tx-detail">Often post-stroke (subthalamic nucleus infarct) — manage stroke risk factors. Many cases spontaneously improve over weeks.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ MNEMONICS ═══ -->
+<div class="tab-panel" id="tab-mnemonics">
+  <div class="sec-head">🧩 Mnemonics</div>
+  <div class="sec-sub">Custom memory tools — tap to expand each</div>
+  <div class="mnemonic-grid" id="mnemonicGrid"></div>
+</div>
+
+<!-- ═══════════════════════════════════════ VIVA ═══ -->
+<div class="tab-panel" id="tab-viva">
+  <div class="sec-head">🗣 Viva Questions</div>
+  <div class="sec-sub">Tap any question to reveal the model answer</div>
+  <div class="viva-list" id="vivaList"></div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────────────────────
+
+const QUIZ_DATA = [
+  {q:"Which is the correct ANATOMICAL classification of the basal ganglia?",opts:["A) Caudate, Putamen, Globus Pallidus","B) Corpus Striatum, Claustrum, Amygdaloid complex","C) Neostriatum and Paleostriatum","D) Substantia nigra and Subthalamic nucleus","E) Thalamus and Lentiform nucleus"],ans:1,exp:"The traditional anatomical classification includes: Corpus Striatum (Caudate + Lentiform), Amygdaloid complex, and Claustrum.",wrong:"A mixes anatomical subparts. C is the FUNCTIONAL classification. D are functionally related only. E incorrectly includes thalamus."},
+  {q:"Functionally, the neostriatum (striatum) is composed of:",opts:["A) Globus pallidus and Putamen","B) Caudate nucleus and Putamen","C) Caudate nucleus and Amygdala","D) Globus pallidus and Claustrum","E) Substantia nigra and Caudate"],ans:1,exp:"Caudate + Putamen = Neostriatum/Striatum. They share similar connections and are grouped together functionally.",wrong:"A is the Lentiform nucleus (anatomical). C, D, E are incorrect pairings."},
+  {q:"The globus pallidus is functionally called the:",opts:["A) Neostriatum","B) Archistriatum","C) Paleostriatum","D) Claustrum","E) Lentiform"],ans:2,exp:"Globus Pallidus is the oldest part = Paleostriatum. Caudate + Putamen = Neostriatum.",wrong:"A is caudate+putamen. B is the amygdala (archistriatum). D and E are anatomical terms, not functional."},
+  {q:"The head of the caudate nucleus forms the:",opts:["A) Floor of the central part of the lateral ventricle","B) Lateral wall of the anterior horn of the lateral ventricle","C) Roof of the inferior horn","D) Medial wall of the anterior horn","E) Floor of the anterior horn"],ans:1,exp:"Head → lateral wall of anterior horn. Body → floor of central part. Tail → roof of inferior horn.",wrong:"A describes the body. C describes the tail. D and E are incorrect."},
+  {q:"What structure separates the head of the caudate nucleus from the lentiform nucleus?",opts:["A) Posterior limb of internal capsule","B) Genu of internal capsule","C) Anterior limb of internal capsule","D) External capsule","E) Extreme capsule"],ans:2,exp:"The ANTERIOR limb of the IC separates the head of caudate from the lentiform nucleus.",wrong:"A separates lentiform from thalamus. B is the apex/genu. D separates claustrum from lentiform. E separates claustrum from insula."},
+  {q:"The tail of the caudate nucleus terminates anteriorly at the:",opts:["A) Thalamus","B) Putamen","C) Globus pallidus","D) Amygdaloid nucleus","E) Claustrum"],ans:3,exp:"The tail curves down and forward in the temporal lobe roof of the inferior horn and ends at the Amygdaloid nucleus.",wrong:"Thalamus, Putamen, Globus pallidus, and Claustrum are not termination points for the tail."},
+  {q:"The claustrum is bounded LATERALLY by the:",opts:["A) External capsule","B) Lentiform nucleus","C) Internal capsule","D) Extreme capsule","E) Insula"],ans:3,exp:"The EXTREME capsule (white matter) lies LATERALLY, separating claustrum from insula. The EXTERNAL capsule lies medially, separating it from lentiform.",wrong:"A (external capsule) is the medial boundary. B is separated from claustrum by the external capsule. C and E are not directly adjacent."},
+  {q:"Which artery supplies the ANTERIOR part of the corpus striatum?",opts:["A) Lateral striate arteries (MCA)","B) Anterior choroidal artery","C) Medial striate artery (ACA)","D) Posterior communicating artery","E) Posterior cerebral artery"],ans:2,exp:"Medial striate artery (= Heubner's artery) from ACA supplies the anterior corpus striatum.",wrong:"A supplies the main/bulk of striatum. B supplies the tail + amygdala. D and E don't supply this area."},
+  {q:"Parkinson's disease is primarily caused by:",opts:["A) Damage to the subthalamic nucleus","B) Degeneration of dopamine-producing cells in the substantia nigra","C) Lesions in the optic radiation","D) Infarction of the anterior choroidal artery","E) Demyelination of the internal capsule"],ans:1,exp:"Parkinson's = degeneration of dopaminergic neurons in S. nigra pars compacta → dopamine depletion in striatum → loss of extrapyramidal inhibition.",wrong:"A causes Hemiballismus. C causes visual loss. D causes IC syndrome. E is a different pathology."},
+  {q:"A patient has 'pill-rolling' resting tremor, rigidity, and bradykinesia but NORMAL strength. Diagnosis?",opts:["A) Chorea","B) Hemiballismus","C) Internal capsule stroke","D) Parkinsonism","E) Motor cortex lesion"],ans:3,exp:"Classic Parkinsonism: resting tremor + rigidity + bradykinesia WITH NO PARALYSIS — extrapyramidal (BG), not pyramidal.",wrong:"A = jerky movements. B = flailing proximal limb. C/E both cause true hemiplegia."},
+  {q:"Hemiballismus occurs on which side relative to the lesion?",opts:["A) Ipsilateral — subthalamic nucleus damage","B) Contralateral — subthalamic nucleus damage","C) Bilateral — lentiform nucleus damage","D) Contralateral — substantia nigra damage","E) Ipsilateral — striatum damage"],ans:1,exp:"Contralateral hemiballismus because the subthalamic nucleus (or its lentiform connections) normally crosses; the effect is felt on the opposite side.",wrong:"A wrong side. C wrong side and structure. D wrong structure. E wrong side and structure."},
+  {q:"The internal capsule is a V-shaped band of:",opts:["A) Commissural fibers","B) Association fibers","C) Projection fibers","D) Cranial nerve roots","E) Spinothalamic tracts"],ans:2,exp:"Projection fibers connect cortical areas with subcortical centers (brainstem, spinal cord, thalamus). IC = major projection fiber gateway.",wrong:"A (commissural) = corpus callosum. B (association) = arcuate fasciculus etc. D and E are wrong categories."},
+  {q:"The genu of the internal capsule is located:",opts:["A) Between lentiform nucleus and thalamus","B) Behind the lentiform nucleus","C) Below the lentiform nucleus","D) Between lentiform and head of caudate","E) Opposite the apex of the lentiform nucleus"],ans:4,exp:"Genu is at the apex/corner of the V, opposite the apex of the lentiform nucleus.",wrong:"A is lenticulothalamic (posterior limb). B is retrolenticular. C is sublenticular. D is the anterior limb."},
+  {q:"Which specific fibers pass ONLY through the GENU of the internal capsule?",opts:["A) Corticospinal fibers","B) Corticobulbar fibers","C) Frontopontine fibers","D) Optic radiation","E) Auditory radiation"],ans:1,exp:"Genu contains ONLY corticobulbar fibers → to motor nuclei of cranial nerves (V, VII, IX, X, XI, XII).",wrong:"A is in lenticulothalamic (posterior limb). C is in anterior limb. D is retrolenticular. E is sublenticular."},
+  {q:"The anterior limb of the internal capsule contains:",opts:["A) Corticospinal fibers and optic radiation","B) Corticobulbar and frontorubral fibers","C) Anterior thalamic radiation and frontopontine fibers","D) Thalamocortical fibers and main sensory radiation","E) Auditory radiation and nonfrontopontine fibers"],ans:2,exp:"Anterior limb: (1) Anterior thalamic radiation (thalamus → cingulate cortex), (2) Frontopontine fibers (frontal cortex → pons).",wrong:"A, D = posterior limb contents. B = genu + posterior limb. E = sublenticular."},
+  {q:"Which portion of the posterior limb lies between the lentiform nucleus and the THALAMUS?",opts:["A) Retrolenticular part","B) Sublenticular part","C) Genu","D) Lenticulothalamic part","E) Anterior limb"],ans:3,exp:"Lenticulothalamic (between LENTIform + THALAMus) — the name describes exactly the two structures it lies between!",wrong:"A is behind lentiform. B is below. C is the apex. E is anterior."},
+  {q:"A lesion in the RETROLENTICULAR part of the internal capsule will disrupt the:",opts:["A) Corticospinal tract","B) Optic radiation","C) Auditory radiation","D) Frontopontine fibers","E) Corticobulbar fibers"],ans:1,exp:"Retrolenticular contains the OPTIC radiation (posterior thalamic radiation) from lateral geniculate body → Area 17. Lesion = contralateral homonymous hemianopia.",wrong:"A is lenticulothalamic. C is sublenticular. D is anterior limb. E is genu."},
+  {q:"Auditory radiation fibers travel via which part of the internal capsule?",opts:["A) Lenticulothalamic part","B) Retrolenticular part","C) Sublenticular part","D) Anterior limb","E) Genu"],ans:2,exp:"SUBLENTICULAR part (below lentiform nucleus) contains auditory radiation (medial geniculate → Area 41/42).",wrong:"A has sensory + motor. B has optic radiation. D has frontopontine. E has corticobulbar."},
+  {q:"A CVA affecting the corticospinal tract in the internal capsule results in:",opts:["A) Contralateral hemianesthesia","B) Contralateral homonymous hemianopia","C) Bilateral diminution of hearing","D) Contralateral hemiplegia","E) Ipsilateral flaccid paralysis"],ans:3,exp:"Corticospinal tract → descending voluntary motor control → crosses in medullary pyramids → IC lesion above decussation = CONTRALATERAL UMN hemiplegia.",wrong:"A = sensory radiation damage. B = optic radiation. C = auditory radiation. E wrong side + wrong UMN/LMN."},
+  {q:"Contralateral hemianesthesia from IC stroke is due to damage to the:",opts:["A) Optic radiation","B) Main sensory thalamic radiation","C) Corticospinal tract","D) Corticobulbar fibers","E) Anterior thalamic radiation"],ans:1,exp:"Main sensory thalamic radiation (VPL nucleus → postcentral gyrus) carries general somatic sensation. Damage = loss of sensation on opposite half of body.",wrong:"A causes visual field loss. C causes motor paralysis. D causes cranial nerve motor deficit. E goes to cingulate cortex."},
+  {q:"Which artery does NOT directly supply the internal capsule?",opts:["A) Anterior cerebral artery","B) Middle cerebral artery","C) Posterior communicating artery","D) Anterior choroidal artery","E) Posterior inferior cerebellar artery (PICA)"],ans:4,exp:"PICA supplies cerebellum and dorsolateral medulla (Wallenberg syndrome). It does NOT supply the internal capsule.",wrong:"ACA, MCA, PCOM, and Anterior choroidal artery all contribute to IC blood supply."},
+  {q:"Nonfrontopontine fibers in the internal capsule travel through the:",opts:["A) Anterior limb","B) Genu","C) Lenticulothalamic part","D) Retrolenticular part","E) Sublenticular part"],ans:4,exp:"Sublenticular part contains BOTH auditory radiation AND nonfrontopontine fibers (from parietal, temporal, occipital cortex to pons).",wrong:"A has frontopontine fibers. B has corticobulbar. C has motor + sensory. D has optic radiation."},
+  {q:"Which symptom is NOT typical of basal ganglia disease?",opts:["A) Ataxia","B) Bradykinesia","C) Rigidity","D) Resting tremors","E) Involuntary movements"],ans:0,exp:"Ataxia = cerebellar disease (coordination disorder). BG disease = movement disorders WITHOUT paralysis, sensory loss, or ataxia.",wrong:"B (bradykinesia), C (rigidity), D (resting tremor), E (involuntary movements) are all classic BG disease features."},
+  {q:"In an IC stroke causing the 'classic 4 deficits', which fiber is responsible for hearing reduction?",opts:["A) Corticospinal tract","B) Main sensory thalamic radiation","C) Optic radiation","D) Auditory radiation (sublenticular)","E) Corticobulbar fibers"],ans:3,exp:"Auditory radiation in sublenticular part → bilateral hearing reduction (because auditory cortex receives bilateral input, so even a unilateral IC lesion reduces bilateral hearing).",wrong:"A = hemiplegia. B = hemianesthesia. C = hemianopia. E = cranial nerve motor."},
+  {q:"A patient has sudden right-sided hemiplegia + right hemianesthesia + right homonymous hemianopia + bilateral hearing ↓. Where is the lesion?",opts:["A) Right cerebral cortex (multiple areas)","B) Left basal ganglia (striatum)","C) Left internal capsule (posterior limb)","D) Left subthalamic nucleus","E) Right substantia nigra"],ans:2,exp:"This 'COMPLETE IC syndrome' (motor + sensory + visual + hearing) points to LEFT posterior limb IC infarction because all fibers run together here. This is the SINGLE MOST IMPORTANT CLINICAL POINT about the IC.",wrong:"A would require massive, usually fatal, simultaneous cortical infarct. B only causes movement disorder. D causes hemiballismus only. E causes Parkinson's."}
+];
+
+const FLASHCARD_DATA = [
+  {q:"What is the PRIMARY function of the basal ganglia?",a:"Part of the extrapyramidal motor system — inhibits unwanted motor activities to produce proper, coordinated movement. NO direct spinal cord connections."},
+  {q:"What is the ANATOMICAL classification of the BG?",a:"1. Corpus Striatum (Caudate + Lentiform nuclei)\n2. Amygdaloid nucleus\n3. Claustrum"},
+  {q:"What is the FUNCTIONAL classification of the BG?",a:"Neostriatum = Caudate + Putamen\nPaleostriatum = Globus Pallidus\n(STN + S. Nigra = functionally related only)"},
+  {q:"Describe the C-shaped caudate nucleus parts and their ventricular relations.",a:"Head → lateral wall of anterior horn LV\nBody → floor of central part LV\nTail → roof of inferior horn LV → ends at amygdala"},
+  {q:"What separates head of caudate from lentiform nucleus?",a:"Anterior limb of the internal capsule"},
+  {q:"What are the boundaries of the claustrum?",a:"Medially: External capsule (from lentiform)\nLaterally: Extreme capsule (from insula)"},
+  {q:"Which vessel is called the 'artery of cerebral haemorrhage'?",a:"Lateral striate arteries (branches of MCA) — supply main corpus striatum; prone to rupture causing hypertensive basal ganglia/IC bleeds"},
+  {q:"What supplies the tail of caudate and amygdala?",a:"Anterior choroidal artery (from ICA)"},
+  {q:"What molecule regulates the striatum and from where?",a:"Dopamine — released from the Substantia Nigra pars compacta via the nigrostriatal pathway"},
+  {q:"Define the internal capsule.",a:"V-shaped band of PROJECTION fibers connecting cortical areas with subcortical centers (elevator going up and down)"},
+  {q:"What are the 3 parts of the posterior limb of the internal capsule?",a:"1. Lenticulothalamic (between lentiform + thalamus)\n2. Retrolenticular (behind lentiform)\n3. Sublenticular (below lentiform)"},
+  {q:"What fibers travel through the GENU?",a:"ONLY corticobulbar fibers → to motor nuclei of cranial nerves"},
+  {q:"What runs through the RETROLENTICULAR part?",a:"Optic radiation (lateral geniculate body → Area 17, calcarine sulcus)"},
+  {q:"What runs through the SUBLENTICULAR part?",a:"Auditory radiation (medial geniculate → Area 41/42) + nonfrontopontine fibers"},
+  {q:"Posterior limb IC stroke → 4 classic deficits?",a:"1. Contralateral hemiplegia (corticospinal)\n2. Contralateral hemianesthesia (sensory radiation)\n3. Contralateral homonymous hemianopia (optic radiation)\n4. Bilateral hearing ↓ (auditory radiation)"},
+  {q:"What is Hemiballismus and what causes it?",a:"Wild, proximal flailing movements of contralateral arm/leg. Caused by damage to subthalamic nucleus or its connections with lentiform nucleus."},
+  {q:"Clinical triad of Parkinsonism?",a:"Resting pill-rolling tremor + Cogwheel rigidity + Bradykinesia\nNO paralysis, NO sensory loss"},
+  {q:"Why does IC stroke produce BILATERAL hearing loss?",a:"Because each auditory cortex receives bilateral input — a unilateral IC sublenticular lesion reduces hearing from both ears (predominantly contralateral side)."},
+  {q:"What fibers are in the ANTERIOR LIMB of the IC?",a:"1. Anterior thalamic radiation (thalamus → cingulate/prefrontal)\n2. Frontopontine fibers (frontal cortex → pontine nuclei)"},
+  {q:"BG disease = No paralysis — WHY?",a:"Because BG is extrapyramidal (modulates/inhibits movement) — it does NOT directly control voluntary movement. Pyramidal tract (IC/cortex) causes paralysis when damaged."},
+  {q:"Lentiform nucleus shape and composition?",a:"Wedge-shaped. Putamen (lateral, larger) + Globus Pallidus (medial, smaller). Apex points medially toward genu of IC."},
+  {q:"Lenticulothalamic part contents?",a:"Motor: corticospinal, frontorubral, thalamocortical (superior thalamic radiation)\nSensory: main sensory thalamic radiation (VPL → postcentral gyrus)"}
+];
+
+const CASES_DATA = [
+  {
+    n:"01",title:"The Trembling Elder",
+    vignette:"A 68-year-old retired professor presents with a 3-year history of gradual onset resting hand tremor, described as 'rolling a pill' between thumb and index finger. His wife notes he walks very slowly with small steps and has trouble turning in bed. Neurological exam reveals normal muscle strength, normal sensation, but increased tone with a 'cogwheel' quality. Reflexes are normal.",
+    qs:["What is the most likely diagnosis?","What is the underlying anatomical and molecular mechanism?","What distinguishes this from a pyramidal tract lesion?","What would you expect on dopamine transporter (DaT) scan?"],
+    ans:[
+      {step:"Diagnosis",text:"Parkinson's Disease (Idiopathic Parkinsonism) — classic triad of resting tremor + cogwheel rigidity + bradykinesia."},
+      {step:"Mechanism",text:"Degeneration of dopamine-producing neurons in the Substantia Nigra pars compacta → dopamine depletion in the Striatum (Caudate + Putamen) → loss of extrapyramidal inhibitory control → excess/unwanted movement signals emerge."},
+      {step:"vs. Pyramidal Lesion",text:"Pyramidal lesion (e.g., IC stroke) = UMN hemiplegia + spasticity + Babinski. Parkinson's = NO paralysis, NO sensory loss, NO Babinski — extrapyramidal system affected only."},
+      {step:"DaT Scan",text:"Reduced dopamine transporter activity in the striatum bilaterally (asymmetric early). 'Comma' shape of normal striatum → 'period/dot' appearance in Parkinson's."}
+    ]
+  },
+  {
+    n:"02",title:"The Flailing Arm",
+    vignette:"A 55-year-old hypertensive woman is brought to the ED after her family noticed sudden-onset wild, involuntary, flailing movements of her left arm and leg. The movements are proximal, ballistic, and continuous. She appears distressed but has full strength and normal sensation. MRI brain shows a small infarct.",
+    qs:["What movement disorder is this?","Which nucleus is damaged and where?","Why are the movements contralateral?","How does this differ from chorea?"],
+    ans:[
+      {step:"Diagnosis",text:"HEMIBALLISMUS — wild, high-amplitude proximal flailing movements of one limb (arm more than leg)."},
+      {step:"Lesion",text:"Damage to the RIGHT subthalamic nucleus (STN) or its connections with the right lentiform nucleus (causing LEFT-sided movements). Small STN infarcts are most common cause."},
+      {step:"Contralateral Why",text:"The STN normally sends excitatory output across the midline. Damage disrupts the inhibitory circuit of the basal ganglia on the contralateral side → disinhibition of thalamus → wild uncontrolled movements on the opposite side."},
+      {step:"vs. Chorea",text:"Chorea = random, jerky, dance-like, distal movements (striatum). Hemiballismus = large-amplitude, proximal, violent flailing (STN). Both lack paralysis and sensory loss."}
+    ]
+  },
+  {
+    n:"03",title:"The Stroke with Four Deficits",
+    vignette:"A 62-year-old man suddenly collapses at work. Emergency assessment reveals: right-sided arm and leg weakness (UMN pattern), right-sided loss of all sensation, right visual field defect (right half missing from both eyes), and reduced hearing bilaterally. CT scan shows a hypodense (ischaemic) lesion in the left deep hemisphere.",
+    qs:["What single structure's lesion explains all four deficits?","Which specific part(s) of this structure are affected?","Name each fiber tract and its specific deficit.","Why is hearing loss BILATERAL rather than contralateral?"],
+    ans:[
+      {step:"Structure",text:"LEFT INTERNAL CAPSULE (posterior limb) — the only structure where motor, sensory, visual, and auditory projection fibers all course together in a compact bundle."},
+      {step:"Parts Affected",text:"Lenticulothalamic part (motor + sensory), Retrolenticular part (visual), Sublenticular part (auditory)."},
+      {step:"Fiber-Deficit Map",text:"Corticospinal → contralateral hemiplegia. Main sensory radiation → contralateral hemianesthesia. Optic radiation → contralateral homonymous hemianopia. Auditory radiation → bilateral hearing reduction."},
+      {step:"Bilateral Hearing",text:"Each auditory cortex (Areas 41/42) receives INPUT from BOTH ears (bilateral representation). A unilateral IC sublenticular lesion therefore reduces hearing predominantly from the contralateral ear but also partially from the ipsilateral — net effect: bilateral diminution."}
+    ]
+  },
+  {
+    n:"04",title:"The Anatomy Dissection Puzzle",
+    vignette:"During a gross anatomy lab, a prosected brain slice at the level of the basal ganglia is shown. The instructor points to a thin strip of grey matter just deep to the insula cortex, separated from the main lenticular mass by a thin white lamina. Students are asked to identify structures.",
+    qs:["Name the thin grey matter structure.","What are its exact boundaries medially and laterally?","What is its connection to the lentiform nucleus?","What is its clinical significance?"],
+    ans:[
+      {step:"Structure",text:"The CLAUSTRUM — a thin plate of grey matter of unknown function."},
+      {step:"Boundaries",text:"MEDIALLY: External capsule (white matter separating it from the lentiform nucleus/putamen). LATERALLY: Extreme capsule (white matter separating it from the insula cortex)."},
+      {step:"Relation to Lentiform",text:"The claustrum is separated from the lateral aspect of the putamen (lentiform nucleus) by the external capsule. It is anatomically part of the basal ganglia complex but its function remains largely unknown."},
+      {step:"Clinical Significance",text:"Isolated claustrum lesions are rarely described clinically. Its function is debated — some evidence links it to consciousness integration and multisensory processing, but this is not established anatomical curriculum."}
+    ]
+  },
+  {
+    n:"05",title:"The Vascular Supply Question",
+    vignette:"A 50-year-old hypertensive male presents with acute onset left-sided dense hemiplegia with spasticity, left hemianesthesia, and left homonymous hemianopia. CT angiography shows occlusion of a small perforating artery. The question in ward rounds: 'Which artery is most likely occluded, and which part of the IC is most vulnerable?'",
+    qs:["Which artery is the most likely culprit in most IC strokes?","Why are lateral striate arteries especially vulnerable?","What is the blood supply of the entire corpus striatum (all sources)?","If only the lenticulothalamic part is infarcted, what exact deficits appear?"],
+    ans:[
+      {step:"Culprit Artery",text:"LATERAL STRIATE ARTERIES (lenticulostriate arteries) — branches of MCA. They are the most common source of hypertensive bleeds and IC ischaemia, hence called 'arteries of cerebral haemorrhage'."},
+      {step:"Vulnerability",text:"They are small, thin-walled end-arteries (no anastomoses) that arise at right angles from the MCA. Chronic hypertension causes lipohyalinosis and microaneurysm formation → prone to rupture or occlusion."},
+      {step:"Full Supply",text:"Anterior part: Medial striate a. (ACA/Heubner's). Main body: Lateral striate aa. (MCA). Tail + Amygdala: Anterior choroidal a. (ICA). IC additionally: Posterior communicating a. + ACA + MCA + Anterior choroidal a."},
+      {step:"Lenticulothalamic Only",text:"If isolated: Contralateral hemiplegia (corticospinal) + Contralateral hemianesthesia (sensory thalamic radiation). WITHOUT hemianopia (retrolenticular spared) or hearing loss (sublenticular spared)."}
+    ]
+  }
+];
+
+const STRUCT_DATA = [
+  {name:"🧠 Caudate Nucleus",detail:"C-shaped nucleus. Head (most prominent) = lateral wall of anterior horn of lateral ventricle. Body = floor of central part. Tail = roof of inferior horn, ends at amygdala. Separated from lentiform by anterior limb of IC."},
+  {name:"🧩 Lentiform Nucleus",detail:"Wedge-shaped with apex pointing medially. LATERAL = Putamen (larger). MEDIAL = Globus Pallidus (paleostriatum). Separated from caudate by anterior limb IC; from thalamus by posterior limb IC."},
+  {name:"🌐 Globus Pallidus",detail:"= Paleostriatum. The oldest part of BG. Functions as main output station of BG circuit, sending inhibitory (GABA) projections to thalamus. Located medially in lentiform nucleus."},
+  {name:"🎯 Putamen",detail:"= Part of Neostriatum (with caudate). Main INPUT nucleus of BG receiving cortical input. Together with caudate = striatum. Lateral portion of lentiform nucleus."},
+  {name:"🔵 Claustrum",detail:"Thin grey matter strip deep to insula. Medial boundary = external capsule (from lentiform). Lateral boundary = extreme capsule (from insula). Unknown function."},
+  {name:"🧬 Substantia Nigra",detail:"NOT anatomically BG but functionally critical. Pars compacta provides dopaminergic input to striatum via nigrostriatal pathway. Degeneration → Parkinson's disease."},
+  {name:"⚡ Subthalamic Nucleus",detail:"NOT anatomically BG but functionally critical. Excitatory (glutamate) output to globus pallidus. Damage → Hemiballismus (contralateral flailing movements)."},
+  {name:"🔀 Anterior Limb IC",detail:"Between lentiform + head of caudate. Contains: (1) Anterior thalamic radiation, (2) Frontopontine fibers. Lesion uncommonly causes isolated deficits."},
+  {name:"🫀 Genu IC",detail:"Opposite apex of lentiform nucleus. Contains ONLY corticobulbar fibers → cranial nerve motor nuclei. Lesion = contralateral cranial nerve motor palsy."},
+  {name:"💪 Lenticulothalamic (Posterior Limb)",detail:"Between lentiform + thalamus. Motor: corticospinal, frontorubral, thalamocortical. Sensory: main sensory thalamic radiation. Lesion = hemiplegia + hemianesthesia."},
+  {name:"👁 Retrolenticular IC",detail:"Behind lentiform nucleus. Contains optic radiation (lateral geniculate → Area 17 calcarine). Lesion = contralateral homonymous hemianopia."},
+  {name:"👂 Sublenticular IC",detail:"Below lentiform nucleus. Contains auditory radiation (medial geniculate → Area 41/42) + nonfrontopontine fibers. Lesion = bilateral hearing reduction."}
+];
+
+const MNEMONIC_DATA = [
+  {
+    emoji:"🐱",name:"PALS — Anatomical BG",tag:"Anatomical classification of Basal Ganglia",
+    letters:[
+      {c:"P",word:"Putamen (part of Lentiform)"},
+      {c:"A",word:"Amygdaloid complex"},
+      {c:"L",word:"Lentiform (Putamen + Globus Pallidus)"},
+      {c:"S",word:"Striatum = Corpus Striatum (Caudate + Lentiform) + claustrum"}
+    ],
+    note:"Remember: Anatomical BG = Corpus Striatum + Amygdaloid + Claustrum"
+  },
+  {
+    emoji:"🧊",name:"FGAP — IC Anterior to Posterior",tag:"Contents of IC parts in order A→P",
+    letters:[
+      {c:"F",word:"Frontopontine + anterior thalamic radiation (Anterior limb)"},
+      {c:"G",word:"Genu — only Corticobulbar fibers"},
+      {c:"A",word:"All motor + sensory (lenticulothalamic posterior limb)"},
+      {c:"P",word:"Pictures (Optic=Retrolenticular) → then Posterior sounds (Auditory=Sublenticular)"}
+    ],
+    note:"Front → Genu → All fibers → Pictures/Sounds — Anterior limb → Genu → Posterior limb"
+  },
+  {
+    emoji:"🎯",name:"4 HIT COMBO — IC Stroke Deficits",tag:"Complete posterior limb IC infarct",
+    letters:[
+      {c:"H",word:"Hemiplegia contralateral (corticospinal)"},
+      {c:"H",word:"Hemianesthesia contralateral (sensory thalamic radiation)"},
+      {c:"H",word:"Hemianopia contralateral homonymous (optic radiation)"},
+      {c:"H",word:"Hearing ↓ bilateral (auditory radiation)"}
+    ],
+    note:"4 H's = motor + sensory + vision + hearing simultaneously → ONLY the IC runs all these together!"
+  },
+  {
+    emoji:"🐢",name:"BG No PAS — What BG Disease Never Causes",tag:"Negative features of ALL basal ganglia disorders",
+    letters:[
+      {c:"P",word:"Paralysis — NEVER in pure BG disease"},
+      {c:"A",word:"Ataxia — NEVER (that's cerebellar)"},
+      {c:"S",word:"Sensory loss — NEVER in pure BG disease"}
+    ],
+    note:"Extrapyramidal ≠ Pyramidal. BG disease → movement disorders only, never PAS!"
+  },
+  {
+    emoji:"🌑",name:"DRB — Parkinson's Triad",tag:"The 3 cardinal features of Parkinsonism",
+    letters:[
+      {c:"D",word:"Dopamine depletion from Substantia Nigra"},
+      {c:"R",word:"Resting tremor ('pill-rolling') + Rigidity (cogwheel)"},
+      {c:"B",word:"Bradykinesia (slowness of movement)"}
+    ],
+    note:"Dopamine Robs Brain = Parkinson's triad. Remember: NO paralysis, NO sensory loss!"
+  },
+  {
+    emoji:"📡",name:"LAST = Lateral Striate → IC bleeds",tag:"Blood supply mnemonic",
+    letters:[
+      {c:"L",word:"Lateral striate arteries (MCA) → main corpus striatum"},
+      {c:"A",word:"Anterior choroidal (ICA) → tail of caudate + amygdala + IC"},
+      {c:"S",word:"Striate (medial) / ACA = anterior corpus striatum"},
+      {c:"T",word:"Total IC = ACA + MCA + PCOM + Anterior choroidal artery"}
+    ],
+    note:"Lateral striatEs = artEriEs of cErEbral hæmorrhagE — all E's!"
+  }
+];
+
+const VIVA_DATA = [
+  {q:"What is the primary function of the basal ganglia?",a:"Part of the extrapyramidal motor system. They inhibit unwanted motor activities to produce proper, coordinated movement. They have NO direct input or output with the spinal cord."},
+  {q:"Differentiate the anatomical vs. functional classification of the striatum.",a:"Anatomically: Corpus Striatum = Caudate + Lentiform nuclei (whole complex). Functionally: Neostriatum (Striatum) = Caudate + Putamen. Paleostriatum (Pallidum) = Globus Pallidus only."},
+  {q:"What separates the head of the caudate nucleus from the lentiform nucleus?",a:"The anterior limb of the internal capsule."},
+  {q:"Describe the boundaries of the claustrum.",a:"Medially bounded by the external capsule (separating it from lentiform nucleus/putamen). Laterally bounded by the extreme capsule (separating it from the insula cortex)."},
+  {q:"What is the clinical presentation of Parkinsonism and its mechanism?",a:"Resting 'pill-rolling' tremor, cogwheel rigidity, and bradykinesia — without paralysis or sensory loss. Mechanism: degeneration of dopaminergic neurons in substantia nigra pars compacta → striatal dopamine depletion → loss of extrapyramidal motor control."},
+  {q:"What causes Hemiballismus and how does it present?",a:"Damage to the subthalamic nucleus or its connections with the lentiform nucleus. Presents as wild, proximal, flailing involuntary movements of the arm and leg on the CONTRALATERAL side. No paralysis, no sensory loss."},
+  {q:"Define the internal capsule.",a:"A V-shaped band of projection fibers connecting cortical areas with subcortical centers (brainstem, thalamus, spinal cord). Acts as a major gateway for ascending and descending neural signals."},
+  {q:"What fibers pass through the GENU of the internal capsule?",a:"ONLY corticobulbar fibers, which travel from the motor cortex to the motor nuclei of cranial nerves (V, VII, IX, X, XI, XII)."},
+  {q:"What are the three divisions of the posterior limb of the internal capsule?",a:"1. Lenticulothalamic part (between lentiform + thalamus). 2. Retrolenticular part (behind lentiform). 3. Sublenticular part (below lentiform)."},
+  {q:"What deficit results from a lesion to the retrolenticular part of the IC?",a:"Damage to the optic radiation (posterior thalamic radiation) → contralateral homonymous hemianopia (loss of opposite visual field in both eyes)."},
+  {q:"List the blood supply of the corpus striatum.",a:"1. Anterior corpus striatum → medial striate artery (from ACA/Heubner's). 2. Main corpus striatum → lateral striate arteries (from MCA). 3. Tail of caudate + amygdala → anterior choroidal artery (from ICA)."},
+  {q:"Why does IC stroke cause BILATERAL hearing reduction but CONTRALATERAL motor/sensory/visual loss?",a:"Because each primary auditory cortex receives bilateral auditory input — a unilateral IC sublenticular lesion reduces input to the contralateral auditory cortex but because the cortex normally gets bilateral signals, there is bilateral (not unilateral) hearing reduction. Motor and sensory and visual pathways have crossed unilateral representation, so their loss is purely contralateral."}
+];
+
+// ─────────────────────────────────────────────────────────────
+// SEARCH INDEX
+// ─────────────────────────────────────────────────────────────
+const SEARCH_INDEX = [
+  {title:"Basal Ganglia — Definition & Function",body:"extrapyramidal motor system inhibits unwanted movement no spinal cord connections",tab:"overview"},
+  {title:"Anatomical Classification BG",body:"corpus striatum caudate lentiform amygdaloid claustrum",tab:"overview"},
+  {title:"Functional Classification — Neostriatum Paleostriatum",body:"neostriatum caudate putamen paleostriatum globus pallidus",tab:"overview"},
+  {title:"Caudate Nucleus — C-shape and ventricle relations",body:"head anterior horn body central part tail inferior horn amygdala",tab:"pathophys"},
+  {title:"Claustrum boundaries",body:"external capsule extreme capsule insula lentiform",tab:"pathophys"},
+  {title:"Internal Capsule — Structure",body:"V-shaped projection fibers anterior limb genu posterior limb",tab:"overview"},
+  {title:"Genu — Corticobulbar fibers",body:"genu corticobulbar cranial nerve motor",tab:"overview"},
+  {title:"Posterior Limb — Lenticulothalamic contents",body:"corticospinal frontorubral thalamocortical main sensory thalamic radiation hemiplegia hemianesthesia",tab:"overview"},
+  {title:"Retrolenticular — Optic radiation",body:"optic radiation lateral geniculate area 17 hemianopia",tab:"overview"},
+  {title:"Sublenticular — Auditory radiation",body:"auditory radiation medial geniculate area 41 42 hearing loss",tab:"overview"},
+  {title:"Blood Supply Corpus Striatum",body:"lateral striate MCA medial striate ACA anterior choroidal ICA artery cerebral haemorrhage",tab:"diagnosis"},
+  {title:"Parkinson's Disease Mechanism",body:"substantia nigra dopamine depletion striatum resting tremor rigidity bradykinesia",tab:"pathophys"},
+  {title:"Hemiballismus",body:"subthalamic nucleus lentiform connection flailing arm leg contralateral",tab:"pathophys"},
+  {title:"IC Stroke 4 Deficits",body:"hemiplegia hemianesthesia hemianopia hearing bilateral posterior limb",tab:"diagnosis"},
+  {title:"Parkinson's Treatment — Levodopa",body:"levodopa carbidopa dopamine agonist pramipexole selegiline MAO-B COMT",tab:"treatment"}
+];
+
+// ─────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────
+let quizState = {answered:{}, correct:0, total:0, streak:0, maxStreak:0};
+const LS_KEY = 'bgic_v1';
+
+function loadState(){
+  try{
+    const s = JSON.parse(localStorage.getItem(LS_KEY)||'{}');
+    if(s.quizState) quizState = s.quizState;
+    updateStatsBar();
+  }catch(e){}
+}
+function saveState(){
+  localStorage.setItem(LS_KEY, JSON.stringify({quizState, lastTab: currentTab}));
+}
+function loadLastTab(){
+  try{
+    const s = JSON.parse(localStorage.getItem(LS_KEY)||'{}');
+    if(s.lastTab) switchTab(s.lastTab);
+  }catch(e){}
+}
+
+// ─────────────────────────────────────────────────────────────
+// TABS
+// ─────────────────────────────────────────────────────────────
+let currentTab = 'overview';
+document.getElementById('tabsContainer').addEventListener('click', e=>{
+  const btn = e.target.closest('.tab-btn');
+  if(!btn) return;
+  switchTab(btn.dataset.tab);
+});
+function switchTab(name){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.id==='tab-'+name));
+  currentTab = name;
+  saveState();
+}
+
+// ─────────────────────────────────────────────────────────────
+// QUIZ
+// ─────────────────────────────────────────────────────────────
+function buildQuiz(){
+  const c = document.getElementById('quizContainer');
+  c.innerHTML = QUIZ_DATA.map((q,i)=>{
+    const st = quizState.answered[i];
+    const opts = q.opts.map((o,j)=>{
+      let cls = '';
+      if(st!==undefined){
+        if(j===q.ans) cls='correct';
+        else if(j===st && st!==q.ans) cls='wrong';
+      }
+      return `<button class="q-opt ${cls}" onclick="answerQ(${i},${j})" ${st!==undefined?'disabled':''}><span class="q-opt-letter">${String.fromCharCode(65+j)}</span>${o.substring(3)}</button>`;
+    }).join('');
+    const exp = st!==undefined
+      ? `<div class="q-explanation show"><strong>✅ ${st===q.ans?'Correct!':'Wrong — Correct answer: '+q.opts[q.ans]}</strong>${q.exp}<div class="wrong-note">❌ ${q.wrong}</div></div>`
+      : `<div class="q-explanation"></div>`;
+    return `<div class="q-card" id="qcard-${i}"><div class="q-num">QUESTION ${String(i+1).padStart(2,'0')} / ${QUIZ_DATA.length}</div><div class="q-text">${q.q}</div><div class="q-options">${opts}</div>${exp}</div>`;
+  }).join('');
+  updateQuizUI();
+}
+
+function answerQ(qi, ji){
+  if(quizState.answered[qi]!==undefined) return;
+  quizState.answered[qi]=ji;
+  quizState.total++;
+  if(ji===QUIZ_DATA[qi].ans){
+    quizState.correct++;
+    quizState.streak++;
+    quizState.maxStreak=Math.max(quizState.maxStreak,quizState.streak);
+  } else {
+    quizState.streak=0;
+  }
+  saveState();
+  buildQuiz();
+}
+
+function resetQuiz(){
+  quizState={answered:{},correct:0,total:0,streak:0,maxStreak:0};
+  saveState();
+  buildQuiz();
+}
+
+function updateQuizUI(){
+  const done = Object.keys(quizState.answered).length;
+  document.getElementById('quizProgress').style.width=(done/QUIZ_DATA.length*100)+'%';
+  document.getElementById('quizScore').textContent=quizState.correct;
+  document.getElementById('quizTotal').textContent=quizState.total;
+  document.getElementById('streakBadge').textContent='🔥 '+quizState.streak+' streak';
+  updateStatsBar();
+}
+function updateStatsBar(){
+  const done = Object.keys(quizState.answered).length;
+  document.getElementById('streakVal').textContent=quizState.maxStreak;
+  document.getElementById('scoreVal').textContent=quizState.correct+'/'+quizState.total;
+  document.getElementById('progressVal').textContent=Math.round(done/QUIZ_DATA.length*100)+'%';
+}
+
+// ─────────────────────────────────────────────────────────────
+// FLASHCARDS
+// ─────────────────────────────────────────────────────────────
+function buildFlashcards(){
+  document.getElementById('fcGrid').innerHTML = FLASHCARD_DATA.map((fc,i)=>`
+    <div class="fc" id="fc-${i}" onclick="this.classList.toggle('flipped')">
+      <div class="fc-inner">
+        <div class="fc-front">
+          <div class="fc-label">TAP TO FLIP</div>
+          <div class="fc-icon">❓</div>
+          <div class="fc-q">${fc.q}</div>
+        </div>
+        <div class="fc-back">
+          <div class="fc-label">ANSWER</div>
+          <div class="fc-icon">✅</div>
+          <div class="fc-a">${fc.a.replace(/\n/g,'<br>')}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────────────────────────
+// CASES
+// ─────────────────────────────────────────────────────────────
+function buildCases(){
+  document.getElementById('casesContainer').innerHTML = CASES_DATA.map(c=>`
+    <div class="case-card">
+      <div class="case-header">
+        <div class="case-num">${c.n}</div>
+        <div><div class="case-title">🏥 ${c.title}</div></div>
+      </div>
+      <div class="case-vignette">${c.vignette}</div>
+      <div class="case-qs">${c.qs.map(q=>`<div class="case-q">${q}</div>`).join('')}</div>
+      <button class="reveal-btn" onclick="revealCase(this)">Reveal Answer ▼</button>
+      <div class="case-answer">
+        <h4>📋 STEP-BY-STEP ANSWER</h4>
+        ${c.ans.map((a,i)=>`<div class="step"><div class="step-n">${i+1}</div><div><strong style="font-family:'Syne',sans-serif;font-size:0.82rem;color:var(--accent3)">${a.step}</strong><p style="margin-top:4px">${a.text}</p></div></div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+function revealCase(btn){
+  const ans = btn.nextElementSibling;
+  ans.classList.toggle('open');
+  btn.textContent = ans.classList.contains('open') ? 'Hide Answer ▲' : 'Reveal Answer ▼';
+}
+
+// ─────────────────────────────────────────────────────────────
+// STRUCT (pathophys)
+// ─────────────────────────────────────────────────────────────
+function buildStructs(){
+  document.getElementById('structGrid').innerHTML = STRUCT_DATA.map(s=>`
+    <div class="struct-item" onclick="this.classList.toggle('open')">
+      <div class="struct-name">${s.name}</div>
+      <div class="struct-detail">${s.detail}</div>
+      <div class="struct-hint">👆 tap to expand</div>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────────────────────────
+// MNEMONICS
+// ─────────────────────────────────────────────────────────────
+function buildMnemonics(){
+  const colors = ['var(--accent1)','var(--accent5)','var(--accent3)','var(--accent6)','var(--accent4)','var(--accent2)'];
+  document.getElementById('mnemonicGrid').innerHTML = MNEMONIC_DATA.map((m,mi)=>`
+    <div class="mnemonic-card" id="mn-${mi}">
+      <div class="mnemonic-head" onclick="document.getElementById('mn-${mi}').classList.toggle('open')">
+        <div class="mnemonic-emoji">${m.emoji}</div>
+        <div>
+          <div class="mnemonic-name">${m.name}</div>
+          <div class="mnemonic-tag">${m.tag}</div>
+        </div>
+      </div>
+      <div class="mnemonic-body">
+        ${m.letters.map((l,li)=>`
+          <div class="mnem-letter">
+            <div class="mnem-char" style="color:${colors[mi%colors.length]}">${l.c}</div>
+            <div class="mnem-word"><strong>${l.word}</strong></div>
+          </div>
+        `).join('')}
+        <div style="margin-top:12px;padding:10px;background:var(--bg3);border-radius:8px;font-size:0.79rem;color:var(--text2);line-height:1.55">💡 ${m.note}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────────────────────────
+// VIVA
+// ─────────────────────────────────────────────────────────────
+function buildViva(){
+  document.getElementById('vivaList').innerHTML = VIVA_DATA.map((v,i)=>`
+    <div class="viva-item" id="viva-${i}">
+      <div class="viva-q" onclick="document.getElementById('viva-${i}').classList.toggle('open')">
+        <span>${v.q}</span>
+        <span class="viva-chevron">▼</span>
+      </div>
+      <div class="viva-a">${v.a}</div>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────────────────────────
+// SEARCH
+// ─────────────────────────────────────────────────────────────
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+searchInput.addEventListener('input', ()=>{
+  const q = searchInput.value.trim().toLowerCase();
+  if(!q){searchResults.classList.remove('active');return;}
+  const hits = SEARCH_INDEX.filter(x=>(x.title+' '+x.body).toLowerCase().includes(q)).slice(0,8);
+  if(!hits.length){searchResults.classList.remove('active');return;}
+  searchResults.innerHTML = hits.map(h=>`
+    <div class="sr-item" onclick="switchTab('${h.tab}');searchInput.value='';searchResults.classList.remove('active')">
+      <strong>${h.title}</strong>${h.body.slice(0,80)}...
+    </div>
+  `).join('');
+  searchResults.classList.add('active');
+});
+document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))searchResults.classList.remove('active')});
+
+// ─────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────
+loadState();
+buildQuiz();
+buildFlashcards();
+buildCases();
+buildStructs();
+buildMnemonics();
+buildViva();
+loadLastTab();
+</script>
+</body>
+</html>

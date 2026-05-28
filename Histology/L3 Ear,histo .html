@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Histology Study Platform — Sensory Receptors & Ear</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+--primary: #6366f1;
+--primary-dark: #4f46e5;
+--primary-light: #a5b4fc;
+--secondary: #06b6d4;
+--secondary-dark: #0891b2;
+--accent: #f59e0b;
+--accent-light: #fbbf24;
+--success: #10b981;
+--success-light: #34d399;
+--danger: #ef4444;
+--danger-light: #f87171;
+--warning: #f59e0b;
+--bg-dark: #0f172a;
+--bg-card: #1e293b;
+--bg-card-hover: #334155;
+--bg-input: #1e293b;
+--text-primary: #f1f5f9;
+--text-secondary: #94a3b8;
+--text-muted: #64748b;
+--border: #334155;
+--border-light: #475569;
+--gradient-1: linear-gradient(135deg, #6366f1, #06b6d4);
+--gradient-2: linear-gradient(135deg, #f59e0b, #ef4444);
+--gradient-3: linear-gradient(135deg, #10b981, #06b6d4);
+--gradient-4: linear-gradient(135deg, #8b5cf6, #ec4899);
+--gradient-5: linear-gradient(135deg, #06b6d4, #3b82f6);
+--shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+--shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+--shadow-lg: 0 10px 30px rgba(0,0,0,0.5);
+--shadow-glow: 0 0 20px rgba(99,102,241,0.3);
+--radius-sm: 8px;
+--radius-md: 12px;
+--radius-lg: 16px;
+--radius-xl: 24px;
+--transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+font-family: 'Inter', sans-serif;
+background: var(--bg-dark);
+color: var(--text-primary);
+min-height: 100vh;
+overflow-x: hidden;
+line-height: 1.6;
+}
+/* Animated Background */
+.bg-animation {
+position: fixed; top:0; left:0; width:100%; height:100%;
+z-index: 0; pointer-events: none; overflow: hidden;
+}
+.bg-orb {
+position: absolute; border-radius: 50%; filter: blur(80px);
+opacity: 0.12; animation: orbFloat 20s ease-in-out infinite;
+}
+.bg-orb:nth-child(1) { width:500px; height:500px; background: var(--primary); top:-10%; left:-5%; animation-delay:0s; }
+.bg-orb:nth-child(2) { width:400px; height:400px; background: var(--secondary); top:50%; right:-5%; animation-delay:-7s; }
+.bg-orb:nth-child(3) { width:350px; height:350px; background: var(--accent); bottom:-10%; left:30%; animation-delay:-14s; }
+.bg-orb:nth-child(4) { width:300px; height:300px; background:#8b5cf6; top:20%; left:60%; animation-delay:-4s; }
+@keyframes orbFloat {
+0%, 100% { transform: translate(0,0) scale(1); }
+25% { transform: translate(30px,-40px) scale(1.1); }
+50% { transform: translate(-20px,30px) scale(0.9); }
+75% { transform: translate(40px,20px) scale(1.05); }
+}
+/* Grid Lines */
+.grid-bg {
+position: fixed; top:0; left:0; width:100%; height:100%;
+background-image:
+linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px),
+linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
+background-size: 60px 60px;
+z-index: 0; pointer-events: none;
+}
+/* Main Container */
+.app-container {
+position: relative; z-index: 1;
+max-width: 1400px; margin: 0 auto; padding: 20px;
+}
+/* Header */
+.app-header {
+text-align: center; padding: 40px 20px 30px;
+}
+.app-header h1 {
+font-size: clamp(1.8rem, 4vw, 2.8rem);
+font-weight: 900; letter-spacing: -0.02em;
+background: var(--gradient-1);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+margin-bottom: 8px;
+}
+.app-header .subtitle {
+font-size: clamp(0.9rem, 2vw, 1.1rem);
+color: var(--text-secondary);
+font-weight: 400;
+}
+/* Stats Bar */
+.stats-bar {
+display: flex; gap: 12px; justify-content: center;
+flex-wrap: wrap; margin: 20px 0 30px;
+}
+.stat-chip {
+display: flex; align-items: center; gap: 8px;
+background: var(--bg-card); border: 1px solid var(--border);
+padding: 8px 16px; border-radius: 50px;
+font-size: 0.85rem; font-weight: 500;
+transition: var(--transition);
+}
+.stat-chip:hover { border-color: var(--primary); transform: translateY(-2px); }
+.stat-chip .stat-icon { font-size: 1.1rem; }
+.stat-chip .stat-value { color: var(--primary-light); font-weight: 700; }
+/* Search Bar */
+.search-container {
+max-width: 500px; margin: 0 auto 25px; position: relative;
+}
+.search-container input {
+width: 100%; padding: 14px 20px 14px 48px;
+background: var(--bg-card); border: 1px solid var(--border);
+border-radius: 50px; color: var(--text-primary);
+font-size: 0.95rem; outline: none;
+transition: var(--transition);
+font-family: 'Inter', sans-serif;
+}
+.search-container input:focus {
+border-color: var(--primary);
+box-shadow: var(--shadow-glow);
+}
+.search-container input::placeholder { color: var(--text-muted); }
+.search-icon {
+position: absolute; left: 18px; top: 50%;
+transform: translateY(-50%); font-size: 1.1rem;
+color: var(--text-muted); pointer-events: none;
+}
+/* Navigation Tabs */
+.nav-tabs {
+display: flex; gap: 6px; overflow-x: auto;
+padding: 6px; background: var(--bg-card);
+border-radius: var(--radius-lg); margin-bottom: 30px;
+border: 1px solid var(--border);
+scrollbar-width: none;
+}
+.nav-tabs::-webkit-scrollbar { display: none; }
+.nav-tab {
+flex-shrink: 0; padding: 12px 20px;
+border-radius: var(--radius-md); border: none;
+background: transparent; color: var(--text-secondary);
+font-size: 0.85rem; font-weight: 600;
+cursor: pointer; transition: var(--transition);
+white-space: nowrap; font-family: 'Inter', sans-serif;
+display: flex; align-items: center; gap: 6px;
+}
+.nav-tab:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+.nav-tab.active {
+background: var(--gradient-1); color: white;
+box-shadow: var(--shadow-md);
+}
+.nav-tab .tab-emoji { font-size: 1rem; }
+/* Tab Content */
+.tab-content { display: none; animation: fadeSlideIn 0.4s ease; }
+.tab-content.active { display: block; }
+@keyframes fadeSlideIn {
+from { opacity: 0; transform: translateY(15px); }
+to { opacity: 1; transform: translateY(0); }
+}
+/* Section Header */
+.section-header {
+margin-bottom: 24px;
+}
+.section-header h2 {
+font-size: 1.6rem; font-weight: 800;
+margin-bottom: 6px; display: flex;
+align-items: center; gap: 10px;
+}
+.section-header p {
+color: var(--text-secondary); font-size: 0.95rem;
+}
+/* Cards Grid */
+.cards-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+gap: 16px; margin-bottom: 30px;
+}
+.card {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius-lg);
+padding: 24px;
+transition: var(--transition);
+position: relative;
+overflow: hidden;
+}
+.card::before {
+content: ''; position: absolute; top:0; left:0;
+width: 100%; height: 3px;
+background: var(--gradient-1);
+opacity: 0; transition: var(--transition);
+}
+.card:hover {
+transform: translateY(-4px);
+border-color: var(--primary);
+box-shadow: var(--shadow-lg);
+}
+.card:hover::before { opacity: 1; }
+.card-icon { font-size: 2rem; margin-bottom: 12px; }
+.card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+.card p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; }
+.card-tags {
+display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px;
+}
+.tag {
+padding: 4px 10px; border-radius: 50px;
+font-size: 0.7rem; font-weight: 600;
+text-transform: uppercase; letter-spacing: 0.05em;
+}
+.tag-high-yield { background: rgba(239,68,68,0.15); color: var(--danger-light); border: 1px solid rgba(239,68,68,0.3); }
+.tag-exam { background: rgba(245,158,11,0.15); color: var(--accent-light); border: 1px solid rgba(245,158,11,0.3); }
+.tag-clinical { background: rgba(16,185,129,0.15); color: var(--success-light); border: 1px solid rgba(16,185,129,0.3); }
+.tag-basic { background: rgba(99,102,241,0.15); color: var(--primary-light); border: 1px solid rgba(99,102,241,0.3); }
+/* Comparison Tables */
+.table-wrapper {
+overflow-x: auto; margin-bottom: 24px;
+border-radius: var(--radius-lg); border: 1px solid var(--border);
+}
+table {
+width: 100%; border-collapse: collapse;
+background: var(--bg-card);
+}
+th {
+background: rgba(99,102,241,0.15);
+padding: 14px 16px; text-align: left;
+font-weight: 700; font-size: 0.85rem;
+color: var(--primary-light);
+text-transform: uppercase; letter-spacing: 0.05em;
+border-bottom: 2px solid var(--primary);
+white-space: nowrap;
+}
+td {
+padding: 12px 16px; border-bottom: 1px solid var(--border);
+font-size: 0.88rem; color: var(--text-secondary);
+vertical-align: top;
+}
+tr:hover td { background: rgba(99,102,241,0.05); color: var(--text-primary); }
+/* Quiz Section */
+.quiz-container { max-width: 800px; margin: 0 auto; }
+.quiz-progress {
+background: var(--bg-card); border-radius: var(--radius-lg);
+padding: 20px; margin-bottom: 20px;
+border: 1px solid var(--border);
+}
+.progress-bar-container {
+background: var(--bg-dark); border-radius: 50px;
+height: 12px; overflow: hidden; margin: 10px 0;
+}
+.progress-bar-fill {
+height: 100%; border-radius: 50px;
+background: var(--gradient-1);
+transition: width 0.5s ease; width: 0%;
+}
+.progress-text {
+display: flex; justify-content: space-between;
+font-size: 0.85rem; color: var(--text-secondary);
+}
+.quiz-question-card {
+background: var(--bg-card); border-radius: var(--radius-lg);
+padding: 30px; border: 1px solid var(--border);
+margin-bottom: 16px;
+}
+.quiz-q-num {
+font-size: 0.8rem; font-weight: 700;
+color: var(--primary-light); text-transform: uppercase;
+letter-spacing: 0.1em; margin-bottom: 10px;
+}
+.quiz-q-text {
+font-size: 1.05rem; font-weight: 600;
+margin-bottom: 20px; line-height: 1.6;
+}
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-option {
+padding: 14px 18px; border-radius: var(--radius-md);
+border: 2px solid var(--border); background: var(--bg-dark);
+cursor: pointer; transition: var(--transition);
+font-size: 0.92rem; font-weight: 500;
+display: flex; align-items: flex-start; gap: 12px;
+position: relative;
+font-family: 'Inter', sans-serif; text-align: left;
+color: var(--text-primary); width: 100%;
+}
+.quiz-option:hover:not(.disabled) {
+border-color: var(--primary); background: rgba(99,102,241,0.1);
+transform: translateX(4px);
+}
+.quiz-option.selected { border-color: var(--primary); background: rgba(99,102,241,0.15); }
+.quiz-option.correct {
+border-color: var(--success); background: rgba(16,185,129,0.15);
+animation: pulseCorrect 0.5s ease;
+}
+.quiz-option.wrong {
+border-color: var(--danger); background: rgba(239,68,68,0.15);
+animation: shakeWrong 0.5s ease;
+}
+.quiz-option.disabled { pointer-events: none; opacity: 0.85; }
+.quiz-option .opt-letter {
+min-width: 28px; height: 28px; border-radius: 50%;
+background: var(--border); display: flex;
+align-items: center; justify-content: center;
+font-weight: 700; font-size: 0.8rem; flex-shrink: 0;
+}
+.quiz-option.correct .opt-letter { background: var(--success); color: white; }
+.quiz-option.wrong .opt-letter { background: var(--danger); color: white; }
+@keyframes pulseCorrect {
+0%, 100% { transform: scale(1); }
+50% { transform: scale(1.02); }
+}
+@keyframes shakeWrong {
+0%, 100% { transform: translateX(0); }
+20% { transform: translateX(-8px); }
+40% { transform: translateX(8px); }
+60% { transform: translateX(-6px); }
+80% { transform: translateX(6px); }
+}
+.quiz-explanation {
+margin-top: 16px; padding: 16px;
+border-radius: var(--radius-md);
+background: rgba(99,102,241,0.1);
+border-left: 3px solid var(--primary);
+font-size: 0.88rem; line-height: 1.6;
+color: var(--text-secondary);
+display: none;
+}
+.quiz-explanation.show { display: block; animation: fadeSlideIn 0.3s ease; }
+.quiz-explanation strong { color: var(--primary-light); }
+.quiz-nav-btns {
+display: flex; gap: 12px; justify-content: center; margin-top: 20px;
+}
+/* Buttons */
+.btn {
+padding: 12px 24px; border-radius: var(--radius-md);
+border: none; cursor: pointer; font-weight: 600;
+font-size: 0.9rem; transition: var(--transition);
+display: inline-flex; align-items: center; gap: 8px;
+font-family: 'Inter', sans-serif;
+}
+.btn-primary { background: var(--gradient-1); color: white; box-shadow: var(--shadow-md); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.btn-secondary { background: var(--bg-card-hover); color: var(--text-primary); border: 1px solid var(--border); }
+.btn-secondary:hover { border-color: var(--primary); }
+.btn-success { background: var(--success); color: white; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-sm { padding: 8px 16px; font-size: 0.82rem; }
+/* Flashcards */
+.flashcards-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+gap: 16px;
+}
+.flashcard-container {
+perspective: 1000px; height: 280px; cursor: pointer;
+}
+.flashcard {
+width: 100%; height: 100%; position: relative;
+transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+transform-style: preserve-3d;
+}
+.flashcard.flipped { transform: rotateY(180deg); }
+.flashcard-front, .flashcard-back {
+position: absolute; width: 100%; height: 100%;
+backface-visibility: hidden; border-radius: var(--radius-lg);
+padding: 24px; display: flex; flex-direction: column;
+justify-content: center; align-items: center;
+text-align: center; border: 1px solid var(--border);
+}
+.flashcard-front {
+background: var(--bg-card);
+}
+.flashcard-front .fc-num {
+position: absolute; top: 12px; left: 16px;
+font-size: 0.7rem; font-weight: 700;
+color: var(--text-muted); text-transform: uppercase;
+letter-spacing: 0.1em;
+}
+.flashcard-front .fc-icon { font-size: 2rem; margin-bottom: 12px; }
+.flashcard-front h4 { font-size: 0.95rem; font-weight: 600; line-height: 1.5; }
+.flashcard-front .fc-hint {
+position: absolute; bottom: 12px;
+font-size: 0.72rem; color: var(--text-muted);
+}
+.flashcard-back {
+background: linear-gradient(135deg, #1e293b, #0f172a);
+transform: rotateY(180deg);
+border-color: var(--primary);
+}
+.flashcard-back p {
+font-size: 0.88rem; color: var(--text-secondary);
+line-height: 1.7;
+}
+.flashcard-back .fc-label {
+position: absolute; top: 12px; left: 16px;
+font-size: 0.7rem; font-weight: 700;
+color: var(--primary-light); text-transform: uppercase;
+letter-spacing: 0.1em;
+}
+/* Clinical Cases */
+.case-card {
+background: var(--bg-card); border-radius: var(--radius-lg);
+border: 1px solid var(--border); margin-bottom: 20px;
+overflow: hidden;
+}
+.case-header {
+padding: 20px 24px; cursor: pointer;
+display: flex; justify-content: space-between;
+align-items: center; transition: var(--transition);
+}
+.case-header:hover { background: var(--bg-card-hover); }
+.case-header h3 { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.case-toggle {
+font-size: 1.2rem; transition: transform 0.3s;
+color: var(--text-muted);
+}
+.case-card.open .case-toggle { transform: rotate(180deg); }
+.case-body {
+padding: 0 24px; max-height: 0;
+overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease;
+}
+.case-card.open .case-body {
+max-height: 3000px; padding: 0 24px 24px;
+}
+.case-scenario {
+background: var(--bg-dark); padding: 16px;
+border-radius: var(--radius-md); margin-bottom: 16px;
+border-left: 3px solid var(--accent);
+font-size: 0.92rem; line-height: 1.7;
+color: var(--text-secondary);
+font-style: italic;
+}
+.case-question {
+margin-bottom: 12px; font-weight: 600;
+font-size: 0.95rem;
+}
+.case-answer-btn {
+margin-bottom: 12px;
+}
+.case-answer {
+display: none; padding: 16px;
+background: rgba(16,185,129,0.08);
+border-radius: var(--radius-md);
+border-left: 3px solid var(--success);
+font-size: 0.88rem; line-height: 1.7;
+margin-bottom: 16px;
+color: var(--text-secondary);
+}
+.case-answer.show { display: block; animation: fadeSlideIn 0.3s ease; }
+.case-answer strong { color: var(--success-light); }
+/* Anatomy / Structures Grid */
+.structures-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+gap: 14px; margin-bottom: 24px;
+}
+.structure-item {
+background: var(--bg-card); border: 1px solid var(--border);
+border-radius: var(--radius-md); padding: 18px;
+cursor: pointer; transition: var(--transition);
+}
+.structure-item:hover {
+border-color: var(--secondary); transform: translateY(-3px);
+box-shadow: 0 0 15px rgba(6,182,212,0.2);
+}
+.structure-item.expanded { border-color: var(--secondary); }
+.structure-item .struct-header {
+display: flex; align-items: center; gap: 10px;
+font-weight: 700; font-size: 0.95rem; margin-bottom: 4px;
+}
+.structure-item .struct-loc {
+font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px;
+}
+.structure-item .struct-detail {
+display: none; margin-top: 10px; padding-top: 10px;
+border-top: 1px solid var(--border);
+font-size: 0.85rem; line-height: 1.7;
+color: var(--text-secondary);
+}
+.structure-item.expanded .struct-detail {
+display: block; animation: fadeSlideIn 0.3s ease;
+}
+/* Flowchart */
+.flowchart {
+display: flex; flex-direction: column; align-items: center;
+gap: 4px; margin: 24px 0;
+}
+.flow-step {
+background: var(--bg-card); border: 1px solid var(--border);
+border-radius: var(--radius-md); padding: 14px 24px;
+max-width: 500px; width: 100%; text-align: center;
+font-size: 0.9rem; font-weight: 500;
+transition: var(--transition);
+}
+.flow-step:hover { border-color: var(--primary); transform: scale(1.02); }
+.flow-arrow {
+font-size: 1.4rem; color: var(--primary-light);
+animation: arrowBounce 2s ease-in-out infinite;
+}
+@keyframes arrowBounce {
+0%, 100% { transform: translateY(0); }
+50% { transform: translateY(4px); }
+}
+/* Treatment / Diagnosis */
+.info-badge {
+display: inline-flex; align-items: center; gap: 6px;
+padding: 6px 14px; border-radius: 50px;
+font-size: 0.8rem; font-weight: 600;
+margin: 4px; cursor: default;
+}
+.badge-primary { background: rgba(99,102,241,0.15); color: var(--primary-light); border: 1px solid rgba(99,102,241,0.3); }
+.badge-secondary { background: rgba(6,182,212,0.15); color: #67e8f9; border: 1px solid rgba(6,182,212,0.3); }
+.badge-accent { background: rgba(245,158,11,0.15); color: var(--accent-light); border: 1px solid rgba(245,158,11,0.3); }
+.badge-success { background: rgba(16,185,129,0.15); color: var(--success-light); border: 1px solid rgba(16,185,129,0.3); }
+.badge-danger { background: rgba(239,68,68,0.15); color: var(--danger-light); border: 1px solid rgba(239,68,68,0.3); }
+/* Mnemonic Cards */
+.mnemonic-card {
+background: var(--bg-card); border: 1px solid var(--border);
+border-radius: var(--radius-lg); padding: 24px;
+margin-bottom: 16px; cursor: pointer;
+transition: var(--transition);
+}
+.mnemonic-card:hover {
+border-color: var(--accent); transform: translateY(-2px);
+}
+.mnemonic-title {
+font-size: 1.3rem; font-weight: 800;
+background: var(--gradient-2);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+margin-bottom: 4px;
+}
+.mnemonic-subtitle {
+font-size: 0.85rem; color: var(--text-muted);
+margin-bottom: 12px;
+}
+.mnemonic-list {
+display: none; padding-left: 4px;
+}
+.mnemonic-card.open .mnemonic-list {
+display: block; animation: fadeSlideIn 0.3s ease;
+}
+.mnemonic-list .mn-item {
+padding: 8px 0; border-bottom: 1px solid var(--border);
+font-size: 0.9rem; display: flex; gap: 10px;
+}
+.mnemonic-list .mn-item:last-child { border: none; }
+.mn-letter {
+font-weight: 800; color: var(--accent);
+font-size: 1.1rem; min-width: 24px;
+}
+.mn-text { color: var(--text-secondary); }
+.mn-text strong { color: var(--text-primary); }
+/* Motivational Banner */
+.motivational {
+background: var(--gradient-1);
+border-radius: var(--radius-lg);
+padding: 20px 28px; margin-bottom: 24px;
+display: flex; align-items: center; gap: 16px;
+flex-wrap: wrap;
+}
+.motivational .mot-emoji { font-size: 2rem; }
+.motivational .mot-text { font-weight: 600; font-size: 1rem; }
+.motivational .mot-sub { font-size: 0.85rem; opacity: 0.85; }
+/* Responsive */
+@media (max-width: 768px) {
+.app-container { padding: 12px; }
+.cards-grid { grid-template-columns: 1fr; }
+.flashcards-grid { grid-template-columns: 1fr; }
+.structures-grid { grid-template-columns: 1fr; }
+.nav-tab { padding: 10px 14px; font-size: 0.78rem; }
+.quiz-question-card { padding: 20px; }
+.stats-bar { gap: 8px; }
+.stat-chip { padding: 6px 12px; font-size: 0.78rem; }
+}
+/* Results Modal */
+.modal-overlay {
+position: fixed; top:0; left:0; width:100%; height:100%;
+background: rgba(0,0,0,0.7); z-index: 1000;
+display: none; align-items: center; justify-content: center;
+backdrop-filter: blur(4px);
+}
+.modal-overlay.show { display: flex; }
+.modal-content {
+background: var(--bg-card); border-radius: var(--radius-xl);
+padding: 40px; max-width: 450px; width: 90%;
+text-align: center; border: 1px solid var(--border);
+animation: fadeSlideIn 0.4s ease;
+}
+.modal-content h2 { font-size: 1.8rem; margin-bottom: 8px; }
+.modal-content .score-big {
+font-size: 4rem; font-weight: 900;
+background: var(--gradient-1);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+}
+.modal-content p { color: var(--text-secondary); margin: 8px 0; }
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+/* Utility */
+.text-center { text-align: center; }
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+.mt-16 { margin-top: 16px; }
+.gap-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="bg-animation">
+<div class="bg-orb"></div>
+<div class="bg-orb"></div>
+<div class="bg-orb"></div>
+<div class="bg-orb"></div>
+</div>
+<div class="grid-bg"></div>
+
+<div class="app-container">
+
+<!-- Header -->
+<header class="app-header">
+<h1>🔬 Histology of Sensory Receptors & Ear</h1>
+<p class="subtitle">Interactive Study Platform — Master the Receptors, Conquer the Exam</p>
+</header>
+
+<!-- Stats Bar -->
+<div class="stats-bar">
+<div class="stat-chip"><span class="stat-icon">📊</span> Progress: <span class="stat-value" id="statProgress">0%</span></div>
+<div class="stat-chip"><span class="stat-icon">🎯</span> Quiz Score: <span class="stat-value" id="statScore">0/25</span></div>
+<div class="stat-chip"><span class="stat-icon">🔥</span> Streak: <span class="stat-value" id="statStreak">0</span></div>
+<div class="stat-chip"><span class="stat-icon">🃏</span> Cards Flipped: <span class="stat-value" id="statCards">0/20</span></div>
+</div>
+
+<!-- Search -->
+<div class="search-container">
+<span class="search-icon">🔍</span>
+<input type="text" id="globalSearch" placeholder="Search any topic, receptor, structure...">
+</div>
+
+<!-- Navigation Tabs -->
+<div class="nav-tabs" id="navTabs">
+<button class="nav-tab active" data-tab="overview"><span class="tab-emoji">📋</span> Overview</button>
+<button class="nav-tab" data-tab="quiz"><span class="tab-emoji">🎯</span> Quiz</button>
+<button class="nav-tab" data-tab="flashcards"><span class="tab-emoji">🃏</span> Flashcards</button>
+<button class="nav-tab" data-tab="cases"><span class="tab-emoji">🏥</span> Cases</button>
+<button class="nav-tab" data-tab="anatomy"><span class="tab-emoji">🦴</span> Structures</button>
+<button class="nav-tab" data-tab="diagnosis"><span class="tab-emoji">🔎</span> Comparisons</button>
+<button class="nav-tab" data-tab="treatment"><span class="tab-emoji">⚙️</span> Flowcharts</button>
+<button class="nav-tab" data-tab="mnemonics"><span class="tab-emoji">🧠</span> Mnemonics</button>
+</div>
+
+<!-- ============== TAB 1: OVERVIEW ============== -->
+<div class="tab-content active" id="tab-overview">
+<div class="motivational">
+<span class="mot-emoji">💪</span>
+<div>
+<div class="mot-text">You're building a strong foundation!</div>
+<div class="mot-sub">Sensory receptors and ear histology — high-yield content for your exam.</div>
+</div>
+</div>
+
+<div class="section-header">
+<h2>📌 Quick Summary Cards</h2>
+<p>Tap any card for key details on each receptor and ear structure.</p>
+</div>
+
+<div class="cards-grid" id="overviewCards">
+<!-- Filled by JS -->
+</div>
+
+<div class="section-header">
+<h2>🏷️ Key Clinical & Exam Tags</h2>
+<p>High-yield facts at a glance.</p>
+</div>
+<div class="cards-grid" id="keySignsGrid">
+<!-- Filled by JS -->
+</div>
+</div>
+
+<!-- ============== TAB 2: QUIZ ============== -->
+<div class="tab-content" id="tab-quiz">
+<div class="section-header">
+<h2>🎯 Quiz Mode — 25 MCQs</h2>
+<p>Test your knowledge. Get instant feedback. Track your score!</p>
+</div>
+<div class="quiz-container">
+<div class="quiz-progress">
+<div class="progress-text">
+<span id="quizProgressText">Question 1 of 25</span>
+<span id="quizScoreText">Score: 0</span>
+</div>
+<div class="progress-bar-container">
+<div class="progress-bar-fill" id="quizProgressBar"></div>
+</div>
+</div>
+<div id="quizArea"></div>
+<div class="quiz-nav-btns" id="quizNavBtns">
+<button class="btn btn-secondary" id="btnPrevQ" onclick="navigateQuiz(-1)">⬅️ Previous</button>
+<button class="btn btn-primary" id="btnNextQ" onclick="navigateQuiz(1)">Next ➡️</button>
+</div>
+</div>
+</div>
+
+<!-- ============== TAB 3: FLASHCARDS ============== -->
+<div class="tab-content" id="tab-flashcards">
+<div class="section-header">
+<h2>🃏 Flashcards — Click to Flip</h2>
+<p>20 cards covering all key concepts. Click to reveal the answer.</p>
+</div>
+<div class="flashcards-grid" id="flashcardsGrid">
+<!-- Filled by JS -->
+</div>
+</div>
+
+<!-- ============== TAB 4: CLINICAL CASES ============== -->
+<div class="tab-content" id="tab-cases">
+<div class="section-header">
+<h2>🏥 Clinical Case Vignettes</h2>
+<p>6 exam-style scenarios with step-by-step answers.</p>
+</div>
+<div id="casesArea">
+<!-- Filled by JS -->
+</div>
+</div>
+
+<!-- ============== TAB 5: ANATOMY / STRUCTURES ============== -->
+<div class="tab-content" id="tab-anatomy">
+<div class="section-header">
+<h2>🦴 Key Structures — Interactive Explorer</h2>
+<p>Click any structure for full histological detail.</p>
+</div>
+
+<h3 style="color:var(--primary-light); margin-bottom:12px;">🖐️ Cutaneous & Deep Receptors</h3>
+<div class="structures-grid" id="structCutaneous"></div>
+
+<h3 style="color:var(--secondary); margin-bottom:12px; margin-top:24px;">👂 Ear Structures</h3>
+<div class="structures-grid" id="structEar"></div>
+
+<div class="section-header mt-16">
+<h2>🔗 Sound Transduction Flowchart</h2>
+</div>
+<div class="flowchart" id="flowchartSound"></div>
+
+<div class="section-header mt-16">
+<h2>🔗 Vestibular Macular Stimulation Flowchart</h2>
+</div>
+<div class="flowchart" id="flowchartVestibular"></div>
+</div>
+
+<!-- ============== TAB 6: COMPARISONS / DIAGNOSIS ============== -->
+<div class="tab-content" id="tab-diagnosis">
+<div class="section-header">
+<h2>🔎 Comparison Tables & Diagnostic Badges</h2>
+<p>Side-by-side histological comparisons.</p>
+</div>
+
+<h3 style="margin-bottom:12px;">📊 Table 1: Dermal Mechanoreceptors</h3>
+<div class="table-wrapper" id="table1Wrapper"></div>
+
+<h3 style="margin-bottom:12px; margin-top:24px;">📊 Table 2: Intrafusal Muscle Fibers</h3>
+<div class="table-wrapper" id="table2Wrapper"></div>
+
+<h3 style="margin-bottom:12px; margin-top:24px;">📊 Table 3: Inner Ear Receptors</h3>
+<div class="table-wrapper" id="table3Wrapper"></div>
+
+<h3 style="margin-bottom:12px; margin-top:24px;">🏷️ Investigation Badges — Inner Ear</h3>
+<div class="gap-row mb-24" id="diagBadges"></div>
+</div>
+
+<!-- ============== TAB 7: FLOWCHARTS / TREATMENT ============== -->
+<div class="tab-content" id="tab-treatment">
+<div class="section-header">
+<h2>⚙️ Functional Pathways & Mechanisms</h2>
+<p>Step-by-step mechanism breakdowns.</p>
+</div>
+
+<h3 style="margin-bottom:12px;">🔊 Pathway: Sound → Hearing</h3>
+<div class="flowchart" id="flowTreatment1"></div>
+
+<h3 style="margin-bottom:12px; margin-top:30px;">🌀 Pathway: Rotation → Vestibular Signal</h3>
+<div class="flowchart" id="flowTreatment2"></div>
+
+<h3 style="margin-bottom:12px; margin-top:30px;">⬇️ Pathway: Gravity/Linear → Macular Signal</h3>
+<div class="flowchart" id="flowTreatment3"></div>
+
+<h3 style="margin-bottom:12px; margin-top:30px;">💪 Pathway: Muscle Stretch → Reflex Arc</h3>
+<div class="flowchart" id="flowTreatment4"></div>
+
+<div class="section-header mt-16">
+<h2>📋 Receptor Functions — Quick Reference</h2>
+</div>
+<div class="table-wrapper" id="tableFunctions"></div>
+</div>
+
+<!-- ============== TAB 8: MNEMONICS ============== -->
+<div class="tab-content" id="tab-mnemonics">
+<div class="section-header">
+<h2>🧠 Mnemonics — Remember Everything</h2>
+<p>Custom memory aids. Click to expand each one.</p>
+</div>
+<div id="mnemonicsArea"></div>
+</div>
+
+</div>
+
+<!-- Results Modal -->
+<div class="modal-overlay" id="resultsModal">
+<div class="modal-content">
+<div style="font-size:3rem; margin-bottom:12px;">🎉</div>
+<h2>Quiz Complete!</h2>
+<div class="score-big" id="modalScore">0%</div>
+<p id="modalMessage">Great effort!</p>
+<p style="margin-top:16px;">
+<button class="btn btn-primary" onclick="resetQuiz()">🔄 Retake Quiz</button>
+<button class="btn btn-secondary" onclick="closeModal()" style="margin-left:8px;">Close</button>
+</p>
+</div>
+</div>
+
+<script>
+// ===================== DATA =====================
+
+// Overview Cards
+const overviewData = [
+{icon:"🖐️", title:"Merkel's Complex", text:"Epidermal receptor in basal layer. Non-myelinated fibers end in terminal disc under Merkel's cell. Found in sole, palm.", tags:["high-yield","exam"]},
+{icon:"💈", title:"Peritrichial Nerve Endings", text:"Basket-like plexus around hair follicle base. Senses touch in hairy skin.", tags:["basic"]},
+{icon:"🫧", title:"Meissner's Corpuscle", text:"Dermal papillae. Thick capsule, transverse Schwann cell layers. Fine touch: eyelids, lips, fingers.", tags:["high-yield","exam"]},
+{icon:"🧅", title:"Pacinian Corpuscle", text:"Onion-shaped, 20-80 concentric Schwann cell layers. Deep pressure & vibration. Deep dermis/hypodermis.", tags:["high-yield","exam"]},
+{icon:"📏", title:"Ruffini Corpuscle", text:"Deep dermis (sole). Thin capsule. Collagen fibers oriented along axis. Touch/pressure.", tags:["basic"]},
+{icon:"🔵", title:"Krause End Bulb", text:"Round, poor capsule. Mucocutaneous receptor. Conjunctiva, tongue, genitalia.", tags:["basic"]},
+{icon:"🔥", title:"Pain Receptors (Nociceptors)", text:"Free nerve endings. Fine non-myelinated fibers. No capsule.", tags:["high-yield"]},
+{icon:"🌡️", title:"Temperature Receptors", text:"Free nerve endings. Thin non-myelinated fibers. No capsule.", tags:["basic"]},
+{icon:"💪", title:"Muscle Spindle", text:"2-12 intrafusal fibers (nuclear bag & chain). Annulo-spiral & flower spray endings. Stretch/kinesthesia.", tags:["high-yield","exam"]},
+{icon:"🦴", title:"Tendon Spindle (GTO)", text:"Collagenous intrafusal fibers. No efferent fibers. Detects tendon tension.", tags:["clinical"]},
+{icon:"👂", title:"External Ear", text:"Auricle: yellow elastic cartilage. EAM: outer 1/3 cartilage, inner 2/3 bone. Cerumen from sebaceous + ceruminous glands.", tags:["high-yield"]},
+{icon:"🔔", title:"Middle Ear", text:"3 ossicles in temporal bone cavity. Simple cuboidal epithelium. Eustachian tube to nasopharynx.", tags:["basic"]},
+{icon:"🐚", title:"Organ of Corti", text:"Cochlear duct. Inner (1 row) & outer (3-5 rows) hair cells. Tectorial membrane. Hearing.", tags:["high-yield","exam"]},
+{icon:"🌀", title:"Crista Ampullaris", text:"In ampullae of semicircular canals. Cupula covers hair cells. Rotational movement.", tags:["high-yield","exam"]},
+{icon:"⚖️", title:"Maculae (Utricle & Saccule)", text:"Vestibule. Otolithic membrane with CaCO₃ crystals. Gravity & linear movement.", tags:["high-yield","exam"]},
+{icon:"🎵", title:"Cochlear Duct Boundaries", text:"Vestibular membrane (top), Basilar membrane (bottom, holds Organ of Corti), Stria vascularis (outer wall).", tags:["exam"]},
+];
+
+const keySignsData = [
+{icon:"⚠️", title:"Pacinian = Onion", text:"الباسينيوم عامله زي البصله — Onion-shaped in L.S. with 20-80 layers of modified Schwann cells. EXAM FAVOURITE.", tags:["exam","high-yield"]},
+{icon:"⚠️", title:"3 Inner Ear Receptors", text:"Organ of Corti = Hearing. Crista Ampullaris = Rotation. Maculae = Gravity/Linear. MUST KNOW.", tags:["exam","high-yield"]},
+{icon:"💡", title:"Cupula vs Otolithic Membrane", text:"Cupula = gelatinous, no crystals, rotational. Otolithic = gelatinous + CaCO₃ crystals, gravity.", tags:["exam","clinical"]},
+{icon:"💡", title:"Tectorial vs Otolithic Membrane", text:"Tectorial = gelatinous CT + simple squamous epithelium (hearing). Otolithic = glycoprotein + CaCO₃ (gravity).", tags:["high-yield"]},
+{icon:"📌", title:"Nuclear Bag vs Chain", text:"Bag: thicker, longer, fewer, expanded center with cluster of nuclei. Chain: thinner, shorter, numerous, linear chain of nuclei.", tags:["exam"]},
+{icon:"📌", title:"Tendon vs Muscle Spindle", text:"Tendon spindle: NO efferent fibers, collagenous intrafusal fibers. Muscle spindle: HAS gamma efferents, contractile intrafusal fibers.", tags:["exam"]},
+{icon:"🔬", title:"Stria Vascularis", text:"Unique structure: vascular CT covered with pseudostratified columnar epithelium. Outer wall of cochlear duct.", tags:["clinical"]},
+{icon:"🔬", title:"Hensen's Cells", text:"Tall cells forming the OUTERMOST part of the Organ of Corti.", tags:["basic"]},
+];
+
+// Quiz Data (25 Qs)
+const quizData = [
+{q:"Which receptor is strictly located in the basal layer of the epidermis, typically in the sole and palm?",
+opts:["Pacinian corpuscle","Meissner's corpuscle","Merkel's complex","Ruffini corpuscle","Krause end bulb"],
+ans:2, exp:"Merkel's complex is an epidermal mechanoreceptor consisting of non-myelinated fibers ending under Merkel's cells in the basal layer. All other options (A, B, D, E) are dermal receptors."},
+{q:"Pain and temperature receptors (nociceptors and thermoreceptors) are histologically classified as:",
+opts:["Encapsulated nerve endings","Free nerve endings without a capsule","Modified Schwann cells","Intrafusal muscle fibers","Otolithic receptors"],
+ans:1, exp:"Both are described as having 'no capsule' with fine or thin non-myelinated fibers. Encapsulated endings (A), Schwann cells (C), intrafusal fibers (D), and otolithic receptors (E) all have capsules or complex structures."},
+{q:"A sensory receptor in the skin has a thick capsule and a core of transverse layers of modified Schwann cells. It is oval with its longitudinal axis perpendicular to the surface. What is it?",
+opts:["Meissner's corpuscle","Pacinian corpuscle","Ruffini corpuscle","Krause end bulb","Merkel's disk"],
+ans:0, exp:"Meissner's corpuscles fit this exact structural description and location (dermal papillae). Pacinian has an onion shape; Ruffini is elongated; Krause is round; Merkel is epidermal."},
+{q:"In Pacinian corpuscles, the nerve fiber behaves in which of the following ways?",
+opts:["Remains myelinated throughout the core","Branches into 2-9 spiral branches","Penetrates at one pole, becomes non-myelinated, and ends as an expanded terminal","Gives numerous bulbous terminations","Ends at a terminal disc under a specialized cell"],
+ans:2, exp:"The nerve penetrates at one pole, loses myelin, and ends in an expanded terminal inside the concentric Schwann cell layers. B applies to Meissner's; D to Krause; E to Merkel's."},
+{q:"Which receptor is primarily associated with sensing deep pressure and vibration?",
+opts:["Krause end bulb","Meissner's corpuscle","Peritrichial free nerve endings","Pacinian corpuscle","Tendon spindle"],
+ans:3, exp:"Pacinian corpuscles act as proprioceptors for deep pressure and vibration. Others are for fine touch, mucocutaneous sensation, or tendon stretch."},
+{q:"Muscle spindles function primarily as:",
+opts:["Pain receptors in the muscle belly","Stretch receptors for kinesthesia and reflex control of muscle tone","Chemoreceptors for lactic acid build-up","Joint angle receptors","Tendon tension regulators"],
+ans:1, exp:"They are stretch receptors located between striated muscle fibers near their insertion."},
+{q:"Within a muscle spindle, nuclear bag fibers differ from nuclear chain fibers in that nuclear bag fibers are:",
+opts:["Thinner and shorter","More numerous","Expanded centrally containing a bag of nuclei","Uninnervated by primary afferents","Contractile in their central portion"],
+ans:2, exp:"Nuclear bag fibers are thicker, longer, fewer in number, and have an expanded central part containing a bag of nuclei. A & B describe chain fibers. Central parts are non-contractile."},
+{q:"Which efferent nerve fibers supply the contractile poles of the intrafusal muscle fibers?",
+opts:["Alpha motor neurons","Gamma (γ) fibers","Primary (annulo-spiral) endings","Secondary (flower spray) endings","Free nerve endings"],
+ans:1, exp:"Gamma fibers from the anterior horn supply the contractile poles. C and D are afferent (sensory)."},
+{q:"Tendon spindles differ from muscle spindles because tendon spindles:",
+opts:["Lack an enclosing capsule","Contain no efferent fibers","Detect temperature changes","Are located in the epidermis","Contain nuclear bag fibers"],
+ans:1, exp:"Tendon spindles have 'no efferent fibers' and contain collagenous intrafusal fibers instead of muscle fibers."},
+{q:"The auricle of the ear consists structurally of:",
+opts:["Hyaline cartilage covered by respiratory epithelium","Yellow elastic cartilage covered by skin on both sides","Spongy bone covered by thin skin","Fibrous tissue only","Simple cuboidal epithelium"],
+ans:1, exp:"The auricle is an irregular funnel consisting of a thin plate of yellow elastic cartilage covered by skin."},
+{q:"The external auditory meatus wall is composed of:",
+opts:["Cartilage in its entire length","Bone in its entire length","Yellow elastic cartilage in outer 1/3 and spongy bone in inner 2/3","Spongy bone in outer 1/3 and cartilage in inner 2/3","Pure dense connective tissue"],
+ans:2, exp:"It is formed of yellow elastic cartilage in its outer 1/3 and spongy bone in its inner 2/3."},
+{q:"Cerumen (ear wax) is produced by the secretion of:",
+opts:["Sweat glands only","Sebaceous glands and ceruminous glands","Goblet cells","Parotid glands","Hair follicle cells"],
+ans:1, exp:"The skin in the outer part contains both sebaceous and ceruminous glands, whose combined secretion forms cerumen."},
+{q:"The middle ear side of the tympanic membrane is lined by:",
+opts:["Stratified squamous epithelium (skin)","Pseudostratified columnar epithelium","Single layer of cuboidal epithelium","Simple squamous epithelium","Transitional epithelium"],
+ans:2, exp:"The tympanic membrane is lined by a single layer of cuboidal epithelium on the middle ear side, and skin on the external canal side."},
+{q:"The bony labyrinth of the inner ear is filled with:",
+opts:["Endolymph","Blood","Perilymph","Cerebrospinal fluid","Cerumen"],
+ans:2, exp:"The bony labyrinth consists of cavities in the petrous temporal bone filled with perilymph. Endolymph fills the membranous labyrinth."},
+{q:"In the cochlea, the cochlear duct is separated from the scala vestibuli by the:",
+opts:["Basilar membrane","Stria vascularis","Spiral lamina","Vestibular membrane","Tectorial membrane"],
+ans:3, exp:"The cochlear duct is separated from the scala vestibuli by the vestibular membrane. The basilar membrane separates it from scala tympani."},
+{q:"The stria vascularis of the cochlear duct is unique because it is:",
+opts:["Formed of vascular C.T. covered with pseudostratified columnar epithelium","Formed of simple squamous epithelium","The resting place for the Organ of Corti","Lacking any blood vessels","Made of yellow elastic cartilage"],
+ans:0, exp:"It is formed of vascular CT and pseudostratified columnar epithelium, the third side of the triangular cochlear duct."},
+{q:"Which correctly describes the inner hair cells of the Organ of Corti?",
+opts:["Arranged in 3-5 rows","Arranged in one row lying on inner phalangeal cells","Covered by the otolithic membrane","Have motile cilia (kinocilia) only","Form the outermost part of the organ"],
+ans:1, exp:"Inner hair cells are arranged in one row lying on inner phalangeal cells. 3-5 rows describes outer hair cells."},
+{q:"The tectorial membrane of the Organ of Corti is formed of:",
+opts:["Calcium carbonate crystals","Dense regular connective tissue","Gelatinous C.T. covered with simple squamous epithelium","Vascular connective tissue","Spongy bone"],
+ans:2, exp:"It is formed of gelatinous C.T. covered with simple squamous epithelium. Calcium carbonate is in the otolithic membrane."},
+{q:"The crista ampullaris is the neuroepithelial receptor located in the:",
+opts:["Utricle","Saccule","Cochlear duct","Ampullae of the semicircular canals","Modiolus"],
+ans:3, exp:"In the ampullae of the semicircular canals. Utricle and saccule contain maculae. Cochlear duct has the Organ of Corti."},
+{q:"What covering displaces the stereocilia of hair cells in the crista ampullaris?",
+opts:["Tectorial membrane","Otolithic membrane","Cupula","Basilar membrane","Vestibular membrane"],
+ans:2, exp:"The stereocilia are embedded in the cupula, a thick gelatinous membrane on the crista ampullaris surface."},
+{q:"The macula utriculi and macula sacculi maintain body equilibrium in relation to:",
+opts:["Rotational movement only","Gravity and linear movement","High-frequency sound waves","Low-frequency sound waves","Muscle stretch"],
+ans:1, exp:"The function of the maculae is to maintain body equilibrium in relation to gravity and linear movement."},
+{q:"The calcium carbonate crystals found in the inner ear are known as:",
+opts:["Otoliths","Kinocilia","Cerumen","Stereocilia","Modiolus"],
+ans:0, exp:"The otolithic membrane is a glycoprotein layer rich in calcium carbonate crystals (otoliths / 'ear rocks')."},
+{q:"In vestibular hair cells (Type I and Type II), the apical surface is covered by:",
+opts:["A single stereocilium and multiple kinocilia","A tuft of long stereocilia and a single kinocilium","Microvilli only","Non-motile cilia exclusively","True motile cilia exclusively"],
+ans:1, exp:"Both types are covered by a tuft of long stereocilia & single kinocilium."},
+{q:"Which supporting cells form the outermost part of the Organ of Corti?",
+opts:["Pillar cells","Inner phalangeal cells","Border cells","Hensen's cells","Cells of Boettcher"],
+ans:3, exp:"Hensen's cells are tall cells which form the outermost part of the Organ of Corti. Border cells form the innermost."},
+{q:"The sensory function of Meissner's corpuscles is categorized as:",
+opts:["Proprioception","Nociception","Thermoreception","Exteroception (Touch/Mechanoreception)","Visceroception"],
+ans:3, exp:"They are classified under exteroceptors, specifically for touch (mechanoreceptors). Proprioception is Pacinian's role."},
+];
+
+// Flashcards (20)
+const flashcardsData = [
+{front:"What type of cartilage forms the auricle?", back:"Yellow elastic cartilage covered by skin on both sides."},
+{front:"What is the shape of the Pacinian corpuscle in L.S.?", back:"Onion-shaped (بصلة), with 20-80 concentric layers of flat modified Schwann cells."},
+{front:"Name the 3 inner ear receptors and their functions.", back:"1) Organ of Corti → Hearing\n2) Crista Ampullaris → Rotational movement\n3) Maculae → Gravity & linear movement"},
+{front:"What membrane covers the crista ampullaris?", back:"The Cupula — a thick gelatinous membrane with no crystals."},
+{front:"What membrane covers the maculae?", back:"The Otolithic membrane — a gelatinous glycoprotein layer rich in calcium carbonate crystals (otoliths)."},
+{front:"What are the 3 walls of the cochlear duct?", back:"1) Vestibular membrane (roof)\n2) Basilar membrane (floor, holds Organ of Corti)\n3) Stria vascularis (outer wall)"},
+{front:"How many rows of inner vs outer hair cells in the Organ of Corti?", back:"Inner: 1 row on inner phalangeal cells.\nOuter: 3-5 rows on outer phalangeal cells."},
+{front:"What are nuclear bag fibers?", back:"Thicker, longer, fewer intrafusal fibers with an expanded central portion containing a cluster (bag) of nuclei. Innervated by primary (annulo-spiral) endings."},
+{front:"What are nuclear chain fibers?", back:"Thinner, shorter, more numerous intrafusal fibers with a central chain of nuclei. Innervated by both primary and secondary (flower spray) endings."},
+{front:"What is the role of gamma (γ) fibers?", back:"Efferent fibers supplying the contractile poles of intrafusal fibers, stretching the central sensory zone to increase afferent firing."},
+{front:"What produces cerumen?", back:"Combined secretion of sebaceous glands and ceruminous glands in the outer 1/3 of the external auditory meatus."},
+{front:"What epithelium lines the middle ear cavity?", back:"Simple cuboidal epithelium."},
+{front:"Where is the Merkel's complex located?", back:"In the basal layer of the epidermis, typically in the sole and palm. Non-myelinated fibers ending under Merkel's cell."},
+{front:"How does a tendon spindle differ from a muscle spindle?", back:"Tendon spindle: NO efferent fibers, collagenous intrafusal fibers.\nMuscle spindle: HAS gamma efferents, contractile intrafusal muscle fibers."},
+{front:"What are the 2 types of vestibular hair cells?", back:"Type I: Flask-shaped, innervated by calyx-like afferent ending.\nType II: Columnar, innervated by bouton-like afferent ending.\nBoth have stereocilia + single kinocilium."},
+{front:"What is the tectorial membrane made of?", back:"Gelatinous connective tissue covered with simple squamous epithelium. Projects from the bony spiral lamina above the Organ of Corti."},
+{front:"What is the modiolus?", back:"The central bony axis of the cochlea, formed of spongy bone. Contains fibers and spiral ganglia of the cochlear nerve."},
+{front:"What are Hensen's cells?", back:"Tall supporting cells that form the OUTERMOST part of the Organ of Corti."},
+{front:"What fluid fills the bony labyrinth? The membranous labyrinth?", back:"Bony labyrinth: Perilymph.\nMembranous labyrinth: Endolymph."},
+{front:"Name 4 dermal mechanoreceptors.", back:"1) Meissner's corpuscle (fine touch)\n2) Pacinian corpuscle (deep pressure/vibration)\n3) Ruffini corpuscle (touch/pressure)\n4) Krause end bulb (mucocutaneous)"},
+];
+
+// Clinical Cases (6)
+const casesData = [
+{title:"Case 1: Loss of Deep Pressure Sensation",
+scenario:"A 58-year-old diabetic patient presents with inability to detect deep pressure and vibration on the soles of his feet, leading to frequent unnoticed injuries.",
+questions:[
+{q:"Q1: Which sensory receptor is most likely affected?", a:"<strong>Pacinian corpuscles</strong> — oval, onion-shaped encapsulated receptors in the deep dermis/hypodermis. They are responsible for deep pressure and vibration. Disruption prevents nerve fiber terminals from generating action potentials in response to mechanical deformation. This leads to impaired tactile localization, stereognosis, deep pressure sensing, and kinesthesia."},
+{q:"Q2: What is the histological hallmark of these receptors?", a:"20-80 concentric layers of flat modified Schwann cells with intercellular collagen fibers (onion appearance in L.S.). A single nerve fiber penetrates at one pole, loses its myelin sheath, and ends as an expanded terminal."},
+]},
+{title:"Case 2: Fusiform Structure in Muscle Biopsy",
+scenario:"A biopsy of striated muscle tissue from a patient undergoing surgery reveals a 4mm fusiform structure containing fluid and non-contractile central fibers surrounded by spiral nerve endings.",
+questions:[
+{q:"Q1: Identify this structure and its function.", a:"<strong>Muscle spindle (neuromuscular spindle)</strong>. It is a stretch receptor located between striated muscle fibers. It detects muscle stretch and is essential for kinesthesia and reflex control of muscle tone, movement, and posture."},
+{q:"Q2: Describe the fibers within this structure.", a:"Contains 2-12 intrafusal fibers: <strong>Nuclear bag fibers</strong> (thicker, longer, fewer, expanded central bag of nuclei) and <strong>nuclear chain fibers</strong> (thinner, shorter, numerous, central chain of nuclei). The central portions are non-contractile; the polar regions are contractile and innervated by gamma efferents."},
+{q:"Q3: What nerve endings are seen spiraling around the center?", a:"<strong>Primary (annulo-spiral) endings</strong> — thick myelinated afferents that wind around the non-contractile centers of both nuclear bag and nuclear chain fibers. Secondary (flower spray) afferents supply the chain fibers only."},
+]},
+{title:"Case 3: Post-Rotation Vertigo",
+scenario:"A 25-year-old volunteer in a vestibular research study is rotated rapidly in a chair, then stopped abruptly. She experiences a strong sensation of continued spinning (post-rotatory nystagmus).",
+questions:[
+{q:"Q1: Which inner ear receptor is responsible?", a:"<strong>Crista ampullaris</strong> in the ampullae of the semicircular canals. The endolymph continues to move after stopping, displacing the cupula and bending the stereocilia/kinocilium of Type I and Type II hair cells."},
+{q:"Q2: What membrane is directly displaced?", a:"The <strong>Cupula</strong> — a thick gelatinous membrane resting on the surface of the crista ampullaris. Stereocilia of the hair cells are embedded in it."},
+]},
+{title:"Case 4: Gravity-Dependent Vertigo",
+scenario:"A 40-year-old woman experiences brief vertigo every time she tilts her head forward. She has no hearing loss and normal rotational vestibular testing.",
+questions:[
+{q:"Q1: Which receptor system is affected?", a:"The <strong>Maculae of the utricle and saccule</strong>. They detect linear movement and gravity via the otolithic membrane loaded with calcium carbonate crystals (otoliths / 'ear rocks')."},
+{q:"Q2: How does the otolithic membrane generate a nerve signal?", a:"Gravity pulls the heavy CaCO₃ crystals, causing the thick gelatinous otolithic membrane to shift. This bends the underlying stereocilia and kinocilium of Type I (flask-shaped) and Type II (columnar) hair cells, firing the afferent vestibular nerve."},
+]},
+{title:"Case 5: Sensorineural Hearing Loss",
+scenario:"A histological section of the inner ear from an elderly patient with documented sensorineural hearing loss shows significant degeneration of outer hair cells resting on outer phalangeal cells.",
+questions:[
+{q:"Q1: Identify the structure affected and its normal components.", a:"The <strong>Organ of Corti</strong> in the cochlear duct. Normally contains: 1 row of inner hair cells (on inner phalangeal cells), 3-5 rows of outer hair cells (on outer phalangeal cells), supporting cells (pillar cells, Hensen's cells, border cells, Boettcher cells, Claudius cells), and the overlying tectorial membrane."},
+{q:"Q2: Why does loss of outer hair cells cause hearing loss?", a:"The outer hair cells sit on the basilar membrane and their V-shaped stereocilia interact with the tectorial membrane. Without them, basilar membrane vibrations cannot be efficiently converted into nerve impulses transmitted to the spiral ganglion (cochlear nerve)."},
+]},
+{title:"Case 6: Integrative — Selective Linear Acceleration Vertigo",
+scenario:"A 55-year-old man experiences severe vertigo associated strictly with sudden forward linear acceleration (e.g., in a moving car), but has entirely normal rotational sensation and normal hearing.",
+questions:[
+{q:"Q1: Which structure and process are involved?", a:"The <strong>Macula utriculi and macula sacculi</strong> within the vestibule of the membranous labyrinth. They specifically detect linear acceleration and gravity."},
+{q:"Q2: Walk through the mechanism step by step.", a:"Linear acceleration → otolithic membrane (weighted by CaCO₃ crystals/otoliths) shifts → bends the tuft of stereocilia and single kinocilium on Type I (flask-shaped) and Type II (columnar) hair cells → triggers afferent vestibular nerve endings → signal sent to brain."},
+{q:"Q3: Why are hearing and rotational sensation spared?", a:"Hearing is mediated by the <strong>Organ of Corti</strong> (cochlear duct / tectorial membrane). Rotational sensation is mediated by the <strong>Crista ampullaris</strong> (semicircular canal ampullae / cupula). Both use different gelatinous structures on different hair cells, and both are intact in this patient. This illustrates the <strong>separation of sensory functions in the inner ear</strong>."},
+]},
+];
+
+// Structures (Anatomy tab)
+const cutaneousStructures = [
+{icon:"🖐️", name:"Merkel's Complex", loc:"Basal layer of epidermis (sole, palm)",
+detail:"Non-myelinated fibers ending in a terminal disc (Merkel's disc) under a Merkel's cell. Classified as an epidermal receptor for touch (mechanoreception). The Merkel's cell is a specialized epithelial cell."},
+{icon:"💈", name:"Peritrichial Nerve Endings", loc:"Around hair follicle base (hairy skin)",
+detail:"Non-myelinated fibers forming a basket-like plexus (palisade) around the base of hair follicles. Detect displacement of hairs for tactile sensation in hairy skin."},
+{icon:"🫧", name:"Meissner's Corpuscle", loc:"Dermal papillae (eyelids, lips, fingers)",
+detail:"Oval, thick capsule. Core: transverse layers of modified Schwann cells & collagen. Nerve: myelinated fiber enters base, gives 2-9 non-myelinated spiral branches. L.A. perpendicular to skin surface. Fine touch/mechanoreception."},
+{icon:"🧅", name:"Pacinian Corpuscle", loc:"Deep dermis / hypodermis, intermuscular septa",
+detail:"Large oval. Thin capsule with subcapsular space. Core: 20-80 concentric layers of flat modified Schwann cells with collagen. Nerve: enters at one pole, loses myelin, ends as expanded terminal. Onion-shaped (بصلة). Deep pressure & vibration."},
+{icon:"📏", name:"Ruffini Corpuscle", loc:"Deep dermis (sole)",
+detail:"Elongated, thin capsule. Core: collagen fibers oriented along axis of the corpuscle. Nerve: thick myelinated fiber enters one side, branches between collagen fibers. Touch & pressure."},
+{icon:"🔵", name:"Krause End Bulb", loc:"Conjunctiva, tongue, lips, genitalia",
+detail:"Round, poor (thin) capsule. Nerve: thick myelinated fiber enters, becomes non-myelinated, gives numerous bulbous terminations. Mucocutaneous receptor."},
+{icon:"⚡", name:"Pain Receptors (Nociceptors)", loc:"Throughout skin, organs",
+detail:"Free nerve endings. Fine non-myelinated fibers. No capsule. Respond to tissue damage, extreme temperatures, chemical stimuli."},
+{icon:"🌡️", name:"Temperature Receptors", loc:"Throughout skin",
+detail:"Free nerve endings. Thin non-myelinated fibers. No capsule. Separate warm and cold receptors."},
+{icon:"💪", name:"Muscle Spindle", loc:"Between striated muscle fibers",
+detail:"Fusiform, ~4mm. Contains 2-12 intrafusal fibers (nuclear bag: thicker, longer, fewer, expanded central bag of nuclei; nuclear chain: thinner, shorter, numerous, central chain). Both have non-contractile centers and contractile poles. Primary (annulo-spiral) endings on both; secondary (flower spray) on chain only. Gamma efferents to poles. Stretch/kinesthesia/reflex control of tone."},
+{icon:"🦴", name:"Tendon Spindle (GTO)", loc:"Musculotendinous junction",
+detail:"Smaller than muscle spindle. Collagenous intrafusal fibers (not muscle). NO efferent fibers. Detects tendon tension. Thick myelinated afferent fibers branch between collagen bundles."},
+];
+
+const earStructures = [
+{icon:"👂", name:"Auricle (Pinna)", loc:"External ear",
+detail:"Irregular funnel of thin yellow elastic cartilage covered by skin on both sides. Collects sound waves and directs them into the ear canal."},
+{icon:"🕳️", name:"External Auditory Meatus", loc:"External ear → tympanic membrane",
+detail:"Outer 1/3: yellow elastic cartilage. Inner 2/3: spongy bone. Lined by thin skin with stiff hairs, sebaceous glands, and ceruminous glands (modified sweat glands). Combined secretion = cerumen (ear wax)."},
+{icon:"🥁", name:"Tympanic Membrane", loc:"Between external and middle ear",
+detail:"Fibrous structure. Externally lined by skin (stratified squamous keratinized epithelium). Internally lined by single layer of cuboidal epithelium. Vibrates in response to sound waves."},
+{icon:"🔗", name:"Ossicles (Malleus, Incus, Stapes)", loc:"Middle ear cavity",
+detail:"Three tiny bones in a chain transmitting vibrations from the tympanic membrane to the oval window. Suspended by ligaments in the temporal bone cavity lined by simple cuboidal epithelium."},
+{icon:"📡", name:"Eustachian Tube", loc:"Middle ear → nasopharynx",
+detail:"Connects middle ear to nasopharynx. Equalizes air pressure on both sides of the tympanic membrane."},
+{icon:"🐚", name:"Cochlea & Cochlear Duct", loc:"Inner ear (bony labyrinth)",
+detail:"Coiled 2.5 turns around the modiolus (central bony axis of spongy bone containing spiral ganglia). Cochlear duct is the membranous labyrinth within, bounded by vestibular membrane, basilar membrane, and stria vascularis. Contains the Organ of Corti."},
+{icon:"🎵", name:"Organ of Corti", loc:"On basilar membrane of cochlear duct",
+detail:"Neuroepithelial receptor for hearing. Inner hair cells (1 row on inner phalangeal cells) and outer hair cells (3-5 rows on outer phalangeal cells) with V-shaped non-motile stereocilia. Supporting cells: inner/outer pillar cells, phalangeal cells, Hensen's cells (outermost), border cells (innermost), Boettcher cells, Claudius cells. Overlaid by the tectorial membrane (gelatinous CT + simple squamous epithelium)."},
+{icon:"🌀", name:"Crista Ampullaris", loc:"Ampullae of semicircular canals",
+detail:"Neuroepithelial receptor for rotational movement. Contains Type I (flask-shaped) and Type II (columnar) hair cells with stereocilia + single kinocilium, plus columnar supporting cells. Covered by the cupula (thick gelatinous membrane, no crystals). Endolymph movement bends the cupula → bends stereocilia → nerve signal."},
+{icon:"⚖️", name:"Maculae (Utricle & Saccule)", loc:"Vestibule of membranous labyrinth",
+detail:"Neuroepithelial receptor for gravity and linear movement. Same Type I and II hair cells as crista. Covered by the otolithic membrane — thick gelatinous glycoprotein layer rich in calcium carbonate crystals (otoliths/ear rocks). Gravity shifts the heavy membrane → bends stereocilia → vestibular nerve signal."},
+{icon:"💧", name:"Perilymph & Endolymph", loc:"Inner ear",
+detail:"Perilymph fills the bony labyrinth (between bony and membranous labyrinth). Endolymph fills the membranous labyrinth. Their movement is critical for transduction of sound and vestibular stimuli."},
+];
+
+// Flowchart steps
+const soundFlowSteps = [
+"🔊 Sound waves collected by Auricle",
+"🕳️ Travel through External Auditory Meatus",
+"🥁 Vibrate Tympanic Membrane",
+"🔗 Move Ossicles (Malleus → Incus → Stapes)",
+"🟢 Vibrate Oval Window",
+"💧 Shift perilymph in Inner Ear",
+"〰️ Basilar Membrane in Cochlear Duct vibrates",
+"🎵 Stereocilia of Hair Cells bend against Tectorial Membrane",
+"⚡ Action potential → Spiral ganglia (cochlear nerve) → Brain"
+];
+
+const vestibularFlowSteps = [
+"⬇️ Linear movement or gravity acts on body",
+"🪨 Otolithic membrane (heavy with CaCO₃ crystals) shifts",
+"〰️ Bends stereocilia + single kinocilium of Type I & II Hair Cells",
+"⚡ Triggers afferent vestibular nerve endings → Brain"
+];
+
+const rotationFlowSteps = [
+"🌀 Head rotates",
+"💧 Endolymph in semicircular canal shifts (inertia)",
+"🟢 Cupula (gelatinous membrane) is displaced",
+"〰️ Bends embedded stereocilia/kinocilium of hair cells in Crista Ampullaris",
+"⚡ Afferent vestibular nerve fires → Brain"
+];
+
+const muscleStretchFlowSteps = [
+"💪 Muscle is stretched",
+"📏 Intrafusal fibers (nuclear bag & chain) elongate at center",
+"🔄 Annulo-spiral (1ry) endings deformed",
+"⚡ Afferent signal → Spinal cord → Reflex arc",
+"🔁 Alpha motor neurons fire → extrafusal fibers contract (stretch reflex)",
+"🎯 Gamma efferents adjust intrafusal sensitivity"
+];
+
+// Tables data
+const table1Data = {
+headers:["Feature","Meissner's","Pacinian","Ruffini","Krause End Bulb"],
+rows:[
+["Shape","Oval (⊥ to surface)","Oval (onion-shaped)","Elongated","Round"],
+["Capsule","Thick","Thin + subcapsular space","Thin","Poor (thin)"],
+["Core","Transverse Schwann cells + collagen","20-80 concentric Schwann cell layers","Axial collagen fibers","Small core"],
+["Nerve","2-9 non-myel. spiral branches","Single expanded terminal","Branches between collagen","Numerous bulbous terminations"],
+["Function","Fine touch","Deep pressure/vibration","Touch/pressure","Mucocutaneous"],
+["Location","Dermal papillae (eyelids, lips, fingers)","Deep dermis/hypodermis","Deep dermis (sole)","Conjunctiva, tongue, genitalia"],
+]};
+
+const table2Data = {
+headers:["Feature","Nuclear Bag Fibers","Nuclear Chain Fibers"],
+rows:[
+["Size","Thicker, longer","Thinner, shorter"],
+["Number","Fewer (2-4)","More numerous (5-8)"],
+["Central nuclei","Expanded BAG of nuclei","Linear CHAIN of nuclei"],
+["Afferent endings","Primary (annulo-spiral) only","Primary + Secondary (flower spray)"],
+["Gamma supply","Yes (contractile poles)","Yes (contractile poles)"],
+["Sensitivity","Dynamic (rapid stretch changes)","Static (sustained stretch)"],
+]};
+
+const table3Data = {
+headers:["Feature","Organ of Corti","Crista Ampullaris","Maculae"],
+rows:[
+["Location","Cochlear duct (on basilar membrane)","Ampullae of semicircular canals","Vestibule (utricle & saccule)"],
+["Function","Hearing","Rotational movement","Gravity & linear movement"],
+["Covering","Tectorial membrane (gelatin CT + squam. epi.)","Cupula (gelatinous, no crystals)","Otolithic membrane (gelatin + CaCO₃)"],
+["Hair cells","Inner (1 row) + Outer (3-5 rows)","Type I (flask) + Type II (columnar)","Type I (flask) + Type II (columnar)"],
+["Stimulus","Sound wave → basilar membrane vibration","Endolymph movement (rotation)","Gravity shifts otolith weight"],
+]};
+
+const tableFunctionsData = {
+headers:["Receptor","Type","Stimulus","Location"],
+rows:[
+["Merkel's complex","Epidermal mechanoreceptor","Light touch","Sole, palm"],
+["Peritrichial endings","Hair follicle receptor","Hair displacement","Hairy skin"],
+["Meissner's corpuscle","Dermal encapsulated","Fine touch","Dermal papillae"],
+["Pacinian corpuscle","Dermal encapsulated","Deep pressure/vibration","Deep dermis/hypodermis"],
+["Ruffini corpuscle","Dermal encapsulated","Touch/pressure","Deep dermis (sole)"],
+["Krause end bulb","Dermal encapsulated","Mucocutaneous sensation","Conjunctiva, tongue, genitalia"],
+["Nociceptor","Free nerve ending","Pain","Throughout body"],
+["Thermoreceptor","Free nerve ending","Temperature","Throughout skin"],
+["Muscle spindle","Neuromuscular receptor","Stretch/kinesthesia","Between muscle fibers"],
+["Tendon spindle (GTO)","Neurotendinous receptor","Tendon tension","Musculotendinous junction"],
+["Organ of Corti","Neuroepithelial","Sound waves","Cochlear duct"],
+["Crista ampullaris","Neuroepithelial","Rotation","Semicircular canals"],
+["Macula","Neuroepithelial","Gravity/linear accel.","Utricle & saccule"],
+]};
+
+// Mnemonics (6)
+const mnemonicsData = [
+{title:"M.P.R.K.", subtitle:"Dermal Mechanoreceptors (4 encapsulated)", items:[
+{letter:"M", text:"<strong>M</strong>eissner's — Fine touch (Mild touch)"},
+{letter:"P", text:"<strong>P</strong>acinian — Pressure & vibration (Power)"},
+{letter:"R", text:"<strong>R</strong>uffini — Rough touch/pressure"},
+{letter:"K", text:"<strong>K</strong>rause — Kisses (mucocutaneous: lips, tongue, genitalia)"},
+]},
+{title:"C.O.M.", subtitle:"Inner Ear Receptors → Function", items:[
+{letter:"C", text:"<strong>C</strong>rista ampullaris → <strong>C</strong>ircular/Rotational movement (Cupula)"},
+{letter:"O", text:"<strong>O</strong>rgan of Corti → <strong>O</strong>hear / Sound (Tectorial membrane)"},
+{letter:"M", text:"<strong>M</strong>aculae → <strong>M</strong>ovement (linear) & Gravity (Otolithic membrane)"},
+]},
+{title:"B.V.S.", subtitle:"3 Walls of the Cochlear Duct", items:[
+{letter:"B", text:"<strong>B</strong>asilar membrane — Bottom (floor; holds Organ of Corti)"},
+{letter:"V", text:"<strong>V</strong>estibular membrane — Vault/ceiling (separates from scala vestibuli)"},
+{letter:"S", text:"<strong>S</strong>tria vascularis — Side/outer wall (vascular CT + pseudostratified epithelium)"},
+]},
+{title:"B.A.G. vs C.H.A.I.N.", subtitle:"Intrafusal Fibers Compared", items:[
+{letter:"B", text:"<strong>B</strong>igger, longer, expanded central <strong>BAG</strong> of nuclei"},
+{letter:"A", text:"<strong>A</strong>nnulo-spiral (primary) endings ONLY"},
+{letter:"G", text:"<strong>G</strong>amma efferents to contractile poles"},
+{letter:"—", text:"—— vs ——"},
+{letter:"C", text:"<strong>C</strong>ompact (thinner, shorter), <strong>CHAIN</strong> of central nuclei"},
+{letter:"H", text:"<strong>H</strong>as BOTH primary + secondary (flower spray)"},
+{letter:"A", text:"<strong>A</strong>lso has gamma efferents"},
+{letter:"I", text:"<strong>I</strong>ntrafusal fiber — more <strong>I</strong>n number"},
+{letter:"N", text:"<strong>N</strong>uclei in a row (chain, not bag)"},
+]},
+{title:"COME SEE", subtitle:"Ear: External Auditory Meatus Layers", items:[
+{letter:"C", text:"<strong>C</strong>artilage (yellow elastic) — outer 1/3"},
+{letter:"O", text:"<strong>O</strong>uter part — ceruminous + sebaceous glands → cerumen"},
+{letter:"M", text:"(remaining blank)"},
+{letter:"E", text:"—— then ——"},
+{letter:"S", text:"<strong>S</strong>pongy bone — inner 2/3"},
+{letter:"E", text:"<strong>E</strong>nds at tympanic membrane"},
+{letter:"E", text:"<strong>E</strong>pithelium: skin → cuboidal (at T.M.)"},
+]},
+{title:"T.O.C.", subtitle:"3 Gelatinous Membranes on Hair Cells", items:[
+{letter:"T", text:"<strong>T</strong>ectorial membrane → covers Organ of Corti → <strong>T</strong>one / sound"},
+{letter:"O", text:"<strong>O</strong>tolithic membrane → covers Maculae → <strong>O</strong>toliths (CaCO₃) → gravity"},
+{letter:"C", text:"<strong>C</strong>upula → covers Crista ampullaris → <strong>C</strong>ircular rotation"},
+]},
+];
+
+// Diagnostic Badges
+const diagBadges = [
+{text:"Perilymph → Bony labyrinth", cls:"badge-primary"},
+{text:"Endolymph → Membranous labyrinth", cls:"badge-secondary"},
+{text:"Cupula → NO crystals", cls:"badge-accent"},
+{text:"Otolithic membrane → CaCO₃ crystals", cls:"badge-danger"},
+{text:"Tectorial membrane → Gelatin CT", cls:"badge-success"},
+{text:"Vestibular membrane → Simple squamous", cls:"badge-primary"},
+{text:"Basilar membrane → Holds Organ of Corti", cls:"badge-secondary"},
+{text:"Stria vascularis → Vascular CT + pseudostrat.", cls:"badge-accent"},
+{text:"Modiolus → Spongy bone + spiral ganglia", cls:"badge-success"},
+{text:"Inner hair cells → 1 row", cls:"badge-danger"},
+{text:"Outer hair cells → 3-5 rows", cls:"badge-primary"},
+{text:"Type I hair cell → Flask-shaped", cls:"badge-secondary"},
+{text:"Type II hair cell → Columnar", cls:"badge-accent"},
+];
+
+// ===================== STATE =====================
+let state = {
+currentTab: 'overview',
+quizIndex: 0,
+quizAnswers: new Array(quizData.length).fill(null),
+quizScore: 0,
+quizStreak: 0,
+quizMaxStreak: 0,
+cardsFlipped: new Set(),
+};
+
+// Load state
+function loadState() {
+try {
+const saved = localStorage.getItem('histoStudyState');
+if (saved) {
+const parsed = JSON.parse(saved);
+state = {...state, ...parsed};
+state.cardsFlipped = new Set(parsed.cardsFlipped || []);
+}
+} catch(e) {}
+}
+function saveState() {
+const toSave = {...state, cardsFlipped: [...state.cardsFlipped]};
+try { localStorage.setItem('histoStudyState', JSON.stringify(toSave)); } catch(e) {}
+}
+
+// ===================== RENDER FUNCTIONS =====================
+
+function renderOverview() {
+const grid = document.getElementById('overviewCards');
+grid.innerHTML = overviewData.map((c, i) => `
+<div class="card searchable" data-search="${c.title} ${c.text}">
+<div class="card-icon">${c.icon}</div>
+<h3>${c.title}</h3>
+<p>${c.text}</p>
+<div class="card-tags">
+${c.tags.map(t => `<span class="tag tag-${t}">${t.replace('-',' ')}</span>`).join('')}
+</div>
+</div>
+`).join('');
+
+const signsGrid = document.getElementById('keySignsGrid');
+signsGrid.innerHTML = keySignsData.map(c => `
+<div class="card searchable" data-search="${c.title} ${c.text}">
+<div class="card-icon">${c.icon}</div>
+<h3>${c.title}</h3>
+<p>${c.text}</p>
+<div class="card-tags">
+${c.tags.map(t => `<span class="tag tag-${t}">${t.replace('-',' ')}</span>`).join('')}
+</div>
+</div>
+`).join('');
+}
+
+function renderQuiz() {
+const area = document.getElementById('quizArea');
+const q = quizData[state.quizIndex];
+const answered = state.quizAnswers[state.quizIndex] !== null;
+const userAns = state.quizAnswers[state.quizIndex];
+const letters = ['A','B','C','D','E'];
+
+area.innerHTML = `
+<div class="quiz-question-card">
+<div class="quiz-q-num">Question ${state.quizIndex + 1} of ${quizData.length}</div>
+<div class="quiz-q-text">${q.q}</div>
+<div class="quiz-options">
+${q.opts.map((opt, i) => {
+let cls = 'quiz-option';
+if (answered) {
+cls += ' disabled';
+if (i === q.ans) cls += ' correct';
+else if (i === userAns && i !== q.ans) cls += ' wrong';
+} else if (userAns === i) {
+cls += ' selected';
+}
+return `<button class="${cls}" onclick="answerQuiz(${i})">
+<span class="opt-letter">${letters[i]}</span>
+<span>${opt}</span>
+</button>`;
+}).join('')}
+</div>
+<div class="quiz-explanation ${answered ? 'show' : ''}" id="quizExplanation">
+${answered ? `<strong>${userAns === q.ans ? '✅ Correct!' : '❌ Incorrect.'}</strong> ${q.exp}` : ''}
+</div>
+</div>
+`;
+
+document.getElementById('quizProgressText').textContent = `Question ${state.quizIndex + 1} of ${quizData.length}`;
+document.getElementById('quizScoreText').textContent = `Score: ${state.quizScore}`;
+document.getElementById('quizProgressBar').style.width = `${((state.quizIndex + 1) / quizData.length) * 100}%`;
+document.getElementById('btnPrevQ').disabled = state.quizIndex === 0;
+document.getElementById('btnNextQ').textContent = state.quizIndex === quizData.length - 1 ? '🏁 Finish' : 'Next ➡️';
+
+updateStats();
+}
+
+function answerQuiz(idx) {
+if (state.quizAnswers[state.quizIndex] !== null) return;
+state.quizAnswers[state.quizIndex] = idx;
+const correct = idx === quizData[state.quizIndex].ans;
+if (correct) {
+state.quizScore++;
+state.quizStreak++;
+if (state.quizStreak > state.quizMaxStreak) state.quizMaxStreak = state.quizStreak;
+} else {
+state.quizStreak = 0;
+}
+saveState();
+renderQuiz();
+}
+
+function navigateQuiz(dir) {
+const newIdx = state.quizIndex + dir;
+if (newIdx < 0) return;
+if (newIdx >= quizData.length) {
+showResults();
+return;
+}
+state.quizIndex = newIdx;
+saveState();
+renderQuiz();
+}
+
+function showResults() {
+const pct = Math.round((state.quizScore / quizData.length) * 100);
+document.getElementById('modalScore').textContent = pct + '%';
+let msg = '';
+if (pct >= 90) msg = '🌟 Outstanding! You know your histology!';
+else if (pct >= 75) msg = '💪 Great job! Review the misses and you\'re golden.';
+else if (pct >= 60) msg = '📚 Good effort! Keep reviewing the high-yield topics.';
+else msg = '🔄 Keep studying! Focus on the comparison tables and flowcharts.';
+document.getElementById('modalMessage').textContent = msg;
+document.getElementById('resultsModal').classList.add('show');
+}
+
+function closeModal() {
+document.getElementById('resultsModal').classList.remove('show');
+}
+
+function resetQuiz() {
+state.quizIndex = 0;
+state.quizAnswers = new Array(quizData.length).fill(null);
+state.quizScore = 0;
+state.quizStreak = 0;
+saveState();
+closeModal();
+renderQuiz();
+}
+
+function renderFlashcards() {
+const grid = document.getElementById('flashcardsGrid');
+grid.innerHTML = flashcardsData.map((fc, i) => `
+<div class="flashcard-container searchable" data-search="${fc.front} ${fc.back}" onclick="flipCard(this, ${i})">
+<div class="flashcard ${state.cardsFlipped.has(i) ? 'flipped' : ''}">
+<div class="flashcard-front">
+<span class="fc-num">Card ${i+1}</span>
+<span class="fc-icon">❓</span>
+<h4>${fc.front}</h4>
+<span class="fc-hint">Click to flip</span>
+</div>
+<div class="flashcard-back">
+<span class="fc-label">Answer</span>
+<p>${fc.back.replace(/\n/g, '<br>')}</p>
+</div>
+</div>
+</div>
+`).join('');
+}
+
+function flipCard(el, idx) {
+const card = el.querySelector('.flashcard');
+card.classList.toggle('flipped');
+if (card.classList.contains('flipped')) {
+state.cardsFlipped.add(idx);
+} else {
+state.cardsFlipped.delete(idx);
+}
+saveState();
+updateStats();
+}
+
+function renderCases() {
+const area = document.getElementById('casesArea');
+area.innerHTML = casesData.map((c, ci) => `
+<div class="case-card searchable" data-search="${c.title} ${c.scenario}" id="case-${ci}">
+<div class="case-header" onclick="toggleCase(${ci})">
+<h3>🏥 ${c.title}</h3>
+<span class="case-toggle">▼</span>
+</div>
+<div class="case-body">
+<div class="case-scenario">${c.scenario}</div>
+${c.questions.map((cq, qi) => `
+<div class="case-question">${cq.q}</div>
+<div class="case-answer-btn">
+<button class="btn btn-sm btn-primary" onclick="revealCaseAnswer('ca-${ci}-${qi}')">💡 Reveal Answer</button>
+</div>
+<div class="case-answer" id="ca-${ci}-${qi}">${cq.a}</div>
+`).join('')}
+</div>
+</div>
+`).join('');
+}
+
+function toggleCase(idx) {
+document.getElementById(`case-${idx}`).classList.toggle('open');
+}
+function revealCaseAnswer(id) {
+document.getElementById(id).classList.add('show');
+}
+
+function renderStructures() {
+const cutGrid = document.getElementById('structCutaneous');
+cutGrid.innerHTML = cutaneousStructures.map((s, i) => `
+<div class="structure-item searchable" data-search="${s.name} ${s.loc} ${s.detail}" onclick="this.classList.toggle('expanded')">
+<div class="struct-header">${s.icon} ${s.name}</div>
+<div class="struct-loc">📍 ${s.loc}</div>
+<div class="struct-detail">${s.detail}</div>
+</div>
+`).join('');
+
+const earGrid = document.getElementById('structEar');
+earGrid.innerHTML = earStructures.map((s, i) => `
+<div class="structure-item searchable" data-search="${s.name} ${s.loc} ${s.detail}" onclick="this.classList.toggle('expanded')">
+<div class="struct-header">${s.icon} ${s.name}</div>
+<div class="struct-loc">📍 ${s.loc}</div>
+<div class="struct-detail">${s.detail}</div>
+</div>
+`).join('');
+
+renderFlowchart('flowchartSound', soundFlowSteps);
+renderFlowchart('flowchartVestibular', vestibularFlowSteps);
+}
+
+function renderFlowchart(containerId, steps) {
+const el = document.getElementById(containerId);
+el.innerHTML = steps.map((step, i) => {
+let html = `<div class="flow-step">${step}</div>`;
+if (i < steps.length - 1) html += `<div class="flow-arrow">⬇️</div>`;
+return html;
+}).join('');
+}
+
+function renderTables() {
+renderTable('table1Wrapper', table1Data);
+renderTable('table2Wrapper', table2Data);
+renderTable('table3Wrapper', table3Data);
+renderTable('tableFunctions', tableFunctionsData);
+
+const badgesEl = document.getElementById('diagBadges');
+badgesEl.innerHTML = diagBadges.map(b =>
+`<span class="info-badge ${b.cls}">${b.text}</span>`
+).join('');
+}
+
+function renderTable(id, data) {
+const el = document.getElementById(id);
+el.innerHTML = `<table>
+<thead><tr>${data.headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+<tbody>${data.rows.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}</tbody>
+</table>`;
+}
+
+function renderFlowcharts() {
+renderFlowchart('flowTreatment1', soundFlowSteps);
+renderFlowchart('flowTreatment2', rotationFlowSteps);
+renderFlowchart('flowTreatment3', vestibularFlowSteps);
+renderFlowchart('flowTreatment4', muscleStretchFlowSteps);
+renderTable('tableFunctions', tableFunctionsData);
+}
+
+function renderMnemonics() {
+const area = document.getElementById('mnemonicsArea');
+area.innerHTML = mnemonicsData.map((m, i) => `
+<div class="mnemonic-card searchable" data-search="${m.title} ${m.subtitle}" onclick="this.classList.toggle('open')" id="mn-${i}">
+<div class="mnemonic-title">${m.title}</div>
+<div class="mnemonic-subtitle">${m.subtitle} — Click to expand</div>
+<div class="mnemonic-list">
+${m.items.map(item => `
+<div class="mn-item">
+<span class="mn-letter">${item.letter}</span>
+<span class="mn-text">${item.text}</span>
+</div>
+`).join('')}
+</div>
+</div>
+`).join('');
+}
+
+function updateStats() {
+const totalAnswered = state.quizAnswers.filter(a => a !== null).length;
+const totalItems = quizData.length + flashcardsData.length;
+const completedItems = totalAnswered + state.cardsFlipped.size;
+const progressPct = Math.round((completedItems / totalItems) * 100);
+
+document.getElementById('statProgress').textContent = progressPct + '%';
+document.getElementById('statScore').textContent = `${state.quizScore}/${quizData.length}`;
+document.getElementById('statStreak').textContent = state.quizStreak;
+document.getElementById('statCards').textContent = `${state.cardsFlipped.size}/${flashcardsData.length}`;
+saveState();
+}
+
+// Tab Navigation
+function switchTab(tabId) {
+document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+document.getElementById(`tab-${tabId}`).classList.add('active');
+document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+state.currentTab = tabId;
+saveState();
+}
+
+document.getElementById('navTabs').addEventListener('click', e => {
+const tab = e.target.closest('.nav-tab');
+if (tab) switchTab(tab.dataset.tab);
+});
+
+// Search
+document.getElementById('globalSearch').addEventListener('input', function() {
+const query = this.value.toLowerCase().trim();
+document.querySelectorAll('.searchable').forEach(el => {
+const text = (el.dataset.search || el.textContent).toLowerCase();
+if (!query || text.includes(query)) {
+el.style.display = '';
+el.style.opacity = '1';
+} else {
+el.style.display = 'none';
+}
+});
+});
+
+// ===================== INIT =====================
+function init() {
+loadState();
+renderOverview();
+renderQuiz();
+renderFlashcards();
+renderCases();
+renderStructures();
+renderTables();
+renderFlowcharts();
+renderMnemonics();
+updateStats();
+if (state.currentTab && state.currentTab !== 'overview') {
+switchTab(state.currentTab);
+}
+}
+init();
+</script>
+</body>
+</html>

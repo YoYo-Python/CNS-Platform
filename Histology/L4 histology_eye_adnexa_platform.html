@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>👁️ Histology of the Eye & Adnexa — Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c14;
+  --surface: #111420;
+  --surface2: #181d2e;
+  --border: #1e2540;
+  --accent: #4f9cf9;
+  --accent2: #7c5af9;
+  --accent3: #f97c5a;
+  --gold: #f5c842;
+  --green: #3dd68c;
+  --red: #f95a7c;
+  --text: #e8eaf6;
+  --muted: #8892b0;
+  --card: #141928;
+  --r: 12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ANIMATED BACKGROUND */
+.bg-orbs {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  overflow: hidden;
+}
+.orb {
+  position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.12;
+  animation: drift 18s ease-in-out infinite;
+}
+.orb1 { width: 600px; height: 600px; background: #4f9cf9; top: -200px; left: -100px; animation-duration: 20s; }
+.orb2 { width: 500px; height: 500px; background: #7c5af9; bottom: -100px; right: -150px; animation-duration: 25s; animation-delay: -8s; }
+.orb3 { width: 400px; height: 400px; background: #f97c5a; top: 50%; left: 40%; animation-duration: 22s; animation-delay: -14s; }
+@keyframes drift {
+  0%,100% { transform: translate(0,0) scale(1); }
+  33% { transform: translate(40px,-60px) scale(1.08); }
+  66% { transform: translate(-30px,40px) scale(0.95); }
+}
+
+/* LAYOUT */
+.wrapper { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 0 20px; }
+
+/* HEADER */
+header {
+  padding: 40px 0 20px;
+  text-align: center;
+}
+.header-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  color: #fff; font-size: 11px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; padding: 4px 14px; border-radius: 20px;
+  margin-bottom: 16px;
+}
+header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  line-height: 1.1; margin-bottom: 12px;
+}
+header p { color: var(--muted); font-size: 15px; max-width: 600px; margin: 0 auto 24px; }
+
+/* STATS BAR */
+.stats-bar {
+  display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+.stat-chip {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 18px;
+  display: flex; align-items: center; gap: 8px; font-size: 13px;
+}
+.stat-chip span.val { font-weight: 600; color: var(--accent); font-family: 'DM Mono', monospace; }
+
+/* SEARCH */
+.search-wrap {
+  position: relative; max-width: 500px; margin: 0 auto 32px;
+}
+.search-wrap input {
+  width: 100%; padding: 12px 20px 12px 44px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; color: var(--text); font-size: 14px; outline: none;
+  font-family: 'DM Sans', sans-serif;
+  transition: border-color .2s;
+}
+.search-wrap input:focus { border-color: var(--accent); }
+.search-wrap .si { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 18px; }
+#search-results {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 99;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; margin-top: 6px; max-height: 300px; overflow-y: auto;
+  display: none;
+}
+#search-results.open { display: block; }
+.sr-item { padding: 10px 16px; cursor: pointer; font-size: 13px; border-bottom: 1px solid var(--border); }
+.sr-item:hover { background: var(--border); }
+.sr-item strong { color: var(--accent); }
+
+/* TABS */
+.tabs {
+  display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 28px;
+  background: var(--surface); padding: 6px; border-radius: 14px;
+  border: 1px solid var(--border);
+}
+.tab-btn {
+  flex: 1; min-width: 90px; padding: 10px 8px;
+  background: none; border: none; border-radius: 10px;
+  color: var(--muted); font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: all .2s; font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--text); background: var(--border); }
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  color: #fff; font-weight: 600;
+}
+
+/* TAB CONTENT */
+.tab-pane { display: none; animation: fadeUp .3s ease; }
+.tab-pane.active { display: block; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* CARDS */
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 20px; margin-bottom: 16px;
+}
+.card-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px; margin-bottom: 24px;
+}
+.card-sm {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 16px;
+}
+.card-sm h4 { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.card-sm p { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+/* TAGS */
+.tag {
+  display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: .5px;
+  text-transform: uppercase; padding: 2px 8px; border-radius: 4px; margin: 2px;
+}
+.tag-exam { background: rgba(249,92,124,.15); color: var(--red); border: 1px solid rgba(249,92,124,.3); }
+.tag-hi { background: rgba(245,200,66,.15); color: var(--gold); border: 1px solid rgba(245,200,66,.3); }
+.tag-pearl { background: rgba(79,156,249,.15); color: var(--accent); border: 1px solid rgba(79,156,249,.3); }
+
+/* SECTION HEADERS */
+.sec-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+}
+.sec-header h2 {
+  font-family: 'Playfair Display', serif; font-size: 1.5rem;
+}
+.sec-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+
+/* ===== OVERVIEW ===== */
+.layer-flow {
+  display: flex; flex-direction: column; gap: 0;
+  background: var(--surface2); border-radius: var(--r); overflow: hidden;
+  border: 1px solid var(--border); margin-bottom: 24px;
+}
+.layer-item {
+  display: flex; align-items: center; gap: 16px;
+  padding: 12px 20px; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background .2s;
+}
+.layer-item:last-child { border-bottom: none; }
+.layer-item:hover { background: var(--border); }
+.layer-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+}
+.layer-name { font-size: 13px; font-weight: 600; flex: 1; }
+.layer-desc { font-size: 11px; color: var(--muted); }
+
+/* ===== QUIZ ===== */
+.quiz-meta {
+  display: flex; align-items: center; gap: 20px; margin-bottom: 24px; flex-wrap: wrap;
+}
+.progress-bar {
+  flex: 1; min-width: 200px; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent));
+  border-radius: 4px; transition: width .4s ease;
+}
+.score-box {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 16px; font-size: 13px; text-align: center;
+}
+.score-box strong { color: var(--green); font-family: 'DM Mono', monospace; }
+
+.q-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 24px; margin-bottom: 20px;
+}
+.q-num { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; margin-bottom: 10px; }
+.q-text { font-size: 15px; font-weight: 500; line-height: 1.6; margin-bottom: 20px; }
+.options { display: grid; gap: 10px; }
+.opt-btn {
+  text-align: left; padding: 12px 16px; border-radius: 10px;
+  background: var(--surface2); border: 1.5px solid var(--border);
+  color: var(--text); cursor: pointer; font-size: 13px;
+  font-family: 'DM Sans', sans-serif; transition: all .2s;
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.opt-btn:hover:not(:disabled) { border-color: var(--accent); background: rgba(79,156,249,.08); }
+.opt-btn.correct { border-color: var(--green); background: rgba(61,214,140,.12); color: var(--green); }
+.opt-btn.wrong { border-color: var(--red); background: rgba(249,92,124,.12); color: var(--red); animation: shake .4s ease; }
+.opt-btn:disabled { cursor: default; }
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+.opt-letter {
+  width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--muted);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+}
+.explanation {
+  margin-top: 16px; padding: 14px; border-radius: 10px;
+  background: rgba(79,156,249,.08); border: 1px solid rgba(79,156,249,.2);
+  font-size: 13px; color: var(--muted); line-height: 1.6; display: none;
+}
+.explanation.show { display: block; animation: fadeUp .2s ease; }
+.q-nav { display: flex; gap: 10px; justify-content: space-between; margin-top: 16px; }
+.btn {
+  padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; transition: all .2s;
+}
+.btn-primary { background: linear-gradient(135deg, var(--accent2), var(--accent)); color: #fff; }
+.btn-primary:hover { opacity: .85; transform: translateY(-1px); }
+.btn-ghost { background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
+.btn-ghost:hover { border-color: var(--accent); }
+
+/* ===== FLASHCARDS ===== */
+.fc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.fc {
+  height: 200px; cursor: pointer; perspective: 1000px;
+}
+.fc-inner {
+  position: relative; width: 100%; height: 100%;
+  transform-style: preserve-3d; transition: transform .5s ease;
+}
+.fc.flipped .fc-inner { transform: rotateY(180deg); }
+.fc-face {
+  position: absolute; inset: 0; border-radius: var(--r);
+  backface-visibility: hidden; display: flex; align-items: center;
+  justify-content: center; padding: 20px; text-align: center;
+}
+.fc-front {
+  background: var(--card); border: 1px solid var(--border);
+}
+.fc-back {
+  background: linear-gradient(135deg, rgba(124,90,249,.15), rgba(79,156,249,.15));
+  border: 1px solid var(--accent2);
+  transform: rotateY(180deg);
+}
+.fc-front .fc-q { font-size: 13px; font-weight: 600; line-height: 1.5; color: var(--text); }
+.fc-back .fc-a { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.fc-hint { font-size: 10px; color: var(--muted); position: absolute; bottom: 10px; right: 12px; }
+.fc-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+
+/* ===== CLINICAL CASES ===== */
+.case-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 24px; margin-bottom: 20px;
+}
+.case-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+}
+.case-num {
+  background: linear-gradient(135deg, var(--accent3), var(--gold));
+  color: #000; font-weight: 700; font-size: 12px;
+  padding: 4px 10px; border-radius: 6px;
+}
+.case-vignette {
+  background: var(--surface2); border-radius: 10px; padding: 16px;
+  font-size: 13px; line-height: 1.8; color: var(--muted); margin-bottom: 16px;
+  border-left: 3px solid var(--accent3);
+}
+.case-questions { margin-bottom: 16px; }
+.cq { font-size: 13px; font-weight: 600; margin-bottom: 8px; padding-left: 12px; border-left: 2px solid var(--accent2); }
+.reveal-btn {
+  background: linear-gradient(135deg, rgba(249,124,90,.15), rgba(245,200,66,.1));
+  border: 1px solid var(--accent3); color: var(--accent3);
+  padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 13px;
+  font-family: 'DM Sans', sans-serif; font-weight: 600; transition: all .2s;
+}
+.reveal-btn:hover { background: rgba(249,124,90,.25); }
+.case-answer {
+  margin-top: 14px; padding: 16px; border-radius: 10px;
+  background: rgba(61,214,140,.06); border: 1px solid rgba(61,214,140,.2);
+  font-size: 13px; line-height: 1.7; display: none;
+  animation: fadeUp .25s ease;
+}
+.case-answer.show { display: block; }
+
+/* ===== ANATOMY / PATHWAYS ===== */
+.flow-chart {
+  display: flex; flex-direction: column; align-items: center; gap: 0;
+  margin: 24px 0;
+}
+.flow-node {
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 12px 24px;
+  text-align: center; font-size: 13px; min-width: 220px; max-width: 340px;
+  width: 100%;
+  position: relative;
+}
+.flow-node.accent1 { border-color: var(--accent); }
+.flow-node.accent2 { border-color: var(--accent2); }
+.flow-node.accent3 { border-color: var(--accent3); }
+.flow-node.gold    { border-color: var(--gold); }
+.flow-node.green   { border-color: var(--green); }
+.flow-arrow {
+  font-size: 22px; color: var(--muted); line-height: 1; padding: 2px 0;
+}
+.flow-node strong { color: var(--accent); }
+.anat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.anat-item {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 16px; cursor: pointer; transition: all .2s;
+}
+.anat-item:hover { border-color: var(--accent); transform: translateY(-2px); }
+.anat-item h4 { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.anat-item p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.anat-detail {
+  margin-top: 10px; padding: 10px; border-radius: 8px;
+  background: rgba(79,156,249,.06); border: 1px solid rgba(79,156,249,.15);
+  font-size: 11px; color: var(--muted); display: none; line-height: 1.6;
+}
+.anat-detail.show { display: block; animation: fadeUp .2s; }
+
+/* ===== COMPARE / DIAGNOSIS ===== */
+table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+th {
+  background: var(--surface2); padding: 12px 14px;
+  font-size: 12px; text-align: left; border-bottom: 2px solid var(--border);
+  font-weight: 600; color: var(--muted);
+}
+td {
+  padding: 12px 14px; border-bottom: 1px solid var(--border);
+  font-size: 13px; vertical-align: top;
+}
+tr:hover td { background: var(--surface2); }
+.badge {
+  display: inline-block; padding: 3px 8px; border-radius: 5px;
+  font-size: 11px; font-weight: 600; margin: 2px;
+}
+.badge-blue { background: rgba(79,156,249,.2); color: var(--accent); }
+.badge-purple { background: rgba(124,90,249,.2); color: var(--accent2); }
+.badge-orange { background: rgba(249,124,90,.2); color: var(--accent3); }
+.badge-green { background: rgba(61,214,140,.2); color: var(--green); }
+.badge-red { background: rgba(249,92,124,.2); color: var(--red); }
+
+/* ===== TREATMENT ===== */
+.tx-section { margin-bottom: 28px; }
+.tx-section h3 { font-size: 15px; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.tx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.tx-item {
+  padding: 14px; border-radius: 10px; background: var(--surface2);
+  border-left: 3px solid var(--accent); font-size: 13px; line-height: 1.5;
+}
+.tx-item.urgent { border-left-color: var(--red); }
+.tx-item.moderate { border-left-color: var(--gold); }
+.tx-item.low { border-left-color: var(--green); }
+.tx-item h5 { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+.tx-item p { font-size: 12px; color: var(--muted); }
+
+/* ===== MNEMONICS ===== */
+.mnem-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.mnem-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 20px; overflow: hidden;
+  position: relative;
+}
+.mnem-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.mnem-card.c1::before { background: linear-gradient(90deg, var(--accent2), var(--accent)); }
+.mnem-card.c2::before { background: linear-gradient(90deg, var(--accent3), var(--gold)); }
+.mnem-card.c3::before { background: linear-gradient(90deg, var(--green), var(--accent)); }
+.mnem-card.c4::before { background: linear-gradient(90deg, var(--red), var(--accent3)); }
+.mnem-card.c5::before { background: linear-gradient(90deg, var(--gold), var(--green)); }
+.mnem-title { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.mnem-word { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--text); margin-bottom: 14px; }
+.mnem-list { list-style: none; }
+.mnem-list li { font-size: 13px; margin-bottom: 6px; display: flex; gap: 8px; }
+.mnem-list li strong { color: var(--accent); font-family: 'DM Mono', monospace; font-size: 14px; min-width: 18px; }
+
+/* ===== VIVA ===== */
+.viva-item {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 20px; margin-bottom: 14px;
+}
+.viva-q {
+  font-size: 14px; font-weight: 600; cursor: pointer; display: flex;
+  justify-content: space-between; align-items: center; gap: 10px;
+  user-select: none;
+}
+.viva-q .arrow { transition: transform .3s; color: var(--muted); font-size: 18px; flex-shrink: 0; }
+.viva-item.open .arrow { transform: rotate(90deg); }
+.viva-a {
+  margin-top: 14px; padding: 14px; border-radius: 10px;
+  background: var(--surface2); font-size: 13px; color: var(--muted);
+  line-height: 1.7; display: none; border-left: 3px solid var(--accent2);
+}
+.viva-item.open .viva-a { display: block; animation: fadeUp .2s; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* RESPONSIVE */
+@media(max-width: 600px) {
+  .tabs { gap: 3px; }
+  .tab-btn { font-size: 10px; padding: 8px 5px; min-width: 60px; }
+  .quiz-meta { gap: 10px; }
+}
+
+.highlight { background: rgba(79,156,249,.2); border-radius: 3px; padding: 1px 3px; }
+.pill { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 600; background: var(--surface2); border: 1px solid var(--border); margin: 2px; }
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<div class="wrapper">
+  <header>
+    <div class="header-badge">👁️ Mansoura University · Histology</div>
+    <h1>The Eye & Its Adnexa</h1>
+    <p>Interactive study platform covering all histological layers, clinical correlations, and exam high-yields.</p>
+    <div class="stats-bar">
+      <div class="stat-chip">🎯 Quiz Score: <span class="val" id="stat-score">0 / 25</span></div>
+      <div class="stat-chip">🔥 Streak: <span class="val" id="stat-streak">0</span></div>
+      <div class="stat-chip">📚 Flashcards: <span class="val" id="stat-fc">0 / 20</span></div>
+      <div class="stat-chip">🏥 Cases: <span class="val" id="stat-cases">0 / 5</span></div>
+    </div>
+  </header>
+
+  <div class="search-wrap">
+    <span class="si">🔍</span>
+    <input type="text" id="search-input" placeholder="Search any topic, structure, or keyword..." autocomplete="off">
+    <div id="search-results"></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="overview">🗺️ Overview</button>
+    <button class="tab-btn" data-tab="quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="flashcards">🃏 Flashcards</button>
+    <button class="tab-btn" data-tab="cases">🏥 Cases</button>
+    <button class="tab-btn" data-tab="anatomy">🔬 Anatomy</button>
+    <button class="tab-btn" data-tab="compare">📊 Compare</button>
+    <button class="tab-btn" data-tab="clinical">💊 Clinical</button>
+    <button class="tab-btn" data-tab="mnemonics">🧠 Mnemonics</button>
+    <button class="tab-btn" data-tab="viva">🎤 Viva</button>
+  </div>
+
+  <!-- ===== OVERVIEW ===== -->
+  <div class="tab-pane active" id="tab-overview">
+    <div class="sec-header">
+      <div class="sec-icon" style="background:linear-gradient(135deg,#4f9cf9,#7c5af9)">🗺️</div>
+      <h2>Structural Overview</h2>
+    </div>
+
+    <div class="card-grid">
+      <div class="card-sm">
+        <h4>🔵 Outer Fibrous Coat</h4>
+        <p><strong>Cornea</strong> (anterior 1/6) — transparent, avascular<br><strong>Sclera</strong> (posterior 5/6) — opaque, vascular</p>
+        <div style="margin-top:8px">
+          <span class="tag tag-hi">High Yield</span>
+          <span class="tag tag-exam">Exam Fav</span>
+        </div>
+      </div>
+      <div class="card-sm">
+        <h4>🟣 Middle Vascular Coat (Uvea)</h4>
+        <p><strong>Iris</strong> — pupil control<br><strong>Ciliary Body</strong> — aqueous humor & accommodation<br><strong>Choroid</strong> — blood supply to retina</p>
+        <span class="tag tag-pearl">Clinical Pearl</span>
+      </div>
+      <div class="card-sm">
+        <h4>🟡 Inner Nervous Layer</h4>
+        <p><strong>Retina</strong> — 10 layers from choroid to vitreous<br>Contains rods, cones, bipolar cells, ganglion cells</p>
+        <span class="tag tag-exam">Exam Fav</span>
+      </div>
+      <div class="card-sm">
+        <h4>🟢 Adnexa</h4>
+        <p><strong>Eyelid</strong> — Meibomian, Moll, Zeis glands<br><strong>Conjunctiva</strong> — mucous membrane lining<br><strong>Lacrimal Apparatus</strong> — serous acini, tear drainage</p>
+        <span class="tag tag-hi">High Yield</span>
+      </div>
+    </div>
+
+    <div class="sec-header" style="margin-top:8px">
+      <div class="sec-icon" style="background:linear-gradient(135deg,#f5c842,#f97c5a)">💡</div>
+      <h2>Cornea vs. Sclera — Transparency Explained</h2>
+    </div>
+    <div class="card">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div>
+          <h4 style="color:var(--accent);margin-bottom:10px">✅ Why Cornea is TRANSPARENT</h4>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted)">
+            <li>💧 Continuous <strong>evaporation of water</strong></li>
+            <li>🩸 <strong>Avascular</strong> — no blood vessels</li>
+            <li>🔢 <strong>Equal refractive indices</strong> of cells, fibers, matrix</li>
+            <li>📐 <strong>Regular arrangement</strong> of collagen fibers (substantia propria)</li>
+            <li>🧱 <strong>Regular epithelium</strong> cell arrangement</li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="color:var(--red);margin-bottom:10px">❌ Why Sclera is OPAQUE</h4>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted)">
+            <li>🌊 <strong>Great amount of water</strong></li>
+            <li>🩸 <strong>Heavily vascularized</strong> C.T.</li>
+            <li>🔀 <strong>Unequal refractive indices</strong></li>
+            <li>🌀 <strong>Irregular arrangement</strong> of C.T. fibers</li>
+          </ul>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding:12px;background:rgba(249,92,124,.08);border-radius:8px;border-left:3px solid var(--red);font-size:13px">
+        ⚠️ <strong>EXAM KEY:</strong> Bowman's membrane cannot regenerate — injury → fibrous scar → permanent opacity.
+      </div>
+    </div>
+
+    <div class="sec-header">
+      <div class="sec-icon" style="background:linear-gradient(135deg,#3dd68c,#4f9cf9)">🔢</div>
+      <h2>10 Retinal Layers (Outside → Inside)</h2>
+    </div>
+    <div class="layer-flow" id="retina-layers"></div>
+
+    <div class="sec-header" style="margin-top:24px">
+      <div class="sec-icon" style="background:linear-gradient(135deg,#f97c5a,#f5c842)">🔄</div>
+      <h2>Aqueous Humor Pathway</h2>
+    </div>
+    <div class="flow-chart">
+      <div class="flow-node accent2">🏭 <strong>Ciliary Processes</strong><br><small style="color:var(--muted)">Fenestrated capillaries in loose C.T. core → secrete aqueous humor</small></div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node accent1">Posterior Chamber<br><small style="color:var(--muted)">Behind iris, in front of lens</small></div>
+      <div class="flow-arrow">↓ (through pupil)</div>
+      <div class="flow-node gold">Anterior Chamber<br><small style="color:var(--muted)">Between iris and cornea</small></div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node accent3">Corneoscleral Junction (Limbus)</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node green">🌊 Canal of Schlemm<br><small style="color:var(--muted)">Drainage → obstruction causes ↑ IOP (Glaucoma)</small></div>
+    </div>
+
+    <div class="sec-header" style="margin-top:24px">
+      <div class="sec-icon" style="background:linear-gradient(135deg,#7c5af9,#3dd68c)">💧</div>
+      <h2>Tear Drainage Pathway</h2>
+    </div>
+    <div class="flow-chart">
+      <div class="flow-node accent2">🏭 <strong>Lacrimal Gland</strong><br><small style="color:var(--muted)">Serous acini + columnar cells + myoepithelial cells → lysozyme-rich tears</small></div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node accent1">Conjunctiva / Corneal Surface</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node gold">Upper & Lower Lacrimal <strong>Canaliculi</strong><br><small style="color:var(--muted)">At medial eyelid margins</small></div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node accent3">Lacrimal Sac<br><small style="color:var(--muted)">Pseudostratified columnar ciliated epithelium + goblet cells ⚠️</small></div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node green">Nasolacrimal Duct → Nasal Cavity</div>
+    </div>
+  </div>
+
+  <!-- ===== QUIZ ===== -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="sec-header">
+      <div class="sec-icon" style="background:linear-gradient(135deg,#f95a7c,#f97c5a)">❓</div>
+      <h2>Interactive Quiz — 25 Questions</h2>
+    </div>
+    <div class="quiz-meta">
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px">
+          <span>Progress</span><span id="q-progress-label">0 / 25</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="q-progress" style="width:0%"></div></div>
+      </div>
+      <div class="score-box">✅ Correct <strong id="q-correct">0</strong></div>
+      <div class="score-box">🔥 Streak <strong id="q-streak" style="color:var(--gold)">0</strong></div>
+    </div>
+    <div id="quiz-container"></div>
+    <div class="q-nav">
+      <button class="btn btn-ghost" id="prev-btn" onclick="navQuiz(-1)" style="display:none">← Previous</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-primary" id="next-btn" onclick="navQuiz(1)" style="display:none">Next →</button>
+    </div>
+    <div id="quiz-result" style="display:none;text-align:center;padding:40px 0">
+      <div style="font-size:3rem;margin-bottom:16px">🎉</div>
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.8rem;margin-bottom:8px">Quiz Complete!</h3>
+      <p style="color:var(--muted);margin-bottom:24px">You scored <strong id="final-score" style="color:var(--green)"></strong> out of 25</p>
+      <button class="btn btn-primary" onclick="restartQuiz()">🔄 Restart Quiz</button>
+    </div>
+  </div>
+
+  <!-- ===== FLASHCARDS ===== -->
+  <div class="tab-pane" id="tab-flashcards">
+    <div class="sec-header">
+      <div class="sec-icon" style="background:linear-gradient(135deg,#4f9cf9,#3dd68c)">🃏</div>
+      <h2>Flashcards — Click to Flip</h2>
+    </div>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:20px">Tap any card to reveal the answer. Track your progress below.</p>
+    <div style="margin-bottom:16px;display:flex;align-items:center;gap:12px">
+      <div class="progress-bar" style="flex:1"><div class="progress-fill" id="fc-progress" style="width:0%"></div></div>
+      <span style="font-size:12px;color:var(--muted)" id="fc-label">0 / 20 flipped</span>
+    </div>
+    <div class="fc-grid" id="fc-container"></div>
+  </div>
+
+  <!-- ===== CASES ===== -->
+  <div class="tab-pane" id="tab-cases">
+    <div class="sec-header">
+      <div class="sec-icon" style="background:linear-gradient(135deg,#f97c5a,#f5c842)">🏥</div>
+      <h2>Clinical Cases — Exam Vignettes</h2>
+    </div>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:20px">Read each scenario carefully — these mirror actual exam question styles.</p>
+    <div id="cases-container"></div>
+  </div>
+
+  <!-- ===== ANATOMY ===== -->
+  <div class="tab-pane" id="tab-anatomy">
+    <div class="sec-header">
+      <div class="sec-icon" style="background:linear-gradient(135deg,#7c5af9,#4f9cf9)">🔬</div>
+      <h2>Anatomical Structures — Click for Details</h2>
+    </div>
+    <div class="anat-grid" id="anat-container"></div>
+
+    <div class="sec-header" style="margin-top:8px">
+      <div class="sec-icon" style="background:linear-gradient(135deg,#3dd68c,#f5c842)">⚡</div>
+      <h2>Retinal Signal Pathway</h2>
+    </div>
+    <div class="flow-chart">
+      <div class="flow-node green">💡 Light → <strong>Photoreceptor Outer Segments</strong> (Rods/Cones)</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node accent1">Outer Nuclear Layer — photoreceptor <strong>cell bodies</strong></div>
+      <div class="flow-arrow">↓ (Outer Plexiform Layer — 1st synapse)</div>
+      <div class="flow-node accent2"><strong>Bipolar Cells</strong> (1st Order Neurons) in Inner Nuclear Layer</div>
+      <div class="flow-arrow">↓ (Inner Plexiform Layer — 2nd synapse)</div>
+      <div class="flow-node gold"><strong>Ganglion Cells</strong> (2nd Order Neurons)</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node accent3">Nerve Fiber Layer → <strong>Optic Nerve</strong></div>
+    </div>
+  </div>
+
+  <!-- ===== COMPARE ===== -->
+  <div class="tab-pane" id="tab-compare">
+    <div class="sec-header">
+      <div class="sec-icon" style="background:linear-gradient(135deg,#f5c842,#f97c5a)">📊</div>
+      <h2>Comparison Tables</h2>
+    </div>
+
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:14px">🔍 Rods vs. Cones</h3>
+    <div style="overflow-x:auto;margin-bottom:32px">
+    <table>
+      <thead><tr><th>Feature</th><th>🌙 Rods</th><th>☀️ Cones</th></tr></thead>
+      <tbody>
+        <tr><td>Number</td><td>~120 million</td><td>~6–7 million</td></tr>
+        <tr><td>Adapted for</td><td><span class="badge badge-blue">Dim Light</span></td><td><span class="badge badge-orange">Bright Light & Color</span></td></tr>
+        <tr><td>Outer segment</td><td>Thin & long</td><td>Cone-shaped</td></tr>
+        <tr><td>Disc attachment</td><td><span class="badge badge-red">Separated from membrane</span></td><td><span class="badge badge-green">Attached to membrane</span></td></tr>
+        <tr><td>Disc turnover</td><td><span class="badge badge-blue">Continuous turnover</span></td><td><span class="badge badge-red">No turnover</span></td></tr>
+        <tr><td>Pigment</td><td>Rhodopsin</td><td>Iodopsin</td></tr>
+        <tr><td>Nuclei</td><td>Small, dark, striated — at different levels</td><td>Large, pale, round — one horizontal level</td></tr>
+        <tr><td>Synaptic type</td><td>Diffuse (many rods → 1 bipolar)</td><td>Monosynaptic (1 cone → 1 bipolar)</td></tr>
+        <tr><td>Synaptic ending</td><td>Spherule (end bulb)</td><td>Expanded end foot (pedicle)</td></tr>
+        <tr><td>Sensitivity</td><td>High (spatial summation)</td><td>High acuity (discrimination)</td></tr>
+        <tr><td>Location</td><td>Peripheral retina</td><td>Macula / fovea centralis</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:14px">👁️ Eyelid Glands</h3>
+    <div style="overflow-x:auto;margin-bottom:32px">
+    <table>
+      <thead><tr><th>Feature</th><th>Meibomian Glands</th><th>Glands of Moll</th><th>Glands of Zeis</th></tr></thead>
+      <tbody>
+        <tr><td>Type</td><td>Sebaceous (modified)</td><td>Sweat (modified)</td><td>Sebaceous (modified)</td></tr>
+        <tr><td>Location</td><td>Tarsal plate (deep)</td><td>Posterior to lashes</td><td>Root of eyelash follicle</td></tr>
+        <tr><td>Hair follicle?</td><td><span class="badge badge-red">No</span></td><td><span class="badge badge-green">Yes</span></td><td><span class="badge badge-green">Yes</span></td></tr>
+        <tr><td>Secretion</td><td>Lipid layer of tear film</td><td>Watery (sweat)</td><td>Oily (sebum)</td></tr>
+        <tr><td>Opens at</td><td>Lid margin behind grey line</td><td>Eyelid margin</td><td>Hair follicle</td></tr>
+        <tr><td>Pathology</td><td><span class="badge badge-orange">Chalazion</span></td><td><span class="badge badge-purple">Stye</span></td><td><span class="badge badge-purple">Stye</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:14px">🔵 Conjunctival Epithelium by Region</h3>
+    <div style="overflow-x:auto;margin-bottom:32px">
+    <table>
+      <thead><tr><th>Region</th><th>Epithelial Type</th><th>Goblet Cells</th></tr></thead>
+      <tbody>
+        <tr><td>Bulbar conjunctiva (over sclera)</td><td>Stratified squamous</td><td>Present</td></tr>
+        <tr><td>Palpebral conjunctiva (inner eyelid)</td><td>Stratified squamous</td><td>Present</td></tr>
+        <tr><td>Conjunctival fornix (transition zone)</td><td>Stratified columnar</td><td>Few</td></tr>
+        <tr><td>Lacrimal sac ⚠️ EXAM</td><td>Pseudostratified columnar ciliated</td><td>Yes</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:14px">📏 Choroid Layers (outside → inside)</h3>
+    <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>#</th><th>Layer</th><th>Key Features</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><strong>Epichoroid</strong> (outermost) ⚠️</td><td>Loose C.T., adheres to sclera</td></tr>
+        <tr><td>2</td><td>Vessel layer</td><td>Highly vascular C.T. with melanocytes</td></tr>
+        <tr><td>3</td><td>Choriocapillaries</td><td>Fenestrated capillaries — O₂/nutrient supply</td></tr>
+        <tr><td>4</td><td><strong>Bruch's Membrane</strong></td><td>Thin hyaline — barrier to macromolecules</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- ===== CLINICAL ===== -->
+  <div class="tab-pane" id="tab-clinical">
+    <div class="sec-header">
+      <div class="sec-icon" style="background:linear-gradient(135deg,#f95a7c,#7c5af9)">💊</div>
+      <h2>Clinical Correlations & Pathologies</h2>
+    </div>
+
+    <div class="tx-section">
+      <h3>🔴 Corneal Pathologies</h3>
+      <div class="tx-grid">
+        <div class="tx-item urgent">
+          <h5>Corneal Opacity / Scar</h5>
+          <p>Bowman's membrane destroyed → C.T. repair → fibrous scar → permanent opacity. Cannot regenerate.</p>
+        </div>
+        <div class="tx-item urgent">
+          <h5>Corneal Vascularization</h5>
+          <p>Normally avascular. Pathological ingrowth of vessels → immediate loss of transparency.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tx-section">
+      <h3>🟡 Eyelid Pathologies</h3>
+      <div class="tx-grid">
+        <div class="tx-item moderate">
+          <h5>Chalazion</h5>
+          <p>Obstruction of <strong>Meibomian gland</strong> (tarsal plate). Painless, deep, not associated with lash. Chronic granulomatous inflammation.</p>
+        </div>
+        <div class="tx-item moderate">
+          <h5>Stye (Hordeolum)</h5>
+          <p>Infection of <strong>Gland of Moll</strong> (sweat) or <strong>Zeis</strong> (sebaceous). Acute, painful, at eyelash follicle.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tx-section">
+      <h3>🟢 Retinal Pathologies</h3>
+      <div class="tx-grid">
+        <div class="tx-item low">
+          <h5>Retinitis Pigmentosa</h5>
+          <p>Failure of rod disc turnover → debris accumulation → progressive dim-light vision loss (night blindness).</p>
+        </div>
+        <div class="tx-item low">
+          <h5>Blood-Retinal Barrier Breakdown</h5>
+          <p>Failure of junctional complexes between pigmented epithelial cells → toxic macromolecule entry → retinal damage.</p>
+        </div>
+        <div class="tx-item low">
+          <h5>Macular Degeneration</h5>
+          <p>Bruch's membrane dysfunction → abnormal macromolecule leakage from choriocapillaries → cone/fovea damage.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tx-section">
+      <h3>🔵 Glaucoma</h3>
+      <div class="card">
+        <p style="font-size:13px;color:var(--muted);line-height:1.8">
+          <strong>Mechanism:</strong> Obstruction of aqueous humor drainage via the <strong>Canal of Schlemm</strong> → ↑ intraocular pressure → optic nerve compression → vision loss.<br><br>
+          <strong>Histological basis:</strong> The ciliary processes continuously secrete aqueous humor. Normal IOP depends on balance between production and Canal of Schlemm drainage.<br><br>
+          <strong>Clinical pearl:</strong> Aqueous humor provides nutrients to avascular structures — cornea and lens. Any disruption affects these structures too.
+        </p>
+      </div>
+    </div>
+
+    <div class="tx-section">
+      <h3>🟣 Lacrimal Gland Disease</h3>
+      <div class="tx-grid">
+        <div class="tx-item" style="border-left-color:var(--accent2)">
+          <h5>Dry Eye (Keratoconjunctivitis Sicca)</h5>
+          <p>Reduced tear production from lacrimal gland (serous acini failure) → loss of lysozyme → bacterial susceptibility + corneal dryness.</p>
+        </div>
+        <div class="tx-item" style="border-left-color:var(--accent2)">
+          <h5>Dacryocystitis</h5>
+          <p>Infection of the lacrimal sac (lined by pseudostratified ciliated columnar epithelium with goblet cells).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MNEMONICS ===== -->
+  <div class="tab-pane" id="tab-mnemonics">
+    <div class="sec-header">
+      <div class="sec-icon" style="background:linear-gradient(135deg,#3dd68c,#f5c842)">🧠</div>
+      <h2>Mnemonics — Memory Tricks</h2>
+    </div>
+    <div class="mnem-grid">
+      <div class="mnem-card c1">
+        <div class="mnem-title">Corneal Transparency</div>
+        <div class="mnem-word">CARE</div>
+        <ul class="mnem-list">
+          <li><strong>C</strong> <span>Continuous water evaporation</span></li>
+          <li><strong>A</strong> <span>Avascular (no blood vessels)</span></li>
+          <li><strong>R</strong> <span>Regular fiber & cell arrangement</span></li>
+          <li><strong>E</strong> <span>Equal refractive indices</span></li>
+        </ul>
+      </div>
+      <div class="mnem-card c2">
+        <div class="mnem-title">10 Retinal Layers (outer → inner)</div>
+        <div class="mnem-word" style="font-size:1.3rem">Pretty Old Owls Love Ice, In Gorgeous Green Nests</div>
+        <ul class="mnem-list">
+          <li><strong>P</strong> <span>Pigmented epithelium</span></li>
+          <li><strong>O</strong> <span>Outer segment (photoreceptors)</span></li>
+          <li><strong>O</strong> <span>Outer limiting membrane</span></li>
+          <li><strong>L</strong> <span>Layer (outer nuclear)</span></li>
+          <li><strong>I</strong> <span>Inner plexiform... wait</span></li>
+        </ul>
+        <p style="font-size:11px;color:var(--muted);margin-top:8px">Full: <em>P-O-OL-OP-IN-IP-G-NF-ILM</em></p>
+      </div>
+      <div class="mnem-card c3">
+        <div class="mnem-title">Eyelid Glands & Pathology</div>
+        <div class="mnem-word">MMS</div>
+        <ul class="mnem-list">
+          <li><strong>M</strong> <span>Meibomian → <em>Chalazion</em> (no follicle)</span></li>
+          <li><strong>M</strong> <span>Moll → <em>Stye</em> (sweat gland)</span></li>
+          <li><strong>S</strong> <span>Zeis → <em>Stye</em> (sebaceous at follicle)</span></li>
+        </ul>
+        <p style="font-size:11px;color:var(--muted);margin-top:8px"><em>"Meibomian = Massive chalazion deep in tarsus"</em></p>
+      </div>
+      <div class="mnem-card c4">
+        <div class="mnem-title">Rods vs. Cones — Turnover</div>
+        <div class="mnem-word" style="font-size:1.5rem">RODS ROLL, CONES CLING</div>
+        <ul class="mnem-list">
+          <li><strong>R</strong> <span>Rods — discs Roll off (separated, continuous turnover)</span></li>
+          <li><strong>C</strong> <span>Cones — discs Cling (attached, no turnover)</span></li>
+        </ul>
+        <p style="font-size:11px;color:var(--muted);margin-top:8px">Pigmented epithelium phagocytoses the rolled-off rod discs!</p>
+      </div>
+      <div class="mnem-card c5">
+        <div class="mnem-title">Choroid Layers (outside → inside)</div>
+        <div class="mnem-word">E-V-C-B</div>
+        <ul class="mnem-list">
+          <li><strong>E</strong> <span>Epichoroid (outermost) ⚠️</span></li>
+          <li><strong>V</strong> <span>Vessel layer (melanocytes)</span></li>
+          <li><strong>C</strong> <span>Choriocapillaries (fenestrated)</span></li>
+          <li><strong>B</strong> <span>Bruch's membrane (barrier)</span></li>
+        </ul>
+        <p style="font-size:11px;color:var(--muted);margin-top:8px"><em>"Every Vascular Choroid Borders retina"</em></p>
+      </div>
+      <div class="mnem-card c1">
+        <div class="mnem-title">Aqueous Humor PATH</div>
+        <div class="mnem-word">CPPAL → Schlemm</div>
+        <ul class="mnem-list">
+          <li><strong>C</strong> <span>Ciliary processes (produce)</span></li>
+          <li><strong>P</strong> <span>Posterior chamber</span></li>
+          <li><strong>P</strong> <span>Pupil (passes through)</span></li>
+          <li><strong>A</strong> <span>Anterior chamber</span></li>
+          <li><strong>L</strong> <span>Limbus → Canal of Schlemm</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== VIVA ===== -->
+  <div class="tab-pane" id="tab-viva">
+    <div class="sec-header">
+      <div class="sec-icon" style="background:linear-gradient(135deg,#4f9cf9,#f95a7c)">🎤</div>
+      <h2>Viva Questions — Click to Reveal</h2>
+    </div>
+    <div id="viva-container"></div>
+  </div>
+
+</div><!-- /wrapper -->
+
+<script>
+// ========================
+// DATA
+// ========================
+
+const retinalLayers = [
+  { num:'1', name:'Pigmented Epithelium', desc:'Outermost layer; phagocytoses rod discs; forms blood-retinal barrier via junctional complexes', color:'#4f9cf9' },
+  { num:'2', name:'Photoreceptor Layer', desc:'Outer + Inner segments of rods and cones', color:'#7c5af9' },
+  { num:'3', name:'Outer Limiting Membrane', desc:'Formed by processes of Muller cells (glial cells)', color:'#f97c5a' },
+  { num:'4', name:'Outer Nuclear Layer', desc:'Cell bodies (nuclei) of rods and cones', color:'#f5c842' },
+  { num:'5', name:'Outer Plexiform Layer', desc:'1st SYNAPSE: Axons of rods/cones → Dendrites of bipolar + horizontal cells', color:'#3dd68c' },
+  { num:'6', name:'Inner Nuclear Layer', desc:'Cell bodies of bipolar (1st order), horizontal, amacrine, and Muller cells', color:'#4f9cf9' },
+  { num:'7', name:'Inner Plexiform Layer', desc:'2nd SYNAPSE: Bipolar axons → Ganglion cell dendrites + amacrine cells', color:'#7c5af9' },
+  { num:'8', name:'Ganglion Cell Layer', desc:'Cell bodies of 2nd order neurons — their axons form the optic nerve', color:'#f97c5a' },
+  { num:'9', name:'Nerve Fiber Layer', desc:'Axons of ganglion cells running at right angles to exit as optic nerve', color:'#f5c842' },
+  { num:'10', name:'Inner Limiting Membrane', desc:'Innermost layer; formed by end feet of Muller cells bordering vitreous', color:'#3dd68c' },
+];
+
+const anatItems = [
+  { name:'🔵 Cornea', desc:'Anterior 1/6 of outer coat', detail:'5 layers: Stratified sq. epithelium → Bowman\'s membrane (no regen!) → Substantia propria (regular collagen) → Descemet\'s membrane → Endothelium (maintains by evaporation)' },
+  { name:'⚪ Sclera', desc:'Posterior 5/6, opaque', detail:'Opaque due to: irregular C.T. fibers, unequal refractive indices, high water content, heavy vascularity. Provides structural integrity + muscle attachment.' },
+  { name:'🌈 Iris', desc:'Colored diaphragm, pupil control', detail:'Posterior surface: 2 layers heavily pigmented cuboidal cells ⚠️ EXAM. Contains: Dilator pupillae (radial, posterior) + Constrictor pupillae (circular, at margin). Anterior surface: discontinuous fibroblasts.' },
+  { name:'🏭 Ciliary Body', desc:'Aqueous humor + accommodation', detail:'Ciliary processes: fenestrated capillaries in loose C.T. core → secrete AH. Ciliary muscles: smooth muscle → contraction → accommodation reflex for near vision.' },
+  { name:'🔴 Choroid', desc:'Blood supply layer (Uvea)', detail:'4 layers (outer→inner): Epichoroid → Vessel layer (melanocytes) → Choriocapillaries (fenestrated) → Bruch\'s membrane (hyaline barrier). Epichoroid is outermost ⚠️.' },
+  { name:'🔵 Bruch\'s Membrane', desc:'Barrier between choroid and retina', detail:'Thin hyaline membrane. Limits access of inappropriate macromolecules from fenestrated choriocapillaries into neural retina. Dysfunction → macular degeneration.' },
+  { name:'🟡 Pigmented Epithelium', desc:'Outermost retinal layer', detail:'Functions: 1) Blood-retinal barrier (junctional complexes between cells) 2) Phagocytoses shed rod discs 3) Absorbs scattered light via melanin granules.' },
+  { name:'🔬 Rods', desc:'~120 million, dim light', detail:'Separated discs (rhodopsin) with continuous turnover. Nuclei: small, dark, striated, at different levels. Synapse: diffuse (many rods → 1 bipolar). Synaptic ending: spherule (end bulb).' },
+  { name:'🌞 Cones', desc:'~6-7 million, bright/color', detail:'Attached discs (iodopsin), no turnover. Nuclei: large, pale, round, on ONE horizontal level. Synapse: monosynaptic (1:1). Synaptic ending: expanded end foot (pedicle). Concentrated at fovea.' },
+  { name:'🧠 Muller Cells', desc:'Neuroglial support cells', detail:'Span entire retinal thickness. Processes form: Inner limiting membrane (innermost) + contribute to Outer limiting membrane. Provide metabolic support to neurons.' },
+  { name:'👁️ Meibomian Glands', desc:'Long sebaceous glands in tarsus', detail:'Located in dense fibrous tarsal plate. DO NOT communicate with hair follicles. Open directly on lid margin BEHIND the grey line. Obstruction → Chalazion.' },
+  { name:'💧 Lacrimal Gland', desc:'Serous, tear-producing', detail:'Serous acini lined by columnar cells surrounded by myoepithelial cells. Secretes tears rich in lysozyme. Drains to canaliculi → lacrimal sac (pseudostratified ciliated) → nasolacrimal duct → nasal cavity.' },
+  { name:'🌊 Canal of Schlemm', desc:'Aqueous drainage at limbus', detail:'Located at corneoscleral junction. Drains aqueous humor from anterior chamber. Obstruction → ↑ IOP → glaucoma. Trabecular meshwork adjacent.' },
+  { name:'🔲 Bowman\'s Membrane', desc:'Acellular corneal layer, no regen', detail:'Transparent homogenous layer of collagen fibers beneath corneal epithelium. CANNOT REGENERATE. If destroyed → healing by underlying C.T. → fibrous scar → permanent corneal opacity.' },
+];
+
+const quizData = [
+  { q:'Which factor does NOT contribute to corneal transparency?', opts:['Continuous evaporation of water','Complete avascularity','Presence of a highly vascular substantia propria','Equal refractive indices of all elements','Regular arrangement of substantia propria fibers'], ans:2, exp:'The cornea is strictly non-vascular; vascularity characterizes the opaque sclera. All other options (A, B, D, E) directly maintain transparency.' },
+  { q:'Bowman\'s membrane of the cornea is best described as:', opts:['A thick basement membrane beneath Descemet\'s endothelium','A transparent homogenous layer of collagen fibers','Stratified squamous non-keratinized epithelium','A highly vascular connective tissue','The thickest layer containing fibroblasts'], ans:1, exp:'Bowman\'s membrane is a transparent homogenous layer of collagen fibers that acts as a protective layer. It cannot regenerate once destroyed.' },
+  { q:'A corneal injury destroys Bowman\'s membrane. What is the expected outcome?', opts:['Rapid regeneration by overlying epithelium','Complete restoration of transparency within weeks','Healing from underlying C.T. resulting in scar and opacity','Hypertrophy of Descemet\'s endothelium','Infiltration of melanocytes from the iris'], ans:2, exp:'Bowman\'s membrane has no regenerative capacity. Healing occurs from underlying C.T. leaving a permanent fibrous scar causing opacity.' },
+  { q:'Aqueous humor is secreted by which structure?', opts:['Canal of Schlemm','Ciliary processes','Anterior stroma of iris','Corneal endothelium','Trabecular meshwork'], ans:1, exp:'Ciliary processes have fenestrated capillaries in a loose C.T. core that produce aqueous humor. Canal of Schlemm drains it.' },
+  { q:'The sclera is opaque primarily due to:', opts:['Absence of water','Regular arrangement of C.T. fibers','Equal refractive indices','Irregular fiber arrangement and great water content','Presence of Bowman\'s membrane'], ans:3, exp:'The sclera has irregular fiber arrangement, unequal refractive indices, and a high water content — the opposite of the transparent cornea.' },
+  { q:'The posterior surface of the iris is covered by:', opts:['A discontinuous layer of fibroblasts','Stratified squamous epithelium','Two layers of heavily pigmented cuboidal epithelial cells','Fenestrated blood capillaries','A single layer of non-pigmented columnar cells'], ans:2, exp:'⚠️ EXAM: Two layers of heavily pigmented cuboidal cells line the posterior iris — a frequently tested point.' },
+  { q:'During accommodation for near vision, which structure contracts?', opts:['Constrictor pupillae','Dilator pupillae','Smooth muscle in the ciliary body','Subcapsular epithelium of the lens','Suspensory ligaments'], ans:2, exp:'Ciliary muscles in the ciliary body contract during accommodation, releasing tension on suspensory ligaments, allowing the lens to round up.' },
+  { q:'The outermost layer of the choroid is:', opts:['Choriocapillaries','Bruch\'s membrane','Epichoroid (Suprachoroid)','Vessel layer','Outer limiting membrane'], ans:2, exp:'Epichoroid (Suprachoroid) is the outermost layer of loose C.T. in the choroid — explicitly emphasized as a testable point.' },
+  { q:'Bruch\'s membrane primarily functions to:', opts:['Focus light onto the fovea','Phagocytose old photoreceptor discs','Limit access of macromolecules from choriocapillaries to retina','Secrete aqueous humor','Synthesize rhodopsin'], ans:2, exp:'Bruch\'s membrane is a thin hyaline barrier separating the fenestrated choriocapillaries from the neural retina.' },
+  { q:'The blood-retinal barrier is physically formed by:', opts:['Fenestrations in the choriocapillaries','Junctional complexes between pigmented epithelial cells','Outer limiting membrane of Muller cells','Tight junctions in Canal of Schlemm endothelium','Rigid structure of substantia propria'], ans:1, exp:'Lateral junctional complexes between retinal pigmented epithelial cells form the blood-retinal barrier, limiting small molecular weight substances.' },
+  { q:'Which statement is TRUE regarding photoreceptor disc turnover?', opts:['Both rods and cones undergo continuous turnover','Cones undergo turnover; rods do not','Rod discs are separated from the membrane and undergo continuous turnover','Cone discs are separated and undergo turnover','Neither rods nor cones experience disc turnover'], ans:2, exp:'Rods have separated discs (rhodopsin) with continuous turnover — phagocytosed by pigmented epithelium. Cone discs are attached with no turnover.' },
+  { q:'Why are rods considered "diffuse synaptic"?', opts:['One rod synapses with multiple ganglion cells','Many rods synapse with one bipolar nerve cell','Their synaptic part is an expanded end foot','They lack an outer plexiform layer','They bypass the bipolar cell'], ans:1, exp:'120 million rods must converge — many rods → one bipolar cell. This increases sensitivity but reduces acuity.' },
+  { q:'Cone cell nuclei are characterized by:', opts:['Staggered at different vertical levels','Small, dark, irregularly shaped','Large, pale, round, on one horizontal level','Transverse striations under light microscopy','Located in the inner nuclear layer'], ans:2, exp:'Cone nuclei: large, pale, round, arranged on ONE horizontal level close to the outer limiting membrane. Contrast with rod nuclei (staggered, dark).' },
+  { q:'The outer plexiform layer contains synapses between:', opts:['Bipolar axons and ganglion dendrites','Amacrine and horizontal cells','Muller cell processes and photoreceptors','Axons of rods/cones and dendrites of bipolar + horizontal cells','Ganglion axons and optic nerve'], ans:3, exp:'Outer plexiform layer = 1st synaptic relay: photoreceptor axons → bipolar cell + horizontal cell dendrites.' },
+  { q:'Bipolar cells are classified as:', opts:['Photoreceptors','1st order neurons of visual pathway','2nd order neurons','Amacrine cells','Muller cells'], ans:1, exp:'Bipolar cells are the 1st order neurons in the visual pathway, located in the inner nuclear layer.' },
+  { q:'Muller cells contribute to retinal structure by:', opts:['Phagocytosing old photoreceptor discs','Forming myelin sheath of optic nerve','Extending processes forming internal and external limiting membranes','Synapsing directly with ganglion cells','Secreting aqueous humor'], ans:2, exp:'Muller cells span the full retinal thickness; their processes form the inner limiting membrane and participate in the outer limiting membrane.' },
+  { q:'Axons of which cells converge to form the optic nerve?', opts:['Bipolar cells','Horizontal cells','Amacrine cells','Ganglion cells','Muller cells'], ans:3, exp:'Ganglion cell axons (2nd order neurons) pass through the nerve fiber layer at a right angle and exit the eye as the optic nerve.' },
+  { q:'A "Chalazion" results from obstruction of:', opts:['Glands of Moll','Glands of Zeis','Lacrimal glands','Meibomian glands','Goblet cells in the fornix'], ans:3, exp:'Meibomian glands are long sebaceous glands in the tarsal plate. Their obstruction causes a chronic granulomatous chalazion.' },
+  { q:'Which accurately differentiates a Stye from a Chalazion?', opts:['Stye involves tarsal plate; chalazion involves hair follicle','Stye = infection of Moll or Zeis; chalazion = Meibomian obstruction','Stye is a conjunctival tumor; chalazion is lacrimal sac cyst','Stye secretes sweat; chalazion secretes tears','Chalazion opens into hair follicle; stye opens behind grey line'], ans:1, exp:'Styes affect lash-associated glands (Moll/Zeis). Chalazions affect deep tarsal Meibomian glands that don\'t communicate with hair follicles.' },
+  { q:'The palpebral conjunctiva is lined by:', opts:['Simple squamous epithelium','Stratified columnar epithelium with goblet cells','Stratified squamous epithelium','Pseudostratified ciliated columnar','Transitional epithelium'], ans:2, exp:'Both bulbar and palpebral conjunctiva are lined by stratified squamous epithelium with goblet cells.' },
+  { q:'The conjunctival fornix transitions to:', opts:['Stratified squamous epithelium','Stratified columnar epithelium with few goblet cells','Simple cuboidal epithelium','Pseudostratified ciliated columnar','Keratinized stratified squamous'], ans:1, exp:'The fornix (transition zone between bulbar and palpebral) changes to stratified columnar epithelium with goblet cells for lubrication.' },
+  { q:'Histologically, the lacrimal gland is composed of:', opts:['Mucous acini with simple squamous cells','Serous acini with columnar cells surrounded by myoepithelial cells','Branched tubular glands with holocrine secretion','Sebaceous acini communicating with hair follicles','A cyst lined with ciliated cells'], ans:1, exp:'The lacrimal gland has serous acini (columnar cells + myoepithelial cells) producing lysozyme-rich tears.' },
+  { q:'The inner segment of a rod cell contains:', opts:['Transverse discs filled with rhodopsin','The synaptic end bulb','The cell nucleus only','All organelles including mitochondria, rER, sER, Golgi','Junctional complexes of limiting membrane'], ans:3, exp:'The inner segment houses all metabolic machinery (organelles). The outer segment contains visual discs. The cell body contains the nucleus.' },
+  { q:'Tears drained from medial eyelid margins first enter the:', opts:['Nasolacrimal duct','Lacrimal gland','Lacrimal sac','Canal of Schlemm','Lacrimal canaliculi'], ans:4, exp:'Tears drain into upper and lower lacrimal canaliculi first, then into the lacrimal sac, then nasolacrimal duct, then nasal cavity.' },
+  { q:'Which cells establish LATERAL contact between photoreceptors to modulate signals?', opts:['Bipolar cells','Ganglion cells','Amacrine cells','Horizontal cells','Muller cells'], ans:3, exp:'Horizontal cells lie near the outer plexiform layer and extend lateral processes that synapse with rod and cone axons, modulating signal transmission.' },
+];
+
+const flashcards = [
+  { q:'What 4 factors maintain corneal transparency?', a:'1) Continuous evaporation of water\n2) Avascularity\n3) Equal refractive indices of cells/fibers/matrix\n4) Regular arrangement of collagen fibers and epithelium' },
+  { q:'Why does Bowman\'s membrane injury cause permanent opacity?', a:'Bowman\'s membrane cannot regenerate. Healing occurs from underlying C.T. → fibrous scar → corneal opacity (not transparent repair).' },
+  { q:'What covers the posterior surface of the iris?', a:'Two layers of heavily pigmented cuboidal epithelial cells ⚠️ EXAM FAVORITE' },
+  { q:'Trace aqueous humor from production to drainage.', a:'Ciliary processes → Posterior chamber → Through pupil → Anterior chamber → Limbus → Canal of Schlemm' },
+  { q:'What is Bruch\'s membrane and its function?', a:'Thin hyaline membrane (innermost choroid layer). Limits access of macromolecules from fenestrated choriocapillaries to neural retina.' },
+  { q:'What forms the blood-retinal barrier?', a:'Lateral junctional complexes between the cells of the retinal pigmented epithelium — limits small molecule access from choriocapillaries.' },
+  { q:'Rods vs. Cones: disc attachment & turnover?', a:'RODS: discs separated from membrane, continuous turnover (phagocytosed by pigmented epithelium)\nCONES: discs attached to membrane, NO turnover' },
+  { q:'Why are rods called "diffuse synaptic"?', a:'Many rods (120 million) synapse onto ONE bipolar cell → spatial summation → high sensitivity but low acuity' },
+  { q:'Describe cone nuclei appearance.', a:'Large, pale, round nuclei arranged on ONE horizontal level close to the outer limiting membrane (contrast: rod nuclei are dark, striated, at different levels)' },
+  { q:'What are the synaptic connections at the outer plexiform layer?', a:'Axons of rods & cones synapse with dendrites of bipolar cells (1st order neurons) and horizontal cells' },
+  { q:'What cells are found in the inner nuclear layer?', a:'Bipolar cells (1st order neurons), Horizontal cells, Amacrine cells, Muller cell bodies' },
+  { q:'What forms the optic nerve?', a:'Axons of ganglion cells (2nd order neurons) from the nerve fiber layer, converging and passing at right angles to exit the eye.' },
+  { q:'Chalazion vs. Stye — glands involved?', a:'Chalazion = Meibomian gland obstruction (tarsal plate, no hair follicle)\nStye = Gland of Moll (sweat) or Zeis (sebaceous) infection at eyelash follicle' },
+  { q:'What is the epithelial lining of the lacrimal sac?', a:'Pseudostratified columnar CILIATED epithelium with motile cilia and goblet cells ⚠️ EXAM FAVORITE' },
+  { q:'What are the 4 layers of the choroid (outside → inside)?', a:'1) Epichoroid ⚠️\n2) Vessel layer\n3) Choriocapillaries\n4) Bruch\'s membrane' },
+  { q:'What does the lacrimal gland histology look like?', a:'Serous acini lined by columnar cells, surrounded by contractile myoepithelial cells. Produces lysozyme-rich tears.' },
+  { q:'Describe the conjunctival epithelium in each region.', a:'Bulbar & Palpebral: Stratified squamous\nFornix: Stratified columnar + goblet cells\nLacrimal sac: Pseudostratified ciliated columnar' },
+  { q:'What role do Muller cells play in retinal structure?', a:'Neuroglial cells spanning full retinal thickness. Processes form: inner limiting membrane (innermost) + outer limiting membrane.' },
+  { q:'What is the pigmented epithelium\'s triple role?', a:'1) Forms blood-retinal barrier (junctional complexes)\n2) Phagocytoses shed rod discs\n3) Contains melanin — absorbs scattered light' },
+  { q:'What is the clinical significance of the fovea centralis?', a:'Area of maximum visual acuity — densely packed with cones (monosynaptic, 1:1 bipolar connections). Avascular zone nourished by choriocapillaries.' },
+];
+
+const clinicalCases = [
+  {
+    num:'Case 1', title:'The Corneal Scar',
+    vignette:'A 25-year-old welder presents 3 months after a metallic fragment injury to his right eye. The epithelium has fully healed, yet he reports persistent blurring. Slit-lamp examination reveals a dense white opacity in the anterior stroma.',
+    questions:['1. Which specific layer was most likely damaged to cause this permanent opacity?','2. Why cannot this layer regenerate?','3. What type of tissue replaces it, and why does this cause opacity?'],
+    answer:'The structure damaged is BOWMAN\'S MEMBRANE — the transparent acellular layer of collagen fibers beneath the corneal epithelium.\n\nBowman\'s membrane CANNOT regenerate because it contains no cells (fibroblasts) to mount a repair response.\n\nHealing occurs from the underlying substantia propria (C.T.) which lays down irregular fibrous collagen — this has unequal refractive indices and irregular arrangement → permanent opacity (scar). The overlying epithelium can regenerate normally, but it sits on an opaque base.'
+  },
+  {
+    num:'Case 2', title:'The Deep Eyelid Lump',
+    vignette:'A 40-year-old teacher presents with a painless, firm, non-tender swelling deep within her upper eyelid for 3 weeks. There is no redness at the eyelash margin and no associated eyelash.',
+    questions:['1. What is this lesion called, and what gland is responsible?','2. Why is this gland\'s anatomy unique compared to other eyelid glands?','3. How does this differ from a Stye histologically?'],
+    answer:'This is a CHALAZION — chronic granulomatous inflammation from obstruction of a MEIBOMIAN GLAND.\n\nMeibomian glands are unique because: they are LONG SEBACEOUS glands sitting in the dense fibrous tarsal plate, and they DO NOT communicate with hair follicles (unlike Zeis/Moll). They open directly on the lid margin BEHIND the grey line.\n\nA Stye is an ACUTE INFECTION of Glands of MOLL (modified sweat glands posterior to lashes) or ZEIS (modified sebaceous glands at eyelash roots) — always associated with eyelash follicles, painful and superficial.'
+  },
+  {
+    num:'Case 3', title:'The Raised Eye Pressure',
+    vignette:'A 65-year-old diabetic presents with bilateral gradual vision loss and headaches. Tonometry reveals IOP of 28 mmHg bilaterally (normal < 21). Gonioscopy reveals a narrow iridocorneal angle.',
+    questions:['1. Trace the normal pathway of aqueous humor from production to drainage.','2. Which histological structure is obstructed in this scenario?','3. Why does this elevated pressure affect avascular structures like the cornea?'],
+    answer:'AQUEOUS HUMOR PATHWAY:\nCiliary processes (fenestrated capillaries in loose C.T. core) → Posterior chamber → Through pupil → Anterior chamber → Corneoscleral junction (limbus) → Canal of Schlemm → Drainage\n\nObstruction: CANAL OF SCHLEMM at the limbus (narrow angle variant) → aqueous humor builds up → ↑ IOP.\n\nThe cornea and lens are AVASCULAR — they rely on aqueous humor for oxygen and glucose delivery. Sustained high IOP compresses blood vessels feeding the optic nerve AND deprives avascular structures of nutrients from the AH.'
+  },
+  {
+    num:'Case 4', title:'Night Blindness',
+    vignette:'A 20-year-old presents with progressive difficulty seeing in dim light since childhood. Fundoscopy reveals bone-spicule pigmentation and a pale optic disc. ERG shows absent rod responses.',
+    questions:['1. Which photoreceptors and which process is primarily affected?','2. What is the normal disc turnover mechanism for these photoreceptors?','3. Which layer performs phagocytosis of shed discs?'],
+    answer:'RODS are affected — specifically failure of disc turnover in RETINITIS PIGMENTOSA.\n\nNormal rod disc turnover:\nRod outer segments contain transverse discs of RHODOPSIN that are physically SEPARATED from the cell membrane. These discs are continuously produced at the base and shed from the tip. The PIGMENTED EPITHELIUM phagocytoses the shed discs.\n\nIn RP, this phagocytosis fails → disc debris accumulates → rod degeneration → night blindness. Cone function is preserved early, hence daytime vision intact.\n\nNote: Cone discs are ATTACHED to the membrane and undergo NO turnover — so cones are not primarily affected early.'
+  },
+  {
+    num:'Case 5', title:'Dry, Irritated Eyes',
+    vignette:'A 55-year-old woman with Sjögren\'s syndrome presents with chronic dry, irritated eyes and recurrent bacterial conjunctivitis. Rose Bengal staining shows punctate corneal staining.',
+    questions:['1. What gland is failing, and what is its histological composition?','2. Trace the normal drainage pathway of tears to the nasal cavity.','3. What protective component of tears explains the recurrent bacterial infections?'],
+    answer:'The LACRIMAL GLAND is failing (destroyed in Sjögren\'s via autoimmune infiltration).\n\nHistology: Serous acini lined by columnar cells surrounded by contractile MYOEPITHELIAL cells. Produces WATERY (serous) tears rich in LYSOZYME.\n\nTear drainage pathway:\nLacrimal gland → Surface of cornea/conjunctiva → Upper & lower lacrimal CANALICULI (medial margins) → Lacrimal SAC (lined by pseudostratified ciliated columnar + goblet cells ⚠️) → Nasolacrimal DUCT → Nasal cavity\n\nLYSOZYME is an antimicrobial enzyme in tears. Its loss → loss of innate defense → recurrent bacterial conjunctivitis/keratitis.'
+  },
+];
+
+const vivaData = [
+  { q:'What are the main factors maintaining corneal transparency?', a:'Continuous evaporation of water from the surface; total avascularity; equal refractive indices of cells, fibers, and matrix; highly regular arrangement of type I collagen fibers in the substantia propria; and regular arrangement of the covering stratified squamous non-keratinized epithelial cells.' },
+  { q:'Why does injury to Bowman\'s membrane cause permanent opacity?', a:'Bowman\'s membrane is an acellular transparent layer of collagen fibers. It lacks regenerative capacity (no cells to repair it). When destroyed, the underlying connective tissue heals by laying down irregular fibrous tissue — a scar with unequal refractive indices — causing permanent opacity.' },
+  { q:'What covers the posterior surface of the iris, and why is this tested?', a:'Two layers of HEAVILY PIGMENTED CUBOIDAL epithelial cells ⚠️ EXAM. This pigmentation absorbs scattered light and gives the eye its definitive color (the anterior iris surface stroma melanocytes determine iris color, but the posterior layer is the fixed pigmented lining).' },
+  { q:'Describe the production and drainage of aqueous humor.', a:'Secreted by fenestrated capillaries within the loose C.T. core of the ciliary processes (ciliary body). Flows posterior chamber → through pupil → anterior chamber → drains at the corneoscleral junction (limbus) into the Canal of Schlemm → venous circulation.' },
+  { q:'What constitutes the blood-retinal barrier?', a:'Lateral junctional complexes between adjacent cells of the retinal PIGMENTED EPITHELIUM. This limits access of small molecular weight substances from the fenestrated choriocapillaries into the neural outer retina.' },
+  { q:'Compare the outer segments of rods and cones.', a:'Rods: thin and long, transverse discs SEPARATED from cell membrane, filled with RHODOPSIN, undergo CONTINUOUS TURNOVER (phagocytosed by pigmented epithelium).\nCones: cone-shaped, flat discs ATTACHED to cell membrane, filled with IODOPSIN, NO turnover.' },
+  { q:'What is the outer plexiform layer?', a:'The first synaptic relay in the retina. Contains synapses between axons (synaptic processes) of rods and cones and the dendrites of bipolar cells (1st order neurons) and horizontal cells.' },
+  { q:'Which layer contains the cell bodies of 1st order visual neurons?', a:'The INNER NUCLEAR LAYER. Contains bipolar cells (1st order neurons), plus horizontal, amacrine, and Muller cell bodies.' },
+  { q:'How is the optic nerve formed histologically?', a:'By the axons of GANGLION CELLS (2nd order neurons). These axons pass at right angles in the nerve fiber layer, converge at the optic disc, and exit the eye as the optic nerve.' },
+  { q:'What is a Chalazion and its histological basis?', a:'A chronic granulomatous inflammatory swelling caused by obstruction of a MEIBOMIAN GLAND — a long sebaceous gland in the dense fibrous tarsal plate that opens at the lid margin behind the grey line WITHOUT communicating with hair follicles.' },
+  { q:'Distinguish Glands of Moll and Glands of Zeis.', a:'Glands of MOLL: modified SWEAT glands located POSTERIOR to eyelashes.\nGlands of ZEIS: modified SEBACEOUS glands at the ROOT of eyelash hair follicles.\nInfection of either → STYE (hordeolum). Neither is in the tarsal plate.' },
+  { q:'Describe the histological lining of the lacrimal sac.', a:'Pseudostratified columnar CILIATED epithelium with MOTILE CILIA and GOBLET CELLS ⚠️ EXAM FAVORITE — explicitly high-yield per the lecture recording.' },
+];
+
+// State
+let quizState = { current:0, correct:0, streak:0, answered:[], scores:{} };
+let fcFlipped = new Set();
+let casesRevealed = new Set();
+
+// ========================
+// INIT
+// ========================
+document.addEventListener('DOMContentLoaded', () => {
+  loadFromStorage();
+  buildRetinalLayers();
+  buildQuiz();
+  buildFlashcards();
+  buildCases();
+  buildAnatomy();
+  buildViva();
+  setupTabs();
+  setupSearch();
+  updateStats();
+});
+
+function loadFromStorage() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('eye_histo_v1') || '{}');
+    if(saved.quizState) quizState = {...quizState, ...saved.quizState};
+    if(saved.fcFlipped) fcFlipped = new Set(saved.fcFlipped);
+    if(saved.casesRevealed) casesRevealed = new Set(saved.casesRevealed);
+  } catch(e) {}
+}
+
+function saveToStorage() {
+  try {
+    localStorage.setItem('eye_histo_v1', JSON.stringify({
+      quizState,
+      fcFlipped: [...fcFlipped],
+      casesRevealed: [...casesRevealed],
+    }));
+  } catch(e) {}
+}
+
+function updateStats() {
+  document.getElementById('stat-score').textContent = `${quizState.correct} / 25`;
+  document.getElementById('stat-streak').textContent = quizState.streak;
+  document.getElementById('stat-fc').textContent = `${fcFlipped.size} / 20`;
+  document.getElementById('stat-cases').textContent = `${casesRevealed.size} / 5`;
+}
+
+// ========================
+// TABS
+// ========================
+function setupTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      localStorage.setItem('eye_histo_tab', btn.dataset.tab);
+    });
+  });
+  const lastTab = localStorage.getItem('eye_histo_tab');
+  if(lastTab) {
+    const btn = document.querySelector(`[data-tab="${lastTab}"]`);
+    if(btn) btn.click();
+  }
+}
+
+// ========================
+// SEARCH
+// ========================
+const searchIndex = [];
+function setupSearch() {
+  // Build index
+  quizData.forEach((q,i) => searchIndex.push({ text: q.q + ' ' + q.exp, label: q.q.substring(0,60)+'...', type:'Quiz Q'+(i+1) }));
+  flashcards.forEach((f,i) => searchIndex.push({ text: f.q+' '+f.a, label: f.q.substring(0,60), type:'Flashcard '+(i+1) }));
+  anatItems.forEach(a => searchIndex.push({ text: a.name+' '+a.desc+' '+a.detail, label: a.name+' — '+a.desc, type:'Structure' }));
+  vivaData.forEach((v,i) => searchIndex.push({ text: v.q+' '+v.a, label: v.q.substring(0,60), type:'Viva '+(i+1) }));
+
+  const inp = document.getElementById('search-input');
+  const res = document.getElementById('search-results');
+  inp.addEventListener('input', () => {
+    const val = inp.value.trim().toLowerCase();
+    if(val.length < 2) { res.classList.remove('open'); return; }
+    const hits = searchIndex.filter(i => i.text.toLowerCase().includes(val)).slice(0,8);
+    if(!hits.length) { res.classList.remove('open'); return; }
+    res.innerHTML = hits.map(h => `<div class="sr-item"><strong>${h.type}</strong> — ${h.label}</div>`).join('');
+    res.classList.add('open');
+  });
+  document.addEventListener('click', e => { if(!e.target.closest('.search-wrap')) res.classList.remove('open'); });
+}
+
+// ========================
+// RETINAL LAYERS
+// ========================
+function buildRetinalLayers() {
+  const c = document.getElementById('retina-layers');
+  c.innerHTML = retinalLayers.map(l => `
+    <div class="layer-item">
+      <div class="layer-num" style="background:${l.color}22;color:${l.color};border:1px solid ${l.color}44">${l.num}</div>
+      <div style="flex:1">
+        <div class="layer-name">${l.name}</div>
+        <div class="layer-desc">${l.desc}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ========================
+// QUIZ
+// ========================
+function buildQuiz() {
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const c = document.getElementById('quiz-container');
+  const idx = quizState.current;
+  if(idx >= quizData.length) {
+    c.style.display = 'none';
+    document.getElementById('quiz-result').style.display = 'block';
+    document.getElementById('final-score').textContent = quizState.correct + ' / ' + quizData.length;
+    document.getElementById('next-btn').style.display = 'none';
+    document.getElementById('prev-btn').style.display = 'none';
+    updateStats(); saveToStorage();
+    return;
+  }
+  c.style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  const q = quizData[idx];
+  const answered = quizState.answered[idx];
+  const letters = ['A','B','C','D','E'];
+
+  const pct = (idx / quizData.length * 100).toFixed(0);
+  document.getElementById('q-progress').style.width = pct + '%';
+  document.getElementById('q-progress-label').textContent = (idx+1) + ' / ' + quizData.length;
+  document.getElementById('q-correct').textContent = quizState.correct;
+  document.getElementById('q-streak').textContent = quizState.streak;
+
+  c.innerHTML = `
+    <div class="q-card">
+      <div class="q-num">Question ${idx+1} of ${quizData.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options">
+        ${q.opts.map((opt,i) => `
+          <button class="opt-btn ${answered !== undefined ? (i === q.ans ? 'correct' : (i === answered && answered !== q.ans ? 'wrong' : '')) : ''}"
+            onclick="selectAnswer(${i})" ${answered !== undefined ? 'disabled' : ''}>
+            <span class="opt-letter">${letters[i]}</span>
+            <span>${opt}</span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="explanation ${answered !== undefined ? 'show' : ''}">
+        💡 <strong>Explanation:</strong> ${q.exp}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('prev-btn').style.display = idx > 0 ? 'block' : 'none';
+  document.getElementById('next-btn').style.display = answered !== undefined ? 'block' : 'none';
+  document.getElementById('next-btn').textContent = idx === quizData.length - 1 ? 'Finish Quiz ✓' : 'Next →';
+}
+
+function selectAnswer(optIdx) {
+  const idx = quizState.current;
+  if(quizState.answered[idx] !== undefined) return;
+  quizState.answered[idx] = optIdx;
+  const isCorrect = optIdx === quizData[idx].ans;
+  if(isCorrect) {
+    quizState.correct++;
+    quizState.streak++;
+  } else {
+    quizState.streak = 0;
+  }
+  updateStats();
+  saveToStorage();
+  renderQuestion();
+  document.getElementById('next-btn').style.display = 'block';
+}
+
+function navQuiz(dir) {
+  quizState.current = Math.min(quizData.length, Math.max(0, quizState.current + dir));
+  saveToStorage();
+  renderQuestion();
+}
+
+function restartQuiz() {
+  quizState = { current:0, correct:0, streak:0, answered:[], scores:{} };
+  saveToStorage();
+  renderQuestion();
+}
+
+// ========================
+// FLASHCARDS
+// ========================
+function buildFlashcards() {
+  const c = document.getElementById('fc-container');
+  c.innerHTML = flashcards.map((f,i) => `
+    <div class="fc ${fcFlipped.has(i) ? 'flipped' : ''}" id="fc-${i}" onclick="flipCard(${i})">
+      <div class="fc-inner">
+        <div class="fc-face fc-front">
+          <div>
+            <div class="fc-label">❓ Question</div>
+            <div class="fc-q">${f.q}</div>
+            <div class="fc-hint">tap to reveal</div>
+          </div>
+        </div>
+        <div class="fc-face fc-back">
+          <div>
+            <div class="fc-label" style="color:var(--green)">✅ Answer</div>
+            <div class="fc-a">${f.a.replace(/\n/g,'<br>')}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function flipCard(i) {
+  const el = document.getElementById('fc-'+i);
+  if(el.classList.contains('flipped')) {
+    el.classList.remove('flipped');
+    fcFlipped.delete(i);
+  } else {
+    el.classList.add('flipped');
+    fcFlipped.add(i);
+  }
+  document.getElementById('fc-progress').style.width = (fcFlipped.size/20*100)+'%';
+  document.getElementById('fc-label').textContent = fcFlipped.size + ' / 20 flipped';
+  updateStats(); saveToStorage();
+}
+
+// ========================
+// CASES
+// ========================
+function buildCases() {
+  const c = document.getElementById('cases-container');
+  c.innerHTML = clinicalCases.map((cas,i) => `
+    <div class="case-card">
+      <div class="case-header">
+        <span class="case-num">${cas.num}</span>
+        <h3 style="font-size:15px;font-weight:600">${cas.title}</h3>
+      </div>
+      <div class="case-vignette">${cas.vignette}</div>
+      <div class="case-questions">
+        ${cas.questions.map(q => `<div class="cq">${q}</div>`).join('')}
+      </div>
+      <button class="reveal-btn" onclick="revealCase(${i}, this)">
+        ${casesRevealed.has(i) ? '🔼 Hide Answer' : '🔍 Reveal Answer'}
+      </button>
+      <div class="case-answer ${casesRevealed.has(i) ? 'show' : ''}" id="case-ans-${i}">
+        <strong>Model Answer:</strong><br><br>${cas.answer.replace(/\n/g,'<br>')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function revealCase(i, btn) {
+  const ans = document.getElementById('case-ans-'+i);
+  if(ans.classList.contains('show')) {
+    ans.classList.remove('show');
+    casesRevealed.delete(i);
+    btn.textContent = '🔍 Reveal Answer';
+  } else {
+    ans.classList.add('show');
+    casesRevealed.add(i);
+    btn.textContent = '🔼 Hide Answer';
+    updateStats(); saveToStorage();
+  }
+}
+
+// ========================
+// ANATOMY
+// ========================
+function buildAnatomy() {
+  const c = document.getElementById('anat-container');
+  c.innerHTML = anatItems.map((a,i) => `
+    <div class="anat-item" onclick="toggleAnat(${i})">
+      <h4>${a.name}</h4>
+      <p>${a.desc}</p>
+      <div class="anat-detail" id="anat-d-${i}">${a.detail}</div>
+    </div>
+  `).join('');
+}
+
+function toggleAnat(i) {
+  const d = document.getElementById('anat-d-'+i);
+  d.classList.toggle('show');
+}
+
+// ========================
+// VIVA
+// ========================
+function buildViva() {
+  const c = document.getElementById('viva-container');
+  c.innerHTML = vivaData.map((v,i) => `
+    <div class="viva-item" id="viva-${i}">
+      <div class="viva-q" onclick="toggleViva(${i})">
+        <span>V${i+1}: ${v.q}</span>
+        <span class="arrow">▶</span>
+      </div>
+      <div class="viva-a">${v.a.replace(/\n/g,'<br>')}</div>
+    </div>
+  `).join('');
+}
+
+function toggleViva(i) {
+  document.getElementById('viva-'+i).classList.toggle('open');
+}
+</script>
+</body>
+</html>

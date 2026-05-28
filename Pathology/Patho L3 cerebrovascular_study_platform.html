@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cerebrovascular Pathology — Interactive Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0d14;
+  --surface: #111520;
+  --surface2: #181e2e;
+  --border: rgba(255,255,255,0.08);
+  --text: #e8eaf0;
+  --text-muted: #7a82a0;
+  --accent: #4f9cf9;
+  --accent2: #a78bfa;
+  --accent3: #34d399;
+  --danger: #f87171;
+  --warn: #fbbf24;
+  --red: #ef4444;
+  --green: #10b981;
+  --purple: #8b5cf6;
+  --cyan: #06b6d4;
+  --pink: #ec4899;
+  --glow: 0 0 30px rgba(79,156,249,0.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* Animated background */
+.bg-anim{
+  position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;
+}
+.orb{
+  position:absolute;border-radius:50%;filter:blur(80px);opacity:0.12;
+  animation:float 12s ease-in-out infinite;
+}
+.orb1{width:500px;height:500px;background:radial-gradient(circle,#4f9cf9,transparent);top:-100px;left:-100px;animation-delay:0s;}
+.orb2{width:400px;height:400px;background:radial-gradient(circle,#a78bfa,transparent);bottom:-100px;right:-100px;animation-delay:-4s;}
+.orb3{width:300px;height:300px;background:radial-gradient(circle,#34d399,transparent);top:50%;left:50%;animation-delay:-8s;}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,30px) scale(1.05)}}
+
+/* Layout */
+.app{position:relative;z-index:1;max-width:1300px;margin:0 auto;padding:0 16px 80px;}
+
+/* Header */
+.header{
+  text-align:center;padding:50px 20px 30px;
+  background:linear-gradient(180deg,rgba(79,156,249,0.05) 0%,transparent 100%);
+}
+.header-badge{
+  display:inline-block;padding:6px 16px;border-radius:50px;
+  background:rgba(79,156,249,0.12);border:1px solid rgba(79,156,249,0.3);
+  font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;
+  color:var(--accent);margin-bottom:16px;
+}
+.header h1{
+  font-family:'DM Serif Display',serif;
+  font-size:clamp(28px,5vw,52px);
+  line-height:1.1;
+  background:linear-gradient(135deg,#e8eaf0 0%,#4f9cf9 50%,#a78bfa 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:12px;
+}
+.header p{color:var(--text-muted);font-size:15px;max-width:500px;margin:0 auto 24px;}
+
+/* Stats bar */
+.stats-bar{
+  display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:30px;
+}
+.stat-chip{
+  padding:8px 18px;border-radius:50px;
+  background:var(--surface2);border:1px solid var(--border);
+  font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;
+}
+.stat-chip .val{font-weight:700;color:var(--accent);}
+
+/* Nav tabs */
+.nav-tabs{
+  display:flex;gap:4px;flex-wrap:wrap;justify-content:center;
+  background:var(--surface);border-radius:16px;padding:6px;
+  border:1px solid var(--border);margin-bottom:30px;
+}
+.tab-btn{
+  padding:10px 18px;border-radius:12px;border:none;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+  color:var(--text-muted);background:transparent;transition:all 0.25s;
+  white-space:nowrap;
+}
+.tab-btn:hover{color:var(--text);background:rgba(255,255,255,0.05);}
+.tab-btn.active{
+  color:#fff;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  box-shadow:0 4px 20px rgba(79,156,249,0.3);
+}
+
+/* Panels */
+.panel{display:none;animation:fadeIn 0.35s ease;}
+.panel.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* Cards */
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:24px;margin-bottom:16px;
+  transition:border-color 0.25s,box-shadow 0.25s;
+}
+.card:hover{border-color:rgba(79,156,249,0.3);box-shadow:var(--glow);}
+.card-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.card-icon{
+  width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+}
+.card-title{font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;}
+.card-sub{color:var(--text-muted);font-size:13px;margin-top:2px;}
+
+/* Grid layouts */
+.grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+.grid3{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
+
+/* Tags */
+.tag{
+  display:inline-block;padding:3px 10px;border-radius:50px;font-size:11px;font-weight:600;
+  letter-spacing:0.5px;margin:2px;
+}
+.tag-red{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);}
+.tag-green{background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.3);}
+.tag-blue{background:rgba(79,156,249,0.15);color:#4f9cf9;border:1px solid rgba(79,156,249,0.3);}
+.tag-purple{background:rgba(167,139,250,0.15);color:#a78bfa;border:1px solid rgba(167,139,250,0.3);}
+.tag-yellow{background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);}
+.tag-cyan{background:rgba(6,182,212,0.15);color:#06b6d4;border:1px solid rgba(6,182,212,0.3);}
+
+/* Section title */
+.section-title{
+  font-family:'DM Serif Display',serif;font-size:24px;
+  margin-bottom:20px;display:flex;align-items:center;gap:12px;
+}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ============== QUIZ ============== */
+.quiz-header{
+  background:linear-gradient(135deg,rgba(79,156,249,0.1),rgba(167,139,250,0.1));
+  border:1px solid rgba(79,156,249,0.2);border-radius:16px;padding:20px 24px;
+  margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:gap;gap:12px;
+}
+.quiz-meta{font-size:14px;color:var(--text-muted);}
+.quiz-meta strong{color:var(--text);}
+.progress-wrap{height:8px;background:var(--surface2);border-radius:50px;margin-top:12px;overflow:hidden;}
+.progress-bar{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width 0.5s ease;}
+
+.q-card{
+  background:var(--surface);border:2px solid var(--border);border-radius:16px;
+  padding:28px;margin-bottom:20px;transition:border-color 0.3s;
+}
+.q-num{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;}
+.q-text{font-size:16px;line-height:1.6;margin-bottom:20px;}
+.q-options{display:flex;flex-direction:column;gap:10px;}
+.q-option{
+  padding:14px 18px;border-radius:12px;border:1.5px solid var(--border);
+  cursor:pointer;transition:all 0.2s;font-size:14px;font-weight:500;
+  display:flex;align-items:center;gap:12px;background:var(--surface2);
+}
+.q-option:hover{border-color:rgba(79,156,249,0.5);background:rgba(79,156,249,0.05);}
+.q-option .opt-letter{
+  width:28px;height:28px;border-radius:8px;border:1.5px solid currentColor;
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;
+  flex-shrink:0;color:var(--text-muted);
+}
+.q-option.correct{border-color:var(--green)!important;background:rgba(16,185,129,0.1)!important;animation:correctPulse 0.4s ease;}
+.q-option.wrong{border-color:var(--red)!important;background:rgba(239,68,68,0.1)!important;animation:wrongShake 0.4s ease;}
+.q-option.disabled{pointer-events:none;}
+@keyframes correctPulse{0%{transform:scale(1)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
+@keyframes wrongShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+.q-explanation{
+  margin-top:16px;padding:16px;border-radius:12px;
+  background:rgba(79,156,249,0.07);border:1px solid rgba(79,156,249,0.2);
+  font-size:13px;line-height:1.6;display:none;
+}
+.q-explanation.show{display:block;animation:fadeIn 0.3s ease;}
+.q-explanation .why-correct{color:var(--green);font-weight:600;margin-bottom:6px;}
+.q-explanation .why-wrong{color:var(--text-muted);}
+
+.score-banner{
+  text-align:center;padding:40px;border-radius:20px;
+  background:linear-gradient(135deg,rgba(79,156,249,0.1),rgba(167,139,250,0.1));
+  border:1px solid rgba(79,156,249,0.3);margin-bottom:24px;
+}
+.score-number{font-family:'DM Serif Display',serif;font-size:64px;color:var(--accent);}
+.score-label{font-size:18px;font-weight:600;margin-bottom:8px;}
+.score-sub{color:var(--text-muted);font-size:14px;}
+
+/* ============== FLASHCARDS ============== */
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;}
+.fc-card{perspective:1000px;height:200px;cursor:pointer;}
+.fc-inner{
+  position:relative;width:100%;height:100%;
+  transform-style:preserve-3d;transition:transform 0.55s cubic-bezier(.4,.2,.2,1);
+}
+.fc-card.flipped .fc-inner{transform:rotateY(180deg);}
+.fc-front,.fc-back{
+  position:absolute;inset:0;border-radius:16px;padding:24px;
+  display:flex;flex-direction:column;justify-content:center;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border:1.5px solid var(--border);
+}
+.fc-front{background:var(--surface);border-color:rgba(79,156,249,0.2);}
+.fc-back{background:linear-gradient(135deg,rgba(79,156,249,0.12),rgba(167,139,250,0.12));border-color:rgba(167,139,250,0.3);transform:rotateY(180deg);}
+.fc-q{font-size:14px;font-weight:600;color:var(--text);line-height:1.5;}
+.fc-tag{font-size:11px;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px;}
+.fc-a{font-size:13px;color:var(--text);line-height:1.6;}
+.fc-hint{position:absolute;bottom:12px;right:16px;font-size:11px;color:var(--text-muted);}
+
+/* ============== CASES ============== */
+.case-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:20px;}
+.case-header{display:flex;gap:14px;align-items:flex-start;margin-bottom:20px;}
+.case-num{
+  width:48px;height:48px;border-radius:14px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Serif Display',serif;font-size:22px;color:#fff;flex-shrink:0;
+}
+.case-title{font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:4px;}
+.case-scenario{
+  background:rgba(79,156,249,0.05);border-left:3px solid var(--accent);
+  border-radius:0 12px 12px 0;padding:16px 20px;margin-bottom:20px;
+  font-size:14px;line-height:1.7;
+}
+.case-questions{}
+.case-q{margin-bottom:16px;}
+.case-q-text{font-weight:600;font-size:14px;margin-bottom:10px;}
+.reveal-btn{
+  padding:10px 20px;border-radius:10px;border:1.5px solid rgba(79,156,249,0.4);
+  background:rgba(79,156,249,0.08);color:var(--accent);cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all 0.2s;
+}
+.reveal-btn:hover{background:rgba(79,156,249,0.15);border-color:var(--accent);}
+.case-answer{
+  margin-top:12px;padding:16px;border-radius:12px;
+  background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.2);
+  font-size:13px;line-height:1.7;display:none;
+}
+.case-answer.show{display:block;animation:fadeIn 0.3s ease;}
+.case-answer strong{color:var(--accent3);}
+
+/* ============== PATHOPHYSIOLOGY ============== */
+.flowchart{padding:20px 0;}
+.flow-step{
+  display:flex;align-items:center;gap:14px;margin-bottom:6px;
+}
+.flow-box{
+  flex:1;padding:14px 20px;border-radius:12px;border:1.5px solid var(--border);
+  background:var(--surface2);font-size:13px;cursor:pointer;transition:all 0.2s;
+}
+.flow-box:hover{border-color:var(--accent);background:rgba(79,156,249,0.06);}
+.flow-box.active-step{border-color:var(--accent);background:rgba(79,156,249,0.1);}
+.flow-arrow{color:var(--text-muted);font-size:20px;}
+.flow-detail{
+  margin:4px 0 12px 54px;padding:14px 18px;border-radius:10px;
+  background:rgba(79,156,249,0.06);border-left:2px solid var(--accent);
+  font-size:13px;line-height:1.6;display:none;
+}
+.flow-detail.show{display:block;animation:fadeIn 0.25s ease;}
+
+.structure-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:28px;}
+.structure-item{
+  padding:16px;border-radius:12px;border:1.5px solid var(--border);
+  background:var(--surface2);cursor:pointer;transition:all 0.2s;text-align:center;
+}
+.structure-item:hover{transform:translateY(-2px);border-color:var(--accent);}
+.structure-icon{font-size:28px;margin-bottom:8px;}
+.structure-name{font-size:13px;font-weight:600;margin-bottom:4px;}
+.structure-sub{font-size:11px;color:var(--text-muted);}
+.structure-detail{
+  padding:18px;border-radius:12px;background:rgba(79,156,249,0.07);
+  border:1px solid rgba(79,156,249,0.2);margin-bottom:20px;
+  font-size:13px;line-height:1.7;display:none;
+}
+.structure-detail.show{display:block;animation:fadeIn 0.25s ease;}
+
+/* ============== COMPARISON TABLE ============== */
+.compare-table{width:100%;border-collapse:collapse;font-size:13px;}
+.compare-table th{
+  background:rgba(79,156,249,0.1);padding:12px 16px;text-align:left;
+  font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--accent);
+  border-bottom:1px solid rgba(79,156,249,0.2);
+}
+.compare-table td{
+  padding:12px 16px;border-bottom:1px solid var(--border);
+  vertical-align:top;line-height:1.5;
+}
+.compare-table tr:hover td{background:rgba(255,255,255,0.02);}
+.compare-table tr:last-child td{border-bottom:none;}
+
+/* ============== MNEMONICS ============== */
+.mnemonic-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:24px;margin-bottom:16px;overflow:hidden;position:relative;
+}
+.mnemonic-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+}
+.mc1::before{background:linear-gradient(90deg,var(--accent),var(--cyan));}
+.mc2::before{background:linear-gradient(90deg,var(--purple),var(--pink));}
+.mc3::before{background:linear-gradient(90deg,var(--green),var(--cyan));}
+.mc4::before{background:linear-gradient(90deg,var(--warn),var(--red));}
+.mc5::before{background:linear-gradient(90deg,var(--accent2),var(--accent));}
+.mc6::before{background:linear-gradient(90deg,var(--pink),var(--purple));}
+.mnemonic-title{font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:8px;}
+.mnemonic-word{
+  font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;
+  color:var(--accent);margin-bottom:16px;letter-spacing:2px;
+}
+.mnemonic-list{list-style:none;}
+.mnemonic-list li{
+  display:flex;align-items:baseline;gap:12px;padding:8px 0;
+  border-bottom:1px solid var(--border);font-size:14px;
+}
+.mnemonic-list li:last-child{border-bottom:none;}
+.mnemonic-list .letter{
+  font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;
+  color:var(--accent);min-width:22px;
+}
+
+/* ============== TREATMENT ============== */
+.emergency-banner{
+  background:linear-gradient(135deg,rgba(239,68,68,0.15),rgba(251,191,36,0.15));
+  border:1.5px solid rgba(239,68,68,0.3);border-radius:14px;
+  padding:20px 24px;margin-bottom:20px;
+}
+.emergency-banner h3{color:var(--danger);font-size:16px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.treatment-item{
+  display:flex;align-items:center;gap:12px;padding:10px 0;
+  border-bottom:1px solid var(--border);font-size:14px;
+}
+.treatment-item:last-child{border-bottom:none;}
+.urgency-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.urgency-red{background:var(--red);}
+.urgency-yellow{background:var(--warn);}
+.urgency-green{background:var(--green);}
+
+/* ============== SEARCH ============== */
+.search-wrap{position:relative;margin-bottom:24px;}
+.search-input{
+  width:100%;padding:14px 20px 14px 46px;border-radius:12px;
+  border:1.5px solid var(--border);background:var(--surface);
+  color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;
+  transition:border-color 0.2s;
+}
+.search-input:focus{outline:none;border-color:rgba(79,156,249,0.5);}
+.search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--text-muted);}
+
+/* Buttons */
+.btn-primary{
+  padding:12px 24px;border-radius:12px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;
+  transition:all 0.2s;box-shadow:0 4px 20px rgba(79,156,249,0.3);
+}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(79,156,249,0.4);}
+.btn-ghost{
+  padding:10px 20px;border-radius:10px;border:1.5px solid var(--border);
+  background:transparent;color:var(--text-muted);cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all 0.2s;
+}
+.btn-ghost:hover{border-color:rgba(79,156,249,0.4);color:var(--text);}
+
+/* Responsive */
+@media(max-width:640px){
+  .nav-tabs{gap:2px;}
+  .tab-btn{padding:8px 10px;font-size:12px;}
+  .quiz-header{flex-direction:column;}
+  .card{padding:16px;}
+}
+
+/* Exam warning pill */
+.exam-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 12px;border-radius:50px;font-size:11px;font-weight:700;
+  letter-spacing:0.5px;text-transform:uppercase;
+  background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.3);color:var(--warn);
+  margin-bottom:8px;
+}
+
+/* Overview concept cards */
+.concept-card{
+  background:var(--surface);border:1.5px solid var(--border);border-radius:16px;
+  padding:20px;transition:all 0.25s;cursor:default;
+}
+.concept-card:hover{border-color:rgba(79,156,249,0.3);transform:translateY(-2px);box-shadow:var(--glow);}
+.concept-icon{font-size:30px;margin-bottom:12px;}
+.concept-name{font-weight:700;font-size:15px;margin-bottom:6px;}
+.concept-def{font-size:12px;color:var(--text-muted);line-height:1.6;margin-bottom:10px;}
+.concept-mech{font-size:12px;color:var(--text);line-height:1.5;}
+
+/* Diagnosis flow */
+.diag-step{
+  display:flex;gap:14px;margin-bottom:12px;align-items:flex-start;
+}
+.diag-num{
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;flex-shrink:0;color:#fff;
+}
+.diag-content{flex:1;padding-top:4px;}
+.diag-title{font-weight:600;font-size:14px;margin-bottom:4px;}
+.diag-desc{font-size:13px;color:var(--text-muted);line-height:1.5;}
+
+/* Streak badge */
+.streak-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.3);
+  border-radius:50px;padding:6px 14px;font-size:13px;font-weight:700;color:var(--warn);
+}
+</style>
+</head>
+<body>
+
+<div class="bg-anim">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-badge">📚 Pathology · CNS</div>
+    <h1>Cerebrovascular Disorders<br>&amp; Traumatic Head Injury</h1>
+    <p>Mansoura Medical School · Interactive Study Platform</p>
+    <div class="stats-bar">
+      <div class="stat-chip">🧠 <span class="val" id="stat-topics">12</span> Topics</div>
+      <div class="stat-chip">❓ <span class="val" id="stat-quiz">25</span> MCQs</div>
+      <div class="stat-chip">🃏 <span class="val" id="stat-fc">20</span> Flashcards</div>
+      <div class="stat-chip">✅ Score: <span class="val" id="stat-score">—</span></div>
+      <div class="stat-chip">🔥 Streak: <span class="val" id="stat-streak">0</span></div>
+    </div>
+  </div>
+
+  <!-- NAV TABS -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('overview',this)">🏠 Overview</button>
+    <button class="tab-btn" onclick="switchTab('quiz',this)">❓ Quiz</button>
+    <button class="tab-btn" onclick="switchTab('flashcards',this)">🃏 Flashcards</button>
+    <button class="tab-btn" onclick="switchTab('cases',this)">🏥 Cases</button>
+    <button class="tab-btn" onclick="switchTab('pathophys',this)">🔬 Pathophysiology</button>
+    <button class="tab-btn" onclick="switchTab('diagnosis',this)">🔍 Diagnosis</button>
+    <button class="tab-btn" onclick="switchTab('treatment',this)">💊 Treatment</button>
+    <button class="tab-btn" onclick="switchTab('mnemonics',this)">🧩 Mnemonics</button>
+  </div>
+
+  <!-- ===== OVERVIEW PANEL ===== -->
+  <div class="panel active" id="panel-overview">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="overview-search" placeholder="Search conditions, mechanisms, structures…" oninput="filterOverview()">
+    </div>
+
+    <div class="section-title">🩸 Types of Intracranial Hemorrhage</div>
+    <div class="grid2" id="overview-grid">
+
+      <div class="concept-card" data-search="extradural epidural hemorrhage middle meningeal artery temporal skull fracture">
+        <div class="concept-icon">🔴</div>
+        <div class="exam-pill">⚠️ High Yield</div>
+        <div class="concept-name">Extradural (Epidural) Hemorrhage</div>
+        <div class="concept-def">Arterial blood between skull and dura mater.</div>
+        <div class="concept-mech"><strong>Mechanism:</strong> Temporal/parietal skull fracture → tear of middle meningeal artery → rapid arterial bleed → ↑ICP → brain herniation.</div>
+        <div style="margin-top:10px"><span class="tag tag-red">Arterial blood</span><span class="tag tag-yellow">Emergency</span><span class="tag tag-blue">Lucid interval</span></div>
+      </div>
+
+      <div class="concept-card" data-search="subdural hemorrhage bridging veins elderly alcoholic venous atrophy chronic">
+        <div class="concept-icon">🟠</div>
+        <div class="exam-pill">⚠️ Exam Favorite</div>
+        <div class="concept-name">Subdural Hemorrhage</div>
+        <div class="concept-def">Venous blood between dura and arachnoid mater.</div>
+        <div class="concept-mech"><strong>Mechanism:</strong> Trauma → rupture of bridging cerebral veins. Elderly/alcoholics at higher risk due to cerebral atrophy stretching veins.</div>
+        <div style="margin-top:10px"><span class="tag tag-purple">Venous blood</span><span class="tag tag-green">Acute / Chronic</span></div>
+      </div>
+
+      <div class="concept-card" data-search="subarachnoid hemorrhage berry aneurysm worst headache meningeal irritation pia arachnoid">
+        <div class="concept-icon">🟡</div>
+        <div class="concept-name">Subarachnoid Hemorrhage</div>
+        <div class="concept-def">Blood between arachnoid and pia mater.</div>
+        <div class="concept-mech"><strong>Mechanism:</strong> Rupture of berry aneurysms or AVMs → sudden severe headache + LOC + meningeal irritation.</div>
+        <div style="margin-top:10px"><span class="tag tag-red">Thunderclap HA</span><span class="tag tag-purple">Aneurysm rupture</span></div>
+      </div>
+
+      <div class="concept-card" data-search="intracerebral intraparenchymal hemorrhage hypertension middle cerebral artery basal ganglia">
+        <div class="concept-icon">🩸</div>
+        <div class="exam-pill">⚠️ High Yield</div>
+        <div class="concept-name">Intracerebral (Intraparenchymal) Hemorrhage</div>
+        <div class="concept-def">Blood escaping into brain tissue itself.</div>
+        <div class="concept-mech"><strong>Most common cause:</strong> Systemic hypertension → rupture of MCA branches → deep structures (basal ganglia, thalamus, pons).</div>
+        <div style="margin-top:10px"><span class="tag tag-red">HTN #1 cause</span><span class="tag tag-blue">Deep structures</span></div>
+      </div>
+
+      <div class="concept-card" data-search="global cerebral ischemia hypotension systolic 50 red neurons purkinje hippocampus">
+        <div class="concept-icon">⚡</div>
+        <div class="exam-pill">⚠️ Written Q</div>
+        <div class="concept-name">Global Cerebral Ischemia</div>
+        <div class="concept-def">Widespread ischemic injury from severe systemic hypotension (systolic &lt;50 mmHg).</div>
+        <div class="concept-mech"><strong>Most vulnerable:</strong> Pyramidal cells (hippocampus, neocortex) + Purkinje cells (cerebellum).</div>
+        <div style="margin-top:10px"><span class="tag tag-red">Red neurons</span><span class="tag tag-yellow">Brain death risk</span></div>
+      </div>
+
+      <div class="concept-card" data-search="focal cerebral ischemia embolic thrombotic MCA stroke collateral circle willis">
+        <div class="concept-icon">🎯</div>
+        <div class="concept-name">Focal Cerebral Ischemia</div>
+        <div class="concept-def">Arterial or venous occlusion causing focal infarction (stroke).</div>
+        <div class="concept-mech"><strong>Embolic:</strong> cardiac mural thrombi → MCA (most common). <strong>Thrombotic:</strong> atherosclerosis at carotid bifurcation.</div>
+        <div style="margin-top:10px"><span class="tag tag-blue">MCA territory</span><span class="tag tag-green">Collaterals protect</span></div>
+      </div>
+
+      <div class="concept-card" data-search="hypertensive cerebrovascular disease charcot bouchard microaneurysm lacunar infarct slit hemorrhage">
+        <div class="concept-icon">💢</div>
+        <div class="exam-pill">⚠️ Famous Q</div>
+        <div class="concept-name">Hypertensive Cerebrovascular Disease</div>
+        <div class="concept-def">Multiple brain changes from chronic high BP.</div>
+        <div class="concept-mech"><strong>Lesions:</strong> Hyaline arteriolosclerosis → Charcot-Bouchard microaneurysms → lacunar infarcts → slit hemorrhages → massive hemorrhage.</div>
+        <div style="margin-top:10px"><span class="tag tag-red">Charcot-Bouchard</span><span class="tag tag-purple">Lacunar infarcts</span></div>
+      </div>
+
+      <div class="concept-card" data-search="cerebral amyloid angiopathy CAA amyloid beta lobar hemorrhage dementia congo red">
+        <div class="concept-icon">🧬</div>
+        <div class="concept-name">Cerebral Amyloid Angiopathy</div>
+        <div class="concept-def">Aβ peptide deposition in vessel walls → lobar hemorrhages.</div>
+        <div class="concept-mech"><strong>Diagnosis:</strong> Congo red stain → apple-green birefringence under polarized light. Causes dementia + lobar (cortical) hemorrhages.</div>
+        <div style="margin-top:10px"><span class="tag tag-cyan">Congo red</span><span class="tag tag-purple">Lobar bleed</span></div>
+      </div>
+
+      <div class="concept-card" data-search="berry aneurysm saccular congenital circle willis internal elastic lamina subarachnoid">
+        <div class="concept-icon">🫧</div>
+        <div class="concept-name">Berry (Saccular) Aneurysm</div>
+        <div class="concept-def">Congenital weakness of internal elastic lamina at arterial bifurcations.</div>
+        <div class="concept-mech"><strong>Site:</strong> Circle of Willis bifurcations. Rupture → subarachnoid hemorrhage ("worst headache of life").</div>
+        <div style="margin-top:10px"><span class="tag tag-blue">Congenital</span><span class="tag tag-red">SAH on rupture</span></div>
+      </div>
+
+      <div class="concept-card" data-search="AVM arteriovenous malformation bag of worms intraparenchymal subarachnoid bleeding">
+        <div class="concept-icon">🪱</div>
+        <div class="concept-name">Arteriovenous Malformation (AVM)</div>
+        <div class="concept-def">Tangled "bag of worms" vascular network.</div>
+        <div class="concept-mech"><strong>Risk:</strong> Most dangerous vascular malformation. Mixed intraparenchymal + subarachnoid bleeding risk.</div>
+        <div style="margin-top:10px"><span class="tag tag-red">Highest risk</span><span class="tag tag-yellow">Bag of worms</span></div>
+      </div>
+
+      <div class="concept-card" data-search="concussion reversible transient brain dysfunction metabolic parkinsonism boxer repeated">
+        <div class="concept-icon">🥊</div>
+        <div class="concept-name">Concussion</div>
+        <div class="concept-def">Reversible transient brain dysfunction — metabolic, no structural change.</div>
+        <div class="concept-mech"><strong>Repeated concussions:</strong> → cumulative damage → neurodegenerative disorders (Parkinsonism). Seen in boxers.</div>
+        <div style="margin-top:10px"><span class="tag tag-green">Reversible</span><span class="tag tag-yellow">CTE risk</span></div>
+      </div>
+
+      <div class="concept-card" data-search="contusion laceration traumatic brain injury bruise coup contrecoup penetrating">
+        <div class="concept-icon">🧠</div>
+        <div class="concept-name">Contusion &amp; Laceration</div>
+        <div class="concept-def">Contusion = brain bruise (intact surface). Laceration = gross tearing (penetrating trauma).</div>
+        <div class="concept-mech"><strong>Contusion:</strong> Interstitial hemorrhage of gyri. Heals with hemosiderin staining. Coup/Contrecoup pattern.</div>
+        <div style="margin-top:10px"><span class="tag tag-blue">Blunt trauma</span><span class="tag tag-red">Penetrating = laceration</span></div>
+      </div>
+
+    </div>
+
+    <!-- Comparison table -->
+    <div class="section-title" style="margin-top:32px">📊 Quick Comparison: Hemorrhage Types</div>
+    <div class="card">
+      <div style="overflow-x:auto">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Type</th><th>Space</th><th>Blood Source</th><th>Key Mechanism</th><th>Clinical Clue</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Extradural</strong></td>
+            <td>Between skull &amp; dura</td>
+            <td>Middle meningeal artery (arterial)</td>
+            <td>Temporal bone fracture</td>
+            <td>Lucid interval → rapid deterioration</td>
+          </tr>
+          <tr>
+            <td><strong>Subdural</strong></td>
+            <td>Dura ↔ arachnoid</td>
+            <td>Bridging veins (venous)</td>
+            <td>Cerebral atrophy stretching veins</td>
+            <td>Elderly/alcoholic; slow onset (chronic)</td>
+          </tr>
+          <tr>
+            <td><strong>Subarachnoid</strong></td>
+            <td>Arachnoid ↔ pia</td>
+            <td>Aneurysm / AVM</td>
+            <td>Berry aneurysm rupture</td>
+            <td>"Worst headache of life" + meningism</td>
+          </tr>
+          <tr>
+            <td><strong>Intraparenchymal</strong></td>
+            <td>Brain tissue</td>
+            <td>MCA branches</td>
+            <td>Hypertension → vessel rupture</td>
+            <td>Deep structures affected; HTN history</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== QUIZ PANEL ===== -->
+  <div class="panel" id="panel-quiz">
+    <div class="quiz-header">
+      <div>
+        <div class="quiz-meta">Question <strong id="q-current">1</strong> of <strong>25</strong></div>
+        <div class="progress-wrap" style="width:300px;max-width:100%">
+          <div class="progress-bar" id="quiz-progress" style="width:4%"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <div class="streak-badge">🔥 <span id="streak-disp">0</span> streak</div>
+        <div class="stat-chip">Score: <span class="val" id="score-disp">0/0</span></div>
+        <button class="btn-ghost" onclick="resetQuiz()">↺ Reset</button>
+      </div>
+    </div>
+    <div id="quiz-container"></div>
+    <div id="quiz-done" style="display:none">
+      <div class="score-banner">
+        <div class="score-number" id="final-score">0/25</div>
+        <div class="score-label">Quiz Complete! 🎉</div>
+        <div class="score-sub" id="final-msg"></div>
+      </div>
+      <div style="text-align:center"><button class="btn-primary" onclick="resetQuiz()">🔄 Retake Quiz</button></div>
+    </div>
+  </div>
+
+  <!-- ===== FLASHCARDS PANEL ===== -->
+  <div class="panel" id="panel-flashcards">
+    <div class="card" style="background:linear-gradient(135deg,rgba(79,156,249,0.08),rgba(167,139,250,0.08));border-color:rgba(79,156,249,0.2)">
+      <p style="font-size:14px;color:var(--text-muted)">🃏 Click any card to flip and reveal the answer. Test yourself before looking!</p>
+    </div>
+    <div class="fc-grid" id="fc-grid"></div>
+  </div>
+
+  <!-- ===== CLINICAL CASES PANEL ===== -->
+  <div class="panel" id="panel-cases">
+    <div class="card" style="background:linear-gradient(135deg,rgba(52,211,153,0.08),rgba(6,182,212,0.08));border-color:rgba(52,211,153,0.2);margin-bottom:24px">
+      <p style="font-size:14px;color:var(--text-muted)">🏥 Exam-style clinical vignettes. Read the scenario carefully, answer the questions, then reveal the answer.</p>
+    </div>
+    <div id="cases-container"></div>
+  </div>
+
+  <!-- ===== PATHOPHYSIOLOGY PANEL ===== -->
+  <div class="panel" id="panel-pathophys">
+    <div class="section-title">🔬 Key Brain Structures &amp; Vulnerability</div>
+    <div class="structure-grid" id="structure-grid"></div>
+    <div class="structure-detail" id="structure-detail"></div>
+
+    <div class="section-title">🔄 Mechanistic Flowcharts</div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(79,156,249,0.1)">🌊</div>
+        <div><div class="card-title">Global Ischemia: Microscopic Progression</div><div class="card-sub">Click each step to expand details</div></div>
+      </div>
+      <div class="flowchart" id="flow-global"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(239,68,68,0.1)">🔺</div>
+        <div><div class="card-title">Extradural Hemorrhage Pathway</div><div class="card-sub">Step-by-step mechanism</div></div>
+      </div>
+      <div class="flowchart" id="flow-epidural"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(251,191,36,0.1)">💢</div>
+        <div><div class="card-title">Hypertensive Brain Disease: Cascade</div><div class="card-sub">From HTN to hemorrhage</div></div>
+      </div>
+      <div class="flowchart" id="flow-htn"></div>
+    </div>
+  </div>
+
+  <!-- ===== DIAGNOSIS PANEL ===== -->
+  <div class="panel" id="panel-diagnosis">
+    <div class="section-title">🔍 Diagnostic Approach</div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:rgba(79,156,249,0.12)">🔬</div>
+          <div><div class="card-title">Special Stains</div></div>
+        </div>
+        <table class="compare-table">
+          <thead><tr><th>Stain</th><th>Finding</th><th>Condition</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Congo Red</strong></td><td>Apple-green birefringence (polarized)</td><td>Cerebral Amyloid Angiopathy</td></tr>
+            <tr><td><strong>H&amp;E</strong></td><td>Red neurons (eosinophilic cytoplasm)</td><td>Global ischemia — early stage</td></tr>
+            <tr><td><strong>H&amp;E</strong></td><td>Hemosiderin deposits</td><td>Old contusion / hemorrhage</td></tr>
+            <tr><td><strong>H&amp;E</strong></td><td>Foamy macrophages (gitter cells)</td><td>Subacute infarct</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:rgba(52,211,153,0.12)">📊</div>
+          <div><div class="card-title">Hemorrhage vs Infarct</div></div>
+        </div>
+        <table class="compare-table">
+          <thead><tr><th>Feature</th><th>Non-hemorrhagic Infarct</th><th>Hemorrhagic Infarct</th></tr></thead>
+          <tbody>
+            <tr><td>Appearance</td><td>Pale / white</td><td>Red/bloody</td></tr>
+            <tr><td>Mechanism</td><td>Pure ischemia → liquefaction</td><td>Reperfusion OR venous occlusion</td></tr>
+            <tr><td>End stage</td><td>Fluid-filled cavity with gliosis</td><td>Hemosiderin + gliosis</td></tr>
+            <tr><td>Common cause</td><td>Arterial thrombosis</td><td>Embolic + reperfusion</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:24px">🗺️ Diagnostic Algorithm</div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:20px">Patient with Sudden Neurological Deficit / Head Trauma</div>
+      <div id="diag-algorithm"></div>
+    </div>
+
+    <div class="section-title" style="margin-top:24px">🧪 Investigation Findings Summary</div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:12px">🩺 Clinical Presentation Clues</div>
+        <div style="font-size:13px;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;gap:10px;align-items:baseline"><span style="color:var(--red)">●</span><span><strong>Lucid interval → rapid deterioration:</strong> Extradural hemorrhage</span></div>
+          <div style="display:flex;gap:10px;align-items:baseline"><span style="color:var(--warn)">●</span><span><strong>Worst headache of life (thunderclap):</strong> SAH / berry aneurysm rupture</span></div>
+          <div style="display:flex;gap:10px;align-items:baseline"><span style="color:var(--purple)">●</span><span><strong>Elderly + minor trauma + confusion weeks later:</strong> Chronic subdural</span></div>
+          <div style="display:flex;gap:10px;align-items:baseline"><span style="color:var(--accent)">●</span><span><strong>HTN + sudden focal deficit + deep bleed:</strong> Hypertensive intracerebral</span></div>
+          <div style="display:flex;gap:10px;align-items:baseline"><span style="color:var(--green)">●</span><span><strong>Post-cardiac arrest + diffuse deficit:</strong> Global ischemia</span></div>
+          <div style="display:flex;gap:10px;align-items:baseline"><span style="color:var(--cyan)">●</span><span><strong>Lobar bleed + dementia + elderly:</strong> Cerebral amyloid angiopathy</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:12px">🏷️ Investigation Badges</div>
+        <div>
+          <div style="margin-bottom:12px;font-size:13px;font-weight:600;color:var(--text-muted)">MICROSCOPY</div>
+          <span class="tag tag-red">Red neurons = early ischemia</span>
+          <span class="tag tag-blue">Foamy macrophages = day 10+</span>
+          <span class="tag tag-green">Gliosis = repair stage</span>
+          <span class="tag tag-cyan">Apple-green birefring = CAA</span>
+          <span class="tag tag-purple">Hemosiderin = old bleed</span>
+          <div style="margin-bottom:12px;margin-top:14px;font-size:13px;font-weight:600;color:var(--text-muted)">KEY THRESHOLDS</div>
+          <span class="tag tag-red">Systolic &lt;50 mmHg → global ischemia</span>
+          <span class="tag tag-yellow">Diastolic &gt;130 mmHg → HTN encephalopathy</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TREATMENT PANEL ===== -->
+  <div class="panel" id="panel-treatment">
+    <div class="emergency-banner">
+      <h3>🚨 Neurosurgical Emergencies</h3>
+      <div class="treatment-item"><div class="urgency-dot urgency-red"></div><span><strong>Extradural hemorrhage:</strong> Surgical drainage STAT — arterial bleed causes rapid herniation</span></div>
+      <div class="treatment-item"><div class="urgency-dot urgency-red"></div><span><strong>Acute subdural hematoma:</strong> Surgical decompression for acute ↑ICP</span></div>
+      <div class="treatment-item"><div class="urgency-dot urgency-red"></div><span><strong>Berry aneurysm rupture → SAH:</strong> Neurological ICU, prevent rebleed, manage vasospasm</span></div>
+      <div class="treatment-item"><div class="urgency-dot urgency-yellow"></div><span><strong>Hypertensive encephalopathy:</strong> Controlled BP reduction (diastolic &gt;130 = trigger)</span></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:rgba(79,156,249,0.1)">🎯</div>
+          <div><div class="card-title">Condition-Specific Management</div></div>
+        </div>
+        <div class="treatment-item"><div class="urgency-dot urgency-red"></div><span><strong>Chronic subdural:</strong> Drainage (burr hole) if symptomatic; monitor in mild cases</span></div>
+        <div class="treatment-item"><div class="urgency-dot urgency-yellow"></div><span><strong>Global cerebral ischemia:</strong> Treat underlying hypotension; targeted temperature management post-arrest</span></div>
+        <div class="treatment-item"><div class="urgency-dot urgency-yellow"></div><span><strong>Focal ischemic stroke:</strong> tPA within window (thrombotic/embolic); antiplatelet therapy</span></div>
+        <div class="treatment-item"><div class="urgency-dot urgency-green"></div><span><strong>Concussion:</strong> Rest, cognitive &amp; physical; avoid repeat trauma</span></div>
+        <div class="treatment-item"><div class="urgency-dot urgency-green"></div><span><strong>CAA:</strong> No specific treatment; manage BP, avoid anticoagulants</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon" style="background:rgba(52,211,153,0.1)">🛡️</div>
+          <div><div class="card-title">Prevention &amp; Risk Reduction</div></div>
+        </div>
+        <div class="treatment-item"><div class="urgency-dot urgency-red"></div><span><strong>Hypertension control:</strong> Most impactful — prevents intracerebral bleed, lacunar infarcts, Charcot-Bouchard rupture</span></div>
+        <div class="treatment-item"><div class="urgency-dot urgency-yellow"></div><span><strong>Anticoagulation monitoring:</strong> Prevents embolic stroke but increases hemorrhagic risk in CAA</span></div>
+        <div class="treatment-item"><div class="urgency-dot urgency-green"></div><span><strong>Concussion protocol:</strong> Graduated return-to-play; critical to avoid cumulative CTE</span></div>
+        <div class="treatment-item"><div class="urgency-dot urgency-green"></div><span><strong>Aneurysm surveillance:</strong> Unruptured berry aneurysms monitored; elective clipping/coiling considered</span></div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:24px">🔢 Urgency Color Key</div>
+    <div class="card">
+      <div style="display:flex;gap:24px;flex-wrap:wrap;font-size:14px">
+        <div style="display:flex;align-items:center;gap:10px"><div class="urgency-dot urgency-red"></div><strong>Immediate surgical emergency</strong></div>
+        <div style="display:flex;align-items:center;gap:10px"><div class="urgency-dot urgency-yellow"></div><strong>Urgent medical management</strong></div>
+        <div style="display:flex;align-items:center;gap:10px"><div class="urgency-dot urgency-green"></div><strong>Elective / supportive care</strong></div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:24px">💊 Aneurysm Types &amp; Their Management</div>
+    <div class="card">
+      <div style="overflow-x:auto">
+      <table class="compare-table">
+        <thead>
+          <tr><th>Type</th><th>Cause</th><th>Location</th><th>Management Approach</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Berry (Saccular)</strong></td><td>Congenital elastic lamina defect</td><td>Circle of Willis bifurcations</td><td>Surgical clipping / endovascular coiling</td></tr>
+          <tr><td><strong>Charcot-Bouchard</strong></td><td>Hypertension (essential)</td><td>Basal ganglia, pons, deep white matter</td><td>Strict BP control; surgical if large bleed</td></tr>
+          <tr><td><strong>Atheromatous</strong></td><td>Atherosclerosis</td><td>Large cerebral arteries</td><td>Treat underlying atherosclerosis</td></tr>
+          <tr><td><strong>Mycotic</strong></td><td>Septic emboli (bacterial endocarditis)</td><td>Distal cortical branches</td><td>Treat source infection; antibiotics; surgery</td></tr>
+          <tr><td><strong>Traumatic</strong></td><td>Penetrating head injury</td><td>Any vessel</td><td>Neurosurgical repair</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MNEMONICS PANEL ===== -->
+  <div class="panel" id="panel-mnemonics">
+    <div class="card" style="background:linear-gradient(135deg,rgba(167,139,250,0.08),rgba(236,72,153,0.08));border-color:rgba(167,139,250,0.2);margin-bottom:24px">
+      <p style="font-size:14px;color:var(--text-muted)">🧩 Custom mnemonics created from lecture content. Memorize the key word, then expand each letter.</p>
+    </div>
+    <div id="mnemonics-container"></div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+// ======== DATA ========
+
+const QUIZ_DATA = [
+  {q:"Which vessel is torn in a classic extradural (epidural) hemorrhage?",opts:["Bridging cerebral veins","Ruptured berry aneurysm","Middle meningeal artery","Middle cerebral artery","Dural venous sinuses"],ans:2,exp:"Extradural hemorrhage is arterial, caused by tearing of the middle meningeal artery following temporal/parietal bone fracture. Rapid arterial bleeding raises ICP quickly.",wrong:"A = subdural; B = subarachnoid; D = intraparenchymal; E = rarely epidural."},
+  {q:"A chronic alcoholic presents with weeks of progressive memory loss after a minor head bump. What is the mechanism?",opts:["Amyloid in cortical vessels","Rupture of bridging veins due to cerebral atrophy","Embolic MCA occlusion","Reversible metabolic brain dysfunction","Hypertensive Charcot-Bouchard rupture"],ans:1,exp:"Chronic subdural hematoma: cerebral atrophy stretches bridging veins, making them vulnerable to even minor trauma. Venous blood accumulates slowly.",wrong:"A = CAA; C = focal infarct; D = concussion; E = hypertensive hemorrhage."},
+  {q:"Which visual appearance characterizes an Arteriovenous Malformation (AVM)?",opts:["Apple-green birefringence","Fluid-filled cavity","Bag of worms","Petechial punctate dots","Slit hemorrhages"],ans:2,exp:"AVMs appear as a tangled network of dilated vascular channels — classically described as a 'bag of worms' on gross inspection.",wrong:"A = amyloid (Congo red); B = old infarct cavity; D = fat embolism; E = hypertensive slit hemorrhage."},
+  {q:"Which neurons are MOST vulnerable to hypoxia during moderate global cerebral ischemia?",opts:["Astrocytes and oligodendroglia","Pyramidal cells of hippocampus and Purkinje cells","Endothelial cells of Circle of Willis","Microglia and neutrophils","Neurons of the thalamus only"],ans:1,exp:"Pyramidal cells of the hippocampus (CA1) and neocortex, and Purkinje cells of the cerebellum are selectively most vulnerable to hypoxic-ischemic injury.",wrong:"Glial cells (A) are more resistant. C, D, E do not represent the most vulnerable populations."},
+  {q:"What is the EARLIEST microscopic change in neurons after global cerebral ischemia?",opts:["Gliosis","Neutrophilic infiltration","Cytoplasmic eosinophilia and nuclear dissolution (Red neurons)","Influx of macrophages","Liquefactive necrosis"],ans:2,exp:"'Red neurons' appear first: RNA loss causes cytoplasmic eosinophilia and nuclear pyknosis/dissolution — the hallmark of early ischemic injury.",wrong:"Neutrophils (B) and macrophages (D) come later. Gliosis (A) is the repair stage. Liquefaction (E) is a macroscopic late change."},
+  {q:"Most common cause of spontaneous massive intracerebral hemorrhage?",opts:["Cerebral amyloid angiopathy","Atherosclerosis","Berry aneurysm rupture","Systemic hypertension","Arteriovenous malformation"],ans:3,exp:"Systemic hypertension is the leading cause — ruptures MCA branches. Deep structures (basal ganglia, thalamus, pons) are most affected. Put HTN at the TOP of any list!",wrong:"All others cause hemorrhage but HTN is the #1 cause of massive intraparenchymal bleed."},
+  {q:"Which location is PROTECTED from focal cerebral ischemia by collateral circulation?",opts:["Thalamus","Basal ganglia","Deep white matter","Internal capsule","Cortical leptomeningeal surface and Circle of Willis"],ans:4,exp:"The Circle of Willis and cortical leptomeningeal surfaces have robust collaterals. Deep white matter, basal ganglia, and internal capsule lack collaterals and are vulnerable.",wrong:"A, B, C, D are vulnerable zones with poor collateral supply."},
+  {q:"What triggers acute hypertensive encephalopathy?",opts:["Diastolic BP >130 mmHg overcoming autoregulation","Amyloid deposition in vessel walls","Tear of middle meningeal artery","Thrombus at carotid bifurcation","Cardiac embolus"],ans:0,exp:"Diastolic BP >130 mmHg overwhelms cerebral autoregulation → forced vasodilation → cerebral edema → headache, confusion, convulsions, possibly coma.",wrong:"B = CAA; C = extradural hematoma; D, E = infarct mechanisms."},
+  {q:"In Cerebral Amyloid Angiopathy, where do hemorrhages TYPICALLY occur?",opts:["Basal ganglia","Pons","Lobes of cerebral cortex (lobar hemorrhages)","Subarachnoid space","Extradural space"],ans:2,exp:"Aβ deposits weaken cortical and meningeal vessels → lobar hemorrhages in the cerebral cortex — unlike HTN bleeds which hit deep structures.",wrong:"Basal ganglia/pons (A, B) = hypertensive hemorrhage sites. D, E = different compartments."},
+  {q:"Underlying defect in a congenital berry aneurysm?",opts:["Amyloid beta deposition","Hyaline arteriolosclerosis","Weakness/absence of internal elastic lamina at arterial bifurcations","Penetrating skull trauma","Bacterial endocarditis emboli"],ans:2,exp:"Berry aneurysms arise from congenital absence or deficiency of the internal elastic lamina and/or media at bifurcation points in the Circle of Willis.",wrong:"A = CAA; B = hypertension; D = traumatic aneurysm; E = mycotic aneurysm."},
+  {q:"A hemorrhagic cerebral infarct most likely develops via which mechanism?",opts:["Liquefactive necrosis without reperfusion","Reperfusion of ischemic tissue OR venous occlusion","Severe systemic hypotension","Rupture of bridging vein","Hyaline arteriolosclerosis"],ans:1,exp:"Hemorrhagic infarcts occur when (1) blood flow is re-established to dead, leaky vessels (reperfusion injury), or (2) venous occlusion increases hydrostatic pressure causing extravasation.",wrong:"A → pale infarct; C → global ischemia; D → subdural hematoma; E → hypertensive change."},
+  {q:"What distinguishes a brain CONTUSION from a LACERATION?",opts:["Contusions are reversible; lacerations irreversible","Contusions = tissue tearing; lacerations = intact surface","Contusions = intact brain surface; lacerations = gross tearing from penetrating trauma","Contusions = arterial; lacerations = venous","No structural difference"],ans:2,exp:"Contusion = bruising of brain gyri with intact surface (blunt trauma). Laceration = actual tearing of brain tissue from penetrating injury or severe skull fracture.",wrong:"B reverses the definitions. A confuses concussion with contusion. D is unrelated."},
+  {q:"Most common cardiac source of embolic cerebral infarcts?",opts:["Atheromatous plaque at MCA origin","Thrombus in dural venous sinus","Cardiac mural thrombi","Ruptured Charcot-Bouchard microaneurysm","Amyloid deposition"],ans:2,exp:"Cardiac mural thrombi (post-MI, dilated cardiomyopathy), valvular vegetations (endocarditis), and atrial fibrillation are the main cardiac embolic sources for cerebral infarcts.",wrong:"A, B = thrombotic infarct sources. D = intraparenchymal hemorrhage. E = lobar hemorrhage (CAA)."},
+  {q:"Charcot-Bouchard microaneurysms are specifically associated with:",opts:["Congenital defects at Circle of Willis","Bacterial endocarditis","Essential hypertension","Amyloid angiopathy","Head trauma"],ans:2,exp:"Charcot-Bouchard microaneurysms are small dilations of penetrating cerebral arteries caused by essential hypertension. Their rupture causes intraparenchymal hemorrhage.",wrong:"A = berry aneurysms; B = mycotic aneurysms; D = CAA; E = traumatic aneurysm."},
+  {q:"Which clinical sign STRONGLY suggests subarachnoid hemorrhage?",opts:["Personality changes over months","Sudden severe headache + meningeal irritation","Complete recovery within hours","Parkinsonism symptoms","Gradual onset confusion"],ans:1,exp:"SAH classically presents with sudden 'thunderclap' headache (worst of life), followed by loss of consciousness and signs of meningeal irritation (neck stiffness, photophobia).",wrong:"A, E = chronic subdural; C = concussion; D = repeated concussions → CTE/Parkinsonism."},
+  {q:"What occurs during the SUBACUTE stage of global cerebral ischemia?",opts:["Appearance of red neurons","Loss of CNS structure and gliosis","Neutrophilic infiltration","Influx of phagocytic macrophages (~day 10)","Brain swelling with wide gyri"],ans:3,exp:"Subacute stage (around day 10): necrotic tissue attracts phagocytic macrophages (gitter cells/foam cells) to remove debris — before the repair/gliosis stage begins.",wrong:"A, C, E = early changes. B = repair/chronic stage (gliosis)."},
+  {q:"Which definition best describes a 'slit hemorrhage'?",opts:["Rupture of a large cortical artery","Tearing of bridging veins","Rupture of small penetrating vessels deep in the brain (hypertension-related)","Bleeding into a fluid-filled cavity","Type of extradural hematoma"],ans:2,exp:"Slit hemorrhages are caused by rupture of small penetrating arteries in the brain, typically due to hypertensive disease. They appear as slit-like gaps in deep brain tissue.",wrong:"A = massive hemorrhage; B = subdural; D = incorrect concept; E = epidural."},
+  {q:"Which special stain confirms Cerebral Amyloid Angiopathy?",opts:["Haematoxylin & Eosin","Masson's Trichrome","Congo red","Periodic acid-Schiff (PAS)","Silver stain"],ans:2,exp:"Congo red stain: under normal light stains amyloid orange-red; under polarized light reveals characteristic apple-green birefringence — diagnostic for amyloid deposits.",wrong:"H&E shows the lesion but is not specific for amyloid. Others do not diagnose amyloidosis."},
+  {q:"Petechial hemorrhages in the brain can be caused by:",opts:["Fat embolism","Berry aneurysm rupture","Middle meningeal artery tear","Intact bridging veins","Mild concussion"],ans:0,exp:"Fat embolism (typically from long bone fractures) causes petechial (punctate) hemorrhages throughout the brain — a classic and testable cause.",wrong:"B → subarachnoid; C → epidural; D is normal anatomy; E causes no structural bleeding."},
+  {q:"Most frequently affected artery in EMBOLIC cerebral infarcts?",opts:["Anterior cerebral artery","Middle cerebral artery","Basilar artery","Posterior cerebral artery","Middle meningeal artery"],ans:1,exp:"The MCA (middle cerebral artery) is most frequently affected in embolic infarcts — it receives direct flow from the internal carotid artery, making it the most common landing zone for emboli.",wrong:"ACA, basilar, PCA less common; middle meningeal = meningeal artery, not cerebral."},
+  {q:"What happens during a concussion?",opts:["Gross tearing of brain tissue","Interstitial hemorrhage of gyri","Reversible transient brain dysfunction due to metabolic changes","Accumulation of blood in subarachnoid space","Amyloid deposition"],ans:2,exp:"Concussion = reversible transient dysfunction: metabolic changes without anatomical disruption. No structural bleeding, no permanent damage from a single event.",wrong:"A = laceration; B = contusion; D = subarachnoid hemorrhage; E = CAA."},
+  {q:"An aneurysm caused by bacterial embolus (endocarditis) is called:",opts:["Saccular aneurysm","Charcot-Bouchard aneurysm","Atheromatous aneurysm","Mycotic aneurysm","Traumatic aneurysm"],ans:3,exp:"Mycotic aneurysms arise from infected emboli (septic emboli) typically from bacterial endocarditis lodging in cerebral vessel walls, causing weakening and aneurysm formation.",wrong:"A = berry (congenital); B = hypertensive; C = atherosclerotic; E = trauma."},
+  {q:"Thrombotic cerebral infarcts most commonly occur at:",opts:["Circle of Willis bifurcations","Capillary beds","Carotid bifurcation and MCA origin","Bridging veins","Middle meningeal artery"],ans:2,exp:"Thrombosis forms on atheromatous plaques — most commonly at the carotid bifurcation, origin of MCA, and ends of the basilar artery where flow turbulence promotes plaque formation.",wrong:"A = berry aneurysm sites; B = not typical; D = subdural; E = meningeal."},
+  {q:"Widespread neuronal death in global ischemia indicates:",opts:["Mild transient ischemia","Severe long-standing ischemia → severe impairment or brain death","Completely reversible condition","Selective Purkinje cell damage only","Formation of chronic subdural hematoma"],ans:1,exp:"Severe, prolonged global ischemia leads to diffuse neuronal death → persistent vegetative state or brain death. Short mild ischemia can cause only selective neuronal vulnerability (vulnerable neurons die).",wrong:"A, C = mild ischemia; D = moderate ischemia (selective); E = unrelated."},
+  {q:"Which meningeal space contains the bridging cerebral veins?",opts:["Extradural space","Subdural space","Subarachnoid space","Ventricular space","Epidural space"],ans:1,exp:"Bridging veins course through the subdural space to drain cerebral cortex blood into the dural venous sinuses (superior sagittal sinus). Trauma → rupture → subdural hematoma.",wrong:"A/E are the same (epidural). C contains CSF. D is the ventricular system."}
+];
+
+const FLASHCARD_DATA = [
+  {q:"What are the 3 layers from outside to inside of the meninges?",a:"Dura mater → Arachnoid mater → Pia mater (DAP: Dura, Arachnoid, Pia)"},
+  {q:"Most common cause of massive spontaneous intraparenchymal hemorrhage?",a:"Systemic hypertension (HTN) — rupture of middle cerebral artery branches → basal ganglia, thalamus, pons"},
+  {q:"What is the 'lucid interval' in extradural hemorrhage?",a:"Brief period of consciousness after initial LOC — occurs because venous oozing initially stops, then arterial bleed expands rapidly causing herniation"},
+  {q:"Name the 3 microscopic stages of global cerebral ischemia in order.",a:"1️⃣ Early: Red neurons + neutrophils → 2️⃣ Subacute (~day 10): Necrosis + macrophage influx → 3️⃣ Repair: Gliosis + tissue loss"},
+  {q:"What stain diagnoses Cerebral Amyloid Angiopathy and what does it show?",a:"Congo red stain → Apple-green birefringence under POLARIZED LIGHT (Aβ in vessel walls)"},
+  {q:"Define Charcot-Bouchard microaneurysms.",a:"Small dilations of penetrating cerebral arteries from ESSENTIAL HYPERTENSION → rupture causes intraparenchymal hemorrhage"},
+  {q:"What is a berry (saccular) aneurysm's structural defect?",a:"Congenital absence/weakness of internal elastic lamina ± tunica media at arterial BIFURCATIONS of the Circle of Willis"},
+  {q:"Pyramidal cells of hippocampus + Purkinje cells: what makes them special?",a:"Most VULNERABLE neurons to hypoxia/ischemia — selectively die first in global cerebral ischemia"},
+  {q:"Which artery is torn in epidural hemorrhage and from what bone fracture?",a:"Middle meningeal artery — torn from fracture of TEMPORAL (or parietal) bone"},
+  {q:"What is the clinical presentation of berry aneurysm rupture?",a:"Sudden severe headache ('worst of life'), LOC, meningeal irritation (neck stiffness, photophobia, Kernig's sign)"},
+  {q:"AVM: gross appearance + bleeding risk?",a:"'Bag of worms' tangled vascular channels. Highest risk = mixed intraparenchymal + subarachnoid hemorrhage"},
+  {q:"Why do elderly + alcoholics get chronic subdural hematomas more easily?",a:"Cerebral ATROPHY stretches bridging veins across the subdural space → minor trauma ruptures them → slow venous accumulation"},
+  {q:"Embolic vs thrombotic infarct: which affects MCA most and which is more common overall?",a:"Both commonly affect MCA distribution. Embolic infarcts are MORE COMMON overall. Thrombotic occurs on atherosclerosis at carotid bifurcation/MCA origin"},
+  {q:"What triggers acute hypertensive encephalopathy?",a:"Diastolic BP >130 mmHg → overcomes cerebral autoregulation → forced vasodilation → cerebral edema → headache, convulsions, confusion"},
+  {q:"Where do hypertensive hemorrhages occur vs CAA hemorrhages?",a:"HTN: DEEP structures (basal ganglia, thalamus, pons). CAA: SUPERFICIAL lobes (cortical lobar hemorrhages)"},
+  {q:"Define a concussion vs contusion vs laceration.",a:"Concussion = reversible metabolic dysfunction, no structure change. Contusion = brain bruise, intact surface. Laceration = tearing from penetrating trauma"},
+  {q:"What type of aneurysm does bacterial endocarditis cause?",a:"MYCOTIC aneurysm — septic emboli lodge in distal cortical vessels → vessel wall infection → weakening → aneurysm"},
+  {q:"Name 5 pathological brain changes caused by systemic hypertension.",a:"1. Hyaline arteriolosclerosis 2. Charcot-Bouchard microaneurysms 3. Lacunar infarcts 4. Slit hemorrhages 5. Massive intracerebral hemorrhage"},
+  {q:"What happens to old brain infarct? Describe gross and micro appearance.",a:"GROSS: Fluid-filled cystic cavity. MICRO: Liquefactive necrosis → macrophage clearance → cavity surrounded by reactive GLIOSIS (astrocytic scar)"},
+  {q:"Repeated concussions in boxers → what long-term complication?",a:"Chronic Traumatic Encephalopathy (CTE) — neurodegenerative disorder manifesting as Parkinsonism, dementia, personality changes"}
+];
+
+const CASES_DATA = [
+  {
+    title:"The Motor Accident",
+    scenario:"A 25-year-old motorcyclist is brought to the ER after a high-speed collision. He briefly lost consciousness then recovered and spoke normally (lucid interval). Two hours later, he rapidly becomes unresponsive with a blown left pupil (dilated, unreactive). CT reveals a lens-shaped (biconvex) hyperdense collection over the left temporal lobe.",
+    questions:[
+      {q:"1. What is the diagnosis and what vessel is responsible?",a:"<strong>Extradural (Epidural) Hemorrhage</strong>. The middle meningeal artery is torn due to a temporal bone fracture. Arterial bleeding rapidly accumulates between the skull and dura."},
+      {q:"2. Why did the patient have a lucid interval?",a:"Initial concussive LOC resolved, but the arterial bleed continued to expand slowly. As the hematoma enlarged, it compressed the brain → transtentorial herniation → blown pupil (CN III compression)."},
+      {q:"3. What is the next step in management?",a:"<strong>Immediate neurosurgical craniotomy</strong> with evacuation of the hematoma. This is a time-critical emergency — arterial pressure rapidly raises ICP and causes brain herniation and death if untreated."},
+    ]
+  },
+  {
+    title:"The Confused Elderly Gentleman",
+    scenario:"An 80-year-old man with known alcoholism is brought in by his family for 3 weeks of progressive personality changes and memory loss. He denies any head injury, though family report he had a minor fall 4 weeks ago. Neurological exam reveals mild left-sided weakness. His brain CT shows a crescent-shaped collection over the right hemisphere.",
+    questions:[
+      {q:"1. What is the diagnosis? What is the blood source?",a:"<strong>Chronic Subdural Hematoma</strong>. Blood source: rupture of <strong>bridging cerebral veins</strong> that cross the subdural space. Venous blood accumulates slowly."},
+      {q:"2. Why is this patient particularly vulnerable?",a:"Cerebral atrophy (from aging + alcohol) stretches the bridging veins, making them susceptible to rupture from even minor trauma. The atrophied brain also means the expanding hematoma is initially well-tolerated, explaining the delayed presentation."},
+      {q:"3. How does this differ from acute subdural hematoma?",a:"<strong>Acute</strong>: rapid venous accumulation → immediate ↑ICP, requires urgent drainage. <strong>Chronic</strong>: slow accumulation → presents weeks later with personality changes, memory loss, subtle neurological deficits. Often treatable with burr hole drainage."},
+    ]
+  },
+  {
+    title:"Thunderclap in the Gym",
+    scenario:"A 40-year-old woman suddenly experiences the 'worst headache of her life' while doing CrossFit. She briefly loses consciousness and is brought to the ER. On exam: neck stiffness (nuchal rigidity), photophobia, and she is confused. CT shows hyperdense fluid in the basal cisterns and sulci.",
+    questions:[
+      {q:"1. What is the diagnosis and what is the most common cause in this age group?",a:"<strong>Subarachnoid Hemorrhage (SAH)</strong>. Most common cause: rupture of a <strong>congenital berry (saccular) aneurysm</strong> at a Circle of Willis bifurcation. Straining during exercise raised ICP, triggering rupture."},
+      {q:"2. Describe the structural defect of the aneurysm.",a:"Berry aneurysms arise from a congenital weakness or absence of the <strong>internal elastic lamina and/or tunica media</strong> at arterial bifurcation points. This creates a thin-walled 'berry' that balloons out and ruptures under arterial pressure."},
+      {q:"3. What signs of meningeal irritation would you expect on examination?",a:"<strong>Kernig's sign</strong> (resistance to knee extension with hip flexed), <strong>Brudzinski's sign</strong> (neck flexion → reflex hip flexion), nuchal rigidity, photophobia — all caused by blood irritating the meninges."},
+    ]
+  },
+  {
+    title:"The Silent Brain Decay",
+    scenario:"A 72-year-old woman with a history of Alzheimer's disease presents with her third episode of lobar intracerebral hemorrhage over 5 years — each one affecting a different superficial cortical lobe. She has no history of hypertension. A biopsy specimen stained with Congo red shows apple-green birefringence under polarized light.",
+    questions:[
+      {q:"1. What condition does the Congo red staining confirm?",a:"<strong>Cerebral Amyloid Angiopathy (CAA)</strong>. Amyloid beta (Aβ) peptide deposits in the walls of small and medium cortical/meningeal vessels. The apple-green birefringence is pathognomonic."},
+      {q:"2. Why does she keep having lobar hemorrhages but never deep bleeds?",a:"CAA predominantly affects <strong>cortical (superficial) vessels</strong>, causing weakening and rupture → lobar (superficial cortical) hemorrhages. Contrast with HTN, which causes deep structure bleeds (basal ganglia, thalamus, pons)."},
+      {q:"3. What important management consideration applies here?",a:"<strong>Avoid anticoagulants</strong> — they dramatically increase hemorrhagic risk in CAA. BP control is important but less effective than in HTN-related bleeds. There is no disease-modifying therapy for CAA itself."},
+    ]
+  },
+  {
+    title:"Post-Cardiac Arrest — The Aftermath",
+    scenario:"A 55-year-old man was resuscitated after 8 minutes of cardiac arrest from ventricular fibrillation. His systolic BP was <40 mmHg throughout the arrest. He is now in the ICU, unresponsive, with absent brainstem reflexes. MRI reveals diffuse cortical signal change.",
+    questions:[
+      {q:"1. What type of brain injury has occurred?",a:"<strong>Global Cerebral Ischemia</strong>. Severe systemic hypotension (systolic <50 mmHg) during cardiac arrest caused widespread ischemic-hypoxic brain injury affecting the entire brain."},
+      {q:"2. Describe the microscopic progression of changes in his neurons.",a:"<strong>Early:</strong> 'Red neurons' — eosinophilic cytoplasm, nuclear pyknosis (RNA loss). <strong>Subacute (~day 10):</strong> Necrosis, influx of phagocytic macrophages. <strong>Repair:</strong> Loss of organized CNS structure, replacement by gliosis."},
+      {q:"3. Which neurons would show the earliest selective death if the ischemia had been moderate rather than severe?",a:"<strong>Pyramidal cells of the hippocampus (CA1 region) and neocortex, and Purkinje cells of the cerebellum</strong> — these are the most selectively vulnerable neurons to hypoxia due to their high metabolic demand and NMDA receptor density."},
+    ]
+  },
+  {
+    title:"The Heavyweight's Decline",
+    scenario:"A retired 60-year-old professional boxer presents with progressive memory loss, mood swings, and resting tremor that began 5 years after retiring. He reports hundreds of fights over a 20-year career. Neurological exam shows Parkinsonism features. There is no family history of Parkinson's disease.",
+    questions:[
+      {q:"1. What is the likely diagnosis given the occupational history?",a:"<strong>Chronic Traumatic Encephalopathy (CTE)</strong> — a neurodegenerative disorder from repeated concussive and subconcussive head injuries. Not idiopathic Parkinson's disease."},
+      {q:"2. Explain the mechanism from concussion to neurodegeneration.",a:"Each concussion causes <strong>reversible metabolic changes</strong> without structural disruption. Repetition causes cumulative axonal damage, neurofibrillary tangle (tau) accumulation, and progressive neurodegeneration — manifesting as Parkinsonism, cognitive decline, and behavioural changes."},
+      {q:"3. How does a single concussion differ pathologically from a contusion?",a:"<strong>Concussion:</strong> No anatomical/structural change — metabolic only, reversible. <strong>Contusion:</strong> Physical bruising of brain gyri with interstitial hemorrhage, intact surface — structural change, heals with hemosiderin scarring."},
+    ]
+  }
+];
+
+const STRUCTURES_DATA = [
+  {icon:"🏛️",name:"Circle of Willis",sub:"Arterial anastomotic ring",detail:"Provides collateral circulation protecting cortical surface from focal ischemia. Site of berry aneurysm formation at bifurcation points where the internal elastic lamina is congenitally weakened."},
+  {icon:"🐚",name:"Hippocampus (CA1)",sub:"Memory hub — most vulnerable",detail:"Pyramidal cells of CA1 (Sommer's sector) are the MOST vulnerable neurons to ischemia. They die first in even brief ischemia. Critical for memory — explains amnesia after hypoxic events."},
+  {icon:"🌿",name:"Purkinje Cells",sub:"Cerebellar — highly vulnerable",detail:"Purkinje cells of the cerebellar cortex are the second most vulnerable to hypoxia. Their loss causes ataxia. Appear as 'red neurons' early in ischemia — eosinophilic, pyknotic."},
+  {icon:"🔵",name:"Basal Ganglia",sub:"Deep — HTN target",detail:"Deep gray matter structure — primary target for hypertensive intracerebral hemorrhage. Also receives penetrating vessels (lenticulostriate arteries) which are especially vulnerable to HTN-related Charcot-Bouchard aneurysms."},
+  {icon:"🌉",name:"Bridging Veins",sub:"Span subdural space",detail:"Cross from cortex through the SUBDURAL space to drain into dural sinuses (superior sagittal sinus). In cerebral atrophy (elderly, alcoholics), these are stretched and tear with minor trauma → chronic subdural hematoma."},
+  {icon:"🩸",name:"Middle Meningeal Artery",sub:"Epidural — trauma target",detail:"Runs in the epidural space (in grooves on the temporal bone). Torn by temporal/parietal bone fractures → extradural hematoma. Arterial pressure causes rapid accumulation → neurosurgical emergency."},
+  {icon:"🔬",name:"Vessel Wall Layers",sub:"Site of aneurysm formation",detail:"Tunica intima (endothelium) + internal elastic lamina + tunica media (muscle) + tunica adventitia. Berry aneurysms form where the IEL is absent. HTN causes hyaline arteriolosclerosis in small arteries."},
+  {icon:"🌟",name:"Astrocytes (Gliosis)",sub:"CNS scar-forming cells",detail:"Unlike peripheral tissue that heals with collagen scars, CNS heals via GLIOSIS — reactive astrocyte proliferation. Surrounds old infarcts/hemorrhages as a glial scar. Visible as the repair stage in global ischemia."}
+];
+
+const FLOW_GLOBAL = [
+  {step:"Severe systemic hypotension (systolic <50 mmHg)",detail:"Cardiac arrest, massive hemorrhage, or severe shock reduces cerebral perfusion pressure below autoregulatory threshold."},
+  {step:"Global cerebral ischemia",detail:"All brain areas deprived of O₂ simultaneously. Different regions show vulnerability at different times."},
+  {step:"EARLY: Red neurons + neutrophilic infiltration",detail:"RNA loss → cytoplasmic eosinophilia ('red neurons'). Nuclear pyknosis/dissolution. Neutrophils begin infiltrating by 24-48h."},
+  {step:"SUBACUTE (~day 10): Necrosis + macrophage influx",detail:"Liquefactive necrosis. Phagocytic macrophages (gitter cells/foam cells) flood in to remove necrotic debris. Key exam point!"},
+  {step:"REPAIR: Gliosis + tissue loss",detail:"Organized CNS structure lost. Reactive astrocytes proliferate forming a glial scar. Fluid-filled cavities may form. Permanent neurological deficits established."}
+];
+
+const FLOW_EPIDURAL = [
+  {step:"Blunt head trauma",detail:"Motor vehicle accidents, falls, sports injuries — any significant impact to the temporal/parietal region."},
+  {step:"Temporal or parietal bone fracture",detail:"Temporal bone is thinnest of the skull bones — most susceptible to fracture. The middle meningeal artery runs in grooves along its inner surface."},
+  {step:"Tear of the middle meningeal artery",detail:"Arterial laceration — blood flows under arterial pressure (much higher than venous). 70-80% of epidural hematomas are arterial."},
+  {step:"Rapid arterial blood accumulation between skull and dura",detail:"Blood strips the dura from the periosteum, creating a lens-shaped (biconvex) hematoma. Cannot cross suture lines (dura attached there)."},
+  {step:"Rapid increase in intracranial pressure (ICP)",detail:"Closed skull = fixed volume. Adding blood = exponential ICP rise (Monro-Kellie doctrine). Midline shift occurs."},
+  {step:"Brain herniation → compression of vital centers",detail:"Uncal herniation compresses CN III (blown pupil), then compresses brainstem respiratory centers → death if not treated within hours."}
+];
+
+const FLOW_HTN = [
+  {step:"Chronic systemic hypertension",detail:"Sustained elevated BP (systolic >140 mmHg) damages cerebral vessels over years through mechanical stress."},
+  {step:"Hyaline arteriolosclerosis",detail:"Protein deposition in walls of small cerebral arterioles → vessel wall thickening, lumen narrowing, loss of autoregulation."},
+  {step:"Charcot-Bouchard microaneurysms",detail:"Weakened arteriolar walls balloon out forming small aneurysms (Charcot-Bouchard) in penetrating vessels of basal ganglia, pons, deep white matter."},
+  {step:"Lacunar infarcts",detail:"Small (few mm) infarcts from arteriolar occlusion. Silent or cause subtle deficits. Accumulate over years → 'lacunar state'."},
+  {step:"Slit hemorrhages",detail:"Rupture of small penetrating vessels → tiny linear hemorrhages deep in brain tissue."},
+  {step:"Massive intraparenchymal hemorrhage",detail:"Rupture of large penetrating arteries (lenticulostriate) or Charcot-Bouchard aneurysms → massive bleed into basal ganglia, thalamus, pons, or cerebellum."}
+];
+
+const MNEMONICS_DATA = [
+  {
+    cls:"mc1",
+    title:"Types of Intracranial Hemorrhage",
+    word:"ESSI",
+    expand:"Remember: Extra, Sub-dural, Sub-arachnoid, Intra",
+    items:[
+      {l:"E",text:"Extradural — between skull and dura (arterial: MMA)"},
+      {l:"S",text:"Subdural — between dura and arachnoid (venous: bridging veins)"},
+      {l:"S",text:"Subarachnoid — between arachnoid and pia (aneurysm rupture)"},
+      {l:"I",text:"Intraparenchymal — within brain tissue (HTN #1 cause)"}
+    ]
+  },
+  {
+    cls:"mc2",
+    title:"Causes of Intraparenchymal Hemorrhage",
+    word:"HATCH-V",
+    expand:"Hypertension first, then the rest",
+    items:[
+      {l:"H",text:"Hypertension — #1 cause (always put first!)"},
+      {l:"A",text:"Atherosclerosis"},
+      {l:"T",text:"Tumor (primary or metastatic)"},
+      {l:"C",text:"Clotting disorders (coagulopathy)"},
+      {l:"H",text:"Head trauma / contusion"},
+      {l:"V",text:"Vascular malformations (AVM, CAA, vasculitis)"}
+    ]
+  },
+  {
+    cls:"mc3",
+    title:"Global Ischemia Microscopic Stages",
+    word:"RMP",
+    expand:"Red → Macrophages → glial Proliferation",
+    items:[
+      {l:"R",text:"Red neurons — early eosinophilia (RNA loss, nuclear pyknosis)"},
+      {l:"M",text:"Macrophage influx — subacute, day ~10, phagocytosis of necrotic tissue"},
+      {l:"P",text:"Proliferation of astrocytes — repair stage, gliosis, tissue loss"}
+    ]
+  },
+  {
+    cls:"mc4",
+    title:"Hypertensive Brain Lesions",
+    word:"CHALMS",
+    expand:"5 lesions of hypertensive brain disease",
+    items:[
+      {l:"C",text:"Charcot-Bouchard microaneurysms"},
+      {l:"H",text:"Hyaline arteriolosclerosis"},
+      {l:"A",text:"Acute hypertensive encephalopathy (DBP >130)"},
+      {l:"L",text:"Lacunar infarcts (small, deep)"},
+      {l:"M",text:"Massive intracerebral hemorrhage"},
+      {l:"S",text:"Slit hemorrhages (rupture of small penetrating vessels)"}
+    ]
+  },
+  {
+    cls:"mc5",
+    title:"Types of Cerebral Aneurysms",
+    word:"BCATM",
+    expand:"Berry, Charcot, Atherosclerotic, Traumatic, Mycotic",
+    items:[
+      {l:"B",text:"Berry (saccular) — congenital IEL defect at Circle of Willis bifurcations"},
+      {l:"C",text:"Charcot-Bouchard — hypertension-related microaneurysms"},
+      {l:"A",text:"Atheromatous — atherosclerosis of large cerebral vessels"},
+      {l:"T",text:"Traumatic — penetrating head injury"},
+      {l:"M",text:"Mycotic — septic emboli from bacterial endocarditis"}
+    ]
+  },
+  {
+    cls:"mc6",
+    title:"Who Gets Chronic Subdural Hematoma?",
+    word:"AGED",
+    expand:"High-risk groups for chronic subdural",
+    items:[
+      {l:"A",text:"Alcoholics — cerebral atrophy stretches bridging veins"},
+      {l:"G",text:"Geriatric (elderly) — same mechanism of atrophy"},
+      {l:"E",text:"Epileptics on anticoagulants"},
+      {l:"D",text:"Demented patients — often have atrophy + fall risk"}
+    ]
+  }
+];
+
+const DIAG_STEPS = [
+  {n:1,title:"History & Risk Factors",desc:"Age, HTN, alcohol use, trauma mechanism, onset/speed of symptoms, anticoagulants"},
+  {n:2,title:"Clinical Presentation Pattern",desc:"Lucid interval → extradural. Thunderclap HA → SAH. Weeks confusion + elderly → chronic subdural. HTN + sudden deficit → intracerebral."},
+  {n:3,title:"Neuroimaging (CT head — first line)",desc:"Biconvex = extradural. Crescent = subdural. Sulci/basal cisterns hyperdense = SAH. Deep hyper-density = intracerebral HTN bleed."},
+  {n:4,title:"Lumbar Puncture (if CT negative + SAH suspected)",desc:"Xanthochromia (yellow CSF) 6–12h after SAH onset = diagnostic. Contraindicated if ↑ICP."},
+  {n:5,title:"Microscopy / Biopsy (specific conditions)",desc:"Congo red → amyloid (CAA). H&E → red neurons (ischemia). Gitter cells → subacute infarct."},
+  {n:6,title:"Neurosurgical Referral",desc:"Extradural, acute subdural, large intracerebral bleeds, ruptured aneurysm → urgent surgical/endovascular management."}
+];
+
+// ======== STATE ========
+let quizState = {current:0,score:0,streak:0,answered:Array(25).fill(false)};
+
+// ======== INIT ========
+document.addEventListener('DOMContentLoaded', () => {
+  buildQuiz();
+  buildFlashcards();
+  buildCases();
+  buildStructures();
+  buildFlows();
+  buildMnemonics();
+  buildDiagAlgorithm();
+  loadStats();
+});
+
+// ======== TAB SWITCHING ========
+function switchTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  btn.classList.add('active');
+  try{localStorage.setItem('lastTab',id);}catch(e){}
+}
+
+// ======== SEARCH ========
+function filterOverview() {
+  const val = document.getElementById('overview-search').value.toLowerCase();
+  document.querySelectorAll('#overview-grid .concept-card').forEach(card=>{
+    const text = (card.dataset.search||'') + card.innerText.toLowerCase();
+    card.style.display = text.includes(val) ? '' : 'none';
+  });
+}
+
+// ======== QUIZ ========
+function buildQuiz() {
+  renderQuestion(quizState.current);
+}
+
+function renderQuestion(idx) {
+  const container = document.getElementById('quiz-container');
+  if (idx >= QUIZ_DATA.length) { showQuizDone(); return; }
+  const q = QUIZ_DATA[idx];
+  const answered = quizState.answered[idx];
+
+  let html = `<div class="q-card" id="qcard">
+    <div class="q-num">Question ${idx+1} / ${QUIZ_DATA.length}</div>
+    <div class="q-text">${q.q}</div>
+    <div class="q-options">`;
+
+  const letters = ['A','B','C','D','E'];
+  q.opts.forEach((opt,i)=>{
+    html += `<div class="q-option ${answered ? 'disabled ' + (i===q.ans?'correct':quizState.selectedAnswer===i?'wrong':'') : ''}"
+      onclick="answerQ(${i})" id="opt-${i}">
+      <span class="opt-letter">${letters[i]}</span>${opt}
+    </div>`;
+  });
+
+  html += `</div>
+    <div class="q-explanation ${answered?'show':''}" id="q-exp">
+      <div class="why-correct">✅ Why ${letters[q.ans]} is correct:</div>
+      <div>${q.exp}</div>
+      <div class="why-wrong" style="margin-top:8px">❌ Why others are wrong: ${q.wrong}</div>
+    </div>`;
+
+  if (answered) {
+    if (idx < QUIZ_DATA.length - 1) {
+      html += `<div style="margin-top:16px;text-align:right"><button class="btn-primary" onclick="nextQuestion()">Next →</button></div>`;
+    } else {
+      html += `<div style="margin-top:16px;text-align:right"><button class="btn-primary" onclick="showQuizDone()">See Results 🎉</button></div>`;
+    }
+  }
+
+  html += `</div>`;
+  container.innerHTML = html;
+  updateQuizHeader();
+}
+
+function answerQ(selected) {
+  if (quizState.answered[quizState.current]) return;
+  const q = QUIZ_DATA[quizState.current];
+  quizState.answered[quizState.current] = true;
+  quizState.selectedAnswer = selected;
+  const correct = selected === q.ans;
+
+  if (correct) {
+    quizState.score++;
+    quizState.streak++;
+  } else {
+    quizState.streak = 0;
+  }
+
+  document.querySelectorAll('.q-option').forEach((el,i)=>{
+    el.classList.add('disabled');
+    if (i === q.ans) el.classList.add('correct');
+    else if (i === selected) el.classList.add('wrong');
+  });
+  document.getElementById('q-exp').classList.add('show');
+
+  // Add next button
+  const card = document.getElementById('qcard');
+  const nav = document.createElement('div');
+  nav.style.cssText = 'margin-top:16px;text-align:right';
+  if (quizState.current < QUIZ_DATA.length - 1) {
+    nav.innerHTML = `<button class="btn-primary" onclick="nextQuestion()">Next →</button>`;
+  } else {
+    nav.innerHTML = `<button class="btn-primary" onclick="showQuizDone()">See Results 🎉</button>`;
+  }
+  card.appendChild(nav);
+
+  updateQuizHeader();
+  saveStats();
+}
+
+function nextQuestion() {
+  quizState.current++;
+  renderQuestion(quizState.current);
+}
+
+function updateQuizHeader() {
+  const done = quizState.answered.filter(Boolean).length;
+  document.getElementById('q-current').textContent = quizState.current+1;
+  document.getElementById('quiz-progress').style.width = ((quizState.current+1)/25*100)+'%';
+  document.getElementById('streak-disp').textContent = quizState.streak;
+  document.getElementById('score-disp').textContent = `${quizState.score}/${done}`;
+  document.getElementById('stat-streak').textContent = quizState.streak;
+}
+
+function showQuizDone() {
+  document.getElementById('quiz-container').style.display='none';
+  document.getElementById('quiz-done').style.display='block';
+  const pct = Math.round(quizState.score/25*100);
+  document.getElementById('final-score').textContent = `${quizState.score}/25`;
+  let msg = pct>=90?"🏆 Outstanding! Distinction-level performance!"
+    :pct>=75?"⭐ Great work! Well above pass mark."
+    :pct>=60?"📚 Good effort — review the ones you missed."
+    :"💪 Keep revising — use the flashcards to reinforce weak areas.";
+  document.getElementById('final-msg').textContent = msg;
+  document.getElementById('stat-score').textContent = `${quizState.score}/25`;
+  saveStats();
+}
+
+function resetQuiz() {
+  quizState = {current:0,score:0,streak:0,answered:Array(25).fill(false)};
+  document.getElementById('quiz-container').style.display='';
+  document.getElementById('quiz-done').style.display='none';
+  buildQuiz();
+  updateQuizHeader();
+}
+
+// ======== FLASHCARDS ========
+function buildFlashcards() {
+  const grid = document.getElementById('fc-grid');
+  grid.innerHTML = FLASHCARD_DATA.map((fc,i)=>`
+    <div class="fc-card" onclick="this.classList.toggle('flipped')">
+      <div class="fc-inner">
+        <div class="fc-front">
+          <div class="fc-tag">❓ Question ${i+1}</div>
+          <div class="fc-q">${fc.q}</div>
+          <div class="fc-hint">tap to flip →</div>
+        </div>
+        <div class="fc-back">
+          <div class="fc-tag">✅ Answer</div>
+          <div class="fc-a">${fc.a}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ======== CASES ========
+function buildCases() {
+  const container = document.getElementById('cases-container');
+  container.innerHTML = CASES_DATA.map((c,ci)=>`
+    <div class="case-card">
+      <div class="case-header">
+        <div class="case-num">${ci+1}</div>
+        <div>
+          <div class="case-title">Case ${ci+1}: ${c.title}</div>
+          <div style="font-size:12px;color:var(--text-muted)">🏥 Clinical Vignette</div>
+        </div>
+      </div>
+      <div class="case-scenario">${c.scenario}</div>
+      <div class="case-questions">
+        ${c.questions.map((q,qi)=>`
+          <div class="case-q">
+            <div class="case-q-text">${q.q}</div>
+            <button class="reveal-btn" onclick="revealAnswer(this,'ans-${ci}-${qi}')">🔍 Reveal Answer</button>
+            <div class="case-answer" id="ans-${ci}-${qi}">${q.a}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function revealAnswer(btn, id) {
+  const ans = document.getElementById(id);
+  ans.classList.toggle('show');
+  btn.textContent = ans.classList.contains('show') ? '🙈 Hide Answer' : '🔍 Reveal Answer';
+}
+
+// ======== STRUCTURES ========
+function buildStructures() {
+  const grid = document.getElementById('structure-grid');
+  const detail = document.getElementById('structure-detail');
+  grid.innerHTML = STRUCTURES_DATA.map((s,i)=>`
+    <div class="structure-item" onclick="showStructure(${i})">
+      <div class="structure-icon">${s.icon}</div>
+      <div class="structure-name">${s.name}</div>
+      <div class="structure-sub">${s.sub}</div>
+    </div>
+  `).join('');
+  window._activeStruct = -1;
+}
+
+function showStructure(i) {
+  const detail = document.getElementById('structure-detail');
+  const s = STRUCTURES_DATA[i];
+  if (window._activeStruct === i) {
+    detail.classList.remove('show');
+    window._activeStruct = -1;
+    return;
+  }
+  detail.innerHTML = `<strong style="color:var(--accent)">${s.icon} ${s.name}</strong><br><br>${s.detail}`;
+  detail.classList.add('show');
+  window._activeStruct = i;
+}
+
+// ======== FLOWS ========
+function buildFlows() {
+  buildFlow('flow-global', FLOW_GLOBAL);
+  buildFlow('flow-epidural', FLOW_EPIDURAL);
+  buildFlow('flow-htn', FLOW_HTN);
+}
+
+function buildFlow(id, steps) {
+  const el = document.getElementById(id);
+  el.innerHTML = steps.map((s,i)=>`
+    <div class="flow-step">
+      ${i>0?`<div class="flow-arrow" style="padding-left:6px;margin-bottom:6px">▼</div>`:''}
+    </div>
+    <div class="flow-step">
+      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;color:#fff">${i+1}</div>
+      <div class="flow-box" onclick="toggleFlow('fd-${id}-${i}',this)">${s.step}</div>
+    </div>
+    <div class="flow-detail" id="fd-${id}-${i}">${s.detail}</div>
+  `).join('');
+}
+
+function toggleFlow(id, box) {
+  const el = document.getElementById(id);
+  el.classList.toggle('show');
+  box.classList.toggle('active-step');
+}
+
+// ======== MNEMONICS ========
+function buildMnemonics() {
+  const container = document.getElementById('mnemonics-container');
+  container.innerHTML = MNEMONICS_DATA.map(m=>`
+    <div class="mnemonic-card ${m.cls}">
+      <div class="mnemonic-title">${m.title}</div>
+      <div class="mnemonic-word">${m.word}</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px;font-style:italic">${m.expand}</div>
+      <ul class="mnemonic-list">
+        ${m.items.map(item=>`
+          <li>
+            <span class="letter">${item.l}</span>
+            <span>${item.text}</span>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+  `).join('');
+}
+
+// ======== DIAG ALGORITHM ========
+function buildDiagAlgorithm() {
+  const el = document.getElementById('diag-algorithm');
+  el.innerHTML = DIAG_STEPS.map(s=>`
+    <div class="diag-step">
+      <div class="diag-num">${s.n}</div>
+      <div class="diag-content">
+        <div class="diag-title">${s.title}</div>
+        <div class="diag-desc">${s.desc}</div>
+      </div>
+    </div>
+    ${s.n < DIAG_STEPS.length ? '<div style="padding-left:15px;color:var(--text-muted);font-size:18px;margin:-6px 0">↓</div>' : ''}
+  `).join('');
+}
+
+// ======== STATS (localStorage) ========
+function saveStats() {
+  try {
+    localStorage.setItem('cvasScore', quizState.score);
+    localStorage.setItem('cvasStreak', quizState.streak);
+  } catch(e){}
+}
+
+function loadStats() {
+  try {
+    const s = localStorage.getItem('cvasScore');
+    const st = localStorage.getItem('cvasStreak');
+    if(s) document.getElementById('stat-score').textContent = s+'/25';
+    if(st) document.getElementById('stat-streak').textContent = st;
+  } catch(e){}
+}
+</script>
+</body>
+</html>

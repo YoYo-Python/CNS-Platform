@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 Gross Anatomy & Neuroanatomy Command Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #030712;
+            --surface: #0b0f19;
+            --surface-card: #111827;
+            --border: rgba(56, 189, 248, 0.12);
+            --border-hover: rgba(56, 189, 248, 0.3);
+            --accent: #38bdf8;
+            --accent-purple: #a78bfa;
+            --accent-green: #34d399;
+            --accent-gold: #fbbf24;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --radius: 12px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 40px 24px 80px;
+            overflow-y: scroll;
+        }
+
+        .ambient-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+        .orb { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.08; }
+        .orb-1 { width: 500px; height: 500px; background: var(--accent); top: -100px; left: -100px; }
+        .orb-2 { width: 400px; height: 400px; background: var(--accent-purple); bottom: -100px; right: -50px; }
+
+        .container { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; }
+
+        header { text-align: center; margin-bottom: 48px; }
+        .header-badge {
+            display: inline-block; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2);
+            color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 11px;
+            letter-spacing: 2px; padding: 6px 16px; border-radius: 100px; margin-bottom: 16px; text-transform: uppercase;
+        }
+        header h1 {
+            font-family: 'Syne', sans-serif; font-size: clamp(28px, 4vw, 44px); font-weight: 800; line-height: 1.15;
+            background: linear-gradient(135deg, #ffffff 30%, var(--accent) 70%, var(--accent-purple) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        header p { color: var(--text-secondary); margin-top: 12px; font-size: 15px; }
+
+        .search-module { position: relative; max-width: 600px; margin: 0 auto 56px; }
+        .search-input {
+            width: 100%; padding: 16px 24px 16px 52px; background: var(--surface);
+            border: 1px solid var(--border); border-radius: 100px; color: var(--text-primary);
+            font-size: 15px; outline: none; transition: var(--transition);
+        }
+        .search-input:focus { border-color: var(--accent); box-shadow: 0 0 25px rgba(56, 189, 248, 0.15); }
+        .search-module::before { content: '🔍'; position: absolute; left: 22px; top: 52%; transform: translateY(-50%); font-size: 16px; opacity: 0.6; }
+
+        .module-block { margin-bottom: 48px; }
+        .module-heading {
+            font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: #ffffff;
+            margin-bottom: 20px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 12px;
+        }
+        .module-count { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-secondary); background: rgba(255,255,255,0.05); padding: 2px 10px; border-radius: 4px; }
+
+        .master-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+
+        .lecture-card {
+            background: var(--surface-card); border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 24px; transition: var(--transition); display: flex; flex-direction: column;
+            text-decoration: none; color: inherit; position: relative;
+        }
+        .lecture-card:hover { transform: translateY(-4px); border-color: var(--border-hover); box-shadow: 0 12px 30px rgba(0,0,0,0.4); }
+        
+        .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .lecture-num {
+            font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent);
+            font-weight: 600; text-transform: uppercase; background: rgba(56, 189, 248, 0.08); padding: 2px 8px; border-radius: 4px;
+        }
+        
+        .yield-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .yield-high { color: var(--accent-gold); }
+        .yield-core { color: var(--accent-green); }
+
+        .lecture-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; line-height: 1.35; margin-bottom: 8px; color: #ffffff; }
+        .lecture-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px; flex: 1; }
+        
+        .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 14px; font-size: 12px; }
+        .region-tag { font-family: 'JetBrains Mono', monospace; color: var(--accent-purple); font-weight: 500; }
+        .launch-indicator { color: var(--accent); font-weight: 600; transition: var(--transition); }
+        .lecture-card:hover .launch-indicator { transform: translateX(3px); }
+
+        .no-results { grid-column: 1 / -1; text-align: center; padding: 48px; color: var(--text-secondary); font-size: 14px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-canvas"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+
+    <div class="container">
+        <header>
+          <div class="header-badge">Neuroanatomy Matrix Engine</div>
+          <h1>Anatomy &amp; Special Senses Hub</h1>
+          <p>Complete 18-lecture interactive system directory mapping pathways, tracks, and cranial systems</p>
+        </header>
+
+        <div class="search-module">
+            <input type="text" class="search-input" id="dashboardSearch" placeholder="Filter tracts, cranial nerves, visual fields, structures...">
+        </div>
+
+        <div class="module-block">
+            <h2 class="module-heading">Module I: Central Neuroanatomy <span class="module-count">Lectures 1 - 8</span></h2>
+            <div class="master-grid">
+                <a href="L1 Spinal_Cord_Anatomy_Study_Platform.html" class="lecture-card">
+                    <div class="card-meta"><span class="lecture-num">Lecture 01</span><span class="yield-tag yield-high">High Yield</span></div>
+                    <h3 class="lecture-title">Gross Anatomy of the Spinal Cord</h3>
+                    <p class="lecture-desc">Adult spinal termination metrics, lumbar cistern spaces, cauda equina trailing root patterns, and stabilization structures.</p>
+                    <div class="card-footer"><span class="region-tag">Spinal Axis</span><span class="launch-indicator">Open Engine ↗</span></div>
+                </a>
+
+                <a href="L2 brainstem_study_platform .html" class="lecture-card">
+                    <div class="card-meta"><span class="lecture-num">Lecture 02</span><span class="yield-tag yield-core">Core Syllabus</span></div>
+                    <h3 class="lecture-title">Brainstem Topography &amp; Ontogeny</h3>
+                    <p class="lecture-desc">Superficial landmarks of the medulla, pons, and midbrain. Neural tube closure paths, configurations, and ventricular origins.</p>
+                    <div class="card-footer"><span class="region-tag">Brainstem Gross</span><span class="launch-indicator">Open Engine ↗</span></div>
+                </a>
+
+                <a href="L3 cerebellum_study_platform.html" class="lecture-card">
+                    <div class="card-meta"><span class="lecture-num">Lecture 03</span><span class="yield-tag yield-high">High Yield</span></div>
+                    <h3 class="lecture-title">Cerebellum &amp; Rhomboid Fossa</h3>
+                    <p class="lecture-desc">Functional cortical balancing tracking networks. Vermal to deep fastigial maps, paravermal, and lateral dentate coordination grids.</p>
+                    <div class="card-footer"><span class="region-tag">Cerebellar Core</span><span class="launch-indicator">Open Engine ↗</span></div>
+                </a>
+
+                <a href="L4 Anatomy .html" class="lecture-card">
+                    <div class="card-meta"><span class="lecture-num">Lecture 04</span><span class="yield-tag yield-core">Core Syllabus</span></div>
+                    <h3 class="lecture-title">Diencephalon &amp; Third Ventricle</h3>
+                    <p class="lecture-desc">Thalamic relay nuclear boundaries, epithalamus parameters, subthalamic links, and choroid structural architecture.</p>
+                    <div class="card-footer"><span class="region-tag">Diencephalon</span><span class="launch-indicator">Open Engine ↗</span></div>
+                </a>
+
+                <a href="L5 brain_topography_study.html" class="lecture-card">
+                    <div class="card-meta"><span class="lecture-num">Lecture 05</span><span class="yield-tag yield-high">High Yield</span></div>
+                    <h3 class="lecture-title">Cerebral Topography, Sulci &amp; Gyri</h3>
+                    <p class="lecture-desc">Hemispheric patterns, key bounding sulci, Brodmann areas mapping functional execution networks, and hidden insular tracking.</p>
+                    <div class="card-footer"><span class="region-tag">Telencephalon</span><span class="launch-indicator">Open Engine ↗</span></div>
+                </a>
+
+                <a href="L6 limbic_system_white_matter.html" class="lecture-card">
+                    <div class="card-meta"><span class="lecture-num">Lecture 06</span><span class="yield-tag yield-core">Core Syllabus</span></div>
+                    <h3 class="lecture-title">Limbic System &amp; Cerebral White Matter</h3>
+                    <p class="lecture-desc">Hippocampal consolidation channels, amygdaloid circuits, projection fibers, association clusters, and commissural pathways.</p>
+                    <div class="card-footer"><span class="region-tag">Limbic Grid</span><span class="launch-indicator">Open Engine ↗</span></div>
+                </a>
+
+                <a href="L7 BG_IC_Study_Platform.html" class="lecture-card">
+                    <div class="card-meta"><span class="lecture-num">Lecture 07</span><span class="yield-tag yield-high">High Yield</span></div>
+                    <h3 class="lecture-title">Basal Ganglia &amp; Internal Capsule</h3>
+                    <p class="lecture-desc">Striatal gating frameworks, extrapyramidal pathways, and tracking motor/sensory highways packed through the internal capsule V-grid.</p>
+                    <div class="card-footer"><span class="region-tag">Motor Systems</span><span class="launch-indicator">Open Engine ↗</span></div>
+                </a>
+
+                <a href="L8 lateral-ventricle-csf-study-platform.html" class="lecture-card">
+                    <div class="card-meta"><span class="lecture-num">Lecture 08</span><span class="yield-tag yield-core">Core Syllabus</span></div>
+                    <h3 class="lecture-title">Lateral Ventricles &amp; CSF Dynamics</h3>
+                    <p class="lecture-desc">Ventricle horn geometry tracking choroid secretory elements, subarachnoid pathways, and dural sinus processing interfaces.</p>
+                    <div class="card-footer"><span class="region-tag">Ventricular System</span><span class="launch-indicator">Open Engine ↗</span></div>
+                </a>
+            </div>
+        </div>
+
+        <div class="module-block">
+            <h2 class="module-heading">Module II: Internal Brainstem &amp; Cranial Complex <span class="module-count">Lectures 9 - 12</span></h2>
+            <div class="master-grid">
+                <a href="L9 + L10 brainstem_study_platform-1.html" class="lecture-card">
+                    <div class="card-meta"><span class="lecture-num">Lectures 09 + 10</span><span class="yield-tag yield-high">High Yield</span></div>
+                    <h3 class="lecture-title">Internal Features &amp; Crossed Brainstem Syndromes</h3>
+                    <p class="lecture-desc">Functional columns, sensory/motor nuclei cross-sections, and clinical mapping for Wallenberg (lateral) vs. Déjerine (medial) vascular infarctions.</p>
+                    <div class="card-footer"><span class="region-tag">Brainstem Internal</span><span class="launch-indicator">Open Engine ↗</span></div>
+                </a>
+
+                <a href="L11 + L12 trigeminal_study_platform.html" class="lecture-card">
+                    <div class="card-meta"><span class="lecture-num">Lectures 11 + 12</span><span class="yield-tag yield-high">High Yield</span></div>
+                    <h3 class="lecture-title">Trigeminal Nerve Complex &amp; Pathways</h3>
+                    <p class="lecture-desc">Deep nuclear mappings (mesencephalic, main sensory, spinal paths), Meckel's cave crossings, skull base divisions, and trigeminal neuralgia paths.</p>
+                    <div class="card-footer"><span class="region-tag">CN V Architecture</span><span class="launch-indicator">Open Engine ↗</span></div>
+                </a>
+            </div>
+        </div>
+
+        <div class="module-block">
+            <h2 class="module-heading">Module III: Special Senses &amp; Cranial Infrastructure <span class="module-count">Lectures 13 - 18</span></h2>
+            <div class="master-grid">
+                <a href="L13 Ear.html" class="lecture-card">
+                    <div class="card-meta"><span class="lecture-num">Lecture 13</span><span class="yield-tag yield-core">Core Syllabus</span></div>
+                    <h3 class="lecture-title">Human Ear Anatomy &amp; Physiology</h3>
+                    <p class="lecture-desc">Middle ear ossicular pairings, walls boundaries, tympanic tension mechanics, inner auditory tunnels, and labyrinthine transduction structures.</p>
+                    <div class="card-footer"><span class="region-tag">Auditory System</span><span class="launch-indicator">Open Engine ↗</span></div>
+                </a>
+
+                <a href="L14 CN 7&8.html" class="lecture-card">
+                    <div class="card-meta"><span class="lecture-num">Lecture 14</span><span class="yield-tag yield-high">High Yield</span></div>
+                    <h3 class="lecture-title">Cranial Nerves VII &amp; VIII</h3>
+                    <p class="lecture-desc">Facial branch motor paths, parasympathetic routing loops, internal acoustic meatus distributions, and vestibulocochlear mechanics.</p>
+                    <div class="card-footer"><span class="region-tag">CN VII &amp; VIII Complex</span><span class="launch-indicator">Open Engine ↗</span></div>
+                </a>
+
+                <a href="L15 brain_study_platform.html" class="lecture-card">
+                    <div class="card-meta"><span class="lecture-num">Lecture 15</span><span class="yield-tag yield-high">High Yield</span></div>
+                    <h3 class="lecture-title">Brain Blood Supply &amp; Cerebrovascular Pathology</h3>
+                    <p class="lecture-desc">Circle of Willis collateral loops, vascular sorting grids (MCA, ACA, PCA), stroke field deficits, and meningeal sheet layers.</p>
+                    <div class="card-footer"><span class="region-tag">Angioarchitecture</span><span class="launch-indicator">Open Engine ↗</span></div>
+                </a>
+
+                <a href="L16 orbit_anatomy_study_platform.html" class="lecture-card">
+                    <div class="card-meta"><span class="lecture-num">Lecture 16</span><span class="yield-tag yield-core">Core Syllabus</span></div>
+                    <h3 class="lecture-title">Orbital Anatomy &amp; Extraocular Integration</h3>
+                    <p class="lecture-desc">Bony orbit boundary walls, extraocular muscle motor paths, neural tendon crossings, and ciliary autonomic ganglion integration points.</p>
+                    <div class="card-footer"><span class="region-tag">Ocular System</span><span class="launch-indicator">Open Engine ↗</span></div>
+                </a>
+
+                <a href="L17 cranial_nerves_study_platform.html" class="lecture-card">
+                    <div class="card-meta"><span class="lecture-num">Lecture 17</span><span class="yield-tag yield-high">High Yield</span></div>
+                    <h3 class="lecture-title">Cranial Nerves I – VI (Excl. V)</h3>
+                    <p class="lecture-desc">Olfactory pathways, optic pathways, chiasm designs, oculomotor, trochlear, and abducens nuclear structures and eye movements.</p>
+                    <div class="card-footer"><span class="region-tag">Cranial Decks I-VI</span><span class="launch-indicator">Open Engine ↗</span></div>
+                </a>
+
+                <a href="L18 cranial_nerves_study_platform (1).html" class="lecture-card">
+                    <div class="card-meta"><span class="lecture-num">Lecture 18</span><span class="yield-tag yield-high">High Yield</span></div>
+                    <h3 class="lecture-title">Cranial Nerves IX – XII</h3>
+                    <p class="lecture-desc">Glossopharyngeal paths, vagus parasympathetic regulation, accessory motor highways, and hypoglossal intrinsic tongue control.</p>
+                    <div class="card-footer"><span class="region-tag">Cranial Decks IX-XII</span><span class="launch-indicator">Open Engine ↗</span></div>
+                </a>
+            </div>
+        </div>
+
+        <div class="no-results" id="emptyNotification">No anatomy lecture tracks match those target terms or neural regions.</div>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('dashboardSearch');
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim().toLowerCase();
+            const cards = document.querySelectorAll('.lecture-card');
+            const emptyNotice = document.getElementById('emptyNotification');
+            let matchedCount = 0;
+
+            cards.forEach(card => {
+                const title = card.querySelector('.lecture-title').textContent.toLowerCase();

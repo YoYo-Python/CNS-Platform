@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cortical Association Areas & Speech — Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0e1a;
+  --surface: #111628;
+  --surface2: #19203a;
+  --border: rgba(120,150,255,0.12);
+  --accent: #6c8cff;
+  --accent2: #a78bfa;
+  --accent3: #34d399;
+  --accent4: #f472b6;
+  --accent5: #fbbf24;
+  --text: #e8eaf6;
+  --text-dim: #8892b0;
+  --text-muted: #4a5580;
+  --danger: #f87171;
+  --success: #34d399;
+  --radius: 14px;
+  --font-display: 'Playfair Display', serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Animated background */
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(108,140,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(108,140,255,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+.bg-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+  animation: orbFloat 12s ease-in-out infinite alternate;
+}
+.bg-orb-1 { width: 500px; height: 500px; background: rgba(108,140,255,0.07); top: -100px; right: -100px; }
+.bg-orb-2 { width: 400px; height: 400px; background: rgba(167,139,250,0.06); bottom: 100px; left: -100px; animation-delay: -4s; }
+.bg-orb-3 { width: 300px; height: 300px; background: rgba(52,211,153,0.05); top: 40%; left: 40%; animation-delay: -8s; }
+@keyframes orbFloat { from { transform: translate(0,0) scale(1); } to { transform: translate(30px,20px) scale(1.1); } }
+
+/* Layout */
+.app { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+/* Header */
+header {
+  padding: 28px 40px 20px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(11,14,26,0.8);
+  backdrop-filter: blur(20px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-inner { max-width: 1200px; margin: 0 auto; }
+.header-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.logo { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+.logo span { color: var(--accent); }
+.stats-bar { display: flex; gap: 20px; align-items: center; }
+.stat-chip {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  padding: 5px 14px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  display: flex; align-items: center; gap: 6px;
+}
+.stat-chip .val { color: var(--accent); font-weight: 600; }
+.stat-chip.streak .val { color: var(--accent5); }
+.stat-chip.score .val { color: var(--accent3); }
+
+/* Nav tabs */
+nav { margin-top: 16px; display: flex; gap: 4px; overflow-x: auto; padding-bottom: 2px; }
+nav::-webkit-scrollbar { height: 3px; }
+nav::-webkit-scrollbar-track { background: transparent; }
+nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.tab-btn {
+  background: none; border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: var(--text-dim);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  display: flex; align-items: center; gap: 6px;
+}
+.tab-btn:hover { color: var(--text); background: var(--surface2); }
+.tab-btn.active { color: var(--accent); background: rgba(108,140,255,0.12); }
+.tab-btn .emoji { font-size: 1rem; }
+
+/* Main content */
+main { flex: 1; max-width: 1200px; margin: 0 auto; width: 100%; padding: 36px 24px; }
+.tab-panel { display: none; animation: fadeIn 0.3s ease; }
+.tab-panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Section headings */
+.section-title {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+.section-sub { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 28px; }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.card:hover { border-color: rgba(108,140,255,0.25); }
+
+/* Grid layouts */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+
+/* Tags */
+.tag {
+  display: inline-flex; align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.tag-exam { background: rgba(251,191,36,0.15); color: var(--accent5); border: 1px solid rgba(251,191,36,0.25); }
+.tag-pearl { background: rgba(52,211,153,0.12); color: var(--accent3); border: 1px solid rgba(52,211,153,0.2); }
+.tag-mcq { background: rgba(108,140,255,0.12); color: var(--accent); border: 1px solid rgba(108,140,255,0.2); }
+.tag-written { background: rgba(244,114,182,0.12); color: var(--accent4); border: 1px solid rgba(244,114,182,0.2); }
+
+/* Badges inline */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; margin: 2px; }
+
+/* ===== OVERVIEW TAB ===== */
+.overview-hero {
+  background: linear-gradient(135deg, rgba(108,140,255,0.12), rgba(167,139,250,0.08));
+  border: 1px solid rgba(108,140,255,0.2);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 28px;
+  position: relative;
+  overflow: hidden;
+}
+.overview-hero::before {
+  content: '🧠';
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 5rem;
+  opacity: 0.15;
+}
+.overview-hero h2 { font-family: var(--font-display); font-size: 1.5rem; font-weight: 900; margin-bottom: 8px; color: var(--text); }
+.overview-hero p { color: var(--text-dim); font-size: 0.9rem; max-width: 600px; line-height: 1.6; }
+
+.search-bar {
+  display: flex; align-items: center;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 16px;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.search-bar input {
+  flex: 1; background: none; border: none; outline: none;
+  color: var(--text); font-family: var(--font-body); font-size: 0.9rem;
+}
+.search-bar input::placeholder { color: var(--text-muted); }
+.search-icon { color: var(--text-muted); font-size: 1rem; }
+#search-results { margin-top: 12px; display: none; }
+.search-result-item { padding: 10px 14px; background: var(--surface); border-radius: 8px; margin-bottom: 6px; border-left: 3px solid var(--accent); font-size: 0.85rem; }
+.search-result-item strong { color: var(--accent); }
+
+.area-card { position: relative; overflow: hidden; }
+.area-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+.area-card.parieto::before { background: var(--accent); }
+.area-card.prefrontal::before { background: var(--accent2); }
+.area-card.speech::before { background: var(--accent3); }
+.area-card h3 { font-family: var(--font-display); font-size: 1rem; font-weight: 700; margin-bottom: 4px; padding-left: 10px; }
+.area-card .area-desc { font-size: 0.82rem; color: var(--text-dim); padding-left: 10px; margin-bottom: 12px; }
+.func-list { padding-left: 10px; display: flex; flex-direction: column; gap: 4px; }
+.func-item { font-size: 0.82rem; color: var(--text-dim); display: flex; align-items: flex-start; gap: 6px; }
+.func-item::before { content: '→'; color: var(--text-muted); flex-shrink: 0; }
+.func-item strong { color: var(--text); }
+
+.timeline { margin: 24px 0; }
+.timeline-title { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 14px; }
+.flow-chain { display: flex; align-items: center; flex-wrap: wrap; gap: 0; }
+.flow-node {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.flow-node:hover { border-color: var(--accent); color: var(--text); }
+.flow-node.highlight { background: rgba(108,140,255,0.15); border-color: rgba(108,140,255,0.4); color: var(--accent); }
+.flow-arrow { color: var(--text-muted); margin: 0 4px; font-size: 0.8rem; }
+
+.clinical-signs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 16px; }
+.sign-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  cursor: default;
+  transition: all 0.2s;
+}
+.sign-card:hover { transform: translateY(-2px); border-color: rgba(108,140,255,0.3); }
+.sign-card .sign-name { font-size: 0.88rem; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.sign-card .sign-def { font-size: 0.78rem; color: var(--text-dim); line-height: 1.4; margin-bottom: 8px; }
+.sign-card .sign-cause { font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); }
+
+/* ===== QUIZ TAB ===== */
+.quiz-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+.progress-bar-wrap { flex: 1; min-width: 160px; }
+.progress-label { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 5px; display: flex; justify-content: space-between; }
+.progress-bar { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.4s; }
+.quiz-score-display { text-align: right; }
+.quiz-score-display .big { font-size: 1.6rem; font-weight: 700; color: var(--accent3); font-family: var(--font-display); }
+.quiz-score-display .small { font-size: 0.75rem; color: var(--text-muted); }
+
+.question-card { margin-bottom: 20px; }
+.q-num { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 0.06em; margin-bottom: 8px; }
+.q-text { font-size: 0.96rem; font-weight: 500; color: var(--text); margin-bottom: 16px; line-height: 1.5; }
+.options { display: flex; flex-direction: column; gap: 8px; }
+.option-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 11px 16px;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-dim);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  display: flex; align-items: center; gap: 10px;
+}
+.option-btn:hover:not(:disabled) { border-color: rgba(108,140,255,0.4); color: var(--text); background: rgba(108,140,255,0.08); }
+.option-btn.correct { background: rgba(52,211,153,0.12); border-color: rgba(52,211,153,0.5); color: var(--success); animation: pulse 0.4s; }
+.option-btn.wrong { background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.4); color: var(--danger); animation: shake 0.4s; }
+.option-btn .opt-key { width: 24px; height: 24px; border-radius: 6px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 600; font-family: var(--font-mono); flex-shrink: 0; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+.explanation-box {
+  background: rgba(108,140,255,0.06);
+  border: 1px solid rgba(108,140,255,0.2);
+  border-radius: 9px;
+  padding: 14px;
+  margin-top: 12px;
+  font-size: 0.83rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+  display: none;
+}
+.explanation-box.show { display: block; animation: fadeIn 0.25s; }
+.explanation-box strong { color: var(--accent3); }
+
+.quiz-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+.btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  padding: 10px 22px;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 7px;
+}
+.btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-outline { background: none; border: 1px solid var(--border); color: var(--text-dim); }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); background: rgba(108,140,255,0.08); }
+.btn-sm { padding: 7px 15px; font-size: 0.78rem; }
+.btn-success { background: var(--accent3); }
+.btn-danger { background: var(--danger); }
+
+.quiz-complete {
+  text-align: center;
+  padding: 48px 24px;
+  display: none;
+}
+.quiz-complete.show { display: block; animation: fadeIn 0.5s; }
+.quiz-complete .score-circle {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: rgba(52,211,153,0.1);
+  border: 3px solid var(--accent3);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+}
+.quiz-complete .score-circle .pct { font-family: var(--font-display); font-size: 2rem; font-weight: 900; color: var(--accent3); }
+.quiz-complete .score-circle .lbl { font-size: 0.7rem; color: var(--text-muted); }
+.motivational { font-size: 1.1rem; color: var(--text); margin-bottom: 6px; font-family: var(--font-display); font-weight: 700; }
+.motivational-sub { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 24px; }
+
+/* ===== FLASHCARDS TAB ===== */
+.flashcard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 16px; }
+.flashcard {
+  height: 180px;
+  perspective: 1000px;
+  cursor: pointer;
+}
+.flashcard-inner {
+  position: relative;
+  width: 100%; height: 100%;
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+}
+.flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+.flashcard-front, .flashcard-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.flashcard-front {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  align-items: center;
+  text-align: center;
+}
+.flashcard-back {
+  background: linear-gradient(135deg, rgba(108,140,255,0.15), rgba(167,139,250,0.1));
+  border: 1px solid rgba(108,140,255,0.3);
+  transform: rotateY(180deg);
+}
+.flashcard-front .fc-emoji { font-size: 2rem; margin-bottom: 10px; }
+.flashcard-front .fc-q { font-size: 0.85rem; font-weight: 600; color: var(--text); line-height: 1.4; }
+.flashcard-front .fc-hint { font-size: 0.7rem; color: var(--text-muted); margin-top: 8px; }
+.flashcard-back .fc-a { font-size: 0.83rem; color: var(--text); line-height: 1.6; }
+.flashcard-back .fc-label { font-size: 0.7rem; font-weight: 600; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+
+/* ===== CLINICAL CASES TAB ===== */
+.case-card { margin-bottom: 24px; }
+.case-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 16px; }
+.case-num {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: rgba(108,140,255,0.15);
+  border: 1px solid rgba(108,140,255,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 900; color: var(--accent);
+  font-size: 1rem; flex-shrink: 0;
+}
+.case-header h3 { font-family: var(--font-display); font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+.case-header p { font-size: 0.82rem; color: var(--text-dim); }
+.case-vignette {
+  background: var(--surface2);
+  border-left: 4px solid var(--accent5);
+  border-radius: 0 8px 8px 0;
+  padding: 14px 16px;
+  font-size: 0.86rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+.case-questions { display: flex; flex-direction: column; gap: 10px; }
+.case-q { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+.reveal-btn {
+  background: none;
+  border: 1px dashed rgba(108,140,255,0.35);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--accent);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+  display: flex; align-items: center; gap: 7px;
+}
+.reveal-btn:hover { background: rgba(108,140,255,0.08); }
+.case-answer {
+  background: rgba(52,211,153,0.06);
+  border: 1px solid rgba(52,211,153,0.2);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 0.83rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-top: 8px;
+  display: none;
+}
+.case-answer.show { display: block; animation: fadeIn 0.3s; }
+.case-answer strong { color: var(--accent3); }
+
+/* ===== ANATOMY TAB ===== */
+.anatomy-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.structure-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+  color: var(--text);
+  font-family: var(--font-body);
+}
+.structure-btn:hover { border-color: var(--accent); transform: translateY(-2px); }
+.structure-btn.active { border-color: var(--accent); background: rgba(108,140,255,0.1); }
+.structure-btn .struct-emoji { font-size: 1.5rem; margin-bottom: 8px; }
+.structure-btn .struct-name { font-size: 0.88rem; font-weight: 600; display: block; margin-bottom: 4px; }
+.structure-btn .struct-loc { font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); }
+.structure-detail {
+  background: var(--surface);
+  border: 1px solid rgba(108,140,255,0.25);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-top: 16px;
+  animation: fadeIn 0.25s;
+}
+.structure-detail h4 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; color: var(--accent); }
+.structure-detail ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.structure-detail ul li { font-size: 0.85rem; color: var(--text-dim); display: flex; gap: 8px; line-height: 1.5; }
+.structure-detail ul li::before { content: '◆'; color: var(--accent); font-size: 0.6rem; margin-top: 4px; flex-shrink: 0; }
+.lesion-box { margin-top: 12px; background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.2); border-radius: 8px; padding: 10px 14px; }
+.lesion-box .lb-title { font-size: 0.72rem; font-weight: 600; color: var(--danger); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px; }
+.lesion-box .lb-text { font-size: 0.83rem; color: var(--text-dim); }
+
+.flowchart { margin-top: 28px; }
+.flowchart-title { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 16px; }
+.fc-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.fc-tab { padding: 6px 14px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); color: var(--text-dim); background: none; font-family: var(--font-body); transition: all 0.2s; }
+.fc-tab.active { background: rgba(108,140,255,0.15); border-color: rgba(108,140,255,0.4); color: var(--accent); }
+.fc-content { display: none; }
+.fc-content.active { display: flex; align-items: center; flex-wrap: wrap; gap: 0; }
+
+/* ===== DIAGNOSIS/APHASIA TAB ===== */
+.aphasia-table { width: 100%; border-collapse: collapse; border-radius: var(--radius); overflow: hidden; font-size: 0.83rem; }
+.aphasia-table th { background: rgba(108,140,255,0.15); color: var(--accent); font-weight: 600; padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+.aphasia-table td { padding: 11px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--text-dim); vertical-align: top; }
+.aphasia-table tr:last-child td { border-bottom: none; }
+.aphasia-table tr:hover td { background: rgba(108,140,255,0.04); }
+.aphasia-table td:first-child { color: var(--text); font-weight: 500; }
+
+.algo-step {
+  display: flex; align-items: flex-start; gap: 14px;
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 8px;
+  position: relative;
+}
+.algo-step-num {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: rgba(108,140,255,0.15);
+  border: 1px solid rgba(108,140,255,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.82rem; font-weight: 700; color: var(--accent);
+  flex-shrink: 0;
+}
+.algo-step-content h4 { font-size: 0.88rem; font-weight: 600; margin-bottom: 4px; }
+.algo-step-content p { font-size: 0.82rem; color: var(--text-dim); line-height: 1.5; }
+
+/* ===== TREATMENT TAB ===== */
+.treatment-card { overflow: hidden; }
+.treatment-card .tc-header {
+  padding: 12px 16px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  display: flex; align-items: center; gap: 8px;
+}
+.tc-emergency .tc-header { background: rgba(248,113,113,0.15); color: var(--danger); border-bottom: 1px solid rgba(248,113,113,0.2); }
+.tc-rehab .tc-header { background: rgba(108,140,255,0.12); color: var(--accent); border-bottom: 1px solid rgba(108,140,255,0.15); }
+.tc-speech .tc-header { background: rgba(52,211,153,0.1); color: var(--accent3); border-bottom: 1px solid rgba(52,211,153,0.15); }
+.tc-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.tc-item { font-size: 0.83rem; color: var(--text-dim); display: flex; gap: 8px; align-items: flex-start; line-height: 1.5; }
+.tc-item::before { content: '•'; color: var(--text-muted); flex-shrink: 0; }
+
+/* ===== MNEMONICS TAB ===== */
+.mnemonic-card { overflow: hidden; }
+.mnemonic-card .mn-header {
+  background: linear-gradient(135deg, rgba(108,140,255,0.15), rgba(167,139,250,0.1));
+  border-bottom: 1px solid rgba(108,140,255,0.15);
+  padding: 14px 18px;
+}
+.mnemonic-card .mn-title { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.mnemonic-card .mn-acronym { font-size: 0.82rem; color: var(--text-muted); }
+.mnemonic-card .mn-body { padding: 14px 18px; display: flex; flex-direction: column; gap: 6px; }
+.mnemonic-letter { display: flex; align-items: flex-start; gap: 10px; }
+.mnemonic-letter .ml-letter { width: 28px; height: 28px; border-radius: 6px; background: rgba(108,140,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: 900; font-family: var(--font-display); color: var(--accent); font-size: 0.9rem; flex-shrink: 0; }
+.mnemonic-letter .ml-text { font-size: 0.83rem; color: var(--text-dim); line-height: 1.5; padding-top: 4px; }
+.mnemonic-letter .ml-text strong { color: var(--text); }
+
+/* Divider */
+.divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+/* Responsive */
+@media (max-width: 640px) {
+  header { padding: 20px 16px 12px; }
+  main { padding: 24px 12px; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .flashcard-grid { grid-template-columns: 1fr; }
+  .section-title { font-size: 1.4rem; }
+  .quiz-header { flex-direction: column; }
+}
+
+/* Scroll */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-orb bg-orb-3"></div>
+
+<div class="app">
+  <header>
+    <div class="header-inner">
+      <div class="header-top">
+        <div class="logo">Neuro<span>Study</span></div>
+        <div class="stats-bar">
+          <div class="stat-chip score">🏆 Score: <span class="val" id="score-display">0/0</span></div>
+          <div class="stat-chip streak">🔥 Streak: <span class="val" id="streak-display">0</span></div>
+          <div class="stat-chip">✅ Progress: <span class="val" id="progress-display">0%</span></div>
+        </div>
+      </div>
+      <nav>
+        <button class="tab-btn active" onclick="switchTab('overview')"><span class="emoji">🧠</span> Overview</button>
+        <button class="tab-btn" onclick="switchTab('quiz')"><span class="emoji">🎯</span> Quiz</button>
+        <button class="tab-btn" onclick="switchTab('flashcards')"><span class="emoji">🃏</span> Flashcards</button>
+        <button class="tab-btn" onclick="switchTab('cases')"><span class="emoji">🩺</span> Clinical Cases</button>
+        <button class="tab-btn" onclick="switchTab('anatomy')"><span class="emoji">🔬</span> Anatomy</button>
+        <button class="tab-btn" onclick="switchTab('aphasia')"><span class="emoji">🗣️</span> Aphasia Guide</button>
+        <button class="tab-btn" onclick="switchTab('mnemonics')"><span class="emoji">💡</span> Mnemonics</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- ===== OVERVIEW ===== -->
+    <div id="tab-overview" class="tab-panel active">
+      <div class="overview-hero">
+        <h2>Cortical Association Areas & Speech</h2>
+        <p>Master the functional anatomy of higher cortical areas, language pathways, and clinical correlations. All high-yield content for your physiology exam.</p>
+      </div>
+
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Search concepts, conditions, areas…" oninput="handleSearch(this.value)">
+      </div>
+      <div id="search-results"></div>
+
+      <div class="section-title">Three Major Association Areas</div>
+      <p class="section-sub">Each area integrates sensory input for higher cognitive functions</p>
+
+      <div class="grid-3">
+        <div class="card area-card parieto">
+          <h3>Parieto-occipito-temporal</h3>
+          <div class="area-desc">Between sensory areas of parietal, occipital & temporal lobes</div>
+          <div class="func-list">
+            <div class="func-item"><strong>Body Position Analysis</strong> — proprioception + visual input</div>
+            <div class="func-item"><strong>Reading (Angular Gyrus)</strong> — visual→auditory code</div>
+            <div class="func-item"><strong>Object Naming</strong> — inferolateral region</div>
+            <div class="func-item"><strong>Face Recognition</strong> — medioventral occipitotemporal</div>
+            <div class="func-item"><strong>Wernicke's Area</strong> — language comprehension</div>
+          </div>
+          <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">
+            <span class="tag tag-written">Written Q</span>
+            <span class="tag tag-mcq">MCQ: Dyslexia, Prosopagnosia</span>
+          </div>
+        </div>
+        <div class="card area-card prefrontal">
+          <h3>Prefrontal Association</h3>
+          <div class="area-desc">Anterior portion of frontal cortex</div>
+          <div class="func-list">
+            <div class="func-item"><strong>Motor Planning</strong> — receives pre-analyzed sensory info</div>
+            <div class="func-item"><strong>Mental Concentration</strong> — deep thoughts from many sources</div>
+            <div class="func-item"><strong>Elaboration of Thoughts</strong> — depth & abstractness</div>
+            <div class="func-item"><strong>Working Memory</strong> — store & recall bits of info</div>
+            <div class="func-item"><strong>Behavioral Adjustment</strong> — moral & social inhibition</div>
+          </div>
+          <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">
+            <span class="tag tag-written">Written Q</span>
+            <span class="tag tag-mcq">MCQ: Mental distraction</span>
+          </div>
+        </div>
+        <div class="card area-card speech">
+          <h3>Speech & Language Areas</h3>
+          <div class="area-desc">Dominant cerebral hemisphere integrity required</div>
+          <div class="func-list">
+            <div class="func-item"><strong>Wernicke's</strong> — comprehension, coherent speech patterns</div>
+            <div class="func-item"><strong>Broca's</strong> — motor speech initiation, vocal muscles</div>
+            <div class="func-item"><strong>Exner's</strong> — skilled hand movements for writing</div>
+            <div class="func-item"><strong>Angular Gyrus</strong> — visual→auditory translation</div>
+          </div>
+          <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">
+            <span class="tag tag-written">Types of Aphasia</span>
+            <span class="tag tag-mcq">MCQ: Definition, location</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section-title">Language Pathways</div>
+      <p class="section-sub">Step-by-step cortical processing routes</p>
+
+      <div class="timeline">
+        <div class="timeline-title">🎤 Speaking a Heard Word</div>
+        <div class="flow-chain">
+          <div class="flow-node">Primary Auditory Area</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Auditory Association Area (22)</div><div class="flow-arrow">→</div>
+          <div class="flow-node highlight">Wernicke's Area</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Arcuate Fasciculus</div><div class="flow-arrow">→</div>
+          <div class="flow-node highlight">Broca's Area</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Motor Cortex (Area 4)</div>
+        </div>
+      </div>
+
+      <div class="timeline" style="margin-top:16px;">
+        <div class="timeline-title">📖 Speaking a Written Word</div>
+        <div class="flow-chain">
+          <div class="flow-node">Primary Visual Area</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Visual Association (18,19)</div><div class="flow-arrow">→</div>
+          <div class="flow-node highlight">Angular Gyrus</div><div class="flow-arrow">→</div>
+          <div class="flow-node highlight">Wernicke's Area</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Arcuate Fasciculus</div><div class="flow-arrow">→</div>
+          <div class="flow-node highlight">Broca's Area</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Motor Cortex (Area 4)</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section-title">Clinical Conditions At a Glance</div>
+      <p class="section-sub">Lesion → Consequence</p>
+      <div class="clinical-signs-grid">
+        <div class="sign-card">
+          <div class="sign-name">🚫 Dyslexia (Word Blindness)</div>
+          <div class="sign-def">Cannot recognize the meaning of perceived words during reading</div>
+          <div class="sign-cause">Lesion: Angular Gyrus</div>
+          <div style="margin-top:6px;"><span class="tag tag-mcq">MCQ ⭐</span></div>
+        </div>
+        <div class="sign-card">
+          <div class="sign-name">😶 Prosopagnosia</div>
+          <div class="sign-def">Cannot recognize familiar faces despite intact primary vision</div>
+          <div class="sign-cause">Lesion: Medioventral Occipitotemporal</div>
+          <div style="margin-top:6px;"><span class="tag tag-mcq">MCQ ⭐</span></div>
+        </div>
+        <div class="sign-card">
+          <div class="sign-name">🔊 Wernicke's Aphasia</div>
+          <div class="sign-def">Fluent but meaningless speech ("word salad"); cannot comprehend</div>
+          <div class="sign-cause">Lesion: Wernicke's Area</div>
+          <div style="margin-top:6px;"><span class="tag tag-exam">Exam ⭐</span></div>
+        </div>
+        <div class="sign-card">
+          <div class="sign-name">🤐 Broca's Aphasia</div>
+          <div class="sign-def">Intact comprehension; non-fluent, halted speech with effort</div>
+          <div class="sign-cause">Lesion: Broca's Area</div>
+          <div style="margin-top:6px;"><span class="tag tag-exam">Exam ⭐</span></div>
+        </div>
+        <div class="sign-card">
+          <div class="sign-name">✍️ Agraphia</div>
+          <div class="sign-def">Failure to write despite intact hand motor function</div>
+          <div class="sign-cause">Lesion: Exner's Area</div>
+          <div style="margin-top:6px;"><span class="tag tag-mcq">MCQ</span></div>
+        </div>
+        <div class="sign-card">
+          <div class="sign-name">🔇 Auditory Agnosia</div>
+          <div class="sign-def">Cannot understand spoken words</div>
+          <div class="sign-cause">Lesion: Area 22</div>
+          <div style="margin-top:6px;"><span class="tag tag-mcq">MCQ</span></div>
+        </div>
+        <div class="sign-card">
+          <div class="sign-name">👁️ Visual Agnosia</div>
+          <div class="sign-def">Cannot understand written words despite normal vision</div>
+          <div class="sign-cause">Lesion: Areas 18, 19</div>
+          <div style="margin-top:6px;"><span class="tag tag-mcq">MCQ</span></div>
+        </div>
+        <div class="sign-card">
+          <div class="sign-name">🌐 Global Aphasia</div>
+          <div class="sign-def">Cannot understand OR express thoughts; widespread damage</div>
+          <div class="sign-cause">Lesion: Widespread association + motor areas</div>
+          <div style="margin-top:6px;"><span class="tag tag-written">Written Q</span></div>
+        </div>
+        <div class="sign-card">
+          <div class="sign-name">😤 Mental Distraction</div>
+          <div class="sign-def">Cannot sustain concentration; inappropriate behavior</div>
+          <div class="sign-cause">Lesion: Prefrontal Cortex</div>
+          <div style="margin-top:6px;"><span class="tag tag-mcq">MCQ ⭐</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== QUIZ ===== -->
+    <div id="tab-quiz" class="tab-panel">
+      <div class="section-title">🎯 Quiz Mode</div>
+      <p class="section-sub">25 high-yield questions — test your knowledge with immediate feedback</p>
+
+      <div class="quiz-header">
+        <div class="progress-bar-wrap">
+          <div class="progress-label"><span id="q-label">Question 1 of 25</span><span id="q-answered">0 answered</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="quiz-progress" style="width:0%"></div></div>
+        </div>
+        <div class="quiz-score-display">
+          <div class="big" id="quiz-score-big">0</div>
+          <div class="small">correct so far</div>
+        </div>
+      </div>
+
+      <div id="quiz-container"></div>
+      <div class="quiz-nav">
+        <button class="btn btn-outline" onclick="prevQuestion()">← Prev</button>
+        <button class="btn" onclick="nextQuestion()">Next →</button>
+      </div>
+
+      <div class="quiz-complete" id="quiz-complete">
+        <div class="score-circle"><div class="pct" id="final-pct">0%</div><div class="lbl">Score</div></div>
+        <div class="motivational" id="quiz-message">Well done!</div>
+        <div class="motivational-sub" id="quiz-sub">Keep revising and you'll master this!</div>
+        <button class="btn" onclick="resetQuiz()">🔄 Restart Quiz</button>
+      </div>
+    </div>
+
+    <!-- ===== FLASHCARDS ===== -->
+    <div id="tab-flashcards" class="tab-panel">
+      <div class="section-title">🃏 Flashcards</div>
+      <p class="section-sub">Click any card to reveal the answer — 3D flip animation included</p>
+      <div class="flashcard-grid" id="flashcard-grid"></div>
+    </div>
+
+    <!-- ===== CLINICAL CASES ===== -->
+    <div id="tab-cases" class="tab-panel">
+      <div class="section-title">🩺 Clinical Cases</div>
+      <p class="section-sub">Exam-style vignettes based on your lecture — reveal answers to self-assess</p>
+      <div id="cases-container"></div>
+    </div>
+
+    <!-- ===== ANATOMY ===== -->
+    <div id="tab-anatomy" class="tab-panel">
+      <div class="section-title">🔬 Cortical Structures</div>
+      <p class="section-sub">Click any structure to explore its location, function, and clinical significance</p>
+
+      <div class="anatomy-grid" id="anatomy-grid"></div>
+      <div id="anatomy-detail" style="display:none;"></div>
+
+      <div class="flowchart">
+        <div class="divider"></div>
+        <div class="flowchart-title">Pathway Diagrams</div>
+        <div class="fc-tabs">
+          <button class="fc-tab active" onclick="switchFlow('heard', this)">Heard Word</button>
+          <button class="fc-tab" onclick="switchFlow('written', this)">Written Word</button>
+          <button class="fc-tab" onclick="switchFlow('writing', this)">Writing</button>
+        </div>
+        <div class="fc-content active" id="flow-heard">
+          <div class="flow-node highlight">Hearing Word</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Primary Auditory Area</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Auditory Association (Br.22)</div><div class="flow-arrow">→</div>
+          <div class="flow-node highlight">Wernicke's</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Arcuate Fasciculus</div><div class="flow-arrow">→</div>
+          <div class="flow-node highlight">Broca's</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Area 4 (Motor)</div><div class="flow-arrow">→</div>
+          <div class="flow-node highlight">Speech 🗣️</div>
+        </div>
+        <div class="fc-content" id="flow-written">
+          <div class="flow-node highlight">Seeing Word</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Primary Visual Area</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Visual Assoc. (18,19)</div><div class="flow-arrow">→</div>
+          <div class="flow-node highlight">Angular Gyrus</div><div class="flow-arrow">→</div>
+          <div class="flow-node highlight">Wernicke's</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Arcuate Fasciculus</div><div class="flow-arrow">→</div>
+          <div class="flow-node highlight">Broca's</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Area 4</div><div class="flow-arrow">→</div>
+          <div class="flow-node highlight">Speech 🗣️</div>
+        </div>
+        <div class="fc-content" id="flow-writing">
+          <div class="flow-node highlight">Thought to Write</div><div class="flow-arrow">→</div>
+          <div class="flow-node highlight">Wernicke's</div><div class="flow-arrow">→</div>
+          <div class="flow-node highlight">Exner's Area</div><div class="flow-arrow">→</div>
+          <div class="flow-node">Area 4 (Hand/Fingers)</div><div class="flow-arrow">→</div>
+          <div class="flow-node highlight">Writing ✍️</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== APHASIA GUIDE ===== -->
+    <div id="tab-aphasia" class="tab-panel">
+      <div class="section-title">🗣️ Aphasia & Language Guide</div>
+      <p class="section-sub">Complete diagnostic framework for language disorders</p>
+
+      <div class="card" style="margin-bottom:24px;">
+        <div style="font-size:0.8rem;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:14px;">Definition of Aphasia ⭐ MCQ</div>
+        <p style="font-size:0.9rem;color:var(--text-dim);line-height:1.7;">Speech abnormality resulting from damage to specific language areas in the <strong style="color:var(--text)">dominant hemisphere</strong> (usually from vascular stroke). It is <strong style="color:var(--danger)">NOT</strong> due to vision/hearing defects or muscle paralysis. Most common cause: <strong style="color:var(--accent)">vascular stroke</strong>.</p>
+      </div>
+
+      <div class="section-title" style="font-size:1.2rem;margin-bottom:12px;">Aphasia Types Comparison</div>
+      <div class="card" style="overflow:auto;margin-bottom:24px;">
+        <table class="aphasia-table">
+          <thead>
+            <tr><th>Feature</th><th>Wernicke's (Receptive/Fluent)</th><th>Broca's (Expressive/Non-Fluent)</th><th>Global</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Lesion Site</td><td>Posterior superior temporal gyrus</td><td>Posterior inferior frontal gyrus</td><td>Widespread association + motor areas</td></tr>
+            <tr><td>Fluency</td><td>✅ Fluent (but meaningless)</td><td>❌ Non-fluent, halted</td><td>❌ Non-fluent</td></tr>
+            <tr><td>Comprehension</td><td>❌ Impaired</td><td>✅ Intact</td><td>❌ Impaired</td></tr>
+            <tr><td>Speech Output</td><td>"Word salad" / jargon</td><td>Single words, great effort</td><td>Minimal or none</td></tr>
+            <tr><td>Can Repeat?</td><td>❌</td><td>❌</td><td>❌</td></tr>
+            <tr><td>Mechanism</td><td>Failure to select appropriate words & comprehend</td><td>Failure to convert signals to motor commands for vocal muscles</td><td>Both expressive & receptive failure</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section-title" style="font-size:1.2rem;margin-bottom:12px;">Language Area Comparison</div>
+      <div class="card" style="overflow:auto;margin-bottom:24px;">
+        <table class="aphasia-table">
+          <thead>
+            <tr><th>Feature</th><th>Wernicke's</th><th>Broca's</th><th>Exner's</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Type</td><td>Sensory/Comprehension</td><td>Motor/Expression (Speech)</td><td>Motor/Expression (Writing)</td></tr>
+            <tr><td>Location</td><td>Posterior superior temporal gyrus</td><td>Posterior inferior frontal gyrus</td><td>Premotor cortex (frontal)</td></tr>
+            <tr><td>Input</td><td>Auditory assoc. + Angular gyrus</td><td>Output from Wernicke's</td><td>Output from Wernicke's</td></tr>
+            <tr><td>Output</td><td>Coherent speech pattern</td><td>Commands to area 4 (vocal)</td><td>Commands to area 4 (hands)</td></tr>
+            <tr><td>Lesion Result</td><td>Fluent Aphasia</td><td>Non-Fluent Aphasia</td><td>Agraphia</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section-title" style="font-size:1.2rem;margin-bottom:12px;">Diagnostic Algorithm — Hearing vs. Reading Loss</div>
+      <div class="algo-step">
+        <div class="algo-step-num">1</div>
+        <div class="algo-step-content">
+          <h4>Patient cannot understand spoken words</h4>
+          <p>Lesion in Auditory Association Area (Area 22) → <strong>Auditory Agnosia</strong>, or in Wernicke's area → <strong>Wernicke's Aphasia</strong></p>
+        </div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-step-num">2</div>
+        <div class="algo-step-content">
+          <h4>Patient cannot understand written words (reading only)</h4>
+          <p>If vision is intact → Lesion in Angular Gyrus → <strong>Dyslexia/Word Blindness</strong></p>
+        </div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-step-num">3</div>
+        <div class="algo-step-content">
+          <h4>Patient cannot understand written OR spoken words</h4>
+          <p>Lesion in Wernicke's area itself → <strong>Wernicke's Aphasia</strong> (both inputs affected)</p>
+        </div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-step-num">4</div>
+        <div class="algo-step-content">
+          <h4>Patient understands but cannot speak fluently</h4>
+          <p>Lesion in Broca's Area → <strong>Non-Fluent (Expressive) Aphasia</strong></p>
+        </div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-step-num">5</div>
+        <div class="algo-step-content">
+          <h4>Patient cannot write despite normal hand motor function</h4>
+          <p>Lesion in Exner's Area → <strong>Agraphia</strong></p>
+        </div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-step-num">6</div>
+        <div class="algo-step-content">
+          <h4>Patient cannot recognize faces</h4>
+          <p>Lesion in Medioventral Occipitotemporal Surface → <strong>Prosopagnosia</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MNEMONICS ===== -->
+    <div id="tab-mnemonics" class="tab-panel">
+      <div class="section-title">💡 Mnemonics</div>
+      <p class="section-sub">Custom memory aids crafted from your lecture content</p>
+      <div id="mnemonics-grid" class="grid-2"></div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ===== DATA =====
+
+const quizData = [
+  { q:"What is the cortical area responsible for selecting appropriate words for meaningful speech?", opts:["Broca's area","Exner's area","Angular gyrus","Wernicke's area","Visual association area"], ans:3, exp:"Wernicke's area formulates coherent patterns of speech and selects appropriate words. Broca's/Exner's are motor areas. Angular gyrus transforms visual to auditory code." },
+  { q:"The association area involved in moral and social behavior adjustment is the:", opts:["Angular gyrus","Limbic association area","Prefrontal cortex","Parietal cortex","Broca's area"], ans:2, exp:"The prefrontal area adjusts behavior and interprets ongoing events to predict future behavior socially and morally. It inhibits inappropriate impulses." },
+  { q:"A patient with non-fluent aphasia likely has a lesion in:", opts:["Wernicke's area","Broca's area","Exner's area","Auditory association area","Angular gyrus"], ans:1, exp:"Broca's area initiates contraction of laryngeal/mouth muscles. Damage causes non-fluent motor aphasia. Wernicke's causes fluent aphasia." },
+  { q:"Which area receives pre-analyzed sensory info to form a motor plan for complex voluntary movements?", opts:["Parieto-occipito-temporal area","Prefrontal association area","Limbic association area","Primary motor cortex","Angular gyrus"], ans:1, exp:"The prefrontal area receives body-position info from the parieto-occipito-temporal area, creates a motor plan, and sends it to motor areas." },
+  { q:"Dyslexia (word blindness) is primarily caused by a lesion in:", opts:["Area 22","Area 4","Medioventral occipital lobe","Angular gyrus","Exner's area"], ans:3, exp:"The angular gyrus is the reading area that recognizes the meaning of perceived words and transforms visual text into an auditory code for Wernicke's." },
+  { q:"Visual words are processed for comprehension by:", opts:["Being sent to Broca's area directly","Being transformed into auditory code by the angular gyrus","Being processed by the limbic area","Being sent to prefrontal cortex","Being transformed by Exner's area"], ans:1, exp:"Visual association areas send words to the angular gyrus, which converts them into an auditory code that Wernicke's area can process." },
+  { q:"Prosopagnosia (inability to recognize familiar faces) indicates a lesion in:", opts:["Inferolateral parieto-occipito-temporal region","Angular gyrus","Medioventral surfaces of occipital and temporal lobes","Prefrontal cortex","Auditory association area"], ans:2, exp:"The medioventral occipitotemporal surface is specifically dedicated to facial recognition. The inferolateral region handles object naming." },
+  { q:"Which is NOT a function of the Prefrontal association area?", opts:["Sustains mental concentration","Elaboration of thoughts","Working memory","Comprehension of spoken language","Adjusts personal behavior"], ans:3, exp:"Comprehension of spoken language is the function of Wernicke's area (posterior superior temporal gyrus), not the prefrontal cortex." },
+  { q:"Wernicke's aphasia is characterized by:", opts:["Non-fluent speech","Failure of writing","Fluent aphasia with inability to understand language","Paralysis of vocal muscles","Visual agnosia"], ans:2, exp:"Wernicke's lesion causes inability to understand words and formulate coherent speech, resulting in fluent but meaningless speech (word salad)." },
+  { q:"Agraphia (failure of writing) results from damage to:", opts:["Broca's area","Area 4","Exner's area","Angular gyrus","Wernicke's area"], ans:2, exp:"Exner's area coordinates the skilled movements of hands and fingers necessary for writing. It is in the premotor cortex." },
+  { q:"The area that associates auditory input with the physical nature of an object is located where?", opts:["Medioventral temporal lobe","Inferolateral parieto-occipito-temporal region","Superior temporal gyrus","Anterior frontal cortex","Primary auditory area"], ans:1, exp:"The area for naming objects is in the inferolateral region of the parieto-occipito-temporal area. Medioventral is face recognition." },
+  { q:"Working memory (collecting, storing, recalling bits of information) is a function of:", opts:["Hippocampus","Parieto-occipito-temporal area","Prefrontal association area","Primary somatic area","Wernicke's area"], ans:2, exp:"Working memory is explicitly listed as a function of the prefrontal association area — collecting bits of info in accessible temporary memory." },
+  { q:"Damage to auditory association area (area 22) results in:", opts:["Visual agnosia","Dyslexia","Auditory agnosia","Global aphasia","Motor aphasia"], ans:2, exp:"Area 22 is responsible for understanding spoken words. Damage causes auditory agnosia. Visual agnosia is areas 18/19." },
+  { q:"The most common cause of aphasia is:", opts:["Trauma","Tumor","Vascular stroke","Infection","Degenerative disease"], ans:2, exp:"The most common cause of aphasia is vascular stroke affecting cerebral blood vessels supplying the language regions." },
+  { q:"The area that detects body position by interpreting impulses from visual receptors and proprioceptors is:", opts:["Primary motor area","Area for analysis of body position","Prefrontal area","Broca's area","Angular gyrus"], ans:1, exp:"Located at the somatosensory/occipital border, this area maps spatial coordinates from both visual and proprioceptive inputs." },
+  { q:"During speaking a written word, which area sends coordinated motor commands to area 4?", opts:["Wernicke's area","Broca's area","Angular gyrus","Exner's area","Primary visual area"], ans:1, exp:"Broca's area receives signals from Wernicke's, transforms them into detailed motor commands, and sends to area 4 for vocal muscle contraction." },
+  { q:"Which of the following is NOT required for normal speech?", opts:["Integrity of dominant cerebral hemisphere","Sensory and motor aspects","Vision or hearing defect","Wernicke's area","Broca's area"], ans:2, exp:"Aphasia is explicitly defined as NOT being due to defects in vision or hearing, or paralysis of speech muscles." },
+  { q:"Global aphasia is characterized by:", opts:["Failure to understand spoken words only","Failure of writing only","Failure to articulate speech only","Failure to understand OR express thoughts","Prosopagnosia"], ans:3, exp:"Global aphasia involves both receptive and expressive defects due to widespread damage to association and motor areas." },
+  { q:"Wernicke's area is primarily located in the:", opts:["Posterior part of superior temporal gyrus","Anterior portion of frontal cortex","Medioventral surfaces of occipital lobes","Inferior frontal gyrus","Premotor cortex"], ans:0, exp:"Wernicke's is in the posterior part of the superior temporal gyrus — the dominant hemisphere's general interpretative area." },
+  { q:"The prefrontal area increases the depth and abstractness of thoughts. This is termed:", opts:["Sustaining mental concentration","Elaboration of thoughts","Adjusting personal behavior","Working memory","Aphasia"], ans:1, exp:"Elaboration of thoughts specifically means increasing the depth and abstractness (accuracy) of thoughts from multiple information sources." },
+  { q:"Damage to visual association areas (areas 18, 19) results directly in:", opts:["Visual agnosia","Dyslexia","Fluent aphasia","Global aphasia","Word blindness from angular gyrus"], ans:0, exp:"Damage to areas 18 and 19 causes visual agnosia (inability to understand written words). Dyslexia/word blindness specifically is the angular gyrus." },
+  { q:"Exner's area is located in the:", opts:["Posterior inferior frontal gyrus","Premotor cortex in front of hand/finger primary motor area","Superior temporal gyrus","Medioventral occipital lobe","Parietal cortex"], ans:1, exp:"Exner's area is in the premotor cortex, immediately in front of the primary motor cortex for hands and fingers." },
+  { q:"In right-handed people, language centers are located in the:", opts:["Right cerebral hemisphere","Left cerebral hemisphere","Bilaterally equal","Cerebellum","Prefrontal cortex only"], ans:1, exp:"The dominant hemisphere for language is the left hemisphere in right-handed people. This dominant side is required for all speech functions." },
+  { q:"Which is a direct sign of Prefrontal association area damage?", opts:["Mental distraction","Inability to understand spoken words","Prosopagnosia","Agraphia","Dyslexia"], ans:0, exp:"Damage to the prefrontal area causes mental distraction and inappropriate social behavior. The other options relate to other cortical areas." },
+  { q:"The angular gyrus acts as a translator because Wernicke's area:", opts:["Cannot process visual inputs directly","Needs motor commands first","Is only in the right hemisphere","Cannot receive subcortical inputs","Only processes smell"], ans:0, exp:"Wernicke's area can only process information in an auditory code. The angular gyrus converts visual words into this auditory code before sending them to Wernicke's." },
+];
+
+const flashcards = [
+  { q:"Where is Wernicke's area located?", a:"Posterior part of the superior temporal gyrus of the dominant hemisphere", emoji:"📍" },
+  { q:"What is the function of the Angular Gyrus?", a:"Acts as reading area — transforms visual words into an auditory code to send to Wernicke's area. Lesion → Dyslexia.", emoji:"📚" },
+  { q:"What is Prosopagnosia and where is the lesion?", a:"Inability to recognize familiar faces. Lesion: medioventral surfaces of occipital and temporal lobes.", emoji:"😶" },
+  { q:"Name 5 functions of the Prefrontal Association Area", a:"1) Motor planning, 2) Sustaining mental concentration, 3) Elaboration of thoughts, 4) Working memory, 5) Adjusting social/moral behavior", emoji:"🧩" },
+  { q:"What is the difference between Fluent and Non-Fluent Aphasia?", a:"Fluent (Wernicke's): speech flows but is meaningless. Non-Fluent (Broca's): speech is halted, effortful, but comprehension intact.", emoji:"🗣️" },
+  { q:"Define Working Memory as a prefrontal function", a:"The ability to collect many bits of information simultaneously, store in accessible temporary memory, and recall when needed.", emoji:"💾" },
+  { q:"What happens if Exner's area is damaged?", a:"Agraphia — failure to write despite intact hand motor function. Exner's area coordinates skilled hand/finger movements.", emoji:"✍️" },
+  { q:"Trace the pathway for speaking a heard word", a:"Primary Auditory Area → Auditory Assoc. (22) → Wernicke's → Arcuate Fasciculus → Broca's → Area 4 (Motor Cortex)", emoji:"🎤" },
+  { q:"What is the most common cause of Aphasia?", a:"Vascular stroke affecting cerebral blood vessels supplying language areas in the dominant hemisphere.", emoji:"🩺" },
+  { q:"What is the area for naming objects and where is it?", a:"Located in the inferolateral region of the parieto-occipito-temporal area. Associates auditory input with the physical nature of an object.", emoji:"🏷️" },
+  { q:"What does Broca's area do?", a:"Receives signals from Wernicke's area, transforms them into detailed motor commands, and sends to Area 4 to control laryngeal/mouth muscles for vocal speech.", emoji:"🎙️" },
+  { q:"What is Elaboration of Thoughts?", a:"A prefrontal function — increases the depth and abstractness (accuracy) of different thoughts by pulling from multiple information sources.", emoji:"🔮" },
+  { q:"What is auditory agnosia and what causes it?", a:"Inability to understand spoken words. Caused by lesion in Auditory Association Area (Area 22).", emoji:"🔇" },
+  { q:"Where is Broca's area and what does its damage cause?", a:"Posterior part of inferior frontal gyrus, dominant hemisphere. Damage → Non-Fluent (Expressive/Motor) Aphasia.", emoji:"📢" },
+  { q:"What does the parieto-occipito-temporal area body position sub-area do?", a:"Detects body position by interpreting impulses from both visual receptors and proprioceptors to map spatial coordinates.", emoji:"🧭" },
+  { q:"Why does speech require the whole dominant hemisphere?", a:"Speech integrates comprehension (Wernicke's), motor expression (Broca's), reading (Angular gyrus), and writing (Exner's) — all in the dominant cortex.", emoji:"🌐" },
+  { q:"Define Global Aphasia", a:"Failure to both understand AND express thoughts, due to widespread damage to association and motor language areas.", emoji:"🚫" },
+  { q:"What is the visual pathway to understand a written word?", a:"Primary Visual Area → Visual Assoc. (18,19) → Angular Gyrus → Wernicke's Area (comprehension)", emoji:"👁️" },
+  { q:"What are the behavioral consequences of prefrontal damage?", a:"Mental distraction, inability to plan sequential motor actions, and inappropriate social/moral behavior (lost inhibition of impulses).", emoji:"😤" },
+  { q:"What is Dyslexia in neurological terms?", a:"Word blindness — failure to recognize the meaning of perceived words during reading. Caused by lesion in the Angular Gyrus.", emoji:"📖" },
+];
+
+const cases = [
+  {
+    num: "01", title: "Stroke — Behavioral Change", type: "Prefrontal Lesion",
+    vignette: "A 62-year-old right-handed male with no prior psychiatric history is brought in after a left hemisphere vascular stroke. His family reports that he was previously a polite, reserved man, but he now uses profanity in public, makes inappropriate sexual comments, and cannot plan simple tasks. He remembers his family members perfectly and follows commands.",
+    questions: [
+      { q: "Q1: What cortical area is damaged?", a: "<strong>Prefrontal Association Area</strong> (anterior frontal cortex). It adjusts personal behavior based on social and moral bases and inhibits inappropriate impulses." },
+      { q: "Q2: Why is speech unaffected?", a: "Wernicke's and Broca's areas are intact. The prefrontal area does not directly mediate speech comprehension or expression — it manages behavioral planning and inhibition." },
+      { q: "Q3: What specific function is lost that explains the behavioral disinhibition?", a: "The function of <strong>adjusting personal behavior</strong> — interpreting ongoing events and making predictions about future behavior based on social/moral bases. Damage removes this inhibitory control." }
+    ]
+  },
+  {
+    num: "02", title: "Word Salad — Fluent Aphasia", type: "Wernicke's Lesion",
+    vignette: "A 70-year-old female is brought to the ED after a left MCA stroke. When asked her name, she responds fluently and at normal speed: 'The table goes running with the fish and sky.' She does not appear distressed by her speech. She cannot follow verbal instructions. Her vocal muscles and tongue function normally.",
+    questions: [
+      { q: "Q1: What type of aphasia is this?", a: "<strong>Wernicke's Aphasia (Receptive/Sensory/Fluent Aphasia)</strong> — speech is fluent but completely meaningless ('word salad'). Comprehension is impaired." },
+      { q: "Q2: Why is the speech fluent despite being meaningless?", a: "Broca's area is intact, so the motor execution of speech is preserved. The failure is at the selection and comprehension level (Wernicke's) — the patient cannot choose appropriate words or understand input." },
+      { q: "Q3: What is the pathway lesion?", a: "Wernicke's area (posterior superior temporal gyrus) is damaged. It cannot receive and interpret input from auditory association area or angular gyrus, so no coherent speech patterns can be formed." }
+    ]
+  },
+  {
+    num: "03", title: "Cannot Read — Word Blindness", type: "Angular Gyrus Lesion",
+    vignette: "A 45-year-old teacher presents after a posterior brain stroke. She has normal visual acuity — she can see clearly and recognizes objects and faces. However, when shown a newspaper, she reports the letters look like 'meaningless shapes.' She can speak and understand speech perfectly.",
+    questions: [
+      { q: "Q1: What is the diagnosis?", a: "<strong>Dyslexia (Word Blindness)</strong> — inability to recognize the meaning of perceived words during reading, despite intact vision." },
+      { q: "Q2: What structure is damaged?", a: "The <strong>Angular Gyrus</strong> (Reading Area) in the parieto-occipito-temporal area. It transforms visual word representations into an auditory code to send to Wernicke's area." },
+      { q: "Q3: Why is spoken language comprehension spared?", a: "The auditory pathway (Primary Auditory → Area 22 → Wernicke's) is fully intact. The lesion only disrupts the visual→auditory translation step at the Angular Gyrus." }
+    ]
+  },
+  {
+    num: "04", title: "Halted Speech, Intact Understanding", type: "Broca's Lesion",
+    vignette: "A 55-year-old man had a left frontal stroke. When you ask 'How are you feeling today?' — he pauses for 5 seconds, winces with effort, and says 'Ba… bad.' He nods correctly to yes/no questions and follows complex instructions accurately. He writes poorly but tries to form words.",
+    questions: [
+      { q: "Q1: What type of aphasia is this?", a: "<strong>Broca's Aphasia (Expressive/Motor/Non-Fluent Aphasia)</strong> — comprehension is intact but speech is halted, effortful, and telegraphic (key words only)." },
+      { q: "Q2: What is the mechanism?", a: "Broca's area (posterior inferior frontal gyrus) is damaged and cannot transform language signals from Wernicke's into coordinated motor commands for the laryngeal and oral muscles via Area 4." },
+      { q: "Q3: Why can he follow instructions?", a: "Wernicke's area is completely intact — he can understand every word. The failure is purely in the motor output pathway for speech execution." }
+    ]
+  },
+  {
+    num: "05", title: "Cannot Recognize Family", type: "Prosopagnosia",
+    vignette: "A 68-year-old woman with a right posterior cortical atrophy sees her husband of 40 years walk into the room and does not recognize him. Once he says 'It's me, John,' she immediately responds warmly. Her visual acuity is normal and she can name objects correctly when shown them.",
+    questions: [
+      { q: "Q1: What is the diagnosis?", a: "<strong>Prosopagnosia</strong> — inability to recognize familiar faces. Visual input reaches her brain but cannot be matched to stored facial identity representations." },
+      { q: "Q2: Where is the lesion?", a: "The <strong>medioventral surfaces of the occipital and temporal lobes</strong> — the area specifically dedicated to face recognition." },
+      { q: "Q3: Why is object naming spared?", a: "The area for naming objects (inferolateral parieto-occipito-temporal region) is distinct and intact. These are separate specialized areas within the broader parieto-occipito-temporal association cortex." }
+    ]
+  },
+  {
+    num: "06", title: "Cannot Write, But Speaks Normally", type: "Exner's Area Lesion",
+    vignette: "A 50-year-old journalist had a small premotor cortex stroke. She speaks perfectly, understands everything, and uses her hands normally for all activities (eating, picking objects). However, when asked to write a sentence, she holds the pen and makes only incomprehensible scrawl despite great effort.",
+    questions: [
+      { q: "Q1: What is the deficit?", a: "<strong>Agraphia</strong> — failure of writing despite normal hand motor function and intact speech." },
+      { q: "Q2: What area is damaged?", a: "<strong>Exner's Area</strong> — located in the premotor cortex immediately in front of the primary motor cortex for hands/fingers. It coordinates skilled, precise hand movements for writing." },
+      { q: "Q3: Why is speech spared?", a: "Broca's area (which controls vocal muscles) and Wernicke's area are both intact. Writing and speech use separate motor output areas from Wernicke's — Exner's for writing, Broca's for speech." }
+    ]
+  }
+];
+
+const structures = [
+  { emoji:"🎧", name:"Wernicke's Area", loc:"Posterior superior temporal gyrus", functions:["Formulates coherent speech patterns","Selects appropriate words for meaningful speech","Receives input from both auditory association area and angular gyrus","Comprehends both spoken and written language (via angular gyrus)","Hub of the general interpretative area"], lesion:"Wernicke's Aphasia — fluent speech with meaningless content ('word salad'); impaired comprehension" },
+  { emoji:"🎙️", name:"Broca's Area", loc:"Posterior inferior frontal gyrus", functions:["Receives signals from Wernicke's area","Transforms language signals into detailed motor commands","Controls contraction of laryngeal, pharyngeal, and mouth muscles","Sends commands to Area 4 (primary motor cortex) for vocal speech"], lesion:"Broca's Aphasia — non-fluent, halted speech; intact comprehension" },
+  { emoji:"✍️", name:"Exner's Area", loc:"Premotor cortex (frontal lobe)", functions:["Receives language signals from Wernicke's area","Coordinates skilled, precise movements of hands and fingers","Sends commands to Area 4 for writing movements"], lesion:"Agraphia — failure to write despite intact hand motor function" },
+  { emoji:"📚", name:"Angular Gyrus", loc:"Inferior parietal lobule (reading area)", functions:["Receives visual word representations from visual association area (18,19)","Transforms visual text into an auditory code","Transmits auditory code to Wernicke's area for comprehension","Critical translator between visual and auditory language systems"], lesion:"Dyslexia (Word Blindness) — cannot read; sees letters as meaningless shapes" },
+  { emoji:"😶", name:"Face Recognition Area", loc:"Medioventral occipital & temporal lobes", functions:["Enables recognition of familiar faces","Integrates visual facial features with stored identity memories","Distinct from general object recognition circuits"], lesion:"Prosopagnosia — cannot recognize familiar faces despite intact vision" },
+  { emoji:"🏷️", name:"Object Naming Area", loc:"Inferolateral parieto-occipito-temporal region", functions:["Associates auditory input with the physical nature of objects","Links object names to their sensory qualities","Enables verbal labeling of perceived objects"], lesion:"Anomia — difficulty naming objects correctly" },
+  { emoji:"🧭", name:"Body Position Area", loc:"Parietal/occipital border (somatosensory + visual)", functions:["Detects body position in space","Interprets impulses from visual receptors","Interprets impulses from proprioceptors","Maps spatial coordinates of body parts"], lesion:"Impaired spatial awareness and body position sense" },
+  { emoji:"🧩", name:"Prefrontal Area", loc:"Anterior frontal cortex", functions:["Plans complex voluntary movements (receives from parieto-occipito-temporal)","Sustains mental concentration","Elaboration of thoughts (increases depth and abstractness)","Working memory — store and recall bits of information","Adjusts personal behavior based on social/moral bases"], lesion:"Mental distraction, behavioral disinhibition, impaired motor planning" },
+];
+
+const mnemonics = [
+  {
+    title: "Parieto-occipito-temporal Functions",
+    acronym: "BRAN-F",
+    description: "All 5 functions of the parieto-occipito-temporal area",
+    letters: [
+      { l:"B", word:"Body position", desc:"Analyzes body position using visual + proprioceptive input" },
+      { l:"R", word:"Reading (Angular Gyrus)", desc:"Recognizes meaning of words during reading; lesion → dyslexia" },
+      { l:"A", word:"Associating names with objects", desc:"Inferolateral region links auditory input to object's physical nature" },
+      { l:"N", word:"Naming faces (Prosopagnosia)", desc:"Medioventral area recognizes familiar faces; lesion → prosopagnosia" },
+      { l:"F", word:"Formulating language (Wernicke's)", desc:"Comprehends and formulates coherent speech; lesion → fluent aphasia" },
+    ]
+  },
+  {
+    title: "Prefrontal Area Functions",
+    acronym: "MEWBA",
+    description: "5 key functions of the prefrontal association area",
+    letters: [
+      { l:"M", word:"Motor planning", desc:"Plans complex voluntary movements from pre-analyzed sensory info" },
+      { l:"E", word:"Elaboration of thoughts", desc:"Increases depth and abstractness of thoughts from multiple sources" },
+      { l:"W", word:"Working memory", desc:"Collects, stores, and recalls bits of information temporarily" },
+      { l:"B", word:"Behavioral adjustment", desc:"Adjusts social and moral behavior; inhibits inappropriate impulses" },
+      { l:"A", word:"Attention (mental concentration)", desc:"Sustains mental focus by collecting info from widespread brain areas" },
+    ]
+  },
+  {
+    title: "Aphasia Types by Fluency",
+    acronym: "FIC-NIC",
+    description: "Remember which aphasia is fluent vs non-fluent",
+    letters: [
+      { l:"F", word:"Fluent → Wernicke's (F=Fake fluent)", desc:"Speech flows but is meaningless — patient can articulate perfectly" },
+      { l:"I", word:"Impaired comprehension in Wernicke's", desc:"Cannot understand spoken OR written words" },
+      { l:"C", word:"Comprehension intact in Broca's", desc:"Broca's patient understands everything perfectly" },
+      { l:"N", word:"Non-fluent → Broca's", desc:"Halted, effortful speech; single words with great effort" },
+      { l:"I", word:"Incomplete expression in Broca's", desc:"Cannot translate Wernicke's output to motor commands" },
+      { l:"C", word:"Cause = Vascular Stroke (most Common)", desc:"Most common cause of aphasia is vascular stroke" },
+    ]
+  },
+  {
+    title: "Language Areas & Their Outputs",
+    acronym: "W-B-E",
+    description: "Three motor/output language areas and their products",
+    letters: [
+      { l:"W", word:"Wernicke's = Words (comprehension hub)", desc:"Understands and formulates coherent speech patterns; receives from angular gyrus and area 22" },
+      { l:"B", word:"Broca's = Breath & Vocal output", desc:"Controls laryngeal/pharyngeal muscles for spoken speech → Lesion = Broca's aphasia" },
+      { l:"E", word:"Exner's = Execution of writing", desc:"Controls skilled hand/finger movements for writing → Lesion = Agraphia" },
+    ]
+  },
+  {
+    title: "Visual Lesion Consequences",
+    acronym: "V-A-D",
+    description: "Three levels of visual reading pathway lesions",
+    letters: [
+      { l:"V", word:"Visual Assoc. (18,19) → Visual Agnosia", desc:"Cannot understand written words at all — cannot process visual form" },
+      { l:"A", word:"Angular Gyrus → dyslexiA", desc:"Can see letters clearly but cannot translate to auditory code for Wernicke's" },
+      { l:"D", word:"Dominant hemisphere Wernicke's → both reading & hearing lost", desc:"Cannot comprehend any language — spoken or written" },
+    ]
+  },
+];
+
+// ===== STATE =====
+let quizState = JSON.parse(localStorage.getItem('cortical_quiz') || '{"answers":{},"score":0,"streak":0,"total":0}');
+let currentQ = 0;
+let quizAnswered = {};
+let quizScore = 0;
+let streak = 0;
+
+// ===== TABS =====
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  localStorage.setItem('cortical_last_tab', name);
+}
+
+// ===== SEARCH =====
+const searchData = [
+  { term:"Wernicke's area", info:"Posterior superior temporal gyrus — comprehension, coherent speech patterns" },
+  { term:"Broca's area", info:"Posterior inferior frontal gyrus — motor speech, non-fluent aphasia if damaged" },
+  { term:"Angular gyrus", info:"Reading area — transforms visual text to auditory code — lesion = dyslexia" },
+  { term:"Prosopagnosia", info:"Cannot recognize faces — medioventral occipitotemporal lesion" },
+  { term:"Dyslexia", info:"Word blindness — angular gyrus lesion — cannot read despite intact vision" },
+  { term:"Agraphia", info:"Cannot write — Exner's area lesion — hand function otherwise intact" },
+  { term:"Prefrontal", info:"Anterior frontal — working memory, elaboration of thoughts, behavioral adjustment" },
+  { term:"Aphasia", info:"Speech abnormality from dominant hemisphere damage — NOT from vision/hearing defects" },
+  { term:"Exner's area", info:"Premotor cortex — coordinates skilled hand movements for writing" },
+  { term:"Arcuate fasciculus", info:"White matter tract connecting Wernicke's to Broca's area" },
+  { term:"Working memory", info:"Prefrontal function — collects, stores, recalls bits of info temporarily" },
+  { term:"Visual agnosia", info:"Cannot understand written words — areas 18/19 damage" },
+  { term:"Auditory agnosia", info:"Cannot understand spoken words — area 22 damage" },
+  { term:"Global aphasia", info:"Cannot understand or express thoughts — widespread damage" },
+  { term:"Elaboration of thoughts", info:"Prefrontal — increases depth and abstractness of thoughts" },
+  { term:"Parieto-occipito-temporal", info:"Between sensory areas — body position, reading, naming, faces, Wernicke's" },
+  { term:"Fluent aphasia", info:"Wernicke's lesion — speech flows but is meaningless (word salad)" },
+  { term:"Non-fluent aphasia", info:"Broca's lesion — halted, effortful speech with intact comprehension" },
+];
+
+function handleSearch(val) {
+  const r = document.getElementById('search-results');
+  if (!val.trim()) { r.style.display='none'; return; }
+  const matches = searchData.filter(d => d.term.toLowerCase().includes(val.toLowerCase()) || d.info.toLowerCase().includes(val.toLowerCase()));
+  if (matches.length === 0) { r.style.display='block'; r.innerHTML='<div class="search-result-item">No results found.</div>'; return; }
+  r.style.display='block';
+  r.innerHTML = matches.map(m => `<div class="search-result-item"><strong>${m.term}</strong> — ${m.info}</div>`).join('');
+}
+
+// ===== QUIZ =====
+function renderQuestion() {
+  const qd = document.getElementById('quiz-container');
+  const q = quizData[currentQ];
+  const isAnswered = quizAnswered[currentQ] !== undefined;
+  const chosen = quizAnswered[currentQ];
+
+  document.getElementById('q-label').textContent = `Question ${currentQ+1} of ${quizData.length}`;
+  document.getElementById('q-answered').textContent = `${Object.keys(quizAnswered).length} answered`;
+  const pct = Math.round(Object.keys(quizAnswered).length / quizData.length * 100);
+  document.getElementById('quiz-progress').style.width = pct + '%';
+  document.getElementById('quiz-score-big').textContent = quizScore;
+
+  qd.innerHTML = `
+    <div class="card question-card">
+      <div class="q-num">QUESTION ${currentQ+1} / ${quizData.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options">
+        ${q.opts.map((o,i) => {
+          let cls = '';
+          if (isAnswered) { cls = i === q.ans ? 'correct' : (i === chosen ? 'wrong' : ''); }
+          const keys = ['A','B','C','D','E'];
+          return `<button class="option-btn ${cls}" onclick="answerQ(${i})" ${isAnswered ? 'disabled' : ''}>
+            <span class="opt-key">${keys[i]}</span>${o}
+          </button>`;
+        }).join('')}
+      </div>
+      <div class="explanation-box ${isAnswered ? 'show' : ''}">
+        <strong>Explanation:</strong> ${q.exp}
+      </div>
+    </div>
+  `;
+
+  updateStats();
+}
+
+function answerQ(idx) {
+  if (quizAnswered[currentQ] !== undefined) return;
+  quizAnswered[currentQ] = idx;
+  const q = quizData[currentQ];
+  if (idx === q.ans) { quizScore++; streak++; } else { streak = 0; }
+  updateStats();
+  renderQuestion();
+  if (Object.keys(quizAnswered).length === quizData.length) {
+    setTimeout(showComplete, 800);
+  }
+}
+
+function nextQuestion() { if (currentQ < quizData.length-1) { currentQ++; renderQuestion(); } }
+function prevQuestion() { if (currentQ > 0) { currentQ--; renderQuestion(); } }
+
+function showComplete() {
+  document.getElementById('quiz-container').style.display = 'none';
+  document.querySelector('.quiz-nav').style.display = 'none';
+  const comp = document.getElementById('quiz-complete');
+  comp.classList.add('show');
+  const pct = Math.round(quizScore / quizData.length * 100);
+  document.getElementById('final-pct').textContent = pct + '%';
+  const msgs = [
+    [90, "Outstanding! 🏆", "You're ready to ace this topic!"],
+    [75, "Great job! 🎉", "Strong performance — review the ones you missed."],
+    [60, "Good effort! 💪", "Keep studying and you'll nail it!"],
+    [0, "Keep going! 📚", "Review the explanations and try again."]
+  ];
+  const m = msgs.find(([min]) => pct >= min);
+  document.getElementById('quiz-message').textContent = m[1];
+  document.getElementById('quiz-sub').textContent = m[2];
+}
+
+function resetQuiz() {
+  quizAnswered = {}; quizScore = 0; streak = 0; currentQ = 0;
+  document.getElementById('quiz-container').style.display = 'block';
+  document.querySelector('.quiz-nav').style.display = 'flex';
+  document.getElementById('quiz-complete').classList.remove('show');
+  renderQuestion();
+  updateStats();
+}
+
+function updateStats() {
+  const total = quizData.length;
+  const answered = Object.keys(quizAnswered).length;
+  document.getElementById('score-display').textContent = `${quizScore}/${answered}`;
+  document.getElementById('streak-display').textContent = streak;
+  document.getElementById('progress-display').textContent = Math.round(answered/total*100) + '%';
+}
+
+// ===== FLASHCARDS =====
+function renderFlashcards() {
+  const grid = document.getElementById('flashcard-grid');
+  grid.innerHTML = flashcards.map((fc, i) => `
+    <div class="flashcard" onclick="this.classList.toggle('flipped')" id="fc-${i}">
+      <div class="flashcard-inner">
+        <div class="flashcard-front">
+          <div class="fc-emoji">${fc.emoji}</div>
+          <div class="fc-q">${fc.q}</div>
+          <div class="fc-hint">Click to reveal →</div>
+        </div>
+        <div class="flashcard-back">
+          <div class="fc-label">Answer</div>
+          <div class="fc-a">${fc.a}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== CASES =====
+function renderCases() {
+  const cont = document.getElementById('cases-container');
+  cont.innerHTML = cases.map((c, ci) => `
+    <div class="card case-card">
+      <div class="case-header">
+        <div class="case-num">${c.num}</div>
+        <div><h3>${c.title}</h3><p>${c.type}</p></div>
+      </div>
+      <div class="case-vignette">${c.vignette}</div>
+      <div class="case-questions">
+        ${c.questions.map((q, qi) => `
+          <div class="case-q">${q.q}</div>
+          <button class="reveal-btn" onclick="revealAnswer(${ci},${qi})">🔍 Reveal Answer</button>
+          <div class="case-answer" id="ca-${ci}-${qi}">${q.a}</div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function revealAnswer(ci, qi) {
+  const el = document.getElementById(`ca-${ci}-${qi}`);
+  el.classList.toggle('show');
+}
+
+// ===== ANATOMY =====
+function renderAnatomy() {
+  const grid = document.getElementById('anatomy-grid');
+  grid.innerHTML = structures.map((s,i) => `
+    <button class="structure-btn" onclick="showStructure(${i}, this)">
+      <div class="struct-emoji">${s.emoji}</div>
+      <span class="struct-name">${s.name}</span>
+      <div class="struct-loc">${s.loc}</div>
+    </button>
+  `).join('');
+}
+
+function showStructure(i, btn) {
+  document.querySelectorAll('.structure-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const s = structures[i];
+  const detail = document.getElementById('anatomy-detail');
+  detail.style.display = 'block';
+  detail.innerHTML = `
+    <div class="structure-detail">
+      <h4>${s.emoji} ${s.name}</h4>
+      <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:12px;font-family:var(--font-mono);">${s.loc}</p>
+      <ul>
+        ${s.functions.map(f => `<li>${f}</li>`).join('')}
+      </ul>
+      <div class="lesion-box">
+        <div class="lb-title">⚠️ If Damaged</div>
+        <div class="lb-text">${s.lesion}</div>
+      </div>
+    </div>
+  `;
+  detail.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function switchFlow(id, btn) {
+  document.querySelectorAll('.fc-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.fc-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('flow-'+id).classList.add('active');
+}
+
+// ===== MNEMONICS =====
+function renderMnemonics() {
+  const grid = document.getElementById('mnemonics-grid');
+  grid.innerHTML = mnemonics.map(m => `
+    <div class="card mnemonic-card">
+      <div class="mn-header">
+        <div class="mn-title">${m.title}</div>
+        <div class="mn-acronym">${m.description}</div>
+      </div>
+      <div class="mn-body">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+          ${m.letters.map(l => `<div style="width:34px;height:34px;border-radius:8px;background:rgba(108,140,255,0.2);display:flex;align-items:center;justify-content:center;font-weight:900;font-family:var(--font-display);color:var(--accent);font-size:1rem;">${l.l}</div>`).join('')}
+        </div>
+        ${m.letters.map(l => `
+          <div class="mnemonic-letter">
+            <div class="ml-letter">${l.l}</div>
+            <div class="ml-text"><strong>${l.word}</strong> — ${l.desc}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  renderQuestion();
+  renderFlashcards();
+  renderCases();
+  renderAnatomy();
+  renderMnemonics();
+  updateStats();
+
+  // Restore last tab
+  const last = localStorage.getItem('cortical_last_tab');
+  if (last) {
+    const btn = document.querySelector(`.tab-btn[onclick="switchTab('${last}')"]`);
+    if (btn) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-'+last).classList.add('active');
+      btn.classList.add('active');
+    }
+  }
+});
+</script>
+</body>
+</html>

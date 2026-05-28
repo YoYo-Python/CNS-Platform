@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Motor Cortex & Descending Tracts — Neural Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c14;
+  --surface: #111420;
+  --surface2: #181d2e;
+  --surface3: #1f2640;
+  --border: #2a3050;
+  --accent: #4f8ef7;
+  --accent2: #7c5cfc;
+  --accent3: #2ee8b5;
+  --accent4: #f7794f;
+  --accent5: #f7d04f;
+  --red: #f75c5c;
+  --green: #2ee8a0;
+  --text: #e8eaf5;
+  --text2: #9aa0bc;
+  --text3: #5a6080;
+  --glow: rgba(79,142,247,0.18);
+  --glow2: rgba(124,92,252,0.18);
+  --r: 12px;
+  --r2: 8px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+/* ── ANIMATED BACKGROUND ─────────────────────────────── */
+.bg-orbs {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+}
+.orb {
+  position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.25;
+  animation: orbFloat 18s ease-in-out infinite;
+}
+.orb1 { width: 500px; height: 500px; background: var(--accent2); top: -200px; left: -150px; animation-delay: 0s; }
+.orb2 { width: 400px; height: 400px; background: var(--accent); bottom: -150px; right: -100px; animation-delay: -6s; }
+.orb3 { width: 300px; height: 300px; background: var(--accent3); top: 40%; left: 50%; animation-delay: -12s; }
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0,0) scale(1); }
+  33% { transform: translate(40px, -60px) scale(1.08); }
+  66% { transform: translate(-30px, 40px) scale(0.95); }
+}
+
+/* ── LAYOUT ──────────────────────────────────────────── */
+.app { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 20px 60px; }
+
+/* ── HEADER ──────────────────────────────────────────── */
+header {
+  padding: 48px 0 32px;
+  text-align: center;
+  position: relative;
+}
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(79,142,247,0.12); border: 1px solid rgba(79,142,247,0.3);
+  color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  padding: 4px 12px; border-radius: 20px; letter-spacing: 0.08em;
+  margin-bottom: 20px; text-transform: uppercase;
+}
+header h1 {
+  font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: clamp(28px, 5vw, 52px);
+  background: linear-gradient(135deg, #fff 30%, var(--accent) 70%, var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  line-height: 1.1; margin-bottom: 12px;
+}
+header p { color: var(--text2); font-size: 16px; max-width: 600px; margin: 0 auto 28px; }
+
+/* ── STATS BAR ───────────────────────────────────────── */
+.stats-bar {
+  display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 32px;
+}
+.stat-pill {
+  background: var(--surface2); border: 1px solid var(--border);
+  padding: 8px 18px; border-radius: 40px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--text2);
+}
+.stat-pill span { font-weight: 600; color: var(--text); font-family: 'JetBrains Mono', monospace; }
+
+/* ── SEARCH ──────────────────────────────────────────── */
+.search-wrap {
+  position: relative; max-width: 480px; margin: 0 auto 36px;
+}
+.search-wrap input {
+  width: 100%; padding: 13px 20px 13px 46px;
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: 40px; color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-size: 14px; outline: none; transition: border-color 0.2s;
+}
+.search-wrap input:focus { border-color: var(--accent); }
+.search-icon {
+  position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+  color: var(--text3); pointer-events: none; font-size: 16px;
+}
+#searchResults {
+  position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r);
+  max-height: 320px; overflow-y: auto; z-index: 100; display: none;
+}
+.search-item {
+  padding: 10px 16px; cursor: pointer; border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.search-item:hover { background: var(--surface3); }
+.search-item-title { font-size: 13px; font-weight: 500; color: var(--text); }
+.search-item-tab { font-size: 11px; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+
+/* ── TABS ─────────────────────────────────────────────── */
+.tabs-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+.tabs {
+  display: flex; gap: 4px; min-width: max-content;
+  background: var(--surface2); border: 1px solid var(--border);
+  padding: 5px; border-radius: 14px; margin-bottom: 28px;
+}
+.tab-btn {
+  padding: 9px 18px; border-radius: 10px; border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+  color: var(--text2); background: transparent; transition: all 0.2s;
+  white-space: nowrap; display: flex; align-items: center; gap: 6px;
+}
+.tab-btn:hover { color: var(--text); background: var(--surface3); }
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff; box-shadow: 0 4px 18px rgba(79,142,247,0.35);
+}
+
+/* ── PANEL ─────────────────────────────────────────────── */
+.panel { display: none; animation: fadeUp 0.4s ease; }
+.panel.active { display: block; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── CARDS ────────────────────────────────────────────── */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 22px 24px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.card:hover { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(79,142,247,0.15), 0 8px 30px rgba(0,0,0,0.3); }
+.card-title {
+  font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700;
+  margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+}
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-bottom: 24px; }
+
+/* ── TAGS ─────────────────────────────────────────────── */
+.tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  letter-spacing: 0.04em; text-transform: uppercase;
+}
+.tag-hi { background: rgba(247,79,79,0.15); color: var(--red); border: 1px solid rgba(247,79,79,0.3); }
+.tag-exam { background: rgba(247,208,79,0.15); color: var(--accent5); border: 1px solid rgba(247,208,79,0.3); }
+.tag-pearl { background: rgba(46,232,181,0.12); color: var(--accent3); border: 1px solid rgba(46,232,181,0.3); }
+.tag-blue { background: rgba(79,142,247,0.12); color: var(--accent); border: 1px solid rgba(79,142,247,0.25); }
+
+/* ── SECTION TITLE ───────────────────────────────────── */
+.section-title {
+  font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800;
+  margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+}
+.section-title::after {
+  content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent);
+}
+.sub-title {
+  font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700;
+  color: var(--text2); margin: 24px 0 14px; display: flex; align-items: center; gap: 8px;
+}
+
+/* ─────────────────────────────────────────────────────── */
+/*  TAB 1 — OVERVIEW                                       */
+/* ─────────────────────────────────────────────────────── */
+.overview-hero {
+  background: linear-gradient(135deg, rgba(79,142,247,0.1), rgba(124,92,252,0.08));
+  border: 1px solid rgba(79,142,247,0.2); border-radius: var(--r);
+  padding: 28px; margin-bottom: 24px;
+}
+.overview-hero h2 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 12px; }
+.overview-hero p { color: var(--text2); line-height: 1.7; }
+
+.area-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 18px 20px;
+  position: relative; overflow: hidden;
+}
+.area-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--stripe-color, var(--accent));
+}
+.area-card h3 { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+.area-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.area-card .area-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--stripe-color, var(--accent)); margin-bottom: 6px; display: block;
+}
+
+/* Pathway flow */
+.pathway {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 20px; margin-bottom: 24px; overflow-x: auto;
+}
+.pathway-step {
+  display: flex; align-items: center; white-space: nowrap;
+}
+.pathway-node {
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: var(--r2); padding: 8px 14px; font-size: 12px;
+  color: var(--text); cursor: pointer; transition: all 0.2s;
+  text-align: center; min-width: 110px;
+}
+.pathway-node:hover { border-color: var(--accent); color: var(--accent); }
+.pathway-node.highlight { border-color: var(--accent); background: rgba(79,142,247,0.1); color: var(--accent); }
+.pathway-arrow {
+  color: var(--text3); padding: 0 4px; font-size: 18px;
+}
+.pathway-pct {
+  display: block; font-size: 10px; color: var(--accent3); margin-top: 2px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* UMN LMNL comparison highlight */
+.compare-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;
+}
+.compare-col {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 18px;
+}
+.compare-col.umn { border-top: 3px solid var(--accent); }
+.compare-col.lmn { border-top: 3px solid var(--accent4); }
+.compare-col h4 { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+.compare-col ul { list-style: none; }
+.compare-col li { font-size: 13px; color: var(--text2); padding: 4px 0; display: flex; align-items: flex-start; gap: 6px; }
+.compare-col li::before { content: '→'; color: var(--accent); flex-shrink: 0; font-size: 12px; margin-top: 2px; }
+.compare-col.lmn li::before { color: var(--accent4); }
+
+/* Sign grid */
+.sign-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.sign-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.sign-item .sign-name { font-size: 13px; font-weight: 600; }
+.sign-item .sign-desc { font-size: 12px; color: var(--text2); }
+
+/* ─────────────────────────────────────────────────────── */
+/*  TAB 2 — QUIZ                                           */
+/* ─────────────────────────────────────────────────────── */
+.quiz-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+}
+.quiz-meta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.quiz-pill {
+  background: var(--surface2); border: 1px solid var(--border);
+  padding: 6px 14px; border-radius: 30px; font-size: 13px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.progress-bar-wrap {
+  height: 6px; background: var(--surface2); border-radius: 3px; margin-bottom: 24px; overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 3px; transition: width 0.5s ease;
+}
+.q-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--r); padding: 28px; margin-bottom: 0;
+  position: relative; overflow: hidden;
+}
+.q-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;
+  display: flex; gap: 8px; align-items: center;
+}
+.q-text { font-size: 16px; font-weight: 500; margin-bottom: 22px; line-height: 1.55; }
+.options { display: flex; flex-direction: column; gap: 10px; }
+.opt-btn {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: var(--r2); padding: 14px 18px; cursor: pointer;
+  transition: all 0.2s; text-align: left; color: var(--text); font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+}
+.opt-btn:hover:not(:disabled) { border-color: var(--accent); background: rgba(79,142,247,0.06); }
+.opt-btn .opt-letter {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600;
+  color: var(--text3); flex-shrink: 0; width: 20px; padding-top: 1px;
+}
+.opt-btn.correct { border-color: var(--green); background: rgba(46,232,160,0.08); animation: pulse 0.5s; }
+.opt-btn.correct .opt-letter { color: var(--green); }
+.opt-btn.wrong { border-color: var(--red); background: rgba(247,92,92,0.08); animation: shake 0.4s; }
+.opt-btn.wrong .opt-letter { color: var(--red); }
+.opt-btn:disabled { cursor: default; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+.explanation {
+  margin-top: 18px; padding: 16px 18px;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r2);
+  font-size: 13px; color: var(--text2); line-height: 1.65;
+  display: none; animation: fadeUp 0.3s ease;
+}
+.explanation.visible { display: block; }
+.explanation strong { color: var(--green); }
+
+.q-nav {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 22px; gap: 12px;
+}
+.btn {
+  padding: 11px 22px; border-radius: 8px; border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+  transition: all 0.2s;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff; box-shadow: 0 4px 14px rgba(79,142,247,0.3);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(79,142,247,0.4); }
+.btn-secondary {
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text2);
+}
+.btn-secondary:hover { color: var(--text); border-color: var(--text3); }
+.btn-danger {
+  background: rgba(247,92,92,0.12); border: 1px solid rgba(247,92,92,0.3); color: var(--red);
+}
+
+.score-card {
+  text-align: center; padding: 48px 28px;
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r);
+}
+.score-big {
+  font-family: 'Syne', sans-serif; font-size: 72px; font-weight: 800;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  line-height: 1;
+}
+.score-label { font-size: 16px; color: var(--text2); margin: 8px 0 28px; }
+.score-msg { font-size: 20px; font-weight: 600; margin-bottom: 28px; }
+
+/* ─────────────────────────────────────────────────────── */
+/*  TAB 3 — FLASHCARDS                                     */
+/* ─────────────────────────────────────────────────────── */
+.fc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
+.fc-wrap { perspective: 1000px; height: 200px; cursor: pointer; }
+.fc-inner {
+  width: 100%; height: 100%; position: relative;
+  transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(.175,.885,.32,1.275);
+}
+.fc-wrap.flipped .fc-inner { transform: rotateY(180deg); }
+.fc-front, .fc-back {
+  position: absolute; inset: 0; backface-visibility: hidden;
+  border-radius: var(--r); padding: 22px 20px;
+  display: flex; flex-direction: column; justify-content: center;
+  border: 1.5px solid var(--border);
+}
+.fc-front { background: var(--surface); }
+.fc-back { background: var(--surface2); transform: rotateY(180deg); border-color: var(--accent2); }
+.fc-cat {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px;
+}
+.fc-q { font-size: 14px; font-weight: 500; line-height: 1.5; color: var(--text); }
+.fc-a { font-size: 13px; color: var(--accent3); line-height: 1.55; }
+.fc-hint { font-size: 11px; color: var(--text3); margin-top: 10px; }
+
+/* ─────────────────────────────────────────────────────── */
+/*  TAB 4 — CLINICAL CASES                                 */
+/* ─────────────────────────────────────────────────────── */
+.case-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); margin-bottom: 18px; overflow: hidden;
+}
+.case-header {
+  padding: 18px 22px; background: var(--surface2); border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+}
+.case-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+.case-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; }
+.case-body { padding: 22px; }
+.vignette {
+  background: rgba(79,142,247,0.06); border-left: 3px solid var(--accent);
+  border-radius: 0 var(--r2) var(--r2) 0; padding: 14px 16px; margin-bottom: 18px;
+  font-size: 14px; color: var(--text); line-height: 1.65;
+}
+.case-qs { margin-bottom: 16px; }
+.case-q {
+  font-size: 14px; font-weight: 500; color: var(--text);
+  padding: 10px 0; border-bottom: 1px dashed var(--border);
+}
+.case-q:last-child { border-bottom: none; }
+.reveal-btn {
+  padding: 9px 20px; border-radius: 8px; border: 1.5px solid var(--accent);
+  background: transparent; color: var(--accent); font-family: 'DM Sans', sans-serif;
+  font-size: 13px; cursor: pointer; transition: all 0.2s;
+}
+.reveal-btn:hover { background: var(--accent); color: #fff; }
+.case-answer {
+  display: none; margin-top: 16px; animation: fadeUp 0.3s ease;
+  background: var(--surface2); border-radius: var(--r2); padding: 16px;
+  border-left: 3px solid var(--accent3);
+}
+.case-answer.visible { display: block; }
+.case-answer-step {
+  font-size: 13px; color: var(--text2); padding: 6px 0;
+  display: flex; gap: 10px; align-items: flex-start;
+}
+.step-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--accent3); flex-shrink: 0; margin-top: 2px;
+}
+
+/* ─────────────────────────────────────────────────────── */
+/*  TAB 5 — PATHOPHYSIOLOGY                               */
+/* ─────────────────────────────────────────────────────── */
+.tract-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.tract-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 18px; cursor: pointer; transition: all 0.2s;
+  position: relative;
+}
+.tract-item:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+.tract-item.active { border-color: var(--accent); background: rgba(79,142,247,0.06); }
+.tract-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;
+}
+.tract-name { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.tract-origin { font-size: 12px; color: var(--text3); margin-bottom: 10px; }
+.tract-detail {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 22px; margin-bottom: 24px;
+  animation: fadeUp 0.3s ease;
+}
+.tract-detail h3 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; margin-bottom: 14px; }
+.detail-row {
+  display: flex; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border);
+  font-size: 13px; align-items: flex-start;
+}
+.detail-row:last-child { border-bottom: none; }
+.detail-label { color: var(--text3); min-width: 100px; flex-shrink: 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+.detail-val { color: var(--text2); }
+
+/* Mechanism flow */
+.mech-flow { display: flex; flex-direction: column; gap: 0; margin-bottom: 24px; }
+.mech-step {
+  display: flex; align-items: flex-start; gap: 16px; padding: 14px 0;
+}
+.mech-step-node {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
+}
+.mech-step-connector {
+  display: flex; flex-direction: column; align-items: center;
+}
+.mech-connector-line { width: 2px; background: var(--border); flex: 1; min-height: 20px; margin-top: 4px; }
+.mech-step-text { flex: 1; padding-top: 6px; font-size: 13px; color: var(--text2); line-height: 1.6; }
+.mech-step-text strong { color: var(--text); }
+
+/* ─────────────────────────────────────────────────────── */
+/*  TAB 6 — DIAGNOSIS / CLINICAL ASSESSMENT               */
+/* ─────────────────────────────────────────────────────── */
+.dx-table {
+  width: 100%; border-collapse: collapse; margin-bottom: 24px;
+  border: 1px solid var(--border); border-radius: var(--r); overflow: hidden;
+}
+.dx-table th {
+  background: var(--surface2); padding: 12px 16px; font-family: 'Syne', sans-serif;
+  font-size: 12px; font-weight: 700; text-align: left; color: var(--text2);
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.dx-table td {
+  padding: 12px 16px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text2);
+  vertical-align: top; line-height: 1.5;
+}
+.dx-table tr:hover td { background: var(--surface2); }
+.dx-table td:first-child { color: var(--text); font-weight: 500; }
+.badge-green { background: rgba(46,232,160,0.1); color: var(--green); border: 1px solid rgba(46,232,160,0.25); padding: 2px 8px; border-radius: 20px; font-size: 11px; }
+.badge-red { background: rgba(247,92,92,0.1); color: var(--red); border: 1px solid rgba(247,92,92,0.25); padding: 2px 8px; border-radius: 20px; font-size: 11px; }
+.badge-yellow { background: rgba(247,208,79,0.1); color: var(--accent5); border: 1px solid rgba(247,208,79,0.25); padding: 2px 8px; border-radius: 20px; font-size: 11px; }
+.badge-blue { background: rgba(79,142,247,0.1); color: var(--accent); border: 1px solid rgba(79,142,247,0.25); padding: 2px 8px; border-radius: 20px; font-size: 11px; }
+
+/* Dx Algorithm */
+.algo-node {
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r2);
+  padding: 14px 18px; margin: 0 auto; max-width: 480px; text-align: center;
+  font-size: 13px; transition: all 0.2s;
+}
+.algo-node.start { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.algo-node.decision { border-color: var(--accent5); background: rgba(247,208,79,0.05); }
+.algo-node.umnl { border-color: var(--accent); background: rgba(79,142,247,0.06); }
+.algo-node.lmnl { border-color: var(--accent4); background: rgba(247,121,79,0.06); }
+.algo-connector { text-align: center; padding: 6px; color: var(--text3); font-size: 20px; }
+.algo-branch {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 6px 0;
+}
+.algo-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: center; color: var(--text3); margin: 4px 0; }
+
+/* ─────────────────────────────────────────────────────── */
+/*  TAB 7 — TREATMENT (Lesion Management)                 */
+/* ─────────────────────────────────────────────────────── */
+.tx-section { margin-bottom: 28px; }
+.tx-section h3 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.tx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.tx-card {
+  border-radius: var(--r); padding: 16px 18px;
+  border: 1px solid transparent;
+}
+.tx-card.red { background: rgba(247,92,92,0.07); border-color: rgba(247,92,92,0.2); }
+.tx-card.blue { background: rgba(79,142,247,0.07); border-color: rgba(79,142,247,0.2); }
+.tx-card.green { background: rgba(46,232,160,0.06); border-color: rgba(46,232,160,0.2); }
+.tx-card.yellow { background: rgba(247,208,79,0.06); border-color: rgba(247,208,79,0.2); }
+.tx-card h4 { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.tx-card.red h4 { color: var(--red); }
+.tx-card.blue h4 { color: var(--accent); }
+.tx-card.green h4 { color: var(--green); }
+.tx-card.yellow h4 { color: var(--accent5); }
+.tx-card ul { list-style: none; }
+.tx-card li { font-size: 12px; color: var(--text2); padding: 3px 0; display: flex; gap: 6px; }
+.tx-card li::before { content: '•'; flex-shrink: 0; }
+.tx-card.red li::before { color: var(--red); }
+.tx-card.blue li::before { color: var(--accent); }
+.tx-card.green li::before { color: var(--green); }
+.tx-card.yellow li::before { color: var(--accent5); }
+
+/* ─────────────────────────────────────────────────────── */
+/*  TAB 8 — MNEMONICS                                      */
+/* ─────────────────────────────────────────────────────── */
+.mnem-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r);
+  padding: 22px 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.2s;
+}
+.mnem-card:hover { border-color: var(--accent2); }
+.mnem-card.open { border-color: var(--accent2); }
+.mnem-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.mnem-name { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: var(--accent2); }
+.mnem-title { font-size: 13px; color: var(--text2); margin-top: 4px; }
+.mnem-toggle { color: var(--text3); font-size: 20px; transition: transform 0.3s; }
+.mnem-card.open .mnem-toggle { transform: rotate(180deg); }
+.mnem-body { display: none; margin-top: 18px; border-top: 1px solid var(--border); padding-top: 18px; }
+.mnem-card.open .mnem-body { display: block; animation: fadeUp 0.3s ease; }
+.mnem-letters { display: flex; flex-direction: column; gap: 8px; }
+.mnem-letter-row { display: flex; gap: 12px; align-items: flex-start; }
+.letter-char {
+  width: 40px; height: 40px; border-radius: var(--r2); flex-shrink: 0;
+  background: rgba(124,92,252,0.12); border: 1px solid rgba(124,92,252,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--accent2);
+}
+.letter-text { flex: 1; padding-top: 10px; }
+.letter-word { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.letter-meaning { font-size: 12px; color: var(--text2); }
+
+/* ─────────────────────────────────────────────────────── */
+/*  TAB 9 — VIVA                                           */
+/* ─────────────────────────────────────────────────────── */
+.viva-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); margin-bottom: 12px; overflow: hidden;
+}
+.viva-q {
+  padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between;
+  align-items: center; gap: 12px; transition: background 0.15s;
+}
+.viva-q:hover { background: var(--surface2); }
+.viva-q-text { font-size: 14px; font-weight: 500; }
+.viva-arrow { color: var(--text3); font-size: 18px; transition: transform 0.3s; flex-shrink: 0; }
+.viva-item.open .viva-arrow { transform: rotate(180deg); }
+.viva-a {
+  display: none; padding: 16px 20px; border-top: 1px solid var(--border);
+  background: var(--surface2); font-size: 13px; color: var(--text2); line-height: 1.7;
+  animation: fadeUp 0.25s ease;
+}
+.viva-item.open .viva-a { display: block; }
+
+/* ── RESPONSIVE ──────────────────────────────────────── */
+@media (max-width: 640px) {
+  .compare-row { grid-template-columns: 1fr; }
+  .algo-branch { grid-template-columns: 1fr; }
+  .q-card { padding: 20px 16px; }
+  .q-text { font-size: 15px; }
+}
+
+/* ── SCROLLBAR ───────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── UTILS ───────────────────────────────────────────── */
+.mb8 { margin-bottom: 8px; }
+.mb16 { margin-bottom: 16px; }
+.mb24 { margin-bottom: 24px; }
+.flex-gap { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.text2 { color: var(--text2); }
+.text3 { color: var(--text3); }
+.mono { font-family: 'JetBrains Mono', monospace; }
+.bold { font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+
+<div class="app">
+  <header>
+    <div class="badge">⚡ Physiology · CNS Motor System</div>
+    <h1>Motor Cortex &amp;<br>Descending Motor Tracts</h1>
+    <p>Neural Command Center — USMLE-style interactive study platform for Mansoura Faculty of Medicine</p>
+    <div class="stats-bar">
+      <div class="stat-pill">📝 Quiz: <span id="statScore">0/25</span></div>
+      <div class="stat-pill">🔥 Streak: <span id="statStreak">0</span></div>
+      <div class="stat-pill">📊 Progress: <span id="statProgress">0%</span></div>
+      <div class="stat-pill">🃏 Cards: <span id="statCards">0/22</span></div>
+    </div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search all content…" autocomplete="off">
+      <div id="searchResults"></div>
+    </div>
+  </header>
+
+  <div class="tabs-wrapper">
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="overview">🧠 Overview</button>
+      <button class="tab-btn" data-tab="quiz">❓ Quiz</button>
+      <button class="tab-btn" data-tab="flashcards">🃏 Flashcards</button>
+      <button class="tab-btn" data-tab="cases">🏥 Clinical Cases</button>
+      <button class="tab-btn" data-tab="pathophys">⚙️ Pathophysiology</button>
+      <button class="tab-btn" data-tab="diagnosis">🔬 Diagnosis</button>
+      <button class="tab-btn" data-tab="treatment">💊 Management</button>
+      <button class="tab-btn" data-tab="mnemonics">🧩 Mnemonics</button>
+      <button class="tab-btn" data-tab="viva">🗣️ Viva</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!--  TAB 1 — OVERVIEW                                      -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="panel active" id="panel-overview">
+    <div class="section-title">🧠 Somatic Motor System Overview</div>
+
+    <div class="overview-hero">
+      <h2>The Neural Command Hierarchy</h2>
+      <p>Voluntary movements are orchestrated by <strong>Upper Motor Neurons (UMN)</strong> in the cortex/brainstem → relayed via descending tracts → to <strong>Lower Motor Neurons (LMN)</strong> in the spinal anterior horn cells → skeletal muscle. Two main highway systems: <strong>Pyramidal</strong> (voluntary skilled) and <strong>Extrapyramidal</strong> (posture, involuntary background).</p>
+    </div>
+
+    <div class="sub-title">🎯 Cortical Motor Areas</div>
+    <div class="grid-3">
+      <div class="area-card" style="--stripe-color:#4f8ef7">
+        <span class="area-num">AREA 4 · PRIMARY MOTOR</span>
+        <h3>Precentral Gyrus</h3>
+        <p>Controls initiation of voluntary movements on <strong>contralateral, inverted</strong> side. Facilitates distal limb muscle tone. Large cortical area = fine movement (hand/tongue).</p>
+        <div class="flex-gap" style="margin-top:10px">
+          <span class="tag tag-exam">⚠️ MCQ</span><span class="tag tag-hi">High-Yield</span>
+        </div>
+      </div>
+      <div class="area-card" style="--stripe-color:#7c5cfc">
+        <span class="area-num">AREA 6 · PREMOTOR</span>
+        <h3>Anterior to Area 4</h3>
+        <p>Complex movements, postural adjustments. Contains: <strong>Broca's</strong> (speech), Frontal eye field, Head rotation area, <strong>Exner's</strong> (hand skills). Gives 30% to pyramidal + extrapyramidal fibers.</p>
+        <div class="flex-gap" style="margin-top:10px">
+          <span class="tag tag-exam">⚠️ MCQ</span><span class="tag tag-pearl">🌟 Pearl</span>
+        </div>
+      </div>
+      <div class="area-card" style="--stripe-color:#2ee8b5">
+        <span class="area-num">SUPPLEMENTAL MOTOR AREA</span>
+        <h3>Above &amp; Anterior to Area 6</h3>
+        <p>Initiates complex <strong>bilateral</strong> movements. Provides postural background for fine skilled movements. Works with basal ganglia.</p>
+        <div class="flex-gap" style="margin-top:10px">
+          <span class="tag tag-blue">Bilateral</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-title">🛤️ Pyramidal Tract Pathway</div>
+    <div class="pathway" id="pathwayEl">
+      <div class="pathway-step"><div class="pathway-node highlight">Motor Cortex<span class="pathway-pct">Areas 4, 6, SS</span></div></div>
+      <div class="pathway-arrow">→</div>
+      <div class="pathway-step"><div class="pathway-node">Internal Capsule<span class="pathway-pct">Genu + ant. 2/3</span></div></div>
+      <div class="pathway-arrow">→</div>
+      <div class="pathway-step"><div class="pathway-node">Midbrain<span class="pathway-pct">Mid 3/5 peduncles</span></div></div>
+      <div class="pathway-arrow">→</div>
+      <div class="pathway-step"><div class="pathway-node">Pons<span class="pathway-pct">Basis pontis</span></div></div>
+      <div class="pathway-arrow">→</div>
+      <div class="pathway-step"><div class="pathway-node highlight">Medulla Pyramids<span class="pathway-pct">DECUSSATION 90%</span></div></div>
+      <div class="pathway-arrow">→</div>
+      <div class="pathway-step"><div class="pathway-node">Lateral CST<span class="pathway-pct">90% crossed</span></div></div>
+      <div class="pathway-arrow">→</div>
+      <div class="pathway-step"><div class="pathway-node">AHC → Muscle<span class="pathway-pct">LMN final path</span></div></div>
+    </div>
+
+    <div class="sub-title">⚡ UMN vs LMN Lesion — Quick Compare</div>
+    <div class="compare-row">
+      <div class="compare-col umn">
+        <h4>🔼 Upper Motor Neuron Lesion (UMNL)</h4>
+        <ul>
+          <li>Widespread hemiplegia (below lesion)</li>
+          <li>Hypertonia — spastic paralysis</li>
+          <li>Exaggerated (hyperactive) tendon jerks</li>
+          <li>Positive Babinski sign</li>
+          <li>NO early muscle wasting</li>
+          <li>Cause: stroke, capsular lesion</li>
+        </ul>
+      </div>
+      <div class="compare-col lmn">
+        <h4>🔽 Lower Motor Neuron Lesion (LMNL)</h4>
+        <ul>
+          <li>Localized flaccid paralysis at lesion level</li>
+          <li>Hypotonia — flaccid paralysis</li>
+          <li>Absent (areflexia) tendon jerks</li>
+          <li>Negative Babinski sign</li>
+          <li>Marked EARLY muscle wasting + fasciculations</li>
+          <li>Cause: poliomyelitis, AHC damage</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sub-title">🏷️ Key Clinical Signs</div>
+    <div class="sign-grid">
+      <div class="sign-item">
+        <div class="sign-name">Babinski Sign</div>
+        <div class="sign-desc">Dorsiflexion of big toe on plantar stimulation. Positive = UMNL (pyramidal lesion). Normal in infants (unmyelinated tract).</div>
+        <span class="tag tag-exam">⚠️ EXAM FAVORITE</span>
+      </div>
+      <div class="sign-item">
+        <div class="sign-name">Fanning (Babinski+)</div>
+        <div class="sign-desc">Dorsiflexion + fanning of outer 4 toes = extrapyramidal tract also involved.</div>
+        <span class="tag tag-hi">High-Yield</span>
+      </div>
+      <div class="sign-item">
+        <div class="sign-name">Spasticity</div>
+        <div class="sign-desc">Hypertonia from loss of UMN inhibition on LMNs. Velocity-dependent resistance.</div>
+        <span class="tag tag-pearl">🌟 Pearl</span>
+      </div>
+      <div class="sign-item">
+        <div class="sign-name">Fasciculations</div>
+        <div class="sign-desc">Spontaneous muscle fiber contractions visible under skin. Classic LMNL sign (denervation).</div>
+        <span class="tag tag-hi">High-Yield</span>
+      </div>
+      <div class="sign-item">
+        <div class="sign-name">Motor Aphasia</div>
+        <div class="sign-desc">Cannot articulate speech despite intact understanding. Broca's area (Area 6) lesion.</div>
+        <span class="tag tag-pearl">🌟 Pearl</span>
+      </div>
+      <div class="sign-item">
+        <div class="sign-name">Motor Apraxia</div>
+        <div class="sign-desc">Inability to perform learned skilled movements. Exner's area (Area 6) lesion.</div>
+        <span class="tag tag-exam">⚠️ MCQ</span>
+      </div>
+      <div class="sign-item">
+        <div class="sign-name">Lower Facial Palsy</div>
+        <div class="sign-desc">Contralateral UMNL → only lower face paralyzed (7th nucleus lower half = contralateral only).</div>
+        <span class="tag tag-exam">⚠️ EXAM</span>
+      </div>
+      <div class="sign-item">
+        <div class="sign-name">Reaction of Degeneration</div>
+        <div class="sign-desc">LMNL: no Faradic response; Galvanic: ACC &gt; CCC (anodal stronger than cathodal).</div>
+        <span class="tag tag-blue">LMNL Specific</span>
+      </div>
+    </div>
+
+    <div class="sub-title">📊 Extrapyramidal Tracts Quick Reference</div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">🔴 Rubrospinal</div>
+        <p class="text2" style="font-size:13px">Origin: Red nucleus (midbrain). Function: Distal limb flexor tone. System: <strong>Lateral</strong>.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">🟡 Reticulospinal</div>
+        <p class="text2" style="font-size:13px"><strong>Medial (pontine)</strong>: facilitates antigravity muscles. <strong>Lateral (medullary)</strong>: inhibits antigravity muscles. System: <strong>Medial</strong>.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">🔵 Vestibulospinal</div>
+        <p class="text2" style="font-size:13px"><strong>Lateral</strong>: ipsilateral, facilitates antigravity/balance. <strong>Medial</strong>: bilateral, neck/upper limb position during acceleration. System: <strong>Medial</strong>.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">🟢 Tectospinal</div>
+        <p class="text2" style="font-size:13px">Origin: Superior + inferior colliculi (midbrain). Function: Reflex head turning to sudden visual/auditory stimuli. System: <strong>Medial</strong>. <span class="tag tag-exam" style="margin-left:4px">⚠️ MCQ</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!--  TAB 2 — QUIZ                                         -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-quiz">
+    <div id="quizContainer">
+      <div class="quiz-header">
+        <div class="section-title" style="margin:0">❓ USMLE-Style Quiz</div>
+        <div class="quiz-meta">
+          <div class="quiz-pill" id="qCounter">Q 1 / 25</div>
+          <div class="quiz-pill">🔥 <span id="streakDisplay">0</span></div>
+          <button class="btn btn-secondary" onclick="resetQuiz()">↺ Reset</button>
+        </div>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+      </div>
+      <div id="quizBody"></div>
+    </div>
+    <div id="scoreScreen" style="display:none">
+      <div class="score-card">
+        <div class="score-big" id="finalScore">0</div>
+        <div class="score-label">out of 25 correct</div>
+        <div class="score-msg" id="scoreMsg">🎉</div>
+        <button class="btn btn-primary" onclick="resetQuiz()">↺ Retake Quiz</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!--  TAB 3 — FLASHCARDS                                   -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-flashcards">
+    <div class="section-title">🃏 Flip Flashcards</div>
+    <p class="text2 mb24" style="font-size:13px">Click any card to reveal the answer. <span id="fcFlippedCount">0</span> / 22 flipped.</p>
+    <div class="fc-grid" id="fcGrid"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!--  TAB 4 — CLINICAL CASES                               -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-cases">
+    <div class="section-title">🏥 Clinical Vignettes</div>
+    <div id="casesContainer"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!--  TAB 5 — PATHOPHYSIOLOGY                             -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-pathophys">
+    <div class="section-title">⚙️ Descending Tracts — Deep Dive</div>
+    <div class="sub-title">Click a tract to expand details</div>
+    <div class="tract-grid" id="tractGrid"></div>
+    <div id="tractDetail" style="display:none"></div>
+
+    <div class="sub-title">🔄 Mechanism: UMNL Cascade</div>
+    <div class="mech-flow">
+      <div class="mech-step">
+        <div class="mech-step-connector">
+          <div class="mech-step-node" style="background:rgba(79,142,247,0.15);color:var(--accent)">1</div>
+          <div class="mech-connector-line"></div>
+        </div>
+        <div class="mech-step-text"><strong>Stroke / Capsular lesion</strong> — blood supply to internal capsule interrupted, severing descending UMN axons.</div>
+      </div>
+      <div class="mech-step">
+        <div class="mech-step-connector">
+          <div class="mech-step-node" style="background:rgba(124,92,252,0.15);color:var(--accent2)">2</div>
+          <div class="mech-connector-line"></div>
+        </div>
+        <div class="mech-step-text"><strong>Loss of cortical motor command</strong> — LMNs in spinal cord no longer receive activation signals → voluntary paralysis (hemiplegia) on contralateral side.</div>
+      </div>
+      <div class="mech-step">
+        <div class="mech-step-connector">
+          <div class="mech-step-node" style="background:rgba(247,208,79,0.15);color:var(--accent5)">3</div>
+          <div class="mech-connector-line"></div>
+        </div>
+        <div class="mech-step-text"><strong>Loss of inhibitory control</strong> — UMNs normally inhibit primitive spinal reflexes. Disinhibition leads to <em>hyperreflexia</em> and <em>spasticity (hypertonia)</em>.</div>
+      </div>
+      <div class="mech-step">
+        <div class="mech-step-connector">
+          <div class="mech-step-node" style="background:rgba(247,92,92,0.15);color:var(--red)">4</div>
+          <div class="mech-connector-line"></div>
+        </div>
+        <div class="mech-step-text"><strong>Positive Babinski sign</strong> — pyramidal tract can no longer suppress primitive withdrawal reflex → dorsiflexion of big toe on plantar stimulation.</div>
+      </div>
+      <div class="mech-step">
+        <div class="mech-step-connector">
+          <div class="mech-step-node" style="background:rgba(46,232,181,0.15);color:var(--accent3)">5</div>
+        </div>
+        <div class="mech-step-text"><strong>If extrapyramidal also involved</strong> — Babinski + <em>fanning</em> of outer 4 toes. Tone changes (may increase or decrease) depending on which extrapyramidal tracts are damaged.</div>
+      </div>
+    </div>
+
+    <div class="sub-title">🔄 Extrapyramidal General Pathway</div>
+    <div class="card mb24">
+      <p style="font-size:13px;color:var(--text2);line-height:2">
+        <strong style="color:var(--accent)">Premotor Area 6 (mainly) + Area 4</strong>
+        <span style="color:var(--text3)"> → </span>
+        <strong>Corpus Striatum (Basal Ganglia)</strong>
+        <span style="color:var(--text3)"> → </span>
+        <strong>Globus Pallidus</strong>
+        <span style="color:var(--text3)"> → </span>
+        <strong style="color:var(--accent2)">Brainstem Nuclei</strong>
+        <span style="color:var(--text3)"> (Red / Reticular / Vestibular / Tectum) → </span>
+        <strong>Spinal Tracts</strong>
+        <span style="color:var(--text3)"> → </span>
+        <strong style="color:var(--accent3)">AHC → Muscle</strong>
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!--  TAB 6 — DIAGNOSIS                                    -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-diagnosis">
+    <div class="section-title">🔬 Clinical Diagnosis</div>
+
+    <div class="sub-title">📋 UMNL vs LMNL Diagnostic Table</div>
+    <div style="overflow-x:auto;margin-bottom:24px">
+    <table class="dx-table">
+      <thead><tr><th>Feature</th><th>UMNL</th><th>LMNL</th></tr></thead>
+      <tbody>
+        <tr><td>Paralysis Type</td><td>Widespread hemiplegia (below lesion)</td><td>Localized, restricted (at lesion level)</td></tr>
+        <tr><td>Muscle Tone</td><td><span class="badge-blue">Hypertonia</span> (spastic)</td><td><span class="badge-red">Hypotonia</span> (flaccid)</td></tr>
+        <tr><td>Tendon Reflexes</td><td><span class="badge-blue">Exaggerated / Hyperreflexia</span></td><td><span class="badge-red">Absent / Areflexia</span></td></tr>
+        <tr><td>Babinski Sign</td><td><span class="badge-red">Positive</span> (dorsiflexion)</td><td><span class="badge-green">Negative</span> (plantar flexion)</td></tr>
+        <tr><td>Muscle Wasting</td><td>Late / Absent (nerve intact)</td><td><span class="badge-red">Early + Marked</span></td></tr>
+        <tr><td>Fasciculations</td><td>Absent</td><td><span class="badge-red">Present</span></td></tr>
+        <tr><td>Clonus</td><td>May be present</td><td>Absent</td></tr>
+        <tr><td>Classic Cause</td><td>Stroke, internal capsule, spinal cord</td><td>Poliomyelitis, AHC disease</td></tr>
+        <tr><td>Faradic Stimulation</td><td>Normal response</td><td><span class="badge-red">No response</span></td></tr>
+        <tr><td>Galvanic Stimulation</td><td>Normal CCC &gt; ACC</td><td><span class="badge-yellow">ACC &gt; CCC</span> (reaction of degeneration)</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="sub-title">🏗️ Diagnostic Algorithm</div>
+    <div style="max-width:560px;margin:0 auto 28px">
+      <div class="algo-node start">Patient presents with muscle weakness / paralysis</div>
+      <div class="algo-connector">↓</div>
+      <div class="algo-node decision">Assess tone, reflexes &amp; Babinski sign</div>
+      <div class="algo-connector">↓</div>
+      <div class="algo-branch">
+        <div>
+          <div class="algo-label">Hypertonia + Hyperreflexia + (+) Babinski</div>
+          <div class="algo-node umnl">⬆️ UPPER MOTOR NEURON LESION<br><small>→ Investigate cortex, capsule, cord</small></div>
+        </div>
+        <div>
+          <div class="algo-label">Hypotonia + Areflexia + (-) Babinski + Wasting</div>
+          <div class="algo-node lmnl">⬇️ LOWER MOTOR NEURON LESION<br><small>→ Investigate AHC, peripheral nerve</small></div>
+        </div>
+      </div>
+      <div class="algo-connector">↓</div>
+      <div class="algo-node decision">Check Babinski character for tract specificity</div>
+      <div class="algo-connector">↓</div>
+      <div class="algo-branch">
+        <div>
+          <div class="algo-label">Dorsiflexion alone (no fanning)</div>
+          <div class="algo-node umnl">Pure Pyramidal Tract Lesion</div>
+        </div>
+        <div>
+          <div class="algo-label">Dorsiflexion + fanning of outer 4 toes</div>
+          <div class="algo-node" style="border-color:var(--accent2);background:rgba(124,92,252,0.06)">Pyramidal + Extrapyramidal Lesion</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-title">📊 Pyramidal vs Extrapyramidal</div>
+    <div style="overflow-x:auto;margin-bottom:24px">
+    <table class="dx-table">
+      <thead><tr><th>Feature</th><th>Pyramidal Tract</th><th>Extrapyramidal Tracts</th></tr></thead>
+      <tbody>
+        <tr><td>Route</td><td>Through medullary pyramid</td><td>Do NOT pass through pyramid</td></tr>
+        <tr><td>Origin</td><td>60% motor areas (4, 6); 40% somatosensory</td><td>Area 6 → Corpus striatum → Brainstem</td></tr>
+        <tr><td>Function</td><td>Fine voluntary skilled movements</td><td>Involuntary background, posture, equilibrium</td></tr>
+        <tr><td>Lesion Effect</td><td>Loss of skilled movement, Babinski (no fanning)</td><td>Tone changes, abnormal involuntary movements</td></tr>
+        <tr><td>System</td><td>Lateral motor system</td><td>Medial motor system (mainly)</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!--  TAB 7 — TREATMENT / MANAGEMENT                       -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-treatment">
+    <div class="section-title">💊 Clinical Management</div>
+
+    <div class="tx-section">
+      <h3>🚨 Acute UMNL (Stroke) — Emergency Management</h3>
+      <div class="tx-grid">
+        <div class="tx-card red">
+          <h4>⚡ Immediate</h4>
+          <ul>
+            <li>Stabilize ABC (Airway, Breathing, Circulation)</li>
+            <li>Neurological assessment — GCS, NIHSS</li>
+            <li>Emergency CT/MRI brain</li>
+            <li>Identify ischaemic vs haemorrhagic</li>
+            <li>Thrombolysis (tPA) if ischaemic &lt;4.5h</li>
+          </ul>
+        </div>
+        <div class="tx-card blue">
+          <h4>🔬 Investigations</h4>
+          <ul>
+            <li>MRI brain — internal capsule lesion</li>
+            <li>Carotid Doppler — stenosis</li>
+            <li>ECG — AF source of emboli</li>
+            <li>FBC, coagulation screen</li>
+            <li>Echo — cardiac source</li>
+          </ul>
+        </div>
+        <div class="tx-card green">
+          <h4>🛡️ Secondary Prevention</h4>
+          <ul>
+            <li>Antiplatelets (aspirin, clopidogrel)</li>
+            <li>Anticoagulation if AF</li>
+            <li>Statin therapy</li>
+            <li>BP control (&lt;130/80 mmHg)</li>
+            <li>Lifestyle modification</li>
+          </ul>
+        </div>
+        <div class="tx-card yellow">
+          <h4>🏋️ Rehabilitation</h4>
+          <ul>
+            <li>Physiotherapy — motor retraining</li>
+            <li>Occupational therapy — ADLs</li>
+            <li>Speech therapy if Broca's aphasia</li>
+            <li>Spasticity: baclofen, botulinum toxin</li>
+            <li>Neuroplasticity exercises</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="tx-section">
+      <h3>⬇️ LMNL Management (e.g., Poliomyelitis, AHC Disease)</h3>
+      <div class="tx-grid">
+        <div class="tx-card blue">
+          <h4>🔬 Diagnosis Confirmation</h4>
+          <ul>
+            <li>EMG — denervation potentials</li>
+            <li>Nerve conduction studies</li>
+            <li>Reaction of degeneration test</li>
+            <li>Muscle biopsy if needed</li>
+          </ul>
+        </div>
+        <div class="tx-card green">
+          <h4>🏋️ Muscle Preservation</h4>
+          <ul>
+            <li>Physiotherapy — prevent contractures</li>
+            <li>Splinting — maintain joint position</li>
+            <li>Galvanic stimulation — denervated muscle</li>
+            <li>Hydrotherapy</li>
+          </ul>
+        </div>
+        <div class="tx-card yellow">
+          <h4>🔄 Nerve Regeneration Support</h4>
+          <ul>
+            <li>Neurotrophic factors (research)</li>
+            <li>Nutritional support — vitamins B1, B12</li>
+            <li>Nerve repair/grafting if applicable</li>
+            <li>Assistive devices — orthotics</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="tx-section">
+      <h3>💬 Broca's Aphasia Management (Area 6 Lesion)</h3>
+      <div class="tx-grid">
+        <div class="tx-card red">
+          <h4>🚨 Acute</h4>
+          <ul>
+            <li>Treat underlying stroke/lesion</li>
+            <li>Speech-language pathology ASAP</li>
+            <li>Communication aids (AAC devices)</li>
+          </ul>
+        </div>
+        <div class="tx-card blue">
+          <h4>🔄 Rehabilitation</h4>
+          <ul>
+            <li>Constraint-induced language therapy (CILT)</li>
+            <li>Melodic intonation therapy</li>
+            <li>Regular SLP sessions 5×/week acute phase</li>
+            <li>Family communication training</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-title">💊 Spasticity Treatment Ladder</div>
+    <div style="overflow-x:auto">
+    <table class="dx-table">
+      <thead><tr><th>Agent</th><th>Mechanism</th><th>Use</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Baclofen</td><td>GABA-B agonist → reduces excitatory drive</td><td>Spinal spasticity</td><td>1st line oral</td></tr>
+        <tr><td>Tizanidine</td><td>α2-agonist → reduces motor neuron firing</td><td>Generalized spasticity</td><td>Fewer weakness SE</td></tr>
+        <tr><td>Botulinum Toxin</td><td>Blocks ACh release at NMJ</td><td>Focal spasticity</td><td>Injected locally</td></tr>
+        <tr><td>Diazepam</td><td>GABA-A agonist</td><td>Adjunct</td><td>Sedating, addiction risk</td></tr>
+        <tr><td>Intrathecal Baclofen</td><td>Direct spinal cord delivery</td><td>Severe refractory</td><td>Pump implant needed</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!--  TAB 8 — MNEMONICS                                    -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-mnemonics">
+    <div class="section-title">🧩 Mnemonics &amp; Memory Aids</div>
+    <div id="mnemContainer"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!--  TAB 9 — VIVA                                         -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-viva">
+    <div class="section-title">🗣️ Viva Voice Questions</div>
+    <p class="text2 mb24" style="font-size:13px">Click any question to reveal the model answer. Practice speaking your answer first!</p>
+    <div id="vivaContainer"></div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════════════════
+
+const QUIZ_DATA = [
+  { q: "What is the primary function of the Premotor Area 6 regarding its descending fibers?", opts: ["A) Facilitate muscle tone on the opposite side","B) Give fibers exclusively to the pyramidal tract","C) Give fibers to both pyramidal and extrapyramidal tracts","D) Control sensory perception of the trunk","E) Inhibit the tectospinal tract"], ans: 2, exp: "Area 6 is a major origin for the extrapyramidal system AND contributes ~30% to the pyramidal tract. It serves both systems. Area 4 facilitates contralateral tone; options D and E are incorrect.", hi: true },
+  { q: "Which of the following best describes Upper Motor Neurons?", opts: ["A) Cell bodies located in the AHCs","B) Axons form the nerve supply to smooth muscles","C) Axons form the nerve supply to skeletal muscles","D) Axons form the descending motor tracts","E) Cell bodies located in cranial motor nuclei"], ans: 3, exp: "UMN cell bodies reside in higher centers (cortex/brainstem) and their AXONS form descending tracts to synapse on LMNs. A, C, E describe LMNs; B describes autonomic neurons." },
+  { q: "Which descending motor tract primarily inhibits dorsiflexion of the big toe in the plantar reflex?", opts: ["A) Corticobulbar tract","B) Medial vestibulospinal tract","C) Rubrospinal tract","D) Tectospinal tract","E) Corticospinal tract"], ans: 4, exp: "The corticospinal (pyramidal) tract inhibits the primitive withdrawal reflex (Babinski sign). Loss of this inhibition → positive Babinski. Other tracts serve different functions.", hi: true },
+  { q: "The Primary Motor Area 4 is essential for what specific physiological action?", opts: ["A) Located in the postcentral gyrus","B) Controls muscles of the ipsilateral side","C) Gives 60% of pyramidal tract fibers","D) Facilitates muscle tone of distal limb muscles","E) Serves as the primary visual processing center"], ans: 3, exp: "Area 4 initiates voluntary CONTRALATERAL movements and facilitates the TONE of DISTAL limb muscles. It is in the precentral gyrus; it gives 30% (not 60%) of pyramidal fibers; vision is occipital." },
+  { q: "Where does the majority (90%) of the corticospinal tract decussate?", opts: ["A) Internal capsule","B) Basis pontis","C) Medullary pyramid","D) Spinal cord ventral horn","E) Midbrain cerebral peduncles"], ans: 2, exp: "90% of corticospinal fibers cross at the pyramidal decussation at the LOWER MEDULLA. The internal capsule, pons and peduncles are pathway stations before decussation; AHC is the termination.", hi: true },
+  { q: "Which cranial nerve nucleus receives ONLY contralateral UMN supply for its lower half?", opts: ["A) Oculomotor (3rd)","B) Trochlear (4th)","C) Trigeminal (5th)","D) Facial (7th)","E) Vagus (10th)"], ans: 3, exp: "All cranial motor nuclei get bilateral UMN supply EXCEPT the lower part of the 7th (facial) and the 12th (hypoglossal) — these receive only contralateral supply. This is a high-yield EXAM point.", hi: true },
+  { q: "The Lateral Motor System is composed of which two tracts?", opts: ["A) Lateral corticospinal and Rubrospinal tracts","B) Ventral corticospinal and Tectospinal tracts","C) Medial vestibulospinal and Reticulospinal tracts","D) Corticobulbar and Olivospinal tracts","E) Rubrospinal and Tectospinal tracts"], ans: 0, exp: "Lateral motor system = tracts on LATERAL AHCs (distal limb, fine voluntary). These are the LATERAL corticospinal and RUBROSPINAL tracts. All other listed tracts are in the medial system." },
+  { q: "A pure pyramidal tract lesion will produce a Babinski sign characterized by:", opts: ["A) Dorsiflexion + fanning of outer 4 toes","B) Dorsiflexion of big toe WITHOUT fanning","C) Plantar flexion of big toe","D) Absent plantar response","E) Exaggerated knee jerk only"], ans: 1, exp: "PURE pyramidal lesion → dorsiflexion of big toe ALONE. Fanning (spreading) of the outer four toes only occurs when extrapyramidal tracts are ALSO involved. Key MCQ distinction!", hi: true },
+  { q: "Which region is responsible for the motor programming of speech?", opts: ["A) Primary Motor Area","B) Broca's Area","C) Exner's Area","D) Somatosensory Area","E) Parieto-occipital area"], ans: 1, exp: "Broca's area (within Area 6, dominant hemisphere) coordinates motor commands to speech muscles (lips, tongue, larynx). Exner's is for hand skills. Area 4 executes movement." },
+  { q: "The Rubrospinal tract originates from which structure?", opts: ["A) Pontine reticular formation","B) Inferior olivary nucleus","C) Red nucleus in midbrain","D) Superior colliculus","E) Vestibular nucleus"], ans: 2, exp: "Rubrospinal tract = Red nucleus (midbrain tegmentum). Pontine reticular → medial reticulospinal. Inferior olive → olivospinal. Superior colliculus → tectospinal. Vestibular nuclei → vestibulospinal." },
+  { q: "Which extrapyramidal tract INHIBITS the tone of antigravity muscles?", opts: ["A) Medial Reticulospinal tract","B) Lateral Reticulospinal tract","C) Medial Vestibulospinal tract","D) Tectospinal tract","E) Rubrospinal tract"], ans: 1, exp: "Lateral (medullary) Reticulospinal tract descends BILATERALLY and INHIBITS antigravity muscle tone. The Medial (pontine) RST FACILITATES them. This distinction is high-yield." },
+  { q: "What distinguishes an LMNL from an UMNL?", opts: ["A) Exaggerated tendon jerks","B) Hypertonia","C) Widespread hemiplegia","D) Fasciculation and fibrillation","E) Positive Babinski sign"], ans: 3, exp: "LMNL shows denervation signs: fasciculations, fibrillations, marked early wasting, areflexia, and flaccid paralysis. Options A, B, C, E are all UMNL features." },
+  { q: "What percentage of corticospinal fibers descend ipsilaterally (ventral column)?", opts: ["A) 90%","B) 60%","C) 40%","D) 30%","E) 10%"], ans: 4, exp: "10% of corticospinal fibers do NOT decussate at the medulla and travel ipsilaterally as the VENTRAL corticospinal tract. They mostly control axial muscles and eventually cross at spinal levels." },
+  { q: "Inability to perform a previously learned skilled movement is called:", opts: ["A) Motor aphasia","B) Motor apraxia","C) Monoplegia","D) Hemiplegia","E) Paraplegia"], ans: 1, exp: "Motor apraxia = inability to perform learned skilled movements. Caused by lesions in Exner's area (within premotor Area 6). Motor aphasia is inability to articulate speech. Plegi-terms are paralysis types.", hi: true },
+  { q: "The medial vestibulospinal tract descends bilaterally to primarily supply:", opts: ["A) Distal muscles of the lower limb","B) AHCs of neck and upper limb muscles","C) Abdominal wall muscles","D) Facial expression muscles","E) Extraocular muscles"], ans: 1, exp: "Medial vestibulospinal → bilateral → neck + upper limb muscles → adjust head/limb position during LINEAR acceleration." },
+  { q: "Which area in the premotor cortex directs the head toward visual objects?", opts: ["A) Exner's area","B) Head rotation area","C) Primary sensory area","D) Broca's area","E) Frontal eye movement area"], ans: 1, exp: "Head rotation area (in Area 6) directs the head toward visual objects. Frontal eye field moves the eyes. Broca's is for speech. Exner's is for hand skills." },
+  { q: "The pyramidal tract passes through which specific part of the internal capsule?", opts: ["A) Anterior limb","B) Genu and anterior 2/3 of posterior limb","C) Posterior 1/3 of posterior limb","D) Retrolenticular part","E) Sublenticular part"], ans: 1, exp: "Corticobulbospinal fibers travel in the GENU and ANTERIOR 2/3 of the posterior limb. This is why internal capsule strokes cause severe motor deficits.", hi: true },
+  { q: "A stroke affecting the Right Primary Motor Area (Area 4) will result in:", opts: ["A) Right-sided monoplegia","B) Left-sided loss of voluntary movements","C) Flaccid paralysis of all limbs","D) Loss of ipsilateral pain sensation","E) Tremors at rest"], ans: 1, exp: "Area 4 controls CONTRALATERAL side. Right lesion → LEFT-sided loss of voluntary movements (contralateral hemiplegia). Flaccid paralysis is LMNL. Tremors at rest = basal ganglia." },
+  { q: "Which system controls proximal and axial muscles for posture?", opts: ["A) Lateral motor system","B) Medial motor system","C) Corticonuclear system","D) Corticobulbar system","E) Rubrospinal system"], ans: 1, exp: "Medial motor system (tracts terminating on VENTROMEDIAL AHCs) controls axial + proximal muscles → POSTURAL CONTROL. Lateral motor system controls distal limbs for fine movements." },
+  { q: "What is the effect of Faradic current on a muscle with LMNL?", opts: ["A) Tetanic contractions","B) Stronger cathodal closing contraction","C) No response","D) Exaggerated twitch","E) Clonic spasms"], ans: 2, exp: "In LMNL (reaction of degeneration): Faradic current → NO RESPONSE. Galvanic current → ACC > CCC (anodal closing > cathodal closing). This is the opposite of normal." },
+  { q: "Corticonuclear tract fibers terminate bilaterally on which cranial nerve nuclei?", opts: ["A) 3, 4, 6","B) 5, 7, 9","C) 10, 11, 12","D) 1, 2, 8","E) 7 and 12 only"], ans: 0, exp: "Corticonuclear fibers go to the extraocular motor nuclei (3, 4, 6). Corticobulbar goes to 5, 7, 9, 10, 11, 12. 1, 2, 8 are purely sensory." },
+  { q: "Which tract originates in the superior and inferior colliculi?", opts: ["A) Rubrospinal","B) Vestibulospinal","C) Tectospinal","D) Reticulospinal","E) Olivospinal"], ans: 2, exp: "Tectospinal = from the TECTUM (superior + inferior colliculi, midbrain). It decussates and descends to cervical motor neurons for REFLEX HEAD TURNING to sudden visual/auditory stimuli.", hi: true },
+  { q: "Which structure forms the 'execution' feedback center for the motor cortex?", opts: ["A) Internal Capsule","B) Spinal Cord","C) Basal Ganglia & Cerebellum","D) Thalamus","E) Reticular formation"], ans: 2, exp: "Basal ganglia + cerebellum compute the execution details and provide feedback to the motor cortex. The cortex issues the command; these structures refine timing and sequencing." },
+  { q: "In the motor homunculus, the body is represented as:", opts: ["A) Ipsilateral and upright","B) Contralateral and upright","C) Contralateral and inverted","D) Ipsilateral and inverted","E) Bilateral and proportional to muscle mass"], ans: 2, exp: "Area 4 (primary motor) maps the body CONTRALATERALLY and INVERTED (legs at top, face at bottom). Size = skill, NOT muscle mass (hands/tongue have disproportionately large areas).", hi: true },
+  { q: "Which extrapyramidal tract facilitates antigravity muscle tone to support posture against gravity?", opts: ["A) Lateral Reticulospinal tract","B) Medial (Pontine) Reticulospinal tract","C) Rubrospinal tract","D) Corticospinal tract","E) Tectospinal tract"], ans: 1, exp: "Medial (Pontine) RST descends IPSILATERALLY and FACILITATES antigravity muscle tone. Lateral (Medullary) RST INHIBITS them. D is pyramidal. C controls distal flexors. E is for neck reflexes." }
+];
+
+const FLASHCARDS = [
+  { cat: "Cortical Areas", q: "What is located in the Precentral Gyrus?", a: "Primary Motor Area (Area 4) — controls contralateral voluntary movements, facilitates distal limb tone, inverted body map." },
+  { cat: "Cortical Areas", q: "What are the specialized areas within Premotor Area 6?", a: "Broca's (speech) · Frontal eye field (eye movement) · Head rotation area · Exner's area (hand skills)" },
+  { cat: "Cortical Areas", q: "What is the Supplemental Motor Area responsible for?", a: "Initiating complex BILATERAL movements and providing postural background for fine skilled movements. Located anterior and above Area 6." },
+  { cat: "Cortical Areas", q: "Why does the hand have a proportionally large area in the motor homunculus?", a: "Cortical representation is proportional to SKILL/FINENESS of movement, NOT muscle size. Hands/tongue need the most cortical control." },
+  { cat: "Pyramidal Tract", q: "What % of pyramidal tract fibers originate from Area 4 vs Area 6/SMA?", a: "Area 4 = 30% · Area 6 + SMA = 30% · Somatosensory cortex = 40%. Total: 100% from cortex." },
+  { cat: "Pyramidal Tract", q: "Trace the pyramidal tract from cortex to spinal cord.", a: "Cortex → Internal Capsule (genu + ant. 2/3 posterior limb) → Midbrain peduncles (mid 3/5) → Basis pontis → Medullary Pyramids → Decussation (90%) → Lateral CST / Ventral CST (10%)" },
+  { cat: "Pyramidal Tract", q: "What is the clinical significance of cranial nerve 7 nucleus bilateral/unilateral supply?", a: "UPPER half of 7th nucleus: bilateral UMN supply → UMN lesion spares forehead. LOWER half: contralateral only → contralateral UMN lesion paralyzes lower face." },
+  { cat: "Extrapyramidal", q: "Where does the Tectospinal tract originate, and what is its function?", a: "Superior + inferior colliculi (midbrain). Function: REFLEX HEAD TURNING to sudden visual or auditory stimuli. Crosses contralaterally." },
+  { cat: "Extrapyramidal", q: "Compare medial vs lateral reticulospinal tracts on antigravity muscles.", a: "Medial (pontine) RST → ipsilateral → FACILITATES antigravity muscle tone. Lateral (medullary) RST → bilateral → INHIBITS antigravity muscle tone." },
+  { cat: "Extrapyramidal", q: "What are the two vestibulospinal tracts and their functions?", a: "Lateral VST: ipsilateral, from lateral nucleus, facilitates antigravity muscles for balance/equilibrium. Medial VST: bilateral, from medial nucleus, adjusts neck/upper limb during acceleration." },
+  { cat: "Motor Lesions", q: "List the 5 key signs of an Upper Motor Neuron Lesion (UMNL).", a: "1. Widespread paralysis (hemiplegia) 2. Hypertonia (spasticity) 3. Hyperreflexia 4. Positive Babinski 5. No early muscle wasting" },
+  { cat: "Motor Lesions", q: "List the 5 key signs of a Lower Motor Neuron Lesion (LMNL).", a: "1. Localized flaccid paralysis 2. Hypotonia (flaccidity) 3. Areflexia 4. Early marked muscle wasting 5. Fasciculations + fibrillations" },
+  { cat: "Motor Lesions", q: "What is the reaction of degeneration in LMNL?", a: "Faradic current = NO response. Galvanic current = ACC > CCC (Anodal Closing Contraction stronger than Cathodal Closing Contraction). Opposite of normal." },
+  { cat: "Motor Lesions", q: "What does a positive Babinski sign indicate, and what is its mechanism?", a: "Indicates UMNL (pyramidal tract lesion). Mechanism: pyramidal tract normally INHIBITS primitive withdrawal reflex. Lesion removes inhibition → dorsiflexion of big toe on plantar stimulation." },
+  { cat: "Motor Lesions", q: "When does Babinski sign occur NORMALLY and why?", a: "Normal in INFANTS — because the pyramidal tract is not yet fully myelinated/mature, so the primitive reflex is physiologically uninhibited." },
+  { cat: "Motor Systems", q: "Lateral Motor System: which tracts and function?", a: "Lateral Corticospinal + Rubrospinal tracts → terminate on LATERAL AHCs → control DISTAL limb muscles for fine voluntary skilled movements." },
+  { cat: "Motor Systems", q: "Medial Motor System: which tracts and function?", a: "Ventral CST + Reticulospinal + Vestibulospinal + Tectospinal → terminate on VENTROMEDIAL AHCs → control AXIAL + PROXIMAL muscles for posture." },
+  { cat: "Clinical", q: "What causes Motor Aphasia and how does it present?", a: "Lesion of BROCA'S AREA (within Area 6, dominant hemisphere). Patient cannot articulate words despite knowing what they want to say. Comprehension is intact." },
+  { cat: "Clinical", q: "What is Motor Apraxia?", a: "Inability to perform previously learned skilled movements. Caused by lesion in EXNER'S AREA (within premotor Area 6)." },
+  { cat: "Clinical", q: "Internal capsule stroke — which part is affected and what is the result?", a: "Genu + anterior 2/3 of posterior limb. Result: contralateral hemiplegia, hypertonia, hyperreflexia, positive Babinski sign below lesion." },
+  { cat: "Embryo/Physio", q: "Why does the 10% uncrossed ventral CST offer only minimal compensation after UMNL?", a: "It mainly controls AXIAL muscles, not fine distal limb movements. So it compensates for trunk control but cannot restore hand/finger dexterity." },
+  { cat: "Applied", q: "Reflex turning of the head in response to a sudden loud sound — which tract mediates this?", a: "TECTOSPINAL tract — originating from the inferior colliculus (auditory). Superior colliculus mediates visual startle. Both converge on cervical motor neurons." }
+];
+
+const CASES = [
+  {
+    num: "CASE 01", title: "The Capsular Stroke",
+    vignette: "A 65-year-old hypertensive man presents to A&E with sudden onset right-sided hemiplegia and hemianaesthesia. MRI brain shows an acute infarct in the left internal capsule. Three weeks later, his right limbs become spastic, reflexes are exaggerated, and stroking his right sole causes dorsiflexion of the big toe with fanning of the outer four toes.",
+    qs: ["Q1. What tract is primarily affected at the internal capsule level?","Q2. Explain why the paralysis is initially flaccid then becomes spastic.","Q3. Why does Babinski show FANNING in this case?","Q4. Which part of the internal capsule specifically carries these fibers?"],
+    steps: [
+      "STRUCTURE AFFECTED: Both pyramidal AND extrapyramidal fibers pass through the genu and anterior 2/3 of the posterior limb of the internal capsule.",
+      "FLACCID → SPASTIC: Acute UMNL initially causes 'spinal shock' with flaccidity. As the shock resolves (weeks later), disinhibition of LMNs leads to spasticity and hyperreflexia.",
+      "FANNING = EXTRAPYRAMIDAL: Pure pyramidal lesion → dorsiflexion alone. Fanning of outer 4 toes indicates extrapyramidal tracts (e.g., reticulospinal) are ALSO involved, as in this capsular lesion.",
+      "CAPSULE LOCATION: Genu carries corticobulbar fibers. Anterior 2/3 of posterior limb carries the corticospinal tract. The posterior 1/3 carries sensory fibers (explaining the hemianaesthesia)."
+    ]
+  },
+  {
+    num: "CASE 02", title: "The Infant's Big Toe",
+    vignette: "A healthy 10-month-old infant is brought for a routine check. When the pediatrician strokes the lateral sole of the foot, the big toe dorsiflexes. The anxious mother asks if this is normal.",
+    qs: ["Q1. Is this finding normal?","Q2. What is the physiological mechanism explaining this?","Q3. At what age should this sign disappear?"],
+    steps: [
+      "YES, THIS IS NORMAL at 10 months. A positive Babinski sign is physiological in infants.",
+      "MECHANISM: The pyramidal (corticospinal) tract normally INHIBITS the primitive withdrawal reflex in adults. In infants, the tract is NOT YET FULLY MYELINATED/MATURE, so this inhibition is absent and the primitive reflex is naturally expressed.",
+      "SHOULD DISAPPEAR: By ~12-18 months as myelination and pyramidal tract maturation is complete. Persistence beyond this age (or presence in an adult) indicates a UMNL."
+    ]
+  },
+  {
+    num: "CASE 03", title: "The Silent Stroke",
+    vignette: "A 58-year-old right-handed journalist wakes up unable to speak fluently, though she can understand everything said to her. Neurological exam shows she knows exactly what she wants to say but cannot formulate the words. She can read but not write properly. Brain MRI shows a small infarct in the left posterior inferior frontal gyrus.",
+    qs: ["Q1. What specific area is damaged?","Q2. What is this speech disorder called?","Q3. Why is the LEFT hemisphere affected?"],
+    steps: [
+      "AREA DAMAGED: Broca's Area, located within PREMOTOR AREA 6 in the posterior inferior frontal gyrus.",
+      "DISORDER: Motor (expressive/Broca's) aphasia — patient understands language but cannot produce fluent speech. Motor programming for the speech muscles (lips, tongue, larynx) is lost.",
+      "LEFT HEMISPHERE: In ~95% of right-handed individuals, the LEFT hemisphere is DOMINANT for language. Therefore, Broca's area lesion is clinically significant only in the dominant hemisphere."
+    ]
+  },
+  {
+    num: "CASE 04", title: "The Face Asymmetry",
+    vignette: "A 50-year-old man is brought with sudden onset left-sided facial drooping. Examination shows inability to raise the right eyebrow OR close the right eye, AND drooping of the right corner of the mouth. BUT there is no arm or leg weakness.",
+    qs: ["Q1. Is this a UMN or LMN facial nerve lesion?","Q2. Why is BOTH upper and lower face affected?","Q3. What is the anatomical basis for why UMN lesions usually SPARE the forehead?"],
+    steps: [
+      "LMN LESION: Both upper AND lower face are affected (forehead + lower face). This pattern = LMNL (peripheral facial nerve lesion, e.g., Bell's palsy).",
+      "BOTH HALVES AFFECTED because the LMN (7th nerve itself) is damaged, affecting ALL facial muscles it innervates, including the forehead/orbicularis oculi.",
+      "UMN SPARES FOREHEAD: The upper half of the 7th nucleus receives BILATERAL UMN supply, so a unilateral cortical/capsular lesion still has an intact ipsilateral input to the upper face. Only the lower half receives purely CONTRALATERAL supply, making it vulnerable to contralateral UMNL."
+    ]
+  },
+  {
+    num: "CASE 05", title: "The Polio Survivor",
+    vignette: "A 45-year-old man who had poliomyelitis at age 3 presents with markedly wasted, weak left leg since childhood. Examination shows no tendon reflexes in the left leg, significant muscle atrophy, and occasional muscle twitches visible under the skin. He now presents with progressive weakness — post-polio syndrome.",
+    qs: ["Q1. Is this a UMNL or LMNL? Identify the specific finding that confirms this.","Q2. What are the 'muscle twitches' called and what do they signify?","Q3. What electrical test confirms denervation?"],
+    steps: [
+      "LMNL — confirmed by: localized paralysis (only left leg), flaccid paralysis, absent reflexes (areflexia), and marked early muscle wasting. These are all LMN signs. The virus destroyed anterior horn cells (AHC).",
+      "FASCICULATIONS — spontaneous discharges of individual motor units in denervated muscle. They appear as visible twitching under the skin and are pathognomonic of LMN denervation.",
+      "REACTION OF DEGENERATION: Faradic (AC) current produces NO response. Galvanic (DC) current produces ACC > CCC (anodal closing contraction greater than cathodal closing). This abnormal galvanic response confirms LMN denervation."
+    ]
+  },
+  {
+    num: "CASE 06", title: "The Head Turn",
+    vignette: "During a neurology exam, a patient is startled by a loud noise in the hallway. The examiner notes rapid, automatic turning of the head toward the sound. The student asks: 'Which neural pathway mediates this reflex?'",
+    qs: ["Q1. Which descending tract mediates this reflex?","Q2. Where does this tract originate?","Q3. Does it cross the midline? Describe its course."],
+    steps: [
+      "TECTOSPINAL TRACT — mediates reflex turning of the head in response to sudden visual or auditory stimuli. This is a CLASSIC MCQ question.",
+      "ORIGIN: Superior colliculus (visual stimuli) and INFERIOR colliculus (auditory stimuli) — both in the MIDBRAIN TECTUM.",
+      "COURSE: It DECUSSATES (crosses midline) in the midbrain → descends in the MEDIAL motor system → terminates on CERVICAL spinal cord motor neurons → activates neck muscles to turn the head toward the stimulus."
+    ]
+  }
+];
+
+const TRACTS = [
+  { name: "Lateral Corticospinal", color: "var(--accent)", sys: "Lateral", origin: "Motor cortex (Areas 4, 6)", route: "Decussates at medullary pyramids (90%), lateral cord", fn: "Fine voluntary skilled movements of distal limbs (contralateral)", term: "Lateral AHCs" },
+  { name: "Ventral Corticospinal", color: "var(--accent2)", sys: "Medial", origin: "Motor cortex (Areas 4, 6)", route: "Ipsilateral descent, cross at spinal levels (10%)", fn: "Axial / trunk muscles, some proximal limb", term: "Ventromedial AHCs" },
+  { name: "Rubrospinal", color: "var(--red)", sys: "Lateral", origin: "Red nucleus (midbrain tegmentum)", route: "Decussates in midbrain, descends in lateral cord", fn: "Distal limb flexor tone (cervical cord only)", term: "Lateral AHCs (cervical)" },
+  { name: "Medial Reticulospinal", color: "var(--accent5)", sys: "Medial", origin: "Pontine reticular formation", route: "Ipsilateral descent", fn: "FACILITATES antigravity (extensor) muscle tone", term: "Ventromedial AHCs" },
+  { name: "Lateral Reticulospinal", color: "var(--accent3)", sys: "Medial", origin: "Medullary reticular formation", route: "Bilateral descent", fn: "INHIBITS antigravity (extensor) muscle tone", term: "Ventromedial AHCs" },
+  { name: "Lateral Vestibulospinal", color: "#b87cf7", sys: "Medial", origin: "Lateral vestibular nucleus", route: "Ipsilateral descent, full cord length", fn: "Facilitates antigravity muscles, maintains equilibrium against gravity", term: "Ventromedial AHCs" },
+  { name: "Medial Vestibulospinal", color: "#7cf7e8", sys: "Medial", origin: "Medial vestibular nucleus", route: "Bilateral descent, cervical cord only", fn: "Adjusts neck/upper limb position during linear acceleration", term: "Neck/arm AHCs" },
+  { name: "Tectospinal", color: "#f7a04f", sys: "Medial", origin: "Superior + inferior colliculi (midbrain tectum)", route: "Decussates in midbrain, descends to cervical cord", fn: "REFLEX head turning to sudden visual/auditory stimuli", term: "Cervical AHCs" },
+  { name: "Olivospinal", color: "#a0c4ff", sys: "Medial", origin: "Inferior olivary nucleus (medulla)", route: "Descends in cord", fn: "Regulation of motor activity (exact role unclear)", term: "AHCs" }
+];
+
+const MNEMONICS = [
+  {
+    name: "PURE", title: "Signs of PURE Pyramidal Lesion (Babinski without fanning)",
+    letters: [
+      { c: "P", w: "Pyramidal only = no fanning", m: "Fanning only occurs when EXTRAPYRAMIDAL tracts are ALSO damaged" },
+      { c: "U", w: "Unilateral big toe", m: "Only the big toe dorsiflexes — the outer four stay still" },
+      { c: "R", w: "Reflex (withdrawal) uninhibited", m: "Lost cortical inhibition allows primitive withdrawal reflex to emerge" },
+      { c: "E", w: "Evidence of UMNL", m: "Positive Babinski is pathognomonic of upper motor neuron lesion in adults" }
+    ]
+  },
+  {
+    name: "FLASH", title: "Signs of Lower Motor Neuron Lesion (LMNL)",
+    letters: [
+      { c: "F", w: "Flaccid paralysis", m: "Hypotonia — muscle feels soft and limp (no UMN tone)" },
+      { c: "L", w: "Loss of reflexes (areflexia)", m: "Tendon jerks are absent because the reflex arc is broken" },
+      { c: "A", w: "Atrophy (early, marked)", m: "Muscle wasting occurs quickly due to denervation — unlike UMNL" },
+      { c: "S", w: "Spontaneous twitches (fasciculations)", m: "Visible muscle twitching under skin from spontaneous motor unit discharges" },
+      { c: "H", w: "Here (localized)", m: "Paralysis is LOCALIZED at lesion level — not widespread hemiplegia" }
+    ]
+  },
+  {
+    name: "BRAVES", title: "Extrapyramidal Tracts (not through pyramid)",
+    letters: [
+      { c: "B", w: "Broca's → speech (Area 6 project)", m: "Area 6 is origin of extrapyramidal, also houses Broca's area" },
+      { c: "R", w: "Rubrospinal (Red nucleus)", m: "Distal limb flexor tone — lateral system" },
+      { c: "A", w: "Anterior (vestibulospinal groups)", m: "Both vestibulospinal tracts for balance/equilibrium" },
+      { c: "V", w: "Vestibulobulbar (vestibulospinal)", m: "Lateral: antigravity. Medial: neck/upper limb during acceleration" },
+      { c: "E", w: "Eye/head reflexes (tectospinal)", m: "Tectospinal = reflex head turning to visual/auditory stimuli" },
+      { c: "S", w: "Spinal reticular (reticulospinal)", m: "Medial: facilitates. Lateral: inhibits antigravity tone" }
+    ]
+  },
+  {
+    name: "SPASM", title: "UMNL Features vs LMNL",
+    letters: [
+      { c: "S", w: "Spastic (UMNL) vs Soft (LMNL)", m: "Tone: hypertonia (UMNL) vs hypotonia (LMNL)" },
+      { c: "P", w: "Positive Babinski (UMNL)", m: "LMNL has negative Babinski (no primitive reflex disinhibition)" },
+      { c: "A", w: "Absence of early wasting (UMNL)", m: "LMNL has EARLY marked wasting; UMNL has late/no wasting" },
+      { c: "S", w: "Spread (UMNL = widespread)", m: "UMNL: hemiplegia. LMNL: localized at lesion level" },
+      { c: "M", w: "More reflexes (UMNL) → Missing in LMNL", m: "UMNL: hyperreflexia. LMNL: areflexia" }
+    ]
+  },
+  {
+    name: "CLAP", title: "Pyramidal Tract Origin Percentages",
+    letters: [
+      { c: "C", w: "Cortex Area 4 = 30%", m: "Primary motor area contribution to pyramidal tract" },
+      { c: "L", w: "Later (Area 6 + SMA) = 30%", m: "Premotor area 6 and supplemental motor area together" },
+      { c: "A", w: "Additional (somatosensory) = 40%", m: "Areas 1, 2, 3 in postcentral gyrus — the largest single contributor!" },
+      { c: "P", w: "Pyramid total = 100%", m: "Remember: 40% somatosensory is the LARGEST single group — MCQ trap!" }
+    ]
+  }
+];
+
+const VIVA_DATA = [
+  { q: "What are the two systems that make up the somatic motor system?", a: "The somatic motor system comprises Upper Motor Neurons (UMNs) and Lower Motor Neurons (LMNs). UMN cell bodies are in higher motor centers (motor cortex, brainstem) and their axons form descending tracts. LMN cell bodies are in the spinal anterior horn cells and cranial motor nuclei; they directly innervate skeletal muscle." },
+  { q: "Describe the body representation in the Primary Motor Area 4.", a: "The body is represented CONTRALATERALLY and INVERTED (feet at the top, face at the bottom — like an upside-down person straddling the brain). The SIZE of representation is proportional to the SKILL/FINENESS of movements, not physical size. So the hand and tongue have disproportionately large areas." },
+  { q: "What is the clinical significance of the lower half of the facial nerve nucleus?", a: "Most cranial nerve motor nuclei receive BILATERAL UMN supply. However, the lower half of the 7th (facial) nucleus receives STRICTLY CONTRALATERAL supply only. Therefore, a unilateral UMN lesion (above the nucleus) causes paralysis only of the LOWER quadrant of the OPPOSITE face — the forehead is spared because the upper half still has ipsilateral innervation intact." },
+  { q: "Differentiate between the lateral and medial motor systems.", a: "LATERAL motor system: Lateral CST + Rubrospinal → terminate on lateral AHCs → control DISTAL limb muscles for fine voluntary skilled movements. MEDIAL motor system: Ventral CST + Reticulospinal + Vestibulospinal + Tectospinal → terminate on ventromedial AHCs → control AXIAL + PROXIMAL muscles for postural control." },
+  { q: "What are the anatomical components of the pyramidal tract pathway?", a: "Cortex (Areas 4, 6, SS) → Internal Capsule (genu + anterior 2/3 posterior limb) → Midbrain (middle 3/5 cerebral peduncles) → Basis pontis → Medullary PYRAMIDS → Pyramidal Decussation (90% cross) → Lateral CST / Ventral CST (10% uncrossed) → Anterior Horn Cells → Skeletal Muscle." },
+  { q: "What is a positive Babinski sign and what does it indicate?", a: "A positive Babinski sign is the ABNORMAL DORSIFLEXION of the big toe upon stroking the lateral plantar surface of the foot. In adults, it indicates a loss of inhibition from the pyramidal (corticospinal) tract — pathognomonic of an UPPER MOTOR NEURON LESION. In infants up to ~18 months, it is physiologically NORMAL due to incomplete myelination of the pyramidal tract." },
+  { q: "What happens with a lesion specifically in Premotor Area 6?", a: "A lesion in Area 6 causes: (1) Motor APRAXIA — inability to perform learned skilled movements (Exner's area). (2) Motor APHASIA — if dominant hemisphere, Broca's area damage. (3) HYPERTONIA — loss of inhibitory extrapyramidal projections. (4) Impaired POSTURAL adjustments and complex movements." },
+  { q: "Contrast the effects of Medial vs Lateral Reticulospinal tracts on muscle tone.", a: "MEDIAL (Pontine) RST: descends IPSILATERALLY, FACILITATES motor neurons of antigravity (extensor) muscles → increases tone. LATERAL (Medullary) RST: descends BILATERALLY, INHIBITS tone in antigravity muscles → decreases tone. They have OPPOSING effects on the same muscles." },
+  { q: "Compare the Medial and Lateral Vestibulospinal Tracts.", a: "LATERAL VST: from lateral vestibular nucleus, descends IPSILATERALLY along the full cord, FACILITATES antigravity muscles → maintains posture against gravity. MEDIAL VST: from medial vestibular nucleus, descends BILATERALLY to cervical cord only, adjusts HEAD and UPPER LIMB position during linear ACCELERATION." },
+  { q: "Explain the reaction of degeneration in LMNL.", a: "In LMNL, electrical stimulation yields abnormal responses: Faradic (AC) current → NO response (muscle cannot respond to rapid stimulation). Galvanic (DC) current → ACC > CCC (Anodal Closing Contraction becomes stronger than Cathodal Closing Contraction). This is the OPPOSITE of normal and confirms denervation." },
+  { q: "What is the function of the Tectospinal tract?", a: "Originating from the superior and inferior colliculi (midbrain tectum), it DECUSSATES and descends to CERVICAL spinal cord motor neurons. Function: mediates REFLEX TURNING of the head in response to sudden VISUAL (superior colliculus) or AUDITORY (inferior colliculus) stimuli. This is a HIGH-YIELD EXAM POINT." },
+  { q: "Describe the origin and distribution of pyramidal tract fibers.", a: "60% from motor areas: Area 4 = 30% + Area 6 and SMA = 30%. The remaining 40% originate from SOMATOSENSORY cortical areas (postcentral gyrus, Areas 1, 2, 3). The somatosensory contribution is actually the LARGEST SINGLE ORIGIN GROUP — a common MCQ trap." }
+];
+
+// ═══════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════
+let state = JSON.parse(localStorage.getItem('motorCortexState') || '{}');
+if (!state.quizAnswers) state.quizAnswers = {};
+if (!state.streak) state.streak = 0;
+if (!state.fcFlipped) state.fcFlipped = {};
+if (!state.activeTab) state.activeTab = 'overview';
+if (state.qIndex === undefined) state.qIndex = 0;
+
+function saveState() { localStorage.setItem('motorCortexState', JSON.stringify(state)); }
+
+// ═══════════════════════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
+  state.activeTab = name;
+  saveState();
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+// Restore last tab
+switchTab(state.activeTab);
+
+// ═══════════════════════════════════════════════════════════
+//  SEARCH
+// ═══════════════════════════════════════════════════════════
+const searchIndex = [
+  ...QUIZ_DATA.map((q, i) => ({ title: q.q, tab: 'quiz', action: () => { switchTab('quiz'); goToQ(i); } })),
+  ...FLASHCARDS.map((f, i) => ({ title: f.q, tab: 'flashcards', action: () => switchTab('flashcards') })),
+  ...VIVA_DATA.map((v, i) => ({ title: v.q, tab: 'viva', action: () => switchTab('viva') })),
+  ...MNEMONICS.map((m) => ({ title: m.name + ' — ' + m.title, tab: 'mnemonics', action: () => switchTab('mnemonics') })),
+];
+
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim().toLowerCase();
+  if (!q) { searchResults.style.display = 'none'; return; }
+  const hits = searchIndex.filter(x => x.title.toLowerCase().includes(q)).slice(0, 10);
+  if (!hits.length) { searchResults.style.display = 'none'; return; }
+  searchResults.innerHTML = hits.map((h, i) =>
+    `<div class="search-item" data-idx="${i}">
+      <div class="search-item-title">${h.title}</div>
+      <div class="search-item-tab">${h.tab.toUpperCase()}</div>
+    </div>`
+  ).join('');
+  searchResults.style.display = 'block';
+  searchResults.querySelectorAll('.search-item').forEach((el, i) => {
+    el.addEventListener('click', () => {
+      hits[i].action();
+      searchResults.style.display = 'none';
+      searchInput.value = '';
+    });
+  });
+});
+document.addEventListener('click', e => {
+  if (!searchInput.contains(e.target) && !searchResults.contains(e.target))
+    searchResults.style.display = 'none';
+});
+
+// ═══════════════════════════════════════════════════════════
+//  QUIZ
+// ═══════════════════════════════════════════════════════════
+function goToQ(idx) {
+  state.qIndex = idx;
+  renderQ();
+}
+
+function renderQ() {
+  const i = state.qIndex;
+  if (i >= QUIZ_DATA.length) { showScore(); return; }
+  const q = QUIZ_DATA[i];
+  const answered = state.quizAnswers[i];
+  
+  document.getElementById('qCounter').textContent = `Q ${i+1} / ${QUIZ_DATA.length}`;
+  document.getElementById('progressFill').style.width = ((i / QUIZ_DATA.length) * 100) + '%';
+  
+  document.getElementById('quizBody').innerHTML = `
+    <div class="q-card">
+      <div class="q-num">
+        <span>QUESTION ${i+1}</span>
+        ${q.hi ? '<span class="tag tag-exam">⚠️ HIGH-YIELD</span>' : ''}
+      </div>
+      <div class="q-text">${q.q}</div>
+      <div class="options" id="optList">
+        ${q.opts.map((o, j) => `
+          <button class="opt-btn ${answered !== undefined ? (j === q.ans ? 'correct' : (j === answered ? 'wrong' : '')) : ''}"
+            ${answered !== undefined ? 'disabled' : ''}
+            onclick="answerQ(${i}, ${j})">
+            <span class="opt-letter">${String.fromCharCode(65+j)}</span>
+            <span>${o.slice(3)}</span>
+          </button>`).join('')}
+      </div>
+      <div class="explanation ${answered !== undefined ? 'visible' : ''}" id="expBox">
+        <strong>✅ ${q.opts[q.ans].slice(3)}</strong><br>
+        ${q.exp}
+      </div>
+      <div class="q-nav">
+        <button class="btn btn-secondary" onclick="goToQ(${Math.max(0,i-1)})" ${i===0?'disabled':''}>← Prev</button>
+        <span style="font-size:13px;color:var(--text3)">${Object.keys(state.quizAnswers).length} answered</span>
+        <button class="btn btn-primary" onclick="goToQ(${i+1})">${i+1 < QUIZ_DATA.length ? 'Next →' : 'See Score'}</button>
+      </div>
+    </div>`;
+  updateStats();
+}
+
+function answerQ(qIdx, chosen) {
+  if (state.quizAnswers[qIdx] !== undefined) return;
+  state.quizAnswers[qIdx] = chosen;
+  const correct = chosen === QUIZ_DATA[qIdx].ans;
+  if (correct) state.streak++;
+  else state.streak = 0;
+  saveState();
+  renderQ();
+}
+
+function showScore() {
+  const total = Object.values(state.quizAnswers).filter((v, i) => v === QUIZ_DATA[i].ans).length;
+  document.getElementById('quizContainer').style.display = 'none';
+  document.getElementById('scoreScreen').style.display = 'block';
+  document.getElementById('finalScore').textContent = `${total}/25`;
+  const pct = Math.round(total/25*100);
+  document.getElementById('scoreMsg').textContent = pct >= 80 ? '🎉 Outstanding! Neural mastery achieved!' : pct >= 60 ? '📚 Good effort — review the misses!' : '🔄 Keep studying — you\'ve got this!';
+  state.quizComplete = true;
+  saveState();
+  updateStats();
+}
+
+function resetQuiz() {
+  state.quizAnswers = {};
+  state.qIndex = 0;
+  state.streak = 0;
+  state.quizComplete = false;
+  saveState();
+  document.getElementById('quizContainer').style.display = 'block';
+  document.getElementById('scoreScreen').style.display = 'none';
+  renderQ();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  FLASHCARDS
+// ═══════════════════════════════════════════════════════════
+function renderFlashcards() {
+  const grid = document.getElementById('fcGrid');
+  grid.innerHTML = FLASHCARDS.map((f, i) => `
+    <div class="fc-wrap ${state.fcFlipped[i] ? 'flipped' : ''}" id="fc${i}" onclick="flipCard(${i})">
+      <div class="fc-inner">
+        <div class="fc-front">
+          <div class="fc-cat">${f.cat}</div>
+          <div class="fc-q">${f.q}</div>
+          <div class="fc-hint">↩ Click to reveal</div>
+        </div>
+        <div class="fc-back">
+          <div class="fc-cat">${f.cat}</div>
+          <div class="fc-a">${f.a}</div>
+          <div class="fc-hint">↩ Click to flip back</div>
+        </div>
+      </div>
+    </div>`).join('');
+  updateFcCount();
+}
+
+function flipCard(i) {
+  state.fcFlipped[i] = !state.fcFlipped[i];
+  document.getElementById('fc'+i).classList.toggle('flipped', state.fcFlipped[i]);
+  saveState();
+  updateFcCount();
+}
+
+function updateFcCount() {
+  const n = Object.values(state.fcFlipped).filter(Boolean).length;
+  document.getElementById('fcFlippedCount').textContent = n;
+  document.getElementById('statCards').textContent = `${n}/22`;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CLINICAL CASES
+// ═══════════════════════════════════════════════════════════
+function renderCases() {
+  document.getElementById('casesContainer').innerHTML = CASES.map((c, i) => `
+    <div class="case-card">
+      <div class="case-header">
+        <div>
+          <div class="case-num">${c.num}</div>
+          <div class="case-title">${c.title}</div>
+        </div>
+        <span class="tag tag-exam">USMLE Vignette</span>
+      </div>
+      <div class="case-body">
+        <div class="vignette">${c.vignette}</div>
+        <div class="case-qs">${c.qs.map(q => `<div class="case-q">❓ ${q}</div>`).join('')}</div>
+        <button class="reveal-btn" onclick="revealCase(${i}, this)">🔍 Reveal Answer</button>
+        <div class="case-answer" id="caseAns${i}">
+          ${c.steps.map((s, j) => `<div class="case-answer-step"><span class="step-num">STEP ${j+1}</span><span>${s}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function revealCase(i, btn) {
+  const box = document.getElementById('caseAns'+i);
+  const vis = box.classList.toggle('visible');
+  btn.textContent = vis ? '🔼 Hide Answer' : '🔍 Reveal Answer';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  TRACTS (Pathophys)
+// ═══════════════════════════════════════════════════════════
+let activeTract = null;
+function renderTracts() {
+  document.getElementById('tractGrid').innerHTML = TRACTS.map((t, i) => `
+    <div class="tract-item ${activeTract===i?'active':''}" onclick="selectTract(${i})" style="border-left:3px solid ${t.color}">
+      <div class="tract-num" style="color:${t.color}">${t.sys} System</div>
+      <div class="tract-name">${t.name}</div>
+      <div class="tract-origin">Origin: ${t.origin}</div>
+      <div class="flex-gap">${t.fn.length < 60 ? `<span style="font-size:11px;color:var(--text2)">${t.fn}</span>` : ''}</div>
+    </div>`).join('');
+}
+
+function selectTract(i) {
+  activeTract = activeTract === i ? null : i;
+  renderTracts();
+  const detail = document.getElementById('tractDetail');
+  if (activeTract === null) { detail.style.display = 'none'; return; }
+  const t = TRACTS[activeTract];
+  detail.innerHTML = `
+    <div class="tract-detail">
+      <h3 style="color:${t.color}">${t.name} Tract</h3>
+      <div class="detail-row"><div class="detail-label">System</div><div class="detail-val">${t.sys} Motor System</div></div>
+      <div class="detail-row"><div class="detail-label">Origin</div><div class="detail-val">${t.origin}</div></div>
+      <div class="detail-row"><div class="detail-label">Route</div><div class="detail-val">${t.route}</div></div>
+      <div class="detail-row"><div class="detail-label">Function</div><div class="detail-val"><strong>${t.fn}</strong></div></div>
+      <div class="detail-row"><div class="detail-label">Terminates</div><div class="detail-val">${t.term}</div></div>
+    </div>`;
+  detail.style.display = 'block';
+  detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MNEMONICS
+// ═══════════════════════════════════════════════════════════
+function renderMnemonics() {
+  document.getElementById('mnemContainer').innerHTML = MNEMONICS.map((m, i) => `
+    <div class="mnem-card" id="mnem${i}" onclick="toggleMnem(${i})">
+      <div class="mnem-header">
+        <div>
+          <div class="mnem-name">${m.name}</div>
+          <div class="mnem-title">${m.title}</div>
+        </div>
+        <div class="mnem-toggle">▼</div>
+      </div>
+      <div class="mnem-body">
+        <div class="mnem-letters">
+          ${m.letters.map(l => `
+            <div class="mnem-letter-row">
+              <div class="letter-char">${l.c}</div>
+              <div class="letter-text">
+                <div class="letter-word">${l.w}</div>
+                <div class="letter-meaning">${l.m}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleMnem(i) {
+  document.getElementById('mnem'+i).classList.toggle('open');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  VIVA
+// ═══════════════════════════════════════════════════════════
+function renderViva() {
+  document.getElementById('vivaContainer').innerHTML = VIVA_DATA.map((v, i) => `
+    <div class="viva-item" id="viva${i}">
+      <div class="viva-q" onclick="toggleViva(${i})">
+        <div>
+          <span class="mono" style="font-size:11px;color:var(--text3);margin-right:8px">V${String(i+1).padStart(2,'0')}</span>
+          <span class="viva-q-text">${v.q}</span>
+        </div>
+        <div class="viva-arrow">▼</div>
+      </div>
+      <div class="viva-a">${v.a}</div>
+    </div>`).join('');
+}
+
+function toggleViva(i) {
+  document.getElementById('viva'+i).classList.toggle('open');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  STATS
+// ═══════════════════════════════════════════════════════════
+function updateStats() {
+  const answered = Object.keys(state.quizAnswers).length;
+  const correct = Object.values(state.quizAnswers).filter((v, i) => v === QUIZ_DATA[i].ans).length;
+  document.getElementById('statScore').textContent = `${correct}/25`;
+  document.getElementById('statStreak').textContent = state.streak;
+  document.getElementById('statProgress').textContent = Math.round(answered/25*100) + '%';
+  document.getElementById('streakDisplay').textContent = state.streak;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════
+renderQ();
+renderFlashcards();
+renderCases();
+renderTracts();
+renderMnemonics();
+renderViva();
+updateStats();
+</script>
+</body>
+</html>
