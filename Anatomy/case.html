@@ -1,0 +1,2286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeuroAnatomy CBL Simulator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+<style>
+:root {
+--bg-primary: #f0f4f8;
+--bg-secondary: #ffffff;
+--bg-tertiary: #e8eef4;
+--bg-card: #ffffff;
+--text-primary: #1a2332;
+--text-secondary: #4a5568;
+--text-muted: #718096;
+--accent-primary: #2563eb;
+--accent-secondary: #3b82f6;
+--accent-glow: rgba(37, 99, 235, 0.15);
+--accent-green: #10b981;
+--accent-red: #ef4444;
+--accent-orange: #f59e0b;
+--accent-purple: #8b5cf6;
+--accent-teal: #14b8a6;
+--border-color: #e2e8f0;
+--border-light: #f1f5f9;
+--shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+--shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+--shadow-lg: 0 10px 30px rgba(0,0,0,0.1);
+--shadow-xl: 0 20px 50px rgba(0,0,0,0.12);
+--ecg-color: rgba(37, 99, 235, 0.08);
+--tooltip-bg: #1e293b;
+--tooltip-text: #f8fafc;
+--radius-sm: 8px;
+--radius-md: 12px;
+--radius-lg: 16px;
+--radius-xl: 20px;
+--transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] {
+--bg-primary: #0f172a;
+--bg-secondary: #1e293b;
+--bg-tertiary: #1a2332;
+--bg-card: #1e293b;
+--text-primary: #f1f5f9;
+--text-secondary: #94a3b8;
+--text-muted: #64748b;
+--accent-primary: #3b82f6;
+--accent-secondary: #60a5fa;
+--accent-glow: rgba(59, 130, 246, 0.2);
+--border-color: #334155;
+--border-light: #2a3a50;
+--shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+--shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+--shadow-lg: 0 10px 30px rgba(0,0,0,0.5);
+--shadow-xl: 0 20px 50px rgba(0,0,0,0.6);
+--ecg-color: rgba(59, 130, 246, 0.06);
+--tooltip-bg: #f1f5f9;
+--tooltip-text: #1e293b;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+font-family: 'Inter', sans-serif;
+background: var(--bg-primary);
+color: var(--text-primary);
+min-height: 100vh;
+overflow-x: hidden;
+transition: var(--transition);
+}
+
+/* ECG Background */
+.ecg-bg {
+position: fixed;
+top: 0; left: 0;
+width: 100%; height: 100%;
+pointer-events: none;
+z-index: 0;
+opacity: 0.4;
+}
+
+.ecg-line {
+position: absolute;
+width: 200%;
+height: 2px;
+background: repeating-linear-gradient(90deg, transparent 0px, transparent 30px, var(--ecg-color) 30px, var(--ecg-color) 32px, transparent 32px, transparent 40px, var(--ecg-color) 40px, transparent 42px, transparent 44px, var(--ecg-color) 44px, var(--ecg-color) 46px, transparent 46px, transparent 50px, var(--ecg-color) 50px, transparent 54px, transparent 56px, var(--ecg-color) 56px, transparent 58px, transparent 100px);
+animation: ecgScroll 8s linear infinite;
+}
+
+.ecg-line:nth-child(1) { top: 15%; animation-delay: 0s; }
+.ecg-line:nth-child(2) { top: 45%; animation-delay: -3s; opacity: 0.6; }
+.ecg-line:nth-child(3) { top: 75%; animation-delay: -5s; opacity: 0.4; }
+.ecg-line:nth-child(4) { top: 90%; animation-delay: -7s; opacity: 0.3; }
+
+@keyframes ecgScroll {
+0% { transform: translateX(0); }
+100% { transform: translateX(-50%); }
+}
+
+/* Header */
+.header {
+position: sticky;
+top: 0;
+z-index: 100;
+background: var(--bg-secondary);
+border-bottom: 1px solid var(--border-color);
+backdrop-filter: blur(20px);
+box-shadow: var(--shadow-sm);
+}
+
+.header-inner {
+max-width: 1400px;
+margin: 0 auto;
+padding: 12px 24px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 16px;
+}
+
+.logo {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+
+.logo-icon {
+width: 42px;
+height: 42px;
+background: linear-gradient(135deg, var(--accent-primary), var(--accent-purple));
+border-radius: var(--radius-md);
+display: flex;
+align-items: center;
+justify-content: center;
+color: white;
+font-size: 22px;
+box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.logo-text h1 {
+font-size: 18px;
+font-weight: 700;
+background: linear-gradient(135deg, var(--accent-primary), var(--accent-purple));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+line-height: 1.2;
+}
+
+.logo-text span {
+font-size: 11px;
+color: var(--text-muted);
+font-weight: 500;
+letter-spacing: 0.5px;
+text-transform: uppercase;
+}
+
+.header-controls {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+
+.case-selector {
+display: flex;
+background: var(--bg-tertiary);
+border-radius: var(--radius-md);
+padding: 3px;
+gap: 2px;
+}
+
+.case-btn {
+padding: 8px 16px;
+border: none;
+background: transparent;
+color: var(--text-secondary);
+font-size: 12px;
+font-weight: 600;
+border-radius: var(--radius-sm);
+cursor: pointer;
+transition: var(--transition);
+white-space: nowrap;
+}
+
+.case-btn.active {
+background: var(--accent-primary);
+color: white;
+box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.case-btn:hover:not(.active) {
+background: var(--border-color);
+color: var(--text-primary);
+}
+
+.dark-toggle {
+width: 42px;
+height: 42px;
+border: 1px solid var(--border-color);
+border-radius: var(--radius-md);
+background: var(--bg-tertiary);
+color: var(--text-secondary);
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: var(--transition);
+font-size: 20px;
+}
+
+.dark-toggle:hover {
+background: var(--accent-primary);
+color: white;
+border-color: var(--accent-primary);
+transform: scale(1.05);
+}
+
+/* Tab Navigation */
+.tab-nav {
+background: var(--bg-secondary);
+border-bottom: 1px solid var(--border-color);
+overflow-x: auto;
+-webkit-overflow-scrolling: touch;
+scrollbar-width: none;
+}
+
+.tab-nav::-webkit-scrollbar { display: none; }
+
+.tab-nav-inner {
+max-width: 1400px;
+margin: 0 auto;
+display: flex;
+padding: 0 24px;
+gap: 4px;
+}
+
+.tab-btn {
+padding: 14px 20px;
+border: none;
+background: transparent;
+color: var(--text-muted);
+font-size: 13px;
+font-weight: 600;
+cursor: pointer;
+white-space: nowrap;
+position: relative;
+transition: var(--transition);
+display: flex;
+align-items: center;
+gap: 8px;
+border-bottom: 3px solid transparent;
+}
+
+.tab-btn .tab-icon {
+font-size: 18px;
+}
+
+.tab-btn:hover {
+color: var(--text-primary);
+background: var(--bg-tertiary);
+}
+
+.tab-btn.active {
+color: var(--accent-primary);
+border-bottom-color: var(--accent-primary);
+}
+
+/* Main Content */
+.main-content {
+max-width: 1400px;
+margin: 0 auto;
+padding: 24px;
+position: relative;
+z-index: 1;
+}
+
+.tab-panel {
+display: none;
+animation: fadeSlideIn 0.4s ease;
+}
+
+.tab-panel.active { display: block; }
+
+@keyframes fadeSlideIn {
+from { opacity: 0; transform: translateY(12px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+/* Card Styles */
+.card {
+background: var(--bg-card);
+border: 1px solid var(--border-color);
+border-radius: var(--radius-lg);
+padding: 24px;
+margin-bottom: 20px;
+box-shadow: var(--shadow-sm);
+transition: var(--transition);
+}
+
+.card:hover {
+box-shadow: var(--shadow-md);
+}
+
+.card-header {
+display: flex;
+align-items: center;
+gap: 12px;
+margin-bottom: 20px;
+padding-bottom: 16px;
+border-bottom: 1px solid var(--border-light);
+}
+
+.card-header-icon {
+width: 40px;
+height: 40px;
+border-radius: var(--radius-md);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 20px;
+color: white;
+flex-shrink: 0;
+}
+
+.card-header h3 {
+font-size: 16px;
+font-weight: 700;
+}
+
+.card-header p {
+font-size: 12px;
+color: var(--text-muted);
+margin-top: 2px;
+}
+
+/* Patient ID Card */
+.patient-id {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+gap: 16px;
+}
+
+.id-field {
+background: var(--bg-tertiary);
+border-radius: var(--radius-md);
+padding: 16px;
+border-left: 4px solid var(--accent-primary);
+}
+
+.id-field .label {
+font-size: 10px;
+text-transform: uppercase;
+letter-spacing: 1px;
+color: var(--text-muted);
+font-weight: 600;
+margin-bottom: 6px;
+}
+
+.id-field .value {
+font-size: 15px;
+font-weight: 700;
+color: var(--text-primary);
+}
+
+.id-field.diagnosis {
+border-left-color: var(--accent-purple);
+background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(59, 130, 246, 0.05));
+}
+
+/* Findings */
+.findings-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+gap: 12px;
+}
+
+.finding-item {
+display: flex;
+align-items: flex-start;
+gap: 12px;
+padding: 14px;
+border-radius: var(--radius-md);
+background: var(--bg-tertiary);
+transition: var(--transition);
+cursor: default;
+position: relative;
+}
+
+.finding-item:hover {
+transform: translateY(-2px);
+box-shadow: var(--shadow-md);
+}
+
+.finding-item.abnormal {
+background: linear-gradient(135deg, rgba(239, 68, 68, 0.06), rgba(239, 68, 68, 0.02));
+border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+.finding-item.normal {
+background: linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(16, 185, 129, 0.02));
+border: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+.finding-dot {
+width: 10px;
+height: 10px;
+border-radius: 50%;
+margin-top: 4px;
+flex-shrink: 0;
+}
+
+.finding-item.abnormal .finding-dot { background: var(--accent-red); }
+.finding-item.normal .finding-dot { background: var(--accent-green); }
+
+.finding-text {
+font-size: 13px;
+font-weight: 500;
+line-height: 1.5;
+}
+
+.finding-text .significance {
+font-size: 11px;
+color: var(--text-muted);
+display: block;
+margin-top: 4px;
+font-weight: 400;
+font-style: italic;
+}
+
+/* Tooltip */
+.tooltip-trigger {
+position: relative;
+cursor: help;
+border-bottom: 1px dotted var(--accent-primary);
+}
+
+.tooltip-content {
+position: absolute;
+bottom: calc(100% + 8px);
+left: 50%;
+transform: translateX(-50%) scale(0.95);
+background: var(--tooltip-bg);
+color: var(--tooltip-text);
+padding: 10px 14px;
+border-radius: var(--radius-sm);
+font-size: 12px;
+line-height: 1.5;
+white-space: normal;
+width: 240px;
+opacity: 0;
+visibility: hidden;
+transition: var(--transition);
+z-index: 999;
+box-shadow: var(--shadow-lg);
+pointer-events: none;
+}
+
+.tooltip-content::after {
+content: '';
+position: absolute;
+top: 100%;
+left: 50%;
+transform: translateX(-50%);
+border: 6px solid transparent;
+border-top-color: var(--tooltip-bg);
+}
+
+.tooltip-trigger:hover .tooltip-content {
+opacity: 1;
+visibility: visible;
+transform: translateX(-50%) scale(1);
+}
+
+/* Lab Grid */
+.lab-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+gap: 12px;
+}
+
+.lab-item {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 14px 16px;
+background: var(--bg-tertiary);
+border-radius: var(--radius-md);
+border: 1px solid var(--border-light);
+}
+
+.lab-item .lab-name {
+font-size: 13px;
+font-weight: 500;
+color: var(--text-secondary);
+}
+
+.lab-item .lab-value {
+font-family: 'JetBrains Mono', monospace;
+font-size: 14px;
+font-weight: 600;
+}
+
+.lab-item .lab-value.abnormal {
+color: var(--accent-red);
+font-weight: 700;
+}
+
+.lab-item .lab-value.normal {
+color: var(--accent-green);
+}
+
+/* Pearls */
+.pearl-card {
+background: linear-gradient(135deg, rgba(245, 158, 11, 0.06), rgba(245, 158, 11, 0.02));
+border: 1px solid rgba(245, 158, 11, 0.2);
+border-radius: var(--radius-lg);
+padding: 20px;
+margin-bottom: 16px;
+position: relative;
+overflow: hidden;
+}
+
+.pearl-card::before {
+content: '⭐';
+position: absolute;
+top: 16px;
+right: 16px;
+font-size: 24px;
+opacity: 0.3;
+}
+
+.pearl-card h4 {
+font-size: 14px;
+font-weight: 700;
+color: var(--accent-orange);
+margin-bottom: 10px;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.pearl-card p, .pearl-card li {
+font-size: 13px;
+line-height: 1.7;
+color: var(--text-secondary);
+}
+
+.pearl-card ul {
+padding-left: 20px;
+margin-top: 8px;
+}
+
+.pearl-card li {
+margin-bottom: 6px;
+}
+
+.red-flag {
+background: linear-gradient(135deg, rgba(239, 68, 68, 0.06), rgba(239, 68, 68, 0.02));
+border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.red-flag::before { content: '🚨'; }
+
+.red-flag h4 { color: var(--accent-red); }
+
+.rule-out-card {
+background: linear-gradient(135deg, rgba(37, 99, 235, 0.06), rgba(37, 99, 235, 0.02));
+border: 1px solid rgba(37, 99, 235, 0.2);
+}
+
+.rule-out-card::before { content: '🔎'; }
+.rule-out-card h4 { color: var(--accent-primary); }
+
+/* Reveal Cards */
+.reveal-card {
+background: var(--bg-card);
+border: 1px solid var(--border-color);
+border-radius: var(--radius-lg);
+margin-bottom: 16px;
+overflow: hidden;
+transition: var(--transition);
+}
+
+.reveal-header {
+padding: 20px 24px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+cursor: pointer;
+transition: var(--transition);
+}
+
+.reveal-header:hover {
+background: var(--bg-tertiary);
+}
+
+.reveal-header-left {
+display: flex;
+align-items: center;
+gap: 14px;
+}
+
+.reveal-step {
+width: 36px;
+height: 36px;
+border-radius: 50%;
+background: var(--accent-primary);
+color: white;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 14px;
+font-weight: 700;
+flex-shrink: 0;
+}
+
+.reveal-header h4 {
+font-size: 15px;
+font-weight: 700;
+}
+
+.reveal-arrow {
+font-size: 24px;
+color: var(--text-muted);
+transition: var(--transition);
+}
+
+.reveal-card.open .reveal-arrow {
+transform: rotate(180deg);
+color: var(--accent-primary);
+}
+
+.reveal-body {
+max-height: 0;
+overflow: hidden;
+transition: max-height 0.4s ease;
+}
+
+.reveal-card.open .reveal-body {
+max-height: 600px;
+}
+
+.reveal-content {
+padding: 0 24px 24px 74px;
+font-size: 13px;
+line-height: 1.8;
+color: var(--text-secondary);
+}
+
+.reveal-content strong {
+color: var(--text-primary);
+}
+
+.reveal-content ul {
+padding-left: 18px;
+margin-top: 8px;
+}
+
+.reveal-content li {
+margin-bottom: 6px;
+}
+
+/* MCQ Section */
+.mcq-stats {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+gap: 12px;
+margin-bottom: 24px;
+}
+
+.stat-card {
+background: var(--bg-card);
+border: 1px solid var(--border-color);
+border-radius: var(--radius-md);
+padding: 16px;
+text-align: center;
+}
+
+.stat-card .stat-value {
+font-size: 28px;
+font-weight: 800;
+color: var(--accent-primary);
+font-family: 'JetBrains Mono', monospace;
+}
+
+.stat-card .stat-label {
+font-size: 11px;
+color: var(--text-muted);
+text-transform: uppercase;
+letter-spacing: 0.5px;
+margin-top: 4px;
+font-weight: 600;
+}
+
+.stat-card.streak .stat-value { color: var(--accent-orange); }
+.stat-card.correct .stat-value { color: var(--accent-green); }
+.stat-card.wrong .stat-value { color: var(--accent-red); }
+
+.mcq-container {
+background: var(--bg-card);
+border: 1px solid var(--border-color);
+border-radius: var(--radius-lg);
+padding: 28px;
+margin-bottom: 20px;
+}
+
+.mcq-progress {
+display: flex;
+align-items: center;
+gap: 12px;
+margin-bottom: 20px;
+}
+
+.mcq-progress-bar {
+flex: 1;
+height: 6px;
+background: var(--bg-tertiary);
+border-radius: 3px;
+overflow: hidden;
+}
+
+.mcq-progress-fill {
+height: 100%;
+background: linear-gradient(90deg, var(--accent-primary), var(--accent-purple));
+border-radius: 3px;
+transition: width 0.4s ease;
+}
+
+.mcq-progress-text {
+font-size: 12px;
+font-weight: 600;
+color: var(--text-muted);
+white-space: nowrap;
+}
+
+.mcq-question {
+font-size: 15px;
+font-weight: 600;
+line-height: 1.7;
+margin-bottom: 20px;
+color: var(--text-primary);
+}
+
+.mcq-options {
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
+
+.mcq-option {
+padding: 14px 18px;
+border: 2px solid var(--border-color);
+border-radius: var(--radius-md);
+cursor: pointer;
+transition: var(--transition);
+font-size: 14px;
+line-height: 1.5;
+display: flex;
+align-items: flex-start;
+gap: 12px;
+}
+
+.mcq-option:hover:not(.disabled) {
+border-color: var(--accent-primary);
+background: var(--accent-glow);
+transform: translateX(4px);
+}
+
+.mcq-option .option-letter {
+width: 28px;
+height: 28px;
+border-radius: 50%;
+background: var(--bg-tertiary);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 13px;
+font-weight: 700;
+color: var(--text-secondary);
+flex-shrink: 0;
+}
+
+.mcq-option.correct {
+border-color: var(--accent-green);
+background: rgba(16, 185, 129, 0.08);
+}
+
+.mcq-option.correct .option-letter {
+background: var(--accent-green);
+color: white;
+}
+
+.mcq-option.incorrect {
+border-color: var(--accent-red);
+background: rgba(239, 68, 68, 0.08);
+}
+
+.mcq-option.incorrect .option-letter {
+background: var(--accent-red);
+color: white;
+}
+
+.mcq-option.disabled {
+pointer-events: none;
+opacity: 0.7;
+}
+
+.mcq-option.disabled.correct {
+opacity: 1;
+}
+
+.mcq-explanation {
+margin-top: 16px;
+padding: 16px;
+border-radius: var(--radius-md);
+font-size: 13px;
+line-height: 1.7;
+display: none;
+}
+
+.mcq-explanation.show { display: block; }
+
+.mcq-explanation.correct-exp {
+background: rgba(16, 185, 129, 0.08);
+border: 1px solid rgba(16, 185, 129, 0.2);
+color: var(--text-secondary);
+}
+
+.mcq-explanation.incorrect-exp {
+background: rgba(239, 68, 68, 0.08);
+border: 1px solid rgba(239, 68, 68, 0.2);
+color: var(--text-secondary);
+}
+
+.mcq-nav {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-top: 20px;
+gap: 12px;
+}
+
+.mcq-nav-btn {
+padding: 12px 24px;
+border: none;
+border-radius: var(--radius-md);
+font-size: 13px;
+font-weight: 600;
+cursor: pointer;
+transition: var(--transition);
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.mcq-nav-btn.primary {
+background: var(--accent-primary);
+color: white;
+}
+
+.mcq-nav-btn.primary:hover {
+background: var(--accent-secondary);
+transform: translateY(-2px);
+box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.mcq-nav-btn.secondary {
+background: var(--bg-tertiary);
+color: var(--text-secondary);
+border: 1px solid var(--border-color);
+}
+
+.mcq-nav-btn.secondary:hover {
+background: var(--border-color);
+}
+
+.mcq-nav-btn:disabled {
+opacity: 0.4;
+cursor: not-allowed;
+transform: none !important;
+}
+
+/* Mistakes Review */
+.mistakes-section {
+margin-top: 24px;
+}
+
+.mistake-item {
+background: var(--bg-card);
+border: 1px solid rgba(239, 68, 68, 0.15);
+border-radius: var(--radius-md);
+padding: 16px;
+margin-bottom: 12px;
+border-left: 4px solid var(--accent-red);
+}
+
+.mistake-item .mq {
+font-size: 13px;
+font-weight: 600;
+margin-bottom: 8px;
+}
+
+.mistake-item .ma {
+font-size: 12px;
+color: var(--accent-green);
+font-weight: 600;
+}
+
+.mistake-item .mexp {
+font-size: 12px;
+color: var(--text-muted);
+margin-top: 4px;
+}
+
+/* Algorithm / Flowchart */
+.flowchart {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 0;
+padding: 20px 0;
+}
+
+.flow-node {
+background: var(--bg-card);
+border: 2px solid var(--border-color);
+border-radius: var(--radius-lg);
+padding: 18px 24px;
+max-width: 500px;
+width: 100%;
+text-align: center;
+cursor: pointer;
+transition: var(--transition);
+position: relative;
+}
+
+.flow-node:hover {
+border-color: var(--accent-primary);
+box-shadow: var(--shadow-md);
+transform: scale(1.02);
+}
+
+.flow-node.active {
+border-color: var(--accent-primary);
+background: var(--accent-glow);
+}
+
+.flow-node h5 {
+font-size: 14px;
+font-weight: 700;
+margin-bottom: 4px;
+}
+
+.flow-node p {
+font-size: 12px;
+color: var(--text-muted);
+display: none;
+margin-top: 8px;
+line-height: 1.6;
+}
+
+.flow-node.active p {
+display: block;
+color: var(--text-secondary);
+}
+
+.flow-node.start { border-color: var(--accent-green); }
+.flow-node.decision { border-color: var(--accent-orange); border-radius: 8px; transform: none; }
+.flow-node.decision:hover { transform: scale(1.02); }
+.flow-node.end { border-color: var(--accent-purple); }
+
+.flow-arrow {
+width: 2px;
+height: 30px;
+background: var(--border-color);
+position: relative;
+}
+
+.flow-arrow::after {
+content: '';
+position: absolute;
+bottom: 0;
+left: 50%;
+transform: translateX(-50%);
+border: 6px solid transparent;
+border-top-color: var(--border-color);
+}
+
+.flow-branch {
+display: flex;
+gap: 20px;
+width: 100%;
+max-width: 700px;
+justify-content: center;
+}
+
+.flow-branch .flow-node {
+max-width: 320px;
+}
+
+.flow-branch-labels {
+display: flex;
+gap: 20px;
+width: 100%;
+max-width: 700px;
+justify-content: center;
+}
+
+.flow-branch-label {
+font-size: 11px;
+font-weight: 700;
+color: var(--text-muted);
+text-transform: uppercase;
+max-width: 320px;
+width: 100%;
+text-align: center;
+padding: 4px;
+}
+
+/* Rapid Takeaways */
+.takeaway-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+gap: 16px;
+}
+
+.takeaway-card {
+background: var(--bg-card);
+border: 1px solid var(--border-color);
+border-radius: var(--radius-lg);
+padding: 20px;
+border-top: 4px solid;
+transition: var(--transition);
+}
+
+.takeaway-card:hover {
+transform: translateY(-4px);
+box-shadow: var(--shadow-md);
+}
+
+.takeaway-card.blue { border-top-color: var(--accent-primary); }
+.takeaway-card.green { border-top-color: var(--accent-green); }
+.takeaway-card.orange { border-top-color: var(--accent-orange); }
+.takeaway-card.purple { border-top-color: var(--accent-purple); }
+.takeaway-card.red { border-top-color: var(--accent-red); }
+.takeaway-card.teal { border-top-color: var(--accent-teal); }
+
+.takeaway-card h4 {
+font-size: 13px;
+font-weight: 700;
+margin-bottom: 12px;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.takeaway-card .keyword {
+display: inline-block;
+background: var(--bg-tertiary);
+padding: 4px 10px;
+border-radius: 20px;
+font-size: 12px;
+font-weight: 600;
+margin: 3px 2px;
+color: var(--text-secondary);
+}
+
+.takeaway-card .keyword.highlight {
+background: var(--accent-glow);
+color: var(--accent-primary);
+border: 1px solid rgba(37, 99, 235, 0.2);
+}
+
+.takeaway-card p {
+font-size: 12px;
+line-height: 1.6;
+color: var(--text-secondary);
+margin-top: 8px;
+}
+
+.takeaway-card ul {
+padding-left: 16px;
+margin-top: 8px;
+}
+
+.takeaway-card li {
+font-size: 12px;
+line-height: 1.6;
+color: var(--text-secondary);
+margin-bottom: 4px;
+}
+
+/* Reset Button */
+.reset-btn {
+padding: 10px 20px;
+border: 1px solid var(--accent-red);
+border-radius: var(--radius-md);
+background: transparent;
+color: var(--accent-red);
+font-size: 12px;
+font-weight: 600;
+cursor: pointer;
+transition: var(--transition);
+}
+
+.reset-btn:hover {
+background: var(--accent-red);
+color: white;
+}
+
+/* Score Summary */
+.score-summary {
+text-align: center;
+padding: 40px;
+}
+
+.score-summary .score-circle {
+width: 120px;
+height: 120px;
+border-radius: 50%;
+background: linear-gradient(135deg, var(--accent-primary), var(--accent-purple));
+display: flex;
+align-items: center;
+justify-content: center;
+margin: 0 auto 20px;
+}
+
+.score-summary .score-circle span {
+font-size: 36px;
+font-weight: 800;
+color: white;
+font-family: 'JetBrains Mono', monospace;
+}
+
+.score-summary h3 {
+font-size: 20px;
+font-weight: 700;
+margin-bottom: 8px;
+}
+
+.score-summary p {
+color: var(--text-muted);
+font-size: 14px;
+}
+
+/* Section Header */
+.section-header {
+margin-bottom: 24px;
+}
+
+.section-header h2 {
+font-size: 22px;
+font-weight: 800;
+margin-bottom: 4px;
+}
+
+.section-header p {
+font-size: 13px;
+color: var(--text-muted);
+}
+
+/* Badge */
+.badge {
+display: inline-flex;
+align-items: center;
+gap: 4px;
+padding: 4px 10px;
+border-radius: 20px;
+font-size: 11px;
+font-weight: 600;
+}
+
+.badge.blue { background: rgba(37, 99, 235, 0.1); color: var(--accent-primary); }
+.badge.green { background: rgba(16, 185, 129, 0.1); color: var(--accent-green); }
+.badge.red { background: rgba(239, 68, 68, 0.1); color: var(--accent-red); }
+.badge.orange { background: rgba(245, 158, 11, 0.1); color: var(--accent-orange); }
+.badge.purple { background: rgba(139, 92, 246, 0.1); color: var(--accent-purple); }
+
+/* Responsive */
+@media (max-width: 768px) {
+.header-inner {
+flex-wrap: wrap;
+padding: 10px 16px;
+}
+.case-selector {
+order: 3;
+width: 100%;
+}
+.case-btn { flex: 1; text-align: center; font-size: 11px; padding: 8px 8px; }
+.main-content { padding: 16px; }
+.tab-nav-inner { padding: 0 12px; }
+.tab-btn { padding: 12px 14px; font-size: 12px; }
+.tab-btn .tab-label { display: none; }
+.card { padding: 18px; }
+.mcq-container { padding: 20px; }
+.patient-id { grid-template-columns: 1fr 1fr; }
+.findings-grid { grid-template-columns: 1fr; }
+.flow-branch { flex-direction: column; align-items: center; }
+.flow-branch-labels { flex-direction: column; align-items: center; }
+.takeaway-grid { grid-template-columns: 1fr; }
+.logo-text span { display: none; }
+}
+
+/* Animations */
+@keyframes correctPulse {
+0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+@keyframes incorrectShake {
+0%, 100% { transform: translateX(0); }
+25% { transform: translateX(-6px); }
+75% { transform: translateX(6px); }
+}
+
+.mcq-option.correct { animation: correctPulse 0.6s ease; }
+.mcq-option.incorrect { animation: incorrectShake 0.4s ease; }
+
+/* No mistakes */
+.no-mistakes {
+text-align: center;
+padding: 30px;
+color: var(--text-muted);
+font-size: 14px;
+}
+
+.no-mistakes .material-icons-outlined {
+font-size: 40px;
+margin-bottom: 10px;
+color: var(--accent-green);
+display: block;
+}
+</style>
+</head>
+<body>
+<!-- ECG Background -->
+<div class="ecg-bg">
+<div class="ecg-line"></div>
+<div class="ecg-line"></div>
+<div class="ecg-line"></div>
+<div class="ecg-line"></div>
+</div>
+
+<!-- Header -->
+<header class="header">
+<div class="header-inner">
+<div class="logo">
+<div class="logo-icon">
+<span class="material-icons-outlined">neurology</span>
+</div>
+<div class="logo-text">
+<h1>NeuroAnatomy CBL</h1>
+<span>Medullary Syndromes Simulator</span>
+</div>
+</div>
+<div class="header-controls">
+<div class="case-selector">
+<button class="case-btn active" onclick="switchCase(0)">Case 1: Wallenberg</button>
+<button class="case-btn" onclick="switchCase(1)">Case 2: Hydrocephalus</button>
+</div>
+<button class="dark-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+<span class="material-icons-outlined" id="themeIcon">dark_mode</span>
+</button>
+</div>
+</div>
+</header>
+
+<!-- Tab Navigation -->
+<nav class="tab-nav">
+<div class="tab-nav-inner">
+<button class="tab-btn active" onclick="switchTab('case-file')" data-tab="case-file">
+<span class="material-icons-outlined tab-icon">folder_open</span>
+<span class="tab-label">Case File</span>
+</button>
+<button class="tab-btn" onclick="switchTab('pearls')" data-tab="pearls">
+<span class="material-icons-outlined tab-icon">lightbulb</span>
+<span class="tab-label">Pearls</span>
+</button>
+<button class="tab-btn" onclick="switchTab('reasoning')" data-tab="reasoning">
+<span class="material-icons-outlined tab-icon">psychology</span>
+<span class="tab-label">Reasoning</span>
+</button>
+<button class="tab-btn" onclick="switchTab('mcq')" data-tab="mcq">
+<span class="material-icons-outlined tab-icon">quiz</span>
+<span class="tab-label">MCQs</span>
+</button>
+<button class="tab-btn" onclick="switchTab('algorithm')" data-tab="algorithm">
+<span class="material-icons-outlined tab-icon">account_tree</span>
+<span class="tab-label">Algorithm</span>
+</button>
+<button class="tab-btn" onclick="switchTab('takeaways')" data-tab="takeaways">
+<span class="material-icons-outlined tab-icon">bolt</span>
+<span class="tab-label">Takeaways</span>
+</button>
+</div>
+</nav>
+
+<!-- Main Content -->
+<main class="main-content" id="mainContent">
+<!-- Content injected by JavaScript -->
+</main>
+
+<script>
+// ======================== DATA ========================
+
+const cases = [
+{
+id: 'wallenberg',
+title: 'Lateral Medullary Syndrome (Wallenberg)',
+patient: {
+age: '60 years old',
+gender: 'Male',
+chief: 'Acute difficulty walking, incoordination, altered temperature sensation',
+diagnosis: 'Lateral Medullary (Wallenberg) Syndrome'
+},
+hpiFindings: [
+{ text: 'Reduced pain & temperature on LEFT face', abnormal: true, significance: 'Damage to ipsilateral spinal trigeminal nucleus/tract' },
+{ text: 'Reduced pain & temperature on RIGHT arm/leg', abnormal: true, significance: 'Damage to contralateral spinal lemniscus (spinothalamic tract)' },
+{ text: 'Mild LEFT eyelid ptosis + constricted pupil (miosis)', abnormal: true, significance: 'Ipsilateral Horner syndrome — descending sympathetic fiber disruption' },
+{ text: 'Deviated uvula', abnormal: true, significance: 'Nucleus ambiguus (CN IX/X) lesion — uvula deviates AWAY from lesion side' },
+{ text: 'Left-sided ataxia & incoordination', abnormal: true, significance: 'Inferior cerebellar peduncle damage — ipsilateral cerebellar signs' },
+{ text: 'Normal motor power (no hemiplegia)', abnormal: false, significance: 'Pyramids (corticospinal tract) are spared — key differentiator from medial medullary syndrome' },
+{ text: 'Normal proprioception', abnormal: false, significance: 'Medial lemniscus is spared — also spared in lateral syndrome' },
+{ text: 'History of hypertension & diabetes', abnormal: true, significance: 'Major risk factors for vertebral/PICA occlusion' }
+],
+labs: [
+{ name: 'CT/MRI Brain', value: 'Lateral medullary infarct', abnormal: true },
+{ name: 'CTA/MRA', value: 'PICA or VA occlusion', abnormal: true },
+{ name: 'Motor Power', value: '5/5 all limbs', abnormal: false },
+{ name: 'Proprioception', value: 'Intact bilaterally', abnormal: false },
+{ name: 'Gag Reflex', value: 'Diminished LEFT', abnormal: true },
+{ name: 'Finger-to-Nose', value: 'Dysmetria LEFT', abnormal: true }
+],
+pearls: [
+{
+type: 'pearl',
+title: 'The "Rule of 2s" for Lateral Medullary Syndrome',
+content: '<ul><li><strong>2 Pain/Temperature deficits:</strong> Ipsilateral face (spinal trigeminal) + Contralateral body (spinothalamic)</li><li><strong>2 Balance/Coordination issues:</strong> Inferior cerebellar peduncle damage → ipsilateral ataxia</li><li><strong>2 Motor/Autonomic issues:</strong> Horner syndrome + Deviated uvula (nucleus ambiguus)</li></ul>'
+},
+{
+type: 'pearl',
+title: 'Artery → Syndrome Mapping',
+content: '<p><strong>PICA occlusion</strong> = Lateral medullary (Wallenberg) syndrome.<br><strong>ASA occlusion</strong> = Medial medullary (Dejerine) syndrome.<br>Remember: <strong>PICA = Posterior = Lateral</strong>; ASA = Anterior = Medial.</p>'
+},
+{
+type: 'redflag',
+title: 'Horner\'s vs. CN III Palsy — Don\'t Confuse!',
+content: '<ul><li><strong>Horner\'s:</strong> MILD ptosis + CONSTRICTED pupil (miosis) + anhidrosis</li><li><strong>CN III palsy:</strong> COMPLETE ptosis + DILATED pupil (mydriasis) + "down and out" eye</li><li>In Wallenberg → it is always Horner\'s (sympathetic), never CN III</li></ul>'
+},
+{
+type: 'redflag',
+title: 'Lateral vs. Medial — The Key Differentiator',
+content: '<p>If the patient has <strong>normal motor power</strong> (no hemiplegia) and <strong>normal proprioception</strong>, it is LATERAL.<br>If the patient has <strong>contralateral hemiplegia</strong> + <strong>loss of proprioception</strong> + <strong>tongue deviation</strong> → it is MEDIAL.</p>'
+},
+{
+type: 'ruleout',
+title: 'Rule-Out Logic for This Case',
+content: '<ul><li><strong>Medial Medullary Syndrome:</strong> Ruled out — no contralateral hemiplegia, no proprioceptive loss, no tongue deviation</li><li><strong>CN III Palsy:</strong> Ruled out — ptosis is mild, pupil is constricted (not dilated)</li><li><strong>Cerebellar stroke (isolated):</strong> Ruled out — presence of crossed sensory loss localizes to brainstem</li></ul>'
+}
+],
+reasoning: [
+{
+step: 1,
+title: 'Localization / Pathophysiology',
+content: '<p><strong>Lesion Location:</strong> Lateral medulla oblongata</p><ul><li><strong>Spinal Trigeminal Nucleus:</strong> Ipsilateral face pain/temperature loss</li><li><strong>Spinal Lemniscus (Spinothalamic):</strong> Contralateral body pain/temperature loss</li><li><strong>Descending Sympathetic Fibers:</strong> Ipsilateral Horner syndrome</li><li><strong>Nucleus Ambiguus (CN IX/X):</strong> Dysphagia, hoarseness, uvula deviation away from lesion</li><li><strong>Inferior Cerebellar Peduncle:</strong> Ipsilateral ataxia</li></ul><p><strong>Vascular territory:</strong> Posterior Inferior Cerebellar Artery (PICA) or vertebral artery</p>'
+},
+{
+step: 2,
+title: 'Most Likely Diagnosis',
+content: '<p><strong>Lateral Medullary Syndrome (Wallenberg Syndrome)</strong></p><p>Classic triad: <strong>Crossed sensory loss</strong> (ipsilateral face, contralateral body) + <strong>Ipsilateral Horner</strong> + <strong>Ipsilateral cerebellar ataxia</strong></p><p>Confirmation: Normal motor power & proprioception (pyramids and medial lemniscus spared)</p>'
+},
+{
+step: 3,
+title: 'Initial Investigation / Step',
+content: '<ul><li><strong>Urgent MRI brain</strong> with diffusion-weighted imaging (DWI) — most sensitive for acute ischemic stroke</li><li><strong>CT Angiography (CTA) or MR Angiography (MRA)</strong> — to identify PICA or vertebral artery occlusion</li><li><strong>Swallowing assessment</strong> — nucleus ambiguus damage → aspiration risk</li></ul>'
+},
+{
+step: 4,
+title: 'Definitive Management',
+content: '<ul><li><strong>Acute:</strong> Thrombolysis (tPA) if within window; antiplatelet therapy; supportive care</li><li><strong>Dysphagia management:</strong> NPO + nasogastric tube if aspiration risk</li><li><strong>Secondary prevention:</strong> Control HTN, DM; antiplatelet/anticoagulation; statin therapy</li><li><strong>Rehabilitation:</strong> Physical therapy for ataxia; speech therapy for dysphagia</li></ul>'
+}
+],
+mcqs: [
+{
+q: 'A 60-year-old patient presents with right-sided facial loss of pain/temperature and left-sided body loss of pain/temperature. Which structure is damaged to cause the facial symptoms?',
+options: ['Spinal lemniscus', 'Spinal trigeminal nucleus', 'Medial lemniscus', 'Nucleus ambiguus'],
+correct: 1,
+explanation: 'The spinal trigeminal nucleus handles pain and temperature for the ipsilateral face. Damage causes ipsilateral facial sensory loss.'
+},
+{
+q: 'The patient\'s uvula deviates to the RIGHT when saying "Ah." Which side is the lesion, and which structure is damaged?',
+options: ['Right side, Hypoglossal nucleus', 'Left side, Nucleus ambiguus', 'Right side, Nucleus ambiguus', 'Left side, Medial longitudinal fasciculus'],
+correct: 1,
+explanation: 'Nucleus ambiguus (CN IX/X) lesion on the LEFT paralyzes the left palate. The intact RIGHT side pulls the uvula to the right (away from lesion).'
+},
+{
+q: 'Which finding would strongly rule OUT Lateral Medullary Syndrome and point toward Medial Medullary Syndrome?',
+options: ['Ipsilateral Horner syndrome', 'Ataxia and incoordination', 'Contralateral loss of proprioception', 'Deviated uvula'],
+correct: 2,
+explanation: 'Medial medullary syndrome damages the medial lemniscus (proprioception) and pyramids (motor). Lateral medullary syndrome spares both.'
+},
+{
+q: 'A patient with PICA occlusion exhibits a constricted pupil and mild ptosis. This is due to disruption of:',
+options: ['Descending parasympathetic fibers', 'Oculomotor nerve (CN III)', 'Descending sympathetic fibers', 'Edinger-Westphal nucleus'],
+correct: 2,
+explanation: 'Horner syndrome results from disruption of descending sympathetic fibers in the lateral medulla → miosis + mild ptosis + anhidrosis.'
+},
+{
+q: 'Which cerebellar structure is damaged in lateral medullary syndrome, causing ataxia?',
+options: ['Superior cerebellar peduncle', 'Middle cerebellar peduncle', 'Inferior cerebellar peduncle', 'Dentate nucleus'],
+correct: 2,
+explanation: 'The inferior cerebellar peduncle passes through the lateral medulla. Its damage causes ipsilateral ataxia and incoordination.'
+},
+{
+q: 'A patient has complete ptosis and a dilated pupil. This is most consistent with damage to:',
+options: ['Descending sympathetic tract', 'Oculomotor nerve (CN III)', 'Facial nerve (CN VII)', 'Abducens nerve (CN VI)'],
+correct: 1,
+explanation: 'CN III palsy causes complete ptosis + mydriasis (dilated pupil). This is NOT Horner syndrome (mild ptosis + miosis).'
+},
+{
+q: 'In Wallenberg syndrome, which of the following is characteristically SPARED?',
+options: ['Pain sensation on ipsilateral face', 'Cerebellar function', 'Corticospinal tract (pyramids)', 'Sympathetic fibers'],
+correct: 2,
+explanation: 'The pyramids (corticospinal tract) lie in the MEDIAL medulla and are spared in lateral medullary syndrome → no contralateral hemiplegia.'
+},
+{
+q: 'The spinothalamic tract (spinal lemniscus) in the medulla carries information about:',
+options: ['Proprioception from ipsilateral body', 'Pain and temperature from contralateral body', 'Touch from ipsilateral face', 'Motor commands to contralateral limbs'],
+correct: 1,
+explanation: 'The spinal lemniscus (spinothalamic tract) carries crossed pain and temperature from the contralateral body.'
+},
+{
+q: 'Which artery is most commonly occluded in Wallenberg syndrome?',
+options: ['Anterior spinal artery', 'Posterior cerebral artery', 'PICA or vertebral artery', 'Basilar artery'],
+correct: 2,
+explanation: 'PICA (or its parent vertebral artery) supplies the lateral medulla. Occlusion causes Wallenberg syndrome.'
+},
+{
+q: 'A patient with lateral medullary syndrome has hoarseness and dysphagia. Which cranial nerve nucleus is responsible?',
+options: ['Hypoglossal nucleus (CN XII)', 'Nucleus ambiguus (CN IX/X)', 'Dorsal motor nucleus of vagus', 'Facial nucleus (CN VII)'],
+correct: 1,
+explanation: 'The nucleus ambiguus contains motor neurons of CN IX and X controlling pharyngeal/laryngeal muscles. Damage → hoarseness + dysphagia.'
+},
+{
+q: 'In Horner syndrome due to lateral medullary lesion, which of the following is expected?',
+options: ['Complete ptosis + mydriasis', 'Mild ptosis + miosis + anhidrosis', 'Enophthalmos + mydriasis', 'Complete ptosis + miosis'],
+correct: 1,
+explanation: 'Horner syndrome = mild ptosis (Müller muscle paralysis) + miosis (loss of sympathetic pupil dilation) + anhidrosis (ipsilateral face).'
+},
+{
+q: 'If the tongue deviates to the LEFT on protrusion, which nucleus is damaged and on which side?',
+options: ['Left nucleus ambiguus', 'Left hypoglossal nucleus', 'Right hypoglossal nucleus', 'Right nucleus ambiguus'],
+correct: 1,
+explanation: 'The hypoglossal nucleus (CN XII) is in the MEDIAL medulla. Tongue deviates TOWARD the lesion side. Left deviation = left CN XII damage.'
+},
+{
+q: 'Which of the following combinations is characteristic of MEDIAL medullary syndrome?',
+options: ['Ipsilateral Horner + contralateral body pain loss', 'Contralateral hemiplegia + contralateral proprioceptive loss + ipsilateral tongue deviation', 'Ipsilateral ataxia + ipsilateral facial pain loss', 'Bilateral sensory loss + urinary retention'],
+correct: 1,
+explanation: 'Medial medullary (Dejerine) syndrome: Pyramid → contralateral hemiplegia; Medial lemniscus → contralateral proprioception loss; CN XII → ipsilateral tongue deviation.'
+}
+],
+algorithm: {
+nodes: [
+{ id: 'start', type: 'start', title: '🏥 Patient: Acute vertigo, ataxia, sensory changes', detail: '60M with HTN/DM presenting with acute onset symptoms. Always consider posterior circulation stroke.' },
+{ id: 'exam', type: 'decision', title: '🔍 Key Exam: Crossed sensory loss?', detail: 'Check: Pain/temperature on face vs. body — are they on DIFFERENT sides? This is the hallmark of a brainstem lesion.' },
+{ id: 'yes', type: 'normal', title: '✅ YES → Brainstem localization', detail: 'Crossed findings = brainstem. Ipsilateral cranial nerve + contralateral long tract signs.' },
+{ id: 'no', type: 'normal', title: '❌ NO → Consider cortical/cerebellar stroke', detail: 'If sensory loss is all on one side (not crossed), consider thalamic stroke or cortical lesion.' },
+{ id: 'motor', type: 'decision', title: '💪 Motor power intact? Proprioception intact?', detail: 'Critical decision point: Are the pyramids (motor) and medial lemniscus (proprioception) spared?' },
+{ id: 'lateral', type: 'normal', title: '✅ YES → LATERAL Medullary Syndrome', detail: 'Motor & proprioception spared = Lateral medulla. Confirm with Horner syndrome, nucleus ambiguus signs, cerebellar ataxia.' },
+{ id: 'medial', type: 'normal', title: '❌ NO → MEDIAL Medullary Syndrome', detail: 'Contralateral hemiplegia + proprioceptive loss + tongue deviation = Medial medulla (ASA territory).' },
+{ id: 'artery', type: 'decision', title: '🩸 Vascular Territory?', detail: 'Lateral = PICA/Vertebral artery. Medial = Anterior Spinal Artery.' },
+{ id: 'final', type: 'end', title: '🎯 Dx: Wallenberg Syndrome (PICA/VA occlusion)', detail: 'Confirm with MRI-DWI + CTA/MRA. Manage: thrombolysis if eligible, antiplatelet, swallowing assessment, secondary prevention.' }
+]
+},
+takeaways: [
+{
+title: '🩸 Vascular Supply',
+color: 'red',
+keywords: ['PICA', 'Vertebral Artery', 'Lateral Medulla', 'Posterior Circulation'],
+text: 'PICA occlusion → Lateral Medullary (Wallenberg). ASA occlusion → Medial Medullary (Dejerine).'
+},
+{
+title: '🧠 Crossed Sensory Loss',
+color: 'blue',
+keywords: ['Spinal Trigeminal', 'Spinothalamic', 'Ipsilateral Face', 'Contralateral Body'],
+text: 'Ipsilateral face (trigeminal) + Contralateral body (spinothalamic) = LATERAL medulla.'
+},
+{
+title: '👁️ Horner Syndrome',
+color: 'purple',
+keywords: ['Mild Ptosis', 'Miosis', 'Anhidrosis', 'Sympathetic'],
+text: 'Descending sympathetic fibers disrupted. MILD ptosis + SMALL pupil. NOT CN III (complete ptosis + dilated pupil).'
+},
+{
+title: '🗣️ Nucleus Ambiguus',
+color: 'orange',
+keywords: ['CN IX', 'CN X', 'Dysphagia', 'Hoarseness', 'Uvula Deviation'],
+text: 'Uvula deviates AWAY from lesion. Intact side pulls. Aspiration risk from dysphagia.'
+},
+{
+title: '🏃 Cerebellar Signs',
+color: 'green',
+keywords: ['Inferior Peduncle', 'Ipsilateral Ataxia', 'Dysmetria', 'Intention Tremor'],
+text: 'Inferior cerebellar peduncle → ipsilateral ataxia, dysmetria on finger-to-nose.'
+},
+{
+title: '⚖️ Lateral vs Medial',
+color: 'teal',
+keywords: ['Pyramids SPARED', 'Medial Lemniscus SPARED', 'No Hemiplegia', 'No CN XII'],
+text: 'Lateral: spares motor + proprioception. Medial: contralateral hemiplegia + proprioception loss + tongue deviation.'
+}
+]
+},
+// ==================== CASE 2 ====================
+{
+id: 'hydrocephalus',
+title: 'Congenital Hydrocephalus (Aqueductal Stenosis)',
+patient: {
+age: '5 days old',
+gender: 'Male',
+chief: 'Unusually large head circumference compared to peers',
+diagnosis: 'Congenital Obstructive Hydrocephalus (Aqueductal Stenosis)'
+},
+hpiFindings: [
+{ text: 'Enlarged head circumference (macrocephaly)', abnormal: true, significance: 'CSF accumulation expanding unfused cranial sutures' },
+{ text: 'Tense fontanelles (not bulging)', abnormal: true, significance: 'Increased intracranial pressure transmitted through open fontanelles' },
+{ text: 'No scalp edema', abnormal: false, significance: 'Absence suggests compensated hydrocephalus without venous obstruction' },
+{ text: 'Normal neurological responses', abnormal: false, significance: 'Early presentation — brain parenchyma not yet severely compressed' },
+{ text: 'CT: Enlarged lateral ventricles', abnormal: true, significance: 'CSF backup proximal to the obstruction at the aqueduct' },
+{ text: 'CT: Enlarged 3rd ventricle', abnormal: true, significance: 'Confirms obstruction is DISTAL to the 3rd ventricle' },
+{ text: 'CT: Normal-sized 4th ventricle', abnormal: false, significance: 'KEY FINDING — obstruction is at the aqueduct of Sylvius (between 3rd and 4th)' }
+],
+labs: [
+{ name: 'Head Circumference', value: '>97th percentile', abnormal: true },
+{ name: 'Anterior Fontanelle', value: 'Tense, not bulging', abnormal: true },
+{ name: 'Lateral Ventricles (CT)', value: 'Massively dilated', abnormal: true },
+{ name: '3rd Ventricle (CT)', value: 'Dilated', abnormal: true },
+{ name: '4th Ventricle (CT)', value: 'Normal size', abnormal: false },
+{ name: 'Neurological Exam', value: 'Normal reflexes', abnormal: false }
+],
+pearls: [
+{
+type: 'pearl',
+title: 'Most Common Cause of Congenital Hydrocephalus',
+content: '<p>Stenosis of the <strong>Cerebral Aqueduct of Sylvius</strong> is the #1 cause of congenital obstructive hydrocephalus.</p><p>Remember: Block between 3rd and 4th ventricle → dilated lateral + 3rd, normal 4th.</p>'
+},
+{
+type: 'pearl',
+title: 'Three Mechanisms of Hydrocephalus',
+content: '<ul><li><strong>1. Obstruction</strong> of CSF circulation (e.g., aqueductal stenosis) — most common</li><li><strong>2. Overproduction</strong> of CSF (e.g., choroid plexus papilloma) — rare</li><li><strong>3. Decreased absorption</strong> (e.g., superior sagittal sinus thrombosis, post-meningitis scarring of arachnoid granulations)</li></ul>'
+},
+{
+type: 'pearl',
+title: 'CT Scan Interpretation Rule',
+content: '<p><strong>Always look at the 4th ventricle first!</strong></p><ul><li>Lateral + 3rd dilated, 4th normal → Block at <strong>Aqueduct of Sylvius</strong></li><li>All ventricles dilated → Block at <strong>foramina of Luschka/Magendie</strong> or <strong>absorption problem</strong></li><li>One lateral ventricle dilated → Block at <strong>foramen of Monro</strong></li></ul>'
+},
+{
+type: 'pearl',
+title: 'High-Yield Boundaries',
+content: '<ul><li><strong>4th Ventricle Floor:</strong> Facial colliculus (upper/pontine), hypoglossal trigone, vagal trigone, vestibular area (lower/medullary)</li><li><strong>3rd Ventricle Lateral Wall:</strong> Thalamus (upper) + Hypothalamus (lower)</li><li><strong>3rd Ventricle Floor:</strong> Optic chiasm, infundibulum, tuber cinereum, mammillary bodies</li><li><strong>4th Ventricle Roof:</strong> Superior + inferior medullary velum</li></ul>'
+},
+{
+type: 'redflag',
+title: 'Macrocephaly in Infants vs. Adults',
+content: '<p>In <strong>infants</strong>, unfused sutures allow expansion → macrocephaly (compensatory mechanism delays herniation).</p><p>In <strong>adults</strong>, sutures are fused → rapid rise in ICP → papilledema, vomiting, CN VI palsy, herniation risk. No head expansion possible.</p>'
+},
+{
+type: 'ruleout',
+title: 'Why Not Other Diagnoses?',
+content: '<ul><li><strong>Dandy-Walker:</strong> Would show dilated 4th ventricle + posterior fossa cyst</li><li><strong>Communicating hydrocephalus:</strong> ALL ventricles would be dilated (including 4th)</li><li><strong>Choroid plexus papilloma:</strong> Usually shows asymmetric ventricular dilation at the tumor site</li></ul>'
+}
+],
+reasoning: [
+{
+step: 1,
+title: 'Localization / Pathophysiology',
+content: '<p><strong>Site of Obstruction:</strong> Cerebral Aqueduct of Sylvius</p><ul><li>Connects 3rd ventricle to 4th ventricle</li><li>Narrowest point in the ventricular system → most vulnerable to stenosis</li><li>CSF produced by choroid plexus cannot flow distally</li><li>Backup causes dilation of lateral + 3rd ventricles</li><li>4th ventricle is downstream → remains normal-sized</li></ul>'
+},
+{
+step: 2,
+title: 'Most Likely Diagnosis',
+content: '<p><strong>Congenital Obstructive Hydrocephalus due to Aqueductal Stenosis</strong></p><p>CT pattern: Dilated lateral + 3rd ventricles with normal 4th ventricle = pathognomonic for aqueductal obstruction.</p><p>Macrocephaly in a neonate with tense fontanelles = hydrocephalus until proven otherwise.</p>'
+},
+{
+step: 3,
+title: 'Initial Investigation / Step',
+content: '<ul><li><strong>CT Head (non-contrast):</strong> Quick assessment of ventricular size and obstruction level</li><li><strong>MRI Brain:</strong> Better soft tissue resolution; identifies aqueductal stenosis directly</li><li><strong>Head circumference serial measurements:</strong> Track progression</li><li><strong>Cranial ultrasound (through fontanelle):</strong> Non-invasive bedside assessment in neonates</li></ul>'
+},
+{
+step: 4,
+title: 'Definitive Management',
+content: '<ul><li><strong>Ventriculoperitoneal (VP) shunt:</strong> Most common definitive treatment — diverts CSF from ventricle to peritoneal cavity</li><li><strong>Endoscopic Third Ventriculostomy (ETV):</strong> Creates a bypass in the floor of the 3rd ventricle — increasingly preferred for obstructive hydrocephalus</li><li><strong>Monitor:</strong> Head circumference, fontanelle tension, developmental milestones</li><li><strong>Complications to watch:</strong> Shunt infection, shunt malfunction, over-drainage</li></ul>'
+}
+],
+mcqs: [
+{
+q: 'A CT scan of a newborn with an enlarged head reveals massive dilation of the lateral ventricles and 3rd ventricle, but a normal-sized 4th ventricle. Which structure is most likely obstructed?',
+options: ['Interventricular foramen of Monro', 'Cerebral aqueduct of Sylvius', 'Foramen of Magendie', 'Arachnoid granulations'],
+correct: 1,
+explanation: 'The cerebral aqueduct connects 3rd→4th ventricle. Blockage here spares the 4th ventricle but dilates everything upstream (lateral + 3rd).'
+},
+{
+q: 'Excess CSF produced by a choroid plexus papilloma in the lateral ventricle must pass through which structure to reach the 3rd ventricle?',
+options: ['Foramina of Luschka', 'Interventricular foramen of Monro', 'Cerebral aqueduct of Sylvius', 'Central canal'],
+correct: 1,
+explanation: 'CSF flows from lateral ventricles → 3rd ventricle through the interventricular foramen of Monro.'
+},
+{
+q: 'Which structure forms the FLOOR of the 3rd ventricle?',
+options: ['Corpus callosum', 'Thalamus', 'Hypothalamic structures (optic chiasm, mammillary bodies)', 'Septum pellucidum'],
+correct: 2,
+explanation: 'The floor of the 3rd ventricle is formed by hypothalamic structures: optic chiasm, infundibulum, tuber cinereum, and mammillary bodies.'
+},
+{
+q: 'A patient has superior sagittal sinus thrombosis. Hydrocephalus develops primarily through which mechanism?',
+options: ['Overproduction of CSF', 'Obstruction of ventricular foramina', 'Decreased absorption of CSF', 'Hypertrophy of the choroid plexus'],
+correct: 2,
+explanation: 'The superior sagittal sinus contains arachnoid granulations where CSF is absorbed into venous blood. Thrombosis prevents absorption → communicating hydrocephalus.'
+},
+{
+q: 'Which blood vessel supplies the choroid plexus in the roof of the 4th ventricle?',
+options: ['Anterior choroidal artery', 'PICA (Posterior Inferior Cerebellar Artery)', 'Superior cerebellar artery', 'Middle cerebral artery'],
+correct: 1,
+explanation: 'The choroid plexus of the 4th ventricle is supplied by PICA (a branch of the vertebral artery).'
+},
+{
+q: 'In an infant with hydrocephalus, the head circumference increases rather than causing immediate herniation. This is because:',
+options: ['The brain tissue is more elastic in infants', 'The cranial sutures are not yet fused', 'CSF production decreases with age', 'The tentorium cerebelli is absent in neonates'],
+correct: 1,
+explanation: 'Unfused cranial sutures in infants allow skull bones to separate under increased ICP, expanding head circumference as a compensatory mechanism.'
+},
+{
+q: 'The correct order of CSF flow is:',
+options: [
+'Lateral ventricles → Aqueduct → 3rd ventricle → 4th ventricle → Subarachnoid space',
+'Lateral ventricles → Foramen of Monro → 3rd ventricle → Aqueduct of Sylvius → 4th ventricle → Luschka/Magendie → Subarachnoid space',
+'3rd ventricle → Lateral ventricles → 4th ventricle → Central canal',
+'Choroid plexus → Subarachnoid space → Ventricles → Dural sinuses'
+],
+correct: 1,
+explanation: 'Correct pathway: Lateral ventricles → Foramen of Monro → 3rd ventricle → Aqueduct of Sylvius → 4th ventricle → Foramina of Luschka & Magendie → Subarachnoid space.'
+},
+{
+q: 'Which structure on the floor of the 4th ventricle is formed by CN VII fibers looping over the abducens nucleus?',
+options: ['Hypoglossal trigone', 'Vagal trigone', 'Facial colliculus', 'Vestibular area'],
+correct: 2,
+explanation: 'The facial colliculus is a bump on the floor of the 4th ventricle formed by CN VII fibers wrapping around the CN VI (abducens) nucleus.'
+},
+{
+q: 'An infant with Dandy-Walker malformation would show which CT finding that distinguishes it from aqueductal stenosis?',
+options: ['Normal 4th ventricle', 'Dilated 4th ventricle with posterior fossa cyst', 'Only unilateral ventricular dilation', 'Calcified choroid plexus'],
+correct: 1,
+explanation: 'Dandy-Walker: dilated 4th ventricle + posterior fossa cyst + cerebellar hypoplasia. In aqueductal stenosis, the 4th ventricle is NORMAL.'
+},
+{
+q: 'The lateral wall of the 3rd ventricle is formed by:',
+options: ['Caudate nucleus and putamen', 'Thalamus (upper) and hypothalamus (lower)', 'Corpus callosum and fornix', 'Hippocampus and amygdala'],
+correct: 1,
+explanation: 'The lateral wall of the 3rd ventricle is formed by the thalamus (upper portion) and the hypothalamus (lower portion).'
+},
+{
+q: 'CSF is ultimately absorbed into the venous system at the:',
+options: ['Choroid plexus', 'Central canal', 'Arachnoid granulations projecting into the superior sagittal sinus', 'Foramen of Magendie'],
+correct: 2,
+explanation: 'Arachnoid granulations (villi) project into the dural venous sinuses (especially the superior sagittal sinus) and allow CSF drainage into venous blood.'
+},
+{
+q: 'Which foramina allow CSF to exit the 4th ventricle into the subarachnoid space?',
+options: ['2 foramina of Monro + 1 aqueduct of Sylvius', '2 foramina of Luschka (lateral) + 1 foramen of Magendie (median)', '1 foramen of Luschka + 2 foramina of Magendie', '4th ventricle drains directly into the central canal only'],
+correct: 1,
+explanation: 'The 4th ventricle exits via 2 lateral foramina of Luschka and 1 median foramen of Magendie into the subarachnoid space.'
+}
+],
+algorithm: {
+nodes: [
+{ id: 'start', type: 'start', title: '👶 Neonate: Large head circumference', detail: 'Macrocephaly in a newborn — must evaluate for hydrocephalus vs. other causes (megalencephaly, subdural collection).' },
+{ id: 'exam', type: 'decision', title: '🔍 Fontanelles tense? Sutures splayed?', detail: 'Tense fontanelles + splayed sutures = increased ICP in an infant. This suggests fluid accumulation within the cranium.' },
+{ id: 'imaging', type: 'normal', title: '🧠 CT/Ultrasound: Check ventricle sizes', detail: 'CT or cranial ultrasound (through open fontanelle). Key question: Which ventricles are dilated?' },
+{ id: 'pattern', type: 'decision', title: '📊 Ventricular Pattern?', detail: 'The pattern of ventricular dilation tells you WHERE the obstruction is.' },
+{ id: 'lat3', type: 'normal', title: '✅ Lat + 3rd dilated, 4th normal → Aqueductal Stenosis', detail: 'Obstruction at the Aqueduct of Sylvius. Most common cause of congenital obstructive hydrocephalus.' },
+{ id: 'all', type: 'normal', title: '⚠️ All ventricles dilated → Communicating OR distal obstruction', detail: 'Could be: absorption failure (arachnoid granulations), Luschka/Magendie obstruction, or post-infectious.' },
+{ id: 'one', type: 'normal', title: '⚠️ One lateral ventricle dilated → Foramen of Monro block', detail: 'Unilateral obstruction at the interventricular foramen. Consider colloid cyst or tumor.' },
+{ id: 'manage', type: 'decision', title: '🔧 Management Decision', detail: 'Obstructive hydrocephalus requires surgical intervention. Choice depends on etiology and anatomy.' },
+{ id: 'final', type: 'end', title: '🎯 VP Shunt or Endoscopic Third Ventriculostomy', detail: 'VP shunt is most common. ETV is preferred for aqueductal stenosis when feasible. Monitor for complications.' }
+]
+},
+takeaways: [
+{
+title: '💧 CSF Pathway',
+color: 'blue',
+keywords: ['Lateral Ventricles', 'Monro', '3rd Ventricle', 'Aqueduct of Sylvius', '4th Ventricle', 'Luschka', 'Magendie'],
+text: 'Lat → Monro → 3rd → Aqueduct → 4th → Luschka/Magendie → Subarachnoid → Arachnoid granulations → Superior sagittal sinus.'
+},
+{
+title: '🔬 Aqueductal Stenosis',
+color: 'red',
+keywords: ['Most Common Congenital', 'Dilated Lat+3rd', 'Normal 4th', 'Obstructive'],
+text: 'Most common cause of congenital hydrocephalus. CT: Lat + 3rd dilated, 4th NORMAL.'
+},
+{
+title: '👶 Macrocephaly Mechanism',
+color: 'green',
+keywords: ['Unfused Sutures', 'Tense Fontanelles', 'Compensatory Expansion', 'No Herniation'],
+text: 'Open sutures allow skull expansion in infants. Compensates for increased ICP. Adults cannot expand → rapid herniation risk.'
+},
+{
+title: '📐 Ventricle Boundaries',
+color: 'purple',
+keywords: ['3rd Wall: Thalamus+Hypothalamus', '3rd Floor: Optic Chiasm/Mammillary Bodies', '4th Floor: Facial Colliculus/Trigones'],
+text: 'High-yield anatomy: 4th floor = facial colliculus, hypoglossal/vagal trigones. 3rd floor = hypothalamic structures.'
+},
+{
+title: '🩸 Choroid Plexus Supply',
+color: 'orange',
+keywords: ['4th Ventricle → PICA', 'Lateral Ventricle → Ant. Choroidal', 'CSF Production Site'],
+text: 'Choroid plexus produces CSF. 4th ventricle choroid plexus supplied by PICA.'
+},
+{
+title: '🔧 Management',
+color: 'teal',
+keywords: ['VP Shunt', 'ETV', 'Monitor HC', 'Shunt Complications'],
+text: 'VP shunt = most common. ETV preferred for aqueductal stenosis. Watch for infection, malfunction, over-drainage.'
+}
+]
+}
+];
+
+// ======================== STATE ========================
+let currentCase = parseInt(localStorage.getItem('currentCase') || '0');
+let currentTab = localStorage.getItem('currentTab') || 'case-file';
+let mcqState = {};
+
+function getMcqKey() { return 'mcq_' + cases[currentCase].id; }
+
+function loadMcqState() {
+const saved = localStorage.getItem(getMcqKey());
+if (saved) {
+mcqState = JSON.parse(saved);
+} else {
+mcqState = {
+currentQ: 0,
+score: 0,
+streak: 0,
+maxStreak: 0,
+answered: [],
+mistakes: [],
+completed: false
+};
+}
+}
+
+function saveMcqState() {
+localStorage.setItem(getMcqKey(), JSON.stringify(mcqState));
+}
+
+// ======================== DARK MODE ========================
+function initTheme() {
+const saved = localStorage.getItem('darkMode');
+if (saved === 'true') {
+document.documentElement.setAttribute('data-theme', 'dark');
+document.getElementById('themeIcon').textContent = 'light_mode';
+}
+}
+
+function toggleDarkMode() {
+const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+if (isDark) {
+document.documentElement.removeAttribute('data-theme');
+document.getElementById('themeIcon').textContent = 'dark_mode';
+localStorage.setItem('darkMode', 'false');
+} else {
+document.documentElement.setAttribute('data-theme', 'dark');
+document.getElementById('themeIcon').textContent = 'light_mode';
+localStorage.setItem('darkMode', 'true');
+}
+}
+
+// ======================== CASE SWITCHING ========================
+function switchCase(idx) {
+currentCase = idx;
+localStorage.setItem('currentCase', idx);
+loadMcqState();
+document.querySelectorAll('.case-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+renderCurrentTab();
+}
+
+// ======================== TAB SWITCHING ========================
+function switchTab(tabId) {
+currentTab = tabId;
+localStorage.setItem('currentTab', tabId);
+document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-tab') === tabId));
+renderCurrentTab();
+}
+
+function renderCurrentTab() {
+const c = cases[currentCase];
+const main = document.getElementById('mainContent');
+
+switch(currentTab) {
+case 'case-file': main.innerHTML = renderCaseFile(c); break;
+case 'pearls': main.innerHTML = renderPearls(c); break;
+case 'reasoning': main.innerHTML = renderReasoning(c); break;
+case 'mcq': main.innerHTML = renderMCQ(c); break;
+case 'algorithm': main.innerHTML = renderAlgorithm(c); break;
+case 'takeaways': main.innerHTML = renderTakeaways(c); break;
+}
+}
+
+// ======================== RENDER: CASE FILE ========================
+function renderCaseFile(c) {
+let findingsHtml = c.hpiFindings.map(f => `
+<div class="finding-item ${f.abnormal ? 'abnormal' : 'normal'}">
+<div class="finding-dot"></div>
+<div class="finding-text">
+<span class="tooltip-trigger">${f.text}
+<span class="tooltip-content">${f.significance}</span>
+</span>
+<span class="significance">${f.significance}</span>
+</div>
+</div>
+`).join('');
+
+let labsHtml = c.labs.map(l => `
+<div class="lab-item">
+<span class="lab-name">${l.name}</span>
+<span class="lab-value ${l.abnormal ? 'abnormal' : 'normal'}">${l.value}</span>
+</div>
+`).join('');
+
+return `
+<div class="tab-panel active">
+<div class="section-header">
+<h2>📂 Case File</h2>
+<p>${c.title}</p>
+</div>
+
+<div class="card">
+<div class="card-header">
+<div class="card-header-icon" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6);">
+<span class="material-icons-outlined">badge</span>
+</div>
+<div>
+<h3>Patient Identification</h3>
+<p>Demographics & Chief Complaint</p>
+</div>
+</div>
+<div class="patient-id">
+<div class="id-field">
+<div class="label">Age</div>
+<div class="value">${c.patient.age}</div>
+</div>
+<div class="id-field">
+<div class="label">Gender</div>
+<div class="value">${c.patient.gender}</div>
+</div>
+<div class="id-field">
+<div class="label">Chief Complaint</div>
+<div class="value">${c.patient.chief}</div>
+</div>
+<div class="id-field diagnosis">
+<div class="label">Most Likely Diagnosis</div>
+<div class="value">${c.patient.diagnosis}</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+<div class="card-header-icon" style="background: linear-gradient(135deg, #ef4444, #f59e0b);">
+<span class="material-icons-outlined">search</span>
+</div>
+<div>
+<h3>History & Examination Findings</h3>
+<p>Hover over findings for clinical significance</p>
+</div>
+<span class="badge red">Abnormal</span>
+<span class="badge green">Normal</span>
+</div>
+<div class="findings-grid">
+${findingsHtml}
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+<div class="card-header-icon" style="background: linear-gradient(135deg, #10b981, #14b8a6);">
+<span class="material-icons-outlined">biotech</span>
+</div>
+<div>
+<h3>Labs / Imaging</h3>
+<p>Diagnostic findings</p>
+</div>
+</div>
+<div class="lab-grid">
+${labsHtml}
+</div>
+</div>
+</div>
+`;
+}
+
+// ======================== RENDER: PEARLS ========================
+function renderPearls(c) {
+let pearlsHtml = c.pearls.map(p => {
+let cls = 'pearl-card';
+if (p.type === 'redflag') cls += ' red-flag';
+if (p.type === 'ruleout') cls += ' rule-out-card';
+let icon = p.type === 'pearl' ? '⭐' : p.type === 'redflag' ? '🚨' : '🔎';
+let label = p.type === 'pearl' ? 'Exam Pearl' : p.type === 'redflag' ? 'Red Flag' : 'Rule-Out Logic';
+return `
+<div class="${cls}">
+<h4>${icon} ${label}: ${p.title}</h4>
+${p.content}
+</div>
+`;
+}).join('');
+
+return `
+<div class="tab-panel active">
+<div class="section-header">
+<h2>💡 Doctor's Pearls</h2>
+<p>High-yield exam pearls, red flags, and clinical reasoning</p>
+</div>
+${pearlsHtml}
+</div>
+`;
+}
+
+// ======================== RENDER: REASONING ========================
+function renderReasoning(c) {
+let stepsHtml = c.reasoning.map((r, i) => `
+<div class="reveal-card" id="reveal-${i}">
+<div class="reveal-header" onclick="toggleReveal(${i})">
+<div class="reveal-header-left">
+<div class="reveal-step">${r.step}</div>
+<h4>${r.title}</h4>
+</div>
+<span class="material-icons-outlined reveal-arrow">expand_more</span>
+</div>
+<div class="reveal-body">
+<div class="reveal-content">
+${r.content}
+</div>
+</div>
+</div>
+`).join('');
+
+return `
+<div class="tab-panel active">
+<div class="section-header">
+<h2>🔍 Clinical Reasoning</h2>
+<p>Click each step to reveal the reasoning — test yourself first!</p>
+</div>
+${stepsHtml}
+</div>
+`;
+}
+
+function toggleReveal(idx) {
+const el = document.getElementById('reveal-' + idx);
+el.classList.toggle('open');
+}
+
+// ======================== RENDER: MCQ ========================
+function renderMCQ(c) {
+loadMcqState();
+const total = c.mcqs.length;
+const wrongCount = mcqState.mistakes.length;
+
+if (mcqState.completed) {
+const pct = Math.round((mcqState.score / total) * 100);
+let mistakesHtml = '';
+if (mcqState.mistakes.length > 0) {
+mistakesHtml = `
+<div class="mistakes-section">
+<h3 style="margin-bottom:16px; font-size:16px;">❌ Mistakes Review</h3>
+${mcqState.mistakes.map(m => `
+<div class="mistake-item">
+<div class="mq">Q: ${c.mcqs[m.qIdx].q}</div>
+<div class="ma">✅ Correct: ${c.mcqs[m.qIdx].options[c.mcqs[m.qIdx].correct]}</div>
+<div class="mexp">${c.mcqs[m.qIdx].explanation}</div>
+</div>
+`).join('')}
+</div>
+`;
+} else {
+mistakesHtml = `<div class="no-mistakes"><span class="material-icons-outlined">check_circle</span>Perfect score! No mistakes to review.</div>`;
+}
+
+return `
+<div class="tab-panel active">
+<div class="score-summary">
+<div class="score-circle"><span>${pct}%</span></div>
+<h3>${pct >= 80 ? '🎉 Excellent!' : pct >= 60 ? '👍 Good effort!' : '📚 Keep reviewing!'}</h3>
+<p>${mcqState.score} / ${total} correct &nbsp;|&nbsp; Max Streak: ${mcqState.maxStreak} 🔥</p>
+</div>
+${mistakesHtml}
+<div style="text-align:center; margin-top:24px;">
+<button class="mcq-nav-btn primary" onclick="resetMCQ()">
+<span class="material-icons-outlined">replay</span> Retry All Questions
+</button>
+</div>
+</div>
+`;
+}
+
+const qi = mcqState.currentQ;
+const question = c.mcqs[qi];
+const answered = mcqState.answered.includes(qi);
+const progress = ((qi + 1) / total) * 100;
+const letters = ['A', 'B', 'C', 'D'];
+
+let optionsHtml = question.options.map((opt, oi) => {
+let cls = 'mcq-option';
+if (answered) {
+cls += ' disabled';
+if (oi === question.correct) cls += ' correct';
+else if (mcqState.lastSelected === oi) cls += ' incorrect';
+}
+return `
+<div class="${cls}" onclick="selectAnswer(${qi}, ${oi})">
+<span class="option-letter">${letters[oi]}</span>
+<span>${opt}</span>
+</div>
+`;
+}).join('');
+
+let expClass = '', expContent = '';
+if (answered) {
+const wasCorrect = mcqState.lastSelected === question.correct;
+expClass = wasCorrect ? 'correct-exp show' : 'incorrect-exp show';
+expContent = `<strong>${wasCorrect ? '✅ Correct!' : '❌ Incorrect.'}</strong> ${question.explanation}`;
+}
+
+return `
+<div class="tab-panel active">
+<div class="section-header">
+<h2>📝 Exam MCQs</h2>
+<p>${c.title}</p>
+</div>
+<div class="mcq-stats">
+<div class="stat-card">
+<div class="stat-value">${qi + 1}/${total}</div>
+<div class="stat-label">Question</div>
+</div>
+<div class="stat-card correct">
+<div class="stat-value">${mcqState.score}</div>
+<div class="stat-label">Correct</div>
+</div>
+<div class="stat-card streak">
+<div class="stat-value">${mcqState.streak} 🔥</div>
+<div class="stat-label">Streak</div>
+</div>
+<div class="stat-card wrong">
+<div class="stat-value">${wrongCount}</div>
+<div class="stat-label">Mistakes</div>
+</div>
+</div>
+
+<div class="mcq-container">
+<div class="mcq-progress">
+<div class="mcq-progress-bar">
+<div class="mcq-progress-fill" style="width:${progress}%"></div>
+</div>
+<span class="mcq-progress-text">${Math.round(progress)}%</span>
+</div>
+<div class="mcq-question">${question.q}</div>
+<div class="mcq-options">
+${optionsHtml}
+</div>
+<div class="mcq-explanation ${expClass}">${expContent}</div>
+<div class="mcq-nav">
+<button class="mcq-nav-btn secondary" onclick="prevQuestion()" ${qi === 0 ? 'disabled' : ''}>
+<span class="material-icons-outlined">arrow_back</span> Previous
+</button>
+<button class="mcq-nav-btn primary" onclick="nextQuestion()" ${!answered ? 'disabled' : ''}>
+${qi === total - 1 && answered ? 'View Results' : 'Next'} <span class="material-icons-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+<div style="text-align:right; margin-top:8px;">
+<button class="reset-btn" onclick="resetMCQ()">
+<span class="material-icons-outlined" style="font-size:14px;vertical-align:middle;">replay</span> Reset Progress
+</button>
+</div>
+</div>
+`;
+}
+
+function selectAnswer(qi, oi) {
+if (mcqState.answered.includes(qi)) return;
+const c = cases[currentCase];
+const question = c.mcqs[qi];
+mcqState.answered.push(qi);
+mcqState.lastSelected = oi;
+
+if (oi === question.correct) {
+mcqState.score++;
+mcqState.streak++;
+if (mcqState.streak > mcqState.maxStreak) mcqState.maxStreak = mcqState.streak;
+} else {
+mcqState.streak = 0;
+mcqState.mistakes.push({ qIdx: qi, selected: oi });
+}
+saveMcqState();
+renderCurrentTab();
+}
+
+function nextQuestion() {
+const c = cases[currentCase];
+if (mcqState.currentQ >= c.mcqs.length - 1) {
+mcqState.completed = true;
+saveMcqState();
+} else {
+mcqState.currentQ++;
+saveMcqState();
+}
+renderCurrentTab();
+}
+
+function prevQuestion() {
+if (mcqState.currentQ > 0) {
+mcqState.currentQ--;
+saveMcqState();
+renderCurrentTab();
+}
+}
+
+function resetMCQ() {
+mcqState = {
+currentQ: 0,
+score: 0,
+streak: 0,
+maxStreak: 0,
+answered: [],
+mistakes: [],
+completed: false
+};
+saveMcqState();
+renderCurrentTab();
+}
+
+// ======================== RENDER: ALGORITHM ========================
+function renderAlgorithm(c) {
+const nodes = c.algorithm.nodes;
+// Determine layout based on case
+let flowHtml = '';
+
+if (c.id === 'wallenberg') {
+// Wallenberg algorithm: linear with one branch
+flowHtml = `
+<div class="flowchart">
+${renderFlowNode(nodes[0])}
+${renderFlowArrow()}
+${renderFlowNode(nodes[1])}
+${renderFlowArrow()}
+<div class="flow-branch-labels">
+<div class="flow-branch-label">YES ✓</div>
+<div class="flow-branch-label">NO ✗</div>
+</div>
+<div class="flow-branch">
+${renderFlowNode(nodes[2])}
+${renderFlowNode(nodes[3])}
+</div>
+${renderFlowArrow()}
+${renderFlowNode(nodes[4])}
+${renderFlowArrow()}
+<div class="flow-branch-labels">
+<div class="flow-branch-label">YES — Spared ✓</div>
+<div class="flow-branch-label">NO — Damaged ✗</div>
+</div>
+<div class="flow-branch">
+${renderFlowNode(nodes[5])}
+${renderFlowNode(nodes[6])}
+</div>
+${renderFlowArrow()}
+${renderFlowNode(nodes[7])}
+${renderFlowArrow()}
+${renderFlowNode(nodes[8])}
+</div>
+`;
+} else {
+// Hydrocephalus algorithm
+flowHtml = `
+<div class="flowchart">
+${renderFlowNode(nodes[0])}
+${renderFlowArrow()}
+${renderFlowNode(nodes[1])}
+${renderFlowArrow()}
+${renderFlowNode(nodes[2])}
+${renderFlowArrow()}
+${renderFlowNode(nodes[3])}
+${renderFlowArrow()}
+<div class="flow-branch-labels">
+<div class="flow-branch-label" style="max-width:220px">Lat+3rd ↑, 4th Normal</div>
+<div class="flow-branch-label" style="max-width:220px">All Dilated</div>
+<div class="flow-branch-label" style="max-width:220px">One Lat ↑</div>
+</div>
+<div class="flow-branch">
+${renderFlowNode(nodes[4])}
+${renderFlowNode(nodes[5])}
+${renderFlowNode(nodes[6])}
+</div>
+${renderFlowArrow()}
+${renderFlowNode(nodes[7])}
+${renderFlowArrow()}
+${renderFlowNode(nodes[8])}
+</div>
+`;
+}
+
+return `
+<div class="tab-panel active">
+<div class="section-header">
+<h2>🛤️ Diagnostic Algorithm</h2>
+<p>Click each node to reveal clinical reasoning</p>
+</div>
+${flowHtml}
+</div>
+`;
+}
+
+function renderFlowNode(node) {
+return `
+<div class="flow-node ${node.type}" onclick="this.classList.toggle('active')">
+<h5>${node.title}</h5>
+<p>${node.detail}</p>
+</div>
+`;
+}
+
+function renderFlowArrow() {
+return `<div class="flow-arrow"></div>`;
+}
+
+// ======================== RENDER: TAKEAWAYS ========================
+function renderTakeaways(c) {
+let cardsHtml = c.takeaways.map(t => {
+let keywordsHtml = t.keywords.map((k, i) => `<span class="keyword ${i < 2 ? 'highlight' : ''}">${k}</span>`).join('');
+let listHtml = '';
+if (t.items) {
+listHtml = `<ul>${t.items.map(i => `<li>${i}</li>`).join('')}</ul>`;
+}
+return `
+<div class="takeaway-card ${t.color}">
+<h4>${t.title}</h4>
+<div>${keywordsHtml}</div>
+<p>${t.text}</p>
+${listHtml}
+</div>
+`;
+}).join('');
+
+return `
+<div class="tab-panel active">
+<div class="section-header">
+<h2>⚡ Rapid Takeaways</h2>
+<p>Ultra-condensed, exam-ready revision</p>
+</div>
+<div class="takeaway-grid">
+${cardsHtml}
+</div>
+</div>
+`;
+}
+
+// ======================== INIT ========================
+function init() {
+initTheme();
+loadMcqState();
+// Restore last tab
+const savedTab = localStorage.getItem('currentTab');
+if (savedTab) currentTab = savedTab;
+document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-tab') === currentTab));
+document.querySelectorAll('.case-btn').forEach((b, i) => b.classList.toggle('active', i === currentCase));
+renderCurrentTab();
+}
+
+init();
+</script>
+</body>
+</html>
