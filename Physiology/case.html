@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Physiology Case Library</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#0a0e17;--bg2:#111827;--bg3:#1a2236;--bg4:#232d45;
+--text:#e2e8f0;--text2:#94a3b8;--accent:#06b6d4;--accent2:#0891b2;
+--green:#10b981;--red:#ef4444;--yellow:#f59e0b;--purple:#8b5cf6;
+--border:#1e293b;--card:#0f172a;--glass:rgba(6,182,212,0.08);
+--success-bg:rgba(16,185,129,0.12);--error-bg:rgba(239,68,68,0.12);
+}
+.light{
+--bg:#f0f4f8;--bg2:#ffffff;--bg3:#e8edf3;--bg4:#dde3ec;
+--text:#1e293b;--text2:#475569;--accent:#0891b2;--accent2:#06b6d4;
+--green:#059669;--red:#dc2626;--yellow:#d97706;--purple:#7c3aed;
+--border:#cbd5e1;--card:#ffffff;--glass:rgba(8,145,178,0.06);
+--success-bg:rgba(5,150,105,0.1);--error-bg:rgba(220,38,38,0.1);
+}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;transition:all .3s}
+.sidebar{width:280px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;transition:transform .3s}
+.sidebar-header{padding:20px;border-bottom:1px solid var(--border);text-align:center}
+.sidebar-header h1{font-size:16px;color:var(--accent);letter-spacing:1px;margin-bottom:4px}
+.sidebar-header .subtitle{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:2px}
+.ecg-line{height:40px;margin:12px 0;position:relative;overflow:hidden}
+.ecg-line svg{width:100%;height:100%}
+.ecg-line path{stroke:var(--accent);stroke-width:2;fill:none;stroke-dasharray:400;stroke-dashoffset:400;animation:ecgDraw 3s linear infinite}
+@keyframes ecgDraw{0%{stroke-dashoffset:400}100%{stroke-dashoffset:0}}
+.case-list{flex:1;overflow-y:auto;padding:10px}
+.case-item{padding:14px 16px;border-radius:10px;cursor:pointer;margin-bottom:6px;transition:all .2s;border:1px solid transparent;display:flex;align-items:center;gap:12px}
+.case-item:hover{background:var(--glass);border-color:var(--accent)}
+.case-item.active{background:var(--glass);border-color:var(--accent);box-shadow:0 0 20px rgba(6,182,212,0.15)}
+.case-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.case-item-text h3{font-size:13px;font-weight:600;margin-bottom:2px}
+.case-item-text p{font-size:11px;color:var(--text2)}
+.sidebar-footer{padding:16px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;justify-content:space-between}
+.stats-badge{background:var(--bg3);padding:6px 12px;border-radius:20px;font-size:11px;display:flex;align-items:center;gap:4px}
+.theme-toggle{width:40px;height:40px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .2s}
+.theme-toggle:hover{border-color:var(--accent);background:var(--glass)}
+.main{margin-left:280px;flex:1;min-height:100vh;display:flex;flex-direction:column}
+.mobile-header{display:none;padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border);align-items:center;gap:12px}
+.mobile-select{flex:1;background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;appearance:none;cursor:pointer}
+.mobile-select option{background:var(--bg2);color:var(--text)}
+.case-header{padding:30px 40px 0;position:relative;overflow:hidden}
+.case-header::before{content:'';position:absolute;top:0;left:0;right:0;height:180px;background:linear-gradient(135deg,rgba(6,182,212,0.08),rgba(139,92,246,0.05));pointer-events:none}
+.case-badge{display:inline-flex;align-items:center;gap:6px;background:var(--glass);border:1px solid rgba(6,182,212,0.2);padding:5px 14px;border-radius:20px;font-size:11px;color:var(--accent);margin-bottom:12px;position:relative}
+.case-title{font-size:28px;font-weight:700;margin-bottom:6px;position:relative}
+.case-subtitle{font-size:14px;color:var(--text2);position:relative;max-width:600px;line-height:1.5}
+.tab-bar{display:flex;gap:4px;padding:20px 40px 0;position:relative;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab-btn{padding:10px 20px;border-radius:10px 10px 0 0;border:none;background:transparent;color:var(--text2);cursor:pointer;font-size:13px;font-weight:500;transition:all .2s;white-space:nowrap;position:relative;display:flex;align-items:center;gap:6px}
+.tab-btn:hover{color:var(--text);background:var(--glass)}
+.tab-btn.active{color:var(--accent);background:var(--bg3);font-weight:600}
+.tab-btn.active::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:var(--accent);border-radius:2px}
+.tab-content{flex:1;padding:24px 40px 40px}
+.content-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:16px;transition:all .3s}
+.content-card:hover{border-color:rgba(6,182,212,0.2)}
+.card-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.card-header h3{font-size:16px;font-weight:600}
+.card-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.profile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.profile-item{background:var(--bg3);padding:14px;border-radius:10px;border:1px solid var(--border)}
+.profile-item label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);display:block;margin-bottom:4px}
+.profile-item span{font-size:14px;font-weight:600}
+.finding-tag{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border-radius:8px;font-size:12px;margin:3px;cursor:pointer;transition:all .2s;border:1px solid var(--border);background:var(--bg3)}
+.finding-tag.abnormal{background:var(--error-bg);border-color:rgba(239,68,68,0.3);color:var(--red)}
+.finding-tag.normal{background:var(--success-bg);border-color:rgba(16,185,129,0.3);color:var(--green)}
+.finding-tag:hover{transform:translateY(-1px)}
+.tooltip-popup{position:fixed;background:var(--bg2);border:1px solid var(--accent);border-radius:10px;padding:12px 16px;font-size:12px;max-width:280px;z-index:1000;box-shadow:0 8px 32px rgba(0,0,0,0.4);pointer-events:none;line-height:1.5}
+.pearl-card{background:var(--bg3);border-left:3px solid var(--accent);padding:16px 20px;border-radius:0 10px 10px 0;margin-bottom:12px;font-size:13px;line-height:1.7}
+.pearl-card strong{color:var(--accent)}
+.pearl-card.red-flag{border-left-color:var(--red)}
+.pearl-card.red-flag strong{color:var(--red)}
+.reveal-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;cursor:pointer;transition:all .3s}
+.reveal-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;transition:background .2s}
+.reveal-header:hover{background:var(--glass)}
+.reveal-header h4{font-size:14px;display:flex;align-items:center;gap:8px}
+.reveal-arrow{transition:transform .3s;font-size:12px}
+.reveal-card.open .reveal-arrow{transform:rotate(180deg)}
+.reveal-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.reveal-card.open .reveal-body{max-height:500px}
+.reveal-body-inner{padding:0 20px 16px;font-size:13px;line-height:1.7;color:var(--text2)}
+.mcq-container{margin-bottom:20px}
+.mcq-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.score-display{display:flex;gap:16px;align-items:center}
+.score-item{background:var(--bg3);padding:8px 16px;border-radius:10px;font-size:13px;display:flex;align-items:center;gap:6px}
+.mcq-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:16px;transition:all .3s}
+.mcq-stem{font-size:14px;line-height:1.7;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.mcq-stem .q-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:var(--accent);color:#fff;font-size:12px;font-weight:700;margin-right:10px}
+.mcq-options{display:flex;flex-direction:column;gap:8px}
+.mcq-option{padding:14px 18px;border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:all .2s;font-size:13px;display:flex;align-items:flex-start;gap:10px;background:var(--bg3)}
+.mcq-option:hover:not(.disabled){border-color:var(--accent);background:var(--glass)}
+.mcq-option .opt-letter{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:var(--bg4);flex-shrink:0;transition:all .2s}
+.mcq-option.correct{border-color:var(--green);background:var(--success-bg)}
+.mcq-option.correct .opt-letter{background:var(--green);color:#fff}
+.mcq-option.wrong{border-color:var(--red);background:var(--error-bg)}
+.mcq-option.wrong .opt-letter{background:var(--red);color:#fff}
+.mcq-option.disabled{cursor:default;opacity:.7}
+.mcq-option.disabled.correct{opacity:1}
+.mcq-explain{margin-top:12px;padding:14px 18px;border-radius:10px;font-size:12px;line-height:1.6;display:none;animation:slideIn .3s}
+.mcq-explain.show{display:block}
+.mcq-explain.correct-exp{background:var(--success-bg);border:1px solid rgba(16,185,129,0.3)}
+.mcq-explain.wrong-exp{background:var(--error-bg);border:1px solid rgba(239,68,68,0.3)}
+@keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.rapid-list{list-style:none}
+.rapid-list li{padding:10px 14px;border-left:2px solid var(--accent);margin-bottom:8px;font-size:13px;line-height:1.6;background:var(--bg3);border-radius:0 8px 8px 0}
+.rapid-list li strong{color:var(--accent)}
+.mistakes-section{margin-top:20px}
+.mistake-item{background:var(--error-bg);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:14px 18px;margin-bottom:8px;font-size:12px}
+.mistake-item .m-q{font-weight:600;margin-bottom:4px}
+.mistake-item .m-a{color:var(--red)}
+.mistake-item .m-c{color:var(--green)}
+.reset-btn{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);cursor:pointer;font-size:12px;transition:all .2s}
+.reset-btn:hover{border-color:var(--red);color:var(--red)}
+.nerve-signal{position:fixed;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;animation:nervePulse 4s infinite;pointer-events:none;z-index:0}
+@keyframes nervePulse{0%,100%{opacity:0;transform:translateX(-100%)}50%{opacity:.5;transform:translateX(100%)}}
+.membrane-bg{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:-1;opacity:.03}
+.membrane-bg::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 40px,var(--accent) 40px,var(--accent) 41px)}
+@media(max-width:900px){
+.sidebar{transform:translateX(-100%)}
+.main{margin-left:0}
+.mobile-header{display:flex}
+.case-header{padding:20px 16px 0}
+.tab-bar{padding:16px 16px 0}
+.tab-content{padding:16px}
+.case-title{font-size:22px}
+.tab-btn{padding:8px 14px;font-size:12px}
+}
+@media(max-width:500px){
+.profile-grid{grid-template-columns:1fr}
+.score-display{flex-wrap:wrap}
+}
+.fade-in{animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+</style>
+</head>
+<body>
+<div class="membrane-bg"></div>
+<div class="nerve-signal"></div>
+
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-header">
+<h1>⚡ PHYSIOLOGY CASE LIBRARY</h1>
+<div class="subtitle">Neurophysiology & Motor Disorders</div>
+<div class="ecg-line">
+<svg viewBox="0 0 500 100" class="ecg-line">
+    <!-- The path of your ECG wave -->
+    <path d="M0,50 L100,50 L120,30 L140,80 L160,20 L180,60 L200,50 L500,50" fill="none" stroke="#00ff00"
+        stroke-width="4" />
+</svg>
+</div>
+</div>
+<div class="case-list" id="caseList"></div>
+<div class="sidebar-footer">
+<div class="stats-badge" id="globalStats">🔥 0 | ✅ 0</div>
+<button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</button>
+</div>
+</aside>
+
+<main class="main" id="mainContent">
+<div class="mobile-header">
+<select class="mobile-select" id="mobileSelect" onchange="selectCase(this.value)"></select>
+<button class="theme-toggle" onclick="toggleTheme()" id="mobileTheme">🌙</button>
+</div>
+
+<div class="case-header" id="caseHeader"></div>
+<div class="tab-bar" id="tabBar"></div>
+<div class="tab-content fade-in" id="tabContent"></div>
+</main>
+
+<div class="tooltip-popup" id="tooltip" style="display:none"></div>
+
+<script>
+const CASES = [
+{
+id: 0,
+icon: "🧠",
+color: "#06b6d4",
+badge: "CASE 1 — NEUROPHYSIOLOGY",
+title: "Cerebellar Ataxia",
+subtitle: "A 65-year-old man involved in a motor vehicle accident is hospitalized and evaluated by a neurologist for poor balance.",
+patient: {
+age: "65 years", gender: "Male", occupation: "Retired",
+complaint: "Poor balance after MVA",
+history: "Motor vehicle accident"
+},
+findings: [
+{ text: "Postural instability", abnormal: true, tip: "Loss of cerebellar coordination of posture and balance." },
+{ text: "Intention tremor", abnormal: true, tip: "Tremor worsening as the finger approaches the nose — classic cerebellar sign (error in movement correction)." },
+{ text: "Nystagmus", abnormal: true, tip: "Involuntary eye oscillations due to impaired cerebellar vestibular connections." },
+{ text: "Dysdiadochokinesia", abnormal: true, tip: "Inability to perform rapid alternating movements (e.g., supination/pronation) — cerebellar timing dysfunction." },
+{ text: "Dysmetria", abnormal: true, tip: "Inability to accurately judge distance/range of motion (over/undershooting targets)." },
+{ text: "Staccato speech", abnormal: true, tip: "Slow, slurred, scanning speech due to uncoordinated speech muscles." },
+{ text: "Hypotonia (affected side)", abnormal: true, tip: "Decreased facilitatory cerebellar output to spinal cord reduces muscle tone." },
+{ text: "Intact sensory pathways", abnormal: false, tip: "Dorsal columns and spinothalamic tracts are functioning normally." },
+{ text: "Left cerebellar hemisphere lesion (MRI)", abnormal: true, tip: "Cerebellar lesions cause ipsilateral signs — damage on the left affects the left side." }
+],
+labs: [
+{ label: "MRI Brain", value: "Left cerebellar hemisphere lesion", abnormal: true },
+{ label: "Sensory exam", value: "Intact", abnormal: false },
+{ label: "Deep tendon reflexes", value: "Pendular knee jerk", abnormal: true },
+{ label: "Romberg test", value: "Negative", abnormal: true },
+{ label: "Gait", value: "Staggering / drunken", abnormal: true }
+],
+pearls: [
+{ text: "<strong>Romberg Test Rule:</strong> Positive Romberg = sensory ataxia (dorsal column). Negative Romberg = cerebellar (motor) ataxia. Motor ataxia is NOT corrected by vision.", flag: false },
+{ text: "<strong>Pendular Knee Jerk:</strong> Cerebellar lesions decrease facilitatory signals → hypotonia → the leg swings freely like a pendulum with no muscle resistance to brake it.", flag: false },
+{ text: "<strong>The Three Ds of Cerebellum:</strong> Dysmetria, Dysdiadochokinesia, Drunken gait. Plus: intention tremor, nystagmus, hypotonia.", flag: false },
+{ text: "<strong>Ipsilateral Signs:</strong> Cerebellar hemisphere lesions produce signs on the SAME side as the lesion (unlike cortical lesions).", flag: false },
+{ text: "<strong>🚨 Common Trap:</strong> Do NOT confuse cerebellar intention tremor (worsens with movement) with Parkinson's resting tremor (present at rest, disappears with movement).", flag: true },
+{ text: "<strong>🚨 Sensory vs Motor Ataxia:</strong> Sensory ataxia = stamping gait + positive Romberg + absent reflexes. Cerebellar ataxia = staggering gait + negative Romberg + pendular reflexes + nystagmus.", flag: true }
+],
+reasoning: [
+{ title: "🔬 Altered Physiology", body: "The cerebellum normally coordinates movement planning (via corticopontocerebellar pathway) and provides error correction during execution. Damage disrupts the feedforward and feedback loops that smooth voluntary movements." },
+{ title: "⚙️ Pathophysiology Mechanism", body: "Lesion in the left cerebellar hemisphere → loss of ipsilateral motor coordination → intention tremor, dysmetria, dysdiadochokinesia. Loss of facilitatory output → hypotonia and pendular reflexes. Vestibulocerebellar disruption → nystagmus and postural instability." },
+{ title: "🔄 Compensatory Response", body: "Wide-based gait adopted to increase base of support and stabilize center of gravity. Visual feedback CANNOT compensate (unlike sensory ataxia) because the error is in motor execution, not sensory input." },
+{ title: "✅ Final Diagnosis", body: "Cerebellar (motor) ataxia secondary to left cerebellar hemisphere lesion from traumatic injury (MVA). Key distinguishing features: negative Romberg, intention tremor, nystagmus, staggering gait." }
+],
+mcqs: [
+{
+stem: "A patient with cerebellar ataxia presents with a \"pendular knee jerk\" upon deep tendon reflex testing. What is the underlying physiological mechanism for this specific finding?",
+options: ["Exaggerated stretch reflex due to upper motor neuron loss", "Hyperexcitability of the alpha motor neurons", "Decreased muscle tone (hypotonia) lacking normal joint resistance", "Demyelination of the dorsal root ganglion"],
+correct: 2,
+explain: "Decreased facilitatory cerebellar output causes hypotonia; without normal muscle tone to provide resistance, the leg swings back and forth like a pendulum."
+},
+{
+stem: "When assessing a patient with ataxia, the physician asks the patient to stand with feet together and close their eyes. The patient sways significantly only when eyes are closed. What does this positive Romberg sign indicate?",
+options: ["Lesion in the cerebellar vermis", "Damage to proprioceptive pathways (sensory ataxia)", "Dysfunction of the lateral spinothalamic tract", "Motor ataxia due to basal ganglia disorder"],
+correct: 1,
+explain: "Positive Romberg = sensory ataxia (dorsal column damage). The patient compensates with vision but falls when visual cues are removed."
+},
+{
+stem: "Which of the following best describes the speech pattern associated with cerebellar ataxia?",
+options: ["Monotonous and fast", "Slurred, slow, and staccato", "Hyperkinetic and explosive", "Masked and quiet"],
+correct: 1,
+explain: "Cerebellar lesions disrupt coordination of speech muscles → slow, slurred, staccato (scanning) speech."
+},
+{
+stem: "A patient is asked to rapidly alternate between supinating and pronating their hands but is unable to do so smoothly. This clinical sign is defined as:",
+options: ["Dysmetria", "Akinesia", "Dysdiadochokinesia", "Bradykinesia"],
+correct: 2,
+explain: "Dysdiadochokinesia = inability to perform rapid alternating movements — hallmark of cerebellar dysfunction."
+},
+{
+stem: "Unlike a patient with sensory ataxia, a patient with cerebellar ataxia will exhibit which of the following?",
+options: ["Improvement in coordination with visual feedback", "A high-stepping, stamping gait", "Poor balance regardless of visual input", "Absent deep tendon reflexes"],
+correct: 2,
+explain: "Motor ataxia = defect in movement execution. Visual input does NOT correct the staggering gait or balance issues."
+},
+{
+stem: "A cerebellar lesion on the left side would produce motor signs on which side of the body?",
+options: ["Right side (contralateral)", "Left side (ipsilateral)", "Bilateral equally", "Depends on the tract involved"],
+correct: 1,
+explain: "Cerebellar hemisphere lesions produce IPSILATERAL signs because cerebellar output crosses twice (double decussation)."
+},
+{
+stem: "Which type of tremor is characteristic of cerebellar disease?",
+options: ["Resting tremor (pill-rolling)", "Intention tremor (worsens approaching target)", "Postural tremor (hands outstretched)", "Psychogenic tremor (variable frequency)"],
+correct: 1,
+explain: "Intention tremor worsens as the limb approaches its target, reflecting cerebellar error-correction failure."
+}
+],
+rapid: [
+"<strong>Cerebellar Signs (The Ds):</strong> Dysmetria, Dysdiadochokinesia, Drunken gait",
+"<strong>Tone:</strong> Cerebellar lesions → hypotonia → pendular reflexes",
+"<strong>Romberg:</strong> Negative in cerebellar ataxia (poor balance with eyes open AND closed)",
+"<strong>Tremor:</strong> Intention tremor (worsens with movement) — NOT resting tremor",
+"<strong>Laterality:</strong> Cerebellar hemisphere = ipsilateral signs",
+"<strong>Speech:</strong> Scanning / staccato speech",
+"<strong>Gait:</strong> Wide-based, staggering, drunken — NOT stamping",
+"<strong>Key Contrast:</strong> Sensory ataxia = positive Romberg, stamping gait, absent reflexes"
+]
+},
+{
+id: 1,
+icon: "🎯",
+color: "#8b5cf6",
+badge: "CASE 2 — BASAL GANGLIA",
+title: "Parkinson's Disease",
+subtitle: "A 65-year-old retired teacher presents with right-hand tremors for 8 months. His wife reports slower movements and difficulty initiating walking.",
+patient: {
+age: "65 years", gender: "Male", occupation: "Retired teacher",
+complaint: "Right-hand tremors × 8 months, slow movements",
+history: "Difficulty initiating walking, progressive"
+},
+findings: [
+{ text: "Resting (pill-rolling) tremor", abnormal: true, tip: "Present at rest, disappears with voluntary movement. Due to loss of basal ganglia suppression of unwanted movements." },
+{ text: "Lead-pipe / cogwheel rigidity", abnormal: true, tip: "Alpha rigidity — bidirectional, constant resistance in both flexors and extensors. Cogwheel = rigidity + tremor." },
+{ text: "Bradykinesia", abnormal: true, tip: "Slowness of movement due to excessive thalamic inhibition from overactive indirect pathway." },
+{ text: "Shuffling gait", abnormal: true, tip: "Short, shuffling steps because initiating large movements is impaired by profound cortical inhibition." },
+{ text: "Reduced arm swing", abnormal: true, tip: "Loss of automatic associated movements — basal ganglia normally facilitate unconscious background movements." },
+{ text: "Masked facial expression", abnormal: true, tip: "Loss of spontaneous facial movements (hypomimia) due to failure of basal ganglia to drive automatic movements." },
+{ text: "Normal sensory exam", abnormal: false, tip: "Sensory pathways are intact in Parkinson's disease." },
+{ text: "Normal cerebellar exam", abnormal: false, tip: "No dysmetria, no intention tremor, no nystagmus." }
+],
+labs: [
+{ label: "Tremor type", value: "Resting, pill-rolling", abnormal: true },
+{ label: "Rigidity", value: "Lead-pipe / cogwheel", abnormal: true },
+{ label: "Movement speed", value: "Bradykinetic", abnormal: true },
+{ label: "Gait", value: "Shuffling, festinating", abnormal: true },
+{ label: "Sensory exam", value: "Intact", abnormal: false },
+{ label: "Suspected pathology", value: "Substantia nigra degeneration", abnormal: true }
+],
+pearls: [
+{ text: "<strong>Direct Pathway = GO:</strong> Dopamine (via D1 receptors) stimulates the direct pathway, which facilitates movement by disinhibiting the thalamus.", flag: false },
+{ text: "<strong>Indirect Pathway = STOP:</strong> Dopamine (via D2 receptors) inhibits the indirect pathway, which normally suppresses movement. Without dopamine, this pathway becomes overactive → excessive motor inhibition.", flag: false },
+{ text: "<strong>Alpha vs Gamma Rigidity:</strong> Parkinson's = alpha rigidity (bidirectional, lead-pipe, equal in flexors/extensors). UMN lesion spasticity = gamma rigidity (unidirectional, clasp-knife, worse in anti-gravity muscles).", flag: false },
+{ text: "<strong>Resting vs Intention Tremor:</strong> Parkinson's = resting tremor (disappears with movement). Cerebellar = intention tremor (worsens with movement).", flag: false },
+{ text: "<strong>🚨 Common Trap:</strong> Parkinsonian rigidity is NOT spasticity. Rigidity = velocity-independent, affects all directions. Spasticity = velocity-dependent, affects one direction (anti-gravity).", flag: true },
+{ text: "<strong>🚨 DBS Target:</strong> Deep Brain Stimulation targets the globus pallidus or subthalamic nucleus to directly reduce excessive inhibitory output, bypassing the dopamine deficit.", flag: true }
+],
+reasoning: [
+{ title: "🔬 Altered Physiology", body: "Substantia nigra pars compacta degenerates → dopamine deficiency in the nigrostriatal pathway → loss of dopaminergic modulation of basal ganglia circuits (both direct and indirect pathways)." },
+{ title: "⚙️ Pathophysiology Mechanism", body: "Without dopamine: Direct pathway loses excitation → less facilitation of movement. Indirect pathway loses inhibition → becomes overactive → excessive inhibition of thalamus → cortex cannot initiate movement efficiently. Net result: bradykinesia, akinesia, rigidity." },
+{ title: "🔄 Compensatory Response", body: "Patients adopt shuffling gait with small steps to compensate for inability to generate large movements. External cues (visual lines on floor, rhythmic sounds) can temporarily improve gait initiation by bypassing basal ganglia circuits." },
+{ title: "✅ Final Diagnosis", body: "Parkinson's Disease: Classic triad of resting tremor + bradykinesia + rigidity. Loss of associated movements (masked face, reduced arm swing). Pathology: dopaminergic neuron loss in substantia nigra pars compacta." }
+],
+mcqs: [
+{
+stem: "Which neurotransmitter is primarily deficient in Parkinson's Disease?",
+options: ["Acetylcholine", "Serotonin", "Dopamine", "Norepinephrine"],
+correct: 2,
+explain: "Degeneration of the substantia nigra pars compacta causes dopamine deficit in the nigrostriatal pathway."
+},
+{
+stem: "In Parkinson's disease, the loss of dopamine affects basal ganglia circuitry. What is the physiological consequence on the direct and indirect pathways?",
+options: ["Stimulation of direct and inhibition of indirect", "Decreased stimulation of direct and decreased inhibition of indirect", "Hyperactivity of the motor cortex", "Selective destruction of D2 receptors"],
+correct: 1,
+explain: "Dopamine normally excites the direct pathway (D1) and inhibits the indirect pathway (D2). Without dopamine, both actions are lost → net motor inhibition."
+},
+{
+stem: "A patient with Parkinson's disease demonstrates rigidity during physical exam. Which description best defines the type of rigidity present?",
+options: ["Unidirectional clasp-knife spasticity", "Flaccid hypotonia", "Bidirectional alpha rigidity (lead-pipe or cogwheel)", "Gamma rigidity primarily in anti-gravity muscles"],
+correct: 2,
+explain: "Parkinsonian rigidity = alpha rigidity, affecting flexors and extensors equally, causing continuous 'lead-pipe' resistance. Cogwheel = rigidity + superimposed tremor."
+},
+{
+stem: "Why does a patient with Parkinson's disease exhibit a \"masked face\" and decreased arm swing during walking?",
+options: ["Degeneration of facial motor neurons", "Loss of basal ganglia's ability to facilitate automatic associated movements", "Primary lesion in the cerebellar vermis", "Hyperactive stretch reflexes in the upper limbs"],
+correct: 1,
+explain: "The basal ganglia normally drive automatic, unconscious background movements (arm swing, facial expressions). Dopamine loss impairs this function."
+},
+{
+stem: "What is the classic type of tremor seen in Parkinson's disease?",
+options: ["Intention tremor", "Postural tremor", "Action tremor", "Resting tremor"],
+correct: 3,
+explain: "Resting (static) tremor — classically 'pill-rolling' — occurs when limbs are stationary and diminishes with purposeful movement."
+},
+{
+stem: "Which structure is the primary site of neuronal degeneration in Parkinson's Disease?",
+options: ["Caudate nucleus", "Subthalamic nucleus", "Substantia nigra pars compacta", "Globus pallidus externa"],
+correct: 2,
+explain: "Dopaminergic neurons in the substantia nigra pars compacta degenerate, reducing dopamine delivery to the striatum."
+},
+{
+stem: "Deep Brain Stimulation (DBS) can help Parkinson's patients by targeting which structure?",
+options: ["Caudate nucleus", "Red nucleus", "Globus pallidus / Subthalamic nucleus", "Cerebellar vermis"],
+correct: 2,
+explain: "DBS of the globus pallidus or subthalamic nucleus directly reduces excessive inhibitory output to the thalamus, bypassing the dopamine deficit."
+}
+],
+rapid: [
+"<strong>Pathology:</strong> Substantia nigra pars compacta degeneration → dopamine deficiency",
+"<strong>Direct Pathway:</strong> Facilitates movement (GO) — loses excitation without dopamine",
+"<strong>Indirect Pathway:</strong> Inhibits movement (STOP) — becomes overactive without dopamine",
+"<strong>Net Effect:</strong> Excessive thalamic inhibition → difficulty initiating movement",
+"<strong>Key Signs:</strong> Resting tremor, bradykinesia, lead-pipe/cogwheel rigidity, shuffling gait",
+"<strong>Rigidity Type:</strong> Alpha rigidity (bidirectional) — NOT gamma/spasticity (unidirectional)",
+"<strong>Tremor Type:</strong> Resting (pill-rolling) — disappears with voluntary movement",
+"<strong>Lost Functions:</strong> Associated movements (arm swing, facial expression)"
+]
+},
+{
+id: 2,
+icon: "🔗",
+color: "#f59e0b",
+badge: "CASE 3 — SENSORY PATHWAYS",
+title: "Tabes Dorsalis (Neurosyphilis)",
+subtitle: "A 55-year-old man with a history of untreated syphilis presents with progressive walking difficulty, worse in the dark.",
+patient: {
+age: "55 years", gender: "Male", occupation: "Not specified",
+complaint: "Progressive gait unsteadiness × 1 year, worse in dark",
+history: "Untreated syphilis"
+},
+findings: [
+{ text: "Absent knee reflexes", abnormal: true, tip: "Dorsal root damage destroys the afferent (sensory) limb of the reflex arc → areflexia." },
+{ text: "Absent ankle reflexes", abnormal: true, tip: "Same mechanism — sensory afferent fibers from the ankle reflex arc are destroyed." },
+{ text: "Positive Romberg sign", abnormal: true, tip: "Patient sways/falls ONLY when eyes are closed — indicates reliance on vision to compensate for lost proprioception." },
+{ text: "Decreased touch sensation (legs)", abnormal: true, tip: "Fine touch carried by dorsal columns is lost due to demyelination." },
+{ text: "Decreased vibration sense (legs)", abnormal: true, tip: "Vibration sense travels in the dorsal columns → lost with dorsal column degeneration." },
+{ text: "Decreased proprioception (legs)", abnormal: true, tip: "Conscious proprioception travels via dorsal columns → lost → patient cannot sense limb position." },
+{ text: "High-stepping/stamping gait", abnormal: true, tip: "Patient lifts legs high and stamps down to use sound and deep pressure as feedback (compensating for lost proprioception)." },
+{ text: "Pain/temperature intact", abnormal: false, tip: "Pain and temperature travel via the anterolateral (spinothalamic) system — NOT through dorsal columns. Spared in Tabes Dorsalis." }
+],
+labs: [
+{ label: "Knee jerk reflex", value: "Absent", abnormal: true },
+{ label: "Ankle jerk reflex", value: "Absent", abnormal: true },
+{ label: "Romberg test", value: "Positive", abnormal: true },
+{ label: "Proprioception", value: "Absent (lower limbs)", abnormal: true },
+{ label: "Vibration", value: "Absent (lower limbs)", abnormal: true },
+{ label: "Pain/Temperature", value: "Intact", abnormal: false },
+{ label: "Syphilis history", value: "Untreated", abnormal: true }
+],
+pearls: [
+{ text: "<strong>Positive Romberg = Sensory Ataxia:</strong> Patient stands with eyes open (vision compensates for lost proprioception). Eyes closed → loss of BOTH proprioception AND vision → patient sways/falls. This strictly diagnoses a proprioceptive (dorsal column) deficit.", flag: false },
+{ text: "<strong>Dorsal Column Contents:</strong> Fine touch, vibration, conscious proprioception, two-point discrimination. Travels ipsilaterally, crosses at the medulla (medial lemniscus).", flag: false },
+{ text: "<strong>Stamping Gait Explained:</strong> Patient cannot 'feel' the ground → lifts legs excessively high → stamps down hard → uses sound and deep pressure feedback to confirm foot placement.", flag: false },
+{ text: "<strong>Why Areflexia?</strong> The reflex arc requires intact sensory afferents (Ia fibers). Dorsal root demyelination destroys these fibers → no signal reaches the spinal cord → no reflex.", flag: false },
+{ text: "<strong>🚨 Trap:</strong> Pain/temperature are INTACT in Tabes Dorsalis. These travel via the anterolateral (spinothalamic) system, which is completely separate from the dorsal columns.", flag: true },
+{ text: "<strong>🚨 Sensory vs Motor Ataxia:</strong> Sensory ataxia (Tabes) = positive Romberg, stamping gait, areflexia, vision helps. Cerebellar ataxia = negative Romberg, staggering gait, pendular reflexes, vision does NOT help.", flag: true }
+],
+reasoning: [
+{ title: "🔬 Altered Physiology", body: "Dorsal columns (fasciculus gracilis and cuneatus) carry conscious proprioception, fine touch, and vibration from the periphery to the brain. Dorsal roots carry the afferent limb of deep tendon reflex arcs." },
+{ title: "⚙️ Pathophysiology Mechanism", body: "Late-stage neurosyphilis (Treponema pallidum) causes demyelination and degeneration of dorsal columns and dorsal roots. Loss of proprioception → brain cannot determine limb position → sensory ataxia. Loss of afferent reflex fibers → areflexia." },
+{ title: "🔄 Compensatory Response", body: "Vision becomes the primary balance sense (positive Romberg). Stamping gait provides auditory and deep pressure feedback. Patient walks worse in dark (vision removed). Wide-based gait increases stability." },
+{ title: "✅ Final Diagnosis", body: "Tabes Dorsalis (neurosyphilis) — dorsal column and dorsal root degeneration. Sensory ataxia with positive Romberg, stamping gait, areflexia, and loss of proprioception/vibration/fine touch with INTACT pain/temperature." }
+],
+mcqs: [
+{
+stem: "A 55-year-old man with untreated syphilis presents with a stamping gait. Examination reveals loss of two-point discrimination and vibration sense in his lower limbs. Which spinal cord structure is primarily affected?",
+options: ["Lateral spinothalamic tract", "Anterior horn cells", "Dorsal columns", "Anterior white commissure"],
+correct: 2,
+explain: "Tabes dorsalis causes demyelination of the dorsal columns, which carry fine touch, vibration, two-point discrimination, and proprioception."
+},
+{
+stem: "Why does a patient with Tabes Dorsalis develop a \"stamping\" or high-stepping gait?",
+options: ["Hyperactive stretch reflexes force the leg to extend violently", "The patient is compensating for flaccid paralysis of the calf muscles", "They lift the leg high and stamp to use sound and deep pressure to confirm the foot has hit the floor", "Damage to the cerebellum causes dysmetria of the lower limbs"],
+correct: 2,
+explain: "Due to loss of proprioception and fine touch, the patient stamps the ground for auditory and deep pressure feedback."
+},
+{
+stem: "What causes the absent deep tendon reflexes (areflexia) at the knee and ankle in this patient?",
+options: ["Degeneration of upper motor neurons in the corticospinal tract", "Damage to the dorsal sensory roots breaking the afferent reflex arc", "Severe hypotonia from a concomitant cerebellar lesion", "Degeneration of alpha motor neurons in the anterior horn"],
+correct: 1,
+explain: "Demyelination of dorsal roots destroys the incoming sensory (Ia afferent) fibers necessary to complete the reflex arc."
+},
+{
+stem: "A positive Romberg sign in this patient specifically indicates a deficit in which of the following modalities?",
+options: ["Conscious proprioception", "Pain and temperature sensation", "Motor execution", "Vestibular function"],
+correct: 0,
+explain: "Positive Romberg highlights inability to detect joint/limb position (proprioception) once visual compensation is removed."
+},
+{
+stem: "Which of the following sensory modalities would remain INTACT in a patient with pure Tabes Dorsalis?",
+options: ["Vibration", "Fine touch", "Joint position sense", "Pain and temperature"],
+correct: 3,
+explain: "Pain and temperature travel via the anterolateral (spinothalamic) system, which is unaffected in Tabes Dorsalis (dorsal column lesion)."
+},
+{
+stem: "The dorsal column fibers decussate at which level?",
+options: ["At the level of spinal cord entry", "In the anterior white commissure", "In the medulla (as the medial lemniscus)", "In the internal capsule"],
+correct: 2,
+explain: "Dorsal column fibers ascend ipsilaterally in the spinal cord and cross at the medulla to form the medial lemniscus."
+},
+{
+stem: "A patient with Tabes Dorsalis has significantly more difficulty walking at night. This is because:",
+options: ["Cerebellar function declines at night", "Vision — the remaining compensatory sense — is reduced in darkness", "Motor neuron excitability decreases at night", "Pain sensation worsens in cold temperatures"],
+correct: 1,
+explain: "Without proprioception, the patient depends entirely on vision. Reduced visibility (darkness) removes this compensation, worsening ataxia."
+}
+],
+rapid: [
+"<strong>Lesion:</strong> Dorsal columns + dorsal roots (neurosyphilis demyelination)",
+"<strong>Lost:</strong> Proprioception, fine touch, vibration, two-point discrimination",
+"<strong>Intact:</strong> Pain and temperature (anterolateral system spared)",
+"<strong>Romberg:</strong> POSITIVE (sways/falls only with eyes closed)",
+"<strong>Gait:</strong> High-stepping / stamping (compensatory feedback)",
+"<strong>Reflexes:</strong> Absent (afferent reflex arc destroyed)",
+"<strong>Worse in dark:</strong> Vision = only remaining balance sense",
+"<strong>Key Contrast with Cerebellar:</strong> Cerebellar = negative Romberg, staggering gait, pendular reflexes"
+]
+},
+{
+id: 3,
+icon: "💧",
+color: "#ef4444",
+badge: "CASE 4 — SPINAL CORD",
+title: "Syringomyelia",
+subtitle: "A 35-year-old female presents with progressive weakness in both hands and inability to feel pain or temperature changes.",
+patient: {
+age: "35 years", gender: "Female", occupation: "Not specified",
+complaint: "Progressive bilateral hand weakness, loss of pain/temp sensation",
+history: "1-year progressive course"
+},
+findings: [
+{ text: "Dissociated sensory loss", abnormal: true, tip: "Loss of pain/temperature with PRESERVED fine touch and proprioception — because spinothalamic fibers cross at the cord level (damaged) while dorsal columns do not (spared)." },
+{ text: "Cape-like distribution", abnormal: true, tip: "Sensory loss over shoulders, arms, and upper chest — corresponds to C4-T1 dermatomes where the syrinx is located." },
+{ text: "Loss of pain sensation (bilateral arms)", abnormal: true, tip: "Crossing spinothalamic fibers destroyed bilaterally by the central cyst." },
+{ text: "Loss of temperature sensation (bilateral arms)", abnormal: true, tip: "Temperature fibers travel with pain fibers in the spinothalamic tract — both lost." },
+{ text: "Preserved fine touch", abnormal: false, tip: "Fine touch travels in dorsal columns, which are located posteriorly — not compressed by the central syrinx." },
+{ text: "Preserved proprioception", abnormal: false, tip: "Proprioception in dorsal columns remains intact as the syrinx is central, not posterior." },
+{ text: "Flaccid hand weakness (bilateral)", abnormal: true, tip: "Syrinx expansion into anterior horns destroys LMN cell bodies → flaccid paralysis and atrophy." },
+{ text: "Hand muscle atrophy", abnormal: true, tip: "Lower motor neuron destruction causes denervation atrophy of intrinsic hand muscles." },
+{ text: "Central cavity C4-T1 on MRI", abnormal: true, tip: "Fluid-filled cyst (syrinx) in the central spinal canal, most commonly in lower cervical / upper thoracic segments." }
+],
+labs: [
+{ label: "MRI Cervical Spine", value: "Central syrinx C4-T1", abnormal: true },
+{ label: "Pain/Temperature", value: "Absent (cape distribution)", abnormal: true },
+{ label: "Fine touch", value: "Intact", abnormal: false },
+{ label: "Proprioception", value: "Intact", abnormal: false },
+{ label: "Hand intrinsic muscles", value: "Flaccid, atrophic", abnormal: true },
+{ label: "Deep tendon reflexes (arms)", value: "Absent (LMN)", abnormal: true }
+],
+pearls: [
+{ text: "<strong>Dissociated Sensory Loss Explained:</strong> Spinothalamic fibers (pain/temp) cross IMMEDIATELY at the spinal cord level via the anterior white commissure → destroyed by central syrinx. Dorsal column fibers (touch/proprioception) travel ipsilaterally and cross at the MEDULLA → spared.", flag: false },
+{ text: "<strong>Cape-Like Distribution:</strong> Syrinx at C4-T1 → affects dermatomes of shoulders, arms, and upper chest → pattern resembles a cape or jacket draped over the shoulders.", flag: false },
+{ text: "<strong>LMN Signs from Anterior Horn Damage:</strong> As syrinx expands laterally into anterior horns → destroys LMN cell bodies → flaccid paralysis, atrophy, fasciculations, absent reflexes in the hands.", flag: false },
+{ text: "<strong>Susceptibility to Burns:</strong> Patients cannot feel pain or temperature in affected areas → frequently suffer burns and injuries without awareness. This is a major clinical concern.", flag: false },
+{ text: "<strong>🚨 Why 'Dissociated'?</strong> Because ONE sensory system is destroyed (pain/temp) while the OTHER is intact (touch/proprioception). This ONLY happens when the lesion is at the crossing point of spinothalamic fibers (anterior white commissure).", flag: true },
+{ text: "<strong>🚨 Trap — LMN not UMN:</strong> Hand weakness is LOWER motor neuron type (flaccid, atrophic) because anterior horn cells are directly destroyed. Do NOT confuse with UMN signs (spastic, hyperreflexic).", flag: true }
+],
+reasoning: [
+{ title: "🔬 Altered Physiology", body: "Pain and temperature fibers enter the dorsal horn and immediately decussate via the anterior white commissure (in front of the central canal) to join the lateral spinothalamic tract. Dorsal column fibers ascend ipsilaterally without crossing at the spinal cord level." },
+{ title: "⚙️ Pathophysiology Mechanism", body: "Step 1: Central syrinx compresses the anterior white commissure → bilateral destruction of crossing spinothalamic fibers → loss of pain/temp in a cape-like distribution. Dorsal columns (posterior) are spared → touch/proprioception preserved = dissociated sensory loss. Step 2: Syrinx expands laterally into anterior horns → LMN destruction → flaccid atrophy of hand muscles." },
+{ title: "🔄 Compensatory Response", body: "Preserved dorsal column function allows patients to still feel objects and coordinate movements via proprioception. However, they are highly susceptible to painless burns and injuries due to absent pain/temperature sensation — a major clinical danger." },
+{ title: "✅ Final Diagnosis", body: "Syringomyelia — fluid-filled cyst (syrinx) in the central cervical spinal cord (C4-T1). Dissociated sensory loss (pain/temp lost, touch/proprioception intact) in cape-like distribution. LMN hand weakness from anterior horn involvement." }
+],
+mcqs: [
+{
+stem: "A patient presents with loss of pain and temperature sensation over her shoulders and both arms, but can still feel fine touch and vibration. MRI reveals a central cystic expansion in the cervical spinal cord. The sensory deficit is caused by damage to which structure?",
+options: ["Dorsal columns", "Lateral corticospinal tract", "Anterior white commissure", "Ventral horns"],
+correct: 2,
+explain: "The expanding syrinx compresses the anterior white commissure, destroying the crossing fibers of the lateral spinothalamic tracts (pain/temperature)."
+},
+{
+stem: "Why does syringomyelia result in \"dissociated\" sensory loss?",
+options: ["The lesion selectively damages dorsal columns while leaving spinothalamic tract intact", "Spinothalamic fibers cross at the spinal cord level, while dorsal column fibers do not cross until the medulla", "The lesion damages upper motor neurons but spares lower motor neurons", "Fluid only accumulates in the peripheral nerves"],
+correct: 1,
+explain: "The syrinx compresses the center of the cord where pain/temp fibers cross (anterior commissure), but spares the posterior dorsal columns (touch/proprioception) which travel uncrossed until the medulla."
+},
+{
+stem: "As syringomyelia progresses, a patient develops flaccid paralysis and atrophy in the intrinsic muscles of both hands. This is due to expansion of the syrinx into which area?",
+options: ["Anterior (ventral) horns", "Posterior (dorsal) horns", "Spinothalamic tract", "Fasciculus cuneatus"],
+correct: 0,
+explain: "Expansion into anterior horns destroys lower motor neurons supplying the upper limbs → flaccid, atrophic weakness."
+},
+{
+stem: "Which of the following describes the classic sensory deficit distribution in a patient with a cervical syrinx (C4-T1)?",
+options: ["Hemisensory loss on the contralateral side", "Stocking-glove distribution in the extremities", "Cape-like (jacket) distribution over the shoulders and arms", "Complete sensory loss below the umbilicus"],
+correct: 2,
+explain: "C4-T1 segments supply the shoulders and arms → 'jacket' or 'cape-like' pattern of bilateral sensory loss."
+},
+{
+stem: "What type of muscle tone would you expect to find in the hands of a patient with advanced syringomyelia?",
+options: ["Spasticity", "Lead-pipe rigidity", "Flaccidity", "Clasp-knife rigidity"],
+correct: 2,
+explain: "Anterior horn cell damage = LMN lesion → hypotonia (flaccidity), atrophy, absent reflexes."
+},
+{
+stem: "A patient with syringomyelia is at high risk for which of the following complications due to their sensory deficit?",
+options: ["Hearing loss", "Painless burns and injuries to the hands", "Visual field defects", "Urinary incontinence"],
+correct: 1,
+explain: "Loss of pain/temperature sensation means patients cannot feel burns, cuts, or thermal injuries — leading to silent tissue damage."
+},
+{
+stem: "If the syrinx were to expand posteriorly into the dorsal columns, which additional deficit would appear?",
+options: ["Loss of motor function below the lesion", "Loss of fine touch and proprioception at the level of the lesion", "Loss of pain sensation in the lower extremities", "Cerebellar ataxia"],
+correct: 1,
+explain: "Dorsal columns carry fine touch, vibration, and proprioception. Posterior expansion would destroy these modalities at the affected levels."
+}
+],
+rapid: [
+"<strong>Pathology:</strong> Fluid-filled cyst (syrinx) in central cervical spinal cord",
+"<strong>Step 1 Damage:</strong> Anterior white commissure → bilateral loss of pain/temp (spinothalamic crossing fibers)",
+"<strong>Step 2 Damage:</strong> Anterior horns → LMN signs (flaccid atrophy of hands)",
+"<strong>Spared:</strong> Dorsal columns (fine touch, proprioception, vibration) — located posteriorly",
+"<strong>Distribution:</strong> Cape-like / jacket pattern (C4-T1 dermatomes)",
+"<strong>Key Concept:</strong> Dissociated sensory loss = one pathway destroyed, other intact",
+"<strong>Why dissociated:</strong> Spinothalamic crosses at cord (destroyed) vs dorsal columns cross at medulla (spared)",
+"<strong>Clinical danger:</strong> Painless burns and injuries due to absent pain/temp sensation"
+]
+}
+];
+
+let state = {
+currentCase: 0,
+currentTab: 0,
+scores: {},
+streaks: {},
+mistakes: {},
+darkMode: true,
+lastCase: 0
+};
+
+function loadState() {
+try {
+const s = localStorage.getItem('physCaseLib');
+if (s) {
+const parsed = JSON.parse(s);
+Object.assign(state, parsed);
+}
+} catch(e) {}
+}
+
+function saveState() {
+try {
+localStorage.setItem('physCaseLib', JSON.stringify(state));
+} catch(e) {}
+}
+
+function toggleTheme() {
+state.darkMode = !state.darkMode;
+document.body.classList.toggle('light', !state.darkMode);
+document.getElementById('themeToggle').textContent = state.darkMode ? '🌙' : '☀️';
+document.getElementById('mobileTheme').textContent = state.darkMode ? '🌙' : '☀️';
+saveState();
+}
+
+function selectCase(id) {
+id = parseInt(id);
+state.currentCase = id;
+state.currentTab = 0;
+state.lastCase = id;
+saveState();
+renderAll();
+}
+
+function selectTab(idx) {
+state.currentTab = idx;
+renderTabContent();
+document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i === idx));
+}
+
+function initScores(caseId) {
+if (!state.scores[caseId]) state.scores[caseId] = { correct: 0, total: 0, answered: {} };
+if (!state.streaks[caseId]) state.streaks[caseId] = 0;
+if (!state.mistakes[caseId]) state.mistakes[caseId] = [];
+}
+
+function getGlobalStats() {
+let totalCorrect = 0, totalAnswered = 0, maxStreak = 0;
+Object.values(state.scores).forEach(s => { totalCorrect += s.correct; totalAnswered += s.total; });
+Object.values(state.streaks).forEach(s => { if (s > maxStreak) maxStreak = s; });
+return { totalCorrect, totalAnswered, maxStreak };
+}
+
+function renderSidebar() {
+const list = document.getElementById('caseList');
+list.innerHTML = CASES.map(c => `
+<div class="case-item ${state.currentCase === c.id ? 'active' : ''}" onclick="selectCase(${c.id})">
+<div class="case-icon" style="background:${c.color}22;color:${c.color}">${c.icon}</div>
+<div class="case-item-text">
+<h3>${c.title}</h3>
+<p>${c.badge}</p>
+</div>
+</div>
+`).join('');
+
+const sel = document.getElementById('mobileSelect');
+sel.innerHTML = CASES.map(c => `<option value="${c.id}" ${state.currentCase === c.id ? 'selected' : ''}>${c.icon} ${c.title}</option>`).join('');
+
+const gs = getGlobalStats();
+document.getElementById('globalStats').innerHTML = `🔥 ${gs.maxStreak} | ✅ ${gs.totalCorrect}/${gs.totalAnswered}`;
+}
+
+function renderHeader() {
+const c = CASES[state.currentCase];
+document.getElementById('caseHeader').innerHTML = `
+<div class="case-badge">${c.badge}</div>
+<div class="case-title">${c.icon} ${c.title}</div>
+<div class="case-subtitle">${c.subtitle}</div>
+`;
+}
+
+const TABS = [
+{ icon: '📂', label: 'Case File' },
+{ icon: '💡', label: 'Physio Pearls' },
+{ icon: '🔍', label: 'Clinical Reasoning' },
+{ icon: '📝', label: 'Exam MCQs' },
+{ icon: '⚡', label: 'Rapid Review' }
+];
+
+function renderTabs() {
+document.getElementById('tabBar').innerHTML = TABS.map((t,i) => `
+<button class="tab-btn ${state.currentTab === i ? 'active' : ''}" onclick="selectTab(${i})">${t.icon} ${t.label}</button>
+`).join('');
+}
+
+function renderTabContent() {
+const container = document.getElementById('tabContent');
+container.className = 'tab-content fade-in';
+const c = CASES[state.currentCase];
+initScores(c.id);
+
+switch(state.currentTab) {
+case 0: renderCaseFile(container, c); break;
+case 1: renderPearls(container, c); break;
+case 2: renderReasoning(container, c); break;
+case 3: renderMCQs(container, c); break;
+case 4: renderRapid(container, c); break;
+}
+}
+
+function renderCaseFile(el, c) {
+const p = c.patient;
+el.innerHTML = `
+<div class="content-card">
+<div class="card-header">
+<div class="card-icon" style="background:${c.color}22;color:${c.color}">👤</div>
+<h3>Patient Profile</h3>
+</div>
+<div class="profile-grid">
+<div class="profile-item"><label>Age</label><span>${p.age}</span></div>
+<div class="profile-item"><label>Gender</label><span>${p.gender}</span></div>
+<div class="profile-item"><label>Occupation</label><span>${p.occupation}</span></div>
+<div class="profile-item"><label>Chief Complaint</label><span>${p.complaint}</span></div>
+<div class="profile-item"><label>History</label><span>${p.history}</span></div>
+</div>
+</div>
+<div class="content-card">
+<div class="card-header">
+<div class="card-icon" style="background:#f59e0b22;color:#f59e0b">🔎</div>
+<h3>Key Findings <span style="font-size:11px;color:var(--text2);font-weight:400">(hover/tap for explanation)</span></h3>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:4px">
+${c.findings.map((f,i) => `<span class="finding-tag ${f.abnormal ? 'abnormal' : 'normal'}" data-tip="${f.tip}" onmouseenter="showTip(event)" onmouseleave="hideTip()" ontouchstart="showTip(event)">${f.abnormal ? '⚠️' : '✅'} ${f.text}</span>`).join('')}
+</div>
+</div>
+<div class="content-card">
+<div class="card-header">
+<div class="card-icon" style="background:#8b5cf622;color:#8b5cf6">📊</div>
+<h3>Investigations & Results</h3>
+</div>
+<div class="profile-grid">
+${c.labs.map(l => `<div class="profile-item" style="${l.abnormal ? 'border-color:rgba(239,68,68,0.4)' : ''}"><label>${l.label}</label><span style="${l.abnormal ? 'color:var(--red)' : 'color:var(--green)'}">${l.value}</span></div>`).join('')}
+</div>
+</div>
+`;
+}
+
+function showTip(e) {
+const tip = e.target.getAttribute('data-tip');
+if (!tip) return;
+const tt = document.getElementById('tooltip');
+tt.textContent = tip;
+tt.style.display = 'block';
+const rect = e.target.getBoundingClientRect();
+let left = rect.left;
+let top = rect.bottom + 8;
+if (left + 280 > window.innerWidth) left = window.innerWidth - 290;
+if (left < 10) left = 10;
+if (top + 100 > window.innerHeight) top = rect.top - 80;
+tt.style.left = left + 'px';
+tt.style.top = top + 'px';
+}
+
+function hideTip() {
+document.getElementById('tooltip').style.display = 'none';
+}
+
+function renderPearls(el, c) {
+el.innerHTML = `
+<div class="content-card">
+<div class="card-header">
+<div class="card-icon" style="background:#06b6d422;color:#06b6d4">💡</div>
+<h3>Physiology Pearls & Exam Tips</h3>
+</div>
+${c.pearls.filter(p => !p.flag).map(p => `<div class="pearl-card">${p.text}</div>`).join('')}
+</div>
+<div class="content-card">
+<div class="card-header">
+<div class="card-icon" style="background:#ef444422;color:#ef4444">🚨</div>
+<h3>Red Flags & Common Traps</h3>
+</div>
+${c.pearls.filter(p => p.flag).map(p => `<div class="pearl-card red-flag">${p.text}</div>`).join('')}
+</div>
+`;
+}
+
+function renderReasoning(el, c) {
+el.innerHTML = `
+<div class="content-card">
+<div class="card-header">
+<div class="card-icon" style="background:#10b98122;color:#10b981">🔍</div>
+<h3>Clinical Reasoning (tap to reveal)</h3>
+</div>
+${c.reasoning.map((r,i) => `
+<div class="reveal-card" id="reveal-${i}" onclick="toggleReveal(${i})">
+<div class="reveal-header">
+<h4>${r.title}</h4>
+<span class="reveal-arrow">▼</span>
+</div>
+<div class="reveal-body">
+<div class="reveal-body-inner">${r.body}</div>
+</div>
+</div>
+`).join('')}
+</div>
+`;
+}
+
+function toggleReveal(i) {
+document.getElementById('reveal-' + i).classList.toggle('open');
+}
+
+function renderMCQs(el, c) {
+const sc = state.scores[c.id];
+const streak = state.streaks[c.id];
+const mistakes = state.mistakes[c.id] || [];
+
+el.innerHTML = `
+<div class="mcq-container">
+<div class="mcq-header">
+<h3>📝 Exam MCQs (${c.mcqs.length} Questions)</h3>
+<div class="score-display">
+<div class="score-item">✅ ${sc.correct}/${sc.total}</div>
+<div class="score-item">🔥 Streak: ${streak}</div>
+<div class="score-item" style="cursor:pointer" onclick="resetCase(${c.id})">🔄 Reset</div>
+</div>
+</div>
+${c.mcqs.map((q,qi) => renderMCQ(q, qi, c.id)).join('')}
+${mistakes.length > 0 ? `
+<div class="mistakes-section">
+<div class="content-card">
+<div class="card-header">
+<div class="card-icon" style="background:#ef444422;color:#ef4444">❌</div>
+<h3>Mistake Review</h3>
+</div>
+${mistakes.map(m => `
+<div class="mistake-item">
+<div class="m-q">Q${m.qNum + 1}: ${m.stem.substring(0, 80)}...</div>
+<div class="m-a">Your answer: ${m.yourAnswer}</div>
+<div class="m-c">Correct: ${m.correctAnswer}</div>
+</div>
+`).join('')}
+</div>
+</div>
+` : ''}
+</div>
+`;
+}
+
+function renderMCQ(q, qi, caseId) {
+const sc = state.scores[caseId];
+const answered = sc.answered[qi] !== undefined;
+const userAns = sc.answered[qi];
+const letters = ['A','B','C','D'];
+
+return `
+<div class="mcq-card">
+<div class="mcq-stem"><span class="q-num">${qi + 1}</span>${q.stem}</div>
+<div class="mcq-options">
+${q.options.map((o,oi) => {
+let cls = 'mcq-option';
+if (answered) {
+cls += ' disabled';
+if (oi === q.correct) cls += ' correct';
+else if (oi === userAns && userAns !== q.correct) cls += ' wrong';
+}
+return `<div class="${cls}" onclick="${answered ? '' : `answerMCQ(${caseId},${qi},${oi})`}">
+<span class="opt-letter">${letters[oi]}</span>
+<span>${o}</span>
+</div>`;
+}).join('')}
+</div>
+<div class="mcq-explain ${answered ? 'show' : ''} ${answered ? (userAns === q.correct ? 'correct-exp' : 'wrong-exp') : ''}">
+${answered ? (userAns === q.correct ? '✅ Correct! ' : '❌ Incorrect. ') + q.explain : ''}
+</div>
+</div>
+`;
+}
+
+function answerMCQ(caseId, qi, oi) {
+const sc = state.scores[caseId];
+if (sc.answered[qi] !== undefined) return;
+
+const q = CASES[caseId].mcqs[qi];
+sc.answered[qi] = oi;
+sc.total++;
+
+if (oi === q.correct) {
+sc.correct++;
+state.streaks[caseId]++;
+} else {
+state.streaks[caseId] = 0;
+if (!state.mistakes[caseId]) state.mistakes[caseId] = [];
+const letters = ['A','B','C','D'];
+state.mistakes[caseId].push({
+qNum: qi,
+stem: q.stem,
+yourAnswer: letters[oi] + '. ' + q.options[oi],
+correctAnswer: letters[q.correct] + '. ' + q.options[q.correct]
+});
+}
+
+saveState();
+renderMCQs(document.getElementById('tabContent'), CASES[caseId]);
+renderSidebar();
+}
+
+function resetCase(caseId) {
+state.scores[caseId] = { correct: 0, total: 0, answered: {} };
+state.streaks[caseId] = 0;
+state.mistakes[caseId] = [];
+saveState();
+renderMCQs(document.getElementById('tabContent'), CASES[caseId]);
+renderSidebar();
+}
+
+function renderRapid(el, c) {
+el.innerHTML = `
+<div class="content-card">
+<div class="card-header">
+<div class="card-icon" style="background:#f59e0b22;color:#f59e0b">⚡</div>
+<h3>Rapid Revision — ${c.title}</h3>
+</div>
+<ul class="rapid-list">
+${c.rapid.map(r => `<li>${r}</li>`).join('')}
+</ul>
+</div>
+`;
+}
+
+function renderAll() {
+renderSidebar();
+renderHeader();
+renderTabs();
+renderTabContent();
+}
+
+// Init
+loadState();
+if (!state.darkMode) document.body.classList.add('light');
+document.getElementById('themeToggle').textContent = state.darkMode ? '🌙' : '☀️';
+document.getElementById('mobileTheme').textContent = state.darkMode ? '🌙' : '☀️';
+if (state.lastCase !== undefined) state.currentCase = state.lastCase;
+renderAll();
+
+// Close tooltip on scroll/click elsewhere
+document.addEventListener('click', (e) => {
+if (!e.target.classList.contains('finding-tag')) hideTip();
+});
+document.addEventListener('scroll', hideTip, true);
+</script>
+</body>
+</html>
