@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clinical Neurophysiology & Pathology Case Library</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#0a0e1a;--surface:#111827;--surface2:#1a2235;--surface3:#232d42;
+--accent:#00d4aa;--accent2:#00b894;--accent3:#0984e3;--accent4:#6c5ce7;
+--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
+--danger:#ef4444;--success:#22c55e;--warning:#f59e0b;
+--border:#1e293b;--glow:rgba(0,212,170,0.15);
+--card-radius:16px;--btn-radius:10px;
+}
+.light-mode{
+--bg:#f0f4f8;--surface:#ffffff;--surface2:#f8fafc;--surface3:#e2e8f0;
+--text:#1e293b;--text2:#475569;--text3:#94a3b8;
+--border:#cbd5e1;--glow:rgba(0,212,170,0.08);
+}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:all .3s}
+/* Animated background */
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;
+background:radial-gradient(ellipse at 20% 50%,rgba(0,212,170,0.03) 0%,transparent 50%),
+radial-gradient(ellipse at 80% 20%,rgba(9,132,227,0.03) 0%,transparent 50%),
+radial-gradient(ellipse at 50% 80%,rgba(108,92,231,0.03) 0%,transparent 50%)}
+/* ECG line animation */
+.ecg-line{position:fixed;bottom:0;left:0;width:100%;height:60px;opacity:.06;pointer-events:none;z-index:0;overflow:hidden}
+.ecg-line svg{width:200%;height:100%;animation:ecgScroll 8s linear infinite}
+@keyframes ecgScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+/* Layout */
+.app-container{display:flex;min-height:100vh;position:relative;z-index:1}
+/* Sidebar */
+.sidebar{width:280px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;transition:transform .3s}
+.sidebar-header{padding:20px;border-bottom:1px solid var(--border)}
+.sidebar-logo{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.sidebar-logo .logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.sidebar-logo h1{font-size:15px;font-weight:700;color:var(--text);line-height:1.2}
+.sidebar-logo h1 span{color:var(--accent);font-size:11px;display:block;font-weight:500}
+.sidebar-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:16px 20px;border-bottom:1px solid var(--border)}
+.stat-box{background:var(--surface2);border-radius:10px;padding:10px;text-align:center}
+.stat-box .stat-val{font-size:20px;font-weight:700;color:var(--accent)}
+.stat-box .stat-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.case-list{flex:1;overflow-y:auto;padding:12px}
+.case-item{padding:14px 16px;border-radius:12px;cursor:pointer;margin-bottom:6px;transition:all .2s;border:1px solid transparent}
+.case-item:hover{background:var(--surface2);border-color:var(--border)}
+.case-item.active{background:var(--glow);border-color:var(--accent);box-shadow:0 0 20px rgba(0,212,170,0.1)}
+.case-item .case-num{font-size:10px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.case-item .case-title{font-size:13px;font-weight:600;color:var(--text);margin-top:3px;line-height:1.3}
+.case-item .case-tag{display:inline-block;font-size:9px;padding:2px 8px;border-radius:20px;margin-top:6px;background:var(--surface3);color:var(--text2)}
+.sidebar-footer{padding:16px 20px;border-top:1px solid var(--border)}
+.dark-toggle{width:100%;padding:10px;border-radius:var(--btn-radius);border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
+.dark-toggle:hover{border-color:var(--accent);background:var(--glow)}
+/* Main */
+.main-content{flex:1;margin-left:280px;padding:24px;max-width:1100px}
+/* Mobile dropdown */
+.mobile-header{display:none;position:sticky;top:0;z-index:99;background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px}
+.mobile-select{width:100%;padding:10px 14px;border-radius:var(--btn-radius);border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:14px;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M1.5 5.5l6.5 6.5 6.5-6.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.mobile-controls{display:flex;gap:8px;margin-top:8px}
+.mobile-controls button{flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;font-size:12px}
+/* Case Header */
+.case-header{background:var(--surface);border:1px solid var(--border);border-radius:var(--card-radius);padding:28px;margin-bottom:20px;position:relative;overflow:hidden}
+.case-header::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent3),var(--accent4))}
+.case-header .badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(0,212,170,0.1);color:var(--accent);margin-bottom:12px}
+.case-header h2{font-size:22px;font-weight:700;margin-bottom:6px}
+.case-header p{color:var(--text2);font-size:14px;line-height:1.5}
+/* Tabs */
+.tab-nav{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:5px;margin-bottom:20px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab-btn{padding:10px 18px;border:none;background:transparent;color:var(--text3);font-size:13px;font-weight:600;border-radius:10px;cursor:pointer;white-space:nowrap;transition:all .2s;position:relative}
+.tab-btn:hover{color:var(--text);background:var(--surface2)}
+.tab-btn.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 15px rgba(0,212,170,0.3)}
+.tab-content{display:none;animation:fadeUp .4s ease}
+.tab-content.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--card-radius);padding:24px;margin-bottom:16px;transition:all .2s}
+.card:hover{border-color:var(--accent);box-shadow:0 4px 20px var(--glow)}
+.card h3{font-size:16px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.card h3 .icon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.icon-blue{background:rgba(9,132,227,0.15);color:#0984e3}
+.icon-green{background:rgba(0,212,170,0.15);color:var(--accent)}
+.icon-purple{background:rgba(108,92,231,0.15);color:#6c5ce7}
+.icon-red{background:rgba(239,68,68,0.15);color:#ef4444}
+.icon-yellow{background:rgba(245,158,11,0.15);color:#f59e0b}
+/* Patient profile grid */
+.profile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.profile-item{background:var(--surface2);border-radius:10px;padding:12px;text-align:center}
+.profile-item .p-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.profile-item .p-value{font-size:14px;font-weight:600;margin-top:2px}
+/* Findings */
+.finding-tag{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:20px;font-size:12px;margin:4px;cursor:pointer;transition:all .2s;position:relative}
+.finding-tag.abnormal{background:rgba(239,68,68,0.1);color:var(--danger);border:1px solid rgba(239,68,68,0.2)}
+.finding-tag.normal{background:rgba(34,197,94,0.1);color:var(--success);border:1px solid rgba(34,197,94,0.2)}
+.tooltip-box{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:11px;color:var(--text);white-space:normal;width:220px;z-index:50;box-shadow:0 8px 25px rgba(0,0,0,.3);line-height:1.4}
+.finding-tag:hover .tooltip-box{display:block}
+/* Reveal cards */
+.reveal-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.reveal-header{padding:16px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:all .2s}
+.reveal-header:hover{background:var(--surface3)}
+.reveal-header h4{font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px}
+.reveal-arrow{transition:transform .3s;color:var(--text3);font-size:12px}
+.reveal-card.open .reveal-arrow{transform:rotate(180deg)}
+.reveal-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.reveal-card.open .reveal-body{max-height:600px}
+.reveal-body-inner{padding:0 20px 16px;color:var(--text2);font-size:13px;line-height:1.7}
+/* MCQ */
+.mcq-progress{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:12px}
+.mcq-progress .prog-bar{flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.mcq-progress .prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:3px;transition:width .4s}
+.mcq-progress .prog-text{font-size:12px;color:var(--text2);white-space:nowrap}
+.mcq-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--card-radius);padding:24px;margin-bottom:16px}
+.mcq-card .q-num{font-size:11px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.mcq-card .q-stem{font-size:14px;line-height:1.6;margin-bottom:16px;font-weight:500}
+.mcq-option{display:block;width:100%;text-align:left;padding:14px 18px;border:1px solid var(--border);border-radius:12px;background:var(--surface2);color:var(--text);font-size:13px;cursor:pointer;margin-bottom:8px;transition:all .2s;line-height:1.4}
+.mcq-option:hover:not(.answered){border-color:var(--accent);background:var(--glow);transform:translateX(4px)}
+.mcq-option.correct{border-color:var(--success);background:rgba(34,197,94,0.1);color:var(--success);animation:popIn .3s}
+.mcq-option.incorrect{border-color:var(--danger);background:rgba(239,68,68,0.1);color:var(--danger);animation:shake .4s}
+.mcq-option.show-correct{border-color:var(--success);background:rgba(34,197,94,0.05)}
+.mcq-explanation{margin-top:12px;padding:14px 18px;background:var(--surface2);border-radius:12px;border-left:3px solid var(--accent);font-size:13px;color:var(--text2);line-height:1.5;display:none;animation:fadeUp .3s}
+.mcq-explanation.show{display:block}
+@keyframes popIn{0%{transform:scale(.97)}50%{transform:scale(1.01)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+/* Rapid review bullets */
+.rapid-bullet{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);font-size:13px;line-height:1.5}
+.rapid-bullet:last-child{border-bottom:none}
+.rapid-bullet .bullet-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.bullet-green .bullet-dot{background:var(--accent)}
+.bullet-blue .bullet-dot{background:var(--accent3)}
+.bullet-purple .bullet-dot{background:var(--accent4)}
+.bullet-red .bullet-dot{background:var(--danger)}
+.bullet-yellow .bullet-dot{background:var(--warning)}
+strong{color:var(--text);font-weight:600}
+.highlight{color:var(--accent);font-weight:600}
+/* Lab grid */
+.lab-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+.lab-item{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--surface2);border-radius:10px;font-size:13px}
+.lab-item .lab-name{color:var(--text2)}
+.lab-item .lab-val{font-weight:600}
+.lab-item .lab-val.abnormal{color:var(--danger)}
+.lab-item .lab-val.normal{color:var(--success)}
+/* Pearl card */
+.pearl{background:linear-gradient(135deg,rgba(0,212,170,0.05),rgba(9,132,227,0.05));border:1px solid rgba(0,212,170,0.2);border-radius:12px;padding:16px 20px;margin-bottom:12px;font-size:13px;line-height:1.6}
+.pearl .pearl-title{font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.red-flag{background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:16px 20px;margin-bottom:12px;font-size:13px;line-height:1.6}
+.red-flag .rf-title{font-size:12px;font-weight:700;color:var(--danger);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+/* Mistake review */
+.mistake-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--card-radius);padding:20px;margin-top:20px}
+.mistake-item{padding:12px;background:var(--surface2);border-radius:10px;margin-bottom:8px;font-size:13px}
+.mistake-item .mi-q{font-weight:600;margin-bottom:4px}
+.mistake-item .mi-your{color:var(--danger)}
+.mistake-item .mi-correct{color:var(--success)}
+/* Responsive */
+@media(max-width:768px){
+.sidebar{transform:translateX(-100%)}
+.main-content{margin-left:0;padding:16px}
+.mobile-header{display:block}
+.case-header h2{font-size:18px}
+.tab-nav{padding:4px;gap:2px}
+.tab-btn{padding:8px 12px;font-size:12px}
+.profile-grid{grid-template-columns:repeat(2,1fr)}
+}
+/* Scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--text3)}
+/* Signal animation */
+.signal-pulse{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,212,170,0.4)}50%{opacity:.7;box-shadow:0 0 0 8px rgba(0,212,170,0)}}
+</style>
+</head>
+<body>
+<!-- ECG Background -->
+<div class="ecg-line">
+<svg viewBox="0 0 2400 60" preserveAspectRatio="none">
+<polyline fill="none" stroke="currentColor" stroke-width="1.5" points="0,30 50,30 80,30 100,28 110,30 140,30 160,30 170,10 175,50 180,5 185,55 190,30 210,30 250,30 300,30 350,30 380,30 400,28 410,30 440,30 460,30 470,10 475,50 480,5 485,55 490,30 510,30 550,30 600,30 650,30 680,30 700,28 710,30 740,30 760,30 770,10 775,50 780,5 785,55 790,30 810,30 850,30 900,30 950,30 980,30 1000,28 1010,30 1040,30 1060,30 1070,10 1075,50 1080,5 1085,55 1090,30 1110,30 1150,30 1200,30 1250,30 1280,30 1300,28 1310,30 1340,30 1360,30 1370,10 1375,50 1380,5 1385,55 1390,30 1410,30 1450,30 1500,30 1550,30 1580,30 1600,28 1610,30 1640,30 1660,30 1670,10 1675,50 1680,5 1685,55 1690,30 1710,30 1750,30 1800,30 1850,30 1880,30 1900,28 1910,30 1940,30 1960,30 1970,10 1975,50 1980,5 1985,55 1990,30 2010,30 2050,30 2100,30 2150,30 2180,30 2200,28 2210,30 2240,30 2260,30 2270,10 2275,50 2280,5 2285,55 2290,30 2310,30 2350,30 2400,30"/>
+</svg>
+</div>
+
+<div class="app-container">
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-header">
+<div class="sidebar-logo">
+<div class="logo-icon">🧠</div>
+<h1>NeuroPath<span>Clinical Case Library</span></h1>
+</div>
+</div>
+<div class="sidebar-stats">
+<div class="stat-box">
+<div class="stat-val" id="globalScore">0</div>
+<div class="stat-label">Score</div>
+</div>
+<div class="stat-box">
+<div class="stat-val" id="globalStreak">0 🔥</div>
+<div class="stat-label">Streak</div>
+</div>
+</div>
+<div class="case-list" id="caseList"></div>
+<div class="sidebar-footer">
+<button class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()">🌙 Toggle Theme</button>
+</div>
+</aside>
+
+<!-- Mobile Header -->
+<div class="mobile-header" id="mobileHeader">
+<select class="mobile-select" id="mobileSelect" onchange="selectCase(this.value)"></select>
+<div class="mobile-controls">
+<button onclick="toggleDarkMode()">🌙 Theme</button>
+<button onclick="resetProgress()">🔄 Reset</button>
+</div>
+</div>
+
+<!-- Main Content -->
+<main class="main-content" id="mainContent">
+<div class="case-header" id="caseHeader"></div>
+<nav class="tab-nav" id="tabNav">
+<button class="tab-btn active" onclick="switchTab('casefile')">📂 Case File</button>
+<button class="tab-btn" onclick="switchTab('pearls')">💡 Pearls</button>
+<button class="tab-btn" onclick="switchTab('reasoning')">🔍 Reasoning</button>
+<button class="tab-btn" onclick="switchTab('mcq')">📝 MCQs</button>
+<button class="tab-btn" onclick="switchTab('rapid')">⚡ Rapid Review</button>
+</nav>
+<div id="tabContent"></div>
+</main>
+</div>
+
+<script>
+// ===== CASE DATA =====
+const cases = [
+{
+id: 0,
+num: "Case 1",
+title: "Medulloblastoma & CSF Dynamics",
+tag: "Pediatric Neuro-Oncology",
+badge: "WHO Grade 4 • Posterior Fossa",
+subtitle: "A 7-year-old boy with morning headaches, vomiting, and truncal ataxia",
+patient: {age:"7 yrs",sex:"Male",presenting:"3-week Hx",location:"ER"},
+complaint: "Persistent morning headaches, non-bilious vomiting, irritability, and truncal ataxia for three weeks.",
+findings: [
+{text:"Truncal ataxia",abnormal:true,tip:"Cerebellar vermis dysfunction — inability to coordinate trunk muscles. Indicates midline cerebellar pathology."},
+{text:"Papilledema",abnormal:true,tip:"Optic disc swelling from elevated intracranial pressure (ICP). The mass blocks CSF drainage, causing hydrocephalus."},
+{text:"Morning headaches",abnormal:true,tip:"Worse in the morning due to supine position increasing ICP overnight via impaired venous return and CSF buildup."},
+{text:"Non-bilious vomiting",abnormal:true,tip:"Projectile vomiting from direct brainstem compression or raised ICP stimulating the vomiting center in the medulla."},
+{text:"Midline posterior fossa mass",abnormal:true,tip:"Solid, homogeneous mass in cerebellar vermis — classic location for medulloblastoma in children."},
+{text:"Obstructive hydrocephalus",abnormal:true,tip:"4th ventricle compression blocks CSF outflow from the ventricular system into the subarachnoid space."}
+],
+labs: [
+{name:"MRI",val:"Midline cerebellar vermis mass",abnormal:true},
+{name:"4th Ventricle",val:"Compressed/Obstructed",abnormal:true},
+{name:"Ventricles",val:"Dilated (Hydrocephalus)",abnormal:true},
+{name:"Synaptophysin",val:"Positive (+)",abnormal:false},
+{name:"NSE",val:"Positive (+)",abnormal:false},
+{name:"GFAP",val:"Negative (−)",abnormal:false},
+{name:"Histology",val:"Small round blue cells",abnormal:true},
+{name:"Rosettes",val:"Homer Wright rosettes",abnormal:true}
+],
+pearls: [
+{type:"pearl",title:"⭐ Diagnostic Rule",text:"Any pediatric midline cerebellar mass causing hydrocephalus should raise high suspicion for <strong>Medulloblastoma</strong>."},
+{type:"pearl",title:"🚨 Metastasis Alert",text:"Medulloblastoma is highly aggressive and distinctly spreads (<strong>drop metastases</strong>) via the CSF into the leptomeninges. Postoperative CSF cytology is <strong>mandatory</strong>."},
+{type:"pearl",title:"🔬 IHC Markers",text:"<strong>Synaptophysin (+)</strong> and <strong>NSE (+)</strong> indicate neuronal origin. <strong>GFAP (−)</strong> rules out glial tumors like astrocytoma."},
+{type:"pearl",title:"🧩 Rosette Comparison",text:"<strong>Homer Wright</strong>: cells around neurofibrillary core (Medulloblastoma, Neuroblastoma). <strong>Perivascular pseudorosettes</strong>: cells around blood vessel (Ependymoma). <strong>True rosettes</strong>: cells around empty lumen (Ependymoma)."},
+{type:"redflag",title:"🚩 Don't Confuse",text:"Pilocytic Astrocytoma is also a pediatric cerebellar tumor but is <strong>cystic with a mural nodule</strong>, WHO Grade 1, and GFAP (+). Medulloblastoma is <strong>solid, midline, Grade 4</strong>."}
+],
+reasoning: [
+{title:"🔴 Altered Physiology",body:"The cerebellar vermis mass physically compresses the 4th ventricle, obstructing the normal outflow of CSF from the ventricular system."},
+{title:"⚙️ Pathophysiology Mechanism",body:"CSF produced by the choroid plexus cannot drain → accumulates in the lateral and 3rd ventricles → <strong>obstructive (non-communicating) hydrocephalus</strong> → rapidly rising intracranial pressure → papilledema, morning headaches, vomiting. Histologically: hyperchromatic small round blue cells forming <strong>Homer Wright rosettes</strong> (cells around a neurofibrillary core of axons/dendrites) confirm neuronal differentiation."},
+{title:"🛡️ Compensatory Response",body:"Rapid tumor growth overwhelms compensatory mechanisms. The brain cannot adequately absorb the excess CSF. Ventricles are forced to dilate, but this only temporarily delays herniation. Surgical decompression is emergent."},
+{title:"✅ Final Diagnosis",body:"<strong>Medulloblastoma (WHO Grade 4)</strong> — malignant embryonal tumor of the cerebellar vermis causing obstructive hydrocephalus via 4th ventricle compression. High risk of CSF-mediated leptomeningeal dissemination."}
+],
+mcqs: [
+{q:"A 7-year-old boy develops severe papilledema and truncal ataxia. MRI reveals a mass in the cerebellar vermis. Which physiological disruption is most directly responsible for his papilledema?",
+opts:["A. Overproduction of CSF by the choroid plexus","B. Mechanical obstruction of CSF drainage at the fourth ventricle","C. Impaired venous drainage into the superior sagittal sinus","D. Hypersecretion of antidiuretic hormone"],
+ans:1,exp:"The cerebellar mass compresses the 4th ventricle, blocking CSF drainage → obstructive hydrocephalus → ↑ ICP → papilledema."},
+{q:"Histological examination of a pediatric cerebellar tumor shows Homer Wright rosettes. What does the central core of these rosettes primarily consist of?",
+opts:["A. Empty lumen","B. Central blood vessel","C. Necrotic cellular debris","D. Neurofibrillary background (axons and dendrites)"],
+ans:3,exp:"Homer Wright rosettes feature tumor cells arranged around a central pink neurofibrillary core composed of neurites (axons/dendrites)."},
+{q:"Which immunohistochemical marker profile best confirms the cellular origin of a medulloblastoma?",
+opts:["A. Synaptophysin (+), NSE (+), GFAP (−)","B. Synaptophysin (−), NSE (−), GFAP (+)","C. Synaptophysin (+), NSE (−), GFAP (+)","D. Vimentin (+), GFAP (+)"],
+ans:0,exp:"Medulloblastomas show neuronal differentiation: Synaptophysin (+), NSE (+). GFAP (−) rules out glial origin."},
+{q:"Why is post-operative CSF cytology critically required after surgical resection of a medulloblastoma?",
+opts:["A. To check for bacterial meningitis","B. To evaluate for leptomeningeal spread","C. To measure residual intracranial pressure","D. To assess for subarachnoid hemorrhage"],
+ans:1,exp:"Medulloblastomas are highly aggressive and uniquely spread via the CSF pathway to the leptomeninges (drop metastases)."},
+{q:"A rosette arrangement surrounding a central blood vessel (perivascular pseudorosette) is observed in a brain tumor. Which tumor is most characterized by this histological feature?",
+opts:["A. Glioblastoma Multiforme","B. Ependymoma","C. Pilocytic Astrocytoma","D. Medulloblastoma"],
+ans:1,exp:"Perivascular pseudorosettes (tumor cells arranged around a blood vessel) are a classic histological hallmark of Ependymomas."},
+{q:"Which of the following mechanisms best explains why this patient's headaches are worse in the morning?",
+opts:["A. Cortisol levels peak in the morning","B. Supine position during sleep impairs venous return, worsening CSF accumulation and ICP","C. Melatonin secretion increases intracranial pressure","D. REM sleep causes cerebral vasoconstriction"],
+ans:1,exp:"Supine positioning overnight impairs cerebral venous drainage and worsens CSF accumulation, raising ICP maximally upon waking."}
+],
+rapid: [
+{color:"green",text:"<strong>Medulloblastoma:</strong> Malignant (Grade 4), rapid growth, <strong>cerebellar vermis</strong> location in children."},
+{color:"blue",text:"<strong>Key Mechanism:</strong> 4th ventricle compression → Obstructive hydrocephalus → ↑ ICP → papilledema, headaches, vomiting."},
+{color:"purple",text:"<strong>Histology:</strong> Small round blue cells → Homer Wright rosettes (neurofibrillary core = axons & dendrites)."},
+{color:"red",text:"<strong>Tumor Spread:</strong> Leptomeningeal dissemination via CSF flow (drop metastases). Postop CSF cytology mandatory."},
+{color:"green",text:"<strong>IHC Profile:</strong> Synaptophysin (+), NSE (+), GFAP (−) → confirms neuronal, not glial origin."},
+{color:"yellow",text:"<strong>Trap:</strong> Don't confuse with Pilocytic Astrocytoma (cystic + mural nodule, Grade 1, GFAP+) or Ependymoma (perivascular pseudorosettes)."},
+{color:"blue",text:"<strong>Emergency:</strong> Rapid arterial-pressure bleeding overwhelms compensation → requires immediate surgical decompression."}
+]
+},
+{
+id: 1,
+num: "Case 2",
+title: "Parkinson's Disease & Basal Ganglia",
+tag: "Neurodegenerative • Movement Disorder",
+badge: "Substantia Nigra • Dopamine Deficiency",
+subtitle: "A 68-year-old man with progressive difficulty walking, micrographia, and hypophonia",
+patient: {age:"68 yrs",sex:"Male",presenting:"2-year Hx",location:"Neurology Clinic"},
+complaint: "Progressive difficulty walking, smaller handwriting (micrographia), and softer voice (hypophonia) over two years.",
+findings: [
+{text:"Resting tremor (R hand)",abnormal:true,tip:"'Pill-rolling' tremor at rest due to loss of dopaminergic inhibition on thalamic output. Disappears with intentional movement."},
+{text:"Cogwheel rigidity",abnormal:true,tip:"Ratchet-like resistance to passive movement. Caused by superimposition of tremor on lead-pipe rigidity from basal ganglia dysfunction."},
+{text:"Bradykinesia",abnormal:true,tip:"Slowness in initiating and executing movement. Due to reduced dopamine in the striatum, impairing the direct (facilitatory) motor pathway."},
+{text:"Shuffling gait",abnormal:true,tip:"Short, rapid steps with reduced arm swing. Results from impaired postural reflexes and difficulty initiating movement."},
+{text:"Mask-like facies",abnormal:true,tip:"Reduced facial expression (hypomimia) from bradykinesia affecting facial muscles. A hallmark of Parkinsonism."},
+{text:"Good Levodopa response",normal:true,tip:"Confirms dopamine deficiency as the primary mechanism. Levodopa is converted to dopamine in the brain, replenishing the deficit."}
+],
+labs: [
+{name:"Clinical Dx",val:"Parkinson's Disease",abnormal:false},
+{name:"Levodopa Trial",val:"Positive response",abnormal:false},
+{name:"Imaging",val:"Not typically required",abnormal:false},
+{name:"DaTscan",val:"Reduced dopaminergic uptake",abnormal:true}
+],
+pearls: [
+{type:"pearl",title:"⭐ Clinical Triad",text:"<strong>Resting tremor</strong>, <strong>cogwheel rigidity</strong>, and <strong>bradykinesia</strong> are the hallmark motor signs of Parkinsonian degeneration."},
+{type:"pearl",title:"🥊 Trauma Connection",text:"Repeated concussions (e.g., boxers — 'dementia pugilistica') can cause cumulative neurodegenerative damage that manifests secondarily as <strong>Parkinsonism</strong>."},
+{type:"pearl",title:"🧠 Non-Motor Symptoms",text:"Cognitive decline/dementia and behavioral changes are significant <strong>non-motor consequences</strong> of Parkinson's neurodegeneration as it progresses to cortical areas."},
+{type:"pearl",title:"⚖️ Direct vs Indirect Pathway",text:"Dopamine stimulates the <strong>direct pathway</strong> (facilitates movement) via D1 receptors and inhibits the <strong>indirect pathway</strong> (suppresses unwanted movement) via D2 receptors. Loss of dopamine impairs both."},
+{type:"redflag",title:"🚩 Don't Confuse",text:"<strong>Intention tremor</strong> (cerebellar) worsens with movement. <strong>Resting tremor</strong> (Parkinson's) disappears with intentional movement. Also: Essential tremor is bilateral and postural/action-type."}
+],
+reasoning: [
+{title:"🔴 Altered Physiology",body:"Progressive degeneration of dopaminergic neurons in the <strong>substantia nigra pars compacta</strong> leads to a profound deficiency of dopamine in the striatum (caudate + putamen)."},
+{title:"⚙️ Pathophysiology Mechanism",body:"Loss of dopamine disrupts the balance between the direct and indirect motor pathways in the basal ganglia. The <strong>direct pathway</strong> (which facilitates desired movements) is under-activated, causing bradykinesia. The <strong>indirect pathway</strong> (which inhibits unwanted movements) is overactive, causing rigidity. The net result is difficulty initiating movement plus involuntary tremor at rest."},
+{title:"🛡️ Compensatory Response",body:"Remaining dopaminergic neurons may upregulate dopamine synthesis initially, but this compensation is insufficient as neurodegeneration progresses. Exogenous pharmacological supplementation with <strong>Levodopa</strong> (which crosses the BBB and is converted to dopamine) is required."},
+{title:"✅ Final Diagnosis",body:"<strong>Parkinson's Disease</strong> — progressive neurodegenerative disorder caused by loss of dopaminergic neurons in the substantia nigra pars compacta, leading to dopamine deficiency and characteristic motor symptoms (resting tremor, rigidity, bradykinesia, postural instability)."}
+],
+mcqs: [
+{q:"A patient with a shuffling gait and resting tremor is diagnosed with a degenerative CNS disease. Which primary neurotransmitter is deficient?",
+opts:["A. Acetylcholine","B. Serotonin","C. Dopamine","D. GABA"],
+ans:2,exp:"Parkinson's disease is defined by the progressive loss of dopamine-producing neurons in the substantia nigra."},
+{q:"In Parkinson's disease, the degeneration of which specific brain structure is directly responsible for the motor symptoms?",
+opts:["A. Hippocampus","B. Substantia nigra","C. Frontal lobe","D. Cerebellar vermis"],
+ans:1,exp:"The substantia nigra pars compacta is the source of dopamine for the basal ganglia motor circuits."},
+{q:"A 68-year-old man with Parkinson's is prescribed Levodopa. What is its fundamental mechanism of action?",
+opts:["A. Inhibits acetylcholine breakdown","B. Serves as a direct precursor to replenish central dopamine","C. Blocks dopamine receptors in the basal ganglia","D. Stimulates regeneration of the substantia nigra"],
+ans:1,exp:"Levodopa crosses the BBB and is converted to dopamine by DOPA decarboxylase, replenishing the deficit."},
+{q:"A retired professional boxer presents with resting tremors, rigidity, and bradykinesia. What mechanism most likely links his career to his symptoms?",
+opts:["A. Rupture of bridging veins","B. Repeated concussions leading to neurodegeneration","C. Misfolding of prion proteins","D. Severe thiamine deficiency"],
+ans:1,exp:"Repeated concussions cause cumulative neurodegenerative damage (chronic traumatic encephalopathy/dementia pugilistica) manifesting as Parkinsonism."},
+{q:"Which describes the normal physiological role of dopamine on movement that is lost in Parkinson's?",
+opts:["A. Purely excitatory stimulus to initiate walking","B. Regulatory, inhibitory effect to stabilize muscle fibers and prevent involuntary tremors","C. Acts directly at the neuromuscular junction","D. Increases blood flow to skeletal muscles"],
+ans:1,exp:"Dopamine provides inhibitory/regulatory modulation of motor circuits; its loss causes involuntary movements and tremors."},
+{q:"Pathologically, what intracellular inclusion bodies are found in surviving neurons of the substantia nigra in Parkinson's disease?",
+opts:["A. Hirano bodies","B. Lewy bodies (α-synuclein aggregates)","C. Neurofibrillary tangles","D. Pick bodies"],
+ans:1,exp:"Lewy bodies — eosinophilic intracytoplasmic inclusions composed of aggregated α-synuclein — are the pathological hallmark of Parkinson's disease."},
+{q:"In the basal ganglia motor circuit, which pathway is UNDER-activated due to dopamine loss in Parkinson's disease, leading to difficulty initiating movement?",
+opts:["A. Indirect pathway","B. Direct pathway","C. Corticospinal tract","D. Spinothalamic tract"],
+ans:1,exp:"The direct pathway (D1 receptor-mediated) facilitates desired movements. Dopamine loss reduces its activity, causing bradykinesia."}
+],
+rapid: [
+{color:"green",text:"<strong>Parkinson's Disease:</strong> Substantia nigra pars compacta degeneration → Dopamine deficiency in striatum."},
+{color:"blue",text:"<strong>Motor Signs:</strong> Resting tremor (pill-rolling), cogwheel rigidity, bradykinesia, shuffling gait, mask-like facies."},
+{color:"purple",text:"<strong>Pathophysiology:</strong> ↓ Dopamine → underactive direct pathway (bradykinesia) + overactive indirect pathway (rigidity)."},
+{color:"red",text:"<strong>Pathology:</strong> Lewy bodies = intracellular α-synuclein aggregates in surviving neurons."},
+{color:"green",text:"<strong>Treatment:</strong> Levodopa crosses BBB → converted to dopamine → replenishes deficit."},
+{color:"yellow",text:"<strong>Trap:</strong> Resting tremor (PD) vs Intention tremor (cerebellar) vs Postural tremor (essential tremor)."},
+{color:"blue",text:"<strong>Non-Motor:</strong> Depression, autonomic dysfunction, cognitive decline/dementia in late stages."}
+]
+},
+{
+id: 2,
+num: "Case 3",
+title: "Alzheimer's Disease & Dementia Syndromes",
+tag: "Neurodegenerative • Cognitive Decline",
+badge: "Hippocampal Atrophy • Amyloid & Tau",
+subtitle: "A 67-year-old female with progressive memory loss, disorientation, and mood changes",
+patient: {age:"67 yrs",sex:"Female",presenting:"Progressive",location:"Memory Clinic"},
+complaint: "Progressive memory loss, frequently getting lost in familiar places, and notable mood changes.",
+findings: [
+{text:"Progressive memory loss",abnormal:true,tip:"Short-term memory affected first due to early hippocampal involvement. Encoding of new memories is impaired before retrieval of old ones."},
+{text:"Spatial disorientation",abnormal:true,tip:"Getting lost in familiar places indicates parietal lobe involvement (spatial processing) in addition to hippocampal damage."},
+{text:"Mood/behavioral changes",abnormal:true,tip:"Irritability, apathy, and depression from cortical neurodegeneration affecting limbic and frontal circuits."},
+{text:"Hippocampal atrophy on MRI",abnormal:true,tip:"Prominent medial temporal lobe/hippocampal volume loss is the earliest and most characteristic imaging finding."},
+{text:"Normal thyroid function",normal:true,tip:"Rules out hypothyroidism as a reversible cause of cognitive decline and pseudodementia."},
+{text:"Normal Vitamin B12",normal:true,tip:"Rules out B12 deficiency, which can cause reversible dementia and subacute combined degeneration."}
+],
+labs: [
+{name:"Thyroid Function",val:"Normal",abnormal:false},
+{name:"Vitamin B12",val:"Normal",abnormal:false},
+{name:"MRI Brain",val:"Cortical & hippocampal atrophy",abnormal:true},
+{name:"Histology",val:"Amyloid plaques + NFTs",abnormal:true},
+{name:"Amyloid-β",val:"Extracellular plaques",abnormal:true},
+{name:"Tau protein",val:"Intracellular tangles",abnormal:true}
+],
+pearls: [
+{type:"pearl",title:"🧬 Genetic Links",text:"<strong>Early-onset AD:</strong> APP (Chr 21), PSEN1 (Chr 14), PSEN2 (Chr 1) — autosomal dominant. <strong>Late-onset AD:</strong> APOE ε4 allele (Chr 19) — strongest genetic risk factor."},
+{type:"pearl",title:"🧠 Dementia DDx",text:"<strong>Frontotemporal:</strong> Personality + language deficits. <strong>Lewy Body:</strong> Cognitive decline + visual hallucinations + Parkinsonism. <strong>Wernicke-Korsakoff:</strong> Alcoholism → Thiamine deficiency. <strong>CJD:</strong> Rapidly progressive (months) → prion disease."},
+{type:"pearl",title:"🔬 Dual Pathology",text:"Alzheimer's has TWO hallmark lesions: <strong>Extracellular amyloid-β plaques</strong> (from APP miscleavage by β/γ-secretase) + <strong>Intracellular neurofibrillary tangles</strong> (hyperphosphorylated Tau)."},
+{type:"pearl",title:"💊 Cholinergic Hypothesis",text:"Loss of cholinergic neurons in the <strong>nucleus basalis of Meynert</strong> contributes to cognitive decline. <strong>Donepezil</strong> (AChE inhibitor) is used to boost remaining acetylcholine levels."},
+{type:"redflag",title:"🚩 Down Syndrome Link",text:"Patients with <strong>Trisomy 21</strong> have 3 copies of the APP gene (located on chromosome 21), leading to near-universal development of Alzheimer's pathology by age 40."}
+],
+reasoning: [
+{title:"🔴 Altered Physiology",body:"The hippocampus (primary center for memory encoding) undergoes progressive neuronal loss. Intracellular enzymes malfunction, and extracellular waste clearance fails."},
+{title:"⚙️ Pathophysiology Mechanism",body:"<strong>Extracellular:</strong> β- and γ-secretases incorrectly cleave amyloid precursor protein (APP), generating insoluble <strong>amyloid-β (Aβ42)</strong> peptides. These aggregate as homogeneous pink amyloid plaques that compress neurons and block synaptic transmission.<br><br><strong>Intracellular:</strong> Cytoskeletal proteins break down abnormally. <strong>Hyperphosphorylated Tau</strong> proteins dissociate from microtubules and aggregate as neurofibrillary tangles (NFTs), compressing the nucleus, disrupting axonal transport, and causing neuronal death.<br><br>This dual accumulation → progressive cortical/hippocampal atrophy → irreversible cognitive decline."},
+{title:"🛡️ Compensatory Response",body:"No effective physiological compensation exists for misfolded protein accumulations. Current pharmacotherapy (AChE inhibitors, memantine) provides only <strong>symptomatic</strong> benefit by boosting remaining neurotransmitter function."},
+{title:"✅ Final Diagnosis",body:"<strong>Alzheimer's Disease</strong> — progressive neurodegenerative dementia characterized by extracellular amyloid-β plaques and intracellular neurofibrillary tangles (hyperphosphorylated Tau), causing hippocampal and cortical atrophy."}
+],
+mcqs: [
+{q:"An MRI of a 67-year-old woman with severe progressive memory loss reveals prominent brain atrophy. Which brain region is typically most affected early, accounting for her symptoms?",
+opts:["A. Frontal lobe","B. Cerebellar vermis","C. Hippocampus","D. Substantia nigra"],
+ans:2,exp:"The hippocampus is the primary center for memory encoding. Prominent hippocampal atrophy is the earliest hallmark of Alzheimer's disease."},
+{q:"Histological analysis of an Alzheimer's brain reveals intracellular neurofibrillary tangles. What is their primary molecular composition?",
+opts:["A. Extracellular beta-amyloid peptides","B. Hyperphosphorylated Tau proteins","C. Misfolded prion proteins","D. Alpha-synuclein aggregates"],
+ans:1,exp:"NFTs are formed by intracellular accumulation of hyperphosphorylated Tau proteins from abnormal cytoskeletal breakdown."},
+{q:"A 55-year-old man has rapid personality changes, inappropriate social behavior, and progressive aphasia but relatively preserved memory. Which dementia is most likely?",
+opts:["A. Alzheimer's disease","B. Wernicke-Korsakoff syndrome","C. Frontotemporal dementia","D. Lewy Body dementia"],
+ans:2,exp:"Frontotemporal dementia affects frontal lobe (personality/behavior) and temporal lobe (language), with relative memory preservation early."},
+{q:"A chronic alcoholic develops profound dementia. The pathophysiology is most directly linked to impaired GI absorption of which nutrient?",
+opts:["A. Vitamin B12","B. Thiamine (Vitamin B1)","C. Calcium","D. Iron"],
+ans:1,exp:"Chronic alcohol abuse impairs Thiamine absorption → Wernicke-Korsakoff syndrome → irreversible neuronal damage and dementia."},
+{q:"A patient develops rapidly progressive dementia over 6 months. Brain biopsy reveals misfolded, non-degradable proteins. What is the diagnosis?",
+opts:["A. Creutzfeldt-Jakob Disease (Prion disease)","B. Parkinson's disease","C. Vascular dementia","D. Alzheimer's disease"],
+ans:0,exp:"CJD is a rapidly progressive dementia (weeks-months) caused by accumulation of misfolded prion proteins (PrPSc)."},
+{q:"How do extracellular amyloid plaques directly contribute to cognitive decline in Alzheimer's disease?",
+opts:["A. Cause rapid vasodilation of cerebral arteries","B. Compress surrounding neurons and block synaptic communication","C. Destroy the blood-brain barrier","D. Act as viral vectors for CNS infection"],
+ans:1,exp:"Amyloid-β plaques physically compress neurons and severely impair intercellular synaptic communication."},
+{q:"Which genetic association explains why patients with Down syndrome (Trisomy 21) almost universally develop Alzheimer's pathology by age 40?",
+opts:["A. APOE ε4 allele on chromosome 19","B. Three copies of the APP gene on chromosome 21","C. PSEN1 mutation on chromosome 14","D. Tau gene duplication on chromosome 17"],
+ans:1,exp:"APP is located on chromosome 21. Trisomy 21 = 3 copies of APP → increased amyloid-β production → early-onset AD pathology."},
+{q:"A patient with dementia also experiences prominent visual hallucinations and fluctuating cognition. Which intracellular inclusion body would you expect on autopsy?",
+opts:["A. Neurofibrillary tangles","B. Hirano bodies","C. Lewy bodies (α-synuclein)","D. Pick bodies"],
+ans:2,exp:"Lewy Body Dementia is characterized by visual hallucinations, fluctuating cognition, and intracellular Lewy bodies (α-synuclein aggregates)."}
+],
+rapid: [
+{color:"green",text:"<strong>Alzheimer's:</strong> Hippocampal atrophy → <strong>Intracellular</strong> Tau Tangles + <strong>Extracellular</strong> Beta-Amyloid Plaques."},
+{color:"blue",text:"<strong>Amyloid Plaques:</strong> APP miscleavage by β/γ-secretase → Aβ42 accumulation → compresses neurons → blocks synapses."},
+{color:"purple",text:"<strong>Neurofibrillary Tangles:</strong> Hyperphosphorylated Tau → dissociates from microtubules → intracellular aggregation → neuronal death."},
+{color:"red",text:"<strong>Genetics:</strong> Early-onset = APP, PSEN1, PSEN2 (autosomal dominant). Late-onset = APOE ε4."},
+{color:"green",text:"<strong>Down Syndrome:</strong> Trisomy 21 → 3 copies APP → universal AD by age 40."},
+{color:"yellow",text:"<strong>Dementia DDx:</strong> FTD (personality + language) • LBD (hallucinations) • WKS (alcoholism + B1) • CJD (rapid + prions)."},
+{color:"blue",text:"<strong>Treatment:</strong> Donepezil (AChE inhibitor) — symptomatic only, does not reverse pathology."}
+]
+},
+{
+id: 3,
+num: "Case 4",
+title: "Traumatic Brain Injury & Intracranial Hemorrhage",
+tag: "Trauma • Neurosurgical Emergency",
+badge: "Epidural Hematoma • Middle Meningeal Artery",
+subtitle: "A 35-year-old woman with a lucid interval after head trauma in a motor vehicle accident",
+patient: {age:"35 yrs",sex:"Female",presenting:"Acute trauma",location:"ER / Trauma Bay"},
+complaint: "Hit head on steering wheel in MVA. Brief loss of consciousness, lucid interval, then rapidly worsening headache and dizziness.",
+findings: [
+{text:"Brief LOC → Lucid interval",abnormal:true,tip:"Classic 'talk and die' pattern of epidural hematoma. Initial concussion → brief LOC → temporary improvement → rapid deterioration as arterial blood accumulates."},
+{text:"Rapidly worsening headache",abnormal:true,tip:"High-pressure arterial bleeding causes rapid expansion of the hematoma, increasing ICP and causing progressive neurological decline."},
+{text:"Biconvex epidural hematoma",abnormal:true,tip:"Lens-shaped (biconvex) hyperdensity on CT. Blood collects between skull and dura. Does NOT cross suture lines (dura is adherent to skull at sutures)."},
+{text:"Midline shift",abnormal:true,tip:"The expanding hematoma pushes brain structures across the midline — a sign of impending uncal herniation, which is rapidly fatal."},
+{text:"R lateral ventricle compression",abnormal:true,tip:"Mass effect from the hematoma compresses the ipsilateral lateral ventricle, confirming significant space-occupying lesion."},
+{text:"Temporal bone region",abnormal:true,tip:"Most epidural hematomas occur in the temporal region due to the thin bone overlying the middle meningeal artery."}
+],
+labs: [
+{name:"CT Head (non-contrast)",val:"Biconvex hyperdensity",abnormal:true},
+{name:"Location",val:"Right temporal epidural",abnormal:true},
+{name:"Midline shift",val:"Present",abnormal:true},
+{name:"Vessel injured",val:"Middle meningeal artery",abnormal:true},
+{name:"Skull fracture",val:"Temporal/parietal",abnormal:true},
+{name:"GCS trend",val:"Declining after lucid interval",abnormal:true}
+],
+pearls: [
+{type:"pearl",title:"📍 Hemorrhage Anatomy",text:"<strong>Epidural:</strong> Skull ↔ Dura (Arterial — MMA). <strong>Subdural:</strong> Dura ↔ Arachnoid (Venous — bridging veins). <strong>Subarachnoid:</strong> Arachnoid ↔ Pia (berry aneurysm rupture). <strong>Intracerebral:</strong> Within brain parenchyma."},
+{type:"pearl",title:"👴 Subdural in Elderly",text:"Cerebral atrophy in elderly and chronic alcoholics <strong>stretches bridging veins</strong>, making them prone to rupture with even <strong>minor trauma</strong>. CT shows <strong>crescent-shaped</strong> hemorrhage that crosses suture lines."},
+{type:"pearl",title:"💥 Intracerebral Hemorrhage",text:"<strong>Systemic hypertension</strong> is the #1 cause — ruptures Charcot-Bouchard microaneurysms on branches of the lenticulostriate arteries (middle cerebral artery) in deep structures: <strong>basal ganglia, thalamus, putamen</strong>."},
+{type:"pearl",title:"🫧 Subarachnoid Hemorrhage",text:"'Worst headache of my life' (thunderclap headache). Most commonly from ruptured <strong>berry (saccular) aneurysm</strong> at Circle of Willis bifurcations. Risk of vasospasm at days 4-14."},
+{type:"redflag",title:"🚩 CT Shapes",text:"<strong>Biconvex/lens-shaped</strong> = Epidural (doesn't cross sutures). <strong>Crescent-shaped</strong> = Subdural (crosses sutures). This is the #1 tested distinction."}
+],
+reasoning: [
+{title:"🔴 Altered Physiology",body:"Blunt temporal trauma causes a skull fracture that tears the <strong>middle meningeal artery</strong> running between the skull and dura mater."},
+{title:"⚙️ Pathophysiology Mechanism",body:"High-pressure arterial blood rapidly accumulates in the <strong>epidural space</strong> (between skull and dura). Because the dura is tightly adherent to the skull at suture lines, the blood forms a <strong>biconvex (lens-shaped)</strong> collection. This acts as an expanding mass lesion that rapidly increases ICP, compresses the ipsilateral lateral ventricle, and causes midline shift — threatening <strong>uncal herniation</strong> (temporal lobe herniating through the tentorial notch, compressing CN III and the posterior cerebral artery)."},
+{title:"🛡️ Compensatory Response",body:"Due to the <strong>high pressure of arterial bleeding</strong>, natural compensatory mechanisms (CSF displacement, venous compression) are quickly overwhelmed. The <strong>lucid interval</strong> represents the brief window before the hematoma expands enough to cause critical brain compression. This is a <strong>neurosurgical emergency</strong> requiring immediate craniotomy and evacuation."},
+{title:"✅ Final Diagnosis",body:"<strong>Epidural (Extradural) Hematoma</strong> — acute arterial hemorrhage from torn middle meningeal artery, forming a biconvex collection between skull and dura. Characterized by lucid interval followed by rapid deterioration. Requires emergent surgical evacuation."}
+],
+mcqs: [
+{q:"A 35-year-old woman in an MVA develops a rapidly expanding biconvex hyperdensity on head CT. Which blood vessel is most likely torn?",
+opts:["A. Superior sagittal sinus","B. Bridging cerebral veins","C. Middle meningeal artery","D. Middle cerebral artery"],
+ans:2,exp:"Epidural hematomas are caused by trauma tearing the middle meningeal artery → high-pressure arterial bleeding between skull and dura."},
+{q:"An 80-year-old man with chronic alcoholism presents with confusion after a minor fall. CT reveals a crescent-shaped hemorrhage between dura and arachnoid. What predisposes him?",
+opts:["A. Severe systemic hypertension","B. Cerebral atrophy stretching the bridging veins","C. Congenital berry aneurysms","D. Fragility of the middle meningeal artery"],
+ans:1,exp:"Brain atrophy in elderly/alcoholics stretches bridging veins, making them susceptible to tearing → venous subdural hematoma."},
+{q:"What is the most common underlying etiology for spontaneous intracerebral (intraparenchymal) hemorrhage?",
+opts:["A. Fat embolism","B. Cerebral amyloid angiopathy","C. Systemic hypertension","D. Arteriovenous malformations"],
+ans:2,exp:"Systemic hypertension is the #1 cause of intracerebral hemorrhage, rupturing Charcot-Bouchard microaneurysms in deep brain structures."},
+{q:"A patient suffers a severe subarachnoid hemorrhage. Where is the blood accumulating?",
+opts:["A. Between skull and dura mater","B. Between dura and arachnoid mater","C. Between arachnoid and pia mater","D. Within the brain parenchyma"],
+ans:2,exp:"Subarachnoid hemorrhage = blood in the subarachnoid space (between arachnoid and pia mater), typically from ruptured berry aneurysm."},
+{q:"The 'lucid interval' in epidural hematoma is best explained by which physiological concept?",
+opts:["A. Temporary vasospasm stopping the bleeding","B. Brief period before arterial hematoma expands enough to overwhelm compensatory ICP mechanisms","C. Spontaneous reabsorption of the hematoma","D. Activation of the clotting cascade sealing the tear"],
+ans:1,exp:"The lucid interval is the window before the expanding arterial hematoma overwhelms compensatory ICP mechanisms (CSF displacement, venous compression)."},
+{q:"Why does an epidural hematoma appear biconvex (lens-shaped) on CT rather than crescent-shaped?",
+opts:["A. Arterial blood has higher viscosity","B. The dura is tightly adherent to the skull at suture lines, limiting spread","C. Venous blood spreads more diffusely","D. The arachnoid membrane contains the blood"],
+ans:1,exp:"The dura is firmly attached to the inner skull at suture lines, so epidural blood cannot cross sutures and forms a localized biconvex collection."},
+{q:"Which cranial nerve is most at risk of compression during uncal herniation caused by an expanding epidural hematoma?",
+opts:["A. CN II (Optic)","B. CN III (Oculomotor)","C. CN VII (Facial)","D. CN X (Vagus)"],
+ans:1,exp:"Uncal herniation compresses CN III (oculomotor) against the tentorial edge → ipsilateral pupil dilation (blown pupil) and ptosis."},
+{q:"A patient presents with 'the worst headache of my life.' CT shows diffuse blood in the subarachnoid space. What is the most common etiology?",
+opts:["A. Hypertensive microaneurysm rupture","B. Ruptured berry (saccular) aneurysm","C. Torn bridging veins","D. Middle meningeal artery tear"],
+ans:1,exp:"Subarachnoid hemorrhage with thunderclap headache → most commonly from ruptured berry aneurysm at Circle of Willis bifurcations."}
+],
+rapid: [
+{color:"green",text:"<strong>Epidural:</strong> Skull ↔ Dura | Middle meningeal artery (arterial) | <strong>Biconvex/lens-shaped</strong> | Doesn't cross sutures | Lucid interval."},
+{color:"blue",text:"<strong>Subdural:</strong> Dura ↔ Arachnoid | Bridging veins (venous) | <strong>Crescent-shaped</strong> | Crosses sutures | Elderly/alcoholics (atrophy)."},
+{color:"purple",text:"<strong>Subarachnoid:</strong> Arachnoid ↔ Pia | Berry aneurysm rupture | 'Worst headache of my life' | Risk: vasospasm days 4-14."},
+{color:"red",text:"<strong>Intracerebral:</strong> Within parenchyma | #1 cause = Hypertension | Charcot-Bouchard microaneurysms | Basal ganglia/thalamus."},
+{color:"yellow",text:"<strong>Key CT Shapes:</strong> Biconvex = Epidural (arterial). Crescent = Subdural (venous). Most tested distinction!"},
+{color:"green",text:"<strong>Uncal herniation:</strong> CN III compression → ipsilateral blown pupil + contralateral hemiparesis (Kernohan's notch phenomenon)."},
+{color:"blue",text:"<strong>Emergency:</strong> Epidural = immediate craniotomy. Lucid interval is the critical window before irreversible herniation."}
+]
+}
+];
+
+// ===== STATE =====
+let state = {
+currentCase: 0,
+currentTab: 'casefile',
+globalScore: 0,
+streak: 0,
+maxStreak: 0,
+darkMode: true,
+answeredMCQs: {},
+mistakes: {}
+};
+
+function loadState() {
+try {
+const saved = localStorage.getItem('neuroPathState');
+if (saved) {
+const parsed = JSON.parse(saved);
+Object.assign(state, parsed);
+}
+} catch(e) {}
+}
+
+function saveState() {
+try {
+localStorage.setItem('neuroPathState', JSON.stringify(state));
+} catch(e) {}
+}
+
+function toggleDarkMode() {
+state.darkMode = !state.darkMode;
+document.body.classList.toggle('light-mode', !state.darkMode);
+document.getElementById('darkToggle').textContent = state.darkMode ? '🌙 Toggle Theme' : '☀️ Toggle Theme';
+saveState();
+}
+
+function resetProgress() {
+if (confirm('Reset all progress? This will clear scores and answers.')) {
+state.globalScore = 0;
+state.streak = 0;
+state.maxStreak = 0;
+state.answeredMCQs = {};
+state.mistakes = {};
+saveState();
+renderAll();
+}
+}
+
+// ===== RENDER =====
+function renderSidebar() {
+const list = document.getElementById('caseList');
+list.innerHTML = cases.map(c => `
+<div class="case-item ${state.currentCase === c.id ? 'active' : ''}" onclick="selectCase(${c.id})">
+<div class="case-num">${c.num}</div>
+<div class="case-title">${c.title}</div>
+<div class="case-tag">${c.tag}</div>
+</div>
+`).join('');
+
+const sel = document.getElementById('mobileSelect');
+sel.innerHTML = cases.map(c => `<option value="${c.id}" ${state.currentCase === c.id ? 'selected' : ''}>${c.num}: ${c.title}</option>`).join('');
+}
+
+function renderStats() {
+document.getElementById('globalScore').textContent = state.globalScore;
+document.getElementById('globalStreak').textContent = state.streak + ' 🔥';
+}
+
+function selectCase(id) {
+state.currentCase = parseInt(id);
+state.currentTab = 'casefile';
+saveState();
+renderAll();
+window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function switchTab(tab) {
+state.currentTab = tab;
+document.querySelectorAll('.tab-btn').forEach((b, i) => {
+const tabs = ['casefile','pearls','reasoning','mcq','rapid'];
+b.classList.toggle('active', tabs[i] === tab);
+});
+renderTabContent();
+saveState();
+}
+
+function renderCaseHeader() {
+const c = cases[state.currentCase];
+document.getElementById('caseHeader').innerHTML = `
+<div class="badge"><span class="signal-pulse"></span>${c.badge}</div>
+<h2>${c.num}: ${c.title}</h2>
+<p>${c.subtitle}</p>
+`;
+}
+
+function renderTabContent() {
+const c = cases[state.currentCase];
+const container = document.getElementById('tabContent');
+switch(state.currentTab) {
+case 'casefile': container.innerHTML = renderCaseFile(c); break;
+case 'pearls': container.innerHTML = renderPearls(c); break;
+case 'reasoning': container.innerHTML = renderReasoning(c); break;
+case 'mcq': container.innerHTML = renderMCQ(c); break;
+case 'rapid': container.innerHTML = renderRapid(c); break;
+}
+}
+
+function renderCaseFile(c) {
+return `
+<div class="tab-content active">
+<div class="card">
+<h3><span class="icon icon-blue">👤</span>Patient Profile</h3>
+<div class="profile-grid">
+<div class="profile-item"><div class="p-label">Age</div><div class="p-value">${c.patient.age}</div></div>
+<div class="profile-item"><div class="p-label">Sex</div><div class="p-value">${c.patient.sex}</div></div>
+<div class="profile-item"><div class="p-label">History</div><div class="p-value">${c.patient.presenting}</div></div>
+<div class="profile-item"><div class="p-label">Setting</div><div class="p-value">${c.patient.location}</div></div>
+</div>
+</div>
+<div class="card">
+<h3><span class="icon icon-red">🔔</span>Chief Complaint</h3>
+<p style="font-size:14px;line-height:1.6;color:var(--text2)">${c.complaint}</p>
+</div>
+<div class="card">
+<h3><span class="icon icon-green">🔍</span>Key Findings <span style="font-size:11px;color:var(--text3);font-weight:400">(hover for explanation)</span></h3>
+<div style="display:flex;flex-wrap:wrap;gap:4px">
+${c.findings.map(f => `
+<span class="finding-tag ${f.abnormal ? 'abnormal' : 'normal'}">
+${f.abnormal ? '⚠️' : '✅'} ${f.text}
+<span class="tooltip-box">${f.tip}</span>
+</span>
+`).join('')}
+</div>
+</div>
+<div class="card">
+<h3><span class="icon icon-purple">📊</span>Labs & Investigations</h3>
+<div class="lab-grid">
+${c.labs.map(l => `
+<div class="lab-item">
+<span class="lab-name">${l.name}</span>
+<span class="lab-val ${l.abnormal ? 'abnormal' : 'normal'}">${l.val}</span>
+</div>
+`).join('')}
+</div>
+</div>
+</div>`;
+}
+
+function renderPearls(c) {
+return `
+<div class="tab-content active">
+${c.pearls.map(p => p.type === 'pearl' ? `
+<div class="pearl">
+<div class="pearl-title">${p.title}</div>
+<div>${p.text}</div>
+</div>
+` : `
+<div class="red-flag">
+<div class="rf-title">${p.title}</div>
+<div>${p.text}</div>
+</div>
+`).join('')}
+</div>`;
+}
+
+function renderReasoning(c) {
+return `
+<div class="tab-content active">
+${c.reasoning.map((r, i) => `
+<div class="reveal-card" id="reveal-${i}">
+<div class="reveal-header" onclick="toggleReveal(${i})">
+<h4>${r.title}</h4>
+<span class="reveal-arrow">▼</span>
+</div>
+<div class="reveal-body">
+<div class="reveal-body-inner">${r.body}</div>
+</div>
+</div>
+`).join('')}
+</div>`;
+}
+
+function toggleReveal(i) {
+const card = document.getElementById('reveal-' + i);
+card.classList.toggle('open');
+}
+
+function renderMCQ(c) {
+const caseKey = 'case' + c.id;
+const answered = state.answeredMCQs[caseKey] || {};
+const caseMistakes = state.mistakes[caseKey] || [];
+const totalQ = c.mcqs.length;
+const answeredCount = Object.keys(answered).length;
+const correctCount = Object.values(answered).filter(v => v === true).length;
+const pct = totalQ > 0 ? Math.round((answeredCount / totalQ) * 100) : 0;
+
+let html = `<div class="tab-content active">
+<div class="mcq-progress">
+<div class="prog-text">${answeredCount}/${totalQ} answered</div>
+<div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+<div class="prog-text">${correctCount} correct</div>
+</div>`;
+
+c.mcqs.forEach((m, qi) => {
+const qKey = 'q' + qi;
+const wasAnswered = answered.hasOwnProperty(qKey);
+const wasCorrect = answered[qKey];
+
+html += `<div class="mcq-card">
+<div class="q-num">Question ${qi + 1} of ${totalQ}</div>
+<div class="q-stem">${m.q}</div>`;
+
+m.opts.forEach((opt, oi) => {
+let cls = '';
+if (wasAnswered) {
+cls = 'answered';
+if (oi === m.ans) cls += ' correct show-correct';
+if (wasAnswered && !wasCorrect && oi !== m.ans) {
+// Find what they picked — we stored it
+const pickedIdx = caseMistakes.find(x => x.qIdx === qi);
+if (pickedIdx && pickedIdx.picked === oi) cls += ' incorrect';
+}
+}
+html += `<button class="mcq-option ${cls}" ${wasAnswered ? 'disabled' : `onclick="answerMCQ(${c.id},${qi},${oi})"`}>${opt}</button>`;
+});
+
+if (wasAnswered) {
+html += `<div class="mcq-explanation show">
+<strong>${wasCorrect ? '✅ Correct!' : '❌ Incorrect.'}</strong> ${m.exp}
+</div>`;
+}
+html += `</div>`;
+});
+
+// Mistake review
+if (caseMistakes.length > 0) {
+html += `<div class="mistake-panel">
+<h3 style="margin-bottom:12px;font-size:15px">❌ Mistake Review</h3>`;
+caseMistakes.forEach(mk => {
+const mq = c.mcqs[mk.qIdx];
+html += `<div class="mistake-item">
+<div class="mi-q">Q${mk.qIdx + 1}: ${mq.q.substring(0, 80)}...</div>
+<div class="mi-your">Your answer: ${mq.opts[mk.picked]}</div>
+<div class="mi-correct">Correct: ${mq.opts[mq.ans]}</div>
+</div>`;
+});
+html += `</div>`;
+}
+
+html += `</div>`;
+return html;
+}
+
+function answerMCQ(caseId, qIdx, picked) {
+const c = cases[caseId];
+const m = c.mcqs[qIdx];
+const caseKey = 'case' + caseId;
+if (!state.answeredMCQs[caseKey]) state.answeredMCQs[caseKey] = {};
+if (!state.mistakes[caseKey]) state.mistakes[caseKey] = [];
+
+const correct = picked === m.ans;
+state.answeredMCQs[caseKey]['q' + qIdx] = correct;
+
+if (correct) {
+state.globalScore++;
+state.streak++;
+if (state.streak > state.maxStreak) state.maxStreak = state.streak;
+} else {
+state.streak = 0;
+state.mistakes[caseKey].push({qIdx, picked});
+}
+
+saveState();
+renderStats();
+renderTabContent();
+}
+
+function renderRapid(c) {
+const colors = ['bullet-green','bullet-blue','bullet-purple','bullet-red','bullet-yellow'];
+return `
+<div class="tab-content active">
+<div class="card">
+<h3><span class="icon icon-green">⚡</span>Rapid Review — High-Yield Points</h3>
+${c.rapid.map(r => `
+<div class="rapid-bullet bullet-${r.color}">
+<div class="bullet-dot"></div>
+<div>${r.text}</div>
+</div>
+`).join('')}
+</div>
+</div>`;
+}
+
+function renderAll() {
+if (!state.darkMode) document.body.classList.add('light-mode');
+else document.body.classList.remove('light-mode');
+document.getElementById('darkToggle').textContent = state.darkMode ? '🌙 Toggle Theme' : '☀️ Toggle Theme';
+renderSidebar();
+renderStats();
+renderCaseHeader();
+// Reset tab buttons
+document.querySelectorAll('.tab-btn').forEach((b, i) => {
+const tabs = ['casefile','pearls','reasoning','mcq','rapid'];
+b.classList.toggle('active', tabs[i] === state.currentTab);
+});
+renderTabContent();
+}
+
+// Init
+loadState();
+renderAll();
+</script>
+</body>
+</html>

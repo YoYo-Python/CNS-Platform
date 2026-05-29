@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neuro-Psych Physiology Case Library</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#0a0e17;--surface:#111827;--surface2:#1a2332;--surface3:#243044;
+--primary:#00d4aa;--primary-dim:#00a885;--secondary:#6366f1;--accent:#f59e0b;
+--danger:#ef4444;--success:#10b981;--text:#e2e8f0;--text-dim:#94a3b8;
+--text-muted:#64748b;--border:#1e293b;--glow:0 0 20px rgba(0,212,170,0.15);
+--card-radius:12px;--transition:all 0.3s ease;
+}
+.light-mode{
+--bg:#f0f4f8;--surface:#ffffff;--surface2:#f8fafc;--surface3:#e2e8f0;
+--text:#1e293b;--text-dim:#475569;--text-muted:#64748b;--border:#cbd5e1;
+--glow:0 0 20px rgba(0,212,170,0.1);
+}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;transition:var(--transition)}
+/* Scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--primary-dim);border-radius:3px}
+
+/* Sidebar */
+.sidebar{width:280px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;transition:var(--transition)}
+.sidebar-header{padding:20px;border-bottom:1px solid var(--border);text-align:center}
+.sidebar-header h1{font-size:1.1rem;color:var(--primary);letter-spacing:1px;margin-bottom:4px}
+.sidebar-header .subtitle{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:2px}
+.ecg-line{height:40px;margin:10px 0;position:relative;overflow:hidden}
+.ecg-line svg{width:100%;height:100%}
+.ecg-path{stroke:var(--primary);stroke-width:2;fill:none;stroke-dasharray:300;stroke-dashoffset:300;animation:ecgDraw 3s linear infinite}
+@keyframes ecgDraw{0%{stroke-dashoffset:300}100%{stroke-dashoffset:0}}
+.case-list{flex:1;overflow-y:auto;padding:10px}
+.case-item{padding:12px 16px;margin:4px 8px;border-radius:8px;cursor:pointer;transition:var(--transition);border:1px solid transparent;font-size:.85rem;display:flex;align-items:center;gap:10px}
+.case-item:hover{background:var(--surface2);border-color:var(--border)}
+.case-item.active{background:linear-gradient(135deg,rgba(0,212,170,0.1),rgba(99,102,241,0.1));border-color:var(--primary);color:var(--primary)}
+.case-item .case-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;background:var(--surface3);flex-shrink:0}
+.case-item.active .case-icon{background:var(--primary);color:var(--bg)}
+.case-item .case-info{flex:1;min-width:0}
+.case-item .case-title{font-weight:600;font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.case-item .case-sub{font-size:.65rem;color:var(--text-muted);margin-top:2px}
+
+/* Stats bar */
+.stats-bar{padding:12px 16px;border-top:1px solid var(--border);display:flex;justify-content:space-around}
+.stat{text-align:center}
+.stat-val{font-size:1.1rem;font-weight:700;color:var(--primary)}
+.stat-label{font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+/* Dark mode toggle */
+.dm-toggle{padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.dm-toggle span{font-size:.8rem;color:var(--text-dim)}
+.toggle-switch{width:44px;height:24px;border-radius:12px;background:var(--surface3);position:relative;transition:var(--transition)}
+.toggle-switch::after{content:'';width:18px;height:18px;border-radius:50%;background:var(--text-dim);position:absolute;top:3px;left:3px;transition:var(--transition)}
+.toggle-switch.on{background:var(--primary)}
+.toggle-switch.on::after{left:23px;background:#fff}
+
+/* Main */
+.main{flex:1;margin-left:280px;display:flex;flex-direction:column;min-height:100vh;transition:var(--transition)}
+.top-bar{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface);position:sticky;top:0;z-index:50}
+.case-title-display{font-size:1rem;font-weight:700}
+.case-badge{font-size:.65rem;padding:4px 10px;border-radius:20px;background:rgba(0,212,170,0.15);color:var(--primary);font-weight:600}
+.hamburger{display:none;background:none;border:none;color:var(--text);font-size:1.5rem;cursor:pointer}
+
+/* Mobile dropdown */
+.mobile-case-select{display:none;padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border)}
+.mobile-case-select select{width:100%;padding:10px;border-radius:8px;background:var(--surface2);color:var(--text);border:1px solid var(--border);font-size:.85rem}
+
+/* Tabs */
+.tabs{display:flex;padding:0 24px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;gap:0}
+.tab{padding:12px 18px;cursor:pointer;font-size:.78rem;font-weight:600;color:var(--text-muted);border-bottom:2px solid transparent;transition:var(--transition);white-space:nowrap;text-transform:uppercase;letter-spacing:.5px}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+
+/* Content */
+.content{flex:1;padding:24px;overflow-y:auto}
+.tab-content{display:none;animation:fadeIn .4s ease}
+.tab-content.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--card-radius);padding:20px;margin-bottom:16px;transition:var(--transition)}
+.card:hover{box-shadow:var(--glow)}
+.card-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.card-header .icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.card-header h3{font-size:.9rem;font-weight:700}
+.card-header .tag{font-size:.6rem;padding:3px 8px;border-radius:12px;font-weight:600;margin-left:auto}
+
+/* Patient Profile */
+.profile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.profile-item{background:var(--surface2);padding:12px;border-radius:8px;border-left:3px solid var(--primary)}
+.profile-item .label{font-size:.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.profile-item .value{font-size:.9rem;font-weight:600}
+
+/* HPI highlights */
+.hpi-text{line-height:1.8;font-size:.88rem;color:var(--text-dim)}
+.hpi-text .hl{color:var(--accent);font-weight:600;cursor:pointer;position:relative;border-bottom:1px dashed var(--accent)}
+.tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--surface3);color:var(--text);padding:10px 14px;border-radius:8px;font-size:.75rem;width:250px;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,.4);pointer-events:none;opacity:0;transition:opacity .2s;line-height:1.5}
+.hl:hover .tooltip{opacity:1}
+
+/* Labs grid */
+.labs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.lab-item{background:var(--surface2);padding:12px;border-radius:8px;text-align:center}
+.lab-item .lab-name{font-size:.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.lab-item .lab-val{font-size:1.05rem;font-weight:700}
+.lab-item .lab-ref{font-size:.6rem;color:var(--text-muted);margin-top:4px}
+.lab-item.abnormal{border:1px solid var(--danger)}
+.lab-item.abnormal .lab-val{color:var(--danger)}
+
+/* Pearl bullets */
+.pearl-list{list-style:none}
+.pearl-list li{padding:10px 14px;margin:6px 0;background:var(--surface2);border-radius:8px;font-size:.85rem;line-height:1.6;border-left:3px solid var(--secondary);position:relative;padding-left:20px}
+.pearl-list li::before{content:'💡';position:absolute;left:-8px;top:8px;font-size:.9rem}
+.red-flag{border-left-color:var(--danger)!important}
+.red-flag::before{content:'🚨'!important}
+.misconception{border-left-color:var(--accent)!important}
+.misconception::before{content:'⚠️'!important}
+
+/* Reveal cards */
+.reveal-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--card-radius);margin:10px 0;overflow:hidden}
+.reveal-header{padding:14px 18px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-weight:600;font-size:.85rem;transition:var(--transition)}
+.reveal-header:hover{background:var(--surface3)}
+.reveal-header .arrow{transition:transform .3s;font-size:.8rem}
+.reveal-card.open .arrow{transform:rotate(180deg)}
+.reveal-body{max-height:0;overflow:hidden;transition:max-height .4s ease;padding:0 18px}
+.reveal-card.open .reveal-body{max-height:500px;padding:0 18px 16px}
+.reveal-body p{font-size:.85rem;line-height:1.7;color:var(--text-dim);margin-top:8px}
+
+/* MCQ */
+.mcq-progress{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.mcq-progress-bar{flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.mcq-progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--secondary));border-radius:3px;transition:width .4s ease}
+.mcq-counter{font-size:.75rem;color:var(--text-muted);font-weight:600}
+.mcq-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--card-radius);padding:24px;margin-bottom:16px}
+.mcq-stem{font-size:.9rem;line-height:1.7;margin-bottom:18px;font-weight:500}
+.mcq-option{display:block;width:100%;padding:12px 16px;margin:6px 0;background:var(--surface2);border:2px solid var(--border);border-radius:8px;cursor:pointer;font-size:.85rem;text-align:left;color:var(--text);transition:var(--transition);position:relative}
+.mcq-option:hover:not(.disabled){border-color:var(--primary);background:rgba(0,212,170,0.05)}
+.mcq-option.correct{border-color:var(--success);background:rgba(16,185,129,0.1);color:var(--success)}
+.mcq-option.wrong{border-color:var(--danger);background:rgba(239,68,68,0.1);color:var(--danger)}
+.mcq-option.disabled{cursor:default;opacity:.7}
+.mcq-option.show-correct{border-color:var(--success);background:rgba(16,185,129,0.08)}
+.mcq-feedback{margin-top:12px;padding:12px 16px;border-radius:8px;font-size:.82rem;line-height:1.5;display:none;animation:fadeIn .3s}
+.mcq-feedback.correct-fb{background:rgba(16,185,129,0.1);border:1px solid var(--success);color:var(--success);display:block}
+.mcq-feedback.wrong-fb{background:rgba(239,68,68,0.1);border:1px solid var(--danger);color:var(--danger);display:block}
+.mcq-nav{display:flex;justify-content:space-between;margin-top:16px}
+.btn{padding:10px 20px;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;border:none;transition:var(--transition)}
+.btn-primary{background:var(--primary);color:var(--bg)}
+.btn-primary:hover{background:var(--primary-dim)}
+.btn-secondary{background:var(--surface3);color:var(--text)}
+.btn-secondary:hover{background:var(--border)}
+.score-display{text-align:center;padding:20px;background:var(--surface2);border-radius:var(--card-radius);margin-top:20px}
+.score-display .big-score{font-size:2.5rem;font-weight:800;color:var(--primary)}
+.score-display .score-label{font-size:.8rem;color:var(--text-muted);margin-top:4px}
+.streak-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:12px;background:rgba(245,158,11,0.15);color:var(--accent);font-size:.75rem;font-weight:700}
+
+/* Rapid review */
+.rapid-item{padding:8px 12px;margin:4px 0;background:var(--surface2);border-radius:6px;font-size:.82rem;line-height:1.5;border-left:3px solid var(--primary);color:var(--text-dim)}
+.rapid-item strong{color:var(--text)}
+
+/* Mistake review */
+.mistake-card{background:var(--surface2);border:1px solid var(--danger);border-radius:8px;padding:14px;margin:8px 0}
+.mistake-card .mq{font-size:.82rem;font-weight:600;margin-bottom:6px}
+.mistake-card .ma{font-size:.78rem;color:var(--danger)}
+.mistake-card .mc{font-size:.78rem;color:var(--success);margin-top:4px}
+.mistake-card .me{font-size:.75rem;color:var(--text-muted);margin-top:6px;font-style:italic}
+
+/* Neural animation */
+.neural-bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.04}
+
+/* Responsive */
+@media(max-width:768px){
+.sidebar{transform:translateX(-100%);width:260px}
+.sidebar.open{transform:translateX(0)}
+.main{margin-left:0}
+.hamburger{display:block}
+.mobile-case-select{display:block}
+.content{padding:16px}
+.profile-grid{grid-template-columns:1fr}
+.labs-grid{grid-template-columns:repeat(2,1fr)}
+.tabs{padding:0 12px}
+.tab{padding:10px 12px;font-size:.7rem}
+}
+.overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:99}
+.overlay.show{display:block}
+
+/* Pulse animation */
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.pulse{animation:pulse .6s ease}
+
+/* Section headers */
+.section-title{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:2px;margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+</style>
+</head>
+<body>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-header">
+<h1>⚡ NeuroPharm</h1>
+<div class="subtitle">Epilepsy & Depression Cases</div>
+<div class="ecg-line">
+<svg viewBox="0 0 300 40">
+<path class="ecg-path" d="M0,20 L30,20 L40,20 L50,5 L55,35 L60,10 L65,20 L90,20 L100,20 L110,5 L115,35 L120,10 L125,20 L150,20 L160,20 L170,5 L175,35 L180,10 L185,20 L210,20 L220,20 L230,5 L235,35 L240,10 L245,20 L270,20 L280,20 L290,5 L295,35 L300,20"/>
+</svg>
+</div>
+</div>
+<div class="case-list" id="caseList"></div>
+<div class="stats-bar">
+<div class="stat"><div class="stat-val" id="totalScore">0</div><div class="stat-label">Score</div></div>
+<div class="stat"><div class="stat-val" id="streakDisplay">🔥 0</div><div class="stat-label">Streak</div></div>
+<div class="stat"><div class="stat-val" id="totalAttempted">0</div><div class="stat-label">Attempted</div></div>
+</div>
+<div class="dm-toggle" onclick="toggleDarkMode()">
+<span>🌙 Dark Mode</span>
+<div class="toggle-switch on" id="dmSwitch"></div>
+</div>
+</aside>
+
+<main class="main" id="main">
+<div class="top-bar">
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="case-title-display" id="topTitle">Select a Case</div>
+<div class="case-badge" id="topBadge">CASE 1</div>
+</div>
+<div class="mobile-case-select">
+<select id="mobileCaseSelect" onchange="selectCase(this.value)"></select>
+</div>
+<div class="tabs" id="tabsBar"></div>
+<div class="content" id="contentArea"></div>
+</main>
+
+<script>
+// ===== CASE DATA =====
+const cases = [
+{
+id:0,
+title:"Generalized Tonic-Clonic Seizures",
+shortTitle:"GTCS",
+icon:"⚡",
+badge:"CASE 1",
+patient:{age:"25",sex:"Male",complaint:"Episodes of tonic rigidity progressing to massive body jerking",dx:"Generalized Tonic-Clonic Seizures"},
+profile:[
+{label:"Age/Sex",value:"25-year-old Male"},
+{label:"Presentation",value:"Tonic rigidity → clonic jerking → postictal stupor"},
+{label:"EEG",value:"Generalized fast, repetitive spikes"},
+{label:"Seizure Duration",value:"Tonic 15-30s; Clonic 1-2 min"}
+],
+hpiHTML:`A <span class="hl">25-year-old male<span class="tooltip">Young adult onset; consider primary generalized epilepsy or new-onset focal-to-bilateral seizure.</span></span> presents with episodes starting as <span class="hl">tonic rigidity of extremities<span class="tooltip">Tonic phase: sustained muscle contraction from synchronous excitatory discharge across both hemispheres. Lasts 15-30 seconds.</span></span>, progressing to <span class="hl">massive jerking of the body<span class="tooltip">Clonic phase: rhythmic alternation of contraction and relaxation as inhibitory circuits partially activate. Lasts 1-2 minutes.</span></span>, and ending in a <span class="hl">stuporous state<span class="tooltip">Postictal stupor: neuronal exhaustion and intense central inhibition following massive excitatory discharge. Can last 30 min to 24 hours.</span></span>.`,
+labs:[
+{name:"EEG Pattern",value:"Fast repetitive spikes",ref:"Normal background",abnormal:true},
+{name:"Consciousness",value:"Lost (generalized)",ref:"Normal",abnormal:true},
+{name:"Duration (Tonic)",value:"15-30 sec",ref:"N/A",abnormal:false},
+{name:"Duration (Clonic)",value:"1-2 min",ref:"N/A",abnormal:false},
+{name:"Postictal State",value:"Stupor present",ref:"Alert",abnormal:true},
+{name:"Seizure Type",value:"Generalized",ref:"N/A",abnormal:false}
+],
+pearls:[
+{text:"Valproate is the drug of choice for long-term management of GTCS — broad-spectrum coverage.",type:"pearl"},
+{text:"Phenytoin is avoided as first-line due to CNS depression, megaloblastic anemia (folate interference), and gingival hyperplasia.",type:"pearl"},
+{text:"GTCS progression: Tonic (sustained contraction) → Clonic (rhythmic jerking) → Postictal stupor (neuronal exhaustion).",type:"pearl"},
+{text:"Postictal stupor is a compensatory mechanism: massive GABAergic inhibition + neuronal metabolic exhaustion.",type:"pearl"},
+{text:"Do NOT confuse GTCS EEG (fast repetitive spikes) with absence EEG (3-Hz spike-and-wave). Completely different mechanisms!",type:"misconception"},
+{text:"Phenytoin's zero-order kinetics at therapeutic doses means small dose changes cause disproportionate toxicity.",type:"redflag"}
+],
+reasoning:[
+{title:"🔬 Altered Physiology",body:"Abnormal synchronous, rapid electrical discharges spread globally across both cerebral hemispheres."},
+{title:"⚙️ Pathophysiology Mechanism",body:"Tonic phase = sustained depolarization with muscle contraction. Clonic phase = rhythmic inhibitory interruptions creating alternating contraction/relaxation."},
+{title:"🛡️ Compensatory Response",body:"Postictal stupor represents neuronal exhaustion and intense GABAergic central inhibition following the massive excitatory cascade."},
+{title:"✅ Final Diagnosis & Management",body:"Generalized Tonic-Clonic Seizures. First-line long-term: Valproate. It provides broad-spectrum coverage of generalized seizure types."}
+],
+mcqs:[
+{stem:"A 25-year-old male has seizures characterized by 30 seconds of extremity rigidity followed by 2 minutes of massive body jerking. What is the most appropriate long-term pharmacotherapy?",options:["A. Ethosuximide","B. Pregabalin","C. Clonazepam","D. Valproate"],correct:3,explanation:"Valproate is the most suitable broad-spectrum agent for long-term GTCS management."},
+{stem:"What EEG finding is most characteristic of the tonic phase in GTCS?",options:["A. 3-Hz spike and wave discharges","B. Generalized fast, repetitive spikes","C. Focal sharp waves over right central region","D. Generalized attenuation"],correct:1,explanation:"Tonic phase of GTCS shows generalized fast, repetitive spikes on EEG."},
+{stem:"Following a massive generalized seizure, a patient remains unresponsive and limp. Which mechanism best explains this state?",options:["A. T-type calcium channel blockade","B. Hyponatremia","C. Neuronal exhaustion and intense central inhibition","D. Altered pharmacokinetics"],correct:2,explanation:"Postictal stupor = severe neuronal fatigue + GABAergic inhibition after massive excitatory discharge."},
+{stem:"Which drug is least appropriate for GTCS due to megaloblastic anemia and gingival hyperplasia?",options:["A. Levetiracetam","B. Valproate","C. Phenytoin","D. Lamotrigine"],correct:2,explanation:"Phenytoin causes megaloblastic anemia (folate interference), gingival hyperplasia, and CNS depression."},
+{stem:"Which lobe is NOT a typical focal origin for partial seizures before generalization?",options:["A. Frontal","B. Occipital","C. Cerebellar","D. Parietal"],correct:2,explanation:"Focal seizures arise from cerebral cortex lobes (frontal, temporal, parietal, occipital) — not the cerebellum."}
+],
+rapid:[
+"**GTCS Progression:** Tonic rigidity → Clonic jerking → Postictal stupor",
+"**Valproate:** First-line for GTCS; broad-spectrum (covers absence, myoclonic, GTCS)",
+"**EEG in GTCS:** Generalized fast, repetitive spikes (NOT 3-Hz spike-wave)",
+"**Postictal stupor:** Neuronal exhaustion + GABAergic central inhibition",
+"**Phenytoin pitfalls:** Zero-order kinetics, gingival hyperplasia, megaloblastic anemia, CNS depression",
+"**Valproate MOA:** Multiple — Na+ channel block, T-type Ca²+ block, ↑GABA, ↓glutamate"
+]
+},
+{
+id:1,
+title:"Generalized Absence Epilepsy",
+shortTitle:"Absence Seizures",
+icon:"👁️",
+badge:"CASE 2",
+patient:{age:"9",sex:"Male",complaint:"Brief lapses of awareness with eyelid fluttering",dx:"Childhood Absence Epilepsy"},
+profile:[
+{label:"Age/Sex",value:"9-year-old Boy"},
+{label:"Presentation",value:"Brief lapses of awareness, eyelid fluttering q5-10 min"},
+{label:"EEG",value:"3-Hz spike-and-wave discharges (all leads)"},
+{label:"Impact",value:"Learning difficulties at school"}
+],
+hpiHTML:`A <span class="hl">9-year-old boy<span class="tooltip">Childhood absence epilepsy typically presents between ages 4-12. Peak: 6-7 years. Usually outgrown by adolescence.</span></span> presents with <span class="hl">learning difficulties<span class="tooltip">Frequent absence attacks (up to 100/day) disrupt attention and learning, often misdiagnosed as daydreaming or ADHD.</span></span> and <span class="hl">brief lapses of awareness<span class="tooltip">Typical absence = sudden onset/offset, blank stare, 5-30 seconds. No postictal confusion (unlike GTCS).</span></span> with <span class="hl">eyelid fluttering<span class="tooltip">Eyelid myoclonia/fluttering is a classic motor component of typical absence seizures.</span></span> occurring every 5-10 minutes. EEG reveals <span class="hl">3-Hz spike-and-wave discharges<span class="tooltip">Pathognomonic for absence epilepsy. Generated by abnormal thalamocortical oscillatory circuits involving T-type Ca²+ channels.</span></span>.`,
+labs:[
+{name:"EEG Pattern",value:"3-Hz spike-and-wave",ref:"Normal background",abnormal:true},
+{name:"Consciousness",value:"Brief lapses (5-30s)",ref:"Continuous",abnormal:true},
+{name:"Frequency",value:"q5-10 minutes",ref:"None",abnormal:true},
+{name:"Postictal state",value:"None",ref:"N/A",abnormal:false},
+{name:"Motor features",value:"Eyelid fluttering",ref:"None",abnormal:true},
+{name:"Provocation",value:"Hyperventilation",ref:"N/A",abnormal:false}
+],
+pearls:[
+{text:"Ethosuximide blocks T-type calcium channels in thalamocortical neurons — specific mechanism for absence seizures.",type:"pearl"},
+{text:"Ethosuximide is first-line because it has minimal sedation, preserves cognition, and maintains school performance in children.",type:"pearl"},
+{text:"Monitor CBC for rare bone marrow suppression with ethosuximide. GI side effects (nausea, vomiting) are common.",type:"pearl"},
+{text:"Valproate is equally effective but causes sedation, weight gain, and rare hepatotoxicity — less ideal in children.",type:"pearl"},
+{text:"Do NOT confuse 3-Hz spike-wave (absence) with fast repetitive spikes (GTCS). Entirely different thalamocortical circuits!",type:"misconception"},
+{text:"Carbamazepine and phenytoin can WORSEN absence seizures — they are contraindicated!",type:"redflag"}
+],
+reasoning:[
+{title:"🔬 Altered Physiology",body:"Abnormal amplification of oscillatory rhythms in thalamocortical neurons generates the 3-Hz spike-and-wave pattern."},
+{title:"⚙️ Pathophysiology Mechanism",body:"T-type calcium channels in thalamic relay neurons drive burst-firing oscillations. In absence epilepsy, these are pathologically amplified, creating widespread cortical synchronization and transient loss of awareness."},
+{title:"🛡️ Compensatory Response",body:"No postictal state (unlike GTCS) — the oscillatory circuit simply resets. Hyperventilation can provoke attacks by altering CO₂ and cerebral blood flow."},
+{title:"✅ Final Diagnosis & Management",body:"Childhood Absence Epilepsy. First-line: Ethosuximide (T-type Ca²+ channel blocker). Preserves cognition. If mixed seizure types (absence + GTCS), use Valproate."}
+],
+mcqs:[
+{stem:"A 9-year-old with learning difficulties has 5-second lapses of awareness. EEG shows 3-Hz spike-and-wave. Which treatment best avoids excessive sedation?",options:["A. Phenobarbitone","B. Ethosuximide","C. Diazepam","D. Clonazepam"],correct:1,explanation:"Ethosuximide is first-line for absence seizures — minimal sedation, preserves cognition/school performance."},
+{stem:"What is the precise cellular mechanism of ethosuximide?",options:["A. Enhances GABA-A receptor activation","B. Blocks voltage-gated sodium channels","C. Blocks T-type calcium channels in thalamocortical neurons","D. Inhibits glutamate release via SV2A binding"],correct:2,explanation:"Ethosuximide specifically blocks T-type Ca²+ channels in thalamocortical neurons."},
+{stem:"Which monitoring is strictly indicated for a patient on ethosuximide?",options:["A. Thyroid function tests","B. Renal ultrasound","C. Complete Blood Count (CBC)","D. Electrocardiogram (ECG)"],correct:2,explanation:"CBC monitoring needed due to rare bone marrow suppression risk."},
+{stem:"Why is Valproate less ideal than ethosuximide as primary monotherapy for a 9-year-old with pure absence epilepsy?",options:["A. It is totally ineffective for absence seizures","B. It acts on renal clearance pathways","C. It causes sedation, weight gain, and rare hepatotoxicity","D. It induces severe hyponatremia"],correct:2,explanation:"Valproate is effective but causes sedation, weight gain, and carries hepatotoxicity risk — suboptimal for children."},
+{stem:"Which maneuver classically provokes absence seizures in the clinic?",options:["A. Carotid massage","B. Hyperventilation","C. Valsalva maneuver","D. Hypoventilation"],correct:1,explanation:"Hyperventilation provokes thalamocortical oscillations triggering absence attacks (e.g., blowing a pinwheel)."}
+],
+rapid:[
+"**Absence Seizure EEG:** 3-Hz spike-and-wave (pathognomonic)",
+"**Ethosuximide MOA:** Blocks T-type Ca²+ channels in thalamic relay neurons",
+"**Key advantage:** No sedation = preserves cognition/school performance",
+"**Valproate:** Effective but causes sedation + weight gain + hepatotoxicity risk",
+"**Carbamazepine/Phenytoin:** CONTRAINDICATED in absence — can worsen seizures!",
+"**Provocation test:** Hyperventilation (3 min blowing)",
+"**No postictal state** in absence (unlike GTCS)"
+]
+},
+{
+id:2,
+title:"Epilepsy in Pregnancy",
+shortTitle:"Pregnancy & AEDs",
+icon:"🤰",
+badge:"CASE 3",
+patient:{age:"25-28",sex:"Female (Pregnant)",complaint:"Breakthrough seizures during pregnancy on lamotrigine",dx:"Myoclonic Epilepsy with Pregnancy-Related Pharmacokinetic Changes"},
+profile:[
+{label:"Age/Sex",value:"25-28-year-old Pregnant Female"},
+{label:"History",value:"Myoclonic seizures, previously controlled on lamotrigine"},
+{label:"Current Issue",value:"Breakthrough seizures with advancing pregnancy"},
+{label:"Mechanism",value:"Increased lamotrigine clearance during pregnancy"}
+],
+hpiHTML:`A <span class="hl">25-to-28-year-old pregnant female<span class="tooltip">Pregnancy causes major pharmacokinetic changes: increased plasma volume, enhanced hepatic/renal clearance, altered protein binding.</span></span> with a history of <span class="hl">myoclonic seizures<span class="tooltip">Myoclonic seizures: brief, shock-like involuntary jerks. Part of the generalized epilepsy spectrum (e.g., JME).</span></span>, previously well-controlled on <span class="hl">lamotrigine<span class="tooltip">Lamotrigine is a preferred AED in pregnancy due to lower teratogenic risk. However, its clearance dramatically increases during pregnancy (especially 2nd/3rd trimester).</span></span>, now presents with <span class="hl">breakthrough seizures<span class="tooltip">Caused by subtherapeutic lamotrigine levels. Pregnancy increases glucuronidation of lamotrigine by 50-300%, requiring frequent dose adjustments and level monitoring.</span></span> concurrent with advancing pregnancy.`,
+labs:[
+{name:"Lamotrigine Level",value:"Subtherapeutic ↓",ref:"Therapeutic range",abnormal:true},
+{name:"Drug Clearance",value:"Significantly ↑",ref:"Baseline",abnormal:true},
+{name:"Seizure Frequency",value:"Increased",ref:"Well-controlled",abnormal:true},
+{name:"Folic Acid",value:"Must supplement 5mg/day",ref:"0.4mg/day (standard)",abnormal:true},
+{name:"Valproate Status",value:"CONTRAINDICATED (Cat D)",ref:"N/A",abnormal:true},
+{name:"Teratogenic Risk",value:"Monitor closely",ref:"N/A",abnormal:false}
+],
+pearls:[
+{text:"Lamotrigine clearance increases 50-300% during pregnancy due to enhanced glucuronidation — must increase dose and monitor levels monthly.",type:"pearl"},
+{text:"Valproate is Category D: 1-2% risk of neural tube defects (spina bifida), congenital malformations, and neurodevelopmental delays (autism spectrum).",type:"pearl"},
+{text:"Preferred AEDs in pregnancy: Lamotrigine or Levetiracetam — lowest teratogenic profiles.",type:"pearl"},
+{text:"All women on AEDs planning pregnancy: HIGH-DOSE folic acid 5 mg/day (not the standard 0.4mg!).",type:"pearl"},
+{text:"Never abruptly stop an AED in pregnancy — risk of status epilepticus is dangerous to both mother and fetus!",type:"redflag"},
+{text:"Valproate is NOT just 'slightly risky' — it is the MOST teratogenic commonly used AED. Category D, not to be confused with safer options.",type:"misconception"}
+],
+reasoning:[
+{title:"🔬 Altered Physiology",body:"Pregnancy increases hepatic glucuronidation and renal clearance, dramatically lowering lamotrigine serum concentrations."},
+{title:"⚙️ Pathophysiology Mechanism",body:"Subtherapeutic drug levels → loss of seizure control → breakthrough myoclonic seizures. Estrogen-enhanced UGT1A4 enzyme activity drives the increased glucuronidation."},
+{title:"🛡️ Compensatory Response",body:"Dose escalation of lamotrigine during pregnancy, with monthly therapeutic drug monitoring, compensates for enhanced clearance."},
+{title:"✅ Final Diagnosis & Management",body:"Pregnancy-related pharmacokinetic changes causing lamotrigine treatment failure. Management: Increase lamotrigine dose with level monitoring. High-dose folic acid 5mg/day. Avoid valproate."}
+],
+mcqs:[
+{stem:"A pregnant woman on lamotrigine for myoclonic seizures develops breakthrough seizures. What is the most likely explanation?",options:["A. Her epilepsy is inherently worsening","B. Lamotrigine concentrations are increasing","C. Lamotrigine concentrations are decreasing","D. Lamotrigine loses receptor efficacy in pregnancy"],correct:2,explanation:"Pregnancy increases lamotrigine clearance (enhanced glucuronidation) → decreased levels → breakthrough seizures."},
+{stem:"A 28-year-old female with JME on valproate 1200 mg/day desires pregnancy. Why is valproate highly contraindicated?",options:["A. Causes severe maternal hyponatremia","B. Carries 1-2% risk of fetal neural tube defects and neurodevelopmental delays","C. Decreases maternal folic acid absorption exclusively","D. Undergoes total renal failure in second trimester"],correct:1,explanation:"Valproate = Category D teratogen. 1-2% neural tube defects, congenital malformations, autism/neurodevelopmental delays."},
+{stem:"What is the most appropriate preconception intervention for a patient on AEDs planning pregnancy?",options:["A. Discontinue AED suddenly","B. Add a second AED","C. Start high-dose folic acid (5 mg/day)","D. Switch to phenobarbital"],correct:2,explanation:"High-dose folic acid (5 mg/day) is essential preconceptionally to reduce neural tube defect risk."},
+{stem:"Best strategy for switching from valproate to a safer alternative for pregnancy?",options:["A. Stop valproate suddenly, immediately start new drug","B. Add lamotrigine and maintain high-dose valproate","C. Gradually taper valproate while slowly titrating lamotrigine or levetiracetam","D. Transition to carbamazepine acutely"],correct:2,explanation:"Gradual taper of old drug + slow titration of safer alternative. Never abrupt changes — risk of status epilepticus."},
+{stem:"Which medication is preferred over valproate to minimize teratogenic risk in pregnancy?",options:["A. Phenytoin","B. Phenobarbital","C. Levetiracetam","D. Ethosuximide"],correct:2,explanation:"Levetiracetam (and lamotrigine) have the lowest teratogenic risk profiles among common AEDs."}
+],
+rapid:[
+"**Lamotrigine in pregnancy:** Clearance ↑ 50-300% (glucuronidation) → levels ↓ → breakthrough seizures",
+"**Management:** Increase dose + monthly level monitoring",
+"**Valproate:** CATEGORY D — 1-2% NTD, autism, congenital malformations",
+"**Preferred in pregnancy:** Lamotrigine or Levetiracetam",
+"**Preconception:** High-dose folic acid 5 mg/day (mandatory!)",
+"**Never stop AEDs abruptly in pregnancy** — status epilepticus risk",
+"**Post-delivery:** Reduce lamotrigine dose back (clearance normalizes)"
+]
+},
+{
+id:3,
+title:"Focal Seizures in Elderly/Polypharmacy",
+shortTitle:"Focal Sz & Polypharmacy",
+icon:"💊",
+badge:"CASE 4",
+patient:{age:"75 / 50",sex:"Female / Male",complaint:"Post-stroke focal seizures; breakthrough complex focal seizures on carbamazepine",dx:"Focal Seizures with Polypharmacy Considerations"},
+profile:[
+{label:"Patient A",value:"75-year-old woman, 1-month post-stroke, simple focal seizures"},
+{label:"Patient B",value:"50-year-old male, complex focal seizures, on carbamazepine, breakthrough seizures"},
+{label:"Key Concern",value:"CYP450 drug interactions with polypharmacy"},
+{label:"Solution",value:"Renally-cleared agents (levetiracetam)"}
+],
+hpiHTML:`<strong>Vignette 1:</strong> A <span class="hl">75-year-old woman<span class="tooltip">Elderly patients have multiple comorbidities, polypharmacy, and altered hepatic/renal function — drug interactions are critical.</span></span>, 1-month <span class="hl">post-stroke<span class="tooltip">Stroke is the most common cause of new-onset seizures in the elderly (>60 years). Cortical strokes carry highest risk.</span></span>, exhibits <span class="hl">simple focal seizures<span class="tooltip">Simple focal = consciousness PRESERVED. Motor, sensory, or autonomic symptoms depending on cortical focus. No awareness impairment.</span></span>. <br><br><strong>Vignette 2:</strong> A 50-year-old male with <span class="hl">complex focal seizures<span class="tooltip">Complex focal = consciousness IMPAIRED. Often temporal lobe origin with automatisms (lip-smacking, hand movements).</span></span> on <span class="hl">carbamazepine<span class="tooltip">Carbamazepine is a potent CYP3A4 inducer. It accelerates metabolism of many drugs: warfarin, OCP, other AEDs, statins, etc.</span></span> develops <span class="hl">breakthrough seizures<span class="tooltip">May be due to autoinduction (carbamazepine induces its own metabolism), or need for adjunctive therapy.</span></span> requiring add-on therapy.`,
+labs:[
+{name:"Seizure Type (Pt A)",value:"Simple Focal",ref:"None",abnormal:true},
+{name:"Seizure Type (Pt B)",value:"Complex Focal",ref:"None",abnormal:true},
+{name:"CYP450 Interaction Risk",value:"HIGH (carbamazepine)",ref:"Low",abnormal:true},
+{name:"Polypharmacy Status",value:"Multiple medications",ref:"Minimal",abnormal:true},
+{name:"Recommended Agent",value:"Levetiracetam (renal)",ref:"N/A",abnormal:false},
+{name:"Hyponatremia Risk",value:"Oxcarbazepine (avoid)",ref:"Normal Na+",abnormal:true}
+],
+pearls:[
+{text:"Levetiracetam is renally cleared — uniquely avoids CYP450 drug interactions. Best choice for elderly polypharmacy.",type:"pearl"},
+{text:"Levetiracetam binds SV2A protein on synaptic vesicles, modulating neurotransmitter release. Unique MOA.",type:"pearl"},
+{text:"Carbamazepine and phenytoin are potent CYP450 inducers — accelerate metabolism of countless co-medications.",type:"pearl"},
+{text:"Oxcarbazepine causes symptomatic hyponatremia — elderly are especially vulnerable (dilute urine, SIADH-like effect).",type:"pearl"},
+{text:"Levetiracetam CAN cause behavioral side effects: nervousness, depression, psychosis — monitor psychiatric status!",type:"redflag"},
+{text:"Simple focal ≠ less important. Simple = awareness preserved. Complex = awareness impaired. Not about severity!",type:"misconception"}
+],
+reasoning:[
+{title:"🔬 Altered Physiology",body:"Older AEDs (carbamazepine, phenytoin) rely heavily on hepatic CYP450 metabolism, causing dangerous drug-drug interactions in polypharmacy settings."},
+{title:"⚙️ Pathophysiology Mechanism",body:"CYP450 enzyme induction by carbamazepine accelerates clearance of co-administered drugs (warfarin, statins, OCP), reducing their efficacy. Also auto-induces own metabolism."},
+{title:"🛡️ Compensatory Response",body:"Using renally-cleared drugs (levetiracetam) bypasses hepatic metabolism entirely, eliminating CYP450-mediated drug interactions."},
+{title:"✅ Final Diagnosis & Management",body:"Focal seizures requiring treatment in polypharmacy patient. Drug of choice: Levetiracetam (renal clearance, no CYP450 interactions, broad efficacy for focal seizures)."}
+],
+mcqs:[
+{stem:"A 75-year-old post-stroke woman with focal seizures and polypharmacy. Which drug is best suited?",options:["A. Phenytoin","B. Oxcarbazepine","C. Levetiracetam","D. Phenobarbital"],correct:2,explanation:"Levetiracetam is renally cleared — avoids CYP450 drug interactions critical in elderly polypharmacy."},
+{stem:"A 50-year-old on carbamazepine needs adjunctive therapy. Which drug has LEAST pharmacokinetic interaction?",options:["A. Lamotrigine","B. Topiramate","C. Felbamate","D. Levetiracetam"],correct:3,explanation:"Levetiracetam doesn't affect other AED pharmacokinetics and isn't significantly altered by them."},
+{stem:"Why is oxcarbazepine specifically cautioned against in elderly?",options:["A. Causes megaloblastic anemia","B. Frequently induces symptomatic hyponatremia","C. Causes gingival hyperplasia","D. Blocks T-type calcium channels"],correct:1,explanation:"Oxcarbazepine causes hyponatremia — elderly are uniquely vulnerable and more likely symptomatic."},
+{stem:"What distinguishes simple from complex focal seizures?",options:["A. Simple always generalize","B. Complex originate strictly in occipital lobe","C. Consciousness is impaired in complex focal seizures","D. Simple require immediate surgery"],correct:2,explanation:"Simple focal = awareness preserved. Complex focal = awareness/consciousness impaired."},
+{stem:"Which clearance mechanism allows levetiracetam to bypass CYP450 interactions?",options:["A. Biliary excretion","B. First-pass hepatic metabolism","C. Renal clearance","D. Pulmonary exhalation"],correct:2,explanation:"Levetiracetam is renally cleared — bypasses hepatic CYP450 enzyme system entirely."}
+],
+rapid:[
+"**Levetiracetam:** Renally cleared = No CYP450 interactions → best for elderly/polypharmacy",
+"**Levetiracetam MOA:** Binds SV2A on synaptic vesicles",
+"**Carbamazepine:** Potent CYP3A4 inducer → ↓ levels of warfarin, OCP, statins, other AEDs",
+"**Oxcarbazepine:** Causes hyponatremia (AVOID in elderly)",
+"**Focal Seizure classification:** Simple (aware) vs Complex (impaired awareness)",
+"**Levetiracetam caution:** Behavioral side effects (depression, psychosis)",
+"**Post-stroke seizures:** Most common cause of new-onset epilepsy in elderly"
+]
+},
+{
+id:4,
+title:"Status Epilepticus",
+shortTitle:"Status Epilepticus",
+icon:"🚨",
+badge:"CASE 5",
+patient:{age:"Variable",sex:"Variable",complaint:"Continuous seizure activity ≥20 minutes",dx:"Status Epilepticus (Medical Emergency)"},
+profile:[
+{label:"Definition",value:"Ongoing seizure activity ≥ 20 minutes"},
+{label:"Presentation",value:"Continuous massive extremity jerking, unresponsive"},
+{label:"Duration",value:"> 20 minutes continuous"},
+{label:"Risk",value:"Cardiorespiratory compromise, brain damage, death"}
+],
+hpiHTML:`A patient is brought in with <span class="hl">continuous massive extremity jerking<span class="tooltip">Continuous generalized tonic-clonic activity without regaining consciousness between episodes = status epilepticus.</span></span> and <span class="hl">unresponsiveness lasting >20 minutes<span class="tooltip">Status epilepticus = seizure activity ≥20 minutes OR repeated seizures without regaining consciousness between them. MEDICAL EMERGENCY.</span></span>. Concern for <span class="hl">cardiorespiratory compromise<span class="tooltip">Prolonged seizures → massive sympathetic output → hypoxemia, hyperthermia, metabolic acidosis, rhabdomyolysis, cardiac arrhythmias.</span></span> and <span class="hl">permanent brain damage<span class="tooltip">After 30 minutes of continuous seizure activity, excitotoxic neuronal injury becomes irreversible. GABA receptors internalize, making benzodiazepines less effective over time.</span></span> if seizure activity is not terminated.`,
+labs:[
+{name:"Seizure Duration",value:">20 min continuous",ref:"Self-terminating",abnormal:true},
+{name:"Consciousness",value:"Unresponsive",ref:"Alert",abnormal:true},
+{name:"Airway Status",value:"Compromised",ref:"Patent",abnormal:true},
+{name:"O₂ Saturation",value:"Falling",ref:">95%",abnormal:true},
+{name:"Metabolic State",value:"Lactic acidosis",ref:"Normal pH",abnormal:true},
+{name:"Core Temperature",value:"Hyperthermia risk",ref:"36.5-37.5°C",abnormal:true}
+],
+pearls:[
+{text:"Status epilepticus = seizure activity ≥ 20 minutes. It is a MEDICAL EMERGENCY. Mortality 20% if untreated.",type:"pearl"},
+{text:"Step 1: ABCs (Airway, Breathing, Circulation) BEFORE any pharmacotherapy!",type:"pearl"},
+{text:"0-10 min: IV Lorazepam or Diazepam. No IV? → Buccal Midazolam or Rectal Diazepam. DO NOT delay!",type:"pearl"},
+{text:"10-30 min (benzodiazepine failure): IV Levetiracetam, Valproate, or Fosphenytoin.",type:"pearl"},
+{text:">30 min (refractory): General anesthesia (Propofol, Midazolam, or Thiopental infusion) in ICU with continuous EEG.",type:"pearl"},
+{text:"GABA receptors internalize during prolonged seizures — benzodiazepines become LESS effective over time. Speed is critical!",type:"redflag"},
+{text:"Diazepam is NOT the same as Lorazepam in status epilepticus. Lorazepam has longer duration of anticonvulsant action despite shorter half-life context.",type:"misconception"}
+],
+reasoning:[
+{title:"🔬 Altered Physiology",body:"Complete failure of intrinsic GABAergic inhibitory termination mechanisms. Continuous excitotoxic neuronal firing without self-termination."},
+{title:"⚙️ Pathophysiology Mechanism",body:"Persistent depolarization → massive glutamate release → Ca²+ influx → excitotoxic neuronal death. Simultaneously: sympathetic storm → hypoxia, hyperthermia, metabolic acidosis, rhabdomyolysis."},
+{title:"🛡️ Compensatory Response",body:"None sufficient. The body cannot self-terminate the seizure. GABA receptor internalization makes endogenous and exogenous GABAergic inhibition progressively weaker."},
+{title:"✅ Final Diagnosis & Management",body:"Status Epilepticus. EMERGENCY protocol: ABCs → IV Benzodiazepine (0-10 min) → IV Levetiracetam/Valproate/Fosphenytoin (10-30 min) → General Anesthesia in ICU (>30 min)."}
+],
+mcqs:[
+{stem:"A patient has continuous seizure activity for 25 minutes with IV access established. What is the first-line medication?",options:["A. Oral carbamazepine","B. IV Lorazepam or Diazepam","C. IV Fosphenytoin","D. General anesthesia with Propofol"],correct:1,explanation:"First-line for status epilepticus with IV access = IV benzodiazepine (lorazepam or diazepam)."},
+{stem:"A 5-year-old in status epilepticus in the community with NO IV access. What is the preferred immediate treatment?",options:["A. Oral Ethosuximide","B. Subcutaneous Phenytoin","C. Buccal Midazolam or Rectal Diazepam","D. Intramuscular Levetiracetam"],correct:2,explanation:"No IV access → Buccal midazolam or rectal diazepam. Never delay treatment waiting for IV."},
+{stem:"What is the FIRST step in managing status epilepticus BEFORE pharmacotherapy?",options:["A. Order emergent brain MRI","B. Secure airway, administer O₂, assess cardiorespiratory function","C. Draw CBC and LFTs","D. Begin continuous EEG"],correct:1,explanation:"ABCs first: Airway, Breathing, Circulation — always before any drug administration."},
+{stem:"IV lorazepam given at maximum doses but seizures continue at 15 minutes. Which is an appropriate second-line agent?",options:["A. Buccal Midazolam","B. Oral Valproate","C. IV Fosphenytoin or IV Levetiracetam","D. Oral Carbamazepine"],correct:2,explanation:"Second-line (10-30 min): IV fosphenytoin, levetiracetam, or valproate."},
+{stem:"Seizures continue for 45 minutes despite benzodiazepines and fosphenytoin. Next step?",options:["A. IV ethosuximide","B. Discontinue all meds and observe","C. ICU for general anesthesia (propofol infusion) + continuous EEG","D. Oral phenobarbital"],correct:2,explanation:"Refractory status (>30 min) → ICU for general anesthesia (propofol/midazolam/thiopental) with continuous EEG monitoring."}
+],
+rapid:[
+"**Status Epilepticus:** Seizure ≥ 20 min. MEDICAL EMERGENCY. 20% mortality if untreated.",
+"**Step 1:** ABCs — Airway, Breathing, Circulation (BEFORE drugs!)",
+"**0-10 min:** IV Lorazepam/Diazepam. No IV → Buccal Midazolam/Rectal Diazepam",
+"**10-30 min:** IV Levetiracetam, Valproate, or Fosphenytoin",
+"**>30 min (Refractory):** General anesthesia (Propofol/Midazolam/Thiopental) in ICU + continuous EEG",
+"**GABA receptor internalization:** Benzos become less effective over time → SPEED IS CRITICAL",
+"**Complications:** Hypoxia, hyperthermia, lactic acidosis, rhabdomyolysis, permanent brain damage"
+]
+}
+];
+
+// ===== STATE =====
+let state = {
+currentCase: 0,
+currentTab: 0,
+mcqIndex: {},
+mcqAnswered: {},
+mcqCorrect: {},
+mistakes: {},
+totalScore: 0,
+totalAttempted: 0,
+streak: 0,
+darkMode: true
+};
+
+const tabNames = ["📂 Case File","💡 Physiology Pearls","🔍 Clinical Reasoning","📝 Exam MCQs","⚡ Rapid Review"];
+
+// ===== LOCAL STORAGE =====
+function saveState(){
+try{localStorage.setItem('neuroPharmState',JSON.stringify(state))}catch(e){}
+}
+function loadState(){
+try{
+const s=localStorage.getItem('neuroPharmState');
+if(s){
+const parsed=JSON.parse(s);
+Object.assign(state,parsed);
+}
+}catch(e){}
+}
+
+// ===== INIT =====
+function init(){
+loadState();
+if(!state.darkMode) document.body.classList.add('light-mode');
+updateDMSwitch();
+renderSidebar();
+renderMobileCaseSelect();
+renderTabs();
+selectCase(state.currentCase);
+updateStats();
+}
+
+// ===== SIDEBAR =====
+function renderSidebar(){
+const list=document.getElementById('caseList');
+list.innerHTML=cases.map((c,i)=>`
+<div class="case-item ${i===state.currentCase?'active':''}" onclick="selectCase(${i})" id="caseItem${i}">
+<div class="case-icon">${c.icon}</div>
+<div class="case-info">
+<div class="case-title">${c.shortTitle}</div>
+<div class="case-sub">${c.badge}</div>
+</div>
+</div>
+`).join('');
+}
+
+function renderMobileCaseSelect(){
+const sel=document.getElementById('mobileCaseSelect');
+sel.innerHTML=cases.map((c,i)=>`<option value="${i}" ${i===state.currentCase?'selected':''}>${c.badge}: ${c.shortTitle}</option>`).join('');
+}
+
+// ===== TABS =====
+function renderTabs(){
+const bar=document.getElementById('tabsBar');
+bar.innerHTML=tabNames.map((t,i)=>`<div class="tab ${i===state.currentTab?'active':''}" onclick="switchTab(${i})">${t}</div>`).join('');
+}
+
+function switchTab(idx){
+state.currentTab=idx;
+saveState();
+renderTabs();
+renderContent();
+}
+
+// ===== SELECT CASE =====
+function selectCase(idx){
+idx=parseInt(idx);
+state.currentCase=idx;
+state.currentTab=0;
+saveState();
+document.getElementById('topTitle').textContent=cases[idx].title;
+document.getElementById('topBadge').textContent=cases[idx].badge;
+renderSidebar();
+renderMobileCaseSelect();
+renderTabs();
+renderContent();
+// close mobile sidebar
+document.getElementById('sidebar').classList.remove('open');
+document.getElementById('overlay').classList.remove('show');
+}
+
+// ===== RENDER CONTENT =====
+function renderContent(){
+const area=document.getElementById('contentArea');
+const c=cases[state.currentCase];
+const tab=state.currentTab;
+
+if(tab===0) area.innerHTML=renderCaseFile(c);
+else if(tab===1) area.innerHTML=renderPearls(c);
+else if(tab===2) area.innerHTML=renderReasoning(c);
+else if(tab===3) area.innerHTML=renderMCQ(c);
+else if(tab===4) area.innerHTML=renderRapid(c);
+
+// Attach reveal listeners
+document.querySelectorAll('.reveal-header').forEach(h=>{
+h.addEventListener('click',()=>{
+h.parentElement.classList.toggle('open');
+});
+});
+}
+
+// ===== TAB RENDERERS =====
+function renderCaseFile(c){
+return `
+<div class="card">
+<div class="card-header">
+<div class="icon" style="background:rgba(0,212,170,0.15);color:var(--primary)">👤</div>
+<h3>Patient Profile</h3>
+<div class="tag" style="background:rgba(99,102,241,0.15);color:var(--secondary)">${c.patient.dx}</div>
+</div>
+<div class="profile-grid">
+${c.profile.map(p=>`<div class="profile-item"><div class="label">${p.label}</div><div class="value">${p.value}</div></div>`).join('')}
+</div>
+</div>
+<div class="card">
+<div class="card-header">
+<div class="icon" style="background:rgba(245,158,11,0.15);color:var(--accent)">📋</div>
+<h3>History of Present Illness</h3>
+</div>
+<div class="hpi-text">${c.hpiHTML}</div>
+</div>
+<div class="card">
+<div class="card-header">
+<div class="icon" style="background:rgba(239,68,68,0.15);color:var(--danger)">🔬</div>
+<h3>Labs & Key Findings</h3>
+</div>
+<div class="labs-grid">
+${c.labs.map(l=>`<div class="lab-item ${l.abnormal?'abnormal':''}"><div class="lab-name">${l.name}</div><div class="lab-val">${l.value}</div><div class="lab-ref">Ref: ${l.ref}</div></div>`).join('')}
+</div>
+</div>
+`;
+}
+
+function renderPearls(c){
+let pearlsHTML='',redFlags='',misconceptions='';
+c.pearls.forEach(p=>{
+if(p.type==='redflag') redFlags+=`<li class="red-flag">${p.text}</li>`;
+else if(p.type==='misconception') misconceptions+=`<li class="misconception">${p.text}</li>`;
+else pearlsHTML+=`<li>${p.text}</li>`;
+});
+return `
+<div class="card">
+<div class="card-header">
+<div class="icon" style="background:rgba(0,212,170,0.15);color:var(--primary)">💡</div>
+<h3>Physiology & Pharmacology Pearls</h3>
+</div>
+<ul class="pearl-list">${pearlsHTML}</ul>
+</div>
+${redFlags?`<div class="card"><div class="card-header"><div class="icon" style="background:rgba(239,68,68,0.15);color:var(--danger)">🚨</div><h3>Red Flags</h3></div><ul class="pearl-list">${redFlags}</ul></div>`:''}
+${misconceptions?`<div class="card"><div class="card-header"><div class="icon" style="background:rgba(245,158,11,0.15);color:var(--accent)">⚠️</div><h3>Common Misconceptions</h3></div><ul class="pearl-list">${misconceptions}</ul></div>`:''}
+`;
+}
+
+function renderReasoning(c){
+return `
+<div class="card">
+<div class="card-header">
+<div class="icon" style="background:rgba(99,102,241,0.15);color:var(--secondary)">🔍</div>
+<h3>Clinical Reasoning — Interactive Reveal</h3>
+</div>
+${c.reasoning.map(r=>`
+<div class="reveal-card">
+<div class="reveal-header">${r.title}<span class="arrow">▼</span></div>
+<div class="reveal-body"><p>${r.body}</p></div>
+</div>
+`).join('')}
+</div>
+`;
+}
+
+function renderMCQ(c){
+const caseKey=`case${c.id}`;
+if(!state.mcqIndex[caseKey]) state.mcqIndex[caseKey]=0;
+if(!state.mcqAnswered[caseKey]) state.mcqAnswered[caseKey]={};
+if(!state.mcqCorrect[caseKey]) state.mcqCorrect[caseKey]={};
+if(!state.mistakes[caseKey]) state.mistakes[caseKey]=[];
+
+const idx=state.mcqIndex[caseKey];
+const total=c.mcqs.length;
+const q=c.mcqs[idx];
+const answered=state.mcqAnswered[caseKey][idx];
+const wasCorrect=state.mcqCorrect[caseKey][idx];
+
+// Count case score
+let caseScore=0,caseAttempted=0;
+for(let k in state.mcqCorrect[caseKey]){caseAttempted++;if(state.mcqCorrect[caseKey][k])caseScore++;}
+
+const progress=((idx+1)/total)*100;
+
+let optionsHTML=q.options.map((o,oi)=>{
+let cls='mcq-option';
+if(answered!==undefined){
+cls+=' disabled';
+if(oi===q.correct) cls+=' correct';
+if(oi===answered && answered!==q.correct) cls+=' wrong';
+if(oi!==answered && oi===q.correct) cls+=' show-correct';
+}
+return `<button class="${cls}" onclick="answerMCQ(${oi})" ${answered!==undefined?'disabled':''}>${o}</button>`;
+}).join('');
+
+let feedbackHTML='';
+if(answered!==undefined){
+if(wasCorrect){
+feedbackHTML=`<div class="mcq-feedback correct-fb">✅ Correct! ${q.explanation}</div>`;
+}else{
+feedbackHTML=`<div class="mcq-feedback wrong-fb">❌ Incorrect. Correct: ${q.options[q.correct]}. ${q.explanation}</div>`;
+}
+}
+
+// Mistake review
+let mistakesHTML='';
+if(state.mistakes[caseKey].length>0){
+mistakesHTML=`<div class="section-title">❌ Mistake Review</div>`;
+state.mistakes[caseKey].forEach(m=>{
+mistakesHTML+=`<div class="mistake-card"><div class="mq">Q: ${m.stem}</div><div class="ma">Your Answer: ${m.yourAnswer}</div><div class="mc">Correct: ${m.correctAnswer}</div><div class="me">${m.explanation}</div></div>`;
+});
+}
+
+return `
+<div class="card">
+<div class="card-header">
+<div class="icon" style="background:rgba(99,102,241,0.15);color:var(--secondary)">📝</div>
+<h3>Exam MCQs</h3>
+<div class="tag" style="background:rgba(0,212,170,0.15);color:var(--primary)">${caseScore}/${caseAttempted} correct</div>
+</div>
+<div class="mcq-progress">
+<div class="mcq-progress-bar"><div class="mcq-progress-fill" style="width:${progress}%"></div></div>
+<div class="mcq-counter">Q${idx+1}/${total}</div>
+<div class="streak-badge">🔥 ${state.streak}</div>
+</div>
+<div class="mcq-card">
+<div class="mcq-stem">Q${idx+1}. ${q.stem}</div>
+${optionsHTML}
+${feedbackHTML}
+</div>
+<div class="mcq-nav">
+<button class="btn btn-secondary" onclick="prevMCQ()" ${idx===0?'disabled':''}>← Previous</button>
+<button class="btn btn-primary" onclick="nextMCQ()" ${idx>=total-1?'disabled':''}>Next →</button>
+</div>
+</div>
+${mistakesHTML?`<div class="card">${mistakesHTML}</div>`:''}
+`;
+}
+
+function answerMCQ(optIdx){
+const c=cases[state.currentCase];
+const caseKey=`case${c.id}`;
+const idx=state.mcqIndex[caseKey];
+const q=c.mcqs[idx];
+
+if(state.mcqAnswered[caseKey][idx]!==undefined) return;
+
+state.mcqAnswered[caseKey][idx]=optIdx;
+const isCorrect=optIdx===q.correct;
+state.mcqCorrect[caseKey][idx]=isCorrect;
+state.totalAttempted++;
+
+if(isCorrect){
+state.totalScore++;
+state.streak++;
+}else{
+state.streak=0;
+if(!state.mistakes[caseKey]) state.mistakes[caseKey]=[];
+state.mistakes[caseKey].push({
+stem:q.stem,
+yourAnswer:q.options[optIdx],
+correctAnswer:q.options[q.correct],
+explanation:q.explanation
+});
+}
+
+saveState();
+updateStats();
+renderContent();
+}
+
+function nextMCQ(){
+const c=cases[state.currentCase];
+const caseKey=`case${c.id}`;
+if(state.mcqIndex[caseKey]<c.mcqs.length-1){
+state.mcqIndex[caseKey]++;
+saveState();
+renderContent();
+}
+}
+
+function prevMCQ(){
+const c=cases[state.currentCase];
+const caseKey=`case${c.id}`;
+if(state.mcqIndex[caseKey]>0){
+state.mcqIndex[caseKey]--;
+saveState();
+renderContent();
+}
+}
+
+function renderRapid(c){
+return `
+<div class="card">
+<div class="card-header">
+<div class="icon" style="background:rgba(245,158,11,0.15);color:var(--accent)">⚡</div>
+<h3>Rapid Review — High Yield Only</h3>
+</div>
+${c.rapid.map(r=>{
+let formatted=r.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+return `<div class="rapid-item">${formatted}</div>`;
+}).join('')}
+</div>
+`;
+}
+
+// ===== STATS =====
+function updateStats(){
+document.getElementById('totalScore').textContent=state.totalScore;
+document.getElementById('streakDisplay').textContent='🔥 '+state.streak;
+document.getElementById('totalAttempted').textContent=state.totalAttempted;
+}
+
+// ===== DARK MODE =====
+function toggleDarkMode(){
+state.darkMode=!state.darkMode;
+document.body.classList.toggle('light-mode');
+updateDMSwitch();
+saveState();
+}
+function updateDMSwitch(){
+const sw=document.getElementById('dmSwitch');
+if(state.darkMode) sw.classList.add('on'); else sw.classList.remove('on');
+}
+
+// ===== SIDEBAR TOGGLE =====
+function toggleSidebar(){
+document.getElementById('sidebar').classList.toggle('open');
+document.getElementById('overlay').classList.toggle('show');
+}
+
+// ===== START =====
+init();
+</script>
+</body>
+</html>
