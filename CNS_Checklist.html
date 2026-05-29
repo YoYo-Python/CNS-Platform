@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CNS Checklist – MU 63rd 2025</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0d14;
+    --surface: #111521;
+    --card: #161d2e;
+    --border: #1e2d4a;
+    --accent: #00c8ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --glow: 0 0 20px rgba(0,200,255,0.15);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Tajawal', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, #0a0d14 0%, #0d1929 50%, #0a0d14 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 24px 16px;
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(10px);
+  }
+  header h1 {
+    font-size: 1.5rem; font-weight: 900;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: 1px;
+  }
+  header p { color: var(--muted); font-size: .85rem; margin-top: 2px; }
+  .header-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+
+  /* ── PROGRESS ── */
+  .overall-progress {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    margin: 16px 16px 0;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .progress-bar-wrap { flex: 1; min-width: 200px; }
+  .progress-bar-bg {
+    height: 8px; background: var(--border); border-radius: 99px; overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%; border-radius: 99px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width .4s ease;
+  }
+  .progress-label { font-family: 'Space Mono', monospace; font-size: .8rem; color: var(--accent); margin-bottom: 6px; }
+  .progress-stats { display: flex; gap: 20px; flex-wrap: wrap; }
+  .stat-chip {
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'Space Mono', monospace; font-size: .75rem; color: var(--muted);
+  }
+  .stat-chip span { font-weight: 700; color: var(--text); }
+
+  /* ── TIMER ── */
+  .timer-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 12px 16px 0;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .timer-display {
+    font-family: 'Space Mono', monospace;
+    font-size: 2.2rem; font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-shadow: 0 0 20px rgba(0,200,255,0.4);
+    min-width: 130px; text-align: center;
+    transition: color .3s;
+  }
+  .timer-display.warn { color: var(--warn); text-shadow: 0 0 20px rgba(245,158,11,.4); }
+  .timer-display.danger { color: var(--danger); text-shadow: 0 0 20px rgba(239,68,68,.4); animation: pulse .6s infinite; }
+  @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:.5 } }
+  .timer-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+  .timer-btn {
+    padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer;
+    font-family: 'Tajawal', sans-serif; font-size: .9rem; font-weight: 700;
+    transition: all .2s;
+  }
+  .timer-btn.start { background: var(--accent); color: #000; }
+  .timer-btn.pause { background: var(--warn); color: #000; }
+  .timer-btn.reset { background: var(--border); color: var(--text); }
+  .timer-btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
+  .timer-presets { display: flex; gap: 6px; flex-wrap: wrap; }
+  .preset-btn {
+    padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); cursor: pointer;
+    font-family: 'Space Mono', monospace; font-size: .75rem;
+    transition: all .2s;
+  }
+  .preset-btn:hover, .preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0,200,255,.08); }
+  .timer-label-input {
+    background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); font-family: 'Tajawal', sans-serif; font-size: .85rem;
+    padding: 5px 10px; outline: none;
+  }
+  .timer-label-input:focus { border-color: var(--accent); }
+  .timer-info { color: var(--muted); font-size: .8rem; flex: 1; }
+  .custom-time-row { display: flex; gap: 6px; align-items: center; }
+  .custom-time-row input[type=number] {
+    width: 60px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); font-family: 'Space Mono', monospace; font-size: .85rem;
+    padding: 5px 8px; outline: none; text-align: center;
+  }
+  .custom-time-row input[type=number]:focus { border-color: var(--accent); }
+
+  /* ── TABS ── */
+  .tabs-scroll {
+    overflow-x: auto; padding: 16px 16px 0;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  }
+  .tabs { display: flex; gap: 6px; min-width: max-content; }
+  .tab-btn {
+    padding: 9px 18px; border-radius: 8px 8px 0 0;
+    border: 1px solid var(--border); border-bottom: none;
+    background: var(--surface); color: var(--muted);
+    cursor: pointer; font-family: 'Tajawal', sans-serif; font-weight: 500; font-size: .9rem;
+    transition: all .2s; white-space: nowrap;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .tab-btn:hover { color: var(--text); border-color: var(--accent); }
+  .tab-btn.active {
+    background: var(--card); color: var(--accent);
+    border-color: var(--accent); border-bottom-color: var(--card);
+    font-weight: 700;
+  }
+  .tab-badge {
+    font-family: 'Space Mono', monospace; font-size: .65rem;
+    padding: 2px 6px; border-radius: 99px;
+    background: var(--border); color: var(--muted);
+  }
+  .tab-btn.active .tab-badge { background: rgba(0,200,255,.15); color: var(--accent); }
+
+  /* ── CONTENT ── */
+  .content {
+    margin: 0 16px;
+    border: 1px solid var(--border); border-top: none;
+    background: var(--card); border-radius: 0 0 12px 12px;
+    padding: 20px;
+  }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* ── SECTION HEADER ── */
+  .section-type {
+    display: inline-block;
+    padding: 3px 10px; border-radius: 4px;
+    font-size: .7rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .type-lecture { background: rgba(0,200,255,.12); color: var(--accent); }
+  .type-practical { background: rgba(124,58,237,.12); color: #a78bfa; }
+  .section-block { margin-bottom: 24px; }
+  .section-block h3 {
+    font-size: 1rem; font-weight: 700; color: var(--text);
+    margin-bottom: 10px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── TABLE ── */
+  .checklist-table { width: 100%; border-collapse: collapse; }
+  .checklist-table th {
+    background: var(--surface); color: var(--muted);
+    font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .5px;
+    padding: 8px 10px; text-align: right;
+    border-bottom: 1px solid var(--border);
+  }
+  .checklist-table th:last-child, .checklist-table td:last-child { text-align: center; }
+  .checklist-table td {
+    padding: 9px 10px; border-bottom: 1px solid rgba(30,45,74,.5);
+    font-size: .88rem; vertical-align: middle;
+  }
+  .checklist-table tr:last-child td { border-bottom: none; }
+  .checklist-table tr:hover td { background: rgba(0,200,255,.03); }
+  .topic-num {
+    font-family: 'Space Mono', monospace; font-size: .75rem;
+    color: var(--muted); min-width: 28px;
+  }
+  .topic-text { color: var(--text); line-height: 1.4; }
+  .checks-cell { display: flex; gap: 12px; justify-content: center; align-items: center; }
+
+  /* ── CHECKBOX ── */
+  .check-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .check-wrap label { font-size: .65rem; color: var(--muted); letter-spacing: .3px; }
+  .custom-check {
+    width: 22px; height: 22px; border-radius: 6px;
+    border: 2px solid var(--border); background: var(--surface);
+    cursor: pointer; appearance: none; -webkit-appearance: none;
+    transition: all .2s; position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .custom-check:checked { border-color: var(--accent3); background: var(--accent3); }
+  .custom-check:checked::after {
+    content: '✓'; color: #000; font-size: .75rem; font-weight: 900;
+    position: absolute;
+  }
+  .custom-check.study:checked { border-color: var(--accent); background: var(--accent); }
+  .custom-check.revise:checked { border-color: var(--accent2); background: var(--accent2); }
+  .row-done td { opacity: .55; }
+  .row-done .topic-text { text-decoration: line-through; text-decoration-color: var(--muted); }
+
+  /* ── SEARCH & FILTER ── */
+  .toolbar {
+    display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;
+  }
+  .search-input {
+    flex: 1; min-width: 180px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-family: 'Tajawal', sans-serif; font-size: .9rem;
+    padding: 8px 14px; outline: none;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .filter-btn {
+    padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--muted); cursor: pointer;
+    font-family: 'Tajawal', sans-serif; font-size: .85rem; transition: all .2s;
+  }
+  .filter-btn.active { border-color: var(--warn); color: var(--warn); background: rgba(245,158,11,.08); }
+  .filter-btn:hover { border-color: var(--text); color: var(--text); }
+
+  /* ── SUBJECT PROGRESS ── */
+  .subject-progress {
+    display: flex; gap: 6px; align-items: center; margin-bottom: 10px;
+    font-size: .78rem; color: var(--muted);
+  }
+  .sp-bar {
+    flex: 1; height: 4px; background: var(--border); border-radius: 99px; overflow: hidden;
+  }
+  .sp-fill {
+    height: 100%; background: var(--accent3); border-radius: 99px; transition: width .3s;
+  }
+  .sp-num { font-family: 'Space Mono', monospace; min-width: 45px; text-align: right; }
+
+  /* ── NOTIFICATION ── */
+  #notify {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--card); border: 1px solid var(--accent);
+    color: var(--text); padding: 12px 24px; border-radius: 10px;
+    font-size: .9rem; font-weight: 600;
+    box-shadow: 0 4px 30px rgba(0,200,255,.2);
+    transition: transform .3s ease; z-index: 999;
+    white-space: nowrap;
+  }
+  #notify.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── RESET BTN ── */
+  .reset-all-btn {
+    padding: 7px 16px; border-radius: 8px; border: 1px solid var(--danger);
+    background: transparent; color: var(--danger); cursor: pointer;
+    font-family: 'Tajawal', sans-serif; font-size: .85rem; transition: all .2s;
+  }
+  .reset-all-btn:hover { background: rgba(239,68,68,.1); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .timer-display { font-size: 1.6rem; }
+    .checklist-table th:nth-child(3), .checklist-table td:nth-child(3) { display: none; }
+    .content { padding: 14px; }
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  /* ── ALARM animation ── */
+  @keyframes flash-bg { 0%,100%{background:var(--bg)} 50%{background:#1a0a0a} }
+  body.alarm-flash { animation: flash-bg .4s 5; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-row">
+    <div>
+      <h1>CNS Checklist</h1>
+      <p>MU 63rd · 2025 · Sem 4</p>
+    </div>
+    <button class="reset-all-btn" onclick="resetAll()">🗑 إعادة ضبط الكل</button>
+  </div>
+</header>
+
+<!-- Overall Progress -->
+<div class="overall-progress">
+  <div class="progress-bar-wrap">
+    <div class="progress-label" id="overallLabel">الإجمالي: 0%</div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="overallBar" style="width:0%"></div></div>
+  </div>
+  <div class="progress-stats">
+    <div class="stat-chip">✅ College: <span id="statCollege">0</span></div>
+    <div class="stat-chip">📖 Study: <span id="statStudy">0</span></div>
+    <div class="stat-chip">🔄 Revise: <span id="statRevise">0</span></div>
+    <div class="stat-chip">📋 Total: <span id="statTotal">0</span></div>
+  </div>
+</div>
+
+<!-- Timer -->
+<div class="timer-panel">
+  <div>
+    <div class="timer-display" id="timerDisplay">60:00</div>
+  </div>
+  <div>
+    <div style="margin-bottom:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+      <input type="text" class="timer-label-input" id="timerLabel" placeholder="عنوان الجلسة..." value="جلسة مذاكرة">
+      <div class="custom-time-row">
+        <input type="number" id="customMin" min="1" max="300" value="60" title="دقائق">
+        <span style="color:var(--muted);font-size:.8rem;">دقيقة</span>
+        <button class="preset-btn" onclick="setCustomTime()">✓ ضبط</button>
+      </div>
+    </div>
+    <div class="timer-presets" style="margin-bottom:8px;">
+      <button class="preset-btn" onclick="setTimer(25*60)">25 دقيقة</button>
+      <button class="preset-btn" onclick="setTimer(45*60)">45 دقيقة</button>
+      <button class="preset-btn active" onclick="setTimer(60*60)">60 دقيقة</button>
+      <button class="preset-btn" onclick="setTimer(90*60)">90 دقيقة</button>
+      <button class="preset-btn" onclick="setTimer(120*60)">2 ساعة</button>
+    </div>
+    <div class="timer-controls">
+      <button class="timer-btn start" id="startBtn" onclick="startTimer()">▶ ابدأ</button>
+      <button class="timer-btn pause" id="pauseBtn" onclick="pauseTimer()" style="display:none;">⏸ إيقاف</button>
+      <button class="timer-btn reset" onclick="resetTimer()">↺ إعادة</button>
+    </div>
+  </div>
+  <div class="timer-info" id="timerInfo">اختر مدة واضغط ابدأ للعد التنازلي</div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs-scroll">
+  <div class="tabs" id="tabsRow"></div>
+</div>
+<div class="content">
+  <div class="toolbar">
+    <input class="search-input" id="searchInput" placeholder="🔍 ابحث في المحاضرات..." oninput="filterTopics()">
+    <button class="filter-btn" id="filterPending" onclick="toggleFilter()">⏳ غير مكتمل فقط</button>
+  </div>
+  <div id="tabContent"></div>
+</div>
+
+<div id="notify">⏰ انتهى الوقت! أحسنت 🎉</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════ */
+const subjects = [
+  {
+    id: "anatomy",
+    name: "Anatomy",
+    icon: "🧠",
+    color: "#00c8ff",
+    sections: [
+      {
+        type: "lecture", label: "Lectures",
+        topics: [
+          "Anatomy of the spinal cord",
+          "Development of CNS (overview) + External features of brain stem",
+          "Cerebellum & 4th V",
+          "Diencephalon & 3rd V",
+          "Brain topography (sulci, gyri, areas)",
+          "Limbic system, white matter",
+          "Internal features of brain (basal ganglia + internal capsule)",
+          "Lateral ventricle & CSF",
+          "Internal features Brain Stem 1 (medulla, pons)",
+          "Internal features Brain Stem 2 (midbrain, syndromes)",
+          "Trigeminal system 1",
+          "Trigeminal system 2",
+          "7th, 8th cranial nerves",
+          "Ear",
+          "Blood supply of the brain",
+          "Orbit",
+          "Cranial nerves 1 (1,2,3,4,6)",
+          "Cranial nerves 2 (9,10,11,12)"
+        ]
+      },
+      {
+        type: "practical", label: "Practical",
+        topics: [
+          "External features of brain stem",
+          "Cerebellum & 4th V",
+          "Diencephalon & 3rd V",
+          "Cerebral cortex (sulci, gyri, cortical areas)",
+          "Horizontal + sagittal sections (basal ganglia, white matter & limbic system)",
+          "Coronal sections (Lateral ventricle)",
+          "Blood supply of the CNS",
+          "Norma Basalis & cranial nerves"
+        ]
+      }
+    ]
+  },
+  {
+    id: "histology",
+    name: "Histology",
+    icon: "🔬",
+    color: "#a78bfa",
+    sections: [
+      {
+        type: "lecture", label: "Lectures",
+        topics: [
+          "Structure of gray and white matter in CNS + spinal cord",
+          "Cerebrum and cerebellum",
+          "Ear and receptors",
+          "Eye"
+        ]
+      },
+      {
+        type: "practical", label: "Practical",
+        topics: [
+          "Levels of spinal cord + cerebrum and cerebellum",
+          "Eye + Ear and receptor"
+        ]
+      }
+    ]
+  },
+  {
+    id: "pathology",
+    name: "Pathology",
+    icon: "🧫",
+    color: "#f87171",
+    sections: [
+      {
+        type: "lecture", label: "Lectures",
+        topics: [
+          "Congenital CNS anomalies & hydrocephalus",
+          "CNS infection",
+          "Cerebrovascular disease & head trauma",
+          "Degenerative & metabolic CNS disease",
+          "CNS neoplasms"
+        ]
+      },
+      {
+        type: "practical", label: "Practical",
+        topics: [
+          "Non neoplastic CNS",
+          "Neoplastic CNS"
+        ]
+      }
+    ]
+  },
+  {
+    id: "pharmacology",
+    name: "Pharmacology",
+    icon: "💊",
+    color: "#34d399",
+    sections: [
+      {
+        type: "lecture", label: "Lectures",
+        topics: [
+          "Opioids Analgesics",
+          "Anti-epileptic drugs",
+          "Anti-parkinsonian drugs",
+          "Sedative-hypnotics",
+          "Anti-depressants"
+        ]
+      },
+      {
+        type: "practical", label: "Practical",
+        topics: [
+          "Drug prescription for Epilepsy and Parkinsonism",
+          "Drug prescription for Anxiety and Depression"
+        ]
+      }
+    ]
+  },
+  {
+    id: "microbiology",
+    name: "Microbiology",
+    icon: "🦠",
+    color: "#fbbf24",
+    sections: [
+      {
+        type: "lecture", label: "Lectures",
+        topics: [
+          "Bacterial infection of CNS (bacterial meningitis)",
+          "Viral CNS infection (polio & rabies)",
+          "Fungal CNS infection (Cryptococcus & mucormycosis)"
+        ]
+      },
+      {
+        type: "practical", label: "Practical",
+        topics: [
+          "Diagnosis of meningitis"
+        ]
+      }
+    ]
+  },
+  {
+    id: "parasitology",
+    name: "Parasitology",
+    icon: "🪱",
+    color: "#fb7185",
+    sections: [
+      {
+        type: "lecture", label: "Lectures",
+        topics: [
+          "Parasitic and free-living amoebas affecting the CNS and special sense",
+          "African trypanosomes and other parasites affecting the CNS and special sense"
+        ]
+      },
+      {
+        type: "practical", label: "Practical",
+        topics: [
+          "Laboratory diagnosis of parasite affecting CNS and special sense"
+        ]
+      }
+    ]
+  },
+  {
+    id: "physiology",
+    name: "Physiology",
+    icon: "⚡",
+    color: "#60a5fa",
+    sections: [
+      {
+        type: "lecture", label: "Lectures",
+        topics: [
+          "Sensory receptors and their properties",                                                    // 1
+          "Coding of sensory informations and Mechanoceptive somatic sensations",                      // 2
+          "Thermoceptive somatic sensations, somatic sensory pathways and role of somatic sensory cortex", // 3
+          "Neuropathic Pain, Pain control and gate theory for pain control",                            // 4 ← swapped (was lec5)
+          "Physiology of Nociceptive Pain",                                                            // 5 ← swapped (was lec4)
+          "Reflex action and functional characteristics of the components of spinal reflex and role of interneurons",
+          "Synapses, synaptic transmission and their properties",
+          "Polysynaptic reflexes and their properties",
+          "Stretch and inverse reflexes and their physiological significance",
+          "Motor cortex and Descending motor tracts (pyramidal and extrapyramidal systems)",
+          "Functional characteristics of Upper and lower motor neuron lesions and spinal cord lesions",
+          "Vestibular apparatus and its role in control of equilibrium",
+          "Thalamus and reticular activating system",
+          "Physiology of basal ganglia",
+          "Physiology of cerebellum",
+          "Higher functions of cortical associations areas and physiology of language",
+          "Physiology of Sleep and EEG",
+          "Physiology memory and learning",
+          "Hypothalamus and Limbic system",
+          "Middle and external layer of the eyeball, intraocular fluids and lens",
+          "Color vision & visual pathway",
+          "Physiology of retina and phototransduction and retinal adaptation",
+          "Physics of sounds, role of external and middle ears in hearing",
+          "Role of inner ear for hearing, auditory pathway and encoding of auditory informations",
+          "Physiology of taste and smell"
+        ]
+      },
+      {
+        type: "practical", label: "Practical",
+        topics: [
+          "Testing for somatic sensations 1",
+          "Superficial reflexes",
+          "Visual fields, and testing for blind spot and binocular vision",
+          "Tests for muscle tone, coordination and gait",
+          "Corneal reflex & near reflex"
+        ]
+      }
+    ]
+  },
+  {
+    id: "psychology",
+    name: "Psychology",
+    icon: "🧩",
+    color: "#c084fc",
+    sections: [
+      {
+        type: "lecture", label: "Lectures",
+        topics: [
+          "Introduction & Foundations of Psychology and Behavioral Sciences",
+          "Psychoanalytic Theory and Defense Mechanisms",
+          "Basic Principles of Learning",
+          "Developmental Issues during Infancy, Childhood and Adolescence",
+          "Psychological Challenges During Adulthood & Old Age",
+          "The physician-Patient Relationship",
+          "Perception & Attention",
+          "Memory",
+          "Psychology of decision-making in healthcare"
+        ]
+      }
+    ]
+  },
+  {
+    id: "behavioral",
+    name: "Behavioral Sci.",
+    icon: "🎯",
+    color: "#f97316",
+    sections: [
+      {
+        type: "lecture", label: "Lectures",
+        topics: [
+          "Intelligence",
+          "Motivation",
+          "Emotion",
+          "Health Psychology: Stress, Coping, and Well Being",
+          "Personality"
+        ]
+      }
+    ]
+  },
+  {
+    id: "cases",
+    name: "Online Cases",
+    icon: "📋",
+    color: "#10b981",
+    sections: [
+      {
+        type: "lecture", label: "Anatomy Cases",
+        topics: [
+          "Enlarged head in a newborn",
+          "Lateral medullary syndrome"
+        ]
+      },
+      {
+        type: "lecture", label: "Physiology Cases",
+        topics: [
+          "Syringomyelia and tabes doralis",
+          "Parkinsonism",
+          "Cerebellar ataxia"
+        ]
+      },
+      {
+        type: "lecture", label: "Pathology Cases",
+        topics: [
+          "Head trauma",
+          "Degenerative CNS disease",
+          "CNS neoplasm"
+        ]
+      },
+      {
+        type: "lecture", label: "Pharmacology Cases",
+        topics: [
+          "Epilepsy",
+          "Depression"
+        ]
+      },
+      {
+        type: "lecture", label: "Microbiology Cases",
+        topics: [
+          "Rabies",
+          "Bacterial meningitis"
+        ]
+      },
+      {
+        type: "lecture", label: "Parasitology Cases",
+        topics: [
+          "Ocular parasitosis",
+          "Congenital Toxoplasmosis"
+        ]
+      }
+    ]
+  }
+];
+
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
+const STORAGE_KEY = "cns_checklist_v2";
+let state = {};
+let showPendingOnly = false;
+let activeTab = subjects[0].id;
+
+function loadState() {
+  try { state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+  catch(e) { state = {}; }
+}
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+function getKey(subId, sIdx, tIdx, col) { return `${subId}_${sIdx}_${tIdx}_${col}`; }
+function isChecked(subId, sIdx, tIdx, col) { return !!state[getKey(subId, sIdx, tIdx, col)]; }
+function toggle(subId, sIdx, tIdx, col) {
+  const k = getKey(subId, sIdx, tIdx, col);
+  state[k] = !state[k];
+  saveState();
+  updateProgress();
+  updateTabBadge(subId);
+  updateRowStyle(subId, sIdx, tIdx);
+}
+
+/* ═══════════════════════════════════════════════
+   BUILD UI
+═══════════════════════════════════════════════ */
+function buildTabs() {
+  const row = document.getElementById("tabsRow");
+  row.innerHTML = "";
+  subjects.forEach(s => {
+    const btn = document.createElement("button");
+    btn.className = "tab-btn" + (s.id === activeTab ? " active" : "");
+    btn.id = "tab_" + s.id;
+    btn.onclick = () => switchTab(s.id);
+    btn.innerHTML = `${s.icon} ${s.name} <span class="tab-badge" id="badge_${s.id}">0</span>`;
+    row.appendChild(btn);
+  });
+}
+
+function switchTab(id) {
+  activeTab = id;
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("tab_" + id)?.classList.add("active");
+  renderContent();
+}
+
+function renderContent() {
+  const container = document.getElementById("tabContent");
+  container.innerHTML = "";
+  const sub = subjects.find(s => s.id === activeTab);
+  if (!sub) return;
+
+  const search = document.getElementById("searchInput").value.toLowerCase();
+
+  // subject-level progress bar
+  const { done, total } = subjectStats(sub);
+  const pct = total ? Math.round(done/total*100) : 0;
+  const spDiv = document.createElement("div");
+  spDiv.className = "subject-progress";
+  spDiv.innerHTML = `<span style="color:var(--text);font-weight:700;">${sub.icon} ${sub.name}</span>
+    <div class="sp-bar"><div class="sp-fill" id="sp_${sub.id}" style="width:${pct}%;background:${sub.color}"></div></div>
+    <span class="sp-num" id="spn_${sub.id}">${done}/${total} (${pct}%)</span>`;
+  container.appendChild(spDiv);
+
+  sub.sections.forEach((sec, sIdx) => {
+    const filtered = sec.topics.filter((t, tIdx) => {
+      if (search && !t.toLowerCase().includes(search)) return false;
+      if (showPendingOnly) {
+        const allDone = isChecked(sub.id,sIdx,tIdx,"c") && isChecked(sub.id,sIdx,tIdx,"s") && isChecked(sub.id,sIdx,tIdx,"r");
+        if (allDone) return false;
+      }
+      return true;
+    });
+    if (!filtered.length) return;
+
+    const block = document.createElement("div");
+    block.className = "section-block";
+    block.innerHTML = `<div class="section-type type-${sec.type}">${sec.type}</div>
+      <h3>${sec.label}</h3>`;
+
+    const table = document.createElement("table");
+    table.className = "checklist-table";
+    table.innerHTML = `<thead><tr>
+      <th>#</th><th>الموضوع</th>
+      <th><span style="color:#4ade80">College</span></th>
+      <th><span style="color:var(--accent)">Study</span></th>
+      <th><span style="color:#a78bfa">Revise</span></th>
+    </tr></thead>`;
+    const tbody = document.createElement("tbody");
+
+    sec.topics.forEach((topic, tIdx) => {
+      if (search && !topic.toLowerCase().includes(search)) return;
+      if (showPendingOnly) {
+        const allDone = isChecked(sub.id,sIdx,tIdx,"c") && isChecked(sub.id,sIdx,tIdx,"s") && isChecked(sub.id,sIdx,tIdx,"r");
+        if (allDone) return;
+      }
+      const tr = document.createElement("tr");
+      tr.id = `row_${sub.id}_${sIdx}_${tIdx}`;
+      const cC = isChecked(sub.id,sIdx,tIdx,"c");
+      const cS = isChecked(sub.id,sIdx,tIdx,"s");
+      const cR = isChecked(sub.id,sIdx,tIdx,"r");
+      if (cC && cS && cR) tr.classList.add("row-done");
+
+      tr.innerHTML = `
+        <td class="topic-num">${tIdx+1}</td>
+        <td class="topic-text">${topic}</td>
+        <td>
+          <div class="checks-cell">
+            <div class="check-wrap">
+              <input type="checkbox" class="custom-check" ${cC?"checked":""} onchange="toggle('${sub.id}',${sIdx},${tIdx},'c')">
+            </div>
+          </div>
+        </td>
+        <td>
+          <div class="checks-cell">
+            <div class="check-wrap">
+              <input type="checkbox" class="custom-check study" ${cS?"checked":""} onchange="toggle('${sub.id}',${sIdx},${tIdx},'s')">
+            </div>
+          </div>
+        </td>
+        <td>
+          <div class="checks-cell">
+            <div class="check-wrap">
+              <input type="checkbox" class="custom-check revise" ${cR?"checked":""} onchange="toggle('${sub.id}',${sIdx},${tIdx},'r')">
+            </div>
+          </div>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+
+    table.appendChild(tbody);
+    block.appendChild(table);
+    container.appendChild(block);
+  });
+}
+
+function updateRowStyle(subId, sIdx, tIdx) {
+  const tr = document.getElementById(`row_${subId}_${sIdx}_${tIdx}`);
+  if (!tr) return;
+  const all = isChecked(subId,sIdx,tIdx,"c") && isChecked(subId,sIdx,tIdx,"s") && isChecked(subId,sIdx,tIdx,"r");
+  tr.classList.toggle("row-done", all);
+}
+
+/* ═══════════════════════════════════════════════
+   PROGRESS
+═══════════════════════════════════════════════ */
+function subjectStats(sub) {
+  let done = 0, total = 0;
+  sub.sections.forEach((sec, sIdx) => {
+    sec.topics.forEach((_, tIdx) => {
+      total++;
+      if (isChecked(sub.id,sIdx,tIdx,"c") && isChecked(sub.id,sIdx,tIdx,"s") && isChecked(sub.id,sIdx,tIdx,"r")) done++;
+    });
+  });
+  return { done, total };
+}
+
+function updateTabBadge(subId) {
+  const sub = subjects.find(s => s.id === subId);
+  if (!sub) return;
+  const { done, total } = subjectStats(sub);
+  const badge = document.getElementById("badge_" + subId);
+  if (badge) badge.textContent = `${done}/${total}`;
+  // sp bar
+  const spFill = document.getElementById("sp_" + subId);
+  const spNum = document.getElementById("spn_" + subId);
+  const pct = total ? Math.round(done/total*100) : 0;
+  if (spFill) spFill.style.width = pct + "%";
+  if (spNum) spNum.textContent = `${done}/${total} (${pct}%)`;
+}
+
+function updateProgress() {
+  let totalChecks = 0, doneChecks = 0;
+  let collDone = 0, studDone = 0, revDone = 0, topicCount = 0;
+  subjects.forEach(sub => {
+    sub.sections.forEach((sec, sIdx) => {
+      sec.topics.forEach((_, tIdx) => {
+        topicCount++;
+        const c = isChecked(sub.id,sIdx,tIdx,"c");
+        const s = isChecked(sub.id,sIdx,tIdx,"s");
+        const r = isChecked(sub.id,sIdx,tIdx,"r");
+        if (c) collDone++;
+        if (s) studDone++;
+        if (r) revDone++;
+        totalChecks += 3;
+        doneChecks += (c?1:0) + (s?1:0) + (r?1:0);
+      });
+    });
+  });
+  const pct = totalChecks ? Math.round(doneChecks/totalChecks*100) : 0;
+  document.getElementById("overallBar").style.width = pct + "%";
+  document.getElementById("overallLabel").textContent = `الإجمالي: ${pct}%`;
+  document.getElementById("statCollege").textContent = collDone;
+  document.getElementById("statStudy").textContent = studDone;
+  document.getElementById("statRevise").textContent = revDone;
+  document.getElementById("statTotal").textContent = topicCount;
+}
+
+function updateAllBadges() {
+  subjects.forEach(s => updateTabBadge(s.id));
+}
+
+/* ═══════════════════════════════════════════════
+   FILTER / SEARCH
+═══════════════════════════════════════════════ */
+function filterTopics() { renderContent(); }
+function toggleFilter() {
+  showPendingOnly = !showPendingOnly;
+  document.getElementById("filterPending").classList.toggle("active", showPendingOnly);
+  renderContent();
+}
+
+/* ═══════════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════════ */
+function resetAll() {
+  if (!confirm("هتمسح كل التيكات. متأكد؟")) return;
+  state = {};
+  saveState();
+  updateProgress();
+  updateAllBadges();
+  renderContent();
+  showNotify("🗑 تم مسح جميع التيكات");
+}
+
+/* ═══════════════════════════════════════════════
+   NOTIFICATION
+═══════════════════════════════════════════════ */
+function showNotify(msg) {
+  const el = document.getElementById("notify");
+  el.textContent = msg;
+  el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 3500);
+}
+
+/* ═══════════════════════════════════════════════
+   TIMER
+═══════════════════════════════════════════════ */
+let timerTotal = 60 * 60;
+let timerRemaining = timerTotal;
+let timerInterval = null;
+let timerRunning = false;
+
+function fmt(s) {
+  const h = Math.floor(s/3600);
+  const m = Math.floor((s%3600)/60);
+  const sec = s % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
+  return `${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
+}
+
+function setTimer(seconds) {
+  if (timerRunning) { pauseTimer(); }
+  timerTotal = seconds;
+  timerRemaining = seconds;
+  document.getElementById("customMin").value = Math.round(seconds/60);
+  updateTimerDisplay();
+  document.getElementById("timerInfo").textContent = `مدة ${fmt(seconds)} محددة – اضغط ابدأ`;
+  document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
+  // highlight matching
+  const presets = [25*60,45*60,60*60,90*60,120*60];
+  document.querySelectorAll(".preset-btn").forEach((b,i) => {
+    if (presets[i] === seconds) b.classList.add("active");
+  });
+}
+
+function setCustomTime() {
+  const m = parseInt(document.getElementById("customMin").value) || 60;
+  setTimer(m * 60);
+}
+
+function updateTimerDisplay() {
+  const el = document.getElementById("timerDisplay");
+  el.textContent = fmt(timerRemaining);
+  const pct = timerTotal ? timerRemaining/timerTotal : 1;
+  el.classList.remove("warn","danger");
+  if (pct <= 0.1) el.classList.add("danger");
+  else if (pct <= 0.25) el.classList.add("warn");
+}
+
+function startTimer() {
+  if (timerRunning) return;
+  if (timerRemaining <= 0) { timerRemaining = timerTotal; }
+  timerRunning = true;
+  document.getElementById("startBtn").style.display = "none";
+  document.getElementById("pauseBtn").style.display = "";
+  const label = document.getElementById("timerLabel").value || "جلسة مذاكرة";
+  document.getElementById("timerInfo").textContent = `⏱ ${label} – جارية...`;
+  timerInterval = setInterval(() => {
+    timerRemaining--;
+    updateTimerDisplay();
+    if (timerRemaining <= 0) {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      document.getElementById("startBtn").style.display = "";
+      document.getElementById("pauseBtn").style.display = "none";
+      document.getElementById("timerInfo").textContent = "✅ انتهى الوقت! أحسنت 🎉";
+      document.getElementById("timerDisplay").classList.add("danger");
+      showNotify("⏰ انتهى الوقت! " + label);
+      document.body.classList.add("alarm-flash");
+      setTimeout(() => document.body.classList.remove("alarm-flash"), 3000);
+      try { const ctx = new AudioContext(); playBeep(ctx); } catch(e){}
+    }
+  }, 1000);
+}
+
+function pauseTimer() {
+  if (!timerRunning) return;
+  clearInterval(timerInterval);
+  timerRunning = false;
+  document.getElementById("startBtn").style.display = "";
+  document.getElementById("pauseBtn").style.display = "none";
+  document.getElementById("timerInfo").textContent = "⏸ متوقف – اضغط ابدأ للمتابعة";
+}
+
+function resetTimer() {
+  pauseTimer();
+  timerRemaining = timerTotal;
+  updateTimerDisplay();
+  document.getElementById("timerDisplay").classList.remove("danger");
+  document.getElementById("timerInfo").textContent = "تم الإعادة – اضغط ابدأ";
+}
+
+function playBeep(ctx) {
+  const times = [0, 0.3, 0.6, 0.9, 1.2];
+  times.forEach(t => {
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = 880;
+    o.type = "sine";
+    g.gain.setValueAtTime(0.4, ctx.currentTime + t);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.25);
+    o.start(ctx.currentTime + t);
+    o.stop(ctx.currentTime + t + 0.3);
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+loadState();
+buildTabs();
+updateAllBadges();
+updateProgress();
+renderContent();
+updateTimerDisplay();
+</script>
+</body>
+</html>
