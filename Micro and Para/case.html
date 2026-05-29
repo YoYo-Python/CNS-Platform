@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CNS Infections - Physiology Case Library</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg-primary:#0a0e17;--bg-secondary:#111827;--bg-card:#1a2232;--bg-card-hover:#212d42;
+--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;
+--accent:#06b6d4;--accent-glow:rgba(6,182,212,0.3);--accent-dark:#0891b2;
+--success:#10b981;--success-bg:rgba(16,185,129,0.15);
+--error:#ef4444;--error-bg:rgba(239,68,68,0.15);
+--warning:#f59e0b;--warning-bg:rgba(245,158,11,0.15);
+--border:#1e293b;--border-light:#334155;
+--gradient-1:linear-gradient(135deg,#06b6d4,#8b5cf6);
+--gradient-2:linear-gradient(135deg,#0a0e17,#1a2232);
+--shadow-lg:0 20px 40px rgba(0,0,0,0.4);
+--shadow-md:0 8px 24px rgba(0,0,0,0.3);
+--radius:12px;--radius-sm:8px;--radius-lg:16px;
+}
+[data-theme="light"]{
+--bg-primary:#f1f5f9;--bg-secondary:#ffffff;--bg-card:#ffffff;--bg-card-hover:#f8fafc;
+--text-primary:#1e293b;--text-secondary:#475569;--text-muted:#94a3b8;
+--accent:#0891b2;--accent-glow:rgba(8,145,178,0.2);--accent-dark:#0e7490;
+--border:#e2e8f0;--border-light:#cbd5e1;
+--gradient-2:linear-gradient(135deg,#f1f5f9,#e2e8f0);
+--shadow-lg:0 20px 40px rgba(0,0,0,0.1);--shadow-md:0 8px 24px rgba(0,0,0,0.08);
+}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;overflow-x:hidden;transition:background .3s,color .3s}
+.app-container{display:flex;min-height:100vh}
+
+/* Sidebar */
+.sidebar{width:280px;background:var(--bg-secondary);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;transition:transform .3s}
+.sidebar-header{padding:20px;border-bottom:1px solid var(--border)}
+.sidebar-logo{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.logo-icon{width:40px;height:40px;background:var(--gradient-1);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:20px}
+.logo-text{font-size:18px;font-weight:700;background:var(--gradient-1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-sub{font-size:11px;color:var(--text-muted);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
+
+/* ECG Animation */
+.ecg-container{height:40px;margin:16px 0 8px;position:relative;overflow:hidden}
+.ecg-line{position:absolute;top:50%;width:200%;height:2px;animation:ecgScroll 4s linear infinite}
+.ecg-svg{width:100%;height:40px}
+.ecg-path{fill:none;stroke:var(--accent);stroke-width:2;filter:drop-shadow(0 0 4px var(--accent-glow))}
+
+@keyframes ecgScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+.case-list{flex:1;overflow-y:auto;padding:12px}
+.case-item{padding:14px 16px;border-radius:var(--radius-sm);cursor:pointer;margin-bottom:6px;border:1px solid transparent;transition:all .2s;position:relative}
+.case-item:hover{background:var(--bg-card-hover);border-color:var(--border-light)}
+.case-item.active{background:var(--bg-card);border-color:var(--accent);box-shadow:0 0 12px var(--accent-glow)}
+.case-item.active::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:3px;background:var(--accent);border-radius:0 3px 3px 0}
+.case-num{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);font-weight:700;margin-bottom:4px}
+.case-title{font-size:14px;font-weight:600;color:var(--text-primary);line-height:1.3}
+.case-org{font-size:12px;color:var(--text-muted);margin-top:3px;font-style:italic}
+
+/* Stats bar */
+.sidebar-stats{padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:12px}
+.stat-box{flex:1;text-align:center;padding:8px;background:var(--bg-card);border-radius:var(--radius-sm)}
+.stat-val{font-size:18px;font-weight:700;color:var(--accent)}
+.stat-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-top:2px}
+
+/* Theme toggle */
+.theme-toggle{padding:12px 20px;border-top:1px solid var(--border)}
+.theme-btn{width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text-primary);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
+.theme-btn:hover{border-color:var(--accent);background:var(--bg-card-hover)}
+
+/* Main Content */
+.main-content{flex:1;margin-left:280px;display:flex;flex-direction:column;min-height:100vh}
+
+/* Mobile header */
+.mobile-header{display:none;padding:12px 16px;background:var(--bg-secondary);border-bottom:1px solid var(--border);align-items:center;justify-content:space-between;position:sticky;top:0;z-index:90}
+.mobile-logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;background:var(--gradient-1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.mobile-select{padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text-primary);font-size:13px;max-width:200px}
+
+/* Case Header */
+.case-header{padding:28px 32px 20px;background:var(--gradient-2);border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.case-header::after{content:'';position:absolute;top:-50%;right:-10%;width:300px;height:300px;background:radial-gradient(circle,var(--accent-glow) 0%,transparent 70%);pointer-events:none;opacity:0.5}
+.case-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:var(--accent);color:#fff;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+.case-header h1{font-size:24px;font-weight:700;margin-bottom:6px;position:relative}
+.case-header .subtitle{font-size:14px;color:var(--text-secondary);position:relative}
+
+/* Tabs */
+.tab-bar{display:flex;background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:0 24px;overflow-x:auto;position:sticky;top:0;z-index:50}
+.tab{padding:14px 20px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:6px}
+.tab:hover{color:var(--text-primary)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-icon{font-size:16px}
+
+/* Tab Content */
+.tab-content{flex:1;padding:24px 32px 40px;animation:fadeUp .35s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* Cards */
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;transition:border-color .2s}
+.card:hover{border-color:var(--border-light)}
+.card-title{font-size:16px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card-title .icon{font-size:20px}
+
+/* Patient Profile Grid */
+.profile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.profile-item{padding:12px 16px;background:var(--bg-primary);border-radius:var(--radius-sm);border:1px solid var(--border)}
+.profile-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px}
+.profile-value{font-size:15px;font-weight:600}
+
+/* Findings */
+.finding{padding:12px 16px;border-radius:var(--radius-sm);margin-bottom:8px;border-left:3px solid var(--accent);background:var(--bg-primary);cursor:pointer;position:relative}
+.finding.abnormal{border-left-color:var(--error)}
+.finding-label{font-size:13px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.finding-tooltip{display:none;margin-top:8px;padding:10px 12px;background:var(--bg-card-hover);border-radius:var(--radius-sm);font-size:12px;color:var(--text-secondary);line-height:1.5;border:1px solid var(--border)}
+.finding.open .finding-tooltip{display:block;animation:fadeUp .2s ease}
+.finding-tag{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.tag-abnormal{background:var(--error-bg);color:var(--error)}
+.tag-normal{background:var(--success-bg);color:var(--success)}
+
+/* Lab Grid */
+.lab-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.lab-item{padding:14px;background:var(--bg-primary);border-radius:var(--radius-sm);border:1px solid var(--border);text-align:center}
+.lab-item.abnormal{border-color:var(--error);background:var(--error-bg)}
+.lab-name{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:6px}
+.lab-val{font-size:20px;font-weight:700}
+.lab-item.abnormal .lab-val{color:var(--error)}
+.lab-ref{font-size:10px;color:var(--text-muted);margin-top:4px}
+
+/* Pearls */
+.pearl{padding:16px 20px;background:var(--bg-primary);border-radius:var(--radius-sm);margin-bottom:10px;border:1px solid var(--border);line-height:1.6;font-size:14px}
+.pearl-category{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);font-weight:700;margin-bottom:6px}
+.pearl strong{color:var(--accent)}
+
+.red-flag{padding:16px 20px;background:var(--error-bg);border:1px solid rgba(239,68,68,0.3);border-radius:var(--radius-sm);margin-bottom:10px;font-size:14px;line-height:1.6}
+.red-flag-title{font-weight:700;color:var(--error);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+
+/* Reveal Cards */
+.reveal-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:14px;transition:all .3s}
+.reveal-header{padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background .2s}
+.reveal-header:hover{background:var(--bg-card-hover)}
+.reveal-title{font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px}
+.reveal-arrow{transition:transform .3s;font-size:18px;color:var(--text-muted)}
+.reveal-card.open .reveal-arrow{transform:rotate(180deg)}
+.reveal-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.reveal-card.open .reveal-body{max-height:600px}
+.reveal-inner{padding:0 20px 20px;font-size:14px;line-height:1.7;color:var(--text-secondary)}
+.reveal-inner strong{color:var(--accent)}
+
+/* MCQ */
+.mcq-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.mcq-score{display:flex;gap:16px;align-items:center}
+.score-item{display:flex;align-items:center;gap:6px;padding:8px 14px;background:var(--bg-card);border-radius:var(--radius-sm);border:1px solid var(--border)}
+.score-item .num{font-size:20px;font-weight:700}
+.score-item.streak .num{color:var(--warning)}
+.score-item.correct .num{color:var(--success)}
+.score-item.total .num{color:var(--accent)}
+.score-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted)}
+.mcq-reset{padding:8px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text-primary);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
+.mcq-reset:hover{border-color:var(--error);color:var(--error)}
+
+.mcq-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px;transition:border-color .3s}
+.mcq-card.answered-correct{border-color:var(--success)}
+.mcq-card.answered-wrong{border-color:var(--error)}
+.mcq-num{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);font-weight:700;margin-bottom:8px}
+.mcq-stem{font-size:15px;line-height:1.6;margin-bottom:16px;font-weight:500}
+.mcq-options{display:flex;flex-direction:column;gap:8px}
+.mcq-opt{padding:12px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all .2s;font-size:14px;display:flex;align-items:flex-start;gap:10px}
+.mcq-opt:hover:not(.disabled){border-color:var(--accent);background:rgba(6,182,212,0.05)}
+.mcq-opt.selected-correct{border-color:var(--success);background:var(--success-bg);cursor:default}
+.mcq-opt.selected-wrong{border-color:var(--error);background:var(--error-bg);cursor:default}
+.mcq-opt.show-correct{border-color:var(--success);background:var(--success-bg)}
+.mcq-opt.disabled{cursor:default;opacity:0.6}
+.mcq-opt.disabled.show-correct{opacity:1}
+.opt-letter{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;transition:all .2s}
+.mcq-opt.selected-correct .opt-letter{border-color:var(--success);background:var(--success);color:#fff}
+.mcq-opt.selected-wrong .opt-letter{border-color:var(--error);background:var(--error);color:#fff}
+.mcq-opt.show-correct .opt-letter{border-color:var(--success);background:var(--success);color:#fff}
+.mcq-explanation{margin-top:14px;padding:14px 16px;background:var(--bg-primary);border-radius:var(--radius-sm);border:1px solid var(--border);font-size:13px;line-height:1.5;display:none;animation:fadeUp .3s ease}
+.mcq-explanation.show{display:block}
+.mcq-explanation strong{color:var(--accent)}
+
+/* Rapid Review */
+.rapid-section{margin-bottom:20px}
+.rapid-title{font-size:13px;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);font-weight:700;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.rapid-item{padding:10px 14px;background:var(--bg-primary);border-radius:var(--radius-sm);margin-bottom:6px;font-size:14px;line-height:1.5;border-left:3px solid var(--accent);display:flex;align-items:flex-start;gap:8px}
+.rapid-item::before{content:'⚡';flex-shrink:0}
+.rapid-item strong{color:var(--accent)}
+
+/* Mistake Review */
+.mistake-card{background:var(--error-bg);border:1px solid rgba(239,68,68,0.3);border-radius:var(--radius);padding:18px 20px;margin-bottom:12px}
+.mistake-q{font-size:14px;font-weight:600;margin-bottom:6px}
+.mistake-detail{font-size:13px;color:var(--text-secondary);line-height:1.5}
+.mistake-detail span{font-weight:700}
+.mistake-detail .wrong{color:var(--error)}
+.mistake-detail .right{color:var(--success)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg-primary)}
+::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--text-muted)}
+
+/* Responsive */
+@media(max-width:768px){
+.sidebar{transform:translateX(-100%);position:fixed}
+.sidebar.open{transform:translateX(0)}
+.main-content{margin-left:0}
+.mobile-header{display:flex}
+.case-header{padding:20px 16px}
+.case-header h1{font-size:20px}
+.tab-bar{padding:0 12px}
+.tab{padding:12px 14px;font-size:12px}
+.tab-content{padding:16px}
+.profile-grid{grid-template-columns:1fr 1fr}
+.lab-grid{grid-template-columns:1fr 1fr}
+.mcq-header{flex-direction:column;align-items:flex-start}
+.mcq-score{flex-wrap:wrap}
+}
+
+/* Pulse animation for logo */
+.pulse{animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+
+/* Neural network background */
+.neural-bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.03}
+</style>
+</head>
+<body>
+<canvas class="neural-bg" id="neuralCanvas"></canvas>
+
+<div class="app-container">
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-header">
+<div class="sidebar-logo">
+<div class="logo-icon">🧠</div>
+<div>
+<div class="logo-text">NeuroCase</div>
+<div class="logo-sub">CNS Infections</div>
+</div>
+</div>
+<div class="ecg-container">
+<svg class="ecg-svg" viewBox="0 0 600 40" preserveAspectRatio="none">
+<path class="ecg-path" d="M0,20 L30,20 L35,20 L40,8 L45,32 L50,5 L55,35 L60,20 L90,20 L100,20 L105,20 L110,8 L115,32 L120,5 L125,35 L130,20 L160,20 L170,20 L175,20 L180,8 L185,32 L190,5 L195,35 L200,20 L230,20 L240,20 L245,20 L250,8 L255,32 L260,5 L265,35 L270,20 L300,20 L310,20 L315,20 L320,8 L325,32 L330,5 L335,35 L340,20 L370,20 L380,20 L385,20 L390,8 L395,32 L400,5 L405,35 L410,20 L440,20 L450,20 L455,20 L460,8 L465,32 L470,5 L475,35 L480,20 L510,20 L520,20 L525,20 L530,8 L535,32 L540,5 L545,35 L550,20 L600,20">
+<animate attributeName="d" dur="0.1s" repeatCount="0"/>
+</path>
+</svg>
+</div>
+</div>
+
+<div class="case-list" id="caseList"></div>
+
+<div class="sidebar-stats">
+<div class="stat-box">
+<div class="stat-val" id="globalScore">0</div>
+<div class="stat-label">Score</div>
+</div>
+<div class="stat-box">
+<div class="stat-val" id="globalStreak">0🔥</div>
+<div class="stat-label">Streak</div>
+</div>
+</div>
+
+<div class="theme-toggle">
+<button class="theme-btn" id="themeBtn" onclick="toggleTheme()">
+<span id="themeIcon">🌙</span>
+<span id="themeText">Dark Mode</span>
+</button>
+</div>
+</aside>
+
+<!-- Main -->
+<main class="main-content">
+<div class="mobile-header">
+<div class="mobile-logo">🧠 NeuroCase</div>
+<div style="display:flex;gap:8px;align-items:center">
+<select class="mobile-select" id="mobileSelect" onchange="selectCase(parseInt(this.value))"></select>
+<button class="theme-btn" style="width:auto;padding:8px 12px" onclick="toggleTheme()"><span id="themeIcon2">🌙</span></button>
+</div>
+</div>
+
+<div class="case-header" id="caseHeader"></div>
+
+<div class="tab-bar" id="tabBar">
+<div class="tab active" data-tab="casefile" onclick="switchTab('casefile')"><span class="tab-icon">📂</span> Case File</div>
+<div class="tab" data-tab="pearls" onclick="switchTab('pearls')"><span class="tab-icon">💡</span> Pearls</div>
+<div class="tab" data-tab="reasoning" onclick="switchTab('reasoning')"><span class="tab-icon">🔍</span> Reasoning</div>
+<div class="tab" data-tab="mcq" onclick="switchTab('mcq')"><span class="tab-icon">📝</span> MCQs</div>
+<div class="tab" data-tab="rapid" onclick="switchTab('rapid')"><span class="tab-icon">⚡</span> Rapid Review</div>
+</div>
+
+<div class="tab-content" id="tabContent"></div>
+</main>
+</div>
+
+<script>
+// ==================== DATA ====================
+const cases = [
+{
+id: 0,
+num: "Case 1",
+title: "Bacterial Meningitis",
+organism: "Neisseria meningitidis",
+badge: "CNS BACTERIAL",
+patient: {
+age: "21", sex: "Male", occupation: "Military Recruit",
+vaccination: "Unvaccinated", setting: "Barracks (close quarters)"
+},
+complaint: "Fever, headache, neck stiffness, and confusion",
+hpiFindings: [
+{ text: "Fever (39.8°C / 103.6°F)", abnormal: true, tip: "Systemic inflammatory response to meningococcal bacteremia and meningeal infection." },
+{ text: "Severe headache", abnormal: true, tip: "Meningeal inflammation causes increased intracranial pressure, stimulating pain-sensitive meningeal nociceptors." },
+{ text: "Neck stiffness (nuchal rigidity)", abnormal: true, tip: "Inflammation of the meninges causes reflex spasm of cervical muscles, resisting flexion." },
+{ text: "Confusion / altered mental status", abnormal: true, tip: "Cerebral cortical dysfunction from inflammatory edema, increased ICP, and direct toxin effects on neurons." },
+{ text: "Positive Kernig's sign", abnormal: true, tip: "Stretching inflamed meninges by extending the knee with hip flexed causes pain/resistance — classic meningeal sign." },
+{ text: "Photophobia", abnormal: true, tip: "Meningeal irritation increases sensitivity of the optic nerve and surrounding meninges to light stimuli." },
+{ text: "Purpuric rash on extremities", abnormal: true, tip: "LOS endotoxin causes DIC and endothelial damage → petechiae/purpura from microvascular thrombosis and hemorrhage." }
+],
+labs: [
+{ name: "CSF Appearance", value: "Turbid", ref: "Clear", abnormal: true },
+{ name: "CSF Glucose", value: "20 mg/dL", ref: "45-80 mg/dL", abnormal: true },
+{ name: "CSF Protein", value: "280 mg/dL", ref: "15-45 mg/dL", abnormal: true },
+{ name: "CSF WBC", value: "2,500/μL", ref: "<5/μL", abnormal: true },
+{ name: "CSF Neutrophils", value: "92%", ref: "<5%", abnormal: true },
+{ name: "Gram Stain", value: "GN Diplococci", ref: "No organisms", abnormal: true },
+{ name: "Blood WBC", value: "18,000/μL", ref: "4,500-11,000", abnormal: true },
+{ name: "CRP", value: "Elevated", ref: "Normal", abnormal: true }
+],
+pearls: [
+{ cat: "Virulence Triad", text: "<strong>Capsule</strong> (resists phagocytosis/camouflage) + <strong>IgA Protease</strong> (evades mucosal immunity) + <strong>LOS</strong> (endotoxin causing ciliary damage & systemic purpura)." },
+{ cat: "LP Technique", text: "Always perform LP at <strong>L3-L4 or L4-L5</strong>. Collect CSF in 3 screw-capped tubes: Microbiology, Biochemistry, Hematology. Use <strong>viral transport media</strong> to rule out viral causes. Collect CSF <strong>before antibiotics</strong>." },
+{ cat: "Smear Interpretation", text: "<strong>Direct CSF film</strong>: red-stained pus cell background + <strong>intracellular</strong> gram-negative diplococci. <strong>Culture film</strong>: white/clear background + extracellular organisms only." },
+{ cat: "Prophylaxis vs Treatment", text: "Close contacts → <strong>Rifampicin or Ciprofloxacin</strong>. Do NOT use Penicillin for prophylaxis—it fails to eradicate the <strong>nasopharyngeal carrier state</strong>. Penicillin/Cephalosporins are for <strong>treatment</strong> of active disease." },
+{ cat: "Vaccine", text: "Quadrivalent capsular vaccine targets <strong>A, C, Y, W135</strong> serogroups. The capsule is the target antigen for active immunization." },
+{ cat: "Carrier State", text: "Nasopharyngeal swabs + <strong>latex agglutination</strong> rapid tests help distinguish pathogenic <strong>N. meningitidis</strong> from commensal Neisseria species in asymptomatic carriers." }
+],
+redFlags: [
+{ title: "LOS vs LPS", text: "N. meningitidis has Lipooligosaccharide (LOS), NOT full-length LPS. LOS lacks the O-antigen side chain but is still a potent endotoxin causing DIC and purpura." },
+{ title: "Penicillin for Prophylaxis", text: "Common trap: Penicillin treats active meningococcal disease but does NOT clear the carrier state. Rifampicin/Ciprofloxacin are for contacts." }
+],
+reasoning: [
+{ title: "🔬 Altered Physiology", body: "The blood-brain barrier (BBB) is breached. CSF becomes loaded with <strong>neutrophils</strong> (from normal <5 to >2,500/μL). Protein leaks through damaged meningeal vessels (<strong>280 mg/dL</strong> vs normal 15-45). Glucose is consumed by bacteria and neutrophils (<strong>20 mg/dL</strong> vs normal 45-80)." },
+{ title: "⚙️ Pathophysiology Mechanism", body: "<strong>Step 1:</strong> Droplet transmission → pili-mediated adhesion to nasopharyngeal mucosa.<br><strong>Step 2:</strong> IgA protease cleaves mucosal IgA → immune evasion.<br><strong>Step 3:</strong> Polysaccharide capsule resists complement and phagocytosis → bacteremia.<br><strong>Step 4:</strong> LOS endotoxin → endothelial damage, DIC, purpuric rash.<br><strong>Step 5:</strong> BBB penetration → meningeal inflammation → high protein, low glucose, turbid CSF." },
+{ title: "🛡️ Compensatory Response", body: "The body massively recruits <strong>neutrophils</strong> into the CSF (neutrophilic pleocytosis). These neutrophils phagocytose bacteria, creating the classic finding of <strong>intracellular gram-negative diplococci</strong> on direct smear. Complement activation and acute phase reactants (CRP) are elevated systemically." },
+{ title: "✅ Final Diagnosis", body: "<strong>Acute Bacterial Meningitis</strong> caused by <strong>Neisseria meningitidis</strong>, confirmed by turbid CSF with neutrophilic pleocytosis, low glucose, high protein, and gram-negative intracellular diplococci. Purpuric rash indicates meningococcemia with DIC." }
+],
+mcqs: [
+{
+stem: "A 21-year-old male with confirmed meningococcal meningitis has a purpuric rash. Which specific virulence factor is most directly responsible for damaging ciliated cells and causing this systemic toxic presentation?",
+options: ["Polysaccharide capsule", "IgA protease", "Lipooligosaccharide (LOS)", "Pili"],
+correct: 2,
+explanation: "<strong>LOS</strong> is the specific endotoxin in N. meningitidis (lacking O-antigen) that damages ciliated cells and triggers vascular damage leading to purpura and DIC."
+},
+{
+stem: "A physician analyzes a direct film of turbid CSF from a meningitis patient. Which microscopic finding matches the physiological immune response to N. meningitidis?",
+options: ["Extracellular gram-positive cocci in chains", "Intracellular gram-negative diplococci within neutrophils", "Gram-negative diplococci on a clear white background", "Lymphocytic predominance with normal glucose"],
+correct: 1,
+explanation: "The body floods CSF with <strong>neutrophils</strong> that phagocytose bacteria → classic <strong>intracellular</strong> gram-negative diplococci on direct smear. A white background with extracellular organisms describes a culture film, not a direct CSF smear."
+},
+{
+stem: "To evade mucosal immunity after droplet transmission, N. meningitidis secretes an enzyme. What is the direct target of this enzyme?",
+options: ["Macrophage lysosomes", "Complement C3b", "Ciliated epithelial tight junctions", "Immunoglobulin A (IgA)"],
+correct: 3,
+explanation: "<strong>IgA protease</strong> cleaves host IgA antibodies at mucosal surfaces, preventing immune clearance and enabling colonization of the nasopharynx."
+},
+{
+stem: "At which anatomical level should a lumbar puncture needle be inserted to safely obtain a CSF sample?",
+options: ["T12-L1", "L1-L2", "L3-L4", "S1-S2"],
+correct: 2,
+explanation: "The spinal cord (conus medullaris) ends at approximately L1-L2. LP at <strong>L3-L4 or L4-L5</strong> is safe because only the cauda equina (nerve roots) are present below L2."
+},
+{
+stem: "A patient's roommate is identified as a close contact. Which chemoprophylactic agent is most appropriate, and why is Penicillin avoided?",
+options: ["Penicillin; it crosses the BBB effectively", "Rifampicin; Penicillin fails to eradicate the nasopharyngeal carrier state", "Chloramphenicol; it provides active immunization", "3rd-gen cephalosporin; it destroys the capsule"],
+correct: 1,
+explanation: "<strong>Rifampicin or Ciprofloxacin</strong> eradicate nasopharyngeal carriage. Penicillin treats active infection but does NOT clear the carrier state — a classic exam trap."
+},
+{
+stem: "The CSF glucose in this patient is 20 mg/dL (normal 45-80). What is the primary physiological explanation for the decreased CSF glucose in bacterial meningitis?",
+options: ["Impaired glucose transporter expression at the choroid plexus", "Active glucose consumption by bacteria and recruited neutrophils", "Increased renal glucose excretion", "Dilution by excess CSF production"],
+correct: 1,
+explanation: "Bacteria metabolize glucose directly, and the massive influx of <strong>neutrophils</strong> also consumes glucose via anaerobic glycolysis, causing the characteristically <strong>low CSF glucose</strong> in bacterial meningitis."
+},
+{
+stem: "Which component of N. meningitidis is targeted by the quadrivalent meningococcal vaccine (A, C, Y, W135)?",
+options: ["Lipooligosaccharide (LOS)", "Pili adhesion proteins", "Polysaccharide capsule", "IgA protease enzyme"],
+correct: 2,
+explanation: "The vaccine targets the <strong>polysaccharide capsule</strong> — the major antiphagocytic virulence factor — to generate opsonizing antibodies that promote complement-mediated killing."
+},
+{
+stem: "The CSF protein is markedly elevated at 280 mg/dL (normal 15-45). What is the primary mechanism causing high CSF protein in bacterial meningitis?",
+options: ["Increased protein synthesis by choroid plexus epithelium", "Breakdown of the blood-brain barrier allowing plasma protein leakage", "Intrathecal immunoglobulin production by B cells", "Decreased CSF reabsorption at arachnoid granulations"],
+correct: 1,
+explanation: "Meningeal inflammation disrupts the <strong>blood-brain barrier</strong>, allowing serum proteins (albumin, immunoglobulins) to leak into the CSF, dramatically raising the protein level."
+},
+{
+stem: "A CSF sample shows gram-negative diplococci but culture is negative. The most likely reason for this discrepancy in clinical practice is:",
+options: ["The organism requires anaerobic culture conditions", "Antibiotics were administered before CSF collection", "N. meningitidis cannot grow on standard media", "The sample was stored at room temperature"],
+correct: 1,
+explanation: "The most common cause of culture-negative, smear-positive CSF is <strong>prior antibiotic administration</strong>. This is why the doctor emphasized: collect CSF BEFORE starting antibiotics."
+},
+{
+stem: "The polysaccharide capsule of N. meningitidis helps it evade host defenses primarily by resisting which of the following?",
+options: ["Antibody binding to surface proteins", "Phagocytosis by neutrophils and macrophages", "Intracellular killing by reactive oxygen species", "T-cell mediated cytotoxicity"],
+correct: 1,
+explanation: "The capsule acts as a <strong>camouflage/antiphagocytic shield</strong>, preventing opsonization and engulfment by phagocytes. This is the primary mechanism of immune evasion in the bloodstream."
+}
+],
+rapid: [
+{ section: "Virulence", items: [
+"<strong>Capsule</strong> → resists phagocytosis (camouflage)",
+"<strong>IgA Protease</strong> → cleaves mucosal IgA → immune evasion",
+"<strong>LOS endotoxin</strong> → ciliary damage + purpura + DIC",
+"<strong>Pili</strong> → mucosal adhesion (initial attachment)"
+]},
+{ section: "CSF Profile (Bacterial)", items: [
+"<strong>Turbid</strong> appearance",
+"<strong>High protein</strong> (BBB breakdown → plasma leak)",
+"<strong>Low glucose</strong> (bacterial + neutrophil consumption)",
+"<strong>Neutrophilic</strong> pleocytosis (>90% PMNs)"
+]},
+{ section: "Key Distinctions", items: [
+"<strong>Direct film</strong>: pus cell background + INTRACELLULAR diplococci",
+"<strong>Culture film</strong>: white background + extracellular organisms",
+"<strong>LOS ≠ LPS</strong>: LOS lacks O-antigen, still potent endotoxin",
+"<strong>Prophylaxis</strong>: Rifampicin/Cipro (NOT Penicillin — won't clear carrier state)"
+]},
+{ section: "Clinical Rules", items: [
+"LP at <strong>L3-L4 or L4-L5</strong> (below conus medullaris)",
+"Collect CSF <strong>BEFORE</strong> antibiotics",
+"3 tubes: Micro, Biochem, Hematology + viral transport media",
+"Vaccine: Quadrivalent <strong>A, C, Y, W135</strong> (targets capsule)"
+]}
+]
+},
+{
+id: 1,
+num: "Case 2",
+title: "Viral Encephalitis (Rabies)",
+organism: "Rabies virus (Lyssavirus)",
+badge: "CNS VIRAL",
+patient: {
+age: "25", sex: "Male", occupation: "Farmer",
+vaccination: "No PEP given", setting: "Rural area, stray dog bite"
+},
+complaint: "Fever, agitation, and hydrophobia 3 weeks after an untreated stray dog bite",
+hpiFindings: [
+{ text: "Fever", abnormal: true, tip: "Systemic immune response to viral CNS infection causing hypothalamic dysregulation." },
+{ text: "Dog bite on right hand (3 weeks prior)", abnormal: true, tip: "Rabies virus inoculated via infected saliva through broken skin. The hand is a high-risk site due to rich nerve supply allowing rapid retrograde axonal transport." },
+{ text: "No post-exposure prophylaxis given", abnormal: true, tip: "CRITICAL FAILURE: PEP is the ONLY intervention that can prevent rabies once exposure occurs. Without it, the virus reaches the CNS unchallenged." },
+{ text: "Severe neurological agitation", abnormal: true, tip: "Viral encephalitis causes neuronal dysfunction in limbic system and brainstem → uncontrollable agitation, anxiety, and delirium." },
+{ text: "Hydrophobia (fear of water)", abnormal: true, tip: "Pathognomonic for rabies: brainstem infection causes violent, painful spasms of the pharyngeal and diaphragmatic muscles triggered by attempts to swallow or even the sight/sound of water." },
+{ text: "Death within 4 days of symptom onset", abnormal: true, tip: "Once clinical rabies symptoms manifest, the disease is virtually 100% fatal. No effective treatment exists at this stage." }
+],
+labs: [
+{ name: "Brain Histology", value: "Negri bodies", ref: "No inclusions", abnormal: true },
+{ name: "CSF WBC", value: "Mild lymphocytosis", ref: "<5/μL", abnormal: true },
+{ name: "CSF Glucose", value: "Normal", ref: "45-80 mg/dL", abnormal: false },
+{ name: "CSF Protein", value: "Mildly elevated", ref: "15-45 mg/dL", abnormal: true },
+{ name: "Viral antigen (DFA)", value: "Positive", ref: "Negative", abnormal: true },
+{ name: "Virus morphology", value: "Bullet-shaped", ref: "—", abnormal: false }
+],
+pearls: [
+{ cat: "Fatal Physiology", text: "Rabies is <strong>100% fatal</strong> once symptoms appear. The entire management strategy is <strong>prevention via PEP</strong> (passive + active immunization). There is no 'treatment' for clinical rabies." },
+{ cat: "Viral Structure", text: "Rabies virus is an <strong>enveloped, bullet-shaped, negative-sense ssRNA virus</strong> (family Rhabdoviridae). Key proteins: <strong>G protein</strong> (surface glycoprotein, target for neutralizing antibodies), N, M, L, P proteins." },
+{ cat: "Pathognomonic Finding", text: "<strong>Negri bodies</strong> = eosinophilic cytoplasmic inclusion bodies found in neurons (especially hippocampal pyramidal cells and Purkinje cells of cerebellum). These are aggregates of viral ribonucleoprotein." },
+{ cat: "Neural Transport", text: "Virus travels via <strong>retrograde axonal transport</strong> along peripheral nerves to the CNS. Speed: ~12-24 mm/day. Bites on face/hands → shorter incubation (rich nerve supply). This is why the incubation period varies from weeks to months." },
+{ cat: "PEP Protocol", text: "Post-exposure prophylaxis includes: <strong>wound washing</strong> (soap + water), <strong>rabies immunoglobulin (RIG)</strong> infiltrated around the wound (passive immunity), and <strong>rabies vaccine</strong> series (active immunity). Must be given BEFORE symptoms." },
+{ cat: "CSF in Viral vs Bacterial", text: "Viral encephalitis CSF: <strong>lymphocytic</strong> pleocytosis, <strong>normal glucose</strong>, mildly elevated protein. Contrast with bacterial: neutrophilic pleocytosis, LOW glucose, HIGH protein." }
+],
+redFlags: [
+{ title: "Symptoms = Death", text: "The single most important rabies fact: once hydrophobia, agitation, or any neurological symptom appears, the patient WILL die. All management must occur BEFORE symptoms." },
+{ title: "Viral vs Bacterial CSF", text: "Don't confuse: Viral = lymphocytes, normal glucose. Bacterial = neutrophils, LOW glucose. Both have elevated protein, but the cell type and glucose are key differentiators." }
+],
+reasoning: [
+{ title: "🔬 Altered Physiology", body: "The rabies virus disrupts normal <strong>brainstem and limbic system</strong> function. Autonomic centers become dysregulated, causing hypersalivation and pharyngeal muscle spasms. The brainstem respiratory and swallowing centers are directly infected, producing the hallmark <strong>hydrophobia</strong>." },
+{ title: "⚙️ Pathophysiology Mechanism", body: "<strong>Step 1:</strong> Virus inoculated via saliva into wound → replicates locally in muscle tissue.<br><strong>Step 2:</strong> Binds to nicotinic acetylcholine receptors at the neuromuscular junction.<br><strong>Step 3:</strong> Enters peripheral nerves → <strong>retrograde axonal transport</strong> to dorsal root ganglia → spinal cord → brainstem → brain.<br><strong>Step 4:</strong> Massive neuronal infection → <strong>Negri body</strong> formation → encephalitis.<br><strong>Step 5:</strong> Centrifugal spread from CNS back to salivary glands (enables transmission to next host)." },
+{ title: "🛡️ Compensatory Response", body: "The host immune response is <strong>tragically inadequate</strong>. The virus travels inside nerve axons, protected from circulating antibodies and immune cells. The BBB limits immune access to the CNS. By the time the immune system recognizes CNS infection, irreversible damage has occurred. <strong>Exogenous passive immunity (RIG) + active immunity (vaccine)</strong> are the only effective interventions — and must be given before CNS invasion." },
+{ title: "✅ Final Diagnosis", body: "<strong>Rabies Encephalitis</strong> — caused by rabies virus (Lyssavirus), confirmed by clinical presentation of hydrophobia + agitation after dog bite, and <strong>Negri bodies</strong> on brain histology. Fatal outcome due to absence of post-exposure prophylaxis." }
+],
+mcqs: [
+{
+stem: "A 25-year-old male dies of severe encephalitis and hydrophobia after a dog bite. Autopsy of brain tissue is performed. Which pathognomonic histological finding is most likely observed?",
+options: ["Lewy bodies", "Negri bodies", "Cowdry A inclusions", "Aschoff bodies"],
+correct: 1,
+explanation: "<strong>Negri bodies</strong> are eosinophilic cytoplasmic inclusion bodies found in neurons (hippocampus, cerebellum) — pathognomonic for rabies. Lewy bodies = Parkinson's; Cowdry A = HSV; Aschoff = Rheumatic fever."
+},
+{
+stem: "Which critical intervention was missed that directly led to the fatal outcome of this rabies infection?",
+options: ["Broad-spectrum antibiotics", "Immediate post-exposure prophylaxis (PEP)", "Surgical amputation of the bitten hand", "Lumbar puncture for rapid decompression"],
+correct: 1,
+explanation: "Rabies is <strong>100% fatal once symptoms begin</strong>. The ONLY effective intervention is <strong>PEP</strong> (wound washing + RIG + vaccine) administered before the virus reaches the CNS."
+},
+{
+stem: "Which of the following best describes the structure of the rabies virus?",
+options: ["Non-enveloped DNA virus", "Enveloped, bullet-shaped RNA virus", "Gram-negative intracellular diplococci", "Polysaccharide-encapsulated bacillus"],
+correct: 1,
+explanation: "Rabies virus is a <strong>bullet-shaped, enveloped, negative-sense single-stranded RNA virus</strong> belonging to the Rhabdoviridae family."
+},
+{
+stem: "Hydrophobia in this patient signifies that the rabies virus has reached which anatomical compartment?",
+options: ["Peripheral muscle tissue at the bite site", "The lymphatic system", "The Central Nervous System (CNS)", "The bloodstream (Viremia)"],
+correct: 2,
+explanation: "Hydrophobia results from <strong>brainstem encephalitis</strong> causing violent pharyngeal/diaphragmatic spasms. This confirms the virus has reached the CNS — at which point the disease is invariably fatal."
+},
+{
+stem: "The rabies virus travels from the bite site to the CNS via which physiological mechanism?",
+options: ["Hematogenous spread through the bloodstream", "Lymphatic drainage to regional lymph nodes", "Retrograde axonal transport along peripheral nerves", "Direct penetration through the blood-brain barrier"],
+correct: 2,
+explanation: "Rabies virus binds nicotinic ACh receptors at the NMJ, enters peripheral nerves, and travels via <strong>retrograde axonal transport</strong> (~12-24 mm/day) to the spinal cord and brain."
+},
+{
+stem: "CSF analysis in viral encephalitis (like rabies) would most likely show which combination?",
+options: ["Neutrophilic pleocytosis, low glucose, high protein", "Lymphocytic pleocytosis, normal glucose, mildly elevated protein", "No cells, normal glucose, very high protein", "Eosinophilic pleocytosis, elevated glucose, low protein"],
+correct: 1,
+explanation: "Viral CNS infections characteristically show <strong>lymphocytic</strong> predominance with <strong>normal glucose</strong> (viruses don't consume glucose like bacteria) and mildly elevated protein."
+},
+{
+stem: "Which rabies viral protein is the primary target for neutralizing antibodies and is critical for vaccine design?",
+options: ["N (nucleoprotein)", "M (matrix protein)", "G (glycoprotein)", "L (RNA-dependent RNA polymerase)"],
+correct: 2,
+explanation: "The <strong>G protein</strong> (surface glycoprotein) mediates viral attachment to host cells and is the main target for <strong>neutralizing antibodies</strong> produced by vaccination."
+},
+{
+stem: "A farmer is bitten on the face by a rabid animal. Compared to a bite on the foot, the expected incubation period would be:",
+options: ["Longer, due to greater distance from the heart", "Shorter, due to richer nerve supply and shorter neural pathway to the brain", "The same, as the virus travels via the bloodstream", "Longer, because facial wounds heal faster"],
+correct: 1,
+explanation: "Face bites have <strong>shorter incubation periods</strong> because the face has a <strong>rich nerve supply</strong> and much <strong>shorter neural distance</strong> to the brainstem compared to extremity bites."
+},
+{
+stem: "In the rabies PEP protocol, rabies immunoglobulin (RIG) is infiltrated around the wound site. This provides which type of immunity?",
+options: ["Active immunity via antibody production", "Passive immunity via preformed antibodies", "Cell-mediated immunity via T-cell activation", "Innate immunity via complement activation"],
+correct: 1,
+explanation: "<strong>RIG provides passive immunity</strong> — preformed neutralizing antibodies that immediately neutralize virus at the wound site before it enters peripheral nerves. The vaccine provides subsequent active immunity."
+},
+{
+stem: "After reaching the brain, the rabies virus spreads centrifugally back to the salivary glands. What is the physiological significance of this spread?",
+options: ["It allows diagnostic detection via saliva testing only", "It enables transmission to the next host via bite/saliva", "It triggers the hydrophobia reflex", "It causes the formation of Negri bodies in salivary epithelium"],
+correct: 1,
+explanation: "Centrifugal spread to salivary glands is the virus's <strong>transmission strategy</strong> — it ensures high viral loads in saliva so the virus can be <strong>transmitted to the next host</strong> through bites."
+}
+],
+rapid: [
+{ section: "Virology", items: [
+"<strong>Bullet-shaped</strong>, enveloped, negative-sense ssRNA virus",
+"Family: <strong>Rhabdoviridae</strong>, Genus: Lyssavirus",
+"Key protein: <strong>G protein</strong> → target for neutralizing antibodies & vaccine",
+"Travels via <strong>retrograde axonal transport</strong> (~12-24 mm/day)"
+]},
+{ section: "Pathognomonic Features", items: [
+"<strong>Negri bodies</strong> → eosinophilic cytoplasmic inclusions in neurons",
+"<strong>Hydrophobia</strong> → pharyngeal/diaphragmatic spasms (brainstem involvement)",
+"<strong>100% fatal</strong> once clinical symptoms appear",
+"Face bites → <strong>shorter incubation</strong> (rich nerves, short path to brain)"
+]},
+{ section: "CSF: Viral vs Bacterial", items: [
+"Viral: <strong>Lymphocytes</strong>, NORMAL glucose, mildly ↑ protein",
+"Bacterial: <strong>Neutrophils</strong>, LOW glucose, HIGH protein",
+"Key differentiator: <strong>glucose level + cell type</strong>"
+]},
+{ section: "Management Rules", items: [
+"<strong>Symptoms = Death</strong> — no treatment exists for clinical rabies",
+"PEP = wound wash + <strong>RIG</strong> (passive) + <strong>vaccine</strong> (active)",
+"RIG infiltrated <strong>around wound site</strong> — neutralize virus locally",
+"All management must occur <strong>BEFORE</strong> CNS invasion"
+]}
+]
+}
+];
+
+// ==================== STATE ====================
+let currentCase = parseInt(localStorage.getItem('lastCase')) || 0;
+let currentTab = 'casefile';
+let globalScore = parseInt(localStorage.getItem('globalScore')) || 0;
+let globalStreak = parseInt(localStorage.getItem('globalStreak')) || 0;
+let answeredMCQs = JSON.parse(localStorage.getItem('answeredMCQs') || '{}');
+let mistakes = JSON.parse(localStorage.getItem('mistakes') || '[]');
+
+// ==================== INIT ====================
+function init() {
+loadTheme();
+renderCaseList();
+renderMobileSelect();
+selectCase(currentCase);
+updateGlobalStats();
+}
+
+function loadTheme() {
+const theme = localStorage.getItem('theme') || 'dark';
+document.documentElement.setAttribute('data-theme', theme === 'light' ? 'light' : '');
+updateThemeBtn(theme);
+}
+
+function toggleTheme() {
+const current = localStorage.getItem('theme') || 'dark';
+const next = current === 'dark' ? 'light' : 'dark';
+localStorage.setItem('theme', next);
+if (next === 'light') {
+document.documentElement.setAttribute('data-theme', 'light');
+} else {
+document.documentElement.removeAttribute('data-theme');
+}
+updateThemeBtn(next);
+}
+
+function updateThemeBtn(theme) {
+const icon = theme === 'light' ? '☀️' : '🌙';
+const text = theme === 'light' ? 'Light Mode' : 'Dark Mode';
+document.getElementById('themeIcon').textContent = icon;
+document.getElementById('themeText').textContent = text;
+const icon2 = document.getElementById('themeIcon2');
+if (icon2) icon2.textContent = icon;
+}
+
+// ==================== CASE LIST ====================
+function renderCaseList() {
+const list = document.getElementById('caseList');
+list.innerHTML = cases.map((c, i) => `
+<div class="case-item ${i === currentCase ? 'active' : ''}" onclick="selectCase(${i})">
+<div class="case-num">${c.num}</div>
+<div class="case-title">${c.title}</div>
+<div class="case-org">${c.organism}</div>
+</div>
+`).join('');
+}
+
+function renderMobileSelect() {
+const sel = document.getElementById('mobileSelect');
+sel.innerHTML = cases.map((c, i) => `<option value="${i}" ${i === currentCase ? 'selected' : ''}>${c.num}: ${c.title}</option>`).join('');
+}
+
+function selectCase(idx) {
+currentCase = idx;
+localStorage.setItem('lastCase', idx);
+renderCaseList();
+document.getElementById('mobileSelect').value = idx;
+renderCaseHeader();
+switchTab(currentTab);
+}
+
+function renderCaseHeader() {
+const c = cases[currentCase];
+document.getElementById('caseHeader').innerHTML = `
+<div class="case-badge">${c.badge}</div>
+<h1>${c.title}</h1>
+<div class="subtitle">${c.organism} — ${c.patient.age}yo ${c.patient.sex}, ${c.patient.occupation}</div>
+`;
+}
+
+// ==================== TABS ====================
+function switchTab(tab) {
+currentTab = tab;
+document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+const content = document.getElementById('tabContent');
+content.style.animation = 'none';
+content.offsetHeight;
+content.style.animation = 'fadeUp .35s ease';
+
+switch(tab) {
+case 'casefile': renderCaseFile(); break;
+case 'pearls': renderPearls(); break;
+case 'reasoning': renderReasoning(); break;
+case 'mcq': renderMCQ(); break;
+case 'rapid': renderRapid(); break;
+}
+}
+
+// ==================== CASE FILE ====================
+function renderCaseFile() {
+const c = cases[currentCase];
+document.getElementById('tabContent').innerHTML = `
+<div class="card">
+<div class="card-title"><span class="icon">👤</span> Patient Profile</div>
+<div class="profile-grid">
+${Object.entries(c.patient).map(([k, v]) => `
+<div class="profile-item">
+<div class="profile-label">${k.replace(/([A-Z])/g, ' $1').toUpperCase()}</div>
+<div class="profile-value">${v}</div>
+</div>
+`).join('')}
+</div>
+</div>
+
+<div class="card">
+<div class="card-title"><span class="icon">🗣️</span> Chief Complaint</div>
+<p style="font-size:15px;line-height:1.6;color:var(--text-secondary)">${c.complaint}</p>
+</div>
+
+<div class="card">
+<div class="card-title"><span class="icon">🔎</span> Clinical Findings <span style="font-size:12px;color:var(--text-muted);font-weight:400;margin-left:8px">(tap to reveal explanation)</span></div>
+${c.hpiFindings.map((f, i) => `
+<div class="finding ${f.abnormal ? 'abnormal' : ''}" onclick="this.classList.toggle('open')">
+<div class="finding-label">
+${f.text}
+<span class="finding-tag ${f.abnormal ? 'tag-abnormal' : 'tag-normal'}">${f.abnormal ? '⚠ Abnormal' : '✓ Normal'}</span>
+</div>
+<div class="finding-tooltip">💡 ${f.tip}</div>
+</div>
+`).join('')}
+</div>
+
+<div class="card">
+<div class="card-title"><span class="icon">🧪</span> Laboratory & Investigation Results</div>
+<div class="lab-grid">
+${c.labs.map(l => `
+<div class="lab-item ${l.abnormal ? 'abnormal' : ''}">
+<div class="lab-name">${l.name}</div>
+<div class="lab-val">${l.value}</div>
+<div class="lab-ref">Ref: ${l.ref}</div>
+</div>
+`).join('')}
+</div>
+</div>
+`;
+}
+
+// ==================== PEARLS ====================
+function renderPearls() {
+const c = cases[currentCase];
+document.getElementById('tabContent').innerHTML = `
+<div class="card">
+<div class="card-title"><span class="icon">💡</span> Physiology Pearls & Exam Concepts</div>
+${c.pearls.map(p => `
+<div class="pearl">
+<div class="pearl-category">${p.cat}</div>
+${p.text}
+</div>
+`).join('')}
+</div>
+
+<div class="card">
+<div class="card-title"><span class="icon">🚨</span> Red Flags — Common Exam Traps</div>
+${c.redFlags.map(r => `
+<div class="red-flag">
+<div class="red-flag-title">🚨 ${r.title}</div>
+${r.text}
+</div>
+`).join('')}
+</div>
+`;
+}
+
+// ==================== REASONING ====================
+function renderReasoning() {
+const c = cases[currentCase];
+document.getElementById('tabContent').innerHTML = `
+<div class="card">
+<div class="card-title"><span class="icon">🔍</span> Clinical Reasoning — Interactive Reveal</div>
+<p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Click each section to reveal the physiological reasoning.</p>
+${c.reasoning.map((r, i) => `
+<div class="reveal-card" id="reveal-${i}">
+<div class="reveal-header" onclick="toggleReveal(${i})">
+<div class="reveal-title">${r.title}</div>
+<div class="reveal-arrow">▼</div>
+</div>
+<div class="reveal-body">
+<div class="reveal-inner">${r.body}</div>
+</div>
+</div>
+`).join('')}
+</div>
+`;
+}
+
+function toggleReveal(idx) {
+const card = document.getElementById(`reveal-${idx}`);
+card.classList.toggle('open');
+}
+
+// ==================== MCQ ====================
+function renderMCQ() {
+const c = cases[currentCase];
+const caseKey = `case_${currentCase}`;
+const answered = answeredMCQs[caseKey] || {};
+const caseMistakes = mistakes.filter(m => m.caseId === currentCase);
+
+let correctCount = 0;
+let totalAnswered = 0;
+Object.values(answered).forEach(a => {
+totalAnswered++;
+if (a.correct) correctCount++;
+});
+
+document.getElementById('tabContent').innerHTML = `
+<div class="mcq-header">
+<div class="mcq-score">
+<div class="score-item correct">
+<div class="num">${correctCount}</div>
+<div class="score-label">Correct</div>
+</div>
+<div class="score-item total">
+<div class="num">${totalAnswered}/${c.mcqs.length}</div>
+<div class="score-label">Answered</div>
+</div>
+<div class="score-item streak">
+<div class="num">${globalStreak}🔥</div>
+<div class="score-label">Streak</div>
+</div>
+</div>
+<button class="mcq-reset" onclick="resetCaseMCQs()">↻ Reset This Case</button>
+</div>
+
+${c.mcqs.map((q, i) => {
+const ans = answered[i];
+const isAnswered = ans !== undefined;
+return `
+<div class="mcq-card ${isAnswered ? (ans.correct ? 'answered-correct' : 'answered-wrong') : ''}" id="mcq-card-${i}">
+<div class="mcq-num">Question ${i + 1} of ${c.mcqs.length}</div>
+<div class="mcq-stem">${q.stem}</div>
+<div class="mcq-options">
+${q.options.map((opt, oi) => {
+let cls = '';
+if (isAnswered) {
+cls = 'disabled';
+if (oi === q.correct) cls += ' show-correct';
+if (oi === ans.selected && !ans.correct) cls += ' selected-wrong';
+if (oi === ans.selected && ans.correct) cls += ' selected-correct';
+}
+return `<div class="mcq-opt ${cls}" onclick="answerMCQ(${i}, ${oi})" id="mcq-${i}-opt-${oi}">
+<div class="opt-letter">${String.fromCharCode(65 + oi)}</div>
+<div>${opt}</div>
+</div>`;
+}).join('')}
+</div>
+<div class="mcq-explanation ${isAnswered ? 'show' : ''}" id="mcq-exp-${i}">
+${isAnswered ? (ans.correct ? '✅' : '❌') + ' ' + q.explanation : ''}
+</div>
+</div>
+`;
+}).join('')}
+
+${caseMistakes.length > 0 ? `
+<div class="card" style="margin-top:24px">
+<div class="card-title"><span class="icon">❌</span> Mistake Review</div>
+${caseMistakes.map(m => `
+<div class="mistake-card">
+<div class="mistake-q">Q${m.qIndex + 1}: ${m.stem.substring(0, 80)}...</div>
+<div class="mistake-detail">
+Your answer: <span class="wrong">${m.yourAnswer}</span><br>
+Correct answer: <span class="right">${m.correctAnswer}</span>
+</div>
+</div>
+`).join('')}
+</div>
+` : ''}
+`;
+}
+
+function answerMCQ(qIdx, optIdx) {
+const caseKey = `case_${currentCase}`;
+if (!answeredMCQs[caseKey]) answeredMCQs[caseKey] = {};
+if (answeredMCQs[caseKey][qIdx] !== undefined) return;
+
+const c = cases[currentCase];
+const q = c.mcqs[qIdx];
+const isCorrect = optIdx === q.correct;
+
+answeredMCQs[caseKey][qIdx] = { selected: optIdx, correct: isCorrect };
+
+if (isCorrect) {
+globalScore++;
+globalStreak++;
+} else {
+globalStreak = 0;
+mistakes.push({
+caseId: currentCase,
+qIndex: qIdx,
+stem: q.stem,
+yourAnswer: q.options[optIdx],
+correctAnswer: q.options[q.correct]
+});
+}
+
+localStorage.setItem('answeredMCQs', JSON.stringify(answeredMCQs));
+localStorage.setItem('globalScore', globalScore);
+localStorage.setItem('globalStreak', globalStreak);
+localStorage.setItem('mistakes', JSON.stringify(mistakes));
+updateGlobalStats();
+
+// Update UI
+const card = document.getElementById(`mcq-card-${qIdx}`);
+card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+
+q.options.forEach((_, oi) => {
+const el = document.getElementById(`mcq-${qIdx}-opt-${oi}`);
+el.classList.add('disabled');
+if (oi === q.correct) el.classList.add('show-correct');
+if (oi === optIdx && !isCorrect) el.classList.add('selected-wrong');
+if (oi === optIdx && isCorrect) el.classList.add('selected-correct');
+});
+
+const exp = document.getElementById(`mcq-exp-${qIdx}`);
+exp.innerHTML = (isCorrect ? '✅ ' : '❌ ') + q.explanation;
+exp.classList.add('show');
+
+// Animate
+card.style.transform = 'scale(1.01)';
+setTimeout(() => card.style.transform = '', 200);
+}
+
+function resetCaseMCQs() {
+const caseKey = `case_${currentCase}`;
+delete answeredMCQs[caseKey];
+
+// Recalculate global score
+let total = 0;
+Object.values(answeredMCQs).forEach(caseAnswers => {
+Object.values(caseAnswers).forEach(a => {
+if (a.correct) total++;
+});
+});
+globalScore = total;
+globalStreak = 0;
+
+mistakes = mistakes.filter(m => m.caseId !== currentCase);
+
+localStorage.setItem('answeredMCQs', JSON.stringify(answeredMCQs));
+localStorage.setItem('globalScore', globalScore);
+localStorage.setItem('globalStreak', globalStreak);
+localStorage.setItem('mistakes', JSON.stringify(mistakes));
+updateGlobalStats();
+renderMCQ();
+}
+
+// ==================== RAPID REVIEW ====================
+function renderRapid() {
+const c = cases[currentCase];
+document.getElementById('tabContent').innerHTML = `
+<div class="card">
+<div class="card-title"><span class="icon">⚡</span> Rapid Revision — High-Yield Only</div>
+${c.rapid.map(section => `
+<div class="rapid-section">
+<div class="rapid-title">${section.section}</div>
+${section.items.map(item => `<div class="rapid-item">${item}</div>`).join('')}
+</div>
+`).join('')}
+</div>
+`;
+}
+
+// ==================== GLOBAL STATS ====================
+function updateGlobalStats() {
+document.getElementById('globalScore').textContent = globalScore;
+document.getElementById('globalStreak').textContent = globalStreak + '🔥';
+}
+
+// ==================== NEURAL CANVAS ====================
+function initCanvas() {
+const canvas = document.getElementById('neuralCanvas');
+const ctx = canvas.getContext('2d');
+let w, h, nodes = [];
+
+function resize() {
+w = canvas.width = window.innerWidth;
+h = canvas.height = window.innerHeight;
+}
+
+function createNodes() {
+nodes = [];
+const count = Math.floor((w * h) / 25000);
+for (let i = 0; i < count; i++) {
+nodes.push({
+x: Math.random() * w,
+y: Math.random() * h,
+vx: (Math.random() - 0.5) * 0.3,
+vy: (Math.random() - 0.5) * 0.3,
+r: Math.random() * 2 + 1
+});
+}
+}
+
+function draw() {
+ctx.clearRect(0, 0, w, h);
+nodes.forEach(n => {
+n.x += n.vx;
+n.y += n.vy;
+if (n.x < 0 || n.x > w) n.vx *= -1;
+if (n.y < 0 || n.y > h) n.vy *= -1;
+ctx.beginPath();
+ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+ctx.fillStyle = '#06b6d4';
+ctx.fill();
+});
+
+for (let i = 0; i < nodes.length; i++) {
+for (let j = i + 1; j < nodes.length; j++) {
+const dx = nodes[i].x - nodes[j].x;
+const dy = nodes[i].y - nodes[j].y;
+const dist = Math.sqrt(dx * dx + dy * dy);
+if (dist < 120) {
+ctx.beginPath();
+ctx.moveTo(nodes[i].x, nodes[i].y);
+ctx.lineTo(nodes[j].x, nodes[j].y);
+ctx.strokeStyle = `rgba(6,182,212,${1 - dist / 120})`;
+ctx.lineWidth = 0.5;
+ctx.stroke();
+}
+}
+}
+requestAnimationFrame(draw);
+}
+
+resize();
+createNodes();
+draw();
+window.addEventListener('resize', () => { resize(); createNodes(); });
+}
+
+// ==================== START ====================
+window.addEventListener('DOMContentLoaded', () => {
+init();
+initCanvas();
+});
+</script>
+</body>
+</html>
