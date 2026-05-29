@@ -3,2326 +3,1700 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CBL: Cerebral Metabolism & Hypoxia</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+<title>Brain Metabolism & BBB - Interactive Study Platform</title>
 <style>
 :root {
-  --bg-primary: #f0f4f8;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #e8eef4;
-  --bg-card: #ffffff;
-  --text-primary: #1a2332;
-  --text-secondary: #4a5568;
-  --text-muted: #718096;
-  --accent-primary: #2563eb;
-  --accent-secondary: #3b82f6;
-  --accent-glow: rgba(37, 99, 235, 0.15);
-  --accent-green: #10b981;
-  --accent-green-bg: rgba(16, 185, 129, 0.1);
-  --accent-red: #ef4444;
-  --accent-red-bg: rgba(239, 68, 68, 0.1);
-  --accent-orange: #f59e0b;
-  --accent-orange-bg: rgba(245, 158, 11, 0.1);
-  --accent-purple: #8b5cf6;
-  --accent-purple-bg: rgba(139, 92, 246, 0.1);
-  --accent-cyan: #06b6d4;
-  --accent-cyan-bg: rgba(6, 182, 212, 0.1);
-  --border-color: #e2e8f0;
-  --border-light: #f1f5f9;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,0.1);
-  --shadow-xl: 0 16px 48px rgba(0,0,0,0.12);
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --ecg-color: rgba(37, 99, 235, 0.08);
-  --tooltip-bg: #1e293b;
-  --tooltip-text: #f8fafc;
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+--bg-primary: #f0f4f8;
+--bg-secondary: #ffffff;
+--bg-card: #ffffff;
+--text-primary: #1a202c;
+--text-secondary: #4a5568;
+--accent: #3b82f6;
+--accent-dark: #2563eb;
+--accent-light: #93c5fd;
+--success: #10b981;
+--danger: #ef4444;
+--warning: #f59e0b;
+--purple: #8b5cf6;
+--border: #e2e8f0;
+--shadow: 0 4px 20px rgba(0,0,0,0.08);
+--shadow-lg: 0 10px 40px rgba(0,0,0,0.12);
+--gradient-1: linear-gradient(135deg, #3b82f6, #8b5cf6);
+--gradient-2: linear-gradient(135deg, #10b981, #3b82f6);
+--gradient-3: linear-gradient(135deg, #f59e0b, #ef4444);
+--radius: 16px;
+--radius-sm: 10px;
+--transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 [data-theme="dark"] {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-tertiary: #162032;
-  --bg-card: #1e293b;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --accent-glow: rgba(59, 130, 246, 0.2);
-  --border-color: #334155;
-  --border-light: #253346;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
-  --shadow-xl: 0 16px 48px rgba(0,0,0,0.6);
-  --ecg-color: rgba(59, 130, 246, 0.06);
-  --tooltip-bg: #f1f5f9;
-  --tooltip-text: #0f172a;
+--bg-primary: #0f172a;
+--bg-secondary: #1e293b;
+--bg-card: #1e293b;
+--text-primary: #f1f5f9;
+--text-secondary: #94a3b8;
+--border: #334155;
+--shadow: 0 4px 20px rgba(0,0,0,0.3);
+--shadow-lg: 0 10px 40px rgba(0,0,0,0.4);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  min-height: 100vh;
-  transition: var(--transition);
-  overflow-x: hidden;
+font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+background: var(--bg-primary);
+color: var(--text-primary);
+transition: var(--transition);
+min-height: 100vh;
+overflow-x: hidden;
 }
 
-/* ECG Background Animation */
-.ecg-bg {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-}
-.ecg-line {
-  position: absolute;
-  width: 200%;
-  height: 2px;
-  background: var(--ecg-color);
-  animation: ecgSweep 8s linear infinite;
-}
-.ecg-line:nth-child(1) { top: 15%; animation-delay: 0s; }
-.ecg-line:nth-child(2) { top: 35%; animation-delay: 2s; }
-.ecg-line:nth-child(3) { top: 55%; animation-delay: 4s; }
-.ecg-line:nth-child(4) { top: 75%; animation-delay: 6s; }
-.ecg-line:nth-child(5) { top: 92%; animation-delay: 1s; }
-
-@keyframes ecgSweep {
-  0% { transform: translateX(-50%); opacity: 0.3; }
-  50% { opacity: 0.8; }
-  100% { transform: translateX(0%); opacity: 0.3; }
-}
-
-/* Neural pulse dots */
-.neural-dot {
-  position: absolute;
-  width: 4px; height: 4px;
-  background: var(--accent-primary);
-  border-radius: 50%;
-  opacity: 0;
-  animation: neuralPulse 6s ease-in-out infinite;
-}
-.neural-dot:nth-child(6) { top: 20%; left: 10%; animation-delay: 0s; }
-.neural-dot:nth-child(7) { top: 40%; left: 85%; animation-delay: 1.5s; }
-.neural-dot:nth-child(8) { top: 60%; left: 30%; animation-delay: 3s; }
-.neural-dot:nth-child(9) { top: 80%; left: 70%; animation-delay: 4.5s; }
-
-@keyframes neuralPulse {
-  0%, 100% { opacity: 0; transform: scale(0.5); }
-  50% { opacity: 0.4; transform: scale(2); }
-}
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
 
 /* Header */
 .header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+background: var(--gradient-1);
+padding: 20px 24px;
+position: sticky;
+top: 0;
+z-index: 100;
+box-shadow: 0 4px 30px rgba(59,130,246,0.3);
 }
 
-.header-inner {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 12px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+.header-content {
+max-width: 1200px;
+margin: 0 auto;
+display: flex;
+justify-content: space-between;
+align-items: center;
+flex-wrap: wrap;
+gap: 12px;
 }
 
-.header-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.header h1 {
+color: white;
+font-size: 1.4rem;
+font-weight: 700;
+display: flex;
+align-items: center;
+gap: 10px;
 }
 
-.brain-icon {
-  width: 40px; height: 40px;
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-purple));
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  color: white;
-  font-size: 20px;
-  animation: gentlePulse 3s ease-in-out infinite;
-}
-
-@keyframes gentlePulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.3); }
-  50% { box-shadow: 0 0 0 8px rgba(37, 99, 235, 0); }
-}
-
-.header-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-primary);
-  line-height: 1.2;
-}
-
-.header-subtitle {
-  font-size: 11px;
-  color: var(--text-muted);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
+.header h1 .icon { font-size: 1.6rem; }
 
 .header-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+display: flex;
+align-items: center;
+gap: 12px;
+}
+
+.streak-badge {
+background: rgba(255,255,255,0.2);
+color: white;
+padding: 6px 14px;
+border-radius: 20px;
+font-size: 0.85rem;
+font-weight: 600;
+backdrop-filter: blur(10px);
+display: flex;
+align-items: center;
+gap: 6px;
 }
 
 .dark-toggle {
-  width: 44px; height: 44px;
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px;
-  transition: var(--transition);
+background: rgba(255,255,255,0.2);
+border: none;
+color: white;
+width: 42px;
+height: 42px;
+border-radius: 50%;
+cursor: pointer;
+font-size: 1.2rem;
+transition: var(--transition);
+backdrop-filter: blur(10px);
+display: flex;
+align-items: center;
+justify-content: center;
 }
 
-.dark-toggle:hover {
-  background: var(--accent-glow);
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
-  transform: scale(1.05);
+.dark-toggle:hover { background: rgba(255,255,255,0.35); transform: rotate(30deg); }
+
+/* Progress Bar */
+.progress-container {
+max-width: 1200px;
+margin: 16px auto;
+padding: 0 24px;
+}
+
+.progress-bar-bg {
+background: var(--border);
+border-radius: 10px;
+height: 8px;
+overflow: hidden;
+}
+
+.progress-bar-fill {
+height: 100%;
+background: var(--gradient-2);
+border-radius: 10px;
+transition: width 0.6s ease;
+}
+
+.progress-text {
+font-size: 0.78rem;
+color: var(--text-secondary);
+margin-top: 4px;
+text-align: right;
+font-weight: 600;
 }
 
 /* Tab Navigation */
 .tab-nav {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 24px;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
+max-width: 1200px;
+margin: 0 auto;
+padding: 8px 24px;
+display: flex;
+gap: 6px;
+overflow-x: auto;
+-webkit-overflow-scrolling: touch;
+scrollbar-width: none;
 }
 
-.tab-nav-inner {
-  display: flex;
-  gap: 4px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  padding: 8px 0;
-}
-
-.tab-nav-inner::-webkit-scrollbar { display: none; }
+.tab-nav::-webkit-scrollbar { display: none; }
 
 .tab-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 16px;
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 13px;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  border-radius: var(--radius-sm);
-  white-space: nowrap;
-  transition: var(--transition);
-  position: relative;
+padding: 10px 18px;
+border: 2px solid var(--border);
+background: var(--bg-secondary);
+color: var(--text-secondary);
+border-radius: 12px;
+cursor: pointer;
+font-size: 0.82rem;
+font-weight: 600;
+white-space: nowrap;
+transition: var(--transition);
+display: flex;
+align-items: center;
+gap: 6px;
 }
 
 .tab-btn:hover {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
+border-color: var(--accent);
+color: var(--accent);
+transform: translateY(-2px);
 }
 
 .tab-btn.active {
-  background: var(--accent-glow);
-  color: var(--accent-primary);
-  font-weight: 600;
-}
-
-.tab-btn.active::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 24px;
-  height: 3px;
-  background: var(--accent-primary);
-  border-radius: 3px;
-}
-
-.tab-btn .tab-emoji {
-  font-size: 16px;
+background: var(--gradient-1);
+color: white;
+border-color: transparent;
+box-shadow: 0 4px 15px rgba(59,130,246,0.4);
 }
 
 /* Main Content */
 .main-content {
-  position: relative;
-  z-index: 1;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 24px;
+max-width: 1200px;
+margin: 20px auto;
+padding: 0 24px 40px;
 }
 
-.tab-panel {
-  display: none;
-  animation: fadeSlideIn 0.4s ease;
-}
+.tab-panel { display: none; animation: fadeSlide 0.4s ease; }
+.tab-panel.active { display: block; }
 
-.tab-panel.active {
-  display: block;
-}
-
-@keyframes fadeSlideIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes fadeSlide {
+from { opacity: 0; transform: translateY(15px); }
+to { opacity: 1; transform: translateY(0); }
 }
 
 /* Cards */
 .card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  margin-bottom: 20px;
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition);
+background: var(--bg-card);
+border-radius: var(--radius);
+padding: 24px;
+margin-bottom: 20px;
+box-shadow: var(--shadow);
+border: 1px solid var(--border);
+transition: var(--transition);
 }
 
-.card:hover {
-  box-shadow: var(--shadow-md);
-}
+.card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
 
 .card-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border-light);
+display: flex;
+align-items: center;
+gap: 10px;
+margin-bottom: 16px;
+font-size: 1.15rem;
+font-weight: 700;
+color: var(--accent);
 }
 
-.card-icon {
-  width: 36px; height: 36px;
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
+.card-header .emoji { font-size: 1.4rem; }
+
+/* Highlight Boxes */
+.highlight-box {
+border-radius: var(--radius-sm);
+padding: 16px 20px;
+margin: 12px 0;
+font-size: 0.92rem;
+line-height: 1.6;
+border-left: 4px solid;
 }
 
-.card-icon.blue { background: var(--accent-glow); color: var(--accent-primary); }
-.card-icon.green { background: var(--accent-green-bg); color: var(--accent-green); }
-.card-icon.red { background: var(--accent-red-bg); color: var(--accent-red); }
-.card-icon.orange { background: var(--accent-orange-bg); color: var(--accent-orange); }
-.card-icon.purple { background: var(--accent-purple-bg); color: var(--accent-purple); }
-.card-icon.cyan { background: var(--accent-cyan-bg); color: var(--accent-cyan); }
-
-.card-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-primary);
+.highlight-must-know {
+background: rgba(239,68,68,0.08);
+border-color: var(--danger);
 }
 
-/* Patient ID Card */
-.patient-id {
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-purple));
-  border-radius: var(--radius-lg);
-  padding: 28px;
-  color: white;
-  margin-bottom: 20px;
-  position: relative;
-  overflow: hidden;
+.highlight-pearl {
+background: rgba(139,92,246,0.08);
+border-color: var(--purple);
 }
 
-.patient-id::before {
-  content: '';
-  position: absolute;
-  top: -50%; right: -20%;
-  width: 300px; height: 300px;
-  background: rgba(255,255,255,0.05);
-  border-radius: 50%;
+.highlight-pitfall {
+background: rgba(245,158,11,0.08);
+border-color: var(--warning);
 }
 
-.patient-id::after {
-  content: '';
-  position: absolute;
-  bottom: -40%; left: -10%;
-  width: 200px; height: 200px;
-  background: rgba(255,255,255,0.03);
-  border-radius: 50%;
+.highlight-success {
+background: rgba(16,185,129,0.08);
+border-color: var(--success);
 }
 
-.patient-id-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-  position: relative;
-  z-index: 1;
-}
-
-.patient-avatar {
-  width: 52px; height: 52px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 14px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 24px;
-  backdrop-filter: blur(10px);
-}
-
-.patient-name {
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.patient-case-tag {
-  font-size: 11px;
-  background: rgba(255,255,255,0.2);
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-weight: 500;
-  backdrop-filter: blur(10px);
-}
-
-.patient-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
-  position: relative;
-  z-index: 1;
-}
-
-.patient-field {
-  background: rgba(255,255,255,0.1);
-  border-radius: 10px;
-  padding: 12px;
-  backdrop-filter: blur(10px);
-}
-
-.patient-field-label {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  opacity: 0.7;
-  margin-bottom: 4px;
-  font-weight: 600;
-}
-
-.patient-field-value {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-/* Tooltip */
-.tooltip-trigger {
-  position: relative;
-  cursor: help;
-  border-bottom: 1px dashed var(--accent-primary);
-  color: var(--accent-primary);
-  font-weight: 500;
-}
-
-.tooltip-trigger .tooltip-content {
-  visibility: hidden;
-  opacity: 0;
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%) translateY(4px);
-  background: var(--tooltip-bg);
-  color: var(--tooltip-text);
-  padding: 10px 14px;
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 1.5;
-  white-space: normal;
-  width: max-content;
-  max-width: 280px;
-  z-index: 200;
-  box-shadow: var(--shadow-lg);
-  transition: all 0.2s ease;
-  pointer-events: none;
-}
-
-.tooltip-trigger .tooltip-content::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top-color: var(--tooltip-bg);
-}
-
-.tooltip-trigger:hover .tooltip-content {
-  visibility: visible;
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
-/* Abnormal values */
-.abnormal {
-  color: var(--accent-red) !important;
-  font-weight: 700 !important;
-}
-
-.normal-val {
-  color: var(--accent-green);
-  font-weight: 600;
-}
-
-/* Lab Grid */
-.lab-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 12px;
-}
-
-.lab-item {
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  padding: 14px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: var(--transition);
-}
-
-.lab-item:hover {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 2px var(--accent-glow);
-}
-
-.lab-item.abnormal-item {
-  border-color: var(--accent-red);
-  background: var(--accent-red-bg);
-}
-
-.lab-name {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-.lab-value {
-  font-size: 14px;
-  font-weight: 700;
-  font-family: 'JetBrains Mono', monospace;
-}
-
-/* Pearl Cards */
-.pearl {
-  background: var(--bg-tertiary);
-  border-left: 4px solid var(--accent-primary);
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
-  padding: 16px 20px;
-  margin-bottom: 12px;
-  transition: var(--transition);
-}
-
-.pearl:hover {
-  transform: translateX(4px);
-  box-shadow: var(--shadow-sm);
-}
-
-.pearl.warning {
-  border-left-color: var(--accent-orange);
-  background: var(--accent-orange-bg);
-}
-
-.pearl.danger {
-  border-left-color: var(--accent-red);
-  background: var(--accent-red-bg);
-}
-
-.pearl.success {
-  border-left-color: var(--accent-green);
-  background: var(--accent-green-bg);
-}
-
-.pearl.info {
-  border-left-color: var(--accent-cyan);
-  background: var(--accent-cyan-bg);
-}
-
-.pearl-title {
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.pearl-text {
-  font-size: 13px;
-  color: var(--text-secondary);
-  line-height: 1.6;
+.highlight-label {
+font-weight: 700;
+display: flex;
+align-items: center;
+gap: 6px;
+margin-bottom: 6px;
 }
 
 /* Reveal Cards */
 .reveal-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  margin-bottom: 16px;
-  overflow: hidden;
-  transition: var(--transition);
+background: var(--bg-card);
+border: 2px solid var(--border);
+border-radius: var(--radius-sm);
+margin: 10px 0;
+overflow: hidden;
+transition: var(--transition);
 }
 
-.reveal-card:hover {
-  box-shadow: var(--shadow-md);
-}
+.reveal-card:hover { border-color: var(--accent-light); }
 
 .reveal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 20px;
-  cursor: pointer;
-  transition: var(--transition);
+padding: 14px 18px;
+cursor: pointer;
+display: flex;
+justify-content: space-between;
+align-items: center;
+font-weight: 600;
+font-size: 0.92rem;
+user-select: none;
+transition: var(--transition);
 }
 
-.reveal-header:hover {
-  background: var(--bg-tertiary);
+.reveal-header:hover { background: rgba(59,130,246,0.05); }
+
+.reveal-arrow {
+transition: transform 0.3s ease;
+font-size: 0.8rem;
+color: var(--accent);
 }
 
-.reveal-header-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.reveal-step {
-  width: 32px; height: 32px;
-  background: var(--accent-glow);
-  color: var(--accent-primary);
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.reveal-title {
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.reveal-toggle {
-  font-size: 20px;
-  color: var(--text-muted);
-  transition: transform 0.3s ease;
-}
-
-.reveal-card.open .reveal-toggle {
-  transform: rotate(180deg);
-}
+.reveal-card.open .reveal-arrow { transform: rotate(180deg); }
 
 .reveal-body {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s ease;
+max-height: 0;
+overflow: hidden;
+transition: max-height 0.4s ease;
 }
 
-.reveal-card.open .reveal-body {
-  max-height: 600px;
-}
+.reveal-card.open .reveal-body { max-height: 600px; }
 
 .reveal-content {
-  padding: 0 20px 20px;
-  font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.7;
+padding: 0 18px 16px;
+font-size: 0.9rem;
+color: var(--text-secondary);
+line-height: 1.7;
 }
 
-.reveal-content ul {
-  margin-left: 16px;
-  margin-top: 8px;
+/* Tables */
+.table-wrapper {
+overflow-x: auto;
+border-radius: var(--radius-sm);
+border: 1px solid var(--border);
+margin: 16px 0;
 }
 
-.reveal-content li {
-  margin-bottom: 6px;
+table {
+width: 100%;
+border-collapse: collapse;
+font-size: 0.88rem;
 }
+
+thead th {
+background: var(--gradient-1);
+color: white;
+padding: 12px 16px;
+text-align: left;
+font-weight: 600;
+white-space: nowrap;
+}
+
+tbody td {
+padding: 11px 16px;
+border-bottom: 1px solid var(--border);
+}
+
+tbody tr:hover { background: rgba(59,130,246,0.04); }
+
+tbody tr:nth-child(even) { background: rgba(59,130,246,0.02); }
 
 /* MCQ Section */
-.mcq-stats {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-}
-
-.stat-badge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 10px 16px;
-  font-size: 13px;
-  font-weight: 600;
-  min-width: 100px;
-}
-
-.stat-badge .stat-icon {
-  font-size: 18px;
-}
-
-.stat-badge .stat-number {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.stat-badge.score .stat-number { color: var(--accent-primary); }
-.stat-badge.correct-stat .stat-number { color: var(--accent-green); }
-.stat-badge.wrong-stat .stat-number { color: var(--accent-red); }
-.stat-badge.streak .stat-number { color: var(--accent-orange); }
-
-.mcq-progress-bar {
-  width: 100%;
-  height: 6px;
-  background: var(--bg-tertiary);
-  border-radius: 3px;
-  margin-bottom: 24px;
-  overflow: hidden;
-}
-
-.mcq-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent-primary), var(--accent-purple));
-  border-radius: 3px;
-  transition: width 0.5s ease;
-}
-
 .mcq-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 28px;
-  margin-bottom: 20px;
-  box-shadow: var(--shadow-sm);
+background: var(--bg-card);
+border-radius: var(--radius);
+padding: 24px;
+margin-bottom: 20px;
+box-shadow: var(--shadow);
+border: 1px solid var(--border);
 }
-
-.mcq-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 12px;
-}
-
-.mcq-badge.physiology { background: var(--accent-glow); color: var(--accent-primary); }
-.mcq-badge.pathology { background: var(--accent-red-bg); color: var(--accent-red); }
-.mcq-badge.clinical { background: var(--accent-green-bg); color: var(--accent-green); }
-.mcq-badge.diagnostics { background: var(--accent-orange-bg); color: var(--accent-orange); }
-.mcq-badge.pharmacology { background: var(--accent-purple-bg); color: var(--accent-purple); }
-.mcq-badge.doctorfocus { background: var(--accent-cyan-bg); color: var(--accent-cyan); }
 
 .mcq-question {
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1.6;
-  margin-bottom: 20px;
-  color: var(--text-primary);
+font-weight: 600;
+font-size: 0.95rem;
+line-height: 1.6;
+margin-bottom: 16px;
 }
 
-.mcq-counter {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-bottom: 8px;
-  font-weight: 500;
+.mcq-number {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+width: 28px;
+height: 28px;
+background: var(--gradient-1);
+color: white;
+border-radius: 50%;
+font-size: 0.8rem;
+font-weight: 700;
+margin-right: 10px;
+flex-shrink: 0;
 }
 
-.mcq-options {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+.mcq-options { display: flex; flex-direction: column; gap: 8px; }
 
 .mcq-option {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 18px;
-  border: 2px solid var(--border-color);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: var(--transition);
-  font-size: 14px;
-  color: var(--text-primary);
-  background: var(--bg-card);
+padding: 12px 16px;
+border: 2px solid var(--border);
+border-radius: var(--radius-sm);
+cursor: pointer;
+font-size: 0.9rem;
+transition: var(--transition);
+display: flex;
+align-items: flex-start;
+gap: 10px;
+user-select: none;
 }
 
 .mcq-option:hover:not(.disabled) {
-  border-color: var(--accent-primary);
-  background: var(--accent-glow);
-  transform: translateX(4px);
-}
-
-.mcq-option .option-letter {
-  width: 28px; height: 28px;
-  border-radius: 8px;
-  background: var(--bg-tertiary);
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 700;
-  font-size: 12px;
-  flex-shrink: 0;
-  transition: var(--transition);
-}
-
-.mcq-option:hover:not(.disabled) .option-letter {
-  background: var(--accent-primary);
-  color: white;
+border-color: var(--accent);
+background: rgba(59,130,246,0.05);
+transform: translateX(4px);
 }
 
 .mcq-option.correct {
-  border-color: var(--accent-green);
-  background: var(--accent-green-bg);
+border-color: var(--success);
+background: rgba(16,185,129,0.1);
 }
 
-.mcq-option.correct .option-letter {
-  background: var(--accent-green);
-  color: white;
+.mcq-option.incorrect {
+border-color: var(--danger);
+background: rgba(239,68,68,0.1);
 }
 
-.mcq-option.wrong {
-  border-color: var(--accent-red);
-  background: var(--accent-red-bg);
-}
+.mcq-option.disabled { pointer-events: none; }
 
-.mcq-option.wrong .option-letter {
-  background: var(--accent-red);
-  color: white;
-}
-
-.mcq-option.disabled {
-  cursor: default;
-  opacity: 0.7;
-}
-
-.mcq-option.disabled.show-correct {
-  opacity: 1;
-  border-color: var(--accent-green);
-  background: var(--accent-green-bg);
-}
-
-.mcq-option.disabled.show-correct .option-letter {
-  background: var(--accent-green);
-  color: white;
+.mcq-option .letter {
+font-weight: 700;
+color: var(--accent);
+min-width: 20px;
 }
 
 .mcq-explanation {
-  margin-top: 16px;
-  padding: 16px;
-  border-radius: var(--radius-md);
-  font-size: 13px;
-  line-height: 1.6;
-  display: none;
-  animation: fadeSlideIn 0.3s ease;
+margin-top: 14px;
+padding: 14px 18px;
+border-radius: var(--radius-sm);
+font-size: 0.88rem;
+line-height: 1.6;
+display: none;
+animation: fadeSlide 0.3s ease;
 }
 
-.mcq-explanation.show {
-  display: block;
-}
+.mcq-explanation.show { display: block; }
 
 .mcq-explanation.correct-exp {
-  background: var(--accent-green-bg);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: var(--text-primary);
+background: rgba(16,185,129,0.1);
+border-left: 4px solid var(--success);
 }
 
-.mcq-explanation.wrong-exp {
-  background: var(--accent-red-bg);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: var(--text-primary);
+.mcq-explanation.incorrect-exp {
+background: rgba(239,68,68,0.1);
+border-left: 4px solid var(--danger);
 }
 
-.mcq-explanation strong {
-  color: var(--text-primary);
+.mcq-score-bar {
+background: var(--bg-card);
+border-radius: var(--radius);
+padding: 20px 24px;
+margin-bottom: 24px;
+box-shadow: var(--shadow);
+border: 1px solid var(--border);
+display: flex;
+justify-content: space-between;
+align-items: center;
+flex-wrap: wrap;
+gap: 12px;
 }
 
-.mcq-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 20px;
-  gap: 12px;
+.score-stat {
+text-align: center;
 }
 
-.mcq-nav-btn {
-  padding: 10px 20px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  background: var(--bg-card);
-  color: var(--text-primary);
-  font-weight: 600;
-  font-size: 13px;
-  cursor: pointer;
-  font-family: inherit;
-  transition: var(--transition);
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.score-stat .num {
+font-size: 1.8rem;
+font-weight: 800;
 }
 
-.mcq-nav-btn:hover {
-  background: var(--accent-glow);
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
+.score-stat .label {
+font-size: 0.75rem;
+color: var(--text-secondary);
+text-transform: uppercase;
+letter-spacing: 0.5px;
 }
 
-.mcq-nav-btn.primary {
-  background: var(--accent-primary);
-  color: white;
-  border-color: var(--accent-primary);
+.score-stat.correct-stat .num { color: var(--success); }
+.score-stat.incorrect-stat .num { color: var(--danger); }
+.score-stat.total-stat .num { color: var(--accent); }
+
+.reset-btn {
+padding: 8px 20px;
+background: var(--gradient-3);
+color: white;
+border: none;
+border-radius: 8px;
+cursor: pointer;
+font-weight: 600;
+font-size: 0.85rem;
+transition: var(--transition);
 }
 
-.mcq-nav-btn.primary:hover {
-  background: var(--accent-secondary);
-  transform: translateY(-1px);
+.reset-btn:hover { transform: scale(1.05); box-shadow: 0 4px 15px rgba(239,68,68,0.3); }
+
+/* Flowchart */
+.flowchart-container {
+padding: 10px 0;
 }
 
-.mcq-nav-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* Mistake Review */
-.mistake-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.mistake-item {
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-light);
-  border-left: 4px solid var(--accent-red);
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
-  padding: 16px;
-}
-
-.mistake-q {
-  font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: var(--text-primary);
-}
-
-.mistake-your {
-  font-size: 12px;
-  color: var(--accent-red);
-  margin-bottom: 4px;
-}
-
-.mistake-correct {
-  font-size: 12px;
-  color: var(--accent-green);
-  font-weight: 600;
-}
-
-/* Algorithm / Flowchart */
-.flow-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-  padding: 20px 0;
+.flow-row {
+display: flex;
+justify-content: center;
+margin-bottom: 0;
+position: relative;
 }
 
 .flow-node {
-  background: var(--bg-card);
-  border: 2px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 18px 24px;
-  text-align: center;
-  max-width: 400px;
-  width: 100%;
-  cursor: pointer;
-  transition: var(--transition);
-  position: relative;
+padding: 14px 22px;
+border-radius: var(--radius-sm);
+text-align: center;
+font-size: 0.88rem;
+font-weight: 600;
+cursor: pointer;
+transition: var(--transition);
+position: relative;
+min-width: 180px;
+max-width: 300px;
+border: 2px solid transparent;
 }
 
 .flow-node:hover {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--accent-glow);
-  transform: scale(1.02);
-}
-
-.flow-node.active {
-  border-color: var(--accent-primary);
-  background: var(--accent-glow);
+transform: scale(1.05);
+z-index: 10;
 }
 
 .flow-node.start {
-  border-color: var(--accent-red);
-  background: var(--accent-red-bg);
+background: var(--gradient-1);
+color: white;
+box-shadow: 0 4px 15px rgba(59,130,246,0.3);
+}
+
+.flow-node.process {
+background: var(--bg-card);
+border-color: var(--accent);
+color: var(--text-primary);
+box-shadow: var(--shadow);
 }
 
 .flow-node.decision {
-  border-color: var(--accent-orange);
-  background: var(--accent-orange-bg);
-  border-radius: var(--radius-md);
-  transform: rotate(0deg);
+background: rgba(245,158,11,0.1);
+border-color: var(--warning);
+color: var(--text-primary);
+box-shadow: var(--shadow);
 }
 
-.flow-node.end {
-  border-color: var(--accent-green);
-  background: var(--accent-green-bg);
+.flow-node.endpoint {
+background: rgba(16,185,129,0.1);
+border-color: var(--success);
+color: var(--text-primary);
+box-shadow: var(--shadow);
 }
 
-.flow-node-label {
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 4px;
+.flow-node.danger-node {
+background: rgba(239,68,68,0.1);
+border-color: var(--danger);
+color: var(--text-primary);
+box-shadow: var(--shadow);
 }
 
-.flow-node-desc {
-  font-size: 12px;
-  color: var(--text-secondary);
-  display: none;
+.flow-tooltip {
+display: none;
+position: absolute;
+bottom: calc(100% + 10px);
+left: 50%;
+transform: translateX(-50%);
+background: var(--bg-card);
+border: 2px solid var(--accent);
+border-radius: var(--radius-sm);
+padding: 12px 16px;
+font-size: 0.82rem;
+font-weight: 400;
+color: var(--text-secondary);
+box-shadow: var(--shadow-lg);
+width: 260px;
+z-index: 20;
+line-height: 1.5;
+text-align: left;
 }
 
-.flow-node.expanded .flow-node-desc {
-  display: block;
-  margin-top: 8px;
-  animation: fadeSlideIn 0.3s ease;
-}
+.flow-node:hover .flow-tooltip { display: block; }
 
 .flow-arrow {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: var(--text-muted);
-  font-size: 20px;
-  padding: 4px 0;
+text-align: center;
+font-size: 1.4rem;
+color: var(--accent);
+padding: 4px 0;
 }
 
-.flow-arrow-label {
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-muted);
+.flow-branch {
+display: flex;
+justify-content: center;
+gap: 20px;
+flex-wrap: wrap;
 }
 
-/* Rapid Takeaways */
+.flow-branch-item {
+display: flex;
+flex-direction: column;
+align-items: center;
+flex: 1;
+min-width: 160px;
+max-width: 260px;
+}
+
+.flow-branch-label {
+font-size: 0.78rem;
+font-weight: 700;
+padding: 4px 12px;
+border-radius: 12px;
+margin-bottom: 6px;
+}
+
+.flow-branch-label.time-label { background: rgba(139,92,246,0.15); color: var(--purple); }
+.flow-branch-label.alert-label { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+/* Rapid Review */
 .rapid-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+gap: 14px;
 }
 
 .rapid-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 20px;
-  transition: var(--transition);
+background: var(--bg-card);
+border-radius: var(--radius-sm);
+padding: 16px 20px;
+border-left: 4px solid var(--accent);
+box-shadow: var(--shadow);
+transition: var(--transition);
+cursor: default;
 }
 
 .rapid-card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+transform: translateY(-3px);
+box-shadow: var(--shadow-lg);
 }
 
-.rapid-card-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-primary);
+.rapid-card.rc-danger { border-color: var(--danger); }
+.rapid-card.rc-success { border-color: var(--success); }
+.rapid-card.rc-warning { border-color: var(--warning); }
+.rapid-card.rc-purple { border-color: var(--purple); }
+.rapid-card.rc-blue { border-color: var(--accent); }
+
+.rapid-buzzword {
+font-weight: 800;
+font-size: 0.88rem;
+margin-bottom: 4px;
+color: var(--text-primary);
 }
 
-.rapid-card-header .rc-icon {
-  font-size: 18px;
+.rapid-detail {
+font-size: 0.83rem;
+color: var(--text-secondary);
+line-height: 1.5;
 }
 
-.rapid-list {
-  list-style: none;
+.rapid-detail strong { color: var(--accent); }
+
+/* Wrong answers review */
+.wrong-answers-section {
+margin-top: 20px;
 }
 
-.rapid-list li {
-  font-size: 13px;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  padding: 4px 0;
-  padding-left: 16px;
-  position: relative;
+.wrong-item {
+background: rgba(239,68,68,0.05);
+border: 1px solid rgba(239,68,68,0.2);
+border-radius: var(--radius-sm);
+padding: 14px 18px;
+margin-bottom: 10px;
+font-size: 0.88rem;
 }
 
-.rapid-list li::before {
-  content: '▸';
-  position: absolute;
-  left: 0;
-  color: var(--accent-primary);
-  font-weight: 700;
-}
+.wrong-item .q-text { font-weight: 600; margin-bottom: 6px; }
+.wrong-item .your-ans { color: var(--danger); }
+.wrong-item .correct-ans { color: var(--success); font-weight: 600; }
 
-.keyword {
-  background: var(--accent-glow);
-  color: var(--accent-primary);
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-weight: 600;
-  font-size: 12px;
-}
-
-.keyword.green {
-  background: var(--accent-green-bg);
-  color: var(--accent-green);
-}
-
-.keyword.red {
-  background: var(--accent-red-bg);
-  color: var(--accent-red);
-}
-
-.keyword.orange {
-  background: var(--accent-orange-bg);
-  color: var(--accent-orange);
-}
-
-.keyword.purple {
-  background: var(--accent-purple-bg);
-  color: var(--accent-purple);
-}
-
-/* HPI Interactive List */
-.hpi-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.hpi-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 12px 16px;
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-md);
-  font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  transition: var(--transition);
-}
-
-.hpi-item:hover {
-  background: var(--accent-glow);
-}
-
-.hpi-item .hpi-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--accent-primary);
-  flex-shrink: 0;
-  margin-top: 6px;
-}
-
-.hpi-item .hpi-dot.red { background: var(--accent-red); }
-
-/* Reset button */
-.reset-btn {
-  padding: 8px 16px;
-  border: 1px solid var(--accent-red);
-  background: var(--accent-red-bg);
-  color: var(--accent-red);
-  border-radius: var(--radius-md);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  transition: var(--transition);
-}
-
-.reset-btn:hover {
-  background: var(--accent-red);
-  color: white;
-}
-
-/* Two column layout */
-.two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
+/* Responsive */
 @media (max-width: 768px) {
-  .two-col { grid-template-columns: 1fr; }
-  .patient-grid { grid-template-columns: 1fr 1fr; }
-  .header-inner { padding: 10px 16px; }
-  .main-content { padding: 16px; }
-  .tab-btn { padding: 8px 10px; font-size: 12px; }
-  .rapid-grid { grid-template-columns: 1fr; }
-  .mcq-stats { gap: 8px; }
-  .stat-badge { padding: 8px 12px; min-width: 80px; }
-  .flow-node { max-width: 100%; }
+.header h1 { font-size: 1.1rem; }
+.tab-btn { padding: 8px 14px; font-size: 0.78rem; }
+.card { padding: 18px; }
+.rapid-grid { grid-template-columns: 1fr; }
+.flow-branch { flex-direction: column; align-items: center; }
+.mcq-score-bar { flex-direction: column; text-align: center; }
 }
 
-/* Animations */
-@keyframes correctPop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.03); }
-  100% { transform: scale(1); }
+/* Pulse animation for key items */
+@keyframes pulse {
+0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.4); }
+50% { box-shadow: 0 0 0 8px rgba(59,130,246,0); }
 }
 
-@keyframes wrongShake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-6px); }
-  75% { transform: translateX(6px); }
+.pulse-anim { animation: pulse 2s infinite; }
+
+/* Tag/badge style */
+.tag {
+display: inline-block;
+padding: 3px 10px;
+border-radius: 12px;
+font-size: 0.75rem;
+font-weight: 700;
+margin-right: 4px;
 }
 
-.animate-correct { animation: correctPop 0.4s ease; }
-.animate-wrong { animation: wrongShake 0.4s ease; }
+.tag-blue { background: rgba(59,130,246,0.15); color: var(--accent); }
+.tag-red { background: rgba(239,68,68,0.15); color: var(--danger); }
+.tag-green { background: rgba(16,185,129,0.15); color: var(--success); }
+.tag-yellow { background: rgba(245,158,11,0.15); color: var(--warning); }
+.tag-purple { background: rgba(139,92,246,0.15); color: var(--purple); }
 
-/* Streak fire animation */
-@keyframes fireGlow {
-  0%, 100% { text-shadow: 0 0 4px rgba(245, 158, 11, 0.5); }
-  50% { text-shadow: 0 0 12px rgba(245, 158, 11, 0.8); }
+/* Separator */
+.section-sep {
+height: 2px;
+background: var(--gradient-1);
+border-radius: 2px;
+margin: 20px 0;
+opacity: 0.3;
 }
 
-.streak-fire {
-  animation: fireGlow 1s ease-in-out infinite;
+/* Lists */
+.styled-list {
+list-style: none;
+padding: 0;
 }
 
-/* Score summary card */
-.score-summary {
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-purple));
-  border-radius: var(--radius-lg);
-  padding: 28px;
-  color: white;
-  text-align: center;
-  margin-bottom: 20px;
+.styled-list li {
+padding: 8px 0 8px 24px;
+position: relative;
+font-size: 0.9rem;
+line-height: 1.6;
+color: var(--text-secondary);
 }
 
-.score-summary h2 {
-  font-size: 24px;
-  margin-bottom: 8px;
-}
-
-.score-summary .score-big {
-  font-size: 48px;
-  font-weight: 900;
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.score-summary .score-label {
-  font-size: 14px;
-  opacity: 0.8;
-}
-
-/* Section divider */
-.section-divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 28px 0 20px;
-  color: var(--text-muted);
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.section-divider::before,
-.section-divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border-color);
+.styled-list li::before {
+content: '▸';
+position: absolute;
+left: 4px;
+color: var(--accent);
+font-weight: 700;
 }
 </style>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-RHSQ7HYJYZ"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-RHSQ7HYJYZ');
-</script>
 </head>
 <body>
 
-<div class="ecg-bg">
-  <div class="ecg-line"></div>
-  <div class="ecg-line"></div>
-  <div class="ecg-line"></div>
-  <div class="ecg-line"></div>
-  <div class="ecg-line"></div>
-  <div class="neural-dot"></div>
-  <div class="neural-dot"></div>
-  <div class="neural-dot"></div>
-  <div class="neural-dot"></div>
+<header class="header">
+<div class="header-content">
+<h1><span class="icon">🧠</span> Brain Metabolism & BBB</h1>
+<div class="header-controls">
+<div class="streak-badge" id="streakBadge">🔥 <span id="streakCount">0</span> streak</div>
+<button class="dark-toggle" id="darkToggle" onclick="toggleDark()" title="Toggle Dark Mode">🌙</button>
+</div>
+</div>
+</header>
+
+<div class="progress-container">
+<div class="progress-bar-bg">
+<div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+</div>
+<div class="progress-text" id="progressText">0% complete</div>
 </div>
 
-<header class="header">
-  <div class="header-inner">
-    <div class="header-brand">
-      <div class="brain-icon">🧠</div>
-      <div>
-        <div class="header-title">Cerebral Metabolism & Hypoxia</div>
-        <div class="header-subtitle">Interactive CBL Case Study</div>
-      </div>
-    </div>
-    <div class="header-controls">
-      <button class="dark-toggle" onclick="toggleDarkMode()" id="darkToggle" title="Toggle Dark Mode">🌙</button>
-    </div>
-  </div>
-  <nav class="tab-nav">
-    <div class="tab-nav-inner">
-      <button class="tab-btn active" data-tab="case" onclick="switchTab('case')">
-        <span class="tab-emoji">📂</span> Case File
-      </button>
-      <button class="tab-btn" data-tab="pearls" onclick="switchTab('pearls')">
-        <span class="tab-emoji">💡</span> Doctor's Pearls
-      </button>
-      <button class="tab-btn" data-tab="reasoning" onclick="switchTab('reasoning')">
-        <span class="tab-emoji">🔍</span> Clinical Reasoning
-      </button>
-      <button class="tab-btn" data-tab="mcq" onclick="switchTab('mcq')">
-        <span class="tab-emoji">📝</span> Exam MCQs
-      </button>
-      <button class="tab-btn" data-tab="algorithm" onclick="switchTab('algorithm')">
-        <span class="tab-emoji">🛤️</span> Algorithm
-      </button>
-      <button class="tab-btn" data-tab="rapid" onclick="switchTab('rapid')">
-        <span class="tab-emoji">⚡</span> Rapid Review
-      </button>
-    </div>
-  </nav>
-</header>
+<nav class="tab-nav" id="tabNav">
+<button class="tab-btn active" data-tab="concepts" onclick="switchTab('concepts')">📖 Concepts</button>
+<button class="tab-btn" data-tab="highyield" onclick="switchTab('highyield')">⭐ High-Yield</button>
+<button class="tab-btn" data-tab="tables" onclick="switchTab('tables')">📊 Tables</button>
+<button class="tab-btn" data-tab="mcqs" onclick="switchTab('mcqs')">📝 MCQs</button>
+<button class="tab-btn" data-tab="flowchart" onclick="switchTab('flowchart')">🔀 Flowcharts</button>
+<button class="tab-btn" data-tab="rapid" onclick="switchTab('rapid')">⚡ Rapid Review</button>
+</nav>
 
 <main class="main-content">
 
-  <!-- ===== TAB 1: CASE FILE ===== -->
-  <div class="tab-panel active" id="tab-case">
-    
-    <div class="patient-id">
-      <div class="patient-id-header">
-        <div class="patient-avatar">🧠</div>
-        <div>
-          <div class="patient-name">Academic Case Study</div>
-          <span class="patient-case-tag">NEUROSCIENCE · METABOLISM</span>
-        </div>
-      </div>
-      <div class="patient-grid">
-        <div class="patient-field">
-          <div class="patient-field-label">Context</div>
-          <div class="patient-field-value">Acute Event</div>
-        </div>
-        <div class="patient-field">
-          <div class="patient-field-label">Chief Complaint</div>
-          <div class="patient-field-value">Cerebral Hypoxia</div>
-        </div>
-        <div class="patient-field">
-          <div class="patient-field-label">Mechanism</div>
-          <div class="patient-field-value">Brief Ischemia</div>
-        </div>
-        <div class="patient-field">
-          <div class="patient-field-label">Diagnosis</div>
-          <div class="patient-field-value" style="color:#fbbf24;">Pasteur Effect</div>
-        </div>
-      </div>
-    </div>
+<!-- TAB 1: CONCEPTS -->
+<div class="tab-panel active" id="tab-concepts">
 
-    <div class="two-col">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-icon blue"><span class="material-icons-outlined">description</span></div>
-          <div class="card-title">History & Presentation</div>
-        </div>
-        <div class="hpi-list">
-          <div class="hpi-item">
-            <div class="hpi-dot"></div>
-            <div>Patient experiences an <strong>acute event</strong> resulting in a <strong>brief period of severe cerebral hypoxia</strong>.</div>
-          </div>
-          <div class="hpi-item">
-            <div class="hpi-dot red"></div>
-            <div>
-              <span class="tooltip-trigger">Cerebral blood glucose utilization initially increases
-                <span class="tooltip-content">During hypoxia, the brain attempts to compensate by increasing glycolysis to maintain ATP production despite the shutdown of oxidative phosphorylation.</span>
-              </span>, followed by a <strong class="abnormal">decrease in cerebral glucose concentration</strong>.
-            </div>
-          </div>
-          <div class="hpi-item">
-            <div class="hpi-dot red"></div>
-            <div>
-              <span class="tooltip-trigger">Shift from aerobic to anaerobic glycolysis
-                <span class="tooltip-content">This is the Pasteur Effect: when O₂ is unavailable, glycolysis rate increases dramatically but produces only 2 ATP/glucose vs 36-38 ATP aerobically, with lactic acid as a byproduct.</span>
-              </span> — drastic slowdown of oxidative phosphorylation.
-            </div>
-          </div>
-          <div class="hpi-item">
-            <div class="hpi-dot red"></div>
-            <div>
-              <span class="tooltip-trigger">Intracellular acidosis
-                <span class="tooltip-content">Accumulation of lactic acid from anaerobic glycolysis lowers intracellular pH, impairing enzyme function and potentially leading to cellular damage and death.</span>
-              </span> develops due to lactic acid accumulation within brain tissue.
-            </div>
-          </div>
-        </div>
-      </div>
+<div class="card">
+<div class="card-header"><span class="emoji">🧠</span> Core Concept: Brain Energy Metabolism</div>
+<div class="highlight-box highlight-must-know">
+<div class="highlight-label">🔴 Must Know</div>
+Brain = <strong>2% of body weight</strong> but consumes <strong>~20% of total O₂ and glucose</strong>. Continuous supply required — minimal energy reserves.
+</div>
+<ul class="styled-list">
+<li>Brain depends on <strong>glucose + oxygen</strong> continuously in the fed state</li>
+<li>Glycogen stores are extremely small and exist <strong>ONLY in astrocytes</strong></li>
+<li>The brain <strong>cannot use fatty acids</strong> for energy — lipids are purely structural</li>
+<li>After prolonged starvation (>2-3 weeks), <strong>ketone bodies</strong> replace glucose as primary fuel</li>
+</ul>
+</div>
 
-      <div class="card">
-        <div class="card-header">
-          <div class="card-icon red"><span class="material-icons-outlined">biotech</span></div>
-          <div class="card-title">Labs / CSF Analysis</div>
-        </div>
-        <div class="lab-grid">
-          <div class="lab-item abnormal-item">
-            <span class="lab-name">CSF Lactate</span>
-            <span class="lab-value abnormal">↑↑ Elevated</span>
-          </div>
-          <div class="lab-item abnormal-item">
-            <span class="lab-name">Cerebral Glucose</span>
-            <span class="lab-value abnormal">↓ Decreased</span>
-          </div>
-          <div class="lab-item abnormal-item">
-            <span class="lab-name">Glucose Utilization</span>
-            <span class="lab-value abnormal">↑ Initially High</span>
-          </div>
-          <div class="lab-item">
-            <span class="lab-name">Oxidative Phosphorylation</span>
-            <span class="lab-value abnormal">↓↓ Crashed</span>
-          </div>
-          <div class="lab-item">
-            <span class="lab-name">Glycolysis Rate</span>
-            <span class="lab-value abnormal">↑↑ Increased</span>
-          </div>
-          <div class="lab-item">
-            <span class="lab-name">ATP Production</span>
-            <span class="lab-value abnormal">↓ Impaired</span>
-          </div>
-        </div>
-        <div style="margin-top:16px; padding:12px; background:var(--accent-red-bg); border-radius:var(--radius-md); font-size:13px; color:var(--text-secondary);">
-          <strong style="color:var(--accent-red);">⚠️ Key Finding:</strong> Gradual increase in spinal fluid lactate confirms the shift to anaerobic metabolism (Pasteur Effect).
-        </div>
-      </div>
-    </div>
+<div class="card">
+<div class="card-header"><span class="emoji">⚡</span> Glucose Transport in the CNS</div>
+<div class="highlight-box highlight-pearl">
+<div class="highlight-label">💎 Doctor Pearl</div>
+<strong>GLUT1</strong> = Blood-Brain Barrier + Glial cells (insulin-<strong>insensitive</strong>)<br>
+<strong>GLUT3</strong> = Neurons (also insulin-insensitive)<br>
+Both work independently of insulin — brain glucose uptake is always active!
+</div>
+</div>
 
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon green"><span class="material-icons-outlined">verified</span></div>
-        <div class="card-title">Most Likely Diagnosis</div>
-      </div>
-      <div style="font-size:18px; font-weight:800; color:var(--accent-primary); margin-bottom:12px;">
-        Cerebral Hypoxia with Intracellular Acidosis (Pasteur Effect)
-      </div>
-      <div style="font-size:14px; color:var(--text-secondary); line-height:1.7;">
-        <strong>Supporting Evidence:</strong> The drastic slowdown in oxidative phosphorylation forces a metabolic shift to anaerobic glycolysis, leading to lactic acid accumulation in brain tissue and CSF. The brain's minimal energy reserves (glycogen only in astrocytes) make it exceptionally vulnerable to even brief hypoxic episodes.
-      </div>
-    </div>
-  </div>
+<div class="card">
+<div class="card-header"><span class="emoji">🔬</span> Pathophysiology Deep Dive</div>
 
-  <!-- ===== TAB 2: DOCTOR'S PEARLS ===== -->
-  <div class="tab-panel" id="tab-pearls">
-    
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon orange"><span class="material-icons-outlined">stars</span></div>
-        <div class="card-title">⭐ High-Yield Exam Pearls</div>
-      </div>
+<div class="reveal-card" onclick="toggleReveal(this)">
+<div class="reveal-header">
+<span>💨 Hypoxia Cascade — Pasteur Effect</span>
+<span class="reveal-arrow">▼</span>
+</div>
+<div class="reveal-body">
+<div class="reveal-content">
+<strong>Sequence:</strong><br>
+Hypoxic event → Drastic slowdown in <strong>oxidative phosphorylation</strong> → Compensatory <strong>increase in glycolysis</strong> (Pasteur effect) → Increased <strong>lactic acid</strong> production → <strong>Intracellular acidosis</strong> → Gradual increase in <strong>spinal fluid lactate</strong><br><br>
+<span class="tag tag-red">Diagnostic Clue</span> Elevated CSF lactate in hypoxia
+</div>
+</div>
+</div>
 
-      <div class="pearl">
-        <div class="pearl-title">🔬 Astrocyte-Neuron Lactate Shuttle</div>
-        <div class="pearl-text">Astrocytes convert glucose → lactate, which is then utilized by neurons for ATP production. This is the primary metabolic coupling between these cell types.</div>
-      </div>
+<div class="reveal-card" onclick="toggleReveal(this)">
+<div class="reveal-header">
+<span>🔄 Astrocyte-Neuron Lactate Shuttle</span>
+<span class="reveal-arrow">▼</span>
+</div>
+<div class="reveal-body">
+<div class="reveal-content">
+Astrocytes take up glucose via <strong>GLUT1</strong> → Convert glucose to <strong>lactate</strong> → Export lactate → <strong>Neurons</strong> use lactate for <strong>ATP production</strong><br><br>
+This shuttle provides an alternative energy pathway for neurons, supplementing direct glucose uptake.
+</div>
+</div>
+</div>
 
-      <div class="pearl">
-        <div class="pearl-title">🚪 Transporter Specificity (GLUT1 vs GLUT3)</div>
-        <div class="pearl-text"><span class="keyword">GLUT1</span> = BBB + glial cells, <span class="keyword red">insulin INSENSITIVE</span>. <span class="keyword purple">GLUT3</span> = neurons specifically. This ensures constant glucose supply to the brain regardless of insulin levels.</div>
-      </div>
+<div class="reveal-card" onclick="toggleReveal(this)">
+<div class="reveal-header">
+<span>🔁 Glutamate-Glutamine Cycle</span>
+<span class="reveal-arrow">▼</span>
+</div>
+<div class="reveal-body">
+<div class="reveal-content">
+Astrocytes take up <strong>glutamate</strong> from the synapse → Convert to <strong>glutamine</strong> (via glutamine synthetase) → Return glutamine to <strong>neurons</strong> → Neurons use it for <strong>neurotransmitter synthesis</strong><br><br>
+<span class="tag tag-purple">Key Enzyme</span> Glutamine synthetase (astrocyte-specific)
+</div>
+</div>
+</div>
 
-      <div class="pearl">
-        <div class="pearl-title">⏰ Metabolic Shift in Starvation</div>
-        <div class="pearl-text">After <span class="keyword orange">2–3 weeks</span> of starvation, the brain switches from glucose to <span class="keyword green">ketone bodies</span> (acetoacetate & 3-hydroxybutyrate) as predominant fuel, sparing muscle protein from gluconeogenesis.</div>
-      </div>
+<div class="reveal-card" onclick="toggleReveal(this)">
+<div class="reveal-header">
+<span>🧪 Hyperammonemia in the Brain</span>
+<span class="reveal-arrow">▼</span>
+</div>
+<div class="reveal-body">
+<div class="reveal-content">
+Brain <strong>LACKS a urea cycle</strong> → Detoxifies ammonia by converting it to <strong>glutamine</strong><br><br>
+Excess ammonia (hyperammonemia) → Impairs <strong>TCA cycle</strong> → Decreased <strong>ATP production</strong> → Neurological dysfunction<br><br>
+<span class="tag tag-red">Exam Trap</span> Don't confuse with liver's urea cycle — brain uses a completely different mechanism!
+</div>
+</div>
+</div>
 
-      <div class="pearl">
-        <div class="pearl-title">💀 Hyperammonemia Mechanism</div>
-        <div class="pearl-text">Brain lacks a <span class="keyword red">urea cycle</span> → detoxifies ammonia by converting it to glutamine → this process impairs the TCA cycle → decreased ATP production → neurological symptoms.</div>
-      </div>
+<div class="reveal-card" onclick="toggleReveal(this)">
+<div class="reveal-header">
+<span>🧬 Blood-Brain Barrier (BBB) Structure</span>
+<span class="reveal-arrow">▼</span>
+</div>
+<div class="reveal-body">
+<div class="reveal-content">
+<strong>Selective barrier</strong> controlling CNS entry:<br>
+✅ Glucose & amino acids → via <strong>active transporters</strong><br>
+✅ Lipid-soluble substances → via <strong>passive diffusion</strong><br>
+❌ Restricts harmful/large molecules<br><br>
+<strong>LNAA Competition:</strong> Large neutral amino acids <strong>share transport</strong> across BBB → Competition affects relative brain concentrations (e.g., Tryptophan vs Tyrosine vs Phenylalanine)
+</div>
+</div>
+</div>
 
-      <div class="pearl">
-        <div class="pearl-title">📊 Fasting Timeline</div>
-        <div class="pearl-text">
-          <strong>10–14 hrs:</strong> Hepatic glycogenolysis →
-          <strong>First days:</strong> Gluconeogenesis (amino acids, glycerol) →
-          <strong>Beyond 2–3 weeks:</strong> Ketone bodies become primary brain fuel.
-        </div>
-      </div>
+<div class="reveal-card" onclick="toggleReveal(this)">
+<div class="reveal-header">
+<span>🧪 Neurotransmitter Precursors</span>
+<span class="reveal-arrow">▼</span>
+</div>
+<div class="reveal-body">
+<div class="reveal-content">
+<strong>Tyrosine</strong> → Catecholamines (Dopamine, Norepinephrine, Epinephrine)<br>
+<strong>Tryptophan</strong> → Serotonin (5-HT)<br><br>
+Both are <strong>large neutral amino acids</strong> that compete for the same BBB transporter.<br>
+<span class="tag tag-yellow">Clinical Pearl</span> High carbohydrate meals → insulin → ↓plasma LNAA (except tryptophan) → relatively more tryptophan enters brain → ↑serotonin
+</div>
+</div>
+</div>
 
-      <div class="pearl">
-        <div class="pearl-title">🧬 Amino Acid → Neurotransmitter Pairs</div>
-        <div class="pearl-text">
-          <span class="keyword">Tyrosine</span> → Catecholamines (dopamine, NE, epi) &nbsp;|&nbsp;
-          <span class="keyword purple">Tryptophan</span> → Serotonin &nbsp;|&nbsp;
-          <span class="keyword green">Glutamate</span> → Main excitatory NT
-        </div>
-      </div>
-    </div>
+</div>
 
-    <div class="section-divider">🚨 Common Pitfalls & Misconceptions</div>
+</div>
 
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon red"><span class="material-icons-outlined">warning</span></div>
-        <div class="card-title">Red Flags Alert</div>
-      </div>
+<!-- TAB 2: HIGH-YIELD -->
+<div class="tab-panel" id="tab-highyield">
 
-      <div class="pearl danger">
-        <div class="pearl-title">❌ WRONG: "The brain can use fatty acids for energy"</div>
-        <div class="pearl-text"><strong>CORRECTION:</strong> The brain <strong>CANNOT</strong> utilize fatty acids effectively. Brain lipids (cholesterol, sphingolipids) serve <span class="keyword red">structural functions only</span> — myelin sheaths, cell membranes. Fatty acids do NOT cross the BBB efficiently for energy use.</div>
-      </div>
+<div class="card">
+<div class="card-header"><span class="emoji">⭐</span> Lecturer's High-Yield Emphasis</div>
 
-      <div class="pearl danger">
-        <div class="pearl-title">❌ WRONG: "The brain has large energy reserves"</div>
-        <div class="pearl-text"><strong>CORRECTION:</strong> The brain has <span class="keyword red">minimal energy reserves</span>. Small glycogen stores exist <strong>ONLY in astrocytes</strong> for short-term emergency support. This is why even brief hypoxia causes rapid damage.</div>
-      </div>
+<div class="highlight-box highlight-must-know">
+<div class="highlight-label">🔴 MUST KNOW — Glycogen Stores</div>
+Brain glycogen stores are very small and exist <strong>ONLY in astrocytes</strong> — providing short-term support during transient dips in glucose supply.
+</div>
 
-      <div class="pearl warning">
-        <div class="pearl-title">⚠️ Don't Confuse: GLUT1 vs GLUT3</div>
-        <div class="pearl-text">GLUT1 is on the BBB & glial cells (insulin-insensitive). GLUT3 is on neurons. Both are insulin-insensitive, but their locations differ. A common exam trap is assigning GLUT3 to the BBB.</div>
-      </div>
+<div class="highlight-box highlight-pearl">
+<div class="highlight-label">💎 Classic Presentation</div>
+<strong>Fed state:</strong> Glucose = sole brain fuel<br>
+<strong>After 2-3 weeks starvation:</strong> Ketone bodies (acetoacetate + 3-hydroxybutyrate) = predominant fuel → This adaptation <strong>spares muscle protein</strong> from catabolism.
+</div>
 
-      <div class="pearl warning">
-        <div class="pearl-title">⚠️ Don't Confuse: Glutamate-Glutamine Cycle vs Urea Cycle</div>
-        <div class="pearl-text">The brain detoxifies ammonia via glutamine synthetase (glutamate → glutamine). The brain does NOT have a urea cycle. Confusing these is a frequent exam pitfall.</div>
-      </div>
-    </div>
-  </div>
+<div class="highlight-box highlight-success">
+<div class="highlight-label">✅ Differentiate</div>
+<strong>GLUT1:</strong> BBB + Glial cells → insulin-insensitive → gets glucose INTO the brain<br>
+<strong>GLUT3:</strong> Neurons → primary neuronal transporter → also insulin-insensitive
+</div>
 
-  <!-- ===== TAB 3: CLINICAL REASONING ===== -->
-  <div class="tab-panel" id="tab-reasoning">
-    
-    <div style="margin-bottom:20px; font-size:14px; color:var(--text-secondary);">
-      <span class="material-icons-outlined" style="font-size:16px; vertical-align:middle;">touch_app</span>
-      Click each step to reveal the answer progressively.
-    </div>
+<div class="highlight-box highlight-pearl">
+<div class="highlight-label">💎 Key Precursors</div>
+<strong>Tyrosine</strong> → Catecholamines (Dopamine, NE, Epi)<br>
+<strong>Tryptophan</strong> → Serotonin (5-HT)
+</div>
+</div>
 
-    <div class="reveal-card" onclick="toggleReveal(this)">
-      <div class="reveal-header">
-        <div class="reveal-header-left">
-          <div class="reveal-step">1</div>
-          <div class="reveal-title">Pathophysiology / Localization</div>
-        </div>
-        <span class="reveal-toggle material-icons-outlined">expand_more</span>
-      </div>
-      <div class="reveal-body">
-        <div class="reveal-content">
-          <strong>Pasteur Effect in the Brain:</strong>
-          <ul>
-            <li>Brief hypoxia → <strong>drastic slowdown of oxidative phosphorylation</strong> (ETC cannot function without O₂)</li>
-            <li>Compensatory <strong>increase in glycolysis rate</strong> (Pasteur Effect)</li>
-            <li>Pyruvate is shunted to <strong>lactate</strong> instead of entering TCA cycle</li>
-            <li>Lactic acid accumulates → <strong>intracellular acidosis</strong></li>
-            <li>ATP yield drops from ~36–38 to only <strong>2 ATP/glucose</strong></li>
-            <li>Brain's minimal glycogen reserves (astrocytes only) are rapidly depleted</li>
-          </ul>
-        </div>
-      </div>
-    </div>
+<div class="card">
+<div class="card-header"><span class="emoji">⚠️</span> Common Pitfalls & Exam Traps</div>
 
-    <div class="reveal-card" onclick="toggleReveal(this)">
-      <div class="reveal-header">
-        <div class="reveal-header-left">
-          <div class="reveal-step" style="background:var(--accent-green-bg); color:var(--accent-green);">2</div>
-          <div class="reveal-title">Most Likely Diagnosis</div>
-        </div>
-        <span class="reveal-toggle material-icons-outlined">expand_more</span>
-      </div>
-      <div class="reveal-body">
-        <div class="reveal-content">
-          <strong style="color:var(--accent-primary); font-size:16px;">Cerebral Hypoxia with Intracellular Acidosis</strong>
-          <br><br>
-          <strong>Key diagnostic features:</strong>
-          <ul>
-            <li>↑ CSF lactate — hallmark of anaerobic glycolysis in brain</li>
-            <li>↓ Cerebral glucose concentration — consumed faster than supplied</li>
-            <li>Initial ↑ glucose utilization — compensatory glycolysis upregulation</li>
-            <li>Clinical context of acute ischemic event causing O₂ deprivation</li>
-          </ul>
-        </div>
-      </div>
-    </div>
+<div class="highlight-box highlight-pitfall">
+<div class="highlight-label">⚠️ Pitfall #1 — Lipid Utilization</div>
+Students often assume the brain uses fatty acids for energy. <strong>WRONG!</strong><br>
+The brain <strong>cannot</strong> effectively utilize fatty acids. Brain lipids (cholesterol, sphingolipids, phospholipids) are purely <strong>structural</strong> (myelin sheaths, cell membranes). The brain synthesizes most of its own structural lipids.
+</div>
 
-    <div class="reveal-card" onclick="toggleReveal(this)">
-      <div class="reveal-header">
-        <div class="reveal-header-left">
-          <div class="reveal-step" style="background:var(--accent-orange-bg); color:var(--accent-orange);">3</div>
-          <div class="reveal-title">Initial Investigation / Key Step</div>
-        </div>
-        <span class="reveal-toggle material-icons-outlined">expand_more</span>
-      </div>
-      <div class="reveal-body">
-        <div class="reveal-content">
-          <strong>CSF Lactate Analysis:</strong>
-          <ul>
-            <li>Elevated CSF lactate confirms anaerobic metabolism in CNS</li>
-            <li>Cerebral blood glucose monitoring shows utilization pattern</li>
-            <li>Differentiate from other causes: meningitis, mitochondrial disease</li>
-          </ul>
-          <br>
-          <strong>Supporting biochemical principles:</strong>
-          <ul>
-            <li>Brain consumes <strong>20% of body's O₂ and glucose</strong> despite being only 2% body weight</li>
-            <li>No significant energy storage → immediate metabolic crisis during hypoxia</li>
-          </ul>
-        </div>
-      </div>
-    </div>
+<div class="highlight-box highlight-pitfall">
+<div class="highlight-label">⚠️ Pitfall #2 — Ammonia Detoxification</div>
+<strong>Do NOT confuse</strong> liver urea cycle with brain metabolism!<br>
+Brain has <strong>NO urea cycle</strong> → Converts ammonia to <strong>glutamine</strong> instead.<br>
+Hyperammonemia → impairs <strong>TCA cycle</strong> → decreased ATP.
+</div>
 
-    <div class="reveal-card" onclick="toggleReveal(this)">
-      <div class="reveal-header">
-        <div class="reveal-header-left">
-          <div class="reveal-step" style="background:var(--accent-purple-bg); color:var(--accent-purple);">4</div>
-          <div class="reveal-title">Key Management Principles</div>
-        </div>
-        <span class="reveal-toggle material-icons-outlined">expand_more</span>
-      </div>
-      <div class="reveal-body">
-        <div class="reveal-content">
-          <strong>Restore Oxygen Delivery:</strong>
-          <ul>
-            <li>Priority: Restore cerebral oxygenation to re-establish oxidative phosphorylation</li>
-            <li>Allow lactate clearance and pH normalization</li>
-            <li>Maintain adequate glucose supply (GLUT1 is insulin-insensitive — glucose uptake depends on concentration gradient)</li>
-          </ul>
-          <br>
-          <strong>Understanding vulnerability:</strong>
-          <ul>
-            <li>Brain has no meaningful glycogen reserve (only small stores in astrocytes)</li>
-            <li>Cannot switch to fatty acid oxidation (structural lipids only)</li>
-            <li>Even brief hypoxia (minutes) can cause irreversible neuronal damage</li>
-          </ul>
-        </div>
-      </div>
-    </div>
+<div class="highlight-box highlight-pitfall">
+<div class="highlight-label">⚠️ Pitfall #3 — Starvation Timeline</div>
+<strong>Early fasting (10-14 hrs):</strong> Hepatic glycogenolysis maintains glucose<br>
+<strong>First days of fasting:</strong> Hepatic gluconeogenesis (from amino acids & glycerol)<br>
+<strong>Prolonged starvation (>2-3 wks):</strong> Ketone bodies become primary brain fuel<br><br>
+<span class="tag tag-red">Trap</span> Don't say "ketones" for early fasting — that's glycogenolysis!
+</div>
+</div>
 
-    <div class="reveal-card" onclick="toggleReveal(this)">
-      <div class="reveal-header">
-        <div class="reveal-header-left">
-          <div class="reveal-step" style="background:var(--accent-cyan-bg); color:var(--accent-cyan);">5</div>
-          <div class="reveal-title">Hyperammonemia Integration</div>
-        </div>
-        <span class="reveal-toggle material-icons-outlined">expand_more</span>
-      </div>
-      <div class="reveal-body">
-        <div class="reveal-content">
-          <strong>Why hyperammonemia causes neurological damage:</strong>
-          <ul>
-            <li>Brain lacks urea cycle enzymes — cannot convert NH₃ → urea</li>
-            <li>Instead: Glutamate + NH₃ → <strong>Glutamine</strong> (via glutamine synthetase)</li>
-            <li>This depletes α-ketoglutarate from TCA cycle</li>
-            <li>TCA cycle impairment → ↓ ATP production → neurological dysfunction</li>
-            <li>Glutamine accumulation → osmotic stress → cerebral edema</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="card">
+<div class="card-header"><span class="emoji">📌</span> Metabolic Phases — Classification</div>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>#</th><th>Phase</th><th>Brain Fuel</th><th>Systemic Source</th></tr>
+</thead>
+<tbody>
+<tr><td><span class="tag tag-green">1</span></td><td>Fed State</td><td>Glucose</td><td>Dietary carbohydrates</td></tr>
+<tr><td><span class="tag tag-blue">2</span></td><td>Initial Fasting (10-14h)</td><td>Glucose</td><td>Hepatic glycogenolysis</td></tr>
+<tr><td><span class="tag tag-yellow">3</span></td><td>First Days of Fasting</td><td>Glucose</td><td>Hepatic gluconeogenesis (AA + glycerol)</td></tr>
+<tr><td><span class="tag tag-red">4</span></td><td>Starvation (>2-3 wks)</td><td>Ketone bodies</td><td>Hepatic fatty acid β-oxidation</td></tr>
+</tbody>
+</table>
+</div>
 
-  <!-- ===== TAB 4: EXAM MCQs ===== -->
-  <div class="tab-panel" id="tab-mcq">
-    
-    <div class="mcq-stats" id="mcqStats">
-      <div class="stat-badge score">
-        <span class="stat-icon">📊</span>
-        <div>
-          <div style="font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Score</div>
-          <div class="stat-number" id="statScore">0</div>
-        </div>
-      </div>
-      <div class="stat-badge correct-stat">
-        <span class="stat-icon">✅</span>
-        <div>
-          <div style="font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Correct</div>
-          <div class="stat-number" id="statCorrect">0</div>
-        </div>
-      </div>
-      <div class="stat-badge wrong-stat">
-        <span class="stat-icon">❌</span>
-        <div>
-          <div style="font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Wrong</div>
-          <div class="stat-number" id="statWrong">0</div>
-        </div>
-      </div>
-      <div class="stat-badge streak">
-        <span class="stat-icon" id="streakIcon">🔥</span>
-        <div>
-          <div style="font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Streak</div>
-          <div class="stat-number" id="statStreak">0</div>
-        </div>
-      </div>
-    </div>
+<div class="highlight-box highlight-success">
+<div class="highlight-label">✅ Fed State Pathway</div>
+Glucose via GLUT1 → Glycolysis → Acetyl CoA → TCA cycle → Oxidized to CO₂ + H₂O → <strong>ATP</strong>
+</div>
+</div>
 
-    <div class="mcq-progress-bar">
-      <div class="mcq-progress-fill" id="mcqProgressFill" style="width: 0%"></div>
-    </div>
+<div class="card">
+<div class="card-header"><span class="emoji">🔗</span> Basic Science Integration</div>
 
-    <div id="mcqContainer"></div>
+<div class="reveal-card" onclick="toggleReveal(this)">
+<div class="reveal-header">
+<span>🏗️ BBB — Anatomy & Transport</span>
+<span class="reveal-arrow">▼</span>
+</div>
+<div class="reveal-body">
+<div class="reveal-content">
+• Selective barrier controlling CNS molecular entry<br>
+• <strong>Active transport:</strong> Glucose (GLUT1), amino acids (specific carriers)<br>
+• <strong>Passive diffusion:</strong> Lipid-soluble substances, gases (O₂, CO₂)<br>
+• <strong>Restricted:</strong> Large polar molecules, pathogens, toxins<br>
+• <strong>LNAA competition:</strong> Tyr, Trp, Phe, Leu, Ile, Val share the same transporter → intake of one reduces brain entry of others
+</div>
+</div>
+</div>
 
-    <div class="mcq-nav">
-      <button class="mcq-nav-btn" id="mcqPrev" onclick="prevQuestion()" disabled>
-        <span class="material-icons-outlined" style="font-size:16px;">arrow_back</span> Previous
-      </button>
-      <span id="mcqPageInfo" style="font-size:13px; color:var(--text-muted); font-weight:500;"></span>
-      <button class="mcq-nav-btn primary" id="mcqNext" onclick="nextQuestion()">
-        Next <span class="material-icons-outlined" style="font-size:16px;">arrow_forward</span>
-      </button>
-    </div>
+<div class="reveal-card" onclick="toggleReveal(this)">
+<div class="reveal-header">
+<span>🧫 Brain Lipids — Structural Role</span>
+<span class="reveal-arrow">▼</span>
+</div>
+<div class="reveal-body">
+<div class="reveal-content">
+Brain lipids include:<br>
+• <strong>Cholesterol</strong> — myelin component (brain synthesizes its own)<br>
+• <strong>Sphingolipids</strong> — myelin sheaths<br>
+• <strong>Phospholipids</strong> — neuronal membranes<br>
+• <strong>Essential fatty acids</strong> — must be supplied from circulation (only exception)<br><br>
+<span class="tag tag-red">Key Point</span> Lipids = STRUCTURE, never energy in the brain
+</div>
+</div>
+</div>
 
-    <div class="section-divider">❌ Mistake Review</div>
+</div>
+</div>
 
-    <div class="card" id="mistakeReviewCard">
-      <div class="card-header" style="justify-content:space-between;">
-        <div style="display:flex; align-items:center; gap:10px;">
-          <div class="card-icon red"><span class="material-icons-outlined">error_outline</span></div>
-          <div class="card-title">Mistakes to Review</div>
-        </div>
-        <button class="reset-btn" onclick="resetMCQ()">
-          <span class="material-icons-outlined" style="font-size:14px; vertical-align:middle;">refresh</span> Reset All
-        </button>
-      </div>
-      <div class="mistake-list" id="mistakeList">
-        <div style="text-align:center; padding:20px; color:var(--text-muted); font-size:13px;">
-          No mistakes yet. Keep it up! 🎉
-        </div>
-      </div>
-    </div>
-  </div>
+<!-- TAB 3: TABLES -->
+<div class="tab-panel" id="tab-tables">
 
-  <!-- ===== TAB 5: DIAGNOSTIC ALGORITHM ===== -->
-  <div class="tab-panel" id="tab-algorithm">
-    
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon purple"><span class="material-icons-outlined">account_tree</span></div>
-        <div class="card-title">Diagnostic Algorithm: Cerebral Hypoxia & Brain Metabolism</div>
-      </div>
-      <div style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
-        <span class="material-icons-outlined" style="font-size:14px; vertical-align:middle;">touch_app</span>
-        Click any node to expand details.
-      </div>
+<div class="card">
+<div class="card-header"><span class="emoji">📊</span> Table 1: Astrocyte vs. Neuron Metabolism</div>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Feature</th><th>🔵 Astrocytes</th><th>🟢 Neurons</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Glucose Transporter</strong></td><td>GLUT1</td><td>GLUT3</td></tr>
+<tr><td><strong>Glycogen Storage</strong></td><td>✅ Yes (small stores, short-term)</td><td>❌ No</td></tr>
+<tr><td><strong>Lactate Shuttle Role</strong></td><td>Producer — converts glucose → lactate</td><td>Consumer — uses lactate → ATP</td></tr>
+<tr><td><strong>Glutamate Cycle Role</strong></td><td>Takes up glutamate → converts to glutamine</td><td>Receives glutamine for NT synthesis</td></tr>
+<tr><td><strong>Ammonia Handling</strong></td><td>Converts NH₃ → glutamine (glutamine synthetase)</td><td>—</td></tr>
+<tr><td><strong>Insulin Dependence</strong></td><td>❌ Insulin-insensitive</td><td>❌ Insulin-insensitive</td></tr>
+</tbody>
+</table>
+</div>
+</div>
 
-      <div class="flow-container" id="flowChart">
-      </div>
-    </div>
-  </div>
+<div class="card">
+<div class="card-header"><span class="emoji">📊</span> Table 2: Brain Fuel Sources by Metabolic State</div>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Metabolic State</th><th>Primary Brain Fuel</th><th>Systemic Source</th><th>Duration</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Fed State</strong></td><td>Glucose</td><td>Dietary carbohydrates</td><td>Post-meal</td></tr>
+<tr><td><strong>Early Fasting</strong></td><td>Glucose</td><td>Hepatic glycogenolysis</td><td>10-14 hours</td></tr>
+<tr><td><strong>Days of Fasting</strong></td><td>Glucose</td><td>Hepatic gluconeogenesis</td><td>1-14 days</td></tr>
+<tr><td><strong>Prolonged Starvation</strong></td><td>Ketone bodies</td><td>Hepatic β-oxidation of FA</td><td>>2-3 weeks</td></tr>
+</tbody>
+</table>
+</div>
+</div>
 
-  <!-- ===== TAB 6: RAPID REVIEW ===== -->
-  <div class="tab-panel" id="tab-rapid">
-    
-    <div class="rapid-grid">
-      <div class="rapid-card">
-        <div class="rapid-card-header">
-          <span class="rc-icon">🧠</span> Brain Resource Demand
-        </div>
-        <ul class="rapid-list">
-          <li><span class="keyword">2%</span> body weight → uses <span class="keyword red">20%</span> of O₂ and glucose</li>
-          <li>Minimal energy reserves — glycogen ONLY in <span class="keyword purple">astrocytes</span></li>
-          <li>Cannot use <span class="keyword red">fatty acids</span> for energy</li>
-          <li>Lipids = structural only (myelin, membranes)</li>
-        </ul>
-      </div>
+<div class="card">
+<div class="card-header"><span class="emoji">📊</span> Table 3: GLUT Transporters in the Brain</div>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Transporter</th><th>Location</th><th>Insulin Sensitivity</th><th>Key Function</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>GLUT1</strong></td><td>BBB endothelium, Glial cells</td><td>❌ Insensitive</td><td>Glucose entry across BBB</td></tr>
+<tr><td><strong>GLUT3</strong></td><td>Neurons</td><td>❌ Insensitive</td><td>Primary neuronal glucose uptake</td></tr>
+</tbody>
+</table>
+</div>
+</div>
 
-      <div class="rapid-card">
-        <div class="rapid-card-header">
-          <span class="rc-icon">🚪</span> Glucose Transporters
-        </div>
-        <ul class="rapid-list">
-          <li><span class="keyword">GLUT1</span> → BBB + glial cells → insulin <span class="keyword red">INSENSITIVE</span></li>
-          <li><span class="keyword purple">GLUT3</span> → neurons → also insulin insensitive</li>
-          <li>Ensures constant glucose supply regardless of insulin</li>
-        </ul>
-      </div>
+<div class="card">
+<div class="card-header"><span class="emoji">📊</span> Table 4: Neurotransmitter Precursors</div>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Amino Acid Precursor</th><th>Neurotransmitter(s)</th><th>BBB Transport</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Tyrosine</strong></td><td>Dopamine → Norepinephrine → Epinephrine</td><td>LNAA transporter (competitive)</td></tr>
+<tr><td><strong>Tryptophan</strong></td><td>Serotonin (5-HT)</td><td>LNAA transporter (competitive)</td></tr>
+</tbody>
+</table>
+</div>
+</div>
 
-      <div class="rapid-card">
-        <div class="rapid-card-header">
-          <span class="rc-icon">⏰</span> Fasting Fuel Timeline
-        </div>
-        <ul class="rapid-list">
-          <li><span class="keyword orange">10–14 hrs</span> → Hepatic glycogenolysis</li>
-          <li><span class="keyword orange">First days</span> → Gluconeogenesis (AAs, glycerol)</li>
-          <li><span class="keyword green">>2–3 weeks</span> → Ketone bodies (acetoacetate, 3-HB)</li>
-          <li>Ketones spare muscle protein from breakdown</li>
-        </ul>
-      </div>
+<div class="card">
+<div class="card-header"><span class="emoji">📊</span> Table 5: BBB Transport Mechanisms</div>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Substance</th><th>Transport Method</th><th>Notes</th></tr>
+</thead>
+<tbody>
+<tr><td>Glucose</td><td>Facilitated diffusion (GLUT1)</td><td>Insulin-independent</td></tr>
+<tr><td>Amino acids</td><td>Active transporters</td><td>LNAA share & compete</td></tr>
+<tr><td>Lipid-soluble substances</td><td>Passive diffusion</td><td>O₂, CO₂, anesthetics</td></tr>
+<tr><td>Large polar molecules</td><td>❌ Restricted</td><td>Proteins, most drugs</td></tr>
+<tr><td>Essential fatty acids</td><td>Specific transport</td><td>Only lipids that must enter from blood</td></tr>
+</tbody>
+</table>
+</div>
+</div>
 
-      <div class="rapid-card">
-        <div class="rapid-card-header">
-          <span class="rc-icon">🔬</span> Astrocyte Functions
-        </div>
-        <ul class="rapid-list">
-          <li>ONLY site of brain <span class="keyword">glycogen storage</span></li>
-          <li>Produce <span class="keyword green">lactate</span> for neurons (Lactate Shuttle)</li>
-          <li>Take up <span class="keyword purple">glutamate</span> → convert to <span class="keyword">glutamine</span></li>
-          <li>Express GLUT1 transporters</li>
-        </ul>
-      </div>
+<div class="card">
+<div class="card-header"><span class="emoji">📊</span> Table 6: Hypoxia vs. Hyperammonemia in the Brain</div>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Feature</th><th>Hypoxia</th><th>Hyperammonemia</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Primary Insult</strong></td><td>↓ O₂ supply</td><td>↑ NH₃ levels</td></tr>
+<tr><td><strong>Metabolic Effect</strong></td><td>↓ Oxidative phosphorylation</td><td>Impairs TCA cycle</td></tr>
+<tr><td><strong>Compensatory Response</strong></td><td>↑ Glycolysis (Pasteur effect)</td><td>NH₃ → Glutamine conversion</td></tr>
+<tr><td><strong>Byproduct</strong></td><td>↑ Lactic acid → Acidosis</td><td>↑ Glutamine (osmotic effect)</td></tr>
+<tr><td><strong>Diagnostic Marker</strong></td><td>↑ CSF lactate</td><td>↑ Blood/CSF ammonia</td></tr>
+<tr><td><strong>ATP Impact</strong></td><td>↓↓ ATP</td><td>↓ ATP</td></tr>
+</tbody>
+</table>
+</div>
+</div>
 
-      <div class="rapid-card">
-        <div class="rapid-card-header">
-          <span class="rc-icon">🫁</span> Hypoxia (Pasteur Effect)
-        </div>
-        <ul class="rapid-list">
-          <li>Oxidative phosphorylation <span class="keyword red">CRASHES</span></li>
-          <li>Glycolysis rate <span class="keyword red">SPIKES</span></li>
-          <li>Lactic acid → <span class="keyword red">intracellular acidosis</span></li>
-          <li>CSF lactate = <span class="keyword red">↑↑ ELEVATED</span></li>
-          <li>ATP drops from ~36 to <span class="keyword red">2 per glucose</span></li>
-        </ul>
-      </div>
+</div>
 
-      <div class="rapid-card">
-        <div class="rapid-card-header">
-          <span class="rc-icon">⚗️</span> Hyperammonemia
-        </div>
-        <ul class="rapid-list">
-          <li>Brain <span class="keyword red">LACKS</span> urea cycle</li>
-          <li>NH₃ detoxified: glutamate + NH₃ → <span class="keyword">glutamine</span></li>
-          <li>Depletes α-KG → impairs <span class="keyword red">TCA cycle</span></li>
-          <li>Result: ↓ ATP → neurological dysfunction</li>
-        </ul>
-      </div>
+<!-- TAB 4: MCQs -->
+<div class="tab-panel" id="tab-mcqs">
 
-      <div class="rapid-card">
-        <div class="rapid-card-header">
-          <span class="rc-icon">🧬</span> Neurotransmitter Precursors
-        </div>
-        <ul class="rapid-list">
-          <li><span class="keyword">Tyrosine</span> → Catecholamines (DA, NE, Epi)</li>
-          <li><span class="keyword purple">Tryptophan</span> → Serotonin</li>
-          <li><span class="keyword green">Glutamate</span> → main excitatory NT</li>
-          <li><span class="keyword orange">GABA</span> → main inhibitory NT (from glutamate)</li>
-        </ul>
-      </div>
+<div class="mcq-score-bar">
+<div class="score-stat correct-stat">
+<div class="num" id="correctCount">0</div>
+<div class="label">Correct</div>
+</div>
+<div class="score-stat incorrect-stat">
+<div class="num" id="incorrectCount">0</div>
+<div class="label">Wrong</div>
+</div>
+<div class="score-stat total-stat">
+<div class="num" id="totalCount">0/10</div>
+<div class="label">Attempted</div>
+</div>
+<div class="score-stat">
+<div class="num" id="percentScore">0%</div>
+<div class="label">Score</div>
+</div>
+<button class="reset-btn" onclick="resetMCQs()">🔄 Reset All</button>
+</div>
 
-      <div class="rapid-card">
-        <div class="rapid-card-header">
-          <span class="rc-icon">🛡️</span> Blood-Brain Barrier
-        </div>
-        <ul class="rapid-list">
-          <li>Selective barrier: tight junctions between endothelial cells</li>
-          <li><span class="keyword">Glucose & AAs</span> → carrier-mediated transport</li>
-          <li><span class="keyword green">Lipid-soluble</span> substances → diffuse freely</li>
-          <li>Astrocyte foot processes reinforce BBB</li>
-        </ul>
-      </div>
-    </div>
-  </div>
+<div id="mcqContainer"></div>
+
+<div class="wrong-answers-section" id="wrongAnswersSection" style="display:none;">
+<div class="card">
+<div class="card-header"><span class="emoji">❌</span> Wrong Answers to Review</div>
+<div id="wrongAnswersList"></div>
+</div>
+</div>
+
+</div>
+
+<!-- TAB 5: FLOWCHARTS -->
+<div class="tab-panel" id="tab-flowchart">
+
+<div class="card">
+<div class="card-header"><span class="emoji">🔀</span> Flowchart 1: Brain Fuel Selection by Metabolic State</div>
+<div class="flowchart-container">
+<div class="flow-row">
+<div class="flow-node start">
+🍽️ Metabolic State Assessment
+<div class="flow-tooltip">Determine the patient's nutritional status: Fed, fasting, or starving? Duration is critical for fuel selection.</div>
+</div>
+</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-row">
+<div class="flow-node decision">
+⏱️ Duration Since Last Meal?
+<div class="flow-tooltip">The timeline determines which metabolic pathway is dominant for maintaining brain glucose supply.</div>
+</div>
+</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-branch">
+<div class="flow-branch-item">
+<div class="flow-branch-label time-label">Recently Fed</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-node endpoint">
+🟢 Glucose (dietary)<br>via GLUT1 → BBB
+<div class="flow-tooltip"><strong>Fed State:</strong> Glucose from digested carbohydrates. Enters brain via insulin-insensitive GLUT1 at BBB. Glycolysis → Acetyl CoA → TCA → ATP.</div>
+</div>
+</div>
+<div class="flow-branch-item">
+<div class="flow-branch-label time-label">10-14 Hours</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-node process">
+🔵 Glucose from Hepatic Glycogenolysis
+<div class="flow-tooltip"><strong>Early Fasting:</strong> Liver breaks down glycogen stores to maintain blood glucose for the brain. Brain glycogen stores are too small to help.</div>
+</div>
+</div>
+<div class="flow-branch-item">
+<div class="flow-branch-label time-label">1-14 Days</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-node process">
+🟡 Glucose from Hepatic Gluconeogenesis
+<div class="flow-tooltip"><strong>Extended Fasting:</strong> Liver synthesizes glucose from amino acids (proteolysis) and glycerol (lipolysis). Brain still uses glucose as primary fuel.</div>
+</div>
+</div>
+<div class="flow-branch-item">
+<div class="flow-branch-label alert-label">>2-3 Weeks</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-node danger-node">
+🔴 Ketone Bodies<br>(Acetoacetate + 3-HB)
+<div class="flow-tooltip"><strong>Prolonged Starvation:</strong> Liver produces ketone bodies from fatty acid β-oxidation. This spares muscle protein from catabolism. Ketones become predominant brain fuel.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="section-sep"></div>
+
+<div class="card">
+<div class="card-header"><span class="emoji">🔀</span> Flowchart 2: Hypoxia Cascade in the Brain</div>
+<div class="flowchart-container">
+<div class="flow-row">
+<div class="flow-node start">
+💨 Cerebral Hypoxic Event
+<div class="flow-tooltip">Any cause of reduced O₂ delivery to the brain: near-drowning, cardiac arrest, severe anemia, respiratory failure, etc.</div>
+</div>
+</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-row">
+<div class="flow-node danger-node">
+⬇ Oxidative Phosphorylation Drastically Slows
+<div class="flow-tooltip">Without O₂, the electron transport chain cannot function. ATP production from mitochondria drops dramatically.</div>
+</div>
+</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-row">
+<div class="flow-node process">
+⬆ Compensatory Increase in Glycolysis<br><span class="tag tag-yellow">Pasteur Effect</span>
+<div class="flow-tooltip"><strong>Pasteur Effect:</strong> Anaerobic conditions cause glycolysis to accelerate to compensate for lost mitochondrial ATP. However, this is far less efficient (2 ATP vs 36 ATP).</div>
+</div>
+</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-row">
+<div class="flow-node danger-node">
+⬆ Lactic Acid Production
+<div class="flow-tooltip">Pyruvate is converted to lactate (by lactate dehydrogenase) instead of entering the TCA cycle. Lactate accumulates in neurons and interstitial fluid.</div>
+</div>
+</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-row">
+<div class="flow-node danger-node">
+⚠️ Intracellular Acidosis
+<div class="flow-tooltip">Accumulation of lactic acid lowers intracellular pH. This disrupts enzyme function, ion channels, and can trigger cell death pathways.</div>
+</div>
+</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-row">
+<div class="flow-node endpoint">
+📈 Gradual Increase in CSF Lactate<br><span class="tag tag-red">Diagnostic Marker</span>
+<div class="flow-tooltip"><strong>Clinical Finding:</strong> Elevated spinal fluid (CSF) lactate is a hallmark finding of cerebral hypoxia. Used diagnostically to assess severity.</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="section-sep"></div>
+
+<div class="card">
+<div class="card-header"><span class="emoji">🔀</span> Flowchart 3: Ammonia Detoxification — Brain vs. Liver</div>
+<div class="flowchart-container">
+<div class="flow-row">
+<div class="flow-node start">
+🧪 Excess Ammonia (NH₃)
+<div class="flow-tooltip">Ammonia is produced from amino acid metabolism, purine/pyrimidine catabolism, and intestinal bacterial activity. It is neurotoxic.</div>
+</div>
+</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-row">
+<div class="flow-node decision">
+Which Organ?
+<div class="flow-tooltip">The detoxification pathway differs completely between liver and brain. This is a classic exam differentiation point!</div>
+</div>
+</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-branch">
+<div class="flow-branch-item">
+<div class="flow-branch-label time-label">🫀 Liver</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-node endpoint">
+✅ Urea Cycle<br>NH₃ → Urea → Excreted by kidneys
+<div class="flow-tooltip"><strong>Liver:</strong> Has a complete urea cycle. Converts toxic ammonia to non-toxic urea, which is excreted in urine. This is the major systemic detoxification pathway.</div>
+</div>
+</div>
+<div class="flow-branch-item">
+<div class="flow-branch-label alert-label">🧠 Brain</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-node danger-node">
+❌ NO Urea Cycle!<br>NH₃ + Glutamate → Glutamine<br>(via Glutamine Synthetase)
+<div class="flow-tooltip"><strong>Brain:</strong> Lacks urea cycle enzymes. Astrocytes use glutamine synthetase to convert ammonia + glutamate → glutamine. Excess glutamine causes osmotic swelling (cerebral edema). Hyperammonemia also impairs TCA cycle → ↓ATP.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="section-sep"></div>
+
+<div class="card">
+<div class="card-header"><span class="emoji">🔀</span> Flowchart 4: Astrocyte-Neuron Metabolic Cooperation</div>
+<div class="flowchart-container">
+<div class="flow-row">
+<div class="flow-node start">
+🩸 Blood Glucose
+<div class="flow-tooltip">Glucose arrives via cerebral blood vessels and crosses the BBB through GLUT1 transporters.</div>
+</div>
+</div>
+<div class="flow-arrow">⬇ GLUT1</div>
+<div class="flow-branch">
+<div class="flow-branch-item">
+<div class="flow-branch-label time-label">🔵 Astrocyte Pathway</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-node process">
+Glucose → Glycolysis → Lactate
+<div class="flow-tooltip">Astrocytes preferentially metabolize glucose to lactate via aerobic glycolysis, then export the lactate.</div>
+</div>
+<div class="flow-arrow">⬇ Export</div>
+<div class="flow-node endpoint">
+Lactate → Neuron → Acetyl CoA → ATP
+<div class="flow-tooltip"><strong>Lactate Shuttle:</strong> Neurons take up astrocyte-produced lactate, convert it to pyruvate, then Acetyl CoA, and oxidize it in the TCA cycle for ATP.</div>
+</div>
+</div>
+<div class="flow-branch-item">
+<div class="flow-branch-label time-label">🟢 Neuron Direct</div>
+<div class="flow-arrow">⬇ GLUT3</div>
+<div class="flow-node endpoint">
+Glucose → Glycolysis → TCA → ATP
+<div class="flow-tooltip">Neurons also take up glucose directly via GLUT3. Both pathways (direct + shuttle) supply neuronal energy.</div>
+</div>
+</div>
+</div>
+<div class="section-sep"></div>
+<div class="flow-row">
+<div class="flow-node decision" style="min-width:240px;">
+🔁 Glutamate-Glutamine Cycle
+<div class="flow-tooltip">Parallel to energy metabolism, astrocytes and neurons cooperate in neurotransmitter recycling.</div>
+</div>
+</div>
+<div class="flow-arrow">⬇</div>
+<div class="flow-branch">
+<div class="flow-branch-item">
+<div class="flow-arrow">⬇</div>
+<div class="flow-node process">
+Synapse: Glutamate released
+<div class="flow-tooltip">Neurons release glutamate into the synaptic cleft for neurotransmission.</div>
+</div>
+<div class="flow-arrow">→ Astrocyte uptake</div>
+<div class="flow-node process">
+Astrocyte: Glutamate → Glutamine
+<div class="flow-tooltip">Astrocytes clear glutamate from the synapse (preventing excitotoxicity) and convert it to glutamine via glutamine synthetase.</div>
+</div>
+<div class="flow-arrow">→ Return to neuron</div>
+<div class="flow-node endpoint">
+Neuron: Glutamine → Glutamate (NT)
+<div class="flow-tooltip">Neurons receive glutamine, convert it back to glutamate for reuse as a neurotransmitter. This cycle prevents glutamate depletion.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- TAB 6: RAPID REVIEW -->
+<div class="tab-panel" id="tab-rapid">
+
+<div class="card" style="margin-bottom:20px;">
+<div class="card-header"><span class="emoji">⚡</span> Rapid Review — Night Before Exam</div>
+<p style="color:var(--text-secondary);font-size:0.88rem;">Ultra-condensed high-yield points. Flashcard format. No fluff.</p>
+</div>
+
+<div class="rapid-grid" id="rapidGrid"></div>
+</div>
 
 </main>
 
 <script>
-// ==================== DATA ====================
+// ===== DATA =====
+
 const mcqData = [
-  {
-    id: 1,
-    category: 'physiology',
-    categoryLabel: 'Physiology',
-    question: 'Despite being only 2% of total body weight, what percentage of the body\'s oxygen and glucose does the brain consume?',
-    options: ['5%', '10%', '20%', '40%'],
-    correct: 2,
-    explanation: '<strong>Keyword: 20% oxygen/glucose.</strong> The brain consumes ~20% of body oxygen and glucose despite its small mass, reflecting its extremely high metabolic rate and constant energy demand.'
-  },
-  {
-    id: 2,
-    category: 'physiology',
-    categoryLabel: 'Physiology',
-    question: 'A researcher is studying glucose transport across the blood-brain barrier. Which transporter is primarily responsible and what is its relationship with insulin?',
-    options: ['GLUT3, insulin sensitive', 'GLUT1, insulin insensitive', 'GLUT1, insulin sensitive', 'GLUT3, insulin insensitive'],
-    correct: 1,
-    explanation: '<strong>Keyword: GLUT1, insulin insensitive.</strong> GLUT1 transports glucose across the BBB and is insulin insensitive, ensuring constant glucose supply. GLUT3 is specific to neurons.'
-  },
-  {
-    id: 3,
-    category: 'doctorfocus',
-    categoryLabel: 'Doctor Focus',
-    question: 'In the astrocyte-neuron lactate shuttle, which best describes the metabolic relationship between these cells?',
-    options: [
-      'Neurons convert lactate to glucose for astrocytes',
-      'Astrocytes convert glucose to lactate for neuronal ATP production',
-      'Neurons transfer small glycogen stores to astrocytes',
-      'Astrocytes convert fatty acids into lactate for neuronal use'
-    ],
-    correct: 1,
-    explanation: '<strong>Keyword: Astrocyte → Lactate → Neuron.</strong> Astrocytes convert glucose to lactate, which neurons then use for ATP. The brain cannot use fatty acids — this is a common exam trap!'
-  },
-  {
-    id: 4,
-    category: 'clinical',
-    categoryLabel: 'Clinical',
-    question: 'A patient is in an advanced state of starvation lasting longer than 3 weeks. Which substrate has replaced glucose as the predominant fuel for the brain?',
-    options: ['Amino acids', 'Hepatic glycogen', 'Free fatty acids', 'Ketone bodies'],
-    correct: 3,
-    explanation: '<strong>Keyword: Ketone bodies (acetoacetate/3-hydroxybutyrate).</strong> Beyond 2–3 weeks, ketones replace glucose as primary brain fuel. Glycogen is depleted in days. Brain CANNOT use free fatty acids.'
-  },
-  {
-    id: 5,
-    category: 'pathology',
-    categoryLabel: 'Pathology',
-    question: 'A patient with severe hepatic failure develops hyperammonemia. Neurological symptoms arise due to impairment of which metabolic process in the brain?',
-    options: ['Glycolysis', 'HMP shunt pathway', 'TCA cycle', 'Glycogenolysis'],
-    correct: 2,
-    explanation: '<strong>Keyword: Hyperammonemia → impairs TCA cycle.</strong> Brain lacks urea cycle, so ammonia is detoxified to glutamine. This depletes α-ketoglutarate, directly impairing the TCA cycle and ATP production.'
-  },
-  {
-    id: 6,
-    category: 'diagnostics',
-    categoryLabel: 'Diagnostics',
-    question: 'Following a brief ischemic event causing cerebral hypoxia, CSF analysis is most likely to show a gradual increase in which metabolite?',
-    options: ['Glucose', 'Ketone bodies', 'Lactate', 'Glutamine'],
-    correct: 2,
-    explanation: '<strong>Keyword: Hypoxia → Lactic acid (Pasteur Effect).</strong> Hypoxia forces anaerobic glycolysis, causing lactic acid production and increased CSF lactate. This is the hallmark finding.'
-  },
-  {
-    id: 7,
-    category: 'physiology',
-    categoryLabel: 'Physiology',
-    question: 'Which correctly pairs the amino acid with its corresponding neurotransmitter?',
-    options: [
-      'Tryptophan → Catecholamines',
-      'Tyrosine → Serotonin',
-      'Tyrosine → Catecholamines',
-      'Glutamate → Serotonin'
-    ],
-    correct: 2,
-    explanation: '<strong>Keyword: Tyrosine → Catecholamines.</strong> Tyrosine is the precursor for catecholamines (dopamine, norepinephrine, epinephrine). Tryptophan is the precursor for serotonin — don\'t confuse them!'
-  },
-  {
-    id: 8,
-    category: 'clinical',
-    categoryLabel: 'Clinical',
-    question: 'A 12-hour fasting patient maintains blood glucose for brain metabolism primarily through which mechanism?',
-    options: [
-      'Hepatic gluconeogenesis',
-      'Hepatic glycogenolysis',
-      'Muscle protein proteolysis',
-      'Astrocyte glycogenolysis'
-    ],
-    correct: 1,
-    explanation: '<strong>Keyword: 10–14 hours → Hepatic glycogenolysis.</strong> Initial 10–14 hrs relies on hepatic glycogenolysis. Gluconeogenesis dominates after days. Astrocyte glycogen is minimal and for local emergency only.'
-  },
-  {
-    id: 9,
-    category: 'doctorfocus',
-    categoryLabel: 'Doctor Focus',
-    question: 'Lipids in the brain serve which primary function?',
-    options: [
-      'Primary energy source during fed states',
-      'Structural components such as myelin and membranes',
-      'Energy source during prolonged starvation',
-      'Precursors for gluconeogenesis'
-    ],
-    correct: 1,
-    explanation: '<strong>Keyword: Structural, not energy.</strong> Brain lipids (cholesterol, sphingolipids) are structural — myelin sheaths, cell membranes. The brain CANNOT use fatty acids for energy. This is a top exam pitfall!'
-  },
-  {
-    id: 10,
-    category: 'physiology',
-    categoryLabel: 'Physiology',
-    question: 'To manage neurotransmitter levels, astrocytes take up glutamate and convert it into which substance before returning it to neurons?',
-    options: ['Ammonia', 'Glutamine', 'Tyrosine', 'Urea'],
-    correct: 1,
-    explanation: '<strong>Keyword: Glutamate-glutamine cycle.</strong> Astrocytes convert glutamate → glutamine (via glutamine synthetase), which is then returned to neurons. Brain does NOT produce urea (lacks urea cycle).'
-  },
-  {
-    id: 11,
-    category: 'pathology',
-    categoryLabel: 'Pathology',
-    question: 'During cerebral hypoxia, the rate of glycolysis increases (Pasteur Effect). What is the primary consequence of this metabolic shift?',
-    options: [
-      'Increased ATP production via oxidative phosphorylation',
-      'Accumulation of lactic acid causing intracellular acidosis',
-      'Increased ketone body production in astrocytes',
-      'Enhanced fatty acid oxidation in neurons'
-    ],
-    correct: 1,
-    explanation: '<strong>Keyword: Pasteur Effect → Lactic acidosis.</strong> Without O₂, pyruvate is shunted to lactate. This causes intracellular acidosis. Oxidative phosphorylation is crashed. Brain cannot oxidize fatty acids.'
-  },
-  {
-    id: 12,
-    category: 'doctorfocus',
-    categoryLabel: 'Doctor Focus',
-    question: 'Glycogen stores in the brain are found exclusively in which cell type?',
-    options: [
-      'Neurons',
-      'Oligodendrocytes',
-      'Astrocytes',
-      'Microglia'
-    ],
-    correct: 2,
-    explanation: '<strong>Keyword: Astrocytes = sole site of brain glycogen.</strong> Small glycogen stores exist ONLY in astrocytes for short-term emergency support. Neurons do not store glycogen.'
-  },
-  {
-    id: 13,
-    category: 'clinical',
-    categoryLabel: 'Clinical',
-    question: 'In a patient with hyperammonemia, ammonia is detoxified in the brain by conversion to glutamine. This process is harmful because it primarily:',
-    options: [
-      'Inhibits glycolysis directly',
-      'Depletes α-ketoglutarate from the TCA cycle',
-      'Causes excessive GABA production',
-      'Blocks GLUT1 transporters on the BBB'
-    ],
-    correct: 1,
-    explanation: '<strong>Keyword: Depletes α-ketoglutarate → impairs TCA cycle.</strong> Glutamate (derived from α-KG) is consumed to form glutamine, draining this critical TCA intermediate and reducing ATP output.'
-  },
-  {
-    id: 14,
-    category: 'physiology',
-    categoryLabel: 'Physiology',
-    question: 'Which substances can cross the blood-brain barrier via diffusion?',
-    options: [
-      'Glucose and amino acids',
-      'Lipid-soluble substances',
-      'Large proteins and antibodies',
-      'Ketone bodies via GLUT1'
-    ],
-    correct: 1,
-    explanation: '<strong>Keyword: Lipid-soluble = diffusion across BBB.</strong> Lipid-soluble substances cross freely by diffusion. Glucose and amino acids require specific carrier-mediated transporters (GLUT1, amino acid transporters).'
-  },
-  {
-    id: 15,
-    category: 'diagnostics',
-    categoryLabel: 'Diagnostics',
-    question: 'A patient has been fasting for 5 days. The primary mechanism maintaining blood glucose for brain function at this time is:',
-    options: [
-      'Hepatic glycogenolysis',
-      'Hepatic gluconeogenesis',
-      'Ketone body utilization exclusively',
-      'Astrocyte glycogenolysis'
-    ],
-    correct: 1,
-    explanation: '<strong>Keyword: First days → Gluconeogenesis.</strong> Hepatic glycogen is depleted by ~14 hrs. At 5 days, hepatic gluconeogenesis (from amino acids and glycerol) is the primary source. Full ketone adaptation takes 2–3 weeks.'
-  }
+{
+id: 1,
+question: "A 25-year-old healthy male eats a large carbohydrate-rich meal. Which transporter is primarily responsible for allowing glucose to cross the BBB into the CNS?",
+options: ["GLUT1", "GLUT2", "GLUT3", "GLUT4"],
+correct: 0,
+explanation: "GLUT1 is responsible for glucose transport across the BBB and into glial cells. It is insulin-insensitive. GLUT3 is specific to neurons. GLUT2 is in liver/pancreas. GLUT4 is insulin-sensitive (muscle/fat)."
+},
+{
+id: 2,
+question: "A patient presents with severe hypoxemia following a near-drowning incident. Which metabolic change is most likely occurring in this patient's brain?",
+options: ["Increased oxidative phosphorylation", "Decreased rate of glycolysis", "Increased intracellular accumulation of lactic acid", "Decreased spinal fluid lactate levels"],
+correct: 2,
+explanation: "Hypoxia slows oxidative phosphorylation and increases glycolysis (Pasteur effect), leading to lactic acid production and intracellular acidosis, which gradually raises spinal fluid lactate."
+},
+{
+id: 3,
+question: "A 40-year-old man has been on a strict water-only starvation diet for 4 weeks. Which substance has replaced glucose as the primary metabolic fuel for his brain?",
+options: ["Fatty acids", "Ketone bodies", "Glycogen", "Amino acids"],
+correct: 1,
+explanation: "After 2-3 weeks of starvation, ketone bodies (acetoacetate and 3-hydroxybutyrate) replace glucose as the predominant brain fuel. The brain CANNOT use fatty acids. This adaptation spares muscle protein."
+},
+{
+id: 4,
+question: "A patient with severe liver disease develops hyperammonemia. How does the brain physiologically attempt to detoxify the excess ammonia?",
+options: ["Upregulation of the brain urea cycle", "Excretion via the astrocyte-neuron lactate shuttle", "Conversion of ammonia to glutamine", "Oxidation of ammonia to acetoacetate"],
+correct: 2,
+explanation: "The brain LACKS a urea cycle. It detoxifies ammonia by converting it to glutamine (via glutamine synthetase in astrocytes). Excess ammonia impairs the TCA cycle and ATP production."
+},
+{
+id: 5,
+question: "Which of the following accurately describes the metabolism of lipids within the central nervous system?",
+options: ["Fatty acids are the preferred fuel for neurons during fasting", "The brain synthesizes most of its own structural lipids", "Sphingolipids are completely oxidized to produce ATP", "Lipids cross the BBB via specialized active transporters"],
+correct: 1,
+explanation: "Most brain lipids (cholesterol, sphingolipids, phospholipids) are synthesized IN the brain and used structurally (myelin, membranes), NOT for energy. Lipid-soluble substances cross BBB via passive diffusion, not active transport."
+},
+{
+id: 6,
+question: "In the astrocyte-neuron lactate shuttle, which best describes the metabolic relationship between these two cell types?",
+options: ["Neurons convert lactate to glucose for astrocyte use", "Astrocytes utilize neuronal glycogen to produce ATP", "Astrocytes convert glucose to lactate, which neurons use for ATP production", "Neurons supply astrocytes with ketone bodies during the fed state"],
+correct: 2,
+explanation: "In the lactate shuttle, astrocytes convert glucose into lactate, which is then transferred to neurons to be utilized for ATP production via the TCA cycle."
+},
+{
+id: 7,
+question: "Which amino acid precursor is correctly matched with its synthesized neurotransmitter?",
+options: ["Tyrosine → Serotonin", "Tryptophan → Catecholamines", "Tyrosine → Catecholamines", "Tryptophan → Glutamine"],
+correct: 2,
+explanation: "Tyrosine is the precursor for catecholamines (Dopamine → Norepinephrine → Epinephrine). Tryptophan is the precursor for serotonin (5-HT). Both are LNAAs that compete for BBB transport."
+},
+{
+id: 8,
+question: "Approximately 12 hours after eating, a student's blood glucose begins to fall. At this timeframe, how are brain glucose requirements primarily maintained?",
+options: ["Hepatic gluconeogenesis from glycerol", "Hepatic glycogenolysis", "Astrocyte glycogenolysis", "Ketone body oxidation"],
+correct: 1,
+explanation: "During initial 10-14 hours of fasting, blood glucose is primarily maintained by hepatic glycogenolysis (liver glycogen breakdown). Gluconeogenesis becomes major source only after glycogen depletes. Astrocyte glycogen is too small. Ketones come after weeks."
+},
+{
+id: 9,
+question: "Which of the following compounds must be supplied by the systemic circulation because the brain cannot synthesize them independently?",
+options: ["Glutamine", "Cholesterol", "Essential fatty acids", "Sphingolipids"],
+correct: 2,
+explanation: "While the brain synthesizes most of its structural lipids (cholesterol, sphingolipids, phospholipids), essential fatty acids MUST be supplied from the diet/circulation since the body cannot synthesize them."
+},
+{
+id: 10,
+question: "Large neutral amino acids (LNAA) share a transport mechanism across the BBB. What is the primary physiological consequence of this shared transport?",
+options: ["It prevents amino acids from entering the brain entirely", "Competition among LNAAs affects their relative concentrations in the brain", "It allows LNAAs to substitute for glucose during the fed state", "It directly drives the astrocyte-neuron lactate shuttle"],
+correct: 1,
+explanation: "LNAAs (Tyr, Trp, Phe, Leu, etc.) share transport across the BBB, meaning competition for these transporters directly affects the levels of each amino acid reaching the brain. This influences neurotransmitter synthesis rates."
+}
 ];
 
-const flowData = [
-  {
-    type: 'start',
-    label: '🫁 Acute Cerebral Hypoxia',
-    desc: 'Brief ischemic event → O₂ delivery to brain tissue is severely compromised. Brain is exceptionally vulnerable due to high O₂ demand (20% of body total) and minimal energy reserves.'
-  },
-  {
-    type: 'arrow',
-    label: 'Immediate'
-  },
-  {
-    type: 'decision',
-    label: '⚙️ Oxidative Phosphorylation Crashes',
-    desc: 'Without O₂, the electron transport chain halts. ATP production via mitochondria drops from ~36 ATP/glucose to zero from this pathway. Brain has no alternative aerobic mechanism.'
-  },
-  {
-    type: 'arrow',
-    label: 'Compensatory'
-  },
-  {
-    type: 'normal',
-    label: '📈 Glycolysis Rate Increases (Pasteur Effect)',
-    desc: 'Anaerobic glycolysis is upregulated to partially compensate for ATP loss. However, it yields only 2 ATP/glucose — a 95% reduction in efficiency. Cerebral glucose utilization spikes.'
-  },
-  {
-    type: 'arrow',
-    label: 'Byproduct'
-  },
-  {
-    type: 'decision',
-    label: '🧪 Lactic Acid Accumulates',
-    desc: 'Pyruvate cannot enter TCA cycle (no O₂) → converted to lactate by LDH. Lactic acid accumulates in brain tissue → diffuses into CSF → detectable as elevated CSF lactate.'
-  },
-  {
-    type: 'arrow',
-    label: 'Result'
-  },
-  {
-    type: 'normal',
-    label: '⚠️ Intracellular Acidosis',
-    desc: 'Accumulated lactic acid lowers intracellular pH. Acidosis impairs enzyme function, disrupts ion homeostasis, and can trigger apoptotic/necrotic pathways in neurons.'
-  },
-  {
-    type: 'arrow',
-    label: 'Concurrent'
-  },
-  {
-    type: 'normal',
-    label: '📉 Cerebral Glucose Depleted',
-    desc: 'Increased consumption rate + limited supply = rapid depletion of available glucose. Astrocyte glycogen reserves (the ONLY brain glycogen) provide only minutes of additional support.'
-  },
-  {
-    type: 'arrow',
-    label: 'If prolonged'
-  },
-  {
-    type: 'end',
-    label: '💀 Neuronal Damage / Death',
-    desc: 'Without ATP: Na⁺/K⁺-ATPase fails → membrane depolarization → excitotoxic Ca²⁺ influx → cell swelling → irreversible neuronal death. Damage begins within minutes of complete anoxia.'
-  }
+const rapidData = [
+{buzzword: "🧠 Brain = 2% body weight", detail: "Consumes <strong>20% of total O₂ and glucose</strong>", color: "rc-blue"},
+{buzzword: "GLUT1 = BBB + Glia", detail: "<strong>Insulin-insensitive</strong>. Gets glucose INTO the brain.", color: "rc-blue"},
+{buzzword: "GLUT3 = Neurons", detail: "Primary <strong>neuronal</strong> glucose transporter. Also insulin-insensitive.", color: "rc-blue"},
+{buzzword: "Glycogen → ONLY Astrocytes", detail: "Very small stores. Short-term support only. <strong>Neurons have NONE.</strong>", color: "rc-purple"},
+{buzzword: "Lactate Shuttle", detail: "Astrocytes: glucose → <strong>lactate</strong> | Neurons: lactate → <strong>ATP</strong>", color: "rc-purple"},
+{buzzword: "Tyrosine → Catecholamines", detail: "Dopamine → Norepinephrine → Epinephrine", color: "rc-success"},
+{buzzword: "Tryptophan → Serotonin", detail: "5-HT synthesis. Both Tyr & Trp are <strong>LNAAs that compete</strong> for BBB transport.", color: "rc-success"},
+{buzzword: "Brain has NO Urea Cycle", detail: "Ammonia → <strong>Glutamine</strong> (via glutamine synthetase in astrocytes)", color: "rc-danger"},
+{buzzword: "Hyperammonemia → ↓ATP", detail: "Impairs <strong>TCA cycle</strong>. Don't confuse with liver's urea cycle!", color: "rc-danger"},
+{buzzword: "Brain Lipids = STRUCTURE", detail: "Myelin & membranes. Brain <strong>CANNOT use fatty acids for energy</strong>.", color: "rc-warning"},
+{buzzword: "Essential FA = Must Enter from Blood", detail: "Only lipids brain can't synthesize. All other lipids made <strong>in situ</strong>.", color: "rc-warning"},
+{buzzword: "Early Fasting (10-14h)", detail: "Blood glucose maintained by <strong>hepatic glycogenolysis</strong>", color: "rc-blue"},
+{buzzword: "First Days Fasting", detail: "Hepatic <strong>gluconeogenesis</strong> (from amino acids + glycerol)", color: "rc-purple"},
+{buzzword: "Starvation >2-3 Weeks", detail: "Brain switches to <strong>ketone bodies</strong> (acetoacetate + 3-HB). Spares muscle protein.", color: "rc-danger"},
+{buzzword: "Hypoxia → Pasteur Effect", detail: "↓Ox Phos → ↑Glycolysis → ↑<strong>Lactic acid</strong> → Intracellular acidosis", color: "rc-danger"},
+{buzzword: "CSF Lactate ↑ = Hypoxia Marker", detail: "Diagnostic clue: gradual increase in <strong>spinal fluid lactate</strong>", color: "rc-danger"},
+{buzzword: "LNAA Competition at BBB", detail: "Tyr, Trp, Phe, Leu, Ile, Val <strong>share one transporter</strong> → affects brain NT levels", color: "rc-warning"},
+{buzzword: "Fed State Brain Pathway", detail: "Glucose → GLUT1 → Glycolysis → <strong>Acetyl CoA → TCA → CO₂ + H₂O + ATP</strong>", color: "rc-success"},
+{buzzword: "Glutamate-Glutamine Cycle", detail: "Astrocytes: uptake Glu → <strong>Glutamine</strong> → return to neuron for NT synthesis", color: "rc-purple"},
+{buzzword: "BBB Transport Rules", detail: "✅ Glucose/AA = active transport | ✅ Lipid-soluble = passive diffusion | ❌ Large polar = blocked", color: "rc-blue"}
 ];
 
-// ==================== STATE ====================
-let currentTab = localStorage.getItem('lastTab') || 'case';
-let darkMode = localStorage.getItem('darkMode') === 'true';
-let currentQ = 0;
-let mcqScore = parseInt(localStorage.getItem('mcqScore')) || 0;
-let mcqCorrect = parseInt(localStorage.getItem('mcqCorrect')) || 0;
-let mcqWrong = parseInt(localStorage.getItem('mcqWrong')) || 0;
-let mcqStreak = parseInt(localStorage.getItem('mcqStreak')) || 0;
-let mcqAnswered = JSON.parse(localStorage.getItem('mcqAnswered')) || {};
-let mcqMistakes = JSON.parse(localStorage.getItem('mcqMistakes')) || [];
+// ===== STATE MANAGEMENT =====
+let state = {
+darkMode: false,
+currentTab: 'concepts',
+mcqAnswers: {},
+correctCount: 0,
+incorrectCount: 0,
+streak: 0,
+wrongAnswers: [],
+visitedTabs: new Set(['concepts'])
+};
 
-// ==================== INIT ====================
-function init() {
-  if (darkMode) {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    document.getElementById('darkToggle').textContent = '☀️';
-  }
-  switchTab(currentTab);
-  renderMCQ();
-  renderFlow();
-  updateStats();
-  renderMistakes();
+function loadState() {
+try {
+const saved = localStorage.getItem('brainMetabolismState');
+if (saved) {
+const parsed = JSON.parse(saved);
+state = { ...state, ...parsed, visitedTabs: new Set(parsed.visitedTabs || ['concepts']) };
+}
+} catch(e) { console.log('State load error:', e); }
 }
 
-// ==================== DARK MODE ====================
-function toggleDarkMode() {
-  darkMode = !darkMode;
-  localStorage.setItem('darkMode', darkMode);
-  document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : '');
-  document.getElementById('darkToggle').textContent = darkMode ? '☀️' : '🌙';
+function saveState() {
+try {
+const toSave = { ...state, visitedTabs: Array.from(state.visitedTabs) };
+localStorage.setItem('brainMetabolismState', JSON.stringify(toSave));
+} catch(e) { console.log('State save error:', e); }
 }
 
-// ==================== TABS ====================
+// ===== DARK MODE =====
+function toggleDark() {
+state.darkMode = !state.darkMode;
+applyTheme();
+saveState();
+}
+
+function applyTheme() {
+document.documentElement.setAttribute('data-theme', state.darkMode ? 'dark' : 'light');
+document.getElementById('darkToggle').textContent = state.darkMode ? '☀️' : '🌙';
+}
+
+// ===== TABS =====
 function switchTab(tabId) {
-  currentTab = tabId;
-  localStorage.setItem('lastTab', tabId);
-  
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  
-  const panel = document.getElementById('tab-' + tabId);
-  if (panel) panel.classList.add('active');
-  
-  const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
-  if (btn) btn.classList.add('active');
+state.currentTab = tabId;
+state.visitedTabs.add(tabId);
+saveState();
+
+document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+document.getElementById('tab-' + tabId).classList.add('active');
+document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+
+updateProgress();
 }
 
-// ==================== REVEAL CARDS ====================
-function toggleReveal(card) {
-  card.classList.toggle('open');
+// ===== PROGRESS =====
+function updateProgress() {
+const totalTabs = 6;
+const visited = state.visitedTabs.size;
+const attempted = Object.keys(state.mcqAnswers).length;
+const totalMCQs = mcqData.length;
+
+const tabProgress = (visited / totalTabs) * 50;
+const mcqProgress = (attempted / totalMCQs) * 50;
+const total = Math.round(tabProgress + mcqProgress);
+
+document.getElementById('progressFill').style.width = total + '%';
+document.getElementById('progressText').textContent = total + '% complete';
 }
 
-// ==================== MCQ ====================
-function renderMCQ() {
-  const container = document.getElementById('mcqContainer');
-  const q = mcqData[currentQ];
-  const answered = mcqAnswered[q.id];
-  
-  let optionsHtml = q.options.map((opt, i) => {
-    let cls = 'mcq-option';
-    if (answered !== undefined) {
-      cls += ' disabled';
-      if (i === q.correct) cls += ' correct show-correct';
-      else if (i === answered && answered !== q.correct) cls += ' wrong';
-    }
-    return `<div class="${cls}" onclick="selectAnswer(${i})" data-idx="${i}">
-      <span class="option-letter">${String.fromCharCode(65 + i)}</span>
-      <span>${opt}</span>
-    </div>`;
-  }).join('');
-  
-  let expClass = '';
-  let expShow = '';
-  if (answered !== undefined) {
-    expClass = answered === q.correct ? 'correct-exp' : 'wrong-exp';
-    expShow = 'show';
-  }
-  
-  container.innerHTML = `
-    <div class="mcq-card" id="mcqCard">
-      <span class="mcq-badge ${q.category}">${q.categoryLabel}</span>
-      <div class="mcq-counter">Question ${currentQ + 1} of ${mcqData.length}</div>
-      <div class="mcq-question">${q.question}</div>
-      <div class="mcq-options">${optionsHtml}</div>
-      <div class="mcq-explanation ${expClass} ${expShow}" id="mcqExp">
-        ${q.explanation}
-      </div>
-    </div>
-  `;
-  
-  document.getElementById('mcqProgressFill').style.width = 
-    ((Object.keys(mcqAnswered).length / mcqData.length) * 100) + '%';
-  
-  document.getElementById('mcqPrev').disabled = currentQ === 0;
-  document.getElementById('mcqNext').textContent = currentQ === mcqData.length - 1 ? 'Finish' : '';
-  document.getElementById('mcqNext').innerHTML = currentQ === mcqData.length - 1 
-    ? '🏁 Finish' 
-    : 'Next <span class="material-icons-outlined" style="font-size:16px;">arrow_forward</span>';
-  
-  document.getElementById('mcqPageInfo').textContent = `${currentQ + 1} / ${mcqData.length}`;
+// ===== REVEAL CARDS =====
+function toggleReveal(el) {
+el.classList.toggle('open');
 }
 
-function selectAnswer(idx) {
-  const q = mcqData[currentQ];
-  if (mcqAnswered[q.id] !== undefined) return;
-  
-  mcqAnswered[q.id] = idx;
-  const card = document.getElementById('mcqCard');
-  
-  if (idx === q.correct) {
-    mcqCorrect++;
-    mcqStreak++;
-    mcqScore += 10 + (mcqStreak > 1 ? mcqStreak * 2 : 0);
-    card.classList.add('animate-correct');
-  } else {
-    mcqWrong++;
-    mcqStreak = 0;
-    mcqMistakes.push({
-      id: q.id,
-      question: q.question,
-      yourAnswer: q.options[idx],
-      correctAnswer: q.options[q.correct],
-      explanation: q.explanation
-    });
-    card.classList.add('animate-wrong');
-    localStorage.setItem('mcqMistakes', JSON.stringify(mcqMistakes));
-  }
-  
-  localStorage.setItem('mcqScore', mcqScore);
-  localStorage.setItem('mcqCorrect', mcqCorrect);
-  localStorage.setItem('mcqWrong', mcqWrong);
-  localStorage.setItem('mcqStreak', mcqStreak);
-  localStorage.setItem('mcqAnswered', JSON.stringify(mcqAnswered));
-  
-  updateStats();
-  renderMCQ();
-  renderMistakes();
+// ===== MCQ SYSTEM =====
+function renderMCQs() {
+const container = document.getElementById('mcqContainer');
+container.innerHTML = '';
+
+mcqData.forEach((q, idx) => {
+const answered = state.mcqAnswers[q.id] !== undefined;
+const userAnswer = state.mcqAnswers[q.id];
+
+let optionsHTML = '';
+q.options.forEach((opt, oi) => {
+let classes = 'mcq-option';
+if (answered) {
+classes += ' disabled';
+if (oi === q.correct) classes += ' correct';
+if (oi === userAnswer && userAnswer !== q.correct) classes += ' incorrect';
+}
+const letter = String.fromCharCode(65 + oi);
+optionsHTML += `<div class="${classes}" onclick="answerMCQ(${q.id}, ${oi})" data-qid="${q.id}" data-oi="${oi}">
+<span class="letter">${letter}.</span>
+<span>${opt}</span>
+</div>`;
+});
+
+let expClass = '';
+let expHTML = '';
+if (answered) {
+expClass = userAnswer === q.correct ? 'correct-exp show' : 'incorrect-exp show';
+expHTML = `<div class="mcq-explanation ${expClass}">
+<strong>${userAnswer === q.correct ? '✅ Correct!' : '❌ Incorrect.'}</strong> ${q.explanation}
+</div>`;
 }
 
-function nextQuestion() {
-  if (currentQ < mcqData.length - 1) {
-    currentQ++;
-    renderMCQ();
-  }
+container.innerHTML += `<div class="mcq-card" id="mcq-${q.id}">
+<div class="mcq-question"><span class="mcq-number">${idx + 1}</span>${q.question}</div>
+<div class="mcq-options">${optionsHTML}</div>
+${expHTML}
+</div>`;
+});
+
+updateScoreDisplay();
+renderWrongAnswers();
 }
 
-function prevQuestion() {
-  if (currentQ > 0) {
-    currentQ--;
-    renderMCQ();
-  }
+function answerMCQ(qid, selected) {
+if (state.mcqAnswers[qid] !== undefined) return;
+
+const q = mcqData.find(q => q.id === qid);
+state.mcqAnswers[qid] = selected;
+
+if (selected === q.correct) {
+state.correctCount++;
+state.streak++;
+} else {
+state.incorrectCount++;
+state.streak = 0;
+state.wrongAnswers.push({
+id: qid,
+question: q.question,
+yourAnswer: q.options[selected],
+correctAnswer: q.options[q.correct],
+explanation: q.explanation
+});
 }
 
-function updateStats() {
-  document.getElementById('statScore').textContent = mcqScore;
-  document.getElementById('statCorrect').textContent = mcqCorrect;
-  document.getElementById('statWrong').textContent = mcqWrong;
-  document.getElementById('statStreak').textContent = mcqStreak;
-  
-  const streakEl = document.getElementById('statStreak');
-  const streakIcon = document.getElementById('streakIcon');
-  if (mcqStreak >= 3) {
-    streakEl.classList.add('streak-fire');
-    streakIcon.textContent = '🔥';
-  } else {
-    streakEl.classList.remove('streak-fire');
-    streakIcon.textContent = '🔥';
-  }
+saveState();
+renderMCQs();
+updateProgress();
+updateStreakDisplay();
 }
 
-function renderMistakes() {
-  const list = document.getElementById('mistakeList');
-  if (mcqMistakes.length === 0) {
-    list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:13px;">No mistakes yet. Keep it up! 🎉</div>';
-    return;
-  }
-  
-  list.innerHTML = mcqMistakes.map((m, i) => `
-    <div class="mistake-item">
-      <div class="mistake-q">Q${m.id}: ${m.question}</div>
-      <div class="mistake-your">❌ Your answer: ${m.yourAnswer}</div>
-      <div class="mistake-correct">✅ Correct: ${m.correctAnswer}</div>
-    </div>
-  `).join('');
+function resetMCQs() {
+state.mcqAnswers = {};
+state.correctCount = 0;
+state.incorrectCount = 0;
+state.streak = 0;
+state.wrongAnswers = [];
+saveState();
+renderMCQs();
+updateProgress();
+updateStreakDisplay();
 }
 
-function resetMCQ() {
-  if (!confirm('Reset all MCQ progress? This cannot be undone.')) return;
-  mcqScore = 0;
-  mcqCorrect = 0;
-  mcqWrong = 0;
-  mcqStreak = 0;
-  mcqAnswered = {};
-  mcqMistakes = [];
-  currentQ = 0;
-  
-  localStorage.setItem('mcqScore', 0);
-  localStorage.setItem('mcqCorrect', 0);
-  localStorage.setItem('mcqWrong', 0);
-  localStorage.setItem('mcqStreak', 0);
-  localStorage.setItem('mcqAnswered', '{}');
-  localStorage.setItem('mcqMistakes', '[]');
-  
-  updateStats();
-  renderMCQ();
-  renderMistakes();
+function updateScoreDisplay() {
+const total = Object.keys(state.mcqAnswers).length;
+document.getElementById('correctCount').textContent = state.correctCount;
+document.getElementById('incorrectCount').textContent = state.incorrectCount;
+document.getElementById('totalCount').textContent = total + '/' + mcqData.length;
+const pct = total > 0 ? Math.round((state.correctCount / total) * 100) : 0;
+document.getElementById('percentScore').textContent = pct + '%';
 }
 
-// ==================== FLOWCHART ====================
-function renderFlow() {
-  const container = document.getElementById('flowChart');
-  container.innerHTML = flowData.map((node, i) => {
-    if (node.type === 'arrow') {
-      return `<div class="flow-arrow">
-        <span class="material-icons-outlined">arrow_downward</span>
-        <span class="flow-arrow-label">${node.label}</span>
-      </div>`;
-    }
-    let cls = 'flow-node';
-    if (node.type === 'start') cls += ' start';
-    if (node.type === 'decision') cls += ' decision';
-    if (node.type === 'end') cls += ' end';
-    
-    return `<div class="${cls}" onclick="toggleFlowNode(this)">
-      <div class="flow-node-label">${node.label}</div>
-      <div class="flow-node-desc">${node.desc}</div>
-    </div>`;
-  }).join('');
+function updateStreakDisplay() {
+document.getElementById('streakCount').textContent = state.streak;
 }
 
-function toggleFlowNode(node) {
-  node.classList.toggle('expanded');
-  node.classList.toggle('active');
+function renderWrongAnswers() {
+const section = document.getElementById('wrongAnswersSection');
+const list = document.getElementById('wrongAnswersList');
+
+if (state.wrongAnswers.length === 0) {
+section.style.display = 'none';
+return;
 }
 
-// ==================== BOOT ====================
+section.style.display = 'block';
+list.innerHTML = '';
+state.wrongAnswers.forEach(w => {
+list.innerHTML += `<div class="wrong-item">
+<div class="q-text">Q: ${w.question}</div>
+<div class="your-ans">Your answer: ${w.yourAnswer}</div>
+<div class="correct-ans">Correct: ${w.correctAnswer}</div>
+<div style="margin-top:6px;color:var(--text-secondary);font-size:0.83rem;">${w.explanation}</div>
+</div>`;
+});
+}
+
+// ===== RAPID REVIEW =====
+function renderRapidReview() {
+const grid = document.getElementById('rapidGrid');
+grid.innerHTML = '';
+rapidData.forEach(r => {
+grid.innerHTML += `<div class="rapid-card ${r.color}">
+<div class="rapid-buzzword">${r.buzzword}</div>
+<div class="rapid-detail">${r.detail}</div>
+</div>`;
+});
+}
+
+// ===== INITIALIZATION =====
+function init() {
+loadState();
+applyTheme();
+
+// Restore tab
+if (state.currentTab) {
+switchTab(state.currentTab);
+}
+
+updateStreakDisplay();
+renderMCQs();
+renderRapidReview();
+updateProgress();
+}
+
 init();
 </script>
 </body>
