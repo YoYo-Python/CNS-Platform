@@ -1,0 +1,2627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CBL: Pituitary Prolactinoma | Interactive Case Study</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #f0f4f8;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8fafc;
+  --bg-accent: #eef2ff;
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border-color: #e2e8f0;
+  --border-light: #f1f5f9;
+  --accent-primary: #4f46e5;
+  --accent-secondary: #7c3aed;
+  --accent-gradient: linear-gradient(135deg, #4f46e5, #7c3aed);
+  --accent-glow: rgba(79, 70, 229, 0.15);
+  --success: #10b981;
+  --success-bg: #ecfdf5;
+  --danger: #ef4444;
+  --danger-bg: #fef2f2;
+  --warning: #f59e0b;
+  --warning-bg: #fffbeb;
+  --info: #3b82f6;
+  --info-bg: #eff6ff;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.1);
+  --shadow-xl: 0 12px 40px rgba(0,0,0,0.12);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --ecg-color: rgba(79, 70, 229, 0.08);
+}
+
+[data-theme="dark"] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #1e293b;
+  --bg-card-hover: #263548;
+  --bg-accent: #1e1b4b;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #64748b;
+  --border-color: #334155;
+  --border-light: #1e293b;
+  --accent-glow: rgba(79, 70, 229, 0.25);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.35);
+  --shadow-xl: 0 12px 40px rgba(0,0,0,0.4);
+  --success-bg: #064e3b;
+  --danger-bg: #450a0a;
+  --warning-bg: #451a03;
+  --info-bg: #1e3a5f;
+  --ecg-color: rgba(79, 70, 229, 0.05);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: var(--transition);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ECG Background Pattern */
+.ecg-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+  background-image: 
+    repeating-linear-gradient(90deg, var(--ecg-color) 0px, var(--ecg-color) 1px, transparent 1px, transparent 40px),
+    repeating-linear-gradient(0deg, var(--ecg-color) 0px, var(--ecg-color) 1px, transparent 1px, transparent 40px);
+}
+
+/* Header */
+.header {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding: 12px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.header-inner {
+  max-width: 1300px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-logo {
+  width: 40px;
+  height: 40px;
+  background: var(--accent-gradient);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+  font-weight: 800;
+  box-shadow: 0 2px 8px rgba(79,70,229,0.3);
+}
+
+.header-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.header-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dark-toggle {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transition: var(--transition);
+}
+
+.dark-toggle:hover {
+  background: var(--accent-glow);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+/* ECG Pulse Animation in Header */
+.ecg-pulse {
+  width: 120px;
+  height: 30px;
+  overflow: hidden;
+  position: relative;
+}
+
+.ecg-pulse svg {
+  position: absolute;
+  animation: ecgScroll 3s linear infinite;
+}
+
+@keyframes ecgScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-120px); }
+}
+
+/* Tab Navigation */
+.tab-nav {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0 24px;
+  position: sticky;
+  top: 68px;
+  z-index: 99;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.tab-nav::-webkit-scrollbar { display: none; }
+
+.tab-nav-inner {
+  max-width: 1300px;
+  margin: 0 auto;
+  display: flex;
+  gap: 4px;
+  min-width: max-content;
+}
+
+.tab-btn {
+  padding: 12px 18px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2.5px solid transparent;
+  transition: var(--transition);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab-btn:hover {
+  color: var(--text-secondary);
+  background: var(--bg-accent);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+.tab-btn.active {
+  color: var(--accent-primary);
+  border-bottom-color: var(--accent-primary);
+}
+
+.tab-btn .tab-icon {
+  font-size: 18px;
+}
+
+/* Main Content */
+.main {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.tab-content {
+  display: none;
+  animation: fadeSlideIn 0.4s ease;
+}
+
+.tab-content.active { display: block; }
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Cards */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 20px;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.card-header-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.card-header-icon.purple { background: #eef2ff; color: #4f46e5; }
+.card-header-icon.green { background: #ecfdf5; color: #10b981; }
+.card-header-icon.red { background: #fef2f2; color: #ef4444; }
+.card-header-icon.blue { background: #eff6ff; color: #3b82f6; }
+.card-header-icon.amber { background: #fffbeb; color: #f59e0b; }
+.card-header-icon.pink { background: #fdf2f8; color: #ec4899; }
+
+[data-theme="dark"] .card-header-icon.purple { background: #1e1b4b; }
+[data-theme="dark"] .card-header-icon.green { background: #064e3b; }
+[data-theme="dark"] .card-header-icon.red { background: #450a0a; }
+[data-theme="dark"] .card-header-icon.blue { background: #1e3a5f; }
+[data-theme="dark"] .card-header-icon.amber { background: #451a03; }
+[data-theme="dark"] .card-header-icon.pink { background: #500724; }
+
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Patient ID Card */
+.patient-id {
+  background: var(--accent-gradient);
+  color: white;
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.patient-id::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -30%;
+  width: 300px;
+  height: 300px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 50%;
+}
+
+.patient-id::after {
+  content: '';
+  position: absolute;
+  bottom: -60%;
+  left: -20%;
+  width: 250px;
+  height: 250px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 50%;
+}
+
+.patient-id-content { position: relative; z-index: 1; }
+
+.patient-id h2 {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.patient-id .patient-meta {
+  font-size: 13px;
+  opacity: 0.85;
+  margin-bottom: 16px;
+}
+
+.patient-id-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.patient-id-item {
+  background: rgba(255,255,255,0.12);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  backdrop-filter: blur(5px);
+}
+
+.patient-id-item .label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  opacity: 0.75;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.patient-id-item .value {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* HPI Items */
+.hpi-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  transition: var(--transition);
+  cursor: default;
+  position: relative;
+  border: 1px solid transparent;
+}
+
+.hpi-item:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-color);
+}
+
+.hpi-item.abnormal {
+  background: var(--danger-bg);
+  border: 1px solid rgba(239,68,68,0.2);
+}
+
+.hpi-item.abnormal:hover {
+  border-color: rgba(239,68,68,0.4);
+}
+
+.hpi-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.hpi-dot.normal { background: var(--success); }
+.hpi-dot.abnormal { background: var(--danger); animation: pulseDot 2s infinite; }
+
+@keyframes pulseDot {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(239,68,68,0); }
+}
+
+.hpi-text {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.hpi-text strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Tooltip */
+.tooltip-trigger {
+  cursor: help;
+  border-bottom: 1px dashed var(--accent-primary);
+  position: relative;
+}
+
+.tooltip-box {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: normal;
+  width: max-content;
+  max-width: 280px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 200;
+  box-shadow: var(--shadow-lg);
+}
+
+.tooltip-box::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--text-primary);
+}
+
+.tooltip-trigger:hover .tooltip-box {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(-4px);
+}
+
+/* Lab Grid */
+.lab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.lab-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.lab-item:hover { border-color: var(--accent-primary); }
+
+.lab-item.abnormal {
+  border-color: rgba(239,68,68,0.3);
+  background: var(--danger-bg);
+}
+
+.lab-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.lab-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--success);
+}
+
+.lab-item.abnormal .lab-value {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.lab-ref {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Pearls */
+.pearl-item {
+  display: flex;
+  gap: 14px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  transition: var(--transition);
+}
+
+.pearl-item:hover {
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.pearl-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.pearl-content h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.pearl-content p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Red Flag Box */
+.red-flag-box {
+  background: var(--danger-bg);
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.red-flag-box .rf-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--danger);
+}
+
+.red-flag-box ul {
+  list-style: none;
+  padding: 0;
+}
+
+.red-flag-box li {
+  padding: 6px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.5;
+}
+
+.red-flag-box li::before {
+  content: '⚠️';
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+/* Reveal Cards */
+.reveal-card {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 12px;
+  transition: var(--transition);
+}
+
+.reveal-card:hover {
+  border-color: var(--accent-primary);
+}
+
+.reveal-header {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  background: var(--bg-card);
+  transition: var(--transition);
+  user-select: none;
+}
+
+.reveal-header:hover {
+  background: var(--bg-card-hover);
+}
+
+.reveal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.reveal-step {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.reveal-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.reveal-chevron {
+  font-size: 20px;
+  color: var(--text-muted);
+  transition: transform 0.3s ease;
+}
+
+.reveal-card.open .reveal-chevron {
+  transform: rotate(180deg);
+}
+
+.reveal-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+  background: var(--bg-accent);
+}
+
+.reveal-card.open .reveal-body {
+  max-height: 600px;
+}
+
+.reveal-body-inner {
+  padding: 16px 20px;
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.reveal-body-inner strong {
+  color: var(--text-primary);
+}
+
+/* MCQ */
+.mcq-stats {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.stat-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px 20px;
+  flex: 1;
+  min-width: 120px;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--accent-primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+.stat-box.streak .stat-value { color: var(--warning); }
+.stat-box.correct .stat-value { color: var(--success); }
+
+.mcq-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.mcq-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.mcq-progress-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--border-color);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.mcq-progress-fill {
+  height: 100%;
+  background: var(--accent-gradient);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.mcq-progress-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.mcq-question {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  line-height: 1.65;
+}
+
+.mcq-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.mcq-option {
+  padding: 14px 18px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  transition: var(--transition);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  line-height: 1.5;
+  user-select: none;
+}
+
+.mcq-option:hover:not(.disabled) {
+  border-color: var(--accent-primary);
+  background: var(--accent-glow);
+  color: var(--text-primary);
+}
+
+.mcq-option .option-letter {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--bg-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-primary);
+  flex-shrink: 0;
+}
+
+.mcq-option.correct {
+  border-color: var(--success);
+  background: var(--success-bg);
+  color: var(--text-primary);
+}
+
+.mcq-option.correct .option-letter {
+  background: var(--success);
+  color: white;
+}
+
+.mcq-option.incorrect {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+  color: var(--text-primary);
+}
+
+.mcq-option.incorrect .option-letter {
+  background: var(--danger);
+  color: white;
+}
+
+.mcq-option.disabled { cursor: not-allowed; opacity: 0.7; }
+.mcq-option.disabled:hover { border-color: var(--border-color); background: transparent; }
+.mcq-option.correct.disabled, .mcq-option.incorrect.disabled { opacity: 1; }
+
+.mcq-explanation {
+  background: var(--bg-accent);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-top: 16px;
+  display: none;
+  animation: fadeSlideIn 0.3s ease;
+}
+
+.mcq-explanation.show { display: block; }
+
+.mcq-explanation h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-primary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mcq-explanation p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.mcq-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 10px 24px;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-primary {
+  background: var(--accent-gradient);
+  color: white;
+  box-shadow: 0 2px 8px rgba(79,70,229,0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79,70,229,0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-secondary {
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.btn-danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid rgba(239,68,68,0.2);
+}
+
+.btn-danger:hover {
+  background: var(--danger);
+  color: white;
+}
+
+/* Mistake Review */
+.mistake-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  margin-bottom: 12px;
+}
+
+.mistake-item .mq {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.mistake-item .mwrong {
+  font-size: 12px;
+  color: var(--danger);
+  margin-bottom: 4px;
+}
+
+.mistake-item .mcorrect {
+  font-size: 12px;
+  color: var(--success);
+  margin-bottom: 8px;
+}
+
+.mistake-item .mexp {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Algorithm / Flowchart */
+.flow-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 20px 0;
+}
+
+.flow-node {
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px 24px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+}
+
+.flow-node:hover {
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-md);
+  transform: scale(1.02);
+}
+
+.flow-node.active {
+  border-color: var(--accent-primary);
+  background: var(--bg-accent);
+}
+
+.flow-node-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.flow-node-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.flow-node-detail {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color);
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  text-align: left;
+  display: none;
+}
+
+.flow-node.active .flow-node-detail { display: block; }
+
+.flow-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--accent-primary);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 6px 0;
+}
+
+.flow-arrow .material-icons-outlined { font-size: 22px; }
+
+.flow-arrow-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.flow-branch {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.flow-branch .flow-node {
+  max-width: 260px;
+  flex: 1;
+  min-width: 200px;
+}
+
+/* Rapid Takeaway Tags */
+.tag-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  transition: var(--transition);
+}
+
+.tag:hover {
+  border-color: var(--accent-primary);
+  background: var(--accent-glow);
+  color: var(--accent-primary);
+}
+
+.tag.highlight {
+  background: var(--accent-gradient);
+  color: white;
+  border-color: transparent;
+}
+
+/* Key-Value Grid */
+.kv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+}
+
+.kv-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.kv-item:hover { border-color: var(--accent-primary); }
+
+.kv-bullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.kv-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.kv-text strong {
+  color: var(--text-primary);
+}
+
+/* Imaging section */
+.imaging-box {
+  background: var(--bg-accent);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  border: 1px solid var(--border-color);
+}
+
+.imaging-box h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.imaging-box p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.imaging-box .finding {
+  display: inline-block;
+  background: var(--danger-bg);
+  color: var(--danger);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* Section titles */
+.section-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title .st-icon {
+  font-size: 24px;
+}
+
+/* Pill badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.badge-purple { background: #eef2ff; color: #4f46e5; }
+.badge-red { background: #fef2f2; color: #ef4444; }
+.badge-green { background: #ecfdf5; color: #10b981; }
+
+[data-theme="dark"] .badge-purple { background: #1e1b4b; }
+[data-theme="dark"] .badge-red { background: #450a0a; }
+[data-theme="dark"] .badge-green { background: #064e3b; }
+
+/* Grid helpers */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* MCQ Review Toggle */
+.review-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.review-toggle .btn { flex: 1; justify-content: center; }
+.review-toggle .btn.active-toggle {
+  background: var(--accent-gradient);
+  color: white;
+  border-color: transparent;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header { padding: 10px 16px; }
+  .tab-nav { padding: 0 12px; }
+  .main { padding: 16px; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .lab-grid { grid-template-columns: 1fr; }
+  .patient-id-grid { grid-template-columns: 1fr 1fr; }
+  .mcq-stats { gap: 8px; }
+  .stat-box { padding: 10px 14px; min-width: 80px; }
+  .stat-value { font-size: 20px; }
+  .flow-branch { flex-direction: column; align-items: center; }
+  .flow-branch .flow-node { max-width: 100%; }
+  .ecg-pulse { display: none; }
+  .kv-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .patient-id-grid { grid-template-columns: 1fr; }
+  .tab-btn { padding: 10px 12px; font-size: 12px; }
+  .tab-btn .tab-label-text { display: none; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* Notification toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 14px 22px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+  z-index: 1000;
+  animation: toastIn 0.4s ease, toastOut 0.4s ease 2.2s;
+  pointer-events: none;
+  box-shadow: var(--shadow-xl);
+}
+
+.toast.success { background: var(--success); }
+.toast.error { background: var(--danger); }
+.toast.info { background: var(--accent-primary); }
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes toastOut {
+  from { opacity: 1; }
+  to { opacity: 0; transform: translateY(20px); }
+}
+
+/* Results card */
+.results-card {
+  text-align: center;
+  padding: 40px 30px;
+}
+
+.results-card .score-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 6px solid var(--accent-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--accent-primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.results-card h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.results-card p {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+</style>
+</head>
+<body>
+<div class="ecg-bg"></div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <div class="header-logo">P</div>
+      <div>
+        <div class="header-title">Pituitary Prolactinoma</div>
+        <div class="header-subtitle">Endocrine & Nervous Systems • CBL Case</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="ecg-pulse">
+        <svg width="240" height="30" viewBox="0 0 240 30">
+          <polyline points="0,15 15,15 20,15 25,5 30,25 35,15 50,15 55,15 60,5 65,25 70,15 85,15 90,15 95,5 100,25 105,15 120,15 125,15 130,5 135,25 140,15 155,15 160,15 165,5 170,25 175,15 190,15 195,15 200,5 205,25 210,15 225,15 230,15 235,5 240,25" fill="none" stroke="var(--accent-primary)" stroke-width="1.5" opacity="0.5"/>
+        </svg>
+      </div>
+      <button class="dark-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode" aria-label="Toggle Dark Mode">
+        <span class="material-icons-outlined" id="darkIcon">dark_mode</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- TAB NAVIGATION -->
+<nav class="tab-nav">
+  <div class="tab-nav-inner">
+    <button class="tab-btn active" onclick="switchTab('case')" data-tab="case">
+      <span class="material-icons-outlined tab-icon">folder_open</span>
+      <span class="tab-label-text">Case File</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('pearls')" data-tab="pearls">
+      <span class="material-icons-outlined tab-icon">lightbulb</span>
+      <span class="tab-label-text">Pearls</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('reasoning')" data-tab="reasoning">
+      <span class="material-icons-outlined tab-icon">psychology</span>
+      <span class="tab-label-text">Reasoning</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('mcq')" data-tab="mcq">
+      <span class="material-icons-outlined tab-icon">quiz</span>
+      <span class="tab-label-text">MCQs</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('algorithm')" data-tab="algorithm">
+      <span class="material-icons-outlined tab-icon">account_tree</span>
+      <span class="tab-label-text">Algorithm</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('rapid')" data-tab="rapid">
+      <span class="material-icons-outlined tab-icon">bolt</span>
+      <span class="tab-label-text">Rapid Review</span>
+    </button>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- TAB 1: CASE FILE -->
+  <div class="tab-content active" id="tab-case">
+    
+    <!-- Patient ID -->
+    <div class="patient-id">
+      <div class="patient-id-content">
+        <h2>Salma</h2>
+        <div class="patient-meta">34-year-old Female • Primary School Teacher</div>
+        <div class="patient-id-grid">
+          <div class="patient-id-item">
+            <div class="label">Chief Complaint</div>
+            <div class="value">Headaches, Vision Loss, Amenorrhea</div>
+          </div>
+          <div class="patient-id-item">
+            <div class="label">Duration</div>
+            <div class="value">6 months progressive</div>
+          </div>
+          <div class="patient-id-item">
+            <div class="label">Diagnosis</div>
+            <div class="value">Pituitary Prolactinoma (Macro)</div>
+          </div>
+          <div class="patient-id-item">
+            <div class="label">Tumor Size</div>
+            <div class="value">2.8 cm Macroadenoma</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HPI -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon purple"><span class="material-icons-outlined">description</span></div>
+        <div class="card-title">History of Present Illness</div>
+      </div>
+      
+      <div class="hpi-item abnormal">
+        <div class="hpi-dot abnormal"></div>
+        <div class="hpi-text">
+          <strong>6-month</strong> history of <strong>dull headaches behind the eyes</strong>
+          <span class="tooltip-trigger">ℹ️
+            <span class="tooltip-box">Retro-orbital headache from sellar expansion stretching the diaphragma sellae — a classic pituitary adenoma symptom.</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="hpi-item abnormal">
+        <div class="hpi-dot abnormal"></div>
+        <div class="hpi-text">
+          <strong>Bilateral peripheral vision loss</strong> — bumping into objects
+          <span class="tooltip-trigger">ℹ️
+            <span class="tooltip-box">Bitemporal hemianopia from optic chiasm compression by suprasellar tumor extension. Nasal retinal fibers (carrying temporal fields) cross at chiasm and are selectively damaged.</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="hpi-item abnormal">
+        <div class="hpi-dot abnormal"></div>
+        <div class="hpi-text">
+          <strong>10-month secondary amenorrhea</strong>
+          <span class="tooltip-trigger">ℹ️
+            <span class="tooltip-box">Hyperprolactinemia inhibits pulsatile GnRH release → suppresses LH/FSH → anovulation → amenorrhea.</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="hpi-item abnormal">
+        <div class="hpi-dot abnormal"></div>
+        <div class="hpi-text">
+          <strong>18-month inability to conceive</strong> (infertility)
+          <span class="tooltip-trigger">ℹ️
+            <span class="tooltip-box">Secondary to chronic anovulation from gonadotropin suppression by excess prolactin.</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="hpi-item abnormal">
+        <div class="hpi-dot abnormal"></div>
+        <div class="hpi-text">
+          <strong>6-week galactorrhea</strong>
+          <span class="tooltip-trigger">ℹ️
+            <span class="tooltip-box">Direct stimulatory effect of prolactin on mammary gland tissue, causing inappropriate milk production outside of pregnancy/lactation.</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="hpi-item">
+        <div class="hpi-dot abnormal"></div>
+        <div class="hpi-text">
+          <strong>Severe fatigue</strong> and <strong>depressed mood</strong>
+          <span class="tooltip-trigger">ℹ️
+            <span class="tooltip-box">Chronic hypogonadism from prolactin excess contributes to fatigue, mood changes, and decreased quality of life.</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Examination -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon green"><span class="material-icons-outlined">visibility</span></div>
+        <div class="card-title">On Examination</div>
+      </div>
+      
+      <div class="hpi-item">
+        <div class="hpi-dot normal"></div>
+        <div class="hpi-text">Visual acuity: <strong>6/6 bilaterally</strong> — central vision preserved
+          <span class="tooltip-trigger">ℹ️
+            <span class="tooltip-box">⚠️ EXAM TRAP: Normal acuity does NOT exclude visual pathway pathology! Macular fibers have bilateral cortical representation and are spared until late stages.</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="hpi-item">
+        <div class="hpi-dot normal"></div>
+        <div class="hpi-text">Central color vision: <strong>Intact</strong></div>
+      </div>
+
+      <div class="hpi-item abnormal">
+        <div class="hpi-dot abnormal"></div>
+        <div class="hpi-text">Goldmann perimetry: <strong class="tooltip-trigger">Dense bitemporal hemianopia
+          <span class="tooltip-box">Pathognomonic for optic chiasm compression. Nasal retinal fibers cross centrally and are compressed by a midline suprasellar mass.</span>
+        </strong></div>
+      </div>
+
+      <div class="hpi-item abnormal">
+        <div class="hpi-dot abnormal"></div>
+        <div class="hpi-text">Fundoscopy: <strong>Mild bilateral optic disc pallor</strong>
+          <span class="tooltip-trigger">ℹ️
+            <span class="tooltip-box">Indicates chronic axonal damage to optic nerve fibers from sustained compression. Suggests the compression has been present for a significant period.</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="hpi-item">
+        <div class="hpi-dot normal"></div>
+        <div class="hpi-text">Extraocular movements, CN V, VII–XII, vestibular function: <strong>All intact</strong>
+          <span class="tooltip-trigger">ℹ️
+            <span class="tooltip-box">No cavernous sinus invasion — these cranial nerves pass through the cavernous sinuses lateral to the sella. MRI confirmed no cavernous sinus invasion.</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Labs -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon red"><span class="material-icons-outlined">science</span></div>
+        <div class="card-title">Laboratory Results</div>
+      </div>
+
+      <div class="lab-grid">
+        <div class="lab-item abnormal">
+          <div>
+            <div class="lab-name">Serum Prolactin</div>
+            <div class="lab-ref">Normal: &lt;25 ng/mL</div>
+          </div>
+          <div class="lab-value">250 ng/mL ↑↑</div>
+        </div>
+        <div class="lab-item abnormal">
+          <div>
+            <div class="lab-name">LH / FSH</div>
+            <div class="lab-ref">Expected: Normal cycling</div>
+          </div>
+          <div class="lab-value">Low-to-Low Normal ↓</div>
+        </div>
+        <div class="lab-item">
+          <div>
+            <div class="lab-name">β-hCG</div>
+            <div class="lab-ref">Pregnancy excluded</div>
+          </div>
+          <div class="lab-value">Negative ✓</div>
+        </div>
+        <div class="lab-item">
+          <div>
+            <div class="lab-name">TSH</div>
+            <div class="lab-ref">Normal range</div>
+          </div>
+          <div class="lab-value">Normal ✓</div>
+        </div>
+        <div class="lab-item">
+          <div>
+            <div class="lab-name">Free T4</div>
+            <div class="lab-ref">Normal range</div>
+          </div>
+          <div class="lab-value">Normal ✓</div>
+        </div>
+        <div class="lab-item">
+          <div>
+            <div class="lab-name">Cortisol</div>
+            <div class="lab-ref">Normal range</div>
+          </div>
+          <div class="lab-value">Normal ✓</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Imaging -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon blue"><span class="material-icons-outlined">radiology</span></div>
+        <div class="card-title">Brain MRI Findings</div>
+      </div>
+
+      <div class="imaging-box">
+        <h4><span class="material-icons-outlined" style="font-size:18px">image</span> MRI Brain with Contrast</h4>
+        <p style="margin-bottom:12px">
+          <span class="finding">2.8 cm enhancing macroadenoma</span> originating in the <strong>sella turcica</strong>, expanding <strong>superiorly</strong>, and actively <strong>compressing the optic chiasm</strong>.
+        </p>
+        <p>
+          <strong>Cavernous sinuses:</strong> <span style="color:var(--success);font-weight:600">Not invaded</span> — Cranial nerves III, IV, V₁, V₂, VI intact.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: DOCTOR'S PEARLS -->
+  <div class="tab-content" id="tab-pearls">
+    <div class="section-title">
+      <span class="st-icon">💡</span> Doctor's Exam Pearls
+    </div>
+
+    <!-- Golden Rules -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon amber"><span class="material-icons-outlined">stars</span></div>
+        <div class="card-title">Golden Rules for Exams</div>
+      </div>
+
+      <div class="pearl-item">
+        <div class="pearl-icon">🧠</div>
+        <div class="pearl-content">
+          <h4>Neuro-Endocrine Circuit</h4>
+          <p><strong>Prolactin → inhibits GnRH pulsatility → suppresses LH/FSH → anovulation → amenorrhea.</strong> This is the core mechanism linking hyperprolactinemia to reproductive dysfunction. The inhibition occurs at the hypothalamic level.</p>
+        </div>
+      </div>
+
+      <div class="pearl-item">
+        <div class="pearl-icon">👁️</div>
+        <div class="pearl-content">
+          <h4>Visual Pathway Anatomy</h4>
+          <p>A mass pressing <strong>upward from the sella</strong> selectively damages the <strong>crossing nasal fibers</strong> in the optic chiasm → <strong>bitemporal hemianopia</strong> (NOT homonymous). Nasal fibers carry temporal visual fields.</p>
+        </div>
+      </div>
+
+      <div class="pearl-item">
+        <div class="pearl-icon">💊</div>
+        <div class="pearl-content">
+          <h4>Medical Therapy is FIRST-LINE</h4>
+          <p>Even with a macroadenoma causing <strong>compressive visual field defects</strong>, <strong>dopamine agonists (cabergoline)</strong> are first-line treatment — NOT surgery. Surgery is reserved for medical therapy failure/resistance.</p>
+        </div>
+      </div>
+
+      <div class="pearl-item">
+        <div class="pearl-icon">🔬</div>
+        <div class="pearl-content">
+          <h4>Histology Pearls</h4>
+          <p>Lactotrophs reside in the <strong>pars distalis</strong>. EM shows <strong>large electron-dense secretory granules</strong>. Identified by <strong>Azocarmine stain</strong>. The sella turcica is part of the <strong>sphenoid bone</strong>.</p>
+        </div>
+      </div>
+
+      <div class="pearl-item">
+        <div class="pearl-icon">📊</div>
+        <div class="pearl-content">
+          <h4>Baseline Evaluation Before Treatment</h4>
+          <p>Always check: <strong>TSH + Free T4</strong> (thyroid), <strong>Cortisol</strong> (adrenal), and <strong>β-hCG</strong> (exclude pregnancy) before initiating dopamine agonist therapy.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Red Flags -->
+    <div class="red-flag-box">
+      <div class="rf-header">
+        <span class="material-icons-outlined">warning</span>
+        🚨 Common Pitfalls & Exam Traps
+      </div>
+      <ul>
+        <li><strong>Normal visual acuity (6/6) ≠ No visual pathology.</strong> Central macular vision is spared early because of bilateral cortical representation. You MUST test peripheral fields with Goldmann perimetry!</li>
+        <li><strong>Chiasm vs. Tract confusion:</strong> Chiasm compression = <strong>bitemporal hemianopia</strong>. Optic tract lesion = <strong>contralateral homonymous hemianopia</strong>. Don't confuse them!</li>
+        <li><strong>Don't jump to surgery!</strong> Unlike most brain tumors, prolactinomas respond dramatically to medical therapy. Surgery is NOT first-line even for macroadenomas with visual compression.</li>
+        <li><strong>Rule out pregnancy FIRST.</strong> Pregnancy is the most common cause of amenorrhea + galactorrhea. Always get β-hCG before attributing symptoms to a prolactinoma.</li>
+        <li><strong>Stalk effect vs. true prolactinoma:</strong> Large non-functioning adenomas can cause mild prolactin elevation (&lt;100 ng/mL) via stalk compression. Prolactin &gt;200 ng/mL strongly suggests a true prolactinoma.</li>
+      </ul>
+    </div>
+
+    <!-- Rule-Out Logic -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon pink"><span class="material-icons-outlined">rule</span></div>
+        <div class="card-title">Differential Diagnosis Rule-Out Logic</div>
+      </div>
+
+      <div class="pearl-item">
+        <div class="pearl-icon">❌</div>
+        <div class="pearl-content">
+          <h4>Pregnancy</h4>
+          <p>Ruled out by <strong>negative β-hCG</strong>. Pregnancy causes physiological prolactin elevation + amenorrhea + possible galactorrhea.</p>
+        </div>
+      </div>
+
+      <div class="pearl-item">
+        <div class="pearl-icon">❌</div>
+        <div class="pearl-content">
+          <h4>Hypothyroidism</h4>
+          <p>Ruled out by <strong>normal TSH and Free T4</strong>. Primary hypothyroidism → ↑TRH → stimulates prolactin secretion.</p>
+        </div>
+      </div>
+
+      <div class="pearl-item">
+        <div class="pearl-icon">❌</div>
+        <div class="pearl-content">
+          <h4>Non-functioning Pituitary Adenoma (Stalk Effect)</h4>
+          <p>Prolactin <strong>250 ng/mL</strong> is too high for stalk effect (usually &lt;100 ng/mL). Confirms this is a true <strong>secretory prolactinoma</strong>.</p>
+        </div>
+      </div>
+
+      <div class="pearl-item">
+        <div class="pearl-icon">❌</div>
+        <div class="pearl-content">
+          <h4>Drug-induced Hyperprolactinemia</h4>
+          <p>No history of antipsychotics, metoclopramide, or other dopamine-blocking agents. MRI confirms structural lesion.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: CLINICAL REASONING -->
+  <div class="tab-content" id="tab-reasoning">
+    <div class="section-title">
+      <span class="st-icon">🔍</span> Clinical Reasoning Steps
+    </div>
+
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">Click each step to reveal the clinical reasoning progressively.</p>
+
+    <div class="reveal-card" onclick="toggleReveal(this)">
+      <div class="reveal-header">
+        <div class="reveal-header-left">
+          <div class="reveal-step">1</div>
+          <div class="reveal-title">Localization of the Lesion</div>
+        </div>
+        <span class="material-icons-outlined reveal-chevron">expand_more</span>
+      </div>
+      <div class="reveal-body">
+        <div class="reveal-body-inner">
+          <strong>The lesion is at the optic chiasm / sella turcica.</strong><br><br>
+          <strong>Visual field:</strong> Bitemporal hemianopia → classic optic chiasm compression. Nasal retinal fibers (temporal fields) cross at the chiasm and are selectively damaged by a midline mass pushing from below.<br><br>
+          <strong>Endocrine:</strong> Amenorrhea + galactorrhea + elevated prolactin → anterior pituitary (lactotroph) origin.<br><br>
+          <strong>Anatomy:</strong> The sella turcica (sphenoid bone) houses the pituitary. Suprasellar extension reaches the optic chiasm directly above. No cavernous sinus invasion = intact CN III, IV, V₁, V₂, VI.
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal-card" onclick="toggleReveal(this)">
+      <div class="reveal-header">
+        <div class="reveal-header-left">
+          <div class="reveal-step">2</div>
+          <div class="reveal-title">Most Likely Diagnosis</div>
+        </div>
+        <span class="material-icons-outlined reveal-chevron">expand_more</span>
+      </div>
+      <div class="reveal-body">
+        <div class="reveal-body-inner">
+          <strong>Pituitary Prolactinoma (Macroadenoma)</strong><br><br>
+          Supported by the <strong>classic triad:</strong><br>
+          1. <strong>Amenorrhea</strong> (10 months) — from GnRH suppression<br>
+          2. <strong>Galactorrhea</strong> (6 weeks) — direct prolactin effect on mammary glands<br>
+          3. <strong>Bitemporal hemianopia</strong> — from optic chiasm compression<br><br>
+          <strong>Biochemical confirmation:</strong> Prolactin 250 ng/mL (10x upper limit). Levels &gt;200 ng/mL are virtually diagnostic of a macroprolactinoma.<br><br>
+          <strong>Radiological confirmation:</strong> 2.8 cm enhancing sellar mass with suprasellar extension compressing the chiasm. Size &gt;1 cm = macroadenoma classification.
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal-card" onclick="toggleReveal(this)">
+      <div class="reveal-header">
+        <div class="reveal-header-left">
+          <div class="reveal-step">3</div>
+          <div class="reveal-title">Initial Investigation Strategy</div>
+        </div>
+        <span class="material-icons-outlined reveal-chevron">expand_more</span>
+      </div>
+      <div class="reveal-body">
+        <div class="reveal-body-inner">
+          <strong>Key investigations ordered:</strong><br><br>
+          1. <strong>Serum prolactin</strong> — Markedly elevated at 250 ng/mL (confirms hypersecretion)<br>
+          2. <strong>β-hCG</strong> — Negative (rules out pregnancy as #1 cause of amenorrhea/galactorrhea)<br>
+          3. <strong>LH & FSH</strong> — Suppressed (confirms downstream gonadotropin inhibition)<br>
+          4. <strong>TSH + Free T4</strong> — Normal (excludes hypothyroidism-driven hyperprolactinemia)<br>
+          5. <strong>Cortisol</strong> — Normal (rules out adrenal insufficiency, important baseline before treatment)<br>
+          6. <strong>Goldmann perimetry</strong> — Dense bitemporal hemianopia (quantifies visual compromise)<br>
+          7. <strong>Brain MRI with contrast</strong> — 2.8 cm macroadenoma with chiasm compression (definitive imaging)
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal-card" onclick="toggleReveal(this)">
+      <div class="reveal-header">
+        <div class="reveal-header-left">
+          <div class="reveal-step">4</div>
+          <div class="reveal-title">Definitive Management</div>
+        </div>
+        <span class="material-icons-outlined reveal-chevron">expand_more</span>
+      </div>
+      <div class="reveal-body">
+        <div class="reveal-body-inner">
+          <strong>First-line: Cabergoline (Dopamine Agonist)</strong><br><br>
+          <strong>Mechanism:</strong> Stimulates D2 dopamine receptors on anterior pituitary lactotrophs → suppresses prolactin secretion → rapid tumor shrinkage.<br><br>
+          <strong>Why cabergoline over bromocriptine?</strong> Longer half-life → once or twice weekly dosing. Better tolerability with fewer GI side effects.<br><br>
+          <strong>Expected response:</strong> Normalization of prolactin levels, resumption of menses, improvement of visual fields within weeks to months. Tumor shrinkage can be dramatic (>50% in weeks).<br><br>
+          <strong>If medical therapy fails (resistance):</strong> → <strong>Transsphenoidal surgical resection</strong> of the adenoma.<br><br>
+          <strong>Follow-up:</strong> Serial prolactin levels, repeat visual field testing, and follow-up MRI to monitor tumor response.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: MCQs -->
+  <div class="tab-content" id="tab-mcq">
+    <div class="section-title">
+      <span class="st-icon">📝</span> Exam MCQs
+    </div>
+
+    <div class="review-toggle">
+      <button class="btn btn-secondary active-toggle" id="quizModeBtn" onclick="showQuizMode()">
+        <span class="material-icons-outlined" style="font-size:16px">quiz</span> Quiz Mode
+      </button>
+      <button class="btn btn-secondary" id="reviewModeBtn" onclick="showReviewMode()">
+        <span class="material-icons-outlined" style="font-size:16px">replay</span> Mistake Review
+      </button>
+    </div>
+
+    <!-- Quiz Mode -->
+    <div id="quizMode">
+      <div class="mcq-stats">
+        <div class="stat-box">
+          <div class="stat-value" id="scoreDisplay">0</div>
+          <div class="stat-label">Score</div>
+        </div>
+        <div class="stat-box correct">
+          <div class="stat-value" id="correctDisplay">0</div>
+          <div class="stat-label">Correct</div>
+        </div>
+        <div class="stat-box streak">
+          <div class="stat-value" id="streakDisplay">0🔥</div>
+          <div class="stat-label">Streak</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="totalDisplay">0/15</div>
+          <div class="stat-label">Progress</div>
+        </div>
+      </div>
+
+      <div class="mcq-card" id="mcqCard">
+        <div class="mcq-progress">
+          <div class="mcq-progress-bar">
+            <div class="mcq-progress-fill" id="progressFill" style="width:0%"></div>
+          </div>
+          <div class="mcq-progress-text" id="progressText">1/15</div>
+        </div>
+        <div class="mcq-question" id="mcqQuestion"></div>
+        <div class="mcq-options" id="mcqOptions"></div>
+        <div class="mcq-explanation" id="mcqExplanation">
+          <h4><span class="material-icons-outlined" style="font-size:16px">info</span> Explanation</h4>
+          <p id="mcqExpText"></p>
+        </div>
+        <div class="mcq-nav">
+          <button class="btn btn-secondary" id="prevBtn" onclick="prevQuestion()" disabled>
+            <span class="material-icons-outlined" style="font-size:16px">arrow_back</span> Previous
+          </button>
+          <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">
+            Next <span class="material-icons-outlined" style="font-size:16px">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Results Card (hidden initially) -->
+      <div class="card" id="resultsCard" style="display:none">
+        <div class="results-card">
+          <div class="score-circle" id="finalScore"></div>
+          <h3 id="resultsTitle"></h3>
+          <p id="resultsMsg"></p>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="restartQuiz()">
+              <span class="material-icons-outlined" style="font-size:16px">replay</span> Retry Quiz
+            </button>
+            <button class="btn btn-secondary" onclick="showReviewMode()">
+              <span class="material-icons-outlined" style="font-size:16px">rate_review</span> Review Mistakes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Review Mode -->
+    <div id="reviewMode" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h3 style="font-size:16px;font-weight:700;color:var(--text-primary)">❌ Mistake Review</h3>
+        <button class="btn btn-danger" onclick="clearMistakes()">
+          <span class="material-icons-outlined" style="font-size:16px">delete</span> Clear All
+        </button>
+      </div>
+      <div id="mistakesList"></div>
+    </div>
+  </div>
+
+  <!-- TAB 5: ALGORITHM -->
+  <div class="tab-content" id="tab-algorithm">
+    <div class="section-title">
+      <span class="st-icon">🛤️</span> Diagnostic Algorithm — Prolactinoma
+    </div>
+
+    <div class="flow-container">
+      
+      <div class="flow-node" onclick="toggleFlowNode(this)">
+        <div class="flow-node-title">🩺 Clinical Presentation</div>
+        <div class="flow-node-sub">Amenorrhea + Galactorrhea ± Visual symptoms</div>
+        <div class="flow-node-detail">
+          <strong>Key triad:</strong> Amenorrhea, galactorrhea, and headaches. If visual symptoms (peripheral vision loss, bumping into objects), suspect suprasellar extension compressing the optic chiasm. Always ask about menstrual history, fertility, and medications.
+        </div>
+      </div>
+
+      <div class="flow-arrow">
+        <span class="material-icons-outlined">arrow_downward</span>
+        <span class="flow-arrow-label">First Step</span>
+      </div>
+
+      <div class="flow-node" onclick="toggleFlowNode(this)">
+        <div class="flow-node-title">🧪 Exclude Pregnancy (β-hCG)</div>
+        <div class="flow-node-sub">MUST be done before any further workup</div>
+        <div class="flow-node-detail">
+          Pregnancy is the <strong>#1 cause</strong> of amenorrhea + galactorrhea + elevated prolactin. A negative β-hCG is mandatory before proceeding. Also rule out drugs (antipsychotics, metoclopramide) and hypothyroidism (TSH).
+        </div>
+      </div>
+
+      <div class="flow-arrow">
+        <span class="material-icons-outlined">arrow_downward</span>
+        <span class="flow-arrow-label">β-hCG Negative</span>
+      </div>
+
+      <div class="flow-node" onclick="toggleFlowNode(this)">
+        <div class="flow-node-title">📊 Serum Prolactin Level</div>
+        <div class="flow-node-sub">Check TSH, Free T4, Cortisol, LH, FSH</div>
+        <div class="flow-node-detail">
+          <strong>Prolactin &gt;200 ng/mL:</strong> Virtually diagnostic of macroprolactinoma.<br>
+          <strong>Prolactin 25–100 ng/mL:</strong> Consider microprolactinoma, drugs, or stalk effect.<br>
+          <strong>Also baseline:</strong> TSH/FT4 (exclude hypothyroidism), cortisol (adrenal status), LH/FSH (expect suppressed).
+        </div>
+      </div>
+
+      <div class="flow-arrow">
+        <span class="material-icons-outlined">arrow_downward</span>
+        <span class="flow-arrow-label">Prolactin ↑↑ (250 ng/mL)</span>
+      </div>
+
+      <div class="flow-node" onclick="toggleFlowNode(this)">
+        <div class="flow-node-title">🧲 Brain MRI with Contrast</div>
+        <div class="flow-node-sub">Confirm sellar mass, measure size, assess extension</div>
+        <div class="flow-node-detail">
+          <strong>Microadenoma:</strong> &lt;1 cm. <strong>Macroadenoma:</strong> ≥1 cm.<br>
+          Assess: suprasellar extension (chiasm compression?), cavernous sinus invasion (cranial nerve involvement?), hemorrhage/cystic changes.<br>
+          <strong>This case:</strong> 2.8 cm macroadenoma, suprasellar extension, chiasm compression, no cavernous sinus invasion.
+        </div>
+      </div>
+
+      <div class="flow-arrow">
+        <span class="material-icons-outlined">arrow_downward</span>
+        <span class="flow-arrow-label">+ Visual field testing</span>
+      </div>
+
+      <div class="flow-node" onclick="toggleFlowNode(this)">
+        <div class="flow-node-title">👁️ Goldmann Perimetry</div>
+        <div class="flow-node-sub">Quantify visual field deficit</div>
+        <div class="flow-node-detail">
+          <strong>Expected finding:</strong> Bitemporal hemianopia (loss of both temporal visual fields).<br>
+          <strong>Mechanism:</strong> Suprasellar mass compresses crossing nasal fibers at the central chiasm.<br>
+          <strong>Remember:</strong> Visual acuity (6/6) may be preserved early — macular sparing due to bilateral cortical representation. Always formally test fields!
+        </div>
+      </div>
+
+      <div class="flow-arrow">
+        <span class="material-icons-outlined">arrow_downward</span>
+        <span class="flow-arrow-label">Treatment Decision</span>
+      </div>
+
+      <div class="flow-node" onclick="toggleFlowNode(this)" style="border-color: var(--success); border-width: 2px;">
+        <div class="flow-node-title">💊 First-Line: Cabergoline (D2 Agonist)</div>
+        <div class="flow-node-sub">Medical therapy — even for macroadenomas with visual loss</div>
+        <div class="flow-node-detail">
+          <strong>Cabergoline:</strong> D2 dopamine agonist. Once or twice weekly dosing. Suppresses prolactin secretion, shrinks tumor rapidly.<br>
+          Preferred over bromocriptine: longer half-life, better tolerability.<br>
+          <strong>Monitor:</strong> Serial prolactin, visual field testing, follow-up MRI.
+        </div>
+      </div>
+
+      <div class="flow-arrow">
+        <span class="material-icons-outlined">arrow_downward</span>
+        <span class="flow-arrow-label">If Resistant</span>
+      </div>
+
+      <div class="flow-branch">
+        <div class="flow-node" onclick="toggleFlowNode(this)" style="border-color: var(--warning);">
+          <div class="flow-node-title">🔪 Transsphenoidal Surgery</div>
+          <div class="flow-node-sub">For dopamine agonist resistance</div>
+          <div class="flow-node-detail">
+            Indicated when: cabergoline fails to normalize prolactin, tumor doesn't shrink, or visual deterioration despite medical therapy. Approach: through the sphenoid sinus (transsphenoidal).
+          </div>
+        </div>
+        <div class="flow-node" onclick="toggleFlowNode(this)" style="border-color: var(--text-muted);">
+          <div class="flow-node-title">☢️ Radiation (Adjunct)</div>
+          <div class="flow-node-sub">Not first-line salvage</div>
+          <div class="flow-node-detail">
+            Reserved for refractory cases after surgery + medical therapy fail. NOT first-line salvage. Risk of delayed hypopituitarism.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 6: RAPID REVIEW -->
+  <div class="tab-content" id="tab-rapid">
+    <div class="section-title">
+      <span class="st-icon">⚡</span> Rapid Takeaways
+    </div>
+
+    <!-- Keywords -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon amber"><span class="material-icons-outlined">label</span></div>
+        <div class="card-title">High-Yield Keywords</div>
+      </div>
+      <div class="tag-group">
+        <span class="tag highlight">Prolactinoma</span>
+        <span class="tag highlight">Bitemporal Hemianopia</span>
+        <span class="tag highlight">Cabergoline</span>
+        <span class="tag">D2 Receptor Agonist</span>
+        <span class="tag">GnRH Inhibition</span>
+        <span class="tag">Pars Distalis</span>
+        <span class="tag">Optic Chiasm</span>
+        <span class="tag">Macroadenoma &gt;1cm</span>
+        <span class="tag">Lactotroph Cells</span>
+        <span class="tag">Nasal Fibers Cross</span>
+        <span class="tag">Sphenoid Bone</span>
+        <span class="tag">Azocarmine Stain</span>
+        <span class="tag">Macular Sparing</span>
+        <span class="tag">Transsphenoidal Surgery</span>
+        <span class="tag">Electron-Dense Granules</span>
+      </div>
+    </div>
+
+    <!-- Must-Know Mechanisms -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon purple"><span class="material-icons-outlined">settings</span></div>
+        <div class="card-title">Must-Know Mechanisms</div>
+      </div>
+      <div class="kv-grid">
+        <div class="kv-item">
+          <div class="kv-bullet"></div>
+          <div class="kv-text"><strong>Amenorrhea mechanism:</strong> ↑Prolactin → ↓GnRH pulsatility → ↓LH/FSH → anovulation</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-bullet"></div>
+          <div class="kv-text"><strong>Galactorrhea:</strong> Prolactin directly stimulates mammary gland tissue</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-bullet"></div>
+          <div class="kv-text"><strong>Visual field loss:</strong> Nasal fibers cross at chiasm → temporal field loss bilaterally</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-bullet"></div>
+          <div class="kv-text"><strong>Cabergoline MOA:</strong> D2 agonist on lactotrophs → ↓prolactin + tumor shrinkage</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-bullet"></div>
+          <div class="kv-text"><strong>Macular sparing:</strong> Bilateral cortical representation protects central vision early</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-bullet"></div>
+          <div class="kv-text"><strong>Stalk effect:</strong> Non-functioning mass → mild ↑PRL (&lt;100) by blocking dopamine inhibition</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Exam Triggers -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon red"><span class="material-icons-outlined">crisis_alert</span></div>
+        <div class="card-title">Core Exam Triggers</div>
+      </div>
+      <div class="kv-grid">
+        <div class="kv-item">
+          <div class="kv-bullet" style="background:var(--danger)"></div>
+          <div class="kv-text"><strong>Amenorrhea + Galactorrhea + Bitemporal hemianopia</strong> = Prolactinoma</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-bullet" style="background:var(--danger)"></div>
+          <div class="kv-text"><strong>Bitemporal hemianopia</strong> = Optic chiasm compression (midline lesion)</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-bullet" style="background:var(--danger)"></div>
+          <div class="kv-text"><strong>Prolactin &gt;200 ng/mL + sellar mass</strong> = Macroprolactinoma (not stalk effect)</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-bullet" style="background:var(--danger)"></div>
+          <div class="kv-text"><strong>Homonymous hemianopia</strong> = Optic tract lesion (NOT chiasm)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Important Labs / Drugs -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon green"><span class="material-icons-outlined">medication</span></div>
+          <div class="card-title">Key Drugs</div>
+        </div>
+        <div class="kv-item" style="margin-bottom:8px">
+          <div class="kv-bullet"></div>
+          <div class="kv-text"><strong>Cabergoline:</strong> D2 agonist, weekly dosing, first-line</div>
+        </div>
+        <div class="kv-item" style="margin-bottom:8px">
+          <div class="kv-bullet"></div>
+          <div class="kv-text"><strong>Bromocriptine:</strong> D2 agonist, daily dosing, more side effects</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-bullet"></div>
+          <div class="kv-text"><strong>Transsphenoidal surgery:</strong> For cabergoline resistance</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon blue"><span class="material-icons-outlined">biotech</span></div>
+          <div class="card-title">Key Labs</div>
+        </div>
+        <div class="kv-item" style="margin-bottom:8px">
+          <div class="kv-bullet"></div>
+          <div class="kv-text"><strong>Prolactin 250 ng/mL</strong> (normal &lt;25) — 10x elevated</div>
+        </div>
+        <div class="kv-item" style="margin-bottom:8px">
+          <div class="kv-bullet"></div>
+          <div class="kv-text"><strong>LH/FSH:</strong> Low-to-low-normal (suppressed by PRL)</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-bullet"></div>
+          <div class="kv-text"><strong>β-hCG, TSH, FT4, Cortisol:</strong> All normal/negative</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Visual Field Localization -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon pink"><span class="material-icons-outlined">visibility</span></div>
+        <div class="card-title">Visual Field Localization Cheat Sheet</div>
+      </div>
+      <div class="kv-grid">
+        <div class="kv-item">
+          <div class="kv-bullet"></div>
+          <div class="kv-text"><strong>Optic nerve:</strong> Monocular vision loss (ipsilateral)</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-bullet" style="background:var(--danger)"></div>
+          <div class="kv-text"><strong>Optic chiasm:</strong> Bitemporal hemianopia ⭐</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-bullet"></div>
+          <div class="kv-text"><strong>Optic tract:</strong> Contralateral homonymous hemianopia</div>
+        </div>
+        <div class="kv-item">
+          <div class="kv-bullet"></div>
+          <div class="kv-text"><strong>Occipital cortex:</strong> Contralateral homonymous hemianopia with macular sparing</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ============ DATA ============
+
+const mcqData = [
+  {
+    id: 1,
+    question: "Salma's serum prolactin is 250 ng/mL. Which of the following best explains the mechanism linking hyperprolactinemia to her amenorrhea?",
+    options: [
+      "Direct prolactin-induced destruction of endometrial glands",
+      "Pituitary compression causing loss of FSH/LH secretion only",
+      "Prolactin inhibits GnRH pulsatility, suppressing LH/FSH → anovulation",
+      "Elevated prolactin stimulates excess progesterone production"
+    ],
+    correct: 2,
+    explanation: "High prolactin centrally suppresses hypothalamic pulsatile GnRH release → shuts down LH/FSH → anovulation → amenorrhea. The inhibition is at the hypothalamic level, not direct endometrial damage."
+  },
+  {
+    id: 2,
+    question: "Cabergoline is prescribed for Salma's prolactinoma. Which receptor does it primarily act on to suppress prolactin secretion?",
+    options: [
+      "D1 dopamine receptor on anterior pituitary lactotrophs",
+      "D2 dopamine receptor on anterior pituitary lactotrophs",
+      "Serotonin 5-HT2A receptor on hypothalamic neurons",
+      "GnRH receptor on gonadotroph cells"
+    ],
+    correct: 1,
+    explanation: "Cabergoline is a specific D2 dopamine receptor agonist acting on lactotrophs in the anterior pituitary (pars distalis). D2 receptor stimulation inhibits prolactin secretion and induces tumor shrinkage."
+  },
+  {
+    id: 3,
+    question: "Compared to bromocriptine, cabergoline is preferred for prolactinomas primarily because of:",
+    options: [
+      "Greater blood-brain barrier penetration",
+      "More potent anti-tumor necrosis effect",
+      "Longer half-life allowing once or twice-weekly dosing and better tolerability",
+      "Ability to cross-react with somatostatin receptors"
+    ],
+    correct: 2,
+    explanation: "Cabergoline's clinical advantage is its pharmacokinetic profile: longer half-life enabling convenient weekly dosing and significantly fewer GI side effects compared to bromocriptine's daily dosing."
+  },
+  {
+    id: 4,
+    question: "Compression of the central optic chiasm would preferentially impair which retinal input pattern?",
+    options: [
+      "Temporal retina → ipsilateral cortex",
+      "Nasal retina → contralateral cortex",
+      "Nasal retina → ipsilateral cortex",
+      "Temporal retina → contralateral cortex"
+    ],
+    correct: 1,
+    explanation: "Nasal retinal fibers (carrying temporal visual field information) cross at the central chiasm to reach the contralateral cortex. A midline compressive lesion selectively damages these crossing fibers → bitemporal hemianopia."
+  },
+  {
+    id: 5,
+    question: "Preservation of central vision (6/6 acuity) in early stages of pituitary adenoma is primarily due to:",
+    options: [
+      "Sparing of rod photoreceptors",
+      "Dual blood supply to optic nerve",
+      "Spared macular fibers and their bilateral cortical representation",
+      "Lack of crossing fibers from the macula"
+    ],
+    correct: 2,
+    explanation: "Central macular vision remains intact because macular fibers have bilateral cortical representation — even if some fibers are damaged, the other hemisphere maintains central vision. This is why normal acuity can be clinically misleading."
+  },
+  {
+    id: 6,
+    question: "If Salma were to fail medical therapy with cabergoline (resistance), what would be the most appropriate next step?",
+    options: [
+      "Add bromocriptine for synergistic D2 stimulation",
+      "Initiate somatostatin analogue (octreotide)",
+      "Transsphenoidal surgical resection of the adenoma",
+      "Whole-brain radiation therapy as first-line salvage"
+    ],
+    correct: 2,
+    explanation: "Dopamine agonist resistance → transsphenoidal surgical resection. This is the standard next step. Combining D2 agonists is not standard; radiation is not first-line salvage; octreotide targets somatostatin receptors (for GH adenomas)."
+  },
+  {
+    id: 7,
+    question: "Lactotroph cells are typically located in which part of the pituitary gland?",
+    options: [
+      "Pars nervosa",
+      "Infundibulum",
+      "Pars distalis",
+      "Pars intermedia"
+    ],
+    correct: 2,
+    explanation: "Lactotroph cells (prolactin-secreting) reside in the pars distalis of the anterior pituitary gland. Pars nervosa is the posterior pituitary (stores ADH/oxytocin). Infundibulum is the stalk connecting hypothalamus to pituitary."
+  },
+  {
+    id: 8,
+    question: "If the lesion extended to the optic tract instead of the chiasm, the visual defect would become:",
+    options: [
+      "Contralateral homonymous hemianopia",
+      "Total blindness in one eye",
+      "Central scotoma",
+      "Nasal hemianopia"
+    ],
+    correct: 0,
+    explanation: "Optic tract lesions affect both crossing nasal fibers from the contralateral eye AND non-crossing temporal fibers from the ipsilateral eye → contralateral homonymous hemianopia (both eyes lose the same side of the visual field)."
+  },
+  {
+    id: 9,
+    question: "The sella turcica, which houses the pituitary gland, is a depression in which skull bone?",
+    options: [
+      "Frontal bone",
+      "Temporal bone",
+      "Sphenoid bone",
+      "Ethmoid bone"
+    ],
+    correct: 2,
+    explanation: "The sella turcica ('Turkish saddle') is a midline depression in the body of the sphenoid bone. This is why the surgical approach to pituitary tumors is 'transsphenoidal' — through the sphenoid sinus."
+  },
+  {
+    id: 10,
+    question: "Salma's LH and FSH are suppressed. This finding is BEST explained by:",
+    options: [
+      "Direct tumor compression of gonadotroph cells",
+      "Prolactin-mediated inhibition of hypothalamic GnRH pulsatility",
+      "Negative feedback from elevated estrogen levels",
+      "Pituitary stalk compression blocking portal blood flow"
+    ],
+    correct: 1,
+    explanation: "In prolactinomas, elevated prolactin directly inhibits hypothalamic GnRH pulsatile secretion → downstream suppression of LH and FSH. While tumor mass effect can sometimes compress gonadotrophs, the primary mechanism is GnRH suppression."
+  },
+  {
+    id: 11,
+    question: "Which special stain is used to specifically identify lactotroph cells on histology?",
+    options: [
+      "Periodic acid-Schiff (PAS)",
+      "Congo red",
+      "Azocarmine",
+      "Masson's trichrome"
+    ],
+    correct: 2,
+    explanation: "Azocarmine stain specifically identifies lactotroph (prolactin-secreting) cells. PAS stains glycoproteins (gonadotrophs, thyrotrophs). Congo red is for amyloid. Masson's trichrome is for connective tissue."
+  },
+  {
+    id: 12,
+    question: "A normal β-hCG was checked before proceeding with Salma's workup. The MOST important reason for this test is:",
+    options: [
+      "To exclude gestational trophoblastic disease",
+      "Pregnancy is the most common cause of amenorrhea + galactorrhea + elevated prolactin",
+      "β-hCG can interfere with prolactin assay accuracy",
+      "To determine if the patient needs a different imaging modality"
+    ],
+    correct: 1,
+    explanation: "Pregnancy is the #1 physiological cause of amenorrhea, galactorrhea, and elevated prolactin. It MUST be excluded before attributing symptoms to a pituitary tumor or initiating dopamine agonist therapy."
+  },
+  {
+    id: 13,
+    question: "Salma's bilateral optic disc pallor on fundoscopy indicates:",
+    options: [
+      "Acute papilledema from raised intracranial pressure",
+      "Chronic axonal damage to optic nerve fibers from sustained compression",
+      "Central retinal artery occlusion",
+      "Glaucomatous optic neuropathy"
+    ],
+    correct: 1,
+    explanation: "Optic disc pallor (not swelling) indicates chronic, longstanding axonal degeneration from sustained compression. Papilledema would show disc swelling. This finding suggests the compression has been present for a significant period."
+  },
+  {
+    id: 14,
+    question: "On electron microscopy, prolactinoma cells typically show:",
+    options: [
+      "Small clear vesicles resembling synaptic terminals",
+      "Large electron-dense secretory granules",
+      "Abundant rough endoplasmic reticulum without granules",
+      "Lipid droplet accumulation"
+    ],
+    correct: 1,
+    explanation: "Lactotroph cells display large electron-dense secretory granules on EM, consistent with stored prolactin hormone ready for exocytotic release. This is a high-yield histology finding for exams."
+  },
+  {
+    id: 15,
+    question: "Despite the 2.8 cm macroadenoma causing visual field loss, medical therapy is preferred over surgery as first-line because:",
+    options: [
+      "Prolactinomas never recur after medical therapy",
+      "Dopamine agonists rapidly shrink tumor and normalize prolactin with less morbidity than surgery",
+      "Surgical access to the sella turcica is technically impossible for tumors >2 cm",
+      "Medical therapy cures prolactinomas permanently in all cases"
+    ],
+    correct: 1,
+    explanation: "Prolactinomas are uniquely responsive to dopamine agonists — tumor shrinkage can be dramatic (>50% in weeks), prolactin normalizes rapidly, and visual fields often improve within days. This avoids surgical morbidity. Surgery is reserved for resistance."
+  }
+];
+
+
+// ============ STATE ============
+
+let currentTab = localStorage.getItem('cbl_lastTab') || 'case';
+let darkMode = localStorage.getItem('cbl_darkMode') === 'true';
+let currentQ = 0;
+let score = 0;
+let correct = 0;
+let streak = 0;
+let maxStreak = 0;
+let answered = new Array(mcqData.length).fill(false);
+let userAnswers = new Array(mcqData.length).fill(-1);
+let mistakes = JSON.parse(localStorage.getItem('cbl_mistakes') || '[]');
+
+
+// ============ INIT ============
+
+function init() {
+  if (darkMode) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.getElementById('darkIcon').textContent = 'light_mode';
+  }
+  switchTab(currentTab);
+  loadQuestion();
+  updateStats();
+}
+
+
+// ============ DARK MODE ============
+
+function toggleDarkMode() {
+  darkMode = !darkMode;
+  localStorage.setItem('cbl_darkMode', darkMode);
+  document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : '');
+  document.getElementById('darkIcon').textContent = darkMode ? 'light_mode' : 'dark_mode';
+}
+
+
+// ============ TABS ============
+
+function switchTab(tabId) {
+  currentTab = tabId;
+  localStorage.setItem('cbl_lastTab', tabId);
+  
+  document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(tb => tb.classList.remove('active'));
+  
+  const tabEl = document.getElementById('tab-' + tabId);
+  if (tabEl) tabEl.classList.add('active');
+  
+  const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+  if (btn) btn.classList.add('active');
+}
+
+
+// ============ REVEAL CARDS ============
+
+function toggleReveal(el) {
+  el.classList.toggle('open');
+}
+
+
+// ============ FLOW NODES ============
+
+function toggleFlowNode(el) {
+  const wasActive = el.classList.contains('active');
+  document.querySelectorAll('.flow-node').forEach(n => n.classList.remove('active'));
+  if (!wasActive) el.classList.add('active');
+}
+
+
+// ============ MCQ ENGINE ============
+
+function loadQuestion() {
+  if (currentQ >= mcqData.length) {
+    showResults();
+    return;
+  }
+
+  const q = mcqData[currentQ];
+  const card = document.getElementById('mcqCard');
+  card.style.display = 'block';
+  document.getElementById('resultsCard').style.display = 'none';
+
+  document.getElementById('mcqQuestion').textContent = q.question;
+  document.getElementById('progressText').textContent = `${currentQ + 1}/${mcqData.length}`;
+  document.getElementById('progressFill').style.width = `${((currentQ + 1) / mcqData.length) * 100}%`;
+
+  const optionsEl = document.getElementById('mcqOptions');
+  optionsEl.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+
+  q.options.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'mcq-option';
+    if (answered[currentQ]) div.classList.add('disabled');
+    
+    div.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${opt}</span>`;
+    
+    if (answered[currentQ]) {
+      if (i === q.correct) div.classList.add('correct');
+      if (i === userAnswers[currentQ] && i !== q.correct) div.classList.add('incorrect');
+    } else {
+      div.onclick = () => selectAnswer(i);
+    }
+    
+    optionsEl.appendChild(div);
+  });
+
+  const expEl = document.getElementById('mcqExplanation');
+  if (answered[currentQ]) {
+    document.getElementById('mcqExpText').textContent = q.explanation;
+    expEl.classList.add('show');
+  } else {
+    expEl.classList.remove('show');
+  }
+
+  document.getElementById('prevBtn').disabled = currentQ === 0;
+  document.getElementById('nextBtn').textContent = currentQ === mcqData.length - 1 && answered[currentQ] ? 'Finish' : 'Next';
+}
+
+function selectAnswer(idx) {
+  if (answered[currentQ]) return;
+  
+  answered[currentQ] = true;
+  userAnswers[currentQ] = idx;
+  const q = mcqData[currentQ];
+  const isCorrect = idx === q.correct;
+
+  if (isCorrect) {
+    score++;
+    correct++;
+    streak++;
+    if (streak > maxStreak) maxStreak = streak;
+    showToast('✅ Correct!', 'success');
+  } else {
+    streak = 0;
+    showToast('❌ Incorrect', 'error');
+    
+    // Store mistake
+    const mistake = {
+      question: q.question,
+      yourAnswer: q.options[idx],
+      correctAnswer: q.options[q.correct],
+      explanation: q.explanation,
+      timestamp: Date.now()
+    };
+    mistakes.push(mistake);
+    localStorage.setItem('cbl_mistakes', JSON.stringify(mistakes));
+  }
+
+  updateStats();
+  loadQuestion(); // Re-render with answers shown
+}
+
+function nextQuestion() {
+  if (!answered[currentQ]) {
+    showToast('Please answer the question first', 'info');
+    return;
+  }
+  if (currentQ >= mcqData.length - 1) {
+    showResults();
+    return;
+  }
+  currentQ++;
+  loadQuestion();
+}
+
+function prevQuestion() {
+  if (currentQ > 0) {
+    currentQ--;
+    loadQuestion();
+  }
+}
+
+function updateStats() {
+  document.getElementById('scoreDisplay').textContent = score;
+  document.getElementById('correctDisplay').textContent = correct;
+  document.getElementById('streakDisplay').textContent = streak + '🔥';
+  
+  const answeredCount = answered.filter(a => a).length;
+  document.getElementById('totalDisplay').textContent = `${answeredCount}/${mcqData.length}`;
+  
+  localStorage.setItem('cbl_score', score);
+  localStorage.setItem('cbl_streak', streak);
+}
+
+function showResults() {
+  document.getElementById('mcqCard').style.display = 'none';
+  document.getElementById('resultsCard').style.display = 'block';
+  
+  const pct = Math.round((correct / mcqData.length) * 100);
+  document.getElementById('finalScore').textContent = pct + '%';
+  
+  let title, msg;
+  if (pct >= 90) { title = '🏆 Outstanding!'; msg = 'You have excellent command of this case.'; }
+  else if (pct >= 70) { title = '👍 Good Work!'; msg = 'Solid understanding. Review the missed concepts.'; }
+  else if (pct >= 50) { title = '📖 Needs Review'; msg = 'Go through the Pearls tab and retry.'; }
+  else { title = '⚠️ Keep Studying'; msg = 'Review the case carefully and use the Rapid Review tab.'; }
+  
+  document.getElementById('resultsTitle').textContent = title;
+  document.getElementById('resultsMsg').textContent = `You scored ${correct}/${mcqData.length} (${pct}%). ${msg}`;
+}
+
+function restartQuiz() {
+  currentQ = 0;
+  score = 0;
+  correct = 0;
+  streak = 0;
+  answered = new Array(mcqData.length).fill(false);
+  userAnswers = new Array(mcqData.length).fill(-1);
+  updateStats();
+  loadQuestion();
+}
+
+
+// ============ REVIEW MODE ============
+
+function showQuizMode() {
+  document.getElementById('quizMode').style.display = 'block';
+  document.getElementById('reviewMode').style.display = 'none';
+  document.getElementById('quizModeBtn').classList.add('active-toggle');
+  document.getElementById('reviewModeBtn').classList.remove('active-toggle');
+}
+
+function showReviewMode() {
+  document.getElementById('quizMode').style.display = 'none';
+  document.getElementById('reviewMode').style.display = 'block';
+  document.getElementById('reviewModeBtn').classList.add('active-toggle');
+  document.getElementById('quizModeBtn').classList.remove('active-toggle');
+  renderMistakes();
+}
+
+function renderMistakes() {
+  const container = document.getElementById('mistakesList');
+  if (mistakes.length === 0) {
+    container.innerHTML = '<div class="card" style="text-align:center;padding:40px;"><p style="color:var(--text-muted);font-size:14px">🎉 No mistakes recorded! Great job.</p></div>';
+    return;
+  }
+  
+  container.innerHTML = mistakes.map((m, i) => `
+    <div class="mistake-item">
+      <div class="mq">${i + 1}. ${m.question}</div>
+      <div class="mwrong">❌ Your answer: ${m.yourAnswer}</div>
+      <div class="mcorrect">✅ Correct: ${m.correctAnswer}</div>
+      <div class="mexp">💡 ${m.explanation}</div>
+    </div>
+  `).join('');
+}
+
+function clearMistakes() {
+  mistakes = [];
+  localStorage.setItem('cbl_mistakes', '[]');
+  renderMistakes();
+  showToast('Mistakes cleared', 'info');
+}
+
+
+// ============ TOAST ============
+
+function showToast(msg, type) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  
+  setTimeout(() => { if (toast.parentNode) toast.remove(); }, 2600);
+}
+
+
+// ============ START ============
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,2348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CBL: Severe TBI + High Cervical SCI</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #f0f4f8;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e8edf2;
+  --bg-card: #ffffff;
+  --text-primary: #1a2332;
+  --text-secondary: #4a5568;
+  --text-muted: #718096;
+  --accent: #2563eb;
+  --accent-light: #3b82f6;
+  --accent-bg: rgba(37,99,235,0.08);
+  --accent-border: rgba(37,99,235,0.2);
+  --danger: #ef4444;
+  --danger-bg: rgba(239,68,68,0.08);
+  --danger-border: rgba(239,68,68,0.2);
+  --success: #10b981;
+  --success-bg: rgba(16,185,129,0.08);
+  --success-border: rgba(16,185,129,0.2);
+  --warning: #f59e0b;
+  --warning-bg: rgba(245,158,11,0.08);
+  --warning-border: rgba(245,158,11,0.2);
+  --gold: #d97706;
+  --gold-bg: rgba(217,119,6,0.08);
+  --gold-border: rgba(217,119,6,0.2);
+  --purple: #7c3aed;
+  --purple-bg: rgba(124,58,237,0.08);
+  --border: #e2e8f0;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.1);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --ecg-color: rgba(37,99,235,0.12);
+  --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+
+[data-theme="dark"] {
+  --bg-primary: #0f1724;
+  --bg-secondary: #1a2332;
+  --bg-tertiary: #243044;
+  --bg-card: #1e293b;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent: #3b82f6;
+  --accent-light: #60a5fa;
+  --accent-bg: rgba(59,130,246,0.12);
+  --accent-border: rgba(59,130,246,0.25);
+  --danger-bg: rgba(239,68,68,0.12);
+  --danger-border: rgba(239,68,68,0.3);
+  --success-bg: rgba(16,185,129,0.12);
+  --success-border: rgba(16,185,129,0.3);
+  --warning-bg: rgba(245,158,11,0.12);
+  --warning-border: rgba(245,158,11,0.3);
+  --gold-bg: rgba(217,119,6,0.12);
+  --gold-border: rgba(217,119,6,0.3);
+  --purple-bg: rgba(124,58,237,0.15);
+  --border: #2d3a4f;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.4);
+  --ecg-color: rgba(59,130,246,0.08);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  transition: background var(--transition), color var(--transition);
+}
+
+/* ECG Background */
+.ecg-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.ecg-line {
+  position: absolute;
+  width: 200%;
+  height: 2px;
+  background: var(--ecg-color);
+  animation: ecgScroll 12s linear infinite;
+}
+
+.ecg-line:nth-child(1) { top: 15%; animation-delay: 0s; }
+.ecg-line:nth-child(2) { top: 45%; animation-delay: -4s; }
+.ecg-line:nth-child(3) { top: 75%; animation-delay: -8s; }
+
+.ecg-line::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 0;
+  width: 100%;
+  height: 18px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    transparent 40px,
+    var(--ecg-color) 40px,
+    transparent 42px,
+    transparent 50px,
+    var(--ecg-color) 50px,
+    transparent 52px,
+    transparent 55px,
+    var(--ecg-color) 55px,
+    transparent 57px,
+    transparent 60px,
+    var(--ecg-color) 60px,
+    transparent 61px,
+    transparent 63px,
+    var(--ecg-color) 63px,
+    transparent 67px,
+    transparent 100px
+  );
+}
+
+@keyframes ecgScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Neural pulse */
+.neural-pulse {
+  position: fixed;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.15;
+  animation: neuralFloat 8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes neuralFloat {
+  0%,100% { transform: translate(0,0) scale(1); opacity:0.1; }
+  50% { transform: translate(30px,-20px) scale(1.5); opacity:0.25; }
+}
+
+/* Header */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(12px);
+  transition: all var(--transition);
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+}
+
+.header-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.header-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dark-toggle {
+  width: 42px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  position: relative;
+  transition: all var(--transition);
+}
+
+.dark-toggle::after {
+  content: '☀️';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  transition: all var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] .dark-toggle {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+[data-theme="dark"] .dark-toggle::after {
+  content: '🌙';
+  left: 20px;
+}
+
+/* Tab Navigation */
+.tab-nav {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 24px 0;
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  position: relative;
+  z-index: 10;
+}
+
+.tab-nav::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition);
+  position: relative;
+}
+
+.tab-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
+.tab-btn.active {
+  color: var(--accent);
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 8px;
+  right: 8px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px 2px 0 0;
+}
+
+.tab-btn .tab-emoji {
+  font-size: 15px;
+}
+
+/* Content */
+.content-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 24px 40px;
+  position: relative;
+  z-index: 10;
+}
+
+.tab-content {
+  display: none;
+  animation: fadeSlide 0.35s ease;
+}
+
+.tab-content.active { display: block; }
+
+@keyframes fadeSlide {
+  from { opacity:0; transform:translateY(12px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+/* Cards */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition);
+}
+
+.card:hover { box-shadow: var(--shadow-md); }
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.card-header-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.card-header-icon.blue { background: var(--accent-bg); color: var(--accent); }
+.card-header-icon.red { background: var(--danger-bg); color: var(--danger); }
+.card-header-icon.green { background: var(--success-bg); color: var(--success); }
+.card-header-icon.gold { background: var(--gold-bg); color: var(--gold); }
+.card-header-icon.purple { background: var(--purple-bg); color: var(--purple); }
+
+.card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.card-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Grid */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .header-inner { padding: 10px 16px; }
+  .tab-nav { padding: 8px 16px 0; }
+  .content-wrapper { padding: 16px 16px 32px; }
+  .tab-btn { padding: 8px 12px; font-size: 12px; }
+  .card { padding: 18px; }
+}
+
+/* Patient ID Card */
+.patient-card {
+  background: linear-gradient(135deg, var(--accent), #1d4ed8);
+  border: none;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.patient-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -30%;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+}
+
+.patient-card .pc-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.7;
+  margin-bottom: 2px;
+}
+
+.patient-card .pc-value {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.patient-card .pc-diagnosis {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-top: 8px;
+}
+
+.patient-card .pc-diagnosis-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.7;
+}
+
+.patient-card .pc-diagnosis-text {
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+/* Findings */
+.finding-item {
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  position: relative;
+  transition: all var(--transition);
+}
+
+.finding-item.abnormal {
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+}
+
+.finding-item.normal {
+  background: var(--success-bg);
+  border: 1px solid var(--success-border);
+}
+
+.finding-item.warning {
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+}
+
+.finding-icon {
+  font-size: 16px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.finding-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.finding-detail {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 3px;
+}
+
+/* Tooltip */
+.tooltip-container {
+  position: relative;
+}
+
+.tooltip-content {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  line-height: 1.5;
+  width: 280px;
+  z-index: 200;
+  box-shadow: var(--shadow-lg);
+  pointer-events: none;
+}
+
+.tooltip-content::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--text-primary);
+}
+
+.tooltip-container:hover .tooltip-content,
+.tooltip-container:focus .tooltip-content {
+  display: block;
+}
+
+/* Labs / Imaging Grid */
+.lab-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media(max-width:600px) { .lab-grid { grid-template-columns:1fr; } }
+
+.lab-item {
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-tertiary);
+}
+
+.lab-item.critical {
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
+}
+
+.lab-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.lab-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.lab-value.red {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+/* Pearl boxes */
+.pearl-box {
+  padding: 16px 20px;
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  border-left: 4px solid;
+}
+
+.pearl-box.gold {
+  background: var(--gold-bg);
+  border-color: var(--gold);
+}
+
+.pearl-box.danger {
+  background: var(--danger-bg);
+  border-color: var(--danger);
+}
+
+.pearl-box.info {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+}
+
+.pearl-box.success {
+  background: var(--success-bg);
+  border-color: var(--success);
+}
+
+.pearl-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pearl-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.pearl-text strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Reveal Cards */
+.reveal-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 12px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition);
+}
+
+.reveal-header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.reveal-header:hover {
+  background: var(--bg-tertiary);
+}
+
+.reveal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.reveal-step {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-bg);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.reveal-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.reveal-chevron {
+  font-size: 20px;
+  color: var(--text-muted);
+  transition: transform var(--transition);
+}
+
+.reveal-card.open .reveal-chevron {
+  transform: rotate(180deg);
+}
+
+.reveal-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.reveal-card.open .reveal-body {
+  max-height: 800px;
+}
+
+.reveal-body-inner {
+  padding: 0 20px 20px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.reveal-body-inner strong {
+  color: var(--text-primary);
+}
+
+.reveal-body-inner ul {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.reveal-body-inner ul li {
+  margin-bottom: 6px;
+}
+
+/* MCQ */
+.mcq-stats-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.mcq-stat {
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 120px;
+}
+
+.mcq-stat-icon {
+  font-size: 22px;
+}
+
+.mcq-stat-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.mcq-stat-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mcq-progress {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.mcq-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--success));
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.mcq-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.mcq-question-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.mcq-question-text {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.mcq-option {
+  padding: 14px 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transition: all var(--transition);
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.mcq-option:hover:not(.disabled) {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.mcq-option.correct {
+  border-color: var(--success);
+  background: var(--success-bg);
+}
+
+.mcq-option.incorrect {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+}
+
+.mcq-option.disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.mcq-option.correct.disabled, .mcq-option.incorrect.disabled {
+  opacity: 1;
+}
+
+.mcq-option-letter {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all var(--transition);
+}
+
+.mcq-option.correct .mcq-option-letter {
+  background: var(--success);
+  color: white;
+}
+
+.mcq-option.incorrect .mcq-option-letter {
+  background: var(--danger);
+  color: white;
+}
+
+.mcq-explanation {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  display: none;
+}
+
+.mcq-explanation.show { display: block; animation: fadeSlide 0.3s ease; }
+
+.mcq-explanation strong { color: var(--text-primary); }
+
+.mcq-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  gap: 12px;
+}
+
+.btn {
+  padding: 10px 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+}
+
+.btn-primary:hover { background: var(--accent-light); transform: translateY(-1px); }
+
+.btn-secondary {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover { background: var(--border); }
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+}
+
+.btn-danger:hover { opacity: 0.9; }
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Mistake Review */
+.mistake-item {
+  padding: 16px;
+  border: 1px solid var(--danger-border);
+  background: var(--danger-bg);
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+}
+
+.mistake-q {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+}
+
+.mistake-detail {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.mistake-detail span.wrong { color: var(--danger); font-weight: 600; }
+.mistake-detail span.right { color: var(--success); font-weight: 600; }
+
+/* Algorithm / Flowchart */
+.flowchart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 20px 0;
+}
+
+.flow-node {
+  width: 100%;
+  max-width: 500px;
+  padding: 16px 20px;
+  border-radius: var(--radius);
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+  border: 2px solid var(--border);
+  background: var(--bg-card);
+}
+
+.flow-node:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent);
+}
+
+.flow-node.expanded {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-md);
+}
+
+.flow-node-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.flow-node-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, margin 0.35s ease;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  text-align: left;
+}
+
+.flow-node.expanded .flow-node-detail {
+  max-height: 300px;
+  margin-top: 12px;
+}
+
+.flow-arrow {
+  width: 2px;
+  height: 28px;
+  background: var(--border);
+  position: relative;
+}
+
+.flow-arrow::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--border);
+}
+
+/* Branch nodes */
+.flow-branch {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.flow-branch .flow-node {
+  flex: 1;
+}
+
+/* Rapid Takeaways */
+.rapid-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.rapid-item {
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+}
+
+.rapid-category {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rapid-category.anatomy { color: var(--accent); }
+.rapid-category.pharm { color: var(--purple); }
+.rapid-category.path { color: var(--danger); }
+.rapid-category.clinical { color: var(--success); }
+.rapid-category.trap { color: var(--warning); }
+
+.rapid-keyword {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.rapid-detail {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Animations */
+.correct-anim {
+  animation: correctPulse 0.5s ease;
+}
+
+@keyframes correctPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.incorrect-anim {
+  animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+/* Score display */
+.score-display {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.score-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  border: 4px solid;
+}
+
+.score-circle.good {
+  background: var(--success-bg);
+  color: var(--success);
+  border-color: var(--success);
+}
+
+.score-circle.medium {
+  background: var(--warning-bg);
+  color: var(--warning);
+  border-color: var(--warning);
+}
+
+.score-circle.poor {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.score-label {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+}
+
+/* Streak indicator */
+.streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--warning);
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.empty-state-text {
+  font-size: 14px;
+}
+
+/* Tag chips */
+.tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.tag.red { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+.tag.blue { background: var(--accent-bg); color: var(--accent); border: 1px solid var(--accent-border); }
+.tag.green { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+.tag.gold { background: var(--gold-bg); color: var(--gold); border: 1px solid var(--gold-border); }
+
+/* Section divider */
+.section-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 20px 0;
+}
+
+ul.clean-list {
+  list-style: none;
+  padding: 0;
+}
+
+ul.clean-list li {
+  padding: 6px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+ul.clean-list li::before {
+  content: '→';
+  color: var(--accent);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+</style>
+</head>
+<body>
+<div class="ecg-bg">
+  <div class="ecg-line"></div>
+  <div class="ecg-line"></div>
+  <div class="ecg-line"></div>
+</div>
+
+<div class="neural-pulse" style="top:20%;left:10%"></div>
+<div class="neural-pulse" style="top:60%;left:85%;animation-delay:-3s"></div>
+<div class="neural-pulse" style="top:80%;left:25%;animation-delay:-5s"></div>
+<div class="neural-pulse" style="top:35%;left:70%;animation-delay:-2s"></div>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <div class="header-icon">
+        <span class="material-icons-outlined" style="font-size:22px">psychology</span>
+      </div>
+      <div>
+        <div class="header-title">Severe TBI + High Cervical SCI</div>
+        <div class="header-subtitle">Interactive CBL Case Simulator</div>
+      </div>
+    </div>
+    <div class="header-controls">
+      <div class="streak-badge" id="headerStreak" style="display:none">🔥 <span id="headerStreakVal">0</span></div>
+      <div class="dark-toggle" id="darkToggle" title="Toggle dark mode"></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tab-nav" id="tabNav">
+  <button class="tab-btn active" data-tab="case"><span class="tab-emoji">📂</span> Case File</button>
+  <button class="tab-btn" data-tab="pearls"><span class="tab-emoji">💡</span> Doctor's Pearls</button>
+  <button class="tab-btn" data-tab="reasoning"><span class="tab-emoji">🔍</span> Clinical Reasoning</button>
+  <button class="tab-btn" data-tab="mcq"><span class="tab-emoji">📝</span> Exam MCQs</button>
+  <button class="tab-btn" data-tab="algorithm"><span class="tab-emoji">🛤️</span> Algorithm</button>
+  <button class="tab-btn" data-tab="rapid"><span class="tab-emoji">⚡</span> Rapid Takeaways</button>
+</nav>
+
+<main class="content-wrapper">
+
+  <!-- ========= CASE FILE TAB ========= -->
+  <div class="tab-content active" id="tab-case">
+
+    <div class="card patient-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;position:relative;z-index:1">
+        <div style="flex:1;min-width:200px">
+          <div class="pc-label">Patient</div>
+          <div class="pc-value">13-year-old Male, Right-Handed</div>
+          <div class="pc-label">Chief Complaint</div>
+          <div class="pc-value">Unresponsive after head-on MVC (35-40 mph), unrestrained front-seat passenger, head struck windshield</div>
+          <div class="pc-label">Key Mechanism</div>
+          <div class="pc-value" style="margin-bottom:0">Deceleration/impact injury → TBI + cervical spine trauma</div>
+        </div>
+      </div>
+      <div class="pc-diagnosis">
+        <div class="pc-diagnosis-label">Most Likely Diagnosis</div>
+        <div class="pc-diagnosis-text">Severe Diffuse TBI + Complete High Cervical SCI (ASIA Grade A at C2–C3)</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon red">🩺</div>
+          <div>
+            <div class="card-title">Vitals & General</div>
+            <div class="card-subtitle">On Arrival</div>
+          </div>
+        </div>
+        <div class="tooltip-container finding-item abnormal">
+          <div class="finding-icon">⚠️</div>
+          <div>
+            <div class="finding-text">Unresponsive</div>
+            <div class="finding-detail">No purposeful response to stimuli</div>
+          </div>
+          <div class="tooltip-content">Suggests severe brain injury with depressed consciousness. GCS severely reduced. Correlates with subdural hematoma and cerebral edema on imaging.</div>
+        </div>
+        <div class="tooltip-container finding-item abnormal">
+          <div class="finding-icon">⚠️</div>
+          <div>
+            <div class="finding-text">Bradycardic</div>
+            <div class="finding-detail">Inappropriately low heart rate</div>
+          </div>
+          <div class="tooltip-content">In the setting of a high cervical cord injury, bradycardia results from loss of sympathetic outflow (T1-T4) with unopposed vagal tone. May also be part of Cushing response from raised ICP.</div>
+        </div>
+        <div class="tooltip-container finding-item abnormal">
+          <div class="finding-icon">🔴</div>
+          <div>
+            <div class="finding-text">Inadequate Respiratory Effort</div>
+            <div class="finding-detail">Required intubation</div>
+          </div>
+          <div class="tooltip-content">C2-C3 injury impairs phrenic nerve roots (C3-C5), which innervate the diaphragm. Loss of diaphragmatic function → ventilator dependence. Critical finding localizing the lesion.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon blue">🧠</div>
+          <div>
+            <div class="card-title">Neurological Exam</div>
+            <div class="card-subtitle">Key Findings</div>
+          </div>
+        </div>
+        <div class="tooltip-container finding-item abnormal">
+          <div class="finding-icon">🔴</div>
+          <div>
+            <div class="finding-text">Flaccid tone, profound hypotonia, areflexia — all 4 limbs</div>
+            <div class="finding-detail">Complete motor & reflex loss below neck</div>
+          </div>
+          <div class="tooltip-content">Acute spinal shock phase → flaccidity and areflexia. After resolution, UMN signs (spasticity, hyperreflexia, Babinski) develop below the lesion level.</div>
+        </div>
+        <div class="tooltip-container finding-item abnormal">
+          <div class="finding-icon">🔴</div>
+          <div>
+            <div class="finding-text">Absent anal wink, patulous sphincter</div>
+            <div class="finding-detail">S2-S4 disconnection</div>
+          </div>
+          <div class="tooltip-content">Absent anal wink reflex (S2-S4) indicates complete disruption of descending pathways to sacral segments. Patulous sphincter = loss of sphincter tone. Critical exam finding for ASIA Grade A classification.</div>
+        </div>
+        <div class="tooltip-container finding-item normal">
+          <div class="finding-icon">✅</div>
+          <div>
+            <div class="finding-text">Pupils equal & reactive; Brisk corneal reflexes</div>
+            <div class="finding-detail">CN II, III, V, VII intact</div>
+          </div>
+          <div class="tooltip-content">Preserved pupillary and corneal reflexes indicate intact brainstem circuitry above the lesion. Corneal reflex: CN V (afferent) + CN VII (efferent).</div>
+        </div>
+        <div class="tooltip-container finding-item abnormal">
+          <div class="finding-icon">⚠️</div>
+          <div>
+            <div class="finding-text">Absent gag reflex</div>
+            <div class="finding-detail">CN IX/X dysfunction</div>
+          </div>
+          <div class="tooltip-content">Gag reflex requires CN IX (afferent) and CN X (efferent). Absence suggests injury/dysfunction of these lower brainstem pathways, increasing aspiration risk.</div>
+        </div>
+        <div class="tooltip-container finding-item warning">
+          <div class="finding-icon">💡</div>
+          <div>
+            <div class="finding-text">Facial grimacing to noxious stimuli — No extremity motor response</div>
+            <div class="finding-detail">Cranial-spinal dissociation</div>
+          </div>
+          <div class="tooltip-content"><strong>KEY EXAM PEARL:</strong> Face grimacing (intact CN V/VII via brainstem) + absent extremity response = complete cervical cord disconnection. The brainstem processes facial sensation, but motor commands cannot reach the spinal cord below C2-C3.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon purple">📊</div>
+        <div>
+          <div class="card-title">Imaging Findings</div>
+          <div class="card-subtitle">CT & MRI Results</div>
+        </div>
+      </div>
+      <div class="lab-grid">
+        <div class="lab-item critical">
+          <div class="lab-label">Non-Contrast Brain CT</div>
+          <div class="lab-value red">Right-sided acute subdural hematoma with midline shift</div>
+        </div>
+        <div class="lab-item critical">
+          <div class="lab-label">Brain CT (cont.)</div>
+          <div class="lab-value red">Cerebral edema, effacement of basal cisterns</div>
+        </div>
+        <div class="lab-item critical">
+          <div class="lab-label">Cervical CT</div>
+          <div class="lab-value red">C2 vertebral fracture with spinal canal narrowing</div>
+        </div>
+        <div class="lab-item critical">
+          <div class="lab-label">Cervical MRI</div>
+          <div class="lab-value red">C2–C3 spinal cord edema/contusion (no complete transection)</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========= DOCTOR'S PEARLS TAB ========= -->
+  <div class="tab-content" id="tab-pearls">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon gold">⭐</div>
+        <div>
+          <div class="card-title">Golden Exam Pearls</div>
+          <div class="card-subtitle">Lecturer's Emphasis</div>
+        </div>
+      </div>
+
+      <div class="pearl-box gold">
+        <div class="pearl-title">⭐ Cranial-Spinal Dissociation</div>
+        <div class="pearl-text">Facial noxious stimuli → grimacing (intact brainstem CN V/VII). Extremity stimuli → <strong>no motor response</strong> = complete disconnection at high cervical cord. This is the hallmark exam finding proving the lesion is at or above C2-C3, not in the brainstem itself.</div>
+      </div>
+
+      <div class="pearl-box gold">
+        <div class="pearl-title">⭐ Corneal Reflex = CN V + CN VII</div>
+        <div class="pearl-text"><strong>Afferent: CN V</strong> (trigeminal — sensory). <strong>Efferent: CN VII</strong> (facial — motor blink). Brisk bilaterally = brainstem pontine pathways intact.</div>
+      </div>
+
+      <div class="pearl-box gold">
+        <div class="pearl-title">⭐ Anal Wink Reflex → S2-S4 Localization</div>
+        <div class="pearl-text">Absence of the anal wink = <strong>S2-S4 segments disconnected</strong> from descending pathways. Combined with areflexia in all limbs, this confirms ASIA Grade A (complete injury).</div>
+      </div>
+
+      <div class="pearl-box info">
+        <div class="pearl-title">📌 ASIA Grade A Classification</div>
+        <div class="pearl-text"><strong>Complete injury</strong>: No motor or sensory function preserved in the sacral segments S4-S5. This patient has absent anal wink, patulous sphincter, no sacral sensation = Grade A at C2-C3.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon red">🚨</div>
+        <div>
+          <div class="card-title">Red Flags & Common Pitfalls</div>
+          <div class="card-subtitle">Dangerous Mistakes</div>
+        </div>
+      </div>
+
+      <div class="pearl-box danger">
+        <div class="pearl-title">🚨 DO NOT Give High-Dose Methylprednisolone</div>
+        <div class="pearl-text">Major exam trap! Current guidelines: <strong>No steroids for pediatric SCI</strong>. Increases infection risk, GI bleeding, and complications <strong>without proven neurological benefit</strong>.</div>
+      </div>
+
+      <div class="pearl-box danger">
+        <div class="pearl-title">🚨 AVOID Morphine Acutely</div>
+        <div class="pearl-text">Opioids cause <strong>respiratory depression</strong> — extremely dangerous when respiratory drive is already compromised by C2-C3 cord injury + TBI. This is a classic pharmacology trap question.</div>
+      </div>
+
+      <div class="pearl-box danger">
+        <div class="pearl-title">🚨 AVOID NSAIDs Acutely</div>
+        <div class="pearl-text">NSAIDs increase <strong>bleeding risk</strong> (antiplatelet effect) in a patient with active intracranial hemorrhage. Also risk <strong>renal impairment</strong> in acute trauma with potential hypoperfusion.</div>
+      </div>
+
+      <div class="pearl-box danger">
+        <div class="pearl-title">⚠️ Don't Confuse Spinal Shock with UMN vs LMN</div>
+        <div class="pearl-text">Acutely: flaccidity + areflexia = <strong>spinal shock</strong> (NOT a LMN lesion). After resolution → <strong>UMN signs emerge</strong>: spasticity, hyperreflexia, positive Babinski. The underlying pathology is always UMN for a lesion at C2-C3.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon green">🔄</div>
+        <div>
+          <div class="card-title">Rule-Out Logic</div>
+          <div class="card-subtitle">Why Other Diagnoses Were Excluded</div>
+        </div>
+      </div>
+
+      <div class="pearl-box info">
+        <div class="pearl-title">❌ Isolated Brainstem Injury</div>
+        <div class="pearl-text">Ruled out because <strong>pupillary and corneal reflexes are preserved</strong>. A brainstem lesion would impair these cranial nerve pathways. The dissociation pattern (intact face, absent limbs) points to cervical cord, not brainstem.</div>
+      </div>
+
+      <div class="pearl-box info">
+        <div class="pearl-title">❌ Epidural Hematoma</div>
+        <div class="pearl-text">CT shows a <strong>subdural</strong> hematoma (bridging vein tear). Epidural hematoma = middle meningeal artery rupture, typically lens-shaped on CT, often with temporal bone fracture. Different mechanism and imaging pattern.</div>
+      </div>
+
+      <div class="pearl-box info">
+        <div class="pearl-title">❌ Incomplete Cord Injury (ASIA B-D)</div>
+        <div class="pearl-text">Complete absence of motor, sensory, and reflex function at all levels below the lesion, including <strong>sacral segments</strong> (absent anal wink/tone), confirms ASIA Grade A = complete injury.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========= CLINICAL REASONING TAB ========= -->
+  <div class="tab-content" id="tab-reasoning">
+
+    <div class="card" style="margin-bottom:24px">
+      <div class="card-header">
+        <div class="card-header-icon blue">🔍</div>
+        <div>
+          <div class="card-title">Stepwise Clinical Reasoning</div>
+          <div class="card-subtitle">Click each card to reveal</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal-card" data-reveal>
+      <div class="reveal-header">
+        <div class="reveal-header-left">
+          <div class="reveal-step">1</div>
+          <div class="reveal-title">Localization & Pathophysiology</div>
+        </div>
+        <span class="material-icons-outlined reveal-chevron">expand_more</span>
+      </div>
+      <div class="reveal-body">
+        <div class="reveal-body-inner">
+          <strong>Two simultaneous injuries:</strong>
+          <ul>
+            <li><strong>Intracranial:</strong> Right acute subdural hematoma → bridging vein tear from deceleration. Causes mass effect (midline shift), cerebral edema, and raised ICP (effaced basal cisterns).</li>
+            <li><strong>Spinal:</strong> C2 fracture → spinal canal narrowing → cord contusion/edema at C2-C3. This disconnects all descending motor pathways and ascending sensory pathways below the lesion.</li>
+          </ul>
+          <strong>Why cranial-spinal dissociation?</strong>
+          <ul>
+            <li>Facial sensation (CN V) enters the brainstem directly → processed above the lesion → facial motor output (CN VII) exits above C2 → grimacing preserved.</li>
+            <li>Corticospinal tract for limbs must pass through C2-C3 → completely disrupted → no extremity response.</li>
+          </ul>
+          <strong>Respiratory failure:</strong> Phrenic nerve (C3-C5) originates below the lesion level → diaphragm paralyzed → ventilator dependent.
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal-card" data-reveal>
+      <div class="reveal-header">
+        <div class="reveal-header-left">
+          <div class="reveal-step">2</div>
+          <div class="reveal-title">Most Likely Diagnosis & Classification</div>
+        </div>
+        <span class="material-icons-outlined reveal-chevron">expand_more</span>
+      </div>
+      <div class="reveal-body">
+        <div class="reveal-body-inner">
+          <strong>Dual Diagnosis:</strong>
+          <ul>
+            <li><strong>Severe Diffuse Traumatic Brain Injury</strong> — subdural hematoma, cerebral edema, effaced cisterns, unresponsiveness.</li>
+            <li><strong>Complete High Cervical Spinal Cord Injury — ASIA Grade A at C2-C3</strong></li>
+          </ul>
+          <strong>ASIA Grade A criteria met:</strong>
+          <ul>
+            <li>No motor function below injury level ✓</li>
+            <li>No sensory function below injury level ✓</li>
+            <li>No sacral sparing (absent anal wink, patulous sphincter) ✓</li>
+          </ul>
+          <strong>Supporting imaging:</strong> C2 fracture + cord contusion/edema on MRI (note: complete functional injury despite no anatomical transection on MRI).
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal-card" data-reveal>
+      <div class="reveal-header">
+        <div class="reveal-header-left">
+          <div class="reveal-step">3</div>
+          <div class="reveal-title">Initial Investigations & Steps</div>
+        </div>
+        <span class="material-icons-outlined reveal-chevron">expand_more</span>
+      </div>
+      <div class="reveal-body">
+        <div class="reveal-body-inner">
+          <strong>Immediate priorities (ATLS approach):</strong>
+          <ul>
+            <li><strong>Airway:</strong> Secure airway → intubation (already done due to inadequate respiratory effort)</li>
+            <li><strong>Cervical spine immobilization</strong> — maintain until cleared</li>
+            <li><strong>Non-contrast CT head</strong> → identified subdural hematoma, edema, midline shift</li>
+            <li><strong>CT cervical spine</strong> → identified C2 fracture</li>
+            <li><strong>MRI cervical spine</strong> → characterized cord contusion/edema</li>
+          </ul>
+          <strong>Acute ICP management:</strong>
+          <ul>
+            <li><strong>Mannitol or Hypertonic Saline IV</strong> → osmotic therapy to reduce cerebral edema prior to surgical intervention</li>
+            <li>Head of bed elevation, avoid hypotension/hypoxia</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal-card" data-reveal>
+      <div class="reveal-header">
+        <div class="reveal-header-left">
+          <div class="reveal-step">4</div>
+          <div class="reveal-title">Definitive Management</div>
+        </div>
+        <span class="material-icons-outlined reveal-chevron">expand_more</span>
+      </div>
+      <div class="reveal-body">
+        <div class="reveal-body-inner">
+          <strong>Neurosurgical:</strong>
+          <ul>
+            <li><strong>Craniotomy</strong> for evacuation of subdural hematoma (mass effect with midline shift)</li>
+            <li>ICP monitoring</li>
+            <li><strong>Cervical spine stabilization/fixation</strong> for C2 fracture</li>
+          </ul>
+          <strong>Critical care:</strong>
+          <ul>
+            <li>Long-term <strong>mechanical ventilation</strong> (C2-C3 = ventilator-dependent)</li>
+            <li>Hemodynamic support (neurogenic shock management — IV fluids, vasopressors, atropine for bradycardia)</li>
+          </ul>
+          <strong>Medications — what NOT to give:</strong>
+          <ul>
+            <li>❌ High-dose methylprednisolone (no benefit, increased complications)</li>
+            <li>❌ Morphine (respiratory depression)</li>
+            <li>❌ NSAIDs (bleeding, renal risk)</li>
+          </ul>
+          <strong>Long-term rehabilitation:</strong>
+          <ul>
+            <li><strong>Gabapentin</strong> (titrated) → first-line for neuropathic pain/allodynia</li>
+            <li><strong>Baclofen</strong> (GABA-B agonist) → for spasticity-related pain when it develops</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========= EXAM MCQ TAB ========= -->
+  <div class="tab-content" id="tab-mcq">
+
+    <div class="mcq-stats-bar">
+      <div class="mcq-stat">
+        <div class="mcq-stat-icon">📊</div>
+        <div>
+          <div class="mcq-stat-value" id="mcqScore">0/0</div>
+          <div class="mcq-stat-label">Score</div>
+        </div>
+      </div>
+      <div class="mcq-stat">
+        <div class="mcq-stat-icon">🔥</div>
+        <div>
+          <div class="mcq-stat-value" id="mcqStreak">0</div>
+          <div class="mcq-stat-label">Streak</div>
+        </div>
+      </div>
+      <div class="mcq-stat">
+        <div class="mcq-stat-icon">❌</div>
+        <div>
+          <div class="mcq-stat-value" id="mcqMistakes">0</div>
+          <div class="mcq-stat-label">Mistakes</div>
+        </div>
+      </div>
+      <div class="mcq-stat">
+        <div class="mcq-stat-icon">✅</div>
+        <div>
+          <div class="mcq-stat-value" id="mcqPercent">0%</div>
+          <div class="mcq-stat-label">Accuracy</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mcq-progress">
+      <div class="mcq-progress-bar" id="mcqProgressBar" style="width:0%"></div>
+    </div>
+
+    <div id="mcqContainer"></div>
+
+    <div class="mcq-nav">
+      <button class="btn btn-secondary" id="mcqPrev" disabled>
+        <span class="material-icons-outlined" style="font-size:16px">arrow_back</span> Previous
+      </button>
+      <span id="mcqPageInfo" style="font-size:13px;color:var(--text-muted);font-weight:600"></span>
+      <button class="btn btn-primary" id="mcqNext">
+        Next <span class="material-icons-outlined" style="font-size:16px">arrow_forward</span>
+      </button>
+    </div>
+
+    <div class="section-divider" style="margin-top:32px"></div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-header">
+        <div class="card-header-icon red">❌</div>
+        <div>
+          <div class="card-title">Mistake Review</div>
+          <div class="card-subtitle">Questions you got wrong</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <button class="btn btn-secondary" id="resetMcqBtn" style="font-size:12px">
+          <span class="material-icons-outlined" style="font-size:14px">refresh</span> Reset Quiz
+        </button>
+        <button class="btn btn-danger" id="clearMistakesBtn" style="font-size:12px">
+          <span class="material-icons-outlined" style="font-size:14px">delete</span> Clear Mistakes
+        </button>
+      </div>
+      <div id="mistakeReview"></div>
+    </div>
+
+  </div>
+
+  <!-- ========= ALGORITHM TAB ========= -->
+  <div class="tab-content" id="tab-algorithm">
+
+    <div class="card" style="margin-bottom:24px">
+      <div class="card-header">
+        <div class="card-header-icon green">🛤️</div>
+        <div>
+          <div class="card-title">Diagnostic & Management Algorithm</div>
+          <div class="card-subtitle">Click each node to expand details</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flowchart" id="flowchart"></div>
+
+  </div>
+
+  <!-- ========= RAPID TAKEAWAYS TAB ========= -->
+  <div class="tab-content" id="tab-rapid">
+
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header">
+        <div class="card-header-icon gold">⚡</div>
+        <div>
+          <div class="card-title">Rapid Revision Takeaways</div>
+          <div class="card-subtitle">High-yield keywords & triggers</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rapid-grid" id="rapidGrid"></div>
+
+  </div>
+
+</main>
+
+<script>
+// ==================== DATA ====================
+
+const mcqData = [
+  {
+    id: 1,
+    question: "A 13-year-old trauma patient is entirely dependent on mechanical ventilation. Imaging reveals a contusion at the C2-C3 level. The patient's impaired respiratory effort most likely results from injury to which of the following structures?",
+    options: [
+      "Vagus nerve (CN X)",
+      "Brainstem reticular formation",
+      "Phrenic nerve roots (C3–C5)",
+      "Cervical sympathetic trunk"
+    ],
+    correct: 2,
+    explanation: "<strong>C3-C5 nerve roots</strong> form the phrenic nerve, which provides the primary motor innervation to the diaphragm. A C2-C3 lesion directly impairs this pathway → ventilator dependence. CN X controls laryngeal/pharyngeal function, not diaphragmatic contraction. Brainstem reticular formation drives respiratory rhythm but is intact here (preserved cranial reflexes). Sympathetic trunk affects vascular tone, not respiratory muscles.",
+    type: "Anatomy"
+  },
+  {
+    id: 2,
+    question: "On clinical examination, a pediatric patient demonstrates an absent anal wink reflex. This finding specifically indicates damage or disconnection affecting which spinal cord segments?",
+    options: [
+      "T12–L2",
+      "L3–L5",
+      "S2–S4",
+      "C5–C8"
+    ],
+    correct: 2,
+    explanation: "The anal wink reflex is mediated by <strong>S2-S4 segments</strong> (pudendal nerve). Its absence in a high cervical cord injury confirms that descending pathways to the most caudal segments are completely disrupted — a key criterion for ASIA Grade A classification.",
+    type: "Clinical"
+  },
+  {
+    id: 3,
+    question: "Despite unresponsiveness, noxious stimulation applied to the face of a head trauma patient yields a brisk corneal reflex. This clinical finding indicates the intact function of which cranial nerve pathways?",
+    options: [
+      "CN II and CN VII",
+      "CN V and CN VII",
+      "CN III and CN V",
+      "CN I and CN VII"
+    ],
+    correct: 1,
+    explanation: "Corneal reflex: <strong>CN V (trigeminal)</strong> = afferent/sensory limb; <strong>CN VII (facial)</strong> = efferent/motor limb (orbicularis oculi contraction). Brisk response = intact pontine brainstem pathways. CN II is optic (vision), CN III is oculomotor (pupil/eye movement), CN I is olfactory.",
+    type: "Anatomy"
+  },
+  {
+    id: 4,
+    question: "A CT scan of an unrestrained passenger reveals a right-sided acute subdural hematoma. What is the most common anatomical source of this type of hemorrhage?",
+    options: [
+      "Rupture of middle meningeal artery due to skull fracture",
+      "Rupture of an arteriovenous malformation (AVM)",
+      "Tearing of bridging veins between the cerebral cortex and dural sinuses",
+      "Spontaneous rupture of a Berry aneurysm"
+    ],
+    correct: 2,
+    explanation: "Subdural hematomas classically result from <strong>tearing of bridging veins</strong> that traverse the subdural space between cerebral cortex and dural sinuses. Deceleration/acceleration forces in trauma stretch and rupture these veins. Middle meningeal artery → epidural hematoma. Berry aneurysm → subarachnoid hemorrhage.",
+    type: "Pathology"
+  },
+  {
+    id: 5,
+    question: "The medical team discusses initiating pain management for an intubated patient with a severe traumatic brain injury and a high cervical spinal cord injury. Which analgesic should be explicitly avoided due to an increased risk of respiratory depression?",
+    options: [
+      "Paracetamol",
+      "Ibuprofen",
+      "Morphine",
+      "Gabapentin"
+    ],
+    correct: 2,
+    explanation: "<strong>Morphine</strong> is an opioid that depresses the medullary respiratory center → critically dangerous when respiratory drive is already compromised by C2-C3 cord injury + TBI. Paracetamol and gabapentin do not cause significant respiratory depression. Note: Ibuprofen is also avoided acutely but for bleeding/renal reasons, not respiratory depression.",
+    type: "Pharmacology"
+  },
+  {
+    id: 6,
+    question: "A 13-year-old with a complete C2-C3 spinal cord injury is admitted to the PICU. The clinical team decides against the administration of high-dose methylprednisolone. This decision aligns with current evidence suggesting that corticosteroids in pediatric spinal cord injury:",
+    options: [
+      "Enhance long-term neurological outcomes",
+      "Reduce central pain syndrome",
+      "Increase the risk of complications without proven benefit",
+      "Are contraindicated solely due to immunosuppression"
+    ],
+    correct: 2,
+    explanation: "Current guidelines recommend <strong>against</strong> high-dose methylprednisolone in pediatric SCI. Evidence shows it <strong>increases complications</strong> (infection, GI bleeding, wound issues) <strong>without proven long-term neurological benefit</strong>. This is a frequently tested exam trap.",
+    type: "Pharmacology"
+  },
+  {
+    id: 7,
+    question: "During the rehabilitation phase, a patient with a prior high cervical cord injury develops severe spasticity-related pain. Which of the following agents is most appropriate to consider, and what is its mechanism of action?",
+    options: [
+      "Acetaminophen – COX-2 inhibition",
+      "Baclofen – GABA-B receptor agonism",
+      "Tramadol – NMDA receptor antagonism",
+      "Ibuprofen – serotonin receptor agonism"
+    ],
+    correct: 1,
+    explanation: "<strong>Baclofen</strong> is a GABA-B receptor agonist that reduces spasticity by inhibiting excitatory neurotransmitter release in the spinal cord. It is the agent of choice for spasticity-related pain in SCI patients. The other options have incorrect mechanism pairings (acetaminophen's mechanism involves central COX inhibition/unclear, not standard COX-2; tramadol is a weak opioid/SNRI, not NMDA antagonist).",
+    type: "Pharmacology"
+  },
+  {
+    id: 8,
+    question: "Which of the following is a classic characteristic feature of an upper motor neuron (UMN) lesion expected to develop in a complete high cervical cord injury patient?",
+    options: [
+      "Flaccid paralysis",
+      "Decreased reflexes",
+      "Muscle atrophy",
+      "Spastic paralysis"
+    ],
+    correct: 3,
+    explanation: "UMN lesions produce <strong>spastic paralysis</strong>, hyperreflexia, positive Babinski sign, and clonus. Flaccid paralysis, decreased reflexes, and fasciculations/atrophy are LMN signs. Note: Acutely, spinal shock may mimic LMN signs, but UMN features emerge after shock resolution.",
+    type: "Physiology"
+  },
+  {
+    id: 9,
+    question: "A patient with a high cervical cord injury is being managed for raised intracranial pressure from an acute subdural hematoma. Which of the following is most appropriate for acute ICP management prior to craniotomy?",
+    options: [
+      "Dexamethasone IV",
+      "Furosemide PO",
+      "Mannitol IV",
+      "Acetazolamide PO"
+    ],
+    correct: 2,
+    explanation: "<strong>Mannitol IV</strong> (or hypertonic saline) is the first-line osmotic agent for acute reduction of raised ICP prior to definitive surgical evacuation. It creates an osmotic gradient pulling water from brain parenchyma into the vasculature. Dexamethasone is for vasogenic edema (tumors), not trauma. Furosemide and acetazolamide are not standard acute ICP therapies.",
+    type: "Pharmacology"
+  },
+  {
+    id: 10,
+    question: "In a patient with a C2-C3 spinal cord injury, flaccid paralysis and areflexia are noted acutely. This presentation is best explained by:",
+    options: [
+      "Permanent lower motor neuron destruction",
+      "Acute spinal shock phase",
+      "Peripheral nerve transection",
+      "Cerebellar dysfunction"
+    ],
+    correct: 1,
+    explanation: "<strong>Spinal shock</strong> causes temporary flaccidity and areflexia below the level of injury in the acute phase of spinal cord injury. It is NOT a permanent LMN lesion. After resolution (days to weeks), UMN signs (spasticity, hyperreflexia, Babinski) emerge. This distinction is a common exam pitfall.",
+    type: "Physiology"
+  },
+  {
+    id: 11,
+    question: "Gabapentin is initiated for neuropathic pain in a spinal cord injury patient. Its mechanism of action involves:",
+    options: [
+      "Blocking sodium channels in peripheral nerves",
+      "Inhibiting GABA transaminase",
+      "Binding to α2δ subunit of voltage-gated calcium channels",
+      "Activating opioid mu receptors"
+    ],
+    correct: 2,
+    explanation: "Gabapentin binds to the <strong>α2δ subunit of voltage-gated calcium channels</strong>, reducing calcium influx and thereby decreasing excitatory neurotransmitter release (glutamate, substance P). This modulates pain signaling. It is first-line for neuropathic pain/allodynia in SCI. It does NOT directly act on GABA receptors despite its name.",
+    type: "Pharmacology"
+  },
+  {
+    id: 12,
+    question: "Lower motor neurons are located in which region of the spinal cord?",
+    options: [
+      "Dorsal horn of gray matter",
+      "Lateral funiculus of white matter",
+      "Ventral horn of gray matter",
+      "Posterior columns"
+    ],
+    correct: 2,
+    explanation: "Lower motor neuron cell bodies reside in the <strong>ventral (anterior) horn</strong> of the spinal cord gray matter. The dorsal horn processes sensory information. The lateral funiculus contains ascending/descending white matter tracts. Posterior columns carry fine touch/proprioception.",
+    type: "Anatomy"
+  },
+  {
+    id: 13,
+    question: "Which neuroglial cell serves as the primary immune cell of the central nervous system?",
+    options: [
+      "Astrocytes",
+      "Oligodendrocytes",
+      "Schwann cells",
+      "Microglia"
+    ],
+    correct: 3,
+    explanation: "<strong>Microglia</strong> are the resident macrophages/immune cells of the CNS. They phagocytose debris, present antigens, and mediate neuroinflammation. Astrocytes provide structural support and form the blood-brain barrier. Oligodendrocytes myelinate CNS axons. Schwann cells myelinate PNS axons.",
+    type: "Histology"
+  },
+  {
+    id: 14,
+    question: "A 13-year-old trauma patient has an absent gag reflex but intact corneal reflexes. The absent gag reflex indicates dysfunction of pathways involving which cranial nerves?",
+    options: [
+      "CN V and CN VII",
+      "CN IX and CN X",
+      "CN III and CN IV",
+      "CN XI and CN XII"
+    ],
+    correct: 1,
+    explanation: "The gag reflex: <strong>CN IX (glossopharyngeal)</strong> = afferent limb; <strong>CN X (vagus)</strong> = efferent limb. Absence suggests medullary/lower brainstem dysfunction affecting these pathways. CN V/VII mediate the corneal reflex (intact in this patient). This dissociation helps localize the level of brainstem involvement.",
+    type: "Clinical"
+  },
+  {
+    id: 15,
+    question: "In the peripheral nervous system, which cell is responsible for myelination and plays a critical role in nerve regeneration after injury?",
+    options: [
+      "Oligodendrocytes",
+      "Microglia",
+      "Schwann cells",
+      "Ependymal cells"
+    ],
+    correct: 2,
+    explanation: "<strong>Schwann cells</strong> myelinate axons in the PNS and are essential for Wallerian degeneration and axonal regeneration after peripheral nerve injury. Oligodendrocytes myelinate CNS axons (and do NOT support regeneration as effectively). Microglia are CNS immune cells. Ependymal cells line ventricles.",
+    type: "Histology"
+  }
+];
+
+const flowchartData = [
+  {
+    title: "🚨 MVC Trauma — Unresponsive Patient",
+    detail: "13-year-old unrestrained front-seat passenger. Head struck windshield at 35-40 mph. Key mechanism: deceleration injury causing both cranial and cervical trauma simultaneously.",
+    type: "start"
+  },
+  {
+    title: "🔧 Primary Survey (ATLS)",
+    detail: "<strong>A</strong>: Airway compromised → intubate (absent gag, poor respiratory effort). <strong>B</strong>: Inadequate breathing → mechanical ventilation. <strong>C</strong>: Bradycardic (neurogenic shock / Cushing reflex). <strong>D</strong>: GCS severely depressed, flaccid quadriplegia. <strong>E</strong>: Full cervical immobilization maintained.",
+    type: "node"
+  },
+  {
+    title: "🧠 Neurological Assessment",
+    detail: "<strong>Cranial findings (intact):</strong> Pupils equal/reactive, brisk corneal reflex (CN V/VII), facial grimacing to noxious stimuli.<br><strong>Spinal findings (absent):</strong> Flaccid quadriplegia, areflexia, absent anal wink, patulous sphincter, no extremity motor response.<br><strong>Interpretation:</strong> Cranial-spinal dissociation → complete high cervical cord injury + TBI.",
+    type: "node"
+  },
+  {
+    title: "📊 Imaging",
+    detail: "<strong>CT Brain:</strong> Right acute subdural hematoma, midline shift, cerebral edema, effaced basal cisterns → raised ICP, needs surgical evacuation.<br><strong>CT C-spine:</strong> C2 fracture with canal narrowing.<br><strong>MRI C-spine:</strong> C2-C3 cord edema/contusion (no transection). → ASIA Grade A confirmed.",
+    type: "node"
+  },
+  {
+    title: "💊 Acute Management",
+    detail: "<strong>DO:</strong> Mannitol/hypertonic saline IV (reduce ICP), secure ventilation, hemodynamic support, prepare for craniotomy.<br><strong>DON'T:</strong> ❌ Methylprednisolone (no benefit, more complications), ❌ Morphine (respiratory depression), ❌ NSAIDs (bleeding/renal risk).",
+    type: "critical"
+  },
+  {
+    title: "🔪 Definitive Surgical Management",
+    detail: "<strong>Craniotomy:</strong> Evacuate subdural hematoma (mass effect). ICP monitor placement.<br><strong>C-spine fixation:</strong> Stabilize C2 fracture (halo vest or surgical fusion depending on stability).<br>Long-term mechanical ventilation required (C2-C3 = phrenic nerve roots impaired).",
+    type: "node"
+  },
+  {
+    title: "♿ Rehabilitation Phase",
+    detail: "<strong>Pain management:</strong> Gabapentin (titrated) for neuropathic pain/allodynia (first-line). Baclofen (GABA-B agonist) if spasticity develops.<br><strong>Expected evolution:</strong> Spinal shock resolves → UMN signs emerge (spasticity, hyperreflexia, Babinski).<br><strong>Functional outcome:</strong> Ventilator-dependent quadriplegia (C2-C3 complete).",
+    type: "endpoint"
+  }
+];
+
+const rapidData = [
+  { cat: "anatomy", icon: "🧠", keyword: "Subdural Hematoma", detail: "Bridging vein tear → crescent-shaped on CT → midline shift + effaced cisterns" },
+  { cat: "anatomy", icon: "🫁", keyword: "Phrenic Nerve = C3, C4, C5", detail: "\"C3-4-5 keeps the diaphragm alive\" → C2-C3 injury = ventilator dependent" },
+  { cat: "clinical", icon: "👁️", keyword: "Corneal Reflex", detail: "Afferent: CN V (trigeminal) → Efferent: CN VII (facial) → Tests pontine brainstem" },
+  { cat: "clinical", icon: "🍩", keyword: "Anal Wink = S2-S4", detail: "Absent = sacral segment disconnection → confirms ASIA Grade A (complete SCI)" },
+  { cat: "clinical", icon: "😬", keyword: "Cranial-Spinal Dissociation", detail: "Face grimaces (CN V/VII intact) + No limb response = cervical cord disconnection, NOT brainstem" },
+  { cat: "clinical", icon: "🤢", keyword: "Gag Reflex = CN IX + CN X", detail: "Absent gag = glossopharyngeal/vagus dysfunction → aspiration risk → lower brainstem" },
+  { cat: "path", icon: "⚡", keyword: "Spinal Shock vs UMN", detail: "Acute: flaccid + areflexia (shock) → Later: spastic + hyperreflexia + Babinski (UMN)" },
+  { cat: "path", icon: "🔼", keyword: "UMN Lesion Signs", detail: "Spastic paralysis, ↑ reflexes, + Babinski, clonus, loss of voluntary movement" },
+  { cat: "pharm", icon: "💊", keyword: "Mannitol / Hypertonic Saline", detail: "Osmotic agents for acute ICP reduction → IV before craniotomy" },
+  { cat: "trap", icon: "🚫", keyword: "NO Methylprednisolone", detail: "Pediatric SCI: ↑ complications (infection, GI bleed) + NO proven neurological benefit" },
+  { cat: "trap", icon: "🚫", keyword: "NO Morphine Acutely", detail: "Respiratory depression → deadly in compromised C2-C3 + TBI patient" },
+  { cat: "trap", icon: "🚫", keyword: "NO NSAIDs Acutely", detail: "Bleeding risk (antiplatelet) + renal impairment in acute trauma" },
+  { cat: "pharm", icon: "💊", keyword: "Gabapentin", detail: "α2δ Ca²⁺ channel blocker → 1st-line neuropathic pain/allodynia in SCI → titrate" },
+  { cat: "pharm", icon: "💊", keyword: "Baclofen", detail: "GABA-B agonist → spasticity-related pain in rehab phase" },
+  { cat: "anatomy", icon: "🔬", keyword: "LMN Location", detail: "Ventral (anterior) horn of spinal cord gray matter" },
+  { cat: "path", icon: "🔬", keyword: "Microglia", detail: "Primary immune cells of CNS (resident macrophages)" },
+  { cat: "anatomy", icon: "🔬", keyword: "Schwann vs Oligodendrocytes", detail: "Schwann = PNS myelination + regeneration | Oligodendrocytes = CNS myelination" },
+  { cat: "clinical", icon: "📋", keyword: "ASIA Grade A", detail: "Complete SCI: NO motor/sensory function in sacral segments S4-S5" }
+];
+
+// ==================== APP STATE ====================
+
+let state = {
+  currentTab: localStorage.getItem('cbl_lastTab') || 'case',
+  darkMode: localStorage.getItem('cbl_darkMode') === 'true',
+  mcqCurrent: 0,
+  mcqAnswered: JSON.parse(localStorage.getItem('cbl_mcqAnswered') || '{}'),
+  mcqScore: parseInt(localStorage.getItem('cbl_mcqScore') || '0'),
+  mcqTotal: parseInt(localStorage.getItem('cbl_mcqTotal') || '0'),
+  mcqStreak: parseInt(localStorage.getItem('cbl_mcqStreak') || '0'),
+  mcqBestStreak: parseInt(localStorage.getItem('cbl_mcqBestStreak') || '0'),
+  mistakes: JSON.parse(localStorage.getItem('cbl_mistakes') || '[]')
+};
+
+// ==================== INIT ====================
+
+function init() {
+  applyTheme();
+  setupTabs();
+  setupDarkToggle();
+  setupRevealCards();
+  renderMCQ();
+  renderFlowchart();
+  renderRapid();
+  updateMCQStats();
+  renderMistakes();
+  switchTab(state.currentTab);
+}
+
+// ==================== THEME ====================
+
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', state.darkMode ? 'dark' : 'light');
+}
+
+function setupDarkToggle() {
+  document.getElementById('darkToggle').addEventListener('click', () => {
+    state.darkMode = !state.darkMode;
+    localStorage.setItem('cbl_darkMode', state.darkMode);
+    applyTheme();
+  });
+}
+
+// ==================== TABS ====================
+
+function setupTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      switchTab(btn.dataset.tab);
+    });
+  });
+}
+
+function switchTab(tabId) {
+  state.currentTab = tabId;
+  localStorage.setItem('cbl_lastTab', tabId);
+  
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  
+  const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+  const content = document.getElementById(`tab-${tabId}`);
+  
+  if (btn) btn.classList.add('active');
+  if (content) content.classList.add('active');
+}
+
+// ==================== REVEAL CARDS ====================
+
+function setupRevealCards() {
+  document.querySelectorAll('.reveal-card').forEach(card => {
+    card.querySelector('.reveal-header').addEventListener('click', () => {
+      card.classList.toggle('open');
+    });
+  });
+}
+
+// ==================== MCQ ENGINE ====================
+
+function renderMCQ() {
+  const container = document.getElementById('mcqContainer');
+  const q = mcqData[state.mcqCurrent];
+  const answered = state.mcqAnswered[q.id];
+  
+  let html = `
+    <div class="mcq-card" id="mcqCard">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <div class="mcq-question-num">Question ${state.mcqCurrent + 1} of ${mcqData.length}</div>
+        <span class="tag ${q.type === 'Pharmacology' ? 'purple' : q.type === 'Anatomy' ? 'blue' : q.type === 'Pathology' || q.type === 'Histology' ? 'red' : q.type === 'Physiology' ? 'green' : 'gold'}" style="background:var(--${q.type === 'Pharmacology' ? 'purple' : q.type === 'Anatomy' ? 'accent' : q.type === 'Pathology' || q.type === 'Histology' ? 'danger' : q.type === 'Physiology' ? 'success' : 'gold'}-bg);color:var(--${q.type === 'Pharmacology' ? 'purple' : q.type === 'Anatomy' ? 'accent' : q.type === 'Pathology' || q.type === 'Histology' ? 'danger' : q.type === 'Physiology' ? 'success' : 'gold'});border:1px solid var(--${q.type === 'Pharmacology' ? 'purple' : q.type === 'Anatomy' ? 'accent' : q.type === 'Pathology' || q.type === 'Histology' ? 'danger' : q.type === 'Physiology' ? 'success' : 'gold'}-border)">${q.type}</span>
+      </div>
+      <div class="mcq-question-text">${q.question}</div>
+  `;
+  
+  const letters = ['A', 'B', 'C', 'D'];
+  q.options.forEach((opt, i) => {
+    let cls = 'mcq-option';
+    if (answered !== undefined) {
+      cls += ' disabled';
+      if (i === q.correct) cls += ' correct';
+      else if (i === answered && answered !== q.correct) cls += ' incorrect';
+    }
+    html += `
+      <div class="${cls}" data-idx="${i}" onclick="selectAnswer(${i})">
+        <div class="mcq-option-letter">${letters[i]}</div>
+        <div>${opt}</div>
+      </div>
+    `;
+  });
+  
+  html += `<div class="mcq-explanation ${answered !== undefined ? 'show' : ''}" id="mcqExpl">${q.explanation}</div>`;
+  html += `</div>`;
+  
+  container.innerHTML = html;
+  
+  // Nav buttons
+  document.getElementById('mcqPrev').disabled = state.mcqCurrent === 0;
+  document.getElementById('mcqNext').textContent = state.mcqCurrent === mcqData.length - 1 ? 'Finish' : 'Next';
+  // re-add icon
+  const nextBtn = document.getElementById('mcqNext');
+  nextBtn.innerHTML = state.mcqCurrent === mcqData.length - 1 
+    ? 'View Results <span class="material-icons-outlined" style="font-size:16px">done_all</span>'
+    : 'Next <span class="material-icons-outlined" style="font-size:16px">arrow_forward</span>';
+  
+  document.getElementById('mcqPageInfo').textContent = `${state.mcqCurrent + 1} / ${mcqData.length}`;
+  
+  // Progress
+  const answeredCount = Object.keys(state.mcqAnswered).length;
+  document.getElementById('mcqProgressBar').style.width = `${(answeredCount / mcqData.length) * 100}%`;
+}
+
+function selectAnswer(idx) {
+  const q = mcqData[state.mcqCurrent];
+  if (state.mcqAnswered[q.id] !== undefined) return;
+  
+  state.mcqAnswered[q.id] = idx;
+  state.mcqTotal++;
+  
+  const card = document.getElementById('mcqCard');
+  
+  if (idx === q.correct) {
+    state.mcqScore++;
+    state.mcqStreak++;
+    if (state.mcqStreak > state.mcqBestStreak) state.mcqBestStreak = state.mcqStreak;
+    card.classList.add('correct-anim');
+  } else {
+    state.mcqStreak = 0;
+    card.classList.add('incorrect-anim');
+    // Store mistake
+    const existing = state.mistakes.find(m => m.id === q.id);
+    if (!existing) {
+      state.mistakes.push({
+        id: q.id,
+        question: q.question.substring(0, 100) + '...',
+        yourAnswer: q.options[idx],
+        correctAnswer: q.options[q.correct],
+        explanation: q.explanation
+      });
+    }
+  }
+  
+  saveMCQState();
+  updateMCQStats();
+  renderMCQ();
+  renderMistakes();
+}
+
+function updateMCQStats() {
+  const answered = Object.keys(state.mcqAnswered).length;
+  document.getElementById('mcqScore').textContent = `${state.mcqScore}/${answered}`;
+  document.getElementById('mcqStreak').textContent = state.mcqStreak;
+  document.getElementById('mcqMistakes').textContent = state.mistakes.length;
+  document.getElementById('mcqPercent').textContent = answered > 0 ? `${Math.round((state.mcqScore / answered) * 100)}%` : '0%';
+  
+  const headerStreak = document.getElementById('headerStreak');
+  const headerStreakVal = document.getElementById('headerStreakVal');
+  if (state.mcqStreak >= 2) {
+    headerStreak.style.display = 'inline-flex';
+    headerStreakVal.textContent = state.mcqStreak;
+  } else {
+    headerStreak.style.display = 'none';
+  }
+}
+
+function saveMCQState() {
+  localStorage.setItem('cbl_mcqAnswered', JSON.stringify(state.mcqAnswered));
+  localStorage.setItem('cbl_mcqScore', state.mcqScore);
+  localStorage.setItem('cbl_mcqTotal', state.mcqTotal);
+  localStorage.setItem('cbl_mcqStreak', state.mcqStreak);
+  localStorage.setItem('cbl_mcqBestStreak', state.mcqBestStreak);
+  localStorage.setItem('cbl_mistakes', JSON.stringify(state.mistakes));
+}
+
+function renderMistakes() {
+  const container = document.getElementById('mistakeReview');
+  if (state.mistakes.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">🎯</div>
+        <div class="empty-state-text">No mistakes yet. Keep it up!</div>
+      </div>
+    `;
+    return;
+  }
+  
+  let html = '';
+  state.mistakes.forEach(m => {
+    html += `
+      <div class="mistake-item">
+        <div class="mistake-q">${m.question}</div>
+        <div class="mistake-detail">
+          Your answer: <span class="wrong">${m.yourAnswer}</span><br>
+          Correct: <span class="right">${m.correctAnswer}</span>
+        </div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+// Nav handlers
+document.getElementById('mcqNext').addEventListener('click', () => {
+  if (state.mcqCurrent < mcqData.length - 1) {
+    state.mcqCurrent++;
+    renderMCQ();
+  } else {
+    // Show results
+    showResults();
+  }
+});
+
+document.getElementById('mcqPrev').addEventListener('click', () => {
+  if (state.mcqCurrent > 0) {
+    state.mcqCurrent--;
+    renderMCQ();
+  }
+});
+
+document.getElementById('resetMcqBtn').addEventListener('click', () => {
+  state.mcqAnswered = {};
+  state.mcqScore = 0;
+  state.mcqTotal = 0;
+  state.mcqStreak = 0;
+  state.mcqCurrent = 0;
+  state.mistakes = [];
+  saveMCQState();
+  updateMCQStats();
+  renderMCQ();
+  renderMistakes();
+});
+
+document.getElementById('clearMistakesBtn').addEventListener('click', () => {
+  state.mistakes = [];
+  localStorage.setItem('cbl_mistakes', '[]');
+  renderMistakes();
+  updateMCQStats();
+});
+
+function showResults() {
+  const container = document.getElementById('mcqContainer');
+  const answered = Object.keys(state.mcqAnswered).length;
+  const pct = answered > 0 ? Math.round((state.mcqScore / answered) * 100) : 0;
+  let grade = 'poor';
+  if (pct >= 80) grade = 'good';
+  else if (pct >= 50) grade = 'medium';
+  
+  container.innerHTML = `
+    <div class="score-display">
+      <div class="score-circle ${grade}">
+        ${pct}%
+        <div class="score-label">${state.mcqScore}/${answered} correct</div>
+      </div>
+      <h3 style="margin-bottom:8px">${pct >= 80 ? '🎉 Excellent!' : pct >= 50 ? '📚 Good effort!' : '💪 Keep studying!'}</h3>
+      <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px">Best streak: 🔥 ${state.mcqBestStreak} | Mistakes: ${state.mistakes.length}</p>
+      <button class="btn btn-primary" onclick="state.mcqCurrent=0;renderMCQ();" style="margin:0 auto">
+        <span class="material-icons-outlined" style="font-size:16px">replay</span> Review Questions
+      </button>
+    </div>
+  `;
+}
+
+// ==================== FLOWCHART ====================
+
+function renderFlowchart() {
+  const container = document.getElementById('flowchart');
+  let html = '';
+  
+  flowchartData.forEach((node, i) => {
+    const colorMap = {
+      start: 'var(--danger)',
+      node: 'var(--accent)',
+      critical: 'var(--warning)',
+      endpoint: 'var(--success)'
+    };
+    const bgMap = {
+      start: 'var(--danger-bg)',
+      node: 'var(--accent-bg)',
+      critical: 'var(--warning-bg)',
+      endpoint: 'var(--success-bg)'
+    };
+    
+    html += `
+      <div class="flow-node" onclick="toggleFlowNode(this)" style="border-color:${colorMap[node.type]};background:${bgMap[node.type]}">
+        <div class="flow-node-title" style="color:${colorMap[node.type]}">
+          ${node.title}
+          <span class="material-icons-outlined" style="font-size:16px">expand_more</span>
+        </div>
+        <div class="flow-node-detail">${node.detail}</div>
+      </div>
+    `;
+    
+    if (i < flowchartData.length - 1) {
+      html += `<div class="flow-arrow"></div>`;
+    }
+  });
+  
+  container.innerHTML = html;
+}
+
+function toggleFlowNode(el) {
+  el.classList.toggle('expanded');
+}
+
+// ==================== RAPID TAKEAWAYS ====================
+
+function renderRapid() {
+  const container = document.getElementById('rapidGrid');
+  const catMap = {
+    anatomy: { label: 'ANATOMY', cls: 'anatomy' },
+    pharm: { label: 'PHARMACOLOGY', cls: 'pharm' },
+    path: { label: 'PATHOLOGY', cls: 'path' },
+    clinical: { label: 'CLINICAL', cls: 'clinical' },
+    trap: { label: 'EXAM TRAP', cls: 'trap' }
+  };
+  
+  let html = '';
+  rapidData.forEach(item => {
+    const c = catMap[item.cat];
+    html += `
+      <div class="rapid-item">
+        <div class="rapid-category ${c.cls}">${item.icon} ${c.label}</div>
+        <div class="rapid-keyword">${item.keyword}</div>
+        <div class="rapid-detail">${item.detail}</div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+}
+
+// ==================== BOOT ====================
+init();
+</script>
+</body>
+</html>

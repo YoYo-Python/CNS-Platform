@@ -1,0 +1,2266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Classical Trigeminal Neuralgia - Interactive CBL</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+<style>
+:root {
+--bg-primary: #f0f4f8;
+--bg-secondary: #ffffff;
+--bg-card: #ffffff;
+--bg-hover: #e8eef4;
+--text-primary: #1a2332;
+--text-secondary: #4a5568;
+--text-muted: #718096;
+--accent: #2563eb;
+--accent-light: #dbeafe;
+--accent-dark: #1d4ed8;
+--success: #059669;
+--success-light: #d1fae5;
+--danger: #dc2626;
+--danger-light: #fee2e2;
+--warning: #d97706;
+--warning-light: #fef3c7;
+--purple: #7c3aed;
+--purple-light: #ede9fe;
+--border: #e2e8f0;
+--shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+--shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+--shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+--radius: 12px;
+--radius-sm: 8px;
+--transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+--ecg-color: rgba(37, 99, 235, 0.08);
+}
+
+[data-theme="dark"] {
+--bg-primary: #0f172a;
+--bg-secondary: #1e293b;
+--bg-card: #1e293b;
+--bg-hover: #334155;
+--text-primary: #f1f5f9;
+--text-secondary: #94a3b8;
+--text-muted: #64748b;
+--accent: #3b82f6;
+--accent-light: #1e3a5f;
+--accent-dark: #60a5fa;
+--success: #10b981;
+--success-light: #064e3b;
+--danger: #ef4444;
+--danger-light: #450a0a;
+--warning: #f59e0b;
+--warning-light: #451a03;
+--purple: #a78bfa;
+--purple-light: #2e1065;
+--border: #334155;
+--shadow: 0 1px 3px rgba(0,0,0,0.3);
+--shadow-md: 0 4px 6px rgba(0,0,0,0.4);
+--shadow-lg: 0 10px 25px rgba(0,0,0,0.5);
+--ecg-color: rgba(59, 130, 246, 0.05);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+font-family: 'Inter', sans-serif;
+background: var(--bg-primary);
+color: var(--text-primary);
+transition: var(--transition);
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* ECG Background Pattern */
+.ecg-bg {
+position: fixed;
+top: 0; left: 0; right: 0; bottom: 0;
+pointer-events: none;
+z-index: 0;
+overflow: hidden;
+}
+
+.ecg-line {
+position: absolute;
+width: 200%;
+height: 2px;
+background: var(--ecg-color);
+animation: ecgScroll 8s linear infinite;
+}
+
+.ecg-line::before {
+content: '';
+position: absolute;
+width: 100%;
+height: 100%;
+background: repeating-linear-gradient(
+90deg,
+transparent 0px,
+transparent 40px,
+var(--ecg-color) 40px,
+var(--ecg-color) 42px,
+transparent 42px,
+transparent 50px,
+var(--ecg-color) 50px,
+transparent 55px,
+transparent 58px,
+var(--ecg-color) 58px,
+transparent 60px,
+transparent 100px
+);
+}
+
+@keyframes ecgScroll {
+0% { transform: translateX(0); }
+100% { transform: translateX(-50%); }
+}
+
+.ecg-line:nth-child(1) { top: 15%; opacity: 0.4; animation-duration: 6s; }
+.ecg-line:nth-child(2) { top: 35%; opacity: 0.25; animation-duration: 9s; }
+.ecg-line:nth-child(3) { top: 55%; opacity: 0.3; animation-duration: 7s; }
+.ecg-line:nth-child(4) { top: 75%; opacity: 0.2; animation-duration: 10s; }
+.ecg-line:nth-child(5) { top: 92%; opacity: 0.15; animation-duration: 8s; }
+
+/* Neural pulse dots */
+.neural-dot {
+position: absolute;
+width: 4px;
+height: 4px;
+border-radius: 50%;
+background: var(--accent);
+opacity: 0;
+animation: neuralPulse 4s ease-in-out infinite;
+}
+
+@keyframes neuralPulse {
+0%, 100% { opacity: 0; transform: scale(0.5); }
+50% { opacity: 0.3; transform: scale(1.5); }
+}
+
+/* Header */
+.header {
+position: sticky;
+top: 0;
+z-index: 100;
+background: var(--bg-secondary);
+border-bottom: 1px solid var(--border);
+box-shadow: var(--shadow);
+padding: 12px 24px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+backdrop-filter: blur(10px);
+}
+
+.header-left {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+
+.header-icon {
+width: 42px;
+height: 42px;
+background: linear-gradient(135deg, var(--accent), var(--purple));
+border-radius: 10px;
+display: flex;
+align-items: center;
+justify-content: center;
+color: white;
+font-size: 22px;
+}
+
+.header-title h1 {
+font-size: 16px;
+font-weight: 700;
+background: linear-gradient(135deg, var(--accent), var(--purple));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+}
+
+.header-title span {
+font-size: 11px;
+color: var(--text-muted);
+font-weight: 500;
+}
+
+.header-right {
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.theme-toggle {
+background: var(--bg-hover);
+border: 1px solid var(--border);
+border-radius: 20px;
+padding: 6px 14px;
+cursor: pointer;
+display: flex;
+align-items: center;
+gap: 6px;
+font-size: 13px;
+color: var(--text-secondary);
+transition: var(--transition);
+font-family: 'Inter', sans-serif;
+}
+
+.theme-toggle:hover {
+background: var(--accent-light);
+color: var(--accent);
+}
+
+/* Tab Navigation */
+.tab-nav {
+display: flex;
+gap: 4px;
+padding: 12px 24px;
+overflow-x: auto;
+background: var(--bg-secondary);
+border-bottom: 1px solid var(--border);
+scrollbar-width: none;
+position: sticky;
+top: 66px;
+z-index: 99;
+}
+
+.tab-nav::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+flex-shrink: 0;
+padding: 10px 18px;
+border: none;
+background: transparent;
+color: var(--text-muted);
+font-family: 'Inter', sans-serif;
+font-size: 13px;
+font-weight: 600;
+border-radius: var(--radius-sm);
+cursor: pointer;
+transition: var(--transition);
+display: flex;
+align-items: center;
+gap: 6px;
+white-space: nowrap;
+}
+
+.tab-btn:hover {
+background: var(--bg-hover);
+color: var(--text-primary);
+}
+
+.tab-btn.active {
+background: var(--accent);
+color: white;
+box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.tab-btn .tab-emoji {
+font-size: 15px;
+}
+
+/* Main Content */
+.main-content {
+position: relative;
+z-index: 1;
+max-width: 1100px;
+margin: 0 auto;
+padding: 24px;
+}
+
+.tab-panel {
+display: none;
+animation: fadeIn 0.4s ease;
+}
+
+.tab-panel.active {
+display: block;
+}
+
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(10px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+/* Cards */
+.card {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+padding: 24px;
+margin-bottom: 20px;
+box-shadow: var(--shadow);
+transition: var(--transition);
+}
+
+.card:hover {
+box-shadow: var(--shadow-md);
+}
+
+.card-header {
+display: flex;
+align-items: center;
+gap: 10px;
+margin-bottom: 16px;
+padding-bottom: 12px;
+border-bottom: 2px solid var(--border);
+}
+
+.card-header .icon {
+width: 36px;
+height: 36px;
+border-radius: 10px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 18px;
+flex-shrink: 0;
+}
+
+.card-header h3 {
+font-size: 16px;
+font-weight: 700;
+}
+
+.icon-blue { background: var(--accent-light); color: var(--accent); }
+.icon-green { background: var(--success-light); color: var(--success); }
+.icon-red { background: var(--danger-light); color: var(--danger); }
+.icon-purple { background: var(--purple-light); color: var(--purple); }
+.icon-warning { background: var(--warning-light); color: var(--warning); }
+
+/* Patient ID Card */
+.patient-card {
+background: linear-gradient(135deg, var(--accent), var(--purple));
+color: white;
+border: none;
+position: relative;
+overflow: hidden;
+}
+
+.patient-card::before {
+content: '';
+position: absolute;
+top: -50%;
+right: -30%;
+width: 300px;
+height: 300px;
+background: rgba(255,255,255,0.05);
+border-radius: 50%;
+}
+
+.patient-card .patient-info {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+gap: 16px;
+}
+
+.patient-field {
+background: rgba(255,255,255,0.12);
+border-radius: var(--radius-sm);
+padding: 12px 16px;
+backdrop-filter: blur(4px);
+}
+
+.patient-field label {
+font-size: 10px;
+text-transform: uppercase;
+letter-spacing: 1.2px;
+opacity: 0.8;
+font-weight: 600;
+}
+
+.patient-field .value {
+font-size: 15px;
+font-weight: 700;
+margin-top: 4px;
+}
+
+/* HPI Items */
+.hpi-grid {
+display: grid;
+gap: 10px;
+}
+
+.hpi-item {
+display: flex;
+align-items: flex-start;
+gap: 12px;
+padding: 12px 16px;
+border-radius: var(--radius-sm);
+background: var(--bg-primary);
+border: 1px solid var(--border);
+transition: var(--transition);
+cursor: default;
+position: relative;
+}
+
+.hpi-item:hover {
+border-color: var(--accent);
+background: var(--accent-light);
+}
+
+.hpi-item.abnormal {
+border-left: 4px solid var(--danger);
+}
+
+.hpi-item.normal {
+border-left: 4px solid var(--success);
+}
+
+.hpi-label {
+font-weight: 600;
+font-size: 13px;
+color: var(--text-primary);
+min-width: 120px;
+}
+
+.hpi-value {
+font-size: 13px;
+color: var(--text-secondary);
+flex: 1;
+}
+
+/* Tooltip */
+.tooltip-container {
+position: relative;
+}
+
+.tooltip-text {
+visibility: hidden;
+opacity: 0;
+position: absolute;
+bottom: calc(100% + 8px);
+left: 50%;
+transform: translateX(-50%);
+background: var(--text-primary);
+color: var(--bg-primary);
+padding: 10px 14px;
+border-radius: var(--radius-sm);
+font-size: 12px;
+line-height: 1.5;
+width: 280px;
+max-width: 90vw;
+z-index: 200;
+box-shadow: var(--shadow-lg);
+transition: var(--transition);
+text-align: left;
+font-weight: 400;
+}
+
+.tooltip-text::after {
+content: '';
+position: absolute;
+top: 100%;
+left: 50%;
+transform: translateX(-50%);
+border: 6px solid transparent;
+border-top-color: var(--text-primary);
+}
+
+.tooltip-container:hover .tooltip-text {
+visibility: visible;
+opacity: 1;
+}
+
+/* Labs Grid */
+.labs-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+gap: 12px;
+}
+
+.lab-item {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 14px 18px;
+background: var(--bg-primary);
+border-radius: var(--radius-sm);
+border: 1px solid var(--border);
+font-size: 13px;
+}
+
+.lab-item .lab-name {
+font-weight: 600;
+color: var(--text-primary);
+}
+
+.lab-item .lab-result {
+font-weight: 700;
+font-family: 'JetBrains Mono', monospace;
+font-size: 12px;
+}
+
+.lab-item .lab-result.abnormal {
+color: var(--danger);
+}
+
+.lab-item .lab-result.normal {
+color: var(--success);
+}
+
+.lab-item .lab-result.critical {
+color: var(--danger);
+font-weight: 800;
+animation: criticalPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes criticalPulse {
+0%, 100% { opacity: 1; }
+50% { opacity: 0.6; }
+}
+
+/* Pearls Section */
+.pearl-item {
+padding: 16px 20px;
+margin-bottom: 12px;
+border-radius: var(--radius-sm);
+border-left: 4px solid var(--accent);
+background: var(--accent-light);
+font-size: 14px;
+line-height: 1.7;
+color: var(--text-primary);
+}
+
+.pearl-item.red-flag {
+border-left-color: var(--danger);
+background: var(--danger-light);
+}
+
+.pearl-item.warning-pearl {
+border-left-color: var(--warning);
+background: var(--warning-light);
+}
+
+.pearl-item.success-pearl {
+border-left-color: var(--success);
+background: var(--success-light);
+}
+
+.pearl-item strong {
+font-weight: 700;
+}
+
+.pearl-emoji {
+font-size: 16px;
+margin-right: 6px;
+}
+
+/* Clinical Reasoning Reveal Cards */
+.reveal-card {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+overflow: hidden;
+margin-bottom: 16px;
+box-shadow: var(--shadow);
+}
+
+.reveal-header {
+padding: 18px 22px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+cursor: pointer;
+transition: var(--transition);
+background: var(--bg-primary);
+user-select: none;
+}
+
+.reveal-header:hover {
+background: var(--accent-light);
+}
+
+.reveal-header h4 {
+font-size: 14px;
+font-weight: 700;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.reveal-header .reveal-icon {
+transition: transform 0.3s ease;
+color: var(--accent);
+}
+
+.reveal-header .reveal-icon.open {
+transform: rotate(180deg);
+}
+
+.reveal-body {
+max-height: 0;
+overflow: hidden;
+transition: max-height 0.4s ease;
+}
+
+.reveal-body.open {
+max-height: 800px;
+}
+
+.reveal-content {
+padding: 20px 22px;
+font-size: 14px;
+line-height: 1.8;
+color: var(--text-secondary);
+}
+
+.reveal-content ul {
+list-style: none;
+padding: 0;
+}
+
+.reveal-content ul li {
+padding: 6px 0;
+padding-left: 20px;
+position: relative;
+}
+
+.reveal-content ul li::before {
+content: '▸';
+position: absolute;
+left: 0;
+color: var(--accent);
+font-weight: bold;
+}
+
+/* MCQ Section */
+.mcq-stats {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+gap: 12px;
+margin-bottom: 24px;
+}
+
+.stat-box {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius-sm);
+padding: 16px;
+text-align: center;
+box-shadow: var(--shadow);
+}
+
+.stat-box .stat-value {
+font-size: 28px;
+font-weight: 800;
+font-family: 'JetBrains Mono', monospace;
+}
+
+.stat-box .stat-label {
+font-size: 11px;
+color: var(--text-muted);
+font-weight: 600;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+margin-top: 4px;
+}
+
+.stat-box.score .stat-value { color: var(--accent); }
+.stat-box.correct-stat .stat-value { color: var(--success); }
+.stat-box.wrong-stat .stat-value { color: var(--danger); }
+.stat-box.streak .stat-value { color: var(--warning); }
+
+.mcq-card {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+padding: 28px;
+margin-bottom: 20px;
+box-shadow: var(--shadow);
+}
+
+.mcq-progress {
+display: flex;
+align-items: center;
+gap: 8px;
+margin-bottom: 16px;
+font-size: 12px;
+color: var(--text-muted);
+font-weight: 600;
+}
+
+.mcq-progress-bar {
+flex: 1;
+height: 6px;
+background: var(--bg-primary);
+border-radius: 3px;
+overflow: hidden;
+}
+
+.mcq-progress-fill {
+height: 100%;
+background: linear-gradient(90deg, var(--accent), var(--purple));
+border-radius: 3px;
+transition: width 0.5s ease;
+}
+
+.mcq-question {
+font-size: 15px;
+font-weight: 600;
+line-height: 1.7;
+margin-bottom: 20px;
+color: var(--text-primary);
+}
+
+.mcq-options {
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
+
+.mcq-option {
+padding: 14px 18px;
+border: 2px solid var(--border);
+border-radius: var(--radius-sm);
+cursor: pointer;
+transition: var(--transition);
+font-size: 14px;
+line-height: 1.5;
+display: flex;
+align-items: flex-start;
+gap: 12px;
+user-select: none;
+}
+
+.mcq-option:hover:not(.disabled) {
+border-color: var(--accent);
+background: var(--accent-light);
+}
+
+.mcq-option .option-letter {
+width: 28px;
+height: 28px;
+border-radius: 50%;
+background: var(--bg-primary);
+display: flex;
+align-items: center;
+justify-content: center;
+font-weight: 700;
+font-size: 12px;
+flex-shrink: 0;
+color: var(--text-secondary);
+border: 2px solid var(--border);
+}
+
+.mcq-option.selected-correct {
+border-color: var(--success);
+background: var(--success-light);
+}
+
+.mcq-option.selected-correct .option-letter {
+background: var(--success);
+color: white;
+border-color: var(--success);
+}
+
+.mcq-option.selected-wrong {
+border-color: var(--danger);
+background: var(--danger-light);
+}
+
+.mcq-option.selected-wrong .option-letter {
+background: var(--danger);
+color: white;
+border-color: var(--danger);
+}
+
+.mcq-option.show-correct {
+border-color: var(--success);
+background: var(--success-light);
+}
+
+.mcq-option.show-correct .option-letter {
+background: var(--success);
+color: white;
+border-color: var(--success);
+}
+
+.mcq-option.disabled {
+cursor: default;
+opacity: 0.7;
+}
+
+.mcq-option.disabled:hover {
+border-color: var(--border);
+background: transparent;
+}
+
+.mcq-explanation {
+margin-top: 16px;
+padding: 16px 20px;
+border-radius: var(--radius-sm);
+background: var(--accent-light);
+border-left: 4px solid var(--accent);
+font-size: 13px;
+line-height: 1.7;
+display: none;
+animation: fadeIn 0.3s ease;
+}
+
+.mcq-explanation.show {
+display: block;
+}
+
+.mcq-explanation strong {
+color: var(--accent);
+}
+
+.mcq-nav {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-top: 20px;
+}
+
+.mcq-btn {
+padding: 10px 24px;
+border: none;
+border-radius: var(--radius-sm);
+font-family: 'Inter', sans-serif;
+font-size: 13px;
+font-weight: 600;
+cursor: pointer;
+transition: var(--transition);
+display: flex;
+align-items: center;
+gap: 6px;
+}
+
+.mcq-btn-primary {
+background: var(--accent);
+color: white;
+}
+
+.mcq-btn-primary:hover {
+background: var(--accent-dark);
+box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.mcq-btn-secondary {
+background: var(--bg-hover);
+color: var(--text-primary);
+border: 1px solid var(--border);
+}
+
+.mcq-btn-secondary:hover {
+background: var(--accent-light);
+}
+
+.mcq-btn:disabled {
+opacity: 0.5;
+cursor: not-allowed;
+}
+
+/* Mistake Review */
+.mistake-card {
+background: var(--danger-light);
+border: 1px solid var(--danger);
+border-radius: var(--radius-sm);
+padding: 16px 20px;
+margin-bottom: 12px;
+}
+
+.mistake-card .mq {
+font-size: 13px;
+font-weight: 600;
+margin-bottom: 8px;
+}
+
+.mistake-card .your-ans {
+color: var(--danger);
+font-size: 12px;
+font-weight: 600;
+}
+
+.mistake-card .correct-ans {
+color: var(--success);
+font-size: 12px;
+font-weight: 600;
+}
+
+/* Algorithm / Flowchart */
+.algo-container {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 0;
+padding: 20px 0;
+}
+
+.algo-node {
+background: var(--bg-card);
+border: 2px solid var(--border);
+border-radius: var(--radius);
+padding: 18px 24px;
+text-align: center;
+cursor: pointer;
+transition: var(--transition);
+max-width: 420px;
+width: 100%;
+box-shadow: var(--shadow);
+position: relative;
+}
+
+.algo-node:hover {
+border-color: var(--accent);
+box-shadow: var(--shadow-md);
+transform: translateY(-2px);
+}
+
+.algo-node.start-node {
+background: linear-gradient(135deg, var(--accent), var(--purple));
+color: white;
+border: none;
+}
+
+.algo-node.decision-node {
+border-color: var(--warning);
+background: var(--warning-light);
+}
+
+.algo-node.result-node {
+border-color: var(--success);
+background: var(--success-light);
+}
+
+.algo-node.danger-node {
+border-color: var(--danger);
+background: var(--danger-light);
+}
+
+.algo-node h4 {
+font-size: 14px;
+font-weight: 700;
+margin-bottom: 4px;
+}
+
+.algo-node p {
+font-size: 12px;
+line-height: 1.5;
+opacity: 0.85;
+}
+
+.algo-node .algo-detail {
+display: none;
+margin-top: 10px;
+padding-top: 10px;
+border-top: 1px solid rgba(0,0,0,0.1);
+font-size: 12px;
+line-height: 1.6;
+text-align: left;
+}
+
+.algo-node.expanded .algo-detail {
+display: block;
+}
+
+.algo-arrow {
+width: 2px;
+height: 30px;
+background: var(--border);
+position: relative;
+}
+
+.algo-arrow::after {
+content: '▼';
+position: absolute;
+bottom: -8px;
+left: 50%;
+transform: translateX(-50%);
+font-size: 10px;
+color: var(--text-muted);
+}
+
+.algo-branch {
+display: flex;
+gap: 20px;
+align-items: flex-start;
+width: 100%;
+max-width: 600px;
+}
+
+.algo-branch-item {
+flex: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 0;
+}
+
+.algo-branch-label {
+font-size: 11px;
+font-weight: 700;
+color: var(--text-muted);
+text-transform: uppercase;
+letter-spacing: 1px;
+margin-bottom: 4px;
+}
+
+/* Rapid Takeaways */
+.takeaway-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+gap: 14px;
+}
+
+.takeaway-item {
+padding: 16px 20px;
+background: var(--bg-primary);
+border-radius: var(--radius-sm);
+border: 1px solid var(--border);
+border-left: 4px solid var(--accent);
+}
+
+.takeaway-item .tk-label {
+font-size: 10px;
+text-transform: uppercase;
+letter-spacing: 1px;
+color: var(--text-muted);
+font-weight: 700;
+margin-bottom: 6px;
+}
+
+.takeaway-item .tk-value {
+font-size: 14px;
+font-weight: 600;
+color: var(--text-primary);
+line-height: 1.5;
+}
+
+.takeaway-item .tk-value .keyword {
+background: var(--accent-light);
+color: var(--accent);
+padding: 2px 8px;
+border-radius: 4px;
+font-size: 12px;
+font-weight: 700;
+font-family: 'JetBrains Mono', monospace;
+}
+
+.takeaway-item.tk-danger {
+border-left-color: var(--danger);
+}
+
+.takeaway-item.tk-success {
+border-left-color: var(--success);
+}
+
+.takeaway-item.tk-warning {
+border-left-color: var(--warning);
+}
+
+.takeaway-item.tk-purple {
+border-left-color: var(--purple);
+}
+
+/* Badge */
+.badge {
+display: inline-block;
+padding: 3px 10px;
+border-radius: 20px;
+font-size: 11px;
+font-weight: 700;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+
+.badge-danger { background: var(--danger-light); color: var(--danger); }
+.badge-success { background: var(--success-light); color: var(--success); }
+.badge-warning { background: var(--warning-light); color: var(--warning); }
+.badge-blue { background: var(--accent-light); color: var(--accent); }
+
+/* Reset Button */
+.reset-btn {
+background: var(--danger);
+color: white;
+border: none;
+padding: 10px 20px;
+border-radius: var(--radius-sm);
+font-family: 'Inter', sans-serif;
+font-size: 13px;
+font-weight: 600;
+cursor: pointer;
+transition: var(--transition);
+margin-top: 12px;
+}
+
+.reset-btn:hover {
+background: #b91c1c;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+.header { padding: 10px 16px; }
+.header-title h1 { font-size: 14px; }
+.tab-nav { padding: 8px 12px; }
+.tab-btn { padding: 8px 14px; font-size: 12px; }
+.main-content { padding: 16px; }
+.card { padding: 18px; }
+.patient-info { grid-template-columns: 1fr 1fr; }
+.mcq-card { padding: 20px; }
+.algo-branch { flex-direction: column; align-items: center; }
+.takeaway-grid { grid-template-columns: 1fr; }
+.mcq-stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Animations */
+.bounce-in {
+animation: bounceIn 0.5s ease;
+}
+
+@keyframes bounceIn {
+0% { transform: scale(0.9); opacity: 0; }
+50% { transform: scale(1.02); }
+100% { transform: scale(1); opacity: 1; }
+}
+
+.shake {
+animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+0%, 100% { transform: translateX(0); }
+25% { transform: translateX(-8px); }
+75% { transform: translateX(8px); }
+}
+
+.confetti-burst {
+animation: confetti 0.6s ease;
+}
+
+@keyframes confetti {
+0% { transform: scale(1); }
+30% { transform: scale(1.05); }
+100% { transform: scale(1); }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* Section Divider */
+.section-divider {
+display: flex;
+align-items: center;
+gap: 12px;
+margin: 24px 0 16px;
+}
+
+.section-divider hr {
+flex: 1;
+border: none;
+height: 1px;
+background: var(--border);
+}
+
+.section-divider span {
+font-size: 11px;
+font-weight: 700;
+color: var(--text-muted);
+text-transform: uppercase;
+letter-spacing: 1.5px;
+white-space: nowrap;
+}
+</style>
+</head>
+<body>
+
+<!-- ECG Background -->
+<div class="ecg-bg">
+<div class="ecg-line"></div>
+<div class="ecg-line"></div>
+<div class="ecg-line"></div>
+<div class="ecg-line"></div>
+<div class="ecg-line"></div>
+<div class="neural-dot" style="top:20%;left:30%;animation-delay:0s"></div>
+<div class="neural-dot" style="top:40%;left:70%;animation-delay:1s"></div>
+<div class="neural-dot" style="top:60%;left:20%;animation-delay:2s"></div>
+<div class="neural-dot" style="top:80%;left:80%;animation-delay:3s"></div>
+</div>
+
+<!-- Header -->
+<header class="header">
+<div class="header-left">
+<div class="header-icon">
+<span class="material-icons-outlined">psychology</span>
+</div>
+<div class="header-title">
+<h1>Classical Trigeminal Neuralgia</h1>
+<span>Interactive CBL Case Study — Neurological System</span>
+</div>
+</div>
+<div class="header-right">
+<button class="theme-toggle" onclick="toggleTheme()">
+<span class="material-icons-outlined" style="font-size:16px" id="theme-icon">dark_mode</span>
+<span id="theme-label">Dark</span>
+</button>
+</div>
+</header>
+
+<!-- Tab Navigation -->
+<nav class="tab-nav" id="tabNav">
+<button class="tab-btn active" data-tab="case" onclick="switchTab('case')">
+<span class="tab-emoji">📂</span> Case File
+</button>
+<button class="tab-btn" data-tab="pearls" onclick="switchTab('pearls')">
+<span class="tab-emoji">💡</span> Doctor's Pearls
+</button>
+<button class="tab-btn" data-tab="reasoning" onclick="switchTab('reasoning')">
+<span class="tab-emoji">🔍</span> Clinical Reasoning
+</button>
+<button class="tab-btn" data-tab="mcq" onclick="switchTab('mcq')">
+<span class="tab-emoji">📝</span> Exam MCQs
+</button>
+<button class="tab-btn" data-tab="algorithm" onclick="switchTab('algorithm')">
+<span class="tab-emoji">🛤️</span> Diagnostic Algorithm
+</button>
+<button class="tab-btn" data-tab="takeaways" onclick="switchTab('takeaways')">
+<span class="tab-emoji">⚡</span> Rapid Takeaways
+</button>
+</nav>
+
+<!-- Main Content -->
+<main class="main-content">
+
+<!-- TAB 1: CASE FILE -->
+<div class="tab-panel active" id="panel-case">
+<!-- Patient ID Card -->
+<div class="card patient-card bounce-in">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
+<span class="material-icons-outlined" style="font-size:28px;">badge</span>
+<h3 style="font-size:18px;font-weight:800;">Patient Identification</h3>
+</div>
+<div class="patient-info">
+<div class="patient-field">
+<label>Patient Name</label>
+<div class="value">Nagwa</div>
+</div>
+<div class="patient-field">
+<label>Age / Gender</label>
+<div class="value">76 y/o Female</div>
+</div>
+<div class="patient-field">
+<label>Chief Complaint</label>
+<div class="value">Left-sided facial pain × 1 week</div>
+</div>
+<div class="patient-field">
+<label>Most Likely Diagnosis</label>
+<div class="value">Classical Trigeminal Neuralgia</div>
+</div>
+</div>
+</div>
+
+<!-- HPI -->
+<div class="card">
+<div class="card-header">
+<div class="icon icon-blue">
+<span class="material-icons-outlined">description</span>
+</div>
+<h3>History of Present Illness</h3>
+</div>
+<div class="hpi-grid">
+<div class="hpi-item abnormal tooltip-container">
+<span class="hpi-label">Pain Character</span>
+<span class="hpi-value">Intense, sharp, <strong>electric shock-like</strong> facial pain</span>
+<div class="tooltip-text">⚡ Electric shock-like paroxysmal pain is the hallmark descriptor of trigeminal neuralgia — distinguishes it from TMJ, dental, or migrainous etiologies.</div>
+</div>
+<div class="hpi-item abnormal tooltip-container">
+<span class="hpi-label">Location</span>
+<span class="hpi-value">Left <strong>mandibular region (V3)</strong></span>
+<div class="tooltip-text">📌 V2 and V3 are the most commonly affected branches. Isolated V1 involvement should prompt evaluation for secondary causes.</div>
+</div>
+<div class="hpi-item abnormal tooltip-container">
+<span class="hpi-label">Duration</span>
+<span class="hpi-value"><strong>30 seconds to 2 minutes</strong> per episode</span>
+<div class="tooltip-text">⏱️ Brief paroxysms (seconds to &lt;2 min) are characteristic of TN. Longer continuous pain suggests different pathology or secondary TN.</div>
+</div>
+<div class="hpi-item abnormal tooltip-container">
+<span class="hpi-label">Frequency</span>
+<span class="hpi-value"><strong>6–8 times daily</strong></span>
+<div class="tooltip-text">📊 Multiple daily attacks are typical. Frequency often increases over time without treatment.</div>
+</div>
+<div class="hpi-item abnormal tooltip-container">
+<span class="hpi-label">Triggers</span>
+<span class="hpi-value">Chewing, speaking, washing face, cold water — <strong>non-noxious stimuli</strong></span>
+<div class="tooltip-text">🔑 Pain triggered by innocuous tactile stimuli = allodynia. This is a defining feature of TN and differentiates it from other facial pain syndromes.</div>
+</div>
+<div class="hpi-item normal tooltip-container">
+<span class="hpi-label">Prior History</span>
+<span class="hpi-value">Similar episode 4 years ago → Dx: TN → Carbamazepine → 3-year remission</span>
+<div class="tooltip-text">✅ Previous successful response to carbamazepine supports the diagnosis. TN characteristically has relapsing-remitting course.</div>
+</div>
+<div class="hpi-item normal tooltip-container">
+<span class="hpi-label">PMH</span>
+<span class="hpi-value">Well-controlled hypertension, osteoporosis</span>
+<div class="tooltip-text">📋 Important for drug selection — elderly patient considerations. Oxcarbazepine preferred in elderly due to better tolerability.</div>
+</div>
+</div>
+</div>
+
+<!-- Examination -->
+<div class="card">
+<div class="card-header">
+<div class="icon icon-green">
+<span class="material-icons-outlined">stethoscope</span>
+</div>
+<h3>Physical & Neurological Examination</h3>
+</div>
+<div class="hpi-grid">
+<div class="hpi-item normal tooltip-container">
+<span class="hpi-label">General Exam</span>
+<span class="hpi-value">Unremarkable</span>
+<div class="tooltip-text">✅ Normal general examination helps exclude systemic etiologies.</div>
+</div>
+<div class="hpi-item normal tooltip-container">
+<span class="hpi-label">Trigeminal Sensory</span>
+<span class="hpi-value"><strong>Normal</strong> in all 3 branches (V1, V2, V3)</span>
+<div class="tooltip-text">⭐ KEY EXAM PEARL: Normal sensory function = Classical TN. Numbness/sensory loss → suspect Secondary TN (mass, MS plaque).</div>
+</div>
+<div class="hpi-item normal tooltip-container">
+<span class="hpi-label">Trigeminal Motor</span>
+<span class="hpi-value"><strong>Normal</strong> — intact mastication</span>
+<div class="tooltip-text">✅ Motor V3 supplies muscles of mastication (1st pharyngeal arch). Weakness here → structural lesion of V3 or brainstem.</div>
+</div>
+<div class="hpi-item normal tooltip-container">
+<span class="hpi-label">Corneal Reflex</span>
+<span class="hpi-value"><strong>Intact bilaterally</strong></span>
+<div class="tooltip-text">⭐ CRITICAL FINDING: Intact corneal reflex (afferent V1, efferent VII) rules out significant trigeminal nerve damage. Absent reflex → red flag for secondary cause (CPA tumor, MS).</div>
+</div>
+<div class="hpi-item normal tooltip-container">
+<span class="hpi-label">Facial Nerve (VII)</span>
+<span class="hpi-value">No facial weakness</span>
+<div class="tooltip-text">✅ Rules out CPA tumor involving CN VII. Remember: UMN = forehead spared; LMN = entire hemiface affected.</div>
+</div>
+<div class="hpi-item normal tooltip-container">
+<span class="hpi-label">Skin/Vesicles</span>
+<span class="hpi-value">No vesicular eruption</span>
+<div class="tooltip-text">✅ Absence of vesicles rules out herpes zoster (Ramsay Hunt syndrome or V1 zoster).</div>
+</div>
+<div class="hpi-item normal tooltip-container">
+<span class="hpi-label">Jaw Claudication</span>
+<span class="hpi-value">Absent</span>
+<div class="tooltip-text">✅ Jaw claudication → Giant Cell Arteritis (GCA). Important differential in elderly patients with facial pain. ESR/CRP/temporal artery biopsy if suspected.</div>
+</div>
+</div>
+</div>
+
+<!-- Labs / Imaging -->
+<div class="card">
+<div class="card-header">
+<div class="icon icon-purple">
+<span class="material-icons-outlined">biotech</span>
+</div>
+<h3>Investigations & Imaging</h3>
+</div>
+<div class="labs-grid">
+<div class="lab-item">
+<span class="lab-name">Intraoral Exam</span>
+<span class="lab-result normal">No dental infection</span>
+</div>
+<div class="lab-item">
+<span class="lab-name">OPG (Orthopantomogram)</span>
+<span class="lab-result normal">Age-related alveolar bone loss only</span>
+</div>
+<div class="lab-item">
+<span class="lab-name">OPG — Jaw Pathology</span>
+<span class="lab-result normal">No mass / no fracture</span>
+</div>
+<div class="lab-item tooltip-container">
+<span class="lab-name">MRI Brain/Brainstem</span>
+<span class="lab-result critical">Neurovascular Conflict ⚠️</span>
+<div class="tooltip-text">🔍 MRI shows a compressing vascular loop (SCA/AICA branch) contacting the left trigeminal REZ with 75% vessel-nerve contact. This confirms classical TN etiology.</div>
+</div>
+<div class="lab-item">
+<span class="lab-name">Compressing Vessel</span>
+<span class="lab-result abnormal">SCA or AICA branch</span>
+</div>
+<div class="lab-item">
+<span class="lab-name">Vessel-Nerve Contact</span>
+<span class="lab-result abnormal">75% at REZ</span>
+</div>
+<div class="lab-item">
+<span class="lab-name">Mass Lesions</span>
+<span class="lab-result normal">None detected</span>
+</div>
+<div class="lab-item">
+<span class="lab-name">Demyelinating Plaques</span>
+<span class="lab-result normal">None detected</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- TAB 2: DOCTOR'S PEARLS -->
+<div class="tab-panel" id="panel-pearls">
+<div class="card">
+<div class="card-header">
+<div class="icon icon-warning">
+<span class="material-icons-outlined">auto_awesome</span>
+</div>
+<h3>Exam Focus — Golden Rules</h3>
+</div>
+<div class="pearl-item">
+<span class="pearl-emoji">⭐</span>
+<strong>Intact corneal reflex + normal sensory/motor exam</strong> is the single most important clinical finding to differentiate Classical TN from Secondary TN. Always test and document this.
+</div>
+<div class="pearl-item">
+<span class="pearl-emoji">⭐</span>
+<strong>MRI must evaluate the Root Entry Zone (REZ)</strong> at the cerebellopontine angle. Look specifically for vascular compression (SCA/AICA) AND exclude mass lesions or demyelinating plaques (MS).
+</div>
+<div class="pearl-item">
+<span class="pearl-emoji">⭐</span>
+<strong>UMN vs LMN facial weakness:</strong> UMN (central) = forehead sparing (contralateral cortical lesion); LMN (peripheral) = entire hemiface paralyzed (CN VII damage). This patient has neither — ruling out CPA pathology.
+</div>
+<div class="pearl-item">
+<span class="pearl-emoji">⭐</span>
+<strong>V2 and V3 are the most commonly involved branches</strong> in trigeminal neuralgia. Isolated V1 involvement is uncommon and should raise suspicion for secondary causes.
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+<div class="icon icon-red">
+<span class="material-icons-outlined">warning</span>
+</div>
+<h3>🚨 Red Flags & Common Pitfalls</h3>
+</div>
+<div class="pearl-item red-flag">
+<span class="pearl-emoji">⚠️</span>
+<strong>PITFALL #1:</strong> Confusing dental/jaw pathology with neuropathic pain. Always obtain an <strong>OPG first</strong> to rule out primary dental causes before diagnosing trigeminal neuralgia!
+</div>
+<div class="pearl-item red-flag">
+<span class="pearl-emoji">🚨</span>
+<strong>PITFALL #2 — LIFE-THREATENING:</strong> Carbamazepine can cause <strong>skin rash with mucosal involvement (Stevens-Johnson Syndrome / TEN)</strong>. This requires <strong>IMMEDIATE drug discontinuation</strong>. Do not re-challenge!
+</div>
+<div class="pearl-item warning-pearl">
+<span class="pearl-emoji">⚠️</span>
+<strong>PITFALL #3:</strong> Failing to differentiate Classical TN (neurovascular compression) from Secondary TN (demyelinating plaques in MS, CPA tumors). History of numbness, bilateral symptoms, or young age → think secondary.
+</div>
+<div class="pearl-item warning-pearl">
+<span class="pearl-emoji">⚠️</span>
+<strong>PITFALL #4:</strong> High/maximal doses of carbamazepine cause dose-dependent <strong>ataxia</strong>. Always start low (200 mg BID) and titrate gradually. Monitor for CNS side effects.
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+<div class="icon icon-green">
+<span class="material-icons-outlined">rule</span>
+</div>
+<h3>Rule-Out Logic — Why Other Diagnoses Were Excluded</h3>
+</div>
+<div class="pearl-item success-pearl">
+<span class="pearl-emoji">🔍</span>
+<strong>Dental Pathology:</strong> Excluded — OPG shows no infection, mass, or fracture. Intraoral exam normal.
+</div>
+<div class="pearl-item success-pearl">
+<span class="pearl-emoji">🔍</span>
+<strong>Herpes Zoster / Ramsay Hunt:</strong> Excluded — No vesicular eruptions on the face or ear.
+</div>
+<div class="pearl-item success-pearl">
+<span class="pearl-emoji">🔍</span>
+<strong>Giant Cell Arteritis (GCA):</strong> Excluded — No jaw claudication (key differentiating feature in elderly patients with facial pain).
+</div>
+<div class="pearl-item success-pearl">
+<span class="pearl-emoji">🔍</span>
+<strong>Secondary TN (MS):</strong> Excluded — No demyelinating plaques on MRI. Normal neurological exam.
+</div>
+<div class="pearl-item success-pearl">
+<span class="pearl-emoji">🔍</span>
+<strong>CPA Tumor:</strong> Excluded — No mass lesion on MRI. Intact corneal reflex. No facial weakness (CN VII intact).
+</div>
+</div>
+</div>
+
+<!-- TAB 3: CLINICAL REASONING -->
+<div class="tab-panel" id="panel-reasoning">
+<div class="card" style="border:none;background:transparent;box-shadow:none;padding:0;">
+<h3 style="margin-bottom:8px;font-size:18px;">🔍 Clinical Reasoning — Click to Reveal</h3>
+<p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">Work through the case step-by-step. Click each card header to progressively reveal the reasoning.</p>
+</div>
+
+<div class="reveal-card" data-reveal="1">
+<div class="reveal-header" onclick="toggleReveal(1)">
+<h4><span style="color:var(--accent);">Step 1:</span> Localization & Pathophysiology</h4>
+<span class="material-icons-outlined reveal-icon">expand_more</span>
+</div>
+<div class="reveal-body" id="reveal-body-1">
+<div class="reveal-content">
+<ul>
+<li><strong>Lesion Site:</strong> Root Entry Zone (REZ) of the left trigeminal nerve at the pons</li>
+<li><strong>Mechanism:</strong> Compression by a vascular loop (SCA/AICA branch) → focal demyelination → ephaptic cross-transmission between sensory fibers → paroxysmal ectopic discharges</li>
+<li><strong>Why paroxysmal?</strong> Demyelinated axons develop abnormal sodium channel expression → lowered threshold for firing → innocuous touch triggers volley of pain signals (allodynia)</li>
+<li><strong>Transition zone:</strong> The REZ is where central myelin (oligodendrocytes) meets peripheral myelin (Schwann cells) — this zone is uniquely vulnerable to compression injury</li>
+<li><strong>75% vessel-nerve contact</strong> = significant compression confirming neurovascular conflict</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="reveal-card" data-reveal="2">
+<div class="reveal-header" onclick="toggleReveal(2)">
+<h4><span style="color:var(--success);">Step 2:</span> Most Likely Diagnosis</h4>
+<span class="material-icons-outlined reveal-icon">expand_more</span>
+</div>
+<div class="reveal-body" id="reveal-body-2">
+<div class="reveal-content">
+<ul>
+<li><strong>Diagnosis:</strong> Classical Trigeminal Neuralgia (Type 1)</li>
+<li><strong>Supporting evidence:</strong></li>
+<li>✅ Paroxysmal, electric shock-like pain in V3 distribution</li>
+<li>✅ Duration 30 sec – 2 min (characteristic brief attacks)</li>
+<li>✅ Triggered by non-noxious stimuli (allodynia)</li>
+<li>✅ Normal neurological exam — no sensory loss, intact corneal reflex</li>
+<li>✅ MRI confirms neurovascular compression at REZ</li>
+<li>✅ No mass lesions or demyelinating plaques (rules out secondary causes)</li>
+<li>✅ Previous successful response to carbamazepine</li>
+<li>✅ Relapsing-remitting pattern (3-year remission followed by recurrence)</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="reveal-card" data-reveal="3">
+<div class="reveal-header" onclick="toggleReveal(3)">
+<h4><span style="color:var(--warning);">Step 3:</span> Initial Investigation Strategy</h4>
+<span class="material-icons-outlined reveal-icon">expand_more</span>
+</div>
+<div class="reveal-body" id="reveal-body-3">
+<div class="reveal-content">
+<ul>
+<li><strong>1. OPG (Orthopantomogram):</strong> FIRST step — rule out dental/jaw pathology before diagnosing neuralgia</li>
+<li><strong>2. Comprehensive neurological exam:</strong> Sensory testing of V1/V2/V3, motor testing of mastication, corneal reflex</li>
+<li><strong>3. MRI brainstem (with CISS/FIESTA sequences):</strong> Evaluate cerebellopontine angle and REZ for:
+<br>— Neurovascular compression (confirms classical TN)
+<br>— Mass lesions (meningioma, schwannoma)
+<br>— Demyelinating plaques (multiple sclerosis)</li>
+<li><strong>Rule-out investigations:</strong> ESR/CRP if GCA suspected in elderly; skin inspection for vesicles (HZV)</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="reveal-card" data-reveal="4">
+<div class="reveal-header" onclick="toggleReveal(4)">
+<h4><span style="color:var(--purple);">Step 4:</span> Definitive Management</h4>
+<span class="material-icons-outlined reveal-icon">expand_more</span>
+</div>
+<div class="reveal-body" id="reveal-body-4">
+<div class="reveal-content">
+<ul>
+<li><strong>First-line:</strong> <span class="badge badge-blue">Carbamazepine</span></li>
+<li>— Start low: 200 mg BID → titrate based on response and tolerability</li>
+<li>— Mechanism: Voltage-gated Na⁺ channel blocker → stabilizes hyperexcited neural membranes</li>
+<li><strong>Alternative if CBZ fails/not tolerated:</strong> <span class="badge badge-blue">Oxcarbazepine</span> — preferred in elderly patients (better tolerability)</li>
+<li><strong>Monitoring:</strong> Watch for dose-dependent ataxia at high doses</li>
+<li>🚨 <strong>STOP IMMEDIATELY</strong> if skin rash with mucosal involvement develops (SJS/TEN risk)</li>
+<li><strong>Surgical option (refractory cases):</strong> Microvascular Decompression (MVD) — separates compressing vessel from trigeminal nerve at REZ</li>
+<li><strong>Other surgical options:</strong> Gamma knife radiosurgery, percutaneous procedures (balloon compression, glycerol rhizotomy, radiofrequency thermocoagulation)</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<!-- TAB 4: MCQs -->
+<div class="tab-panel" id="panel-mcq">
+<div class="mcq-stats" id="mcqStats">
+<div class="stat-box score">
+<div class="stat-value" id="statScore">0</div>
+<div class="stat-label">Score</div>
+</div>
+<div class="stat-box correct-stat">
+<div class="stat-value" id="statCorrect">0</div>
+<div class="stat-label">Correct</div>
+</div>
+<div class="stat-box wrong-stat">
+<div class="stat-value" id="statWrong">0</div>
+<div class="stat-label">Wrong</div>
+</div>
+<div class="stat-box streak">
+<div class="stat-value" id="statStreak">0🔥</div>
+<div class="stat-label">Streak</div>
+</div>
+</div>
+
+<div id="mcqContainer"></div>
+
+<div id="mcqComplete" style="display:none;">
+<div class="card" style="text-align:center;">
+<h3 style="margin-bottom:12px;">🎉 Quiz Complete!</h3>
+<p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;">
+You scored <strong id="finalScore"></strong> out of <strong id="finalTotal"></strong>
+</p>
+<div id="finalGrade" style="font-size:24px;margin-bottom:16px;"></div>
+<button class="mcq-btn mcq-btn-primary" onclick="resetMCQ()">
+<span class="material-icons-outlined" style="font-size:16px;">refresh</span>
+Retake Quiz
+</button>
+</div>
+</div>
+
+<div class="section-divider" id="mistakeSection" style="display:none;">
+<hr><span>❌ Mistake Review</span><hr>
+</div>
+<div id="mistakeContainer"></div>
+<button class="reset-btn" id="clearMistakesBtn" style="display:none;" onclick="clearMistakes()">
+<span class="material-icons-outlined" style="font-size:14px;vertical-align:middle;">delete</span>
+Clear Mistake History
+</button>
+</div>
+
+<!-- TAB 5: DIAGNOSTIC ALGORITHM -->
+<div class="tab-panel" id="panel-algorithm">
+<div class="card" style="border:none;background:transparent;box-shadow:none;padding:0;">
+<h3 style="margin-bottom:4px;font-size:18px;">🛤️ Diagnostic Algorithm — Classical TN</h3>
+<p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">Click any node for details. Follow the stepwise approach used in this case.</p>
+</div>
+
+<div class="algo-container" id="algoContainer">
+<!-- Nodes will be generated by JS -->
+</div>
+</div>
+
+<!-- TAB 6: RAPID TAKEAWAYS -->
+<div class="tab-panel" id="panel-takeaways">
+<div class="card" style="border:none;background:transparent;box-shadow:none;padding:0;">
+<h3 style="margin-bottom:4px;font-size:18px;">⚡ Rapid Takeaways — High-Yield Review</h3>
+<p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">Ultra-condensed, keyword-driven. Perfect for last-minute exam revision.</p>
+</div>
+
+<div class="section-divider"><hr><span>Clinical Presentation</span><hr></div>
+<div class="takeaway-grid">
+<div class="takeaway-item">
+<div class="tk-label">Pain Character</div>
+<div class="tk-value">Sharp, <span class="keyword">electric shock-like</span>, paroxysmal</div>
+</div>
+<div class="takeaway-item">
+<div class="tk-label">Duration</div>
+<div class="tk-value"><span class="keyword">Seconds to &lt;2 min</span> per episode</div>
+</div>
+<div class="takeaway-item">
+<div class="tk-label">Triggers</div>
+<div class="tk-value"><span class="keyword">Non-noxious stimuli</span> → chewing, talking, cold water, washing face</div>
+</div>
+<div class="takeaway-item">
+<div class="tk-label">Most Common Branches</div>
+<div class="tk-value"><span class="keyword">V2 + V3</span> (maxillary + mandibular)</div>
+</div>
+</div>
+
+<div class="section-divider"><hr><span>Key Exam Findings</span><hr></div>
+<div class="takeaway-grid">
+<div class="takeaway-item tk-success">
+<div class="tk-label">Corneal Reflex</div>
+<div class="tk-value"><span class="keyword">Intact</span> = Classical TN; <span class="keyword">Absent</span> = 🚨 Secondary</div>
+</div>
+<div class="takeaway-item tk-success">
+<div class="tk-label">Sensory Exam</div>
+<div class="tk-value"><span class="keyword">Normal</span> in Classical TN. Numbness → secondary cause</div>
+</div>
+<div class="takeaway-item tk-danger">
+<div class="tk-label">Red Flags for Secondary</div>
+<div class="tk-value">Numbness, facial weakness, absent reflexes, bilateral symptoms, age &lt;40</div>
+</div>
+<div class="takeaway-item">
+<div class="tk-label">UMN vs LMN (CN VII)</div>
+<div class="tk-value">UMN = <span class="keyword">forehead spared</span>; LMN = <span class="keyword">entire hemiface</span></div>
+</div>
+</div>
+
+<div class="section-divider"><hr><span>Anatomy & Pathophysiology</span><hr></div>
+<div class="takeaway-grid">
+<div class="takeaway-item tk-purple">
+<div class="tk-label">Mechanism</div>
+<div class="tk-value">Vascular compression at <span class="keyword">Root Entry Zone (REZ)</span> → demyelination → ectopic firing</div>
+</div>
+<div class="takeaway-item tk-purple">
+<div class="tk-label">Compressing Vessel</div>
+<div class="tk-value"><span class="keyword">SCA</span> (most common) or <span class="keyword">AICA</span> branch</div>
+</div>
+<div class="takeaway-item">
+<div class="tk-label">Motor V3 Innervation</div>
+<div class="tk-value">Muscles of <span class="keyword">1st pharyngeal arch</span> (mastication)</div>
+</div>
+<div class="takeaway-item">
+<div class="tk-label">Otic Ganglion</div>
+<div class="tk-value">Attached to <span class="keyword">Mandibular nerve (V3)</span></div>
+</div>
+</div>
+
+<div class="section-divider"><hr><span>Investigations</span><hr></div>
+<div class="takeaway-grid">
+<div class="takeaway-item tk-warning">
+<div class="tk-label">First Step</div>
+<div class="tk-value"><span class="keyword">OPG</span> → rule out dental/jaw pathology BEFORE diagnosing neuralgia</div>
+</div>
+<div class="takeaway-item">
+<div class="tk-label">Key Imaging</div>
+<div class="tk-value"><span class="keyword">MRI brainstem</span> → evaluate CPA & REZ for vascular compression, mass, plaques</div>
+</div>
+</div>
+
+<div class="section-divider"><hr><span>Pharmacology</span><hr></div>
+<div class="takeaway-grid">
+<div class="takeaway-item">
+<div class="tk-label">1st Line Drug</div>
+<div class="tk-value"><span class="keyword">Carbamazepine</span> — start 200 mg BID, titrate up</div>
+</div>
+<div class="takeaway-item tk-purple">
+<div class="tk-label">MOA</div>
+<div class="tk-value">Blockade of <span class="keyword">voltage-gated Na⁺ channels</span></div>
+</div>
+<div class="takeaway-item tk-warning">
+<div class="tk-label">Dose-Dependent SE</div>
+<div class="tk-value"><span class="keyword">Ataxia</span> at high/maximal doses</div>
+</div>
+<div class="takeaway-item tk-danger">
+<div class="tk-label">⚠️ STOP Drug If</div>
+<div class="tk-value"><span class="keyword">Skin rash + mucosal involvement</span> → SJS/TEN risk → IMMEDIATE discontinuation</div>
+</div>
+<div class="takeaway-item tk-success">
+<div class="tk-label">Alternative Drug</div>
+<div class="tk-value"><span class="keyword">Oxcarbazepine</span> — preferred in <span class="keyword">elderly</span> (better tolerability)</div>
+</div>
+<div class="takeaway-item">
+<div class="tk-label">Surgery (Refractory)</div>
+<div class="tk-value"><span class="keyword">Microvascular Decompression (MVD)</span></div>
+</div>
+</div>
+
+<div class="section-divider"><hr><span>Classification</span><hr></div>
+<div class="takeaway-grid">
+<div class="takeaway-item">
+<div class="tk-label">Classical TN</div>
+<div class="tk-value">Neurovascular compression + normal neuro exam + no structural lesion</div>
+</div>
+<div class="takeaway-item tk-danger">
+<div class="tk-label">Secondary TN</div>
+<div class="tk-value">MS plaques, CPA tumors, or other structural pathology → abnormal exam findings</div>
+</div>
+</div>
+</div>
+
+</main>
+
+<script>
+// ==================== DATA ====================
+const mcqData = [
+{
+id: 1,
+question: "The otic ganglion is attached to which nerve?",
+options: ["Glossopharyngeal nerve", "Maxillary nerve", "Hypoglossal nerve", "Mandibular nerve", "Vagus nerve"],
+correct: 3,
+explanation: "<strong>Keyword: Mandibular nerve (V3).</strong> The otic ganglion is anatomically associated with the mandibular trunk (V3) of the trigeminal nerve. It receives parasympathetic fibers from CN IX via the lesser petrosal nerve."
+},
+{
+id: 2,
+question: "The motor root of the trigeminal nerve supplies the muscles of which pharyngeal arch?",
+options: ["First", "Second", "Third", "Fourth", "Fifth"],
+correct: 0,
+explanation: "<strong>Keyword: First pharyngeal arch.</strong> CN V is the primary nerve of the 1st pharyngeal arch, supplying muscles of mastication (masseter, temporalis, pterygoids). CN VII supplies the 2nd arch (muscles of facial expression)."
+},
+{
+id: 3,
+question: "Which branches of the trigeminal nerve are most commonly involved in trigeminal neuralgia?",
+options: ["Ophthalmic (V1) only", "Maxillary (V2) only", "Mandibular (V3) only", "Both V2 and V3", "All three branches equally"],
+correct: 3,
+explanation: "<strong>Keyword: V2 + V3 predominance.</strong> Pain is typically localized to the lower face and jaw. Isolated V1 involvement is uncommon and should prompt evaluation for secondary causes."
+},
+{
+id: 4,
+question: "Which of the following best describes the pathophysiology of classical trigeminal neuralgia?",
+options: ["Demyelination due to autoimmune inflammation", "Compression of the nerve root by a blood vessel", "Viral infection of the ganglion", "Ischemia of the brainstem nuclei", "Genetic mutation in sodium channels"],
+correct: 1,
+explanation: "<strong>Keyword: Neurovascular conflict.</strong> Classical TN is caused by a compressing vascular loop (SCA/AICA) at the Root Entry Zone (REZ). Demyelination (option A) would indicate secondary TN (e.g., multiple sclerosis)."
+},
+{
+id: 5,
+question: "What is the first-line pharmacologic therapy for classical trigeminal neuralgia?",
+options: ["Carbamazepine", "Gabapentin", "Surgical decompression", "Corticosteroids", "Botox injections"],
+correct: 0,
+explanation: "<strong>Keyword: Carbamazepine = gold standard first-line.</strong> It must be started at a low dose (200 mg BID) and titrated. Surgery is reserved for medically refractory cases."
+},
+{
+id: 6,
+question: "What is the primary mechanism of action of carbamazepine in trigeminal neuralgia?",
+options: ["Inhibition of GABA reuptake", "Blockade of voltage-gated sodium channels", "Activation of opioid receptors", "Inhibition of serotonin-norepinephrine reuptake", "Antagonism of NMDA receptors"],
+correct: 1,
+explanation: "<strong>Keyword: Voltage-gated Na⁺ channels.</strong> Carbamazepine blocks these channels, stabilizing hyperexcited neural membranes and suppressing paroxysmal ectopic firing in the damaged trigeminal nerve."
+},
+{
+id: 7,
+question: "Which side effect of carbamazepine requires IMMEDIATE discontinuation?",
+options: ["Drowsiness", "Hyponatremia", "Skin rash with mucosal involvement", "Dizziness", "Dry mouth"],
+correct: 2,
+explanation: "<strong>Keyword: Mucosal skin rash = SJS/TEN risk.</strong> This is a severe, life-threatening hypersensitivity reaction. Immediate drug cessation is mandatory. Drowsiness and dizziness are dose-dependent side effects managed by dose adjustment."
+},
+{
+id: 8,
+question: "Which alternative medication is preferred if carbamazepine is ineffective or poorly tolerated, especially in elderly patients?",
+options: ["Ibuprofen", "Oxcarbazepine", "Amitriptyline", "Diazepam", "Sumatriptan"],
+correct: 1,
+explanation: "<strong>Keyword: Oxcarbazepine.</strong> A structural derivative of carbamazepine with a better tolerability profile, especially preferred in elderly patients. Similar efficacy via the same mechanism (Na⁺ channel blockade)."
+},
+{
+id: 9,
+question: "A 76-year-old woman presents with facial pain. Her corneal reflex is absent on the left. What does this suggest?",
+options: ["Classical trigeminal neuralgia", "Secondary trigeminal neuralgia or structural lesion", "Normal age-related change", "Dental pathology", "Migraine with aura"],
+correct: 1,
+explanation: "<strong>Keyword: Absent corneal reflex = RED FLAG.</strong> An intact corneal reflex differentiates classical TN (normal exam) from secondary causes (CPA tumor compressing V1/VII, MS plaque). Absent reflex mandates urgent workup."
+},
+{
+id: 10,
+question: "Where does the neurovascular conflict occur in classical trigeminal neuralgia?",
+options: ["Trigeminal ganglion (Meckel's cave)", "Root Entry Zone (REZ) near the pons", "Foramen ovale", "Superior orbital fissure", "Cavernous sinus"],
+correct: 1,
+explanation: "<strong>Keyword: Root Entry Zone (REZ).</strong> The REZ is where central myelin transitions to peripheral myelin — this zone is uniquely vulnerable to vascular compression. The SCA or AICA branch is the usual compressing vessel."
+},
+{
+id: 11,
+question: "Why is an OPG (orthopantomogram) essential before diagnosing trigeminal neuralgia?",
+options: ["To visualize the trigeminal nerve directly", "To rule out primary dental/jaw pathology", "To assess for brainstem lesions", "To evaluate temporal artery inflammation", "To measure bone density for osteoporosis"],
+correct: 1,
+explanation: "<strong>Keyword: Rule out dental causes FIRST.</strong> A common exam pitfall is confusing dental infection or jaw pathology with neuropathic pain. OPG must be obtained to exclude primary dental causes before diagnosing neuralgia."
+},
+{
+id: 12,
+question: "A patient on carbamazepine at maximal doses develops unsteady gait and difficulty with coordination. The most likely cause is:",
+options: ["Stevens-Johnson syndrome", "Drug-induced parkinsonism", "Dose-dependent ataxia", "Hyponatremia-induced seizure", "Peripheral neuropathy"],
+correct: 2,
+explanation: "<strong>Keyword: Ataxia at high doses.</strong> Ataxia is a dose-dependent side effect of carbamazepine at maximal doses. Management involves dose reduction, not abrupt discontinuation (unlike mucosal skin rash which requires immediate stopping)."
+},
+{
+id: 13,
+question: "Which vessel is the MOST common offender causing neurovascular compression in classical trigeminal neuralgia?",
+options: ["Middle meningeal artery", "Superior cerebellar artery (SCA)", "Posterior cerebral artery", "Basilar artery", "Vertebral artery"],
+correct: 1,
+explanation: "<strong>Keyword: SCA (Superior Cerebellar Artery).</strong> The SCA is the most frequently implicated vessel, followed by AICA. These posterior fossa arteries are in close proximity to the trigeminal nerve REZ at the cerebellopontine angle."
+},
+{
+id: 14,
+question: "The absence of vesicular eruption on this patient's face helps rule out which diagnosis?",
+options: ["Giant cell arteritis", "Multiple sclerosis", "Herpes zoster / Ramsay Hunt syndrome", "Dental abscess", "Cluster headache"],
+correct: 2,
+explanation: "<strong>Keyword: No vesicles = rules out herpes zoster.</strong> VZV reactivation in the trigeminal ganglion (especially V1) causes pain AND vesicular eruption. Ramsay Hunt syndrome involves CN VII/VIII with ear vesicles."
+},
+{
+id: 15,
+question: "Which surgical procedure is the definitive treatment for medically refractory classical trigeminal neuralgia?",
+options: ["Trigeminal nerve section", "Microvascular decompression (MVD)", "Stereotactic radiosurgery only", "Vagus nerve stimulation", "Deep brain stimulation"],
+correct: 1,
+explanation: "<strong>Keyword: Microvascular Decompression (MVD).</strong> MVD separates the offending vessel from the trigeminal nerve at the REZ using an interposing pad. It addresses the root cause and has the highest long-term success rate for refractory cases."
+}
+];
+
+const algorithmNodes = [
+{
+type: 'start',
+title: '👤 Patient presents with facial pain',
+desc: 'Sharp, electric, unilateral, paroxysmal',
+detail: 'Key features: shock-like quality, brief duration (seconds to <2 min), triggered by non-noxious stimuli (chewing, washing, cold water). Unilateral involvement.'
+},
+{
+type: 'decision',
+title: '🦷 Step 1: Rule out Dental Pathology',
+desc: 'Obtain OPG + intraoral exam',
+detail: 'OPG (orthopantomogram) is MANDATORY before diagnosing neuralgia. Look for dental infection, fracture, jaw mass. In this case: age-related bone loss only — dental cause excluded.'
+},
+{
+type: 'decision',
+title: '🧠 Step 2: Neurological Examination',
+desc: 'Test CN V sensory/motor + corneal reflex + CN VII',
+detail: 'Test all 3 branches (V1, V2, V3) for sensation. Test motor V3 (mastication). Corneal reflex (afferent V1, efferent VII). Look for facial weakness, vesicles, jaw claudication. ALL NORMAL in this case → supports Classical TN.'
+},
+{
+type: 'branch',
+branches: [
+{
+label: 'Normal Exam ✅',
+node: {
+type: 'result',
+title: '→ Likely Classical TN',
+desc: 'Proceed to MRI',
+detail: 'Normal neurological exam with typical paroxysmal pain → likely classical TN. MRI needed to confirm vascular compression and exclude secondary causes.'
+}
+},
+{
+label: 'Abnormal Exam 🚨',
+node: {
+type: 'danger',
+title: '→ Suspect Secondary TN',
+desc: 'Numbness, absent reflex, weakness',
+detail: 'Findings such as sensory loss, absent corneal reflex, facial weakness, bilateral symptoms → suspect CPA tumor, MS, or other structural pathology. Urgent MRI + neurology referral.'
+}
+}
+]
+},
+{
+type: 'decision',
+title: '🔬 Step 3: MRI Brainstem',
+desc: 'Evaluate CPA & Root Entry Zone',
+detail: 'Look for: (1) Neurovascular compression at REZ — vascular loop (SCA/AICA) in contact with trigeminal nerve; (2) Mass lesions — meningioma, schwannoma; (3) Demyelinating plaques — MS. In this case: 75% vessel-nerve contact confirmed, no mass/plaques.'
+},
+{
+type: 'result',
+title: '✅ Confirmed: Classical TN',
+desc: 'Neurovascular compression at REZ confirmed',
+detail: 'Diagnosis established: paroxysmal neuropathic pain + normal exam + MRI confirming vascular compression + no structural pathology.'
+},
+{
+type: 'decision',
+title: '💊 Step 4: Start First-Line Treatment',
+desc: 'Carbamazepine 200 mg BID → titrate',
+detail: 'Carbamazepine = gold standard first-line. Start low (200 mg BID), titrate based on response. MOA: voltage-gated Na⁺ channel blocker. Monitor for: ataxia (dose-dependent), skin rash with mucosal involvement (STOP immediately if occurs).'
+},
+{
+type: 'branch',
+branches: [
+{
+label: 'Responds ✅',
+node: {
+type: 'result',
+title: '→ Continue CBZ + Monitor',
+desc: 'Watch for side effects',
+detail: 'Continue therapeutic dose. Monitor for dose-dependent ataxia and life-threatening SJS/TEN. Regular follow-up. TN may relapse after periods of remission.'
+}
+},
+{
+label: 'Fails / Intolerant ❌',
+node: {
+type: 'decision',
+title: '→ Switch to Oxcarbazepine',
+desc: 'Preferred in elderly',
+detail: 'Oxcarbazepine has better tolerability in elderly patients. If both medications fail → consider surgical options: Microvascular Decompression (MVD), gamma knife radiosurgery, or percutaneous procedures.'
+}
+}
+]
+}
+];
+
+// ==================== STATE ====================
+let currentTab = localStorage.getItem('tn_lastTab') || 'case';
+let darkMode = localStorage.getItem('tn_darkMode') === 'true';
+let mcqState = JSON.parse(localStorage.getItem('tn_mcqState')) || {
+currentQ: 0,
+score: 0,
+correct: 0,
+wrong: 0,
+streak: 0,
+maxStreak: 0,
+answered: [],
+completed: false
+};
+let mistakes = JSON.parse(localStorage.getItem('tn_mistakes')) || [];
+
+// ==================== THEME ====================
+function applyTheme() {
+document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+document.getElementById('theme-icon').textContent = darkMode ? 'light_mode' : 'dark_mode';
+document.getElementById('theme-label').textContent = darkMode ? 'Light' : 'Dark';
+}
+
+function toggleTheme() {
+darkMode = !darkMode;
+localStorage.setItem('tn_darkMode', darkMode);
+applyTheme();
+}
+
+// ==================== TABS ====================
+function switchTab(tabName) {
+currentTab = tabName;
+localStorage.setItem('tn_lastTab', tabName);
+
+document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+document.getElementById('panel-' + tabName).classList.add('active');
+document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+if (tabName === 'mcq') renderMCQ();
+if (tabName === 'algorithm') renderAlgorithm();
+}
+
+// ==================== REVEAL CARDS ====================
+function toggleReveal(id) {
+const body = document.getElementById('reveal-body-' + id);
+const icon = body.parentElement.querySelector('.reveal-icon');
+body.classList.toggle('open');
+icon.classList.toggle('open');
+}
+
+// ==================== MCQ ====================
+function renderMCQ() {
+updateStats();
+renderMistakes();
+
+if (mcqState.completed) {
+document.getElementById('mcqContainer').style.display = 'none';
+document.getElementById('mcqComplete').style.display = 'block';
+document.getElementById('finalScore').textContent = mcqState.correct;
+document.getElementById('finalTotal').textContent = mcqData.length;
+const pct = Math.round((mcqState.correct / mcqData.length) * 100);
+let grade = '';
+if (pct >= 90) grade = '🏆 Excellent!';
+else if (pct >= 70) grade = '👏 Good Job!';
+else if (pct >= 50) grade = '📚 Keep Studying';
+else grade = '💪 Need More Practice';
+document.getElementById('finalGrade').textContent = grade;
+return;
+}
+
+document.getElementById('mcqContainer').style.display = 'block';
+document.getElementById('mcqComplete').style.display = 'none';
+
+const q = mcqData[mcqState.currentQ];
+const answered = mcqState.answered.includes(q.id);
+const pct = ((mcqState.currentQ + (answered ? 1 : 0)) / mcqData.length * 100).toFixed(0);
+
+let html = `
+<div class="mcq-card bounce-in">
+<div class="mcq-progress">
+<span>Q${mcqState.currentQ + 1}/${mcqData.length}</span>
+<div class="mcq-progress-bar">
+<div class="mcq-progress-fill" style="width:${pct}%"></div>
+</div>
+<span>${pct}%</span>
+</div>
+<div class="mcq-question">${q.question}</div>
+<div class="mcq-options">
+`;
+
+const letters = ['A', 'B', 'C', 'D', 'E'];
+q.options.forEach((opt, i) => {
+let cls = '';
+if (answered) {
+cls = 'disabled';
+const wasSelected = mcqState['lastSelected_' + q.id] === i;
+if (i === q.correct) cls += ' show-correct';
+if (wasSelected && i !== q.correct) cls += ' selected-wrong';
+if (wasSelected && i === q.correct) cls += ' selected-correct';
+}
+
+html += `
+<div class="mcq-option ${cls}" onclick="selectAnswer(${q.id}, ${i})" data-idx="${i}">
+<span class="option-letter">${letters[i]}</span>
+<span>${opt}</span>
+</div>
+`;
+});
+
+html += '</div>';
+
+if (answered) {
+html += `<div class="mcq-explanation show"><strong>📌 Explanation:</strong> ${q.explanation}</div>`;
+}
+
+html += `
+<div class="mcq-nav">
+<button class="mcq-btn mcq-btn-secondary" onclick="prevQuestion()" ${mcqState.currentQ === 0 ? 'disabled' : ''}>
+<span class="material-icons-outlined" style="font-size:16px;">arrow_back</span> Previous
+</button>
+<button class="mcq-btn mcq-btn-primary" onclick="nextQuestion()" ${!answered ? 'disabled' : ''} id="nextBtn">
+${mcqState.currentQ === mcqData.length - 1 ? 'Finish' : 'Next'} <span class="material-icons-outlined" style="font-size:16px;">arrow_forward</span>
+</button>
+</div>
+</div>
+`;
+
+document.getElementById('mcqContainer').innerHTML = html;
+}
+
+function selectAnswer(qId, idx) {
+const q = mcqData.find(x => x.id === qId);
+if (mcqState.answered.includes(qId)) return;
+
+mcqState.answered.push(qId);
+mcqState['lastSelected_' + qId] = idx;
+
+if (idx === q.correct) {
+mcqState.correct++;
+mcqState.streak++;
+if (mcqState.streak > mcqState.maxStreak) mcqState.maxStreak = mcqState.streak;
+mcqState.score += 10 + (mcqState.streak > 1 ? mcqState.streak * 2 : 0);
+} else {
+mcqState.wrong++;
+mcqState.streak = 0;
+mistakes.push({
+qId: qId,
+question: q.question,
+yourAnswer: q.options[idx],
+correctAnswer: q.options[q.correct],
+timestamp: Date.now()
+});
+localStorage.setItem('tn_mistakes', JSON.stringify(mistakes));
+}
+
+saveMCQState();
+renderMCQ();
+
+// Animation
+const card = document.querySelector('.mcq-card');
+if (idx === q.correct) {
+card.classList.add('confetti-burst');
+} else {
+card.classList.add('shake');
+}
+setTimeout(() => {
+card.classList.remove('confetti-burst', 'shake');
+}, 600);
+}
+
+function nextQuestion() {
+if (mcqState.currentQ < mcqData.length - 1) {
+mcqState.currentQ++;
+} else {
+mcqState.completed = true;
+}
+saveMCQState();
+renderMCQ();
+}
+
+function prevQuestion() {
+if (mcqState.currentQ > 0) {
+mcqState.currentQ--;
+saveMCQState();
+renderMCQ();
+}
+}
+
+function resetMCQ() {
+mcqState = {
+currentQ: 0,
+score: 0,
+correct: 0,
+wrong: 0,
+streak: 0,
+maxStreak: 0,
+answered: [],
+completed: false
+};
+saveMCQState();
+renderMCQ();
+}
+
+function saveMCQState() {
+localStorage.setItem('tn_mcqState', JSON.stringify(mcqState));
+}
+
+function updateStats() {
+document.getElementById('statScore').textContent = mcqState.score;
+document.getElementById('statCorrect').textContent = mcqState.correct;
+document.getElementById('statWrong').textContent = mcqState.wrong;
+document.getElementById('statStreak').textContent = mcqState.streak + '🔥';
+}
+
+function renderMistakes() {
+const container = document.getElementById('mistakeContainer');
+const section = document.getElementById('mistakeSection');
+const clearBtn = document.getElementById('clearMistakesBtn');
+
+if (mistakes.length === 0) {
+section.style.display = 'none';
+container.innerHTML = '';
+clearBtn.style.display = 'none';
+return;
+}
+
+section.style.display = 'flex';
+clearBtn.style.display = 'inline-block';
+
+let html = '';
+mistakes.forEach(m => {
+html += `
+<div class="mistake-card">
+<div class="mq">${m.question}</div>
+<div class="your-ans">❌ Your answer: ${m.yourAnswer}</div>
+<div class="correct-ans">✅ Correct: ${m.correctAnswer}</div>
+</div>
+`;
+});
+container.innerHTML = html;
+}
+
+function clearMistakes() {
+mistakes = [];
+localStorage.setItem('tn_mistakes', JSON.stringify(mistakes));
+renderMistakes();
+}
+
+// ==================== ALGORITHM ====================
+function renderAlgorithm() {
+const container = document.getElementById('algoContainer');
+let html = '';
+
+function renderNode(node, depth = 0) {
+const nodeId = 'algo-' + Math.random().toString(36).substr(2, 9);
+
+if (node.type === 'branch') {
+html += '<div class="algo-arrow"></div>';
+html += `<div class="algo-branch">`;
+node.branches.forEach(b => {
+html += `<div class="algo-branch-item">`;
+html += `<div class="algo-branch-label">${b.label}</div>`;
+html += '<div class="algo-arrow"></div>';
+const bNodeId = 'algo-' + Math.random().toString(36).substr(2, 9);
+let nodeClass = '';
+if (b.node.type === 'result') nodeClass = 'result-node';
+else if (b.node.type === 'danger') nodeClass = 'danger-node';
+else if (b.node.type === 'decision') nodeClass = 'decision-node';
+
+html += `<div class="algo-node ${nodeClass}" id="${bNodeId}" onclick="toggleAlgoNode('${bNodeId}')">
+<h4>${b.node.title}</h4>
+<p>${b.node.desc}</p>
+<div class="algo-detail">${b.node.detail}</div>
+</div>`;
+html += `</div>`;
+});
+html += `</div>`;
+return;
+}
+
+if (depth > 0) {
+html += '<div class="algo-arrow"></div>';
+}
+
+let nodeClass = '';
+if (node.type === 'start') nodeClass = 'start-node';
+else if (node.type === 'decision') nodeClass = 'decision-node';
+else if (node.type === 'result') nodeClass = 'result-node';
+else if (node.type === 'danger') nodeClass = 'danger-node';
+
+html += `<div class="algo-node ${nodeClass}" id="${nodeId}" onclick="toggleAlgoNode('${nodeId}')">
+<h4>${node.title}</h4>
+<p>${node.desc}</p>
+<div class="algo-detail">${node.detail}</div>
+</div>`;
+}
+
+algorithmNodes.forEach((node, i) => {
+renderNode(node, i);
+});
+
+container.innerHTML = html;
+}
+
+function toggleAlgoNode(id) {
+const node = document.getElementById(id);
+node.classList.toggle('expanded');
+}
+
+// ==================== INIT ====================
+function init() {
+applyTheme();
+switchTab(currentTab);
+}
+
+init();
+</script>
+</body>
+</html>

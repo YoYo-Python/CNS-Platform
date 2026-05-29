@@ -1,0 +1,2425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CBL Case: Acute Ischemic Stroke - MCA Territory</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #f0f4f8;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-hover: #e8eef4;
+  --text-primary: #1a2332;
+  --text-secondary: #4a5568;
+  --text-muted: #718096;
+  --accent: #2563eb;
+  --accent-light: #dbeafe;
+  --accent-dark: #1d4ed8;
+  --danger: #dc2626;
+  --danger-light: #fef2f2;
+  --danger-bg: #fee2e2;
+  --success: #059669;
+  --success-light: #ecfdf5;
+  --success-bg: #d1fae5;
+  --warning: #d97706;
+  --warning-light: #fffbeb;
+  --warning-bg: #fef3c7;
+  --gold: #f59e0b;
+  --gold-light: #fffbeb;
+  --border: #e2e8f0;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.05);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --ecg-color: rgba(37, 99, 235, 0.08);
+  --tab-indicator: #2563eb;
+  --tooltip-bg: #1a2332;
+  --tooltip-text: #ffffff;
+  --streak-color: #f59e0b;
+  --gradient-1: linear-gradient(135deg, #2563eb, #7c3aed);
+  --gradient-2: linear-gradient(135deg, #059669, #0891b2);
+  --gradient-3: linear-gradient(135deg, #dc2626, #ea580c);
+}
+
+[data-theme="dark"] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #1e293b;
+  --bg-hover: #334155;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent: #3b82f6;
+  --accent-light: #1e3a5f;
+  --accent-dark: #60a5fa;
+  --danger: #ef4444;
+  --danger-light: #1f1315;
+  --danger-bg: #3b1419;
+  --success: #10b981;
+  --success-light: #0f1f1a;
+  --success-bg: #14332a;
+  --warning: #f59e0b;
+  --warning-light: #1f1a0f;
+  --warning-bg: #332a14;
+  --gold: #fbbf24;
+  --gold-light: #1f1a0f;
+  --border: #334155;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.4), 0 4px 10px rgba(0,0,0,0.3);
+  --ecg-color: rgba(59, 130, 246, 0.06);
+  --tooltip-bg: #f1f5f9;
+  --tooltip-text: #0f172a;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  transition: background 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+/* ECG Background Pattern */
+.ecg-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+.ecg-line {
+  position: absolute;
+  width: 200%;
+  height: 2px;
+  background: var(--ecg-color);
+}
+
+.ecg-line:nth-child(1) { top: 15%; animation: ecgScroll 12s linear infinite; }
+.ecg-line:nth-child(2) { top: 45%; animation: ecgScroll 15s linear infinite reverse; }
+.ecg-line:nth-child(3) { top: 75%; animation: ecgScroll 18s linear infinite; }
+
+@keyframes ecgScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Header */
+.header {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--gradient-1);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+}
+
+.header-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.header-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dark-toggle {
+  width: 44px;
+  height: 24px;
+  background: var(--border);
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  border: none;
+  outline: none;
+}
+
+.dark-toggle::after {
+  content: '☀️';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: var(--bg-secondary);
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+[data-theme="dark"] .dark-toggle {
+  background: var(--accent);
+}
+
+[data-theme="dark"] .dark-toggle::after {
+  content: '🌙';
+  left: 22px;
+}
+
+/* Tab Navigation */
+.tab-nav {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 62px;
+  z-index: 99;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tab-nav::-webkit-scrollbar { display: none; }
+
+.tab-nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  gap: 0;
+  padding: 0 16px;
+  min-width: max-content;
+}
+
+.tab-btn {
+  padding: 12px 18px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab-btn:hover {
+  color: var(--accent);
+  background: var(--bg-hover);
+}
+
+.tab-btn.active {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 12px;
+  right: 12px;
+  height: 3px;
+  background: var(--accent);
+  border-radius: 3px 3px 0 0;
+}
+
+.tab-emoji {
+  font-size: 15px;
+}
+
+/* Main Content */
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.tab-panel {
+  display: none;
+  animation: fadeSlideIn 0.4s ease;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Cards */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.card-icon.blue { background: var(--accent-light); color: var(--accent); }
+.card-icon.red { background: var(--danger-light); color: var(--danger); }
+.card-icon.green { background: var(--success-light); color: var(--success); }
+.card-icon.gold { background: var(--gold-light); color: var(--gold); }
+.card-icon.warn { background: var(--warning-light); color: var(--warning); }
+
+.card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.card-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Patient ID Card */
+.patient-id {
+  background: var(--gradient-1);
+  color: white;
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.patient-id::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 300px;
+  height: 300px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 50%;
+}
+
+.patient-id::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -10%;
+  width: 200px;
+  height: 200px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 50%;
+}
+
+.pid-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.pid-name {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.pid-age-gender {
+  font-size: 14px;
+  opacity: 0.85;
+  margin-top: 4px;
+}
+
+.pid-badge {
+  background: rgba(255,255,255,0.2);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+}
+
+.pid-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.pid-item {
+  background: rgba(255,255,255,0.12);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  backdrop-filter: blur(10px);
+}
+
+.pid-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+
+.pid-value {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Tooltip */
+.tooltip-trigger {
+  position: relative;
+  cursor: help;
+  border-bottom: 1px dashed var(--accent);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.tooltip-trigger:hover .tooltip-box {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-4px);
+}
+
+.tooltip-box {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: var(--tooltip-bg);
+  color: var(--tooltip-text);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  white-space: normal;
+  width: 260px;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.tooltip-box::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--tooltip-bg);
+}
+
+/* Abnormal highlight */
+.abnormal {
+  color: var(--danger);
+  font-weight: 600;
+  background: var(--danger-light);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.normal-val {
+  color: var(--success);
+  font-weight: 500;
+}
+
+/* Exam Findings Grid */
+.findings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.finding-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.finding-item:hover {
+  border-left-color: var(--accent);
+  background: var(--bg-hover);
+}
+
+.finding-item.abnormal-finding {
+  border-left-color: var(--danger);
+}
+
+.finding-item.normal-finding {
+  border-left-color: var(--success);
+}
+
+.finding-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.finding-dot.red { background: var(--danger); }
+.finding-dot.green { background: var(--success); }
+.finding-dot.yellow { background: var(--warning); }
+
+.finding-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.finding-text strong {
+  color: var(--text-primary);
+}
+
+/* Labs Grid */
+.labs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.lab-item {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.lab-name {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.lab-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.lab-value.high { color: var(--danger); }
+.lab-value.normal { color: var(--success); }
+.lab-value.critical { color: var(--danger); background: var(--danger-bg); padding: 2px 8px; border-radius: 4px; }
+
+/* Doctor Pearls */
+.pearl-card {
+  background: var(--gold-light);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 14px;
+  position: relative;
+}
+
+.pearl-card::before {
+  content: '💎';
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 20px;
+  opacity: 0.5;
+}
+
+.pearl-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--warning);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pearl-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.red-flag {
+  background: var(--danger-light);
+  border: 1px solid rgba(220, 38, 38, 0.15);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 14px;
+}
+
+.red-flag-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--danger);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.red-flag-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* Reveal Cards */
+.reveal-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 14px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.reveal-header {
+  padding: 18px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: background 0.2s ease;
+}
+
+.reveal-header:hover {
+  background: var(--bg-hover);
+}
+
+.reveal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.reveal-step {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.reveal-step.s1 { background: var(--accent-light); color: var(--accent); }
+.reveal-step.s2 { background: var(--success-light); color: var(--success); }
+.reveal-step.s3 { background: var(--warning-light); color: var(--warning); }
+.reveal-step.s4 { background: var(--danger-light); color: var(--danger); }
+
+.reveal-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.reveal-arrow {
+  transition: transform 0.3s ease;
+  color: var(--text-muted);
+  font-size: 20px;
+}
+
+.reveal-card.open .reveal-arrow {
+  transform: rotate(180deg);
+}
+
+.reveal-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.reveal-card.open .reveal-content {
+  max-height: 1000px;
+}
+
+.reveal-body {
+  padding: 0 20px 20px 20px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+.reveal-body p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 8px;
+}
+
+.reveal-body ul {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.reveal-body li {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 4px;
+}
+
+/* MCQ Section */
+.mcq-stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.stat-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 20px;
+  min-width: 120px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.stat-value.score { color: var(--accent); }
+.stat-value.streak { color: var(--streak-color); }
+.stat-value.wrong { color: var(--danger); }
+.stat-value.total { color: var(--text-muted); }
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.mcq-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.mcq-number {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.mcq-stem {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.mcq-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mcq-option {
+  padding: 12px 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-primary);
+}
+
+.mcq-option:hover:not(.disabled) {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  color: var(--text-primary);
+}
+
+.mcq-option.correct {
+  border-color: var(--success);
+  background: var(--success-bg);
+  color: var(--success);
+  font-weight: 600;
+}
+
+.mcq-option.incorrect {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.mcq-option.disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.mcq-option.correct.disabled, .mcq-option.incorrect.disabled {
+  opacity: 1;
+}
+
+.opt-letter {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.mcq-option.correct .opt-letter {
+  background: var(--success);
+  color: white;
+  border-color: var(--success);
+}
+
+.mcq-option.incorrect .opt-letter {
+  background: var(--danger);
+  color: white;
+  border-color: var(--danger);
+}
+
+.mcq-explanation {
+  margin-top: 12px;
+  padding: 14px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--success);
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  display: none;
+}
+
+.mcq-explanation.show {
+  display: block;
+  animation: fadeSlideIn 0.3s ease;
+}
+
+.mcq-explanation strong {
+  color: var(--accent);
+}
+
+/* Mistake Review */
+.mistake-item {
+  background: var(--danger-light);
+  border: 1px solid rgba(220,38,38,0.1);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.mistake-q {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.mistake-detail {
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.mistake-your { color: var(--danger); font-weight: 600; }
+.mistake-correct { color: var(--success); font-weight: 600; }
+
+/* Algorithm / Flowchart */
+.flow-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 20px 0;
+}
+
+.flow-node {
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 24px;
+  max-width: 500px;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  position: relative;
+  box-shadow: var(--shadow);
+}
+
+.flow-node:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.flow-node.active {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+.flow-node-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.flow-node-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, margin 0.3s ease;
+}
+
+.flow-node.active .flow-node-desc {
+  max-height: 200px;
+  margin-top: 8px;
+}
+
+.flow-arrow {
+  width: 2px;
+  height: 30px;
+  background: var(--border);
+  position: relative;
+}
+
+.flow-arrow::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--border);
+}
+
+.flow-node-icon {
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+
+.flow-branch {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  max-width: 600px;
+  justify-content: center;
+}
+
+.flow-branch .flow-node {
+  flex: 1;
+  max-width: 280px;
+}
+
+.flow-branch-connector {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+  max-width: 400px;
+  justify-content: center;
+}
+
+.flow-h-line {
+  flex: 1;
+  height: 2px;
+  background: var(--border);
+}
+
+.flow-v-stub {
+  width: 2px;
+  height: 20px;
+  background: var(--border);
+}
+
+/* Rapid Takeaways */
+.takeaway-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.takeaway-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+.takeaway-cat {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.takeaway-cat.mech { color: var(--accent); }
+.takeaway-cat.pharm { color: var(--success); }
+.takeaway-cat.path { color: var(--danger); }
+.takeaway-cat.anat { color: var(--warning); }
+.takeaway-cat.clin { color: #7c3aed; }
+
+.takeaway-list {
+  list-style: none;
+  padding: 0;
+}
+
+.takeaway-list li {
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.takeaway-list li:last-child {
+  border-bottom: none;
+}
+
+.takeaway-list li::before {
+  content: '▸';
+  color: var(--accent);
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.keyword {
+  background: var(--accent-light);
+  color: var(--accent);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* Reset Button */
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--accent-dark);
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.btn-outline:hover {
+  background: var(--accent-light);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+}
+
+/* Section title */
+.section-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.section-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header-inner { flex-wrap: wrap; }
+  .header-title { font-size: 14px; }
+  .tab-btn { padding: 10px 12px; font-size: 12px; }
+  .tab-btn .tab-text { display: none; }
+  .tab-btn .tab-emoji { font-size: 18px; }
+  .pid-grid { grid-template-columns: 1fr; }
+  .pid-name { font-size: 20px; }
+  .mcq-stats { gap: 8px; }
+  .stat-box { min-width: 80px; padding: 10px 12px; }
+  .stat-value { font-size: 20px; }
+  .flow-branch { flex-direction: column; align-items: center; }
+  .findings-grid { grid-template-columns: 1fr; }
+  .takeaway-grid { grid-template-columns: 1fr; }
+}
+
+/* Risk Factor Table */
+.rf-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.rf-table th, .rf-table td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.rf-table th {
+  background: var(--bg-primary);
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.rf-table td {
+  color: var(--text-secondary);
+}
+
+/* UMN/LMN comparison */
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.compare-col {
+  background: var(--bg-primary);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  border: 1px solid var(--border);
+}
+
+.compare-col h4 {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--text-primary);
+}
+
+.compare-col ul {
+  list-style: none;
+  padding: 0;
+}
+
+.compare-col li {
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 3px 0;
+}
+
+.compare-col li::before {
+  content: '•';
+  margin-right: 6px;
+  font-weight: 700;
+}
+
+.compare-col.umn li::before { color: var(--danger); }
+.compare-col.lmn li::before { color: var(--accent); }
+
+/* Notification Toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 14px 20px;
+  border-radius: var(--radius-sm);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.toast.success { background: var(--success); }
+.toast.error { background: var(--danger); }
+.toast.streak-toast { background: var(--streak-color); }
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 20px 0;
+}
+
+/* Button group */
+.btn-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+/* Progress ring for flow */
+.flow-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  margin-right: 6px;
+}
+
+/* Rule-out item */
+.ruleout-item {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  margin-bottom: 10px;
+}
+
+.ruleout-dx {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ruleout-reason {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<div class="ecg-bg">
+  <div class="ecg-line"></div>
+  <div class="ecg-line"></div>
+  <div class="ecg-line"></div>
+</div>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="logo-icon">
+        <span class="material-icons-outlined">psychology</span>
+      </div>
+      <div>
+        <div class="header-title">CBL Case Simulator</div>
+        <div class="header-subtitle">Acute Ischemic Stroke — MCA Territory</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="dark-toggle" id="darkToggle" title="Toggle Dark Mode" aria-label="Toggle dark mode"></button>
+    </div>
+  </div>
+</header>
+
+<!-- Tab Navigation -->
+<nav class="tab-nav">
+  <div class="tab-nav-inner">
+    <button class="tab-btn active" data-tab="case" title="Case File">
+      <span class="tab-emoji">📂</span>
+      <span class="tab-text">Case File</span>
+    </button>
+    <button class="tab-btn" data-tab="pearls" title="Doctor's Pearls">
+      <span class="tab-emoji">💡</span>
+      <span class="tab-text">Pearls</span>
+    </button>
+    <button class="tab-btn" data-tab="reasoning" title="Clinical Reasoning">
+      <span class="tab-emoji">🔍</span>
+      <span class="tab-text">Reasoning</span>
+    </button>
+    <button class="tab-btn" data-tab="mcq" title="Exam MCQs">
+      <span class="tab-emoji">📝</span>
+      <span class="tab-text">MCQs</span>
+    </button>
+    <button class="tab-btn" data-tab="algorithm" title="Diagnostic Algorithm">
+      <span class="tab-emoji">🛤️</span>
+      <span class="tab-text">Algorithm</span>
+    </button>
+    <button class="tab-btn" data-tab="takeaways" title="Rapid Takeaways">
+      <span class="tab-emoji">⚡</span>
+      <span class="tab-text">Takeaways</span>
+    </button>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="main">
+
+  <!-- TAB 1: CASE FILE -->
+  <div class="tab-panel active" id="tab-case">
+    <!-- Patient ID Card -->
+    <div class="patient-id">
+      <div class="pid-top">
+        <div>
+          <div class="pid-name">Mr. Murad</div>
+          <div class="pid-age-gender">50-year-old Male • Lawyer</div>
+        </div>
+        <div class="pid-badge">🧠 CNS — Stroke</div>
+      </div>
+      <div class="pid-grid">
+        <div class="pid-item">
+          <div class="pid-label">Chief Complaint</div>
+          <div class="pid-value">Sudden right-sided weakness, slurred speech, facial asymmetry (1 hr ago)</div>
+        </div>
+        <div class="pid-item">
+          <div class="pid-label">Key History</div>
+          <div class="pid-value">Known AF — Non-adherent to warfarin × months</div>
+        </div>
+        <div class="pid-item">
+          <div class="pid-label">Most Likely Diagnosis</div>
+          <div class="pid-value">Acute Cardioembolic Ischemic Stroke (Left MCA Territory)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HPI & Examination -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon blue"><span class="material-icons-outlined">description</span></div>
+        <div>
+          <div class="card-title">History & Examination</div>
+          <div class="card-subtitle">Interactive findings — hover for significance</div>
+        </div>
+      </div>
+
+      <h4 style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text-primary);">Vital Signs</h4>
+      <div class="findings-grid" style="margin-bottom:18px;">
+        <div class="finding-item abnormal-finding">
+          <div class="finding-dot red"></div>
+          <div class="finding-text">
+            <strong>BP:</strong> <span class="tooltip-trigger">140/90 mmHg<span class="tooltip-box">Hypertension — a major modifiable risk factor for stroke. Needs careful management in acute stroke (permissive hypertension to maintain cerebral perfusion).</span></span>
+          </div>
+        </div>
+        <div class="finding-item abnormal-finding">
+          <div class="finding-dot red"></div>
+          <div class="finding-text">
+            <strong>HR:</strong> <span class="tooltip-trigger">100 bpm, irregularly irregular<span class="tooltip-box">Classic finding of atrial fibrillation. Irregularly irregular rhythm = AF until proven otherwise. AF causes cardiac stasis → thrombus → embolism.</span></span>
+          </div>
+        </div>
+      </div>
+
+      <h4 style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text-primary);">Neurological Examination</h4>
+      <div class="findings-grid">
+        <div class="finding-item abnormal-finding">
+          <div class="finding-dot red"></div>
+          <div class="finding-text">
+            <strong>Mental Status:</strong> <span class="tooltip-trigger">Alert but severe expressive difficulties (expressive aphasia)<span class="tooltip-box">Broca's aphasia — damage to left frontal lobe (Broca's area). Patient understands speech but cannot produce fluent speech. Localizes to dominant (usually left) MCA territory.</span></span>
+          </div>
+        </div>
+        <div class="finding-item abnormal-finding">
+          <div class="finding-dot red"></div>
+          <div class="finding-text">
+            <strong>Face:</strong> <span class="tooltip-trigger">Right-sided central facial palsy (forehead spared)<span class="tooltip-box">UMN (central) facial palsy: Forehead muscles receive bilateral cortical innervation, so they are spared. Distinguishes from LMN (Bell's palsy) where entire half of face is affected.</span></span>
+          </div>
+        </div>
+        <div class="finding-item abnormal-finding">
+          <div class="finding-dot red"></div>
+          <div class="finding-text">
+            <strong>Motor:</strong> <span class="tooltip-trigger">Dense right-sided hemiplegia (upper limb > lower limb)<span class="tooltip-box">MCA territory infarct: Upper limb and face representation on motor homunculus is lateral (MCA supply). Lower limb is medial (ACA supply). UL > LL weakness = classic MCA pattern.</span></span>
+          </div>
+        </div>
+        <div class="finding-item abnormal-finding">
+          <div class="finding-dot red"></div>
+          <div class="finding-text">
+            <strong>Sensory:</strong> <span class="tooltip-trigger">Right-sided sensory loss (upper > lower)<span class="tooltip-box">Sensory cortex follows same somatotopic distribution as motor cortex. MCA territory supplies lateral cortex = upper limb and face predominant sensory loss.</span></span>
+          </div>
+        </div>
+        <div class="finding-item abnormal-finding">
+          <div class="finding-dot red"></div>
+          <div class="finding-text">
+            <strong>Reflexes:</strong> <span class="tooltip-trigger">Right-sided hyperreflexia + positive Babinski sign<span class="tooltip-box">Classic Upper Motor Neuron (UMN) signs: Hyperreflexia and extensor plantar response (Babinski). Indicates corticospinal tract damage above the level of the anterior horn cell.</span></span>
+          </div>
+        </div>
+        <div class="finding-item abnormal-finding">
+          <div class="finding-dot red"></div>
+          <div class="finding-text">
+            <strong>Eyes:</strong> <span class="tooltip-trigger">Mild leftward gaze preference<span class="tooltip-box">Frontal eye fields (FEF) in the left hemisphere normally drive eyes to the right. When damaged, eyes deviate toward the lesion side (left). "Eyes look at the lesion" in cortical strokes.</span></span>
+          </div>
+        </div>
+        <div class="finding-item normal-finding">
+          <div class="finding-dot green"></div>
+          <div class="finding-text">
+            <strong>Fundoscopy:</strong> <span class="normal-val">No papilledema</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Imaging -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon green"><span class="material-icons-outlined">image</span></div>
+        <div>
+          <div class="card-title">Imaging & Labs</div>
+          <div class="card-subtitle">Key diagnostic workup</div>
+        </div>
+      </div>
+      <div class="labs-grid">
+        <div class="lab-item">
+          <div class="lab-name">Non-Contrast CT Brain</div>
+          <div class="lab-value normal">No hemorrhage ✓</div>
+        </div>
+        <div class="lab-item">
+          <div class="lab-name">Early Ischemic Changes</div>
+          <div class="lab-value normal">None detected</div>
+        </div>
+        <div class="lab-item">
+          <div class="lab-name">Heart Rhythm</div>
+          <div class="lab-value high">Atrial Fibrillation</div>
+        </div>
+        <div class="lab-item">
+          <div class="lab-name">Time Since Onset</div>
+          <div class="lab-value" style="color:var(--warning)">~1 hour (tPA eligible)</div>
+        </div>
+        <div class="lab-item">
+          <div class="lab-name">Anticoagulation Status</div>
+          <div class="lab-value high">Non-adherent to Warfarin</div>
+        </div>
+        <div class="lab-item">
+          <div class="lab-name">Papilledema</div>
+          <div class="lab-value normal">Absent ✓</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: DOCTOR'S PEARLS -->
+  <div class="tab-panel" id="tab-pearls">
+    <div class="section-title">💡 Doctor's Pearls & Exam Focus</div>
+    <div class="section-desc">Key exam-oriented concepts emphasized by the lecturer</div>
+
+    <div class="pearl-card">
+      <div class="pearl-title">⭐ Normal CT ≠ No Stroke</div>
+      <div class="pearl-text">A normal non-contrast CT does <strong>NOT</strong> rule out acute ischemic stroke. Its primary purpose in the acute setting is to <strong>exclude hemorrhage</strong> before administering tPA. Ischemic changes may not appear on CT for 6–12 hours. DWI MRI is the gold standard for early ischemic detection.</div>
+    </div>
+
+    <div class="pearl-card">
+      <div class="pearl-title">⭐ MCA = Most Embolized Artery</div>
+      <div class="pearl-text">The Middle Cerebral Artery is the <strong>direct continuation of the internal carotid artery</strong> and receives the highest proportion of cardiac output to the brain. This makes it the most common target for emboli from cardiac sources (AF, mural thrombi, valvular vegetations).</div>
+    </div>
+
+    <div class="pearl-card">
+      <div class="pearl-title">⭐ Sources of Emboli</div>
+      <div class="pearl-text"><strong>Cardiac:</strong> Atrial fibrillation, MI with mural thrombus, valvular disease, endocarditis. <strong>Arterial:</strong> Atherosclerotic plaques in carotid arteries. AF is the most common cardiac embolic source in non-valvular patients.</div>
+    </div>
+
+    <div class="pearl-card">
+      <div class="pearl-title">⭐ tPA Window & Criteria</div>
+      <div class="pearl-text">The <strong>90-minute to 4.5-hour window</strong> is critical. Alteplase (tPA) eligibility requires: confirmed ischemic stroke, no hemorrhage on CT, onset within 4.5 hours, no absolute contraindications (recent surgery, active bleeding, BP > 185/110, etc.).</div>
+    </div>
+
+    <div class="pearl-card">
+      <div class="pearl-title">⭐ Circle of Willis Functions</div>
+      <div class="pearl-text">Connects vertebrobasilar and internal carotid systems. Provides <strong>collateral circulation</strong>, equalizes pressures, and is a <strong>common site for berry aneurysms</strong> (especially anterior communicating artery).</div>
+    </div>
+
+    <div class="pearl-card">
+      <div class="pearl-title">⭐ Red Neurons = Earliest Change</div>
+      <div class="pearl-text">Eosinophilic neuronal necrosis (<strong>"red neurons"</strong>) is the first microscopic/morphological change after ischemic brain injury — representing irreversible acute cellular damage.</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="red-flag">
+      <div class="red-flag-title">🚨 Pitfall: UMN vs LMN Confusion</div>
+      <div class="red-flag-text">
+        Students frequently confuse Upper and Lower Motor Neuron signs. Remember the key distinctions:
+        <div class="compare-grid">
+          <div class="compare-col umn">
+            <h4>🔴 UMN Signs</h4>
+            <ul>
+              <li>Spasticity (hypertonia)</li>
+              <li>Hyperreflexia</li>
+              <li>Positive Babinski (+)</li>
+              <li>No fasciculations</li>
+              <li>No significant atrophy</li>
+            </ul>
+          </div>
+          <div class="compare-col lmn">
+            <h4>🔵 LMN Signs</h4>
+            <ul>
+              <li>Flaccidity (hypotonia)</li>
+              <li>Hyporeflexia/areflexia</li>
+              <li>Negative Babinski (−)</li>
+              <li>Fasciculations present</li>
+              <li>Significant atrophy</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="red-flag">
+      <div class="red-flag-title">🚨 Pitfall: Early Anticoagulation After tPA</div>
+      <div class="red-flag-text">Never start anticoagulants (rivaroxaban, warfarin) immediately after thrombolysis. <strong>Delay at least 24 hours</strong> to minimize catastrophic hemorrhagic transformation risk. In this case, rivaroxaban was started on Day 2.</div>
+    </div>
+
+    <div class="red-flag">
+      <div class="red-flag-title">🚨 Pitfall: Facial Palsy Localization</div>
+      <div class="red-flag-text"><strong>Central (UMN):</strong> Forehead SPARED — bilateral cortical innervation of upper face.<br><strong>Peripheral (LMN):</strong> Entire ipsilateral face affected — no bilateral backup.</div>
+    </div>
+
+    <div class="divider"></div>
+    <h3 style="font-size:16px;font-weight:700;margin-bottom:14px;">🔎 Rule-Out Logic</h3>
+
+    <div class="ruleout-item">
+      <div class="ruleout-dx">❌ Hemorrhagic Stroke</div>
+      <div class="ruleout-reason">Excluded by non-contrast CT brain showing <strong>no hemorrhage</strong>. This is the primary reason CT is performed emergently — to differentiate ischemic from hemorrhagic stroke before thrombolysis.</div>
+    </div>
+    <div class="ruleout-item">
+      <div class="ruleout-dx">❌ Anterior Cerebral Artery (ACA) Stroke</div>
+      <div class="ruleout-reason">ACA territory strokes predominantly affect the <strong>lower limb</strong> (medial cortex supply). This patient has upper limb > lower limb deficits — classic MCA territory pattern.</div>
+    </div>
+    <div class="ruleout-item">
+      <div class="ruleout-dx">❌ Posterior Circulation Stroke</div>
+      <div class="ruleout-reason">Posterior circulation (vertebrobasilar) strokes present with <strong>vertigo, ataxia, cranial nerve palsies, visual field cuts</strong> — not the expressive aphasia and hemiplegia seen here.</div>
+    </div>
+    <div class="ruleout-item">
+      <div class="ruleout-dx">❌ Bell's Palsy (LMN Facial Palsy)</div>
+      <div class="ruleout-reason">Bell's palsy affects the <strong>entire ipsilateral face</strong> including forehead. This patient has forehead-sparing facial weakness — indicating a central (UMN) cause.</div>
+    </div>
+
+    <div class="divider"></div>
+    <h3 style="font-size:16px;font-weight:700;margin-bottom:14px;">📊 Stroke Risk Factors</h3>
+    <div class="card" style="padding:0; overflow:hidden;">
+      <table class="rf-table">
+        <thead>
+          <tr>
+            <th>Modifiable</th>
+            <th>Non-Modifiable</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Hypertension</td><td>Age</td></tr>
+          <tr><td>Diabetes Mellitus</td><td>Gender (higher in males)</td></tr>
+          <tr><td>Hyperlipidemia</td><td>Race/Ethnicity</td></tr>
+          <tr><td>Smoking</td><td>Family History</td></tr>
+          <tr><td>Obesity & Physical Inactivity</td><td>Previous Stroke/TIA</td></tr>
+          <tr><td>Atrial Fibrillation</td><td></td></tr>
+          <tr><td>Excessive Alcohol</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB 3: CLINICAL REASONING -->
+  <div class="tab-panel" id="tab-reasoning">
+    <div class="section-title">🔍 Clinical Reasoning</div>
+    <div class="section-desc">Click each card to reveal the answer progressively</div>
+
+    <div class="reveal-card" data-reveal="1">
+      <div class="reveal-header" onclick="toggleReveal(this)">
+        <div class="reveal-header-left">
+          <div class="reveal-step s1">1</div>
+          <div class="reveal-label">Localization & Pathophysiology</div>
+        </div>
+        <span class="material-icons-outlined reveal-arrow">expand_more</span>
+      </div>
+      <div class="reveal-content">
+        <div class="reveal-body">
+          <p><strong>Localization:</strong> Left Middle Cerebral Artery (MCA) territory</p>
+          <ul>
+            <li><strong>Motor cortex (lateral):</strong> Right hemiplegia, upper limb > lower limb (lateral homunculus = arm/face via MCA; medial = leg via ACA)</li>
+            <li><strong>Broca's area (left frontal):</strong> Expressive aphasia — confirms dominant hemisphere involvement</li>
+            <li><strong>Frontal eye fields:</strong> Leftward gaze deviation ("eyes look toward the lesion")</li>
+            <li><strong>Facial motor cortex (UMN):</strong> Contralateral central facial palsy, forehead spared</li>
+          </ul>
+          <p><strong>Pathophysiology:</strong></p>
+          <ul>
+            <li>Non-adherence to warfarin → uncontrolled AF → atrial stasis → mural thrombus formation</li>
+            <li>Thrombus dislodges → embolus travels through ICA → lodges in MCA (most common target)</li>
+            <li>Sudden occlusion → focal cerebral ischemia → neuronal injury → "red neurons" (earliest histologic change)</li>
+            <li>UMN damage → loss of descending inhibition → spasticity, hyperreflexia, +Babinski</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal-card" data-reveal="2">
+      <div class="reveal-header" onclick="toggleReveal(this)">
+        <div class="reveal-header-left">
+          <div class="reveal-step s2">2</div>
+          <div class="reveal-label">Most Likely Diagnosis</div>
+        </div>
+        <span class="material-icons-outlined reveal-arrow">expand_more</span>
+      </div>
+      <div class="reveal-content">
+        <div class="reveal-body">
+          <p><strong>Acute Cardioembolic Ischemic Stroke — Left MCA Territory</strong></p>
+          <p>Evidence supporting this diagnosis:</p>
+          <ul>
+            <li>✅ <strong>Sudden onset</strong> of focal neurological deficits (embolic pattern)</li>
+            <li>✅ <strong>Right-sided deficits (UL > LL)</strong> — classic MCA distribution</li>
+            <li>✅ <strong>Expressive aphasia</strong> — left (dominant) hemisphere involvement</li>
+            <li>✅ <strong>Definitive embolic source:</strong> untreated AF (irregularly irregular rhythm)</li>
+            <li>✅ <strong>CT: No hemorrhage</strong> — consistent with ischemic rather than hemorrhagic stroke</li>
+            <li>✅ <strong>UMN signs:</strong> hyperreflexia, +Babinski = corticospinal tract damage</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal-card" data-reveal="3">
+      <div class="reveal-header" onclick="toggleReveal(this)">
+        <div class="reveal-header-left">
+          <div class="reveal-step s3">3</div>
+          <div class="reveal-label">Initial Investigation & First Step</div>
+        </div>
+        <span class="material-icons-outlined reveal-arrow">expand_more</span>
+      </div>
+      <div class="reveal-content">
+        <div class="reveal-body">
+          <p><strong>Immediate Investigation:</strong> Non-contrast CT brain (NCCT)</p>
+          <ul>
+            <li>Purpose: <strong>Exclude hemorrhage</strong> — NOT to confirm ischemic stroke</li>
+            <li>NCCT is fast, widely available, and highly sensitive for acute hemorrhage</li>
+            <li>A "normal" CT in the acute setting is <strong>expected</strong> and does NOT rule out ischemic stroke</li>
+          </ul>
+          <p><strong>Additional Workup:</strong></p>
+          <ul>
+            <li>ECG — confirm AF</li>
+            <li>CBC, BMP, coagulation studies (PT/INR), glucose</li>
+            <li>Echocardiogram — assess for mural thrombus / valvular disease</li>
+            <li>CT Angiography (CTA) — identify large vessel occlusion for potential thrombectomy</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal-card" data-reveal="4">
+      <div class="reveal-header" onclick="toggleReveal(this)">
+        <div class="reveal-header-left">
+          <div class="reveal-step s4">4</div>
+          <div class="reveal-label">Definitive Management</div>
+        </div>
+        <span class="material-icons-outlined reveal-arrow">expand_more</span>
+      </div>
+      <div class="reveal-content">
+        <div class="reveal-body">
+          <p><strong>Acute Management (within 4.5-hour window):</strong></p>
+          <ul>
+            <li><strong>IV Alteplase (tPA)</strong> — fibrinolytic; activates plasminogen → plasmin → fibrin clot breakdown</li>
+            <li>Administered at 1.5 hours post-onset → within the therapeutic window</li>
+            <li>Requires: CT excluding hemorrhage, informed consent, BP control (< 185/110)</li>
+          </ul>
+          <p><strong>Secondary Prevention (Day 2+):</strong></p>
+          <ul>
+            <li><strong>Rivaroxaban</strong> (Factor Xa inhibitor) — delayed until Day 2 to avoid hemorrhagic transformation</li>
+            <li>Purpose: long-term stroke prevention in non-valvular AF</li>
+            <li>Alternative: warfarin with INR monitoring (patient was previously non-adherent)</li>
+          </ul>
+          <p><strong>Supportive:</strong></p>
+          <ul>
+            <li>BP management, glucose control, DVT prophylaxis, dysphagia screening</li>
+            <li>Rehabilitation: PT, OT, speech therapy for aphasia</li>
+            <li>Address medication adherence</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: EXAM MCQs -->
+  <div class="tab-panel" id="tab-mcq">
+    <div class="section-title">📝 Exam MCQs</div>
+    <div class="section-desc">Test your understanding — instant feedback with explanations</div>
+
+    <div class="mcq-stats" id="mcqStats">
+      <div class="stat-box">
+        <div class="stat-value score" id="statScore">0</div>
+        <div class="stat-label">Correct</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value total" id="statTotal">0</div>
+        <div class="stat-label">Answered</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value streak" id="statStreak">0 🔥</div>
+        <div class="stat-label">Streak</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value wrong" id="statWrong">0</div>
+        <div class="stat-label">Mistakes</div>
+      </div>
+    </div>
+
+    <div id="mcqContainer"></div>
+
+    <div class="divider"></div>
+
+    <h3 style="font-size:16px;font-weight:700;margin-bottom:14px;">❌ Mistake Review</h3>
+    <div id="mistakeReview"><p style="color:var(--text-muted);font-size:13px;">No mistakes yet — keep going! 💪</p></div>
+
+    <div class="btn-group">
+      <button class="btn btn-danger" onclick="resetMCQs()">
+        <span class="material-icons-outlined" style="font-size:16px;">refresh</span>
+        Reset All MCQs
+      </button>
+    </div>
+  </div>
+
+  <!-- TAB 5: DIAGNOSTIC ALGORITHM -->
+  <div class="tab-panel" id="tab-algorithm">
+    <div class="section-title">🛤️ Diagnostic Algorithm</div>
+    <div class="section-desc">Click each step to expand — case-specific flowchart</div>
+
+    <div class="flow-container">
+      <div class="flow-node" onclick="toggleFlow(this)">
+        <div class="flow-node-icon">🏥</div>
+        <div class="flow-node-title"><span class="flow-step-num">1</span> Patient Presents with Acute Focal Neuro Deficit</div>
+        <div class="flow-node-desc">Sudden onset right hemiplegia (UL>LL), expressive aphasia, facial asymmetry. Time of onset: 1 hour ago. Known AF, non-adherent to warfarin.</div>
+      </div>
+      <div class="flow-arrow"></div>
+
+      <div class="flow-node" onclick="toggleFlow(this)">
+        <div class="flow-node-icon">⏱️</div>
+        <div class="flow-node-title"><span class="flow-step-num">2</span> Activate Stroke Protocol — Determine Time Window</div>
+        <div class="flow-node-desc">Onset ~1 hour → within the 4.5-hour tPA window. ABCs, IV access, ECG (confirms AF), fingerstick glucose, blood draw (CBC, BMP, coags).</div>
+      </div>
+      <div class="flow-arrow"></div>
+
+      <div class="flow-node" onclick="toggleFlow(this)">
+        <div class="flow-node-icon">🧠</div>
+        <div class="flow-node-title"><span class="flow-step-num">3</span> STAT Non-Contrast CT Brain</div>
+        <div class="flow-node-desc">Purpose: EXCLUDE hemorrhage. Result: No hemorrhage, no early ischemic changes. A normal CT is expected acutely — it does NOT rule out ischemic stroke.</div>
+      </div>
+      <div class="flow-arrow"></div>
+
+      <!-- Branch -->
+      <div class="flow-branch-connector">
+        <div class="flow-v-stub"></div>
+        <div class="flow-h-line"></div>
+        <div class="flow-v-stub"></div>
+      </div>
+      <div class="flow-branch">
+        <div class="flow-node" onclick="toggleFlow(this)" style="border-color: var(--danger);">
+          <div class="flow-node-icon">🩸</div>
+          <div class="flow-node-title" style="color:var(--danger);">Hemorrhage Present → NO tPA</div>
+          <div class="flow-node-desc">If CT shows hemorrhage: DO NOT give thrombolytics. Consult neurosurgery. Consider reversal agents if on anticoagulation. Manage BP aggressively.</div>
+        </div>
+        <div class="flow-node" onclick="toggleFlow(this)" style="border-color: var(--success);">
+          <div class="flow-node-icon">✅</div>
+          <div class="flow-node-title" style="color:var(--success);">No Hemorrhage → Proceed to tPA</div>
+          <div class="flow-node-desc">CT clear → confirm no absolute contraindications → check BP < 185/110 → obtain informed consent → administer IV alteplase. This patient qualifies (1.5 hr post-onset).</div>
+        </div>
+      </div>
+
+      <div class="flow-arrow"></div>
+
+      <div class="flow-node" onclick="toggleFlow(this)">
+        <div class="flow-node-icon">💉</div>
+        <div class="flow-node-title"><span class="flow-step-num">4</span> IV Alteplase (tPA) Administration</div>
+        <div class="flow-node-desc">Mechanism: Fibrinolytic → activates plasminogen to plasmin → breaks down fibrin clot. Monitor for bleeding complications. Neuro checks every 15 min. Admit to ICU/stroke unit.</div>
+      </div>
+      <div class="flow-arrow"></div>
+
+      <div class="flow-node" onclick="toggleFlow(this)">
+        <div class="flow-node-icon">⏳</div>
+        <div class="flow-node-title"><span class="flow-step-num">5</span> Post-tPA Monitoring (24 hours)</div>
+        <div class="flow-node-desc">No anticoagulants or antiplatelets for 24 hours post-tPA. Repeat CT at 24 hours to rule out hemorrhagic transformation before starting anticoagulation.</div>
+      </div>
+      <div class="flow-arrow"></div>
+
+      <div class="flow-node" onclick="toggleFlow(this)">
+        <div class="flow-node-icon">💊</div>
+        <div class="flow-node-title"><span class="flow-step-num">6</span> Day 2: Start Rivaroxaban for Secondary Prevention</div>
+        <div class="flow-node-desc">Rivaroxaban (Factor Xa inhibitor): Delayed to Day 2 to reduce bleeding risk. Used for long-term stroke prevention in non-valvular AF. Address previous non-adherence. Consider DOAC vs warfarin based on patient factors.</div>
+      </div>
+      <div class="flow-arrow"></div>
+
+      <div class="flow-node" onclick="toggleFlow(this)">
+        <div class="flow-node-icon">🔄</div>
+        <div class="flow-node-title"><span class="flow-step-num">7</span> Rehabilitation & Long-Term Management</div>
+        <div class="flow-node-desc">Physiotherapy, occupational therapy, speech therapy (for aphasia). Modify risk factors: BP control, lifestyle changes. Ensure medication adherence. Regular follow-up with cardiology (AF management).</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 6: RAPID TAKEAWAYS -->
+  <div class="tab-panel" id="tab-takeaways">
+    <div class="section-title">⚡ Rapid Takeaways</div>
+    <div class="section-desc">Ultra-condensed high-yield revision</div>
+
+    <div class="takeaway-grid">
+      <div class="takeaway-item">
+        <div class="takeaway-cat anat">🧠 Anatomy</div>
+        <ul class="takeaway-list">
+          <li><span class="keyword">MCA</span> = most embolized artery (direct ICA continuation)</li>
+          <li>MCA supplies lateral frontal + parietal lobes</li>
+          <li>MCA occlusion → face + upper limb > lower limb deficits</li>
+          <li>ACA supplies medial cortex → lower limb predominantly</li>
+          <li><span class="keyword">Anterior communicating artery</span> = anterior part of Circle of Willis</li>
+          <li>Circle of Willis = collateral circulation + common aneurysm site</li>
+        </ul>
+      </div>
+
+      <div class="takeaway-item">
+        <div class="takeaway-cat path">🔬 Pathology</div>
+        <ul class="takeaway-list">
+          <li><span class="keyword">Red neurons</span> = earliest microscopic change post-ischemia</li>
+          <li>AF → stasis → mural thrombus → embolus → MCA occlusion</li>
+          <li>Normal CT does NOT rule out ischemic stroke</li>
+          <li>CT purpose in acute stroke = exclude hemorrhage only</li>
+          <li>Central facial palsy = forehead SPARED (bilateral cortical innervation)</li>
+        </ul>
+      </div>
+
+      <div class="takeaway-item">
+        <div class="takeaway-cat mech">⚙️ Mechanisms</div>
+        <ul class="takeaway-list">
+          <li><span class="keyword">Alteplase (tPA)</span> = fibrinolytic = plasminogen → plasmin</li>
+          <li><span class="keyword">Rivaroxaban</span> = Factor Xa inhibitor (anticoagulant)</li>
+          <li>UMN damage → loss of descending inhibition → spasticity + hyperreflexia</li>
+          <li>Babinski (+) = UMN damage to corticospinal tract</li>
+          <li>Gaze deviation toward lesion side in cortical strokes</li>
+        </ul>
+      </div>
+
+      <div class="takeaway-item">
+        <div class="takeaway-cat pharm">💊 Pharmacology</div>
+        <ul class="takeaway-list">
+          <li>tPA window: up to <span class="keyword">4.5 hours</span> from symptom onset</li>
+          <li>tPA = fibrinolytic, NOT anticoagulant, NOT antiplatelet</li>
+          <li>Rivaroxaban delayed to Day 2 post-tPA → avoid hemorrhagic transformation</li>
+          <li>Warfarin non-adherence = direct cause of this stroke</li>
+          <li>tPA requires: no hemorrhage on CT, BP < 185/110, no contraindications</li>
+        </ul>
+      </div>
+
+      <div class="takeaway-item">
+        <div class="takeaway-cat clin">🩺 Clinical Signs</div>
+        <ul class="takeaway-list">
+          <li><span class="keyword">UMN</span>: Spasticity, hyperreflexia, +Babinski, no atrophy</li>
+          <li><span class="keyword">LMN</span>: Flaccidity, hyporeflexia, −Babinski, fasciculations, atrophy</li>
+          <li>Irregularly irregular rhythm = AF until proven otherwise</li>
+          <li>Expressive aphasia = left (dominant) frontal lobe (Broca's area)</li>
+          <li>MCA stroke pattern = UL > LL + face + aphasia (if dominant)</li>
+        </ul>
+      </div>
+
+      <div class="takeaway-item">
+        <div class="takeaway-cat" style="color:#7c3aed;">🎯 Exam Triggers</div>
+        <ul class="takeaway-list">
+          <li>"Sudden onset" + focal deficits + AF → cardioembolic stroke</li>
+          <li>"Upper limb > lower limb" → MCA territory</li>
+          <li>"Forehead spared" → UMN (central) facial palsy</li>
+          <li>"Irregularly irregular" → atrial fibrillation</li>
+          <li>"Normal CT" in acute stroke → expected; excludes hemorrhage</li>
+          <li>"Red neurons" → earliest ischemic histologic change</li>
+          <li>"Plasminogen → plasmin" → alteplase mechanism</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================
+// DATA
+// ============================================
+
+const mcqData = [
+  {
+    id: 1,
+    stem: "Which artery supplies most of the frontal and parietal lobes of the brain?",
+    options: [
+      { letter: "A", text: "Anterior cerebral artery" },
+      { letter: "B", text: "Middle cerebral artery" },
+      { letter: "C", text: "Posterior cerebral artery" },
+      { letter: "D", text: "Internal carotid artery" }
+    ],
+    correct: "B",
+    explanation: "<strong>Keyword: Middle cerebral artery.</strong> MCA provides predominant supply to the lateral surfaces of the frontal and parietal lobes. ACA supplies the medial surface. ICA is the parent vessel, not the direct cortical supplier."
+  },
+  {
+    id: 2,
+    stem: "In embolic brain infarcts, what is the most frequently embolized artery?",
+    options: [
+      { letter: "A", text: "Anterior cerebral artery" },
+      { letter: "B", text: "Middle cerebral artery" },
+      { letter: "C", text: "Posterior communicating artery" },
+      { letter: "D", text: "Basilar artery" }
+    ],
+    correct: "B",
+    explanation: "<strong>Keyword: Embolic target.</strong> MCA is the direct and largest continuation of the ICA, making it the most common anatomical target for cardiac and arterial emboli."
+  },
+  {
+    id: 3,
+    stem: "Alteplase belongs to which of the following pharmacologic groups?",
+    options: [
+      { letter: "A", text: "Anticoagulants" },
+      { letter: "B", text: "Antifibrinolytics" },
+      { letter: "C", text: "Fibrinolytics" },
+      { letter: "D", text: "Antiplatelets" }
+    ],
+    correct: "C",
+    explanation: "<strong>Keyword: Fibrinolytics.</strong> Alteplase actively breaks down existing fibrin clots (fibrinolysis). It is NOT an anticoagulant (warfarin/heparin) or antiplatelet (aspirin/clopidogrel)."
+  },
+  {
+    id: 4,
+    stem: "Which pharmacologic mechanism justifies the use of alteplase in acute ischemic stroke?",
+    options: [
+      { letter: "A", text: "Antiplatelet aggregation" },
+      { letter: "B", text: "Direct thrombin inhibition" },
+      { letter: "C", text: "Plasminogen activation to plasmin" },
+      { letter: "D", text: "Factor Xa inhibition" }
+    ],
+    correct: "C",
+    explanation: "<strong>Keyword: Plasminogen → plasmin.</strong> Alteplase directly cleaves plasminogen into active plasmin, which degrades the fibrin clot matrix. Factor Xa inhibition is the mechanism of rivaroxaban."
+  },
+  {
+    id: 5,
+    stem: "Why was rivaroxaban delayed until Day 2 rather than started immediately after alteplase?",
+    options: [
+      { letter: "A", text: "It increases fibrinolytic efficacy if given early" },
+      { letter: "B", text: "It enhances alteplase clearance" },
+      { letter: "C", text: "It prevents early stroke recurrence" },
+      { letter: "D", text: "It reduces bleeding risk following thrombolysis" }
+    ],
+    correct: "D",
+    explanation: "<strong>Keyword: Reduces bleeding risk.</strong> Combining early anticoagulation with recent thrombolytic therapy dramatically increases the risk of catastrophic hemorrhagic transformation of the ischemic infarct."
+  },
+  {
+    id: 6,
+    stem: "Following ischemic injury of the brain, which microscopic change appears FIRST?",
+    options: [
+      { letter: "A", text: "Influx of phagocytic cells" },
+      { letter: "B", text: "Neovascularization" },
+      { letter: "C", text: "Neutrophilic infiltration" },
+      { letter: "D", text: "Red neurons" }
+    ],
+    correct: "D",
+    explanation: "<strong>Keyword: Red neurons.</strong> Eosinophilic neuronal necrosis (red neurons) is the earliest histological hallmark of irreversible acute ischemic cellular damage, appearing within hours."
+  },
+  {
+    id: 7,
+    stem: "Upper motor neuron impairment produces which change in muscle tone?",
+    options: [
+      { letter: "A", text: "Flaccidity" },
+      { letter: "B", text: "Spasticity" },
+      { letter: "C", text: "\"Cog wheel\" rigidity" },
+      { letter: "D", text: "Myoclonia" }
+    ],
+    correct: "B",
+    explanation: "<strong>Keyword: Spasticity.</strong> UMN damage removes descending inhibitory control on spinal reflexes, leading to velocity-dependent hypertonia (spasticity). Flaccidity = LMN. Cog-wheel rigidity = Parkinson's disease."
+  },
+  {
+    id: 8,
+    stem: "Which of the following is a sign of LOWER motor neuron lesion?",
+    options: [
+      { letter: "A", text: "Hypertonia" },
+      { letter: "B", text: "Hyperreflexia" },
+      { letter: "C", text: "Babinski sign" },
+      { letter: "D", text: "Flaccidity" }
+    ],
+    correct: "D",
+    explanation: "<strong>Keyword: Flaccidity.</strong> LMN lesions interrupt the final common pathway (anterior horn cell/peripheral nerve), causing flaccid paralysis with muscle atrophy. Options A, B, C are all classic UMN signs."
+  },
+  {
+    id: 9,
+    stem: "Babinski response usually develops with damage to which structure?",
+    options: [
+      { letter: "A", text: "Upper motor neuron" },
+      { letter: "B", text: "Lower motor neuron" },
+      { letter: "C", text: "Cerebellum" },
+      { letter: "D", text: "Thalamus" }
+    ],
+    correct: "A",
+    explanation: "<strong>Keyword: Upper motor neuron.</strong> Damage to the descending corticospinal tract (UMN) releases the abnormal extensor plantar reflex (Babinski sign). Cerebellar lesions cause ataxia, not Babinski."
+  },
+  {
+    id: 10,
+    stem: "Which artery forms the anterior part of the circulus arteriosus (Circle of Willis)?",
+    options: [
+      { letter: "A", text: "Anterior cerebral artery" },
+      { letter: "B", text: "Anterior communicating artery" },
+      { letter: "C", text: "Internal carotid artery" },
+      { letter: "D", text: "Posterior cerebral artery" }
+    ],
+    correct: "B",
+    explanation: "<strong>Keyword: Anterior communicating artery.</strong> The AComm bridges the two anterior cerebral arteries, completing the anterior loop of the Circle of Willis. It is also the most common site for berry aneurysms."
+  },
+  {
+    id: 11,
+    stem: "A patient presents with sudden weakness predominantly affecting the contralateral lower limb with preserved upper limb function. Which artery is most likely occluded?",
+    options: [
+      { letter: "A", text: "Middle cerebral artery" },
+      { letter: "B", text: "Anterior cerebral artery" },
+      { letter: "C", text: "Posterior cerebral artery" },
+      { letter: "D", text: "Basilar artery" }
+    ],
+    correct: "B",
+    explanation: "<strong>Keyword: ACA → lower limb.</strong> The ACA supplies the medial surface of the cortex where the lower limb is represented on the motor homunculus. MCA occlusion affects upper limb > lower limb."
+  },
+  {
+    id: 12,
+    stem: "In this patient, the forehead muscles are spared on the affected side. This finding is best explained by:",
+    options: [
+      { letter: "A", text: "Lower motor neuron lesion of CN VII" },
+      { letter: "B", text: "Bilateral cortical innervation of the upper face" },
+      { letter: "C", text: "Posterior cerebral artery involvement" },
+      { letter: "D", text: "Trigeminal nerve (CN V) damage" }
+    ],
+    correct: "B",
+    explanation: "<strong>Keyword: Bilateral cortical innervation.</strong> The upper face (forehead) receives motor input from BOTH hemispheres. So even when one hemisphere is damaged (UMN lesion), the intact hemisphere maintains forehead movement. LMN lesions affect the entire ipsilateral face."
+  },
+  {
+    id: 13,
+    stem: "The primary purpose of non-contrast CT brain in acute stroke is to:",
+    options: [
+      { letter: "A", text: "Confirm the diagnosis of ischemic stroke" },
+      { letter: "B", text: "Identify the occluded vessel" },
+      { letter: "C", text: "Exclude intracranial hemorrhage before thrombolysis" },
+      { letter: "D", text: "Assess the penumbra size" }
+    ],
+    correct: "C",
+    explanation: "<strong>Keyword: Exclude hemorrhage.</strong> NCCT is NOT done to confirm ischemia — early ischemic changes may be absent for hours. Its sole critical role is to rule out hemorrhage so tPA can be safely administered."
+  },
+  {
+    id: 14,
+    stem: "Which of the following is the most common cardiac source of cerebral emboli?",
+    options: [
+      { letter: "A", text: "Patent foramen ovale" },
+      { letter: "B", text: "Atrial fibrillation" },
+      { letter: "C", text: "Mitral valve prolapse" },
+      { letter: "D", text: "Ventricular septal defect" }
+    ],
+    correct: "B",
+    explanation: "<strong>Keyword: Atrial fibrillation.</strong> AF causes atrial stasis → mural thrombus formation → embolization. It is by far the most common cardiac cause of embolic stroke, especially in non-valvular settings."
+  },
+  {
+    id: 15,
+    stem: "In a cortical stroke, the patient's eyes deviate toward which side?",
+    options: [
+      { letter: "A", text: "Away from the lesion (toward the paralysis)" },
+      { letter: "B", text: "Toward the lesion (away from the paralysis)" },
+      { letter: "C", text: "Upward (sun-setting sign)" },
+      { letter: "D", text: "Downward (parinaud syndrome)" }
+    ],
+    correct: "B",
+    explanation: "<strong>Keyword: Eyes look toward the lesion.</strong> Frontal eye fields (FEF) drive conjugate gaze to the contralateral side. When damaged, the intact side dominates, pushing eyes toward the lesion (and away from the paralyzed side)."
+  }
+];
+
+// ============================================
+// STATE MANAGEMENT
+// ============================================
+
+let state = {
+  activeTab: localStorage.getItem('cbl_activeTab') || 'case',
+  darkMode: localStorage.getItem('cbl_darkMode') === 'true',
+  mcqAnswers: JSON.parse(localStorage.getItem('cbl_mcqAnswers') || '{}'),
+  mcqScore: parseInt(localStorage.getItem('cbl_mcqScore') || '0'),
+  mcqTotal: parseInt(localStorage.getItem('cbl_mcqTotal') || '0'),
+  mcqStreak: parseInt(localStorage.getItem('cbl_mcqStreak') || '0'),
+  mcqBestStreak: parseInt(localStorage.getItem('cbl_mcqBestStreak') || '0'),
+  mistakes: JSON.parse(localStorage.getItem('cbl_mistakes') || '[]')
+};
+
+function saveState() {
+  localStorage.setItem('cbl_activeTab', state.activeTab);
+  localStorage.setItem('cbl_darkMode', state.darkMode);
+  localStorage.setItem('cbl_mcqAnswers', JSON.stringify(state.mcqAnswers));
+  localStorage.setItem('cbl_mcqScore', state.mcqScore);
+  localStorage.setItem('cbl_mcqTotal', state.mcqTotal);
+  localStorage.setItem('cbl_mcqStreak', state.mcqStreak);
+  localStorage.setItem('cbl_mcqBestStreak', state.mcqBestStreak);
+  localStorage.setItem('cbl_mistakes', JSON.stringify(state.mistakes));
+}
+
+// ============================================
+// DARK MODE
+// ============================================
+
+function initDarkMode() {
+  if (state.darkMode) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+}
+
+document.getElementById('darkToggle').addEventListener('click', () => {
+  state.darkMode = !state.darkMode;
+  document.documentElement.setAttribute('data-theme', state.darkMode ? 'dark' : '');
+  saveState();
+});
+
+// ============================================
+// TAB NAVIGATION
+// ============================================
+
+function switchTab(tabName) {
+  state.activeTab = tabName;
+  saveState();
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tabName);
+  });
+
+  document.querySelectorAll('.tab-panel').forEach(panel => {
+    panel.classList.toggle('active', panel.id === 'tab-' + tabName);
+  });
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+// ============================================
+// REVEAL CARDS
+// ============================================
+
+function toggleReveal(header) {
+  const card = header.closest('.reveal-card');
+  card.classList.toggle('open');
+}
+
+// ============================================
+// FLOW NODES
+// ============================================
+
+function toggleFlow(node) {
+  const wasActive = node.classList.contains('active');
+  // Don't close others, just toggle this one
+  node.classList.toggle('active');
+}
+
+// ============================================
+// MCQ SYSTEM
+// ============================================
+
+function renderMCQs() {
+  const container = document.getElementById('mcqContainer');
+  container.innerHTML = '';
+
+  mcqData.forEach((q, idx) => {
+    const answered = state.mcqAnswers[q.id];
+    const card = document.createElement('div');
+    card.className = 'mcq-card';
+    card.id = 'mcq-' + q.id;
+
+    let optionsHTML = '';
+    q.options.forEach(opt => {
+      let extraClass = '';
+      let disabled = '';
+      if (answered) {
+        disabled = 'disabled';
+        if (opt.letter === q.correct) {
+          extraClass = 'correct';
+        } else if (opt.letter === answered) {
+          extraClass = 'incorrect';
+        }
+        extraClass += ' disabled';
+      }
+      optionsHTML += `
+        <div class="mcq-option ${extraClass}" data-qid="${q.id}" data-letter="${opt.letter}" onclick="answerMCQ(${q.id}, '${opt.letter}')">
+          <div class="opt-letter">${opt.letter}</div>
+          <span>${opt.text}</span>
+        </div>
+      `;
+    });
+
+    card.innerHTML = `
+      <div class="mcq-number">Question ${idx + 1} of ${mcqData.length}</div>
+      <div class="mcq-stem">${q.stem}</div>
+      <div class="mcq-options">${optionsHTML}</div>
+      <div class="mcq-explanation ${answered ? 'show' : ''}" id="exp-${q.id}">
+        ${q.explanation}
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+
+  updateStats();
+}
+
+function answerMCQ(qid, letter) {
+  if (state.mcqAnswers[qid]) return; // Already answered
+
+  const q = mcqData.find(x => x.id === qid);
+  const isCorrect = letter === q.correct;
+
+  state.mcqAnswers[qid] = letter;
+  state.mcqTotal++;
+
+  if (isCorrect) {
+    state.mcqScore++;
+    state.mcqStreak++;
+    if (state.mcqStreak > state.mcqBestStreak) {
+      state.mcqBestStreak = state.mcqStreak;
+    }
+    showToast('✅ Correct!', 'success');
+    if (state.mcqStreak >= 3) {
+      setTimeout(() => showToast(`🔥 ${state.mcqStreak} streak!`, 'streak-toast'), 800);
+    }
+  } else {
+    state.mcqStreak = 0;
+    state.mistakes.push({
+      qid: qid,
+      stem: q.stem,
+      yourAnswer: letter,
+      correctAnswer: q.correct,
+      yourText: q.options.find(o => o.letter === letter).text,
+      correctText: q.options.find(o => o.letter === q.correct).text
+    });
+    showToast('❌ Incorrect', 'error');
+  }
+
+  saveState();
+
+  // Update UI
+  const card = document.getElementById('mcq-' + qid);
+  const options = card.querySelectorAll('.mcq-option');
+  options.forEach(opt => {
+    const optLetter = opt.dataset.letter;
+    opt.classList.add('disabled');
+    if (optLetter === q.correct) {
+      opt.classList.add('correct');
+    } else if (optLetter === letter && !isCorrect) {
+      opt.classList.add('incorrect');
+    }
+  });
+
+  const exp = document.getElementById('exp-' + qid);
+  exp.classList.add('show');
+
+  updateStats();
+  renderMistakes();
+}
+
+function updateStats() {
+  document.getElementById('statScore').textContent = state.mcqScore;
+  document.getElementById('statTotal').textContent = state.mcqTotal;
+  document.getElementById('statStreak').textContent = state.mcqStreak + ' 🔥';
+  document.getElementById('statWrong').textContent = state.mistakes.length;
+}
+
+function renderMistakes() {
+  const container = document.getElementById('mistakeReview');
+  if (state.mistakes.length === 0) {
+    container.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">No mistakes yet — keep going! 💪</p>';
+    return;
+  }
+
+  container.innerHTML = state.mistakes.map((m, i) => `
+    <div class="mistake-item">
+      <div class="mistake-q">${m.stem}</div>
+      <div class="mistake-detail">
+        <span>Your answer: <span class="mistake-your">${m.yourAnswer}. ${m.yourText}</span></span>
+        <span>Correct: <span class="mistake-correct">${m.correctAnswer}. ${m.correctText}</span></span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function resetMCQs() {
+  if (!confirm('Reset all MCQ progress? This cannot be undone.')) return;
+  state.mcqAnswers = {};
+  state.mcqScore = 0;
+  state.mcqTotal = 0;
+  state.mcqStreak = 0;
+  state.mcqBestStreak = 0;
+  state.mistakes = [];
+  saveState();
+  renderMCQs();
+  renderMistakes();
+  showToast('🔄 MCQs reset', 'success');
+}
+
+// ============================================
+// TOAST
+// ============================================
+
+function showToast(msg, type) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast ' + type;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+// ============================================
+// INIT
+// ============================================
+
+function init() {
+  initDarkMode();
+  switchTab(state.activeTab);
+  renderMCQs();
+  renderMistakes();
+}
+
+init();
+</script>
+</body>
+</html>
