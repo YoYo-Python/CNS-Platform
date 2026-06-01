@@ -1,1398 +1,3288 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CNS Lesions & Syndromes</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #0d0f14;
-    --surface: #12151c;
-    --surface2: #181c26;
-    --border: #1f2535;
-    --border2: #2a3148;
-    --accent: #4f8ef7;
-    --accent2: #7eb8f7;
-    --gold: #c9a94a;
-    --gold2: #e8c96a;
-    --red: #e05c5c;
-    --green: #4bbf8f;
-    --teal: #38c4c4;
-    --text: #d4daf0;
-    --text2: #8892b0;
-    --text3: rgb(255, 145, 0);
-    --head: #eef1ff;
-    --tag-bg: rgba(79,142,247,0.12);
-    --tag-border: rgba(79,142,247,0.3);
-  }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Outfit', sans-serif;
-    font-size: 15px;
-    line-height: 1.7;
-    min-height: 100vh;
-  }
-
-  /* ── NOISE TEXTURE OVERLAY ── */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.5;
-  }
-
-  /* ── SIDEBAR NAV ── */
-  .sidebar {
-    position: fixed;
-    left: 0; top: 0; bottom: 0;
-    width: 240px;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    padding: 32px 0 32px;
-    overflow-y: auto;
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .sidebar::-webkit-scrollbar { width: 4px; }
-  .sidebar::-webkit-scrollbar-track { background: transparent; }
-  .sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
-
-  .sidebar-logo {
-    padding: 0 24px 28px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 20px;
-  }
-
-  .sidebar-logo .label {
-    font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 6px;
-  }
-
-  .sidebar-logo h2 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--head);
-    line-height: 1.3;
-  }
-
-  .nav-section-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 8.5px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--text3);
-    padding: 0 24px 8px;
-    margin-top: 8px;
-  }
-
-  .nav-link {
-    display: block;
-    padding: 7px 24px;
-    font-size: 12.5px;
-    font-weight: 400;
-    color: var(--text2);
-    text-decoration: none;
-    transition: all 0.2s;
-    border-left: 2px solid transparent;
-    line-height: 1.4;
-  }
-
-  .nav-link:hover, .nav-link.active {
-    color: var(--text);
-    border-left-color: var(--accent);
-    background: rgba(79,142,247,0.06);
-    padding-left: 26px;
-  }
-
-  .nav-link .num {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--text3);
-    margin-right: 6px;
-  }
-
-  /* ── MAIN CONTENT ── */
-  .main {
-    margin-left: 240px;
-    min-height: 100vh;
-    position: relative;
-    z-index: 1;
-  }
-
-  /* ── HERO ── */
-  .hero {
-    padding: 80px 64px 64px;
-    border-bottom: 1px solid var(--border);
-    background: linear-gradient(135deg, #0d0f14 0%, #111827 50%, #0d1220 100%);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .hero::after {
-    content: '';
-    position: absolute;
-    top: -60px; right: -60px;
-    width: 360px; height: 360px;
-    background: radial-gradient(circle, rgba(79,142,247,0.08) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  .hero-tag {
-    display: inline-block;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--accent);
-    border: 1px solid var(--tag-border);
-    background: var(--tag-bg);
-    padding: 4px 12px;
-    border-radius: 2px;
-    margin-bottom: 24px;
-  }
-
-  .hero h1 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(40px, 5vw, 64px);
-    font-weight: 700;
-    color: var(--head);
-    line-height: 1.1;
-    margin-bottom: 16px;
-    letter-spacing: -0.01em;
-  }
-
-  .hero h1 em {
-    font-style: italic;
-    color: var(--accent2);
-  }
-
-  .hero-sub {
-    font-size: 14px;
-    color: var(--text2);
-    max-width: 540px;
-    font-weight: 300;
-  }
-
-  .hero-meta {
-    display: flex;
-    gap: 28px;
-    margin-top: 32px;
-    flex-wrap: wrap;
-  }
-
-  .hero-meta-item {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .hero-meta-item .val {
-    font-family: 'DM Mono', monospace;
-    font-size: 22px;
-    color: var(--gold);
-    font-weight: 500;
-  }
-
-  .hero-meta-item .key {
-    font-size: 11px;
-    color: var(--text3);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-
-  /* ── CONTENT AREA ── */
-  .content {
-    padding: 0 64px 80px;
-    max-width: 1100px;
-  }
-
-  /* ── CHAPTER ── */
-  .chapter {
-    padding-top: 64px;
-  }
-
-  .chapter-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 8px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--border);
-    animation: fadeUp 0.5s ease both;
-  }
-
-  .chapter-num {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--accent);
-    background: var(--tag-bg);
-    border: 1px solid var(--tag-border);
-    padding: 3px 10px;
-    border-radius: 2px;
-    white-space: nowrap;
-  }
-
-  .chapter-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--head);
-    line-height: 1.2;
-  }
-
-  /* ── SECTION ── */
-  .section {
-    margin-top: 36px;
-    animation: fadeUp 0.4s ease both;
-  }
-
-  .section-title {
-    font-size: 11px;
-    font-family: 'DM Mono', monospace;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(to right, var(--border2), transparent);
-  }
-
-  /* ── CARDS ── */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    overflow: hidden;
-    margin-bottom: 16px;
-  }
-
-  .card-head {
-    background: var(--surface2);
-    border-bottom: 1px solid var(--border);
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .card-head .icon {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .icon-blue  { background: var(--accent); box-shadow: 0 0 6px rgba(79,142,247,0.5); }
-  .icon-gold  { background: var(--gold);   box-shadow: 0 0 6px rgba(201,169,74,0.5); }
-  .icon-red   { background: var(--red);    box-shadow: 0 0 6px rgba(224,92,92,0.5); }
-  .icon-green { background: var(--green);  box-shadow: 0 0 6px rgba(75,191,143,0.5); }
-  .icon-teal  { background: var(--teal);   box-shadow: 0 0 6px rgba(56,196,196,0.5); }
-
-  .card-head-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--head);
-  }
-
-  .card-body {
-    padding: 18px 20px;
-  }
-
-  /* ── CAUSE BOX ── */
-  .cause-box {
-    background: rgba(79,142,247,0.07);
-    border: 1px solid rgba(79,142,247,0.2);
-    border-radius: 4px;
-    padding: 10px 16px;
-    margin-bottom: 14px;
-    font-size: 13px;
-    color: var(--text2);
-  }
-
-  .cause-box strong {
-    color: var(--accent2);
-    font-weight: 600;
-  }
-
-  /* ── SIGN PILLS ── */
-  .signs-grid {
-    display: grid;
-    gap: 8px;
-  }
-
-  .sign-row {
-    display: grid;
-    grid-template-columns: 180px 1fr;
-    gap: 12px;
-    align-items: start;
-  }
-
-  .sign-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--text3);
-    padding-top: 2px;
-    text-align: right;
-    line-height: 1.5;
-  }
-
-  .sign-value {
-    font-size: 13.5px;
-    color: var(--text);
-    line-height: 1.6;
-  }
-
-  .sign-value .tag {
-    display: inline-block;
-    font-size: 10.5px;
-    font-family: 'DM Mono', monospace;
-    padding: 1px 7px;
-    border-radius: 3px;
-    margin-right: 5px;
-    vertical-align: middle;
-  }
-
-  .tag-ipsi   { background: rgba(75,191,143,0.15);  color: var(--green); border: 1px solid rgba(75,191,143,0.3); }
-  .tag-contra { background: rgba(201,169,74,0.15);   color: var(--gold);  border: 1px solid rgba(201,169,74,0.3); }
-  .tag-bi     { background: rgba(56,196,196,0.15);   color: var(--teal);  border: 1px solid rgba(56,196,196,0.3); }
-  .tag-lmn    { background: rgba(224,92,92,0.15);    color: var(--red);   border: 1px solid rgba(224,92,92,0.3); }
-  .tag-umn    { background: rgba(79,142,247,0.15);   color: var(--accent2); border: 1px solid rgba(79,142,247,0.3); }
-
-  /* ── COMPARE GRID ── */
-  .compare-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
-  /* ── LIST ── */
-  .bullet-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .bullet-list li {
-    display: flex;
-    gap: 10px;
-    font-size: 13.5px;
-    color: var(--text);
-    line-height: 1.6;
-  }
-
-  .bullet-list li::before {
-    content: '›';
-    color: var(--accent);
-    font-weight: 700;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-
-  /* ── TABLE ── */
-  .styled-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
-
-  .styled-table thead tr {
-    background: var(--surface2);
-    border-bottom: 2px solid var(--border2);
-  }
-
-  .styled-table th {
-    padding: 10px 14px;
-    text-align: left;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text3);
-    font-weight: 500;
-    white-space: nowrap;
-  }
-
-  .styled-table td {
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--border);
-    color: var(--text);
-    vertical-align: top;
-    line-height: 1.6;
-  }
-
-  .styled-table tbody tr:hover {
-    background: rgba(255,255,255,0.02);
-  }
-
-  .styled-table tbody tr:last-child td {
-    border-bottom: none;
-  }
-
-  .td-key {
-    font-family: 'DM Mono', monospace;
-    font-size: 11.5px;
-    color: var(--text2);
-    white-space: nowrap;
-  }
-
-  /* ── NOTE BOX ── */
-  .note-box {
-    background: rgba(201,169,74,0.06);
-    border-left: 3px solid var(--gold);
-    border-radius: 0 4px 4px 0;
-    padding: 12px 16px;
-    margin-top: 14px;
-    font-size: 12.5px;
-    color: var(--text2);
-    font-style: italic;
-  }
-
-  /* ── DIVIDER ── */
-  .divider {
-    height: 1px;
-    background: linear-gradient(to right, var(--border2), transparent);
-    margin: 40px 0;
-  }
-
-  /* ── SCROLL PROGRESS ── */
-  #progress {
-    position: fixed;
-    top: 0; left: 240px; right: 0;
-    height: 2px;
-    background: linear-gradient(to right, var(--accent), var(--gold));
-    transform-origin: left;
-    transform: scaleX(0);
-    z-index: 200;
-    transition: transform 0.1s linear;
-  }
-
-  /* ── ANIMATIONS ── */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(14px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .chapter { animation: fadeUp 0.4s ease both; }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 900px) {
-    .sidebar { display: none; }
-    .main { margin-left: 0; }
-    .hero, .content { padding-left: 24px; padding-right: 24px; }
-    .compare-grid { grid-template-columns: 1fr; }
-    .sign-row { grid-template-columns: 1fr; }
-    .sign-label { text-align: left; }
-  }
-
-  /* ── INLINE CODE ── */
-  code {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    padding: 1px 6px;
-    border-radius: 3px;
-    color: var(--teal);
-  }
-
-  /* ── FOOTER ── */
-  .footer {
-    padding: 32px 64px;
-    border-top: 1px solid var(--border);
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    color: var(--text3);
-    text-align: center;
-    margin-left: 0;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CNS Lesions & Syndromes</title>
+  <style>
+    /* ══ TAB SWITCHER ══ */
+    .page-tabs {
+      display: flex;
+      gap: 0;
+      padding: 0 24px 0;
+      margin-bottom: 0;
+      border-bottom: 1px solid var(--border);
+      margin-top: 12px;
+    }
+
+    .page-tab {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 18px;
+      font-family: 'Outfit', monospace;
+      font-size: 20px;
+      letter-spacing: 0.12em;
+      border-radius: 20px;
+      text-transform: uppercase;
+      color: #F4F4F6;
+      margin: 10px;
+      cursor: pointer;
+      border-bottom: 2px solid #8A2417;
+      transition: all 0.2s;
+      background: #C03221;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      user-select: none;
+    }
+
+    .page-tab:hover {
+      color: #18181B;
+      background-color: #C79623;
+    }
+
+    .page-tab.active {
+      color: #ffdf7d;
+      border: 2px solid #ffffff;
+    }
+
+    .page-tab .tab-icon {
+      font-size: 13px;
+    }
+
+    /* ══ QUIZ PAGE ══ */
+    #quiz-page {
+      display: none;
+      padding: 0 64px 80px;
+      max-width: 900px;
+    }
+
+    #quiz-page.visible {
+      display: block;
+    }
+
+    #ref-page {
+      display: block;
+    }
+
+    #ref-page.hidden {
+      display: none;
+    }
+
+    /* ══ QUIZ HERO ══ */
+    .quiz-hero {
+      padding: 48px 0 36px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 36px;
+    }
+
+    .quiz-hero h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 38px;
+      font-weight: 700;
+      color: var(--head);
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+
+    .quiz-hero h2 em {
+      font-style: italic;
+      color: var(--gold2);
+    }
+
+    .quiz-hero p {
+      font-size: 13px;
+      color: var(--text2);
+      font-weight: 300;
+      max-width: 500px;
+    }
+
+    /* ══ HUD / STATS BAR ══ */
+    .quiz-hud {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+      padding: 14px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .hud-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      min-width: 52px;
+    }
+
+    .hud-val {
+      font-family: 'DM Mono', monospace;
+      font-size: 22px;
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    .hud-val.correct-col {
+      color: var(--green);
+    }
+
+    .hud-val.wrong-col {
+      color: var(--red);
+    }
+
+    .hud-val.streak-col {
+      color: var(--gold);
+    }
+
+    .hud-val.total-col {
+      color: var(--accent2);
+    }
+
+    .hud-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 8.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text3);
+    }
+
+    .hud-divider {
+      width: 1px;
+      height: 36px;
+      background: var(--border2);
+    }
+
+    .hud-progress-wrap {
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .hud-progress-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      color: var(--text3);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .hud-progress-bar {
+      height: 5px;
+      background: var(--border2);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .hud-progress-fill {
+      height: 100%;
+      background: linear-gradient(to right, var(--accent), var(--teal));
+      border-radius: 99px;
+      transition: width 0.5s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    /* ══ CASE CARD ══ */
+    .case-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 28px;
+      animation: fadeUp 0.35s ease both;
+    }
+
+    .case-card-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 22px;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .case-num-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      background: var(--tag-bg);
+      border: 1px solid var(--tag-border);
+      color: var(--accent);
+      padding: 3px 10px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    .case-card-head-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text2);
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.05em;
+    }
+
+    .case-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border2);
+      margin-left: auto;
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+
+    .case-status-dot.answered-correct {
+      background: var(--green);
+      box-shadow: 0 0 6px rgba(75, 191, 143, 0.5);
+    }
+
+    .case-status-dot.answered-wrong {
+      background: var(--red);
+      box-shadow: 0 0 6px rgba(224, 92, 92, 0.5);
+    }
+
+    .case-body {
+      padding: 22px;
+    }
+
+    .case-stem {
+      font-size: 14px;
+      color: #c8d0f0;
+      line-height: 1.8;
+      margin-bottom: 24px;
+      border-left: 3px solid var(--border2);
+      padding-left: 16px;
+    }
+
+    .case-stem strong {
+      color: var(--head);
+    }
+
+    .case-question {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--head);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    /* ══ OPTIONS ══ */
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .option-btn {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      width: 100%;
+      padding: 14px 18px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.18s;
+      font-family: 'Outfit', sans-serif;
+      font-size: 13.5px;
+      color: var(--text);
+      line-height: 1.55;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .option-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(79, 142, 247, 0.05);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .option-btn:hover:not(:disabled)::before {
+      opacity: 1;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: rgba(79, 142, 247, 0.4);
+      transform: translateX(3px);
+    }
+
+    .option-btn:disabled {
+      cursor: default;
+      transform: none !important;
+    }
+
+    .option-btn:disabled::before {
+      opacity: 0 !important;
+    }
+
+    .option-btn.correct {
+      border-color: var(--green);
+      background: rgba(75, 191, 143, 0.08);
+    }
+
+    .option-btn.wrong {
+      border-color: var(--red);
+      background: rgba(224, 92, 92, 0.08);
+    }
+
+    .option-btn.dimmed {
+      opacity: 0.35;
+    }
+
+    .opt-letter {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--accent2);
+      background: rgba(79, 142, 247, 0.12);
+      border: 1px solid rgba(79, 142, 247, 0.25);
+      border-radius: 4px;
+      padding: 2px 8px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      transition: all 0.18s;
+    }
+
+    .option-btn.correct .opt-letter {
+      background: rgba(75, 191, 143, 0.2);
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .option-btn.wrong .opt-letter {
+      background: rgba(224, 92, 92, 0.2);
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    /* ══ FEEDBACK ══ */
+    .feedback-box {
+      display: none;
+      padding: 16px 18px;
+      border-radius: 8px;
+      border: 1px solid;
+      margin-top: 16px;
+      animation: feedbackIn 0.3s cubic-bezier(.4, 0, .2, 1) both;
+      font-size: 13.5px;
+      line-height: 1.7;
+    }
+
+    .feedback-box.visible {
+      display: block;
+    }
+
+    .feedback-box.correct-fb {
+      background: rgba(75, 191, 143, 0.07);
+      border-color: rgba(75, 191, 143, 0.3);
+      color: #a3e8ca;
+    }
+
+    .feedback-box.wrong-fb {
+      background: rgba(224, 92, 92, 0.07);
+      border-color: rgba(224, 92, 92, 0.3);
+      color: #f0a0a0;
+    }
+
+    .feedback-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .feedback-head .emoji {
+      font-size: 18px;
+    }
+
+    .feedback-head.correct-head {
+      color: var(--green);
+    }
+
+    .feedback-head.wrong-head {
+      color: var(--red);
+    }
+
+    .feedback-body {
+      color: var(--text2);
+    }
+
+    .feedback-body strong {
+      color: var(--text);
+    }
+
+    .correct-answer-label {
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: rgba(75, 191, 143, 0.12);
+      border: 1px solid rgba(75, 191, 143, 0.25);
+      border-radius: 5px;
+      font-size: 12.5px;
+      color: var(--green);
+      font-family: 'DM Mono', monospace;
+    }
+
+    @keyframes feedbackIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ══ STREAK TOAST ══ */
+    #streak-toast {
+      position: fixed;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      background: linear-gradient(135deg, #1a2a0a, #0d1a10);
+      border: 1px solid var(--green);
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: var(--green);
+      z-index: 1000;
+      transition: transform 0.4s cubic-bezier(.4, 0, .2, 1);
+      white-space: nowrap;
+      box-shadow: 0 4px 24px rgba(75, 191, 143, 0.2);
+    }
+
+    #streak-toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ══ RESULTS SCREEN ══ */
+    #results-screen {
+      display: none;
+      padding: 48px 0;
+      text-align: center;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    #results-screen.visible {
+      display: block;
+    }
+
+    .results-ring {
+      width: 140px;
+      height: 140px;
+      margin: 0 auto 28px;
+      position: relative;
+    }
+
+    .results-ring svg {
+      transform: rotate(-90deg);
+    }
+
+    .ring-bg {
+      fill: none;
+      stroke: var(--border2);
+      stroke-width: 10;
+    }
+
+    .ring-fill {
+      fill: none;
+      stroke-width: 10;
+      stroke-linecap: round;
+      stroke-dasharray: 345;
+      stroke-dashoffset: 345;
+      transition: stroke-dashoffset 1.2s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .ring-fill.green-ring {
+      stroke: var(--green);
+    }
+
+    .ring-fill.gold-ring {
+      stroke: var(--gold);
+    }
+
+    .ring-fill.red-ring {
+      stroke: var(--red);
+    }
+
+    .ring-pct {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ring-pct-val {
+      font-family: 'DM Mono', monospace;
+      font-size: 28px;
+      font-weight: 500;
+      color: var(--head);
+    }
+
+    .ring-pct-label {
+      font-size: 10px;
+      color: var(--text3);
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .results-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--head);
+      margin-bottom: 8px;
+    }
+
+    .results-sub {
+      font-size: 14px;
+      color: var(--text2);
+      margin-bottom: 32px;
+    }
+
+    .results-grid {
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+
+    .results-stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 24px;
+      text-align: center;
+      min-width: 100px;
+    }
+
+    .results-stat .val {
+      font-family: 'DM Mono', monospace;
+      font-size: 26px;
+      font-weight: 500;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .results-stat .lbl {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text3);
+    }
+
+    .retry-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 32px;
+      background: linear-gradient(135deg, rgba(79, 142, 247, 0.15), rgba(56, 196, 196, 0.1));
+      border: 1px solid rgba(79, 142, 247, 0.3);
+      border-radius: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .retry-btn:hover {
+      background: linear-gradient(135deg, rgba(79, 142, 247, 0.25), rgba(56, 196, 196, 0.18));
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    /* ══ MODE PICKER ══ */
+    .mode-picker {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .mode-pill {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text2);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mode-pill:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .mode-pill.active {
+      background: rgba(79, 142, 247, 0.12);
+      border-color: var(--accent);
+      color: var(--accent2);
+    }
+
+    .mode-pill .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* ── QUIZ DOT GRID NAV ── */
+    .quiz-nav-header {
+      padding: 0 20px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .quiz-nav-header .qnh-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 8.5px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text3);
+    }
+
+    .quiz-nav-header .qnh-count {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--accent);
+    }
+
+    .quiz-dot-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 7px;
+      padding: 4px 20px 16px;
+    }
+
+    .quiz-dot {
+      aspect-ratio: 1;
+      border-radius: 5px;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 9.5px;
+      color: var(--text3);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.18s;
+      position: relative;
+    }
+
+    .quiz-dot:hover {
+      border-color: var(--accent);
+      color: var(--accent2);
+      background: rgba(79, 142, 247, 0.08);
+    }
+
+    .quiz-dot.q-done-c {
+      background: rgba(75, 191, 143, 0.12);
+      border-color: rgba(75, 191, 143, 0.4);
+      color: var(--green);
+    }
+
+    .quiz-dot.q-done-w {
+      background: rgba(224, 92, 92, 0.1);
+      border-color: rgba(224, 92, 92, 0.4);
+      color: var(--red);
+    }
+
+    .quiz-dot.q-current {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(79, 142, 247, 0.2);
+    }
+
+    /* Legend */
+    .quiz-nav-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 12px 20px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      color: var(--text3);
+      letter-spacing: 0.06em;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .legend-dot.unanswered {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+    }
+
+    .legend-dot.correct {
+      background: rgba(75, 191, 143, 0.2);
+      border: 1px solid rgba(75, 191, 143, 0.4);
+    }
+
+    .legend-dot.wrong {
+      background: rgba(224, 92, 92, 0.12);
+      border: 1px solid rgba(224, 92, 92, 0.4);
+    }
+  </style>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface: #12151c;
+      --surface2: #181c26;
+      --border: #1f2535;
+      --border2: #2a3148;
+      --accent: #4f8ef7;
+      --accent2: #7eb8f7;
+      --gold: #c9a94a;
+      --gold2: #e8c96a;
+      --red: #e05c5c;
+      --green: #4bbf8f;
+      --teal: #38c4c4;
+      --text: #d4daf0;
+      --text2: #8892b0;
+      --text3: rgb(255, 145, 0);
+      --head: #eef1ff;
+      --tag-bg: rgba(79, 142, 247, 0.12);
+      --tag-border: rgba(79, 142, 247, 0.3);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    /* ── NOISE TEXTURE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.5;
+    }
+
+    /* ── SIDEBAR NAV ── */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 240px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 32px 0 32px;
+      overflow-y: auto;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+      background: var(--border2);
+      border-radius: 2px;
+    }
+
+    .sidebar-logo {
+      padding: 0 24px 28px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    .sidebar-logo .label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .sidebar-logo h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--head);
+      line-height: 1.3;
+    }
+
+    .nav-section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 8.5px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text3);
+      padding: 0 24px 8px;
+      margin-top: 8px;
+    }
+
+    .nav-link {
+      display: block;
+      padding: 7px 24px;
+      font-size: 12.5px;
+      font-weight: 400;
+      color: var(--text2);
+      text-decoration: none;
+      transition: all 0.2s;
+      border-left: 2px solid transparent;
+      line-height: 1.4;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      color: var(--text);
+      border-left-color: var(--accent);
+      background: rgba(79, 142, 247, 0.06);
+      padding-left: 26px;
+    }
+
+    .nav-link .num {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--text3);
+      margin-right: 6px;
+    }
+
+    /* ── MAIN CONTENT ── */
+    .main {
+      margin-left: 240px;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 80px 64px 64px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, #0d0f14 0%, #111827 50%, #0d1220 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -60px;
+      right: -60px;
+      width: 360px;
+      height: 360px;
+      background: radial-gradient(circle, rgba(79, 142, 247, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid var(--tag-border);
+      background: var(--tag-bg);
+      padding: 4px 12px;
+      border-radius: 2px;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(40px, 5vw, 64px);
+      font-weight: 700;
+      color: var(--head);
+      line-height: 1.1;
+      margin-bottom: 16px;
+      letter-spacing: -0.01em;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--accent2);
+    }
+
+    .hero-sub {
+      font-size: 14px;
+      color: var(--text2);
+      max-width: 540px;
+      font-weight: 300;
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: 28px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+
+    .hero-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .hero-meta-item .val {
+      font-family: 'DM Mono', monospace;
+      font-size: 22px;
+      color: var(--gold);
+      font-weight: 500;
+    }
+
+    .hero-meta-item .key {
+      font-size: 11px;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── CONTENT AREA ── */
+    .content {
+      padding: 0 64px 80px;
+      max-width: 1100px;
+    }
+
+    /* ── CHAPTER ── */
+    .chapter {
+      padding-top: 64px;
+    }
+
+    .chapter-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 8px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .chapter-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      background: var(--tag-bg);
+      border: 1px solid var(--tag-border);
+      padding: 3px 10px;
+      border-radius: 2px;
+      white-space: nowrap;
+    }
+
+    .chapter-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--head);
+      line-height: 1.2;
+    }
+
+    /* ── SECTION ── */
+    .section {
+      margin-top: 36px;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, var(--border2), transparent);
+    }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .card-head {
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-head .icon {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .icon-blue {
+      background: var(--accent);
+      box-shadow: 0 0 6px rgba(79, 142, 247, 0.5);
+    }
+
+    .icon-gold {
+      background: var(--gold);
+      box-shadow: 0 0 6px rgba(201, 169, 74, 0.5);
+    }
+
+    .icon-red {
+      background: var(--red);
+      box-shadow: 0 0 6px rgba(224, 92, 92, 0.5);
+    }
+
+    .icon-green {
+      background: var(--green);
+      box-shadow: 0 0 6px rgba(75, 191, 143, 0.5);
+    }
+
+    .icon-teal {
+      background: var(--teal);
+      box-shadow: 0 0 6px rgba(56, 196, 196, 0.5);
+    }
+
+    .card-head-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--head);
+    }
+
+    .card-body {
+      padding: 18px 20px;
+    }
+
+    /* ── CAUSE BOX ── */
+    .cause-box {
+      background: rgba(79, 142, 247, 0.07);
+      border: 1px solid rgba(79, 142, 247, 0.2);
+      border-radius: 4px;
+      padding: 10px 16px;
+      margin-bottom: 14px;
+      font-size: 13px;
+      color: var(--text2);
+    }
+
+    .cause-box strong {
+      color: var(--accent2);
+      font-weight: 600;
+    }
+
+    /* ── SIGN PILLS ── */
+    .signs-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .sign-row {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .sign-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text3);
+      padding-top: 2px;
+      text-align: right;
+      line-height: 1.5;
+    }
+
+    .sign-value {
+      font-size: 13.5px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .sign-value .tag {
+      display: inline-block;
+      font-size: 10.5px;
+      font-family: 'DM Mono', monospace;
+      padding: 1px 7px;
+      border-radius: 3px;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+
+    .tag-ipsi {
+      background: rgba(75, 191, 143, 0.15);
+      color: var(--green);
+      border: 1px solid rgba(75, 191, 143, 0.3);
+    }
+
+    .tag-contra {
+      background: rgba(201, 169, 74, 0.15);
+      color: var(--gold);
+      border: 1px solid rgba(201, 169, 74, 0.3);
+    }
+
+    .tag-bi {
+      background: rgba(56, 196, 196, 0.15);
+      color: var(--teal);
+      border: 1px solid rgba(56, 196, 196, 0.3);
+    }
+
+    .tag-lmn {
+      background: rgba(224, 92, 92, 0.15);
+      color: var(--red);
+      border: 1px solid rgba(224, 92, 92, 0.3);
+    }
+
+    .tag-umn {
+      background: rgba(79, 142, 247, 0.15);
+      color: var(--accent2);
+      border: 1px solid rgba(79, 142, 247, 0.3);
+    }
+
+    /* ── COMPARE GRID ── */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* ── LIST ── */
+    .bullet-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .bullet-list li {
+      display: flex;
+      gap: 10px;
+      font-size: 13.5px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .bullet-list li::before {
+      content: '›';
+      color: var(--accent);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── TABLE ── */
+    .styled-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .styled-table thead tr {
+      background: var(--surface2);
+      border-bottom: 2px solid var(--border2);
+    }
+
+    .styled-table th {
+      padding: 10px 14px;
+      text-align: left;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text3);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .styled-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: top;
+      line-height: 1.6;
+    }
+
+    .styled-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .styled-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .td-key {
+      font-family: 'DM Mono', monospace;
+      font-size: 11.5px;
+      color: var(--text2);
+      white-space: nowrap;
+    }
+
+    /* ── NOTE BOX ── */
+    .note-box {
+      background: rgba(201, 169, 74, 0.06);
+      border-left: 3px solid var(--gold);
+      border-radius: 0 4px 4px 0;
+      padding: 12px 16px;
+      margin-top: 14px;
+      font-size: 12.5px;
+      color: var(--text2);
+      font-style: italic;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, var(--border2), transparent);
+      margin: 40px 0;
+    }
+
+    /* ── SCROLL PROGRESS ── */
+    #progress {
+      position: fixed;
+      top: 0;
+      left: 240px;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(to right, var(--accent), var(--gold));
+      transform-origin: left;
+      transform: scaleX(0);
+      z-index: 200;
+      transition: transform 0.1s linear;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .chapter {
+      animation: fadeUp 0.4s ease both;
+    }
+
+    /* ── INLINE CODE ── */
+    code {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 3px;
+      color: var(--teal);
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      padding: 32px 64px;
+      border-top: 1px solid var(--border);
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--text3);
+      text-align: center;
+      margin-left: 0;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+
+      /* Keep sidebar visible but make it horizontal / relative */
+      .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 16px 0 0;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .sidebar-logo {
+        padding: 0 16px 16px;
+        margin-bottom: 0;
+      }
+
+      /* Override inline styles on page-tabs */
+      .page-tabs {
+        flex-direction: row !important;
+        padding: 0 16px 16px !important;
+        margin-bottom: 0 !important;
+        gap: 10px !important;
+        border-bottom: none !important;
+        overflow-x: auto;
+      }
+
+      .page-tab {
+        margin: 0;
+        font-size: 15px;
+        padding: 10px 16px;
+        flex: 1;
+        justify-content: center;
+        white-space: nowrap;
+      }
+
+      /* Horizontal scrollable nav links */
+      #ref-nav {
+        overflow-x: auto;
+        white-space: nowrap;
+        padding: 8px 16px;
+        border-top: 1px solid var(--border);
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .nav-section-label {
+        display: none;
+      }
+
+      .nav-link {
+        display: inline-block;
+        border-left: none;
+        border-bottom: 2px solid transparent;
+        padding: 8px 12px;
+      }
+
+      .nav-link:hover,
+      .nav-link.active {
+        border-left-color: transparent;
+        border-bottom-color: var(--accent);
+        padding-left: 12px;
+        background: rgba(79, 142, 247, 0.06);
+      }
+
+      /* Quiz Nav on mobile */
+      #quiz-nav {
+        padding-top: 12px;
+        border-top: 1px solid var(--border);
+      }
+
+      .quiz-nav-header {
+        padding: 0 16px 8px;
+      }
+
+      .quiz-dot-grid {
+        grid-template-columns: repeat(9, 1fr);
+        padding: 0 16px 12px;
+      }
+
+      .quiz-nav-legend {
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 12px 16px;
+      }
+
+      .main {
+        margin-left: 0;
+      }
+
+      .hero,
+      .content {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+      }
+
+      #quiz-page {
+        padding: 0 16px 40px !important;
+      }
+
+      #progress {
+        left: 0;
+      }
+
+      .compare-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sign-row {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+
+      .sign-label {
+        text-align: left;
+        padding-top: 0;
+        font-size: 12px;
+      }
+
+      /* Tables */
+      .styled-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        max-width: 100vw;
+      }
+
+      /* HUD */
+      .quiz-hud {
+        gap: 12px;
+        padding: 12px;
+      }
+
+      .hud-divider {
+        height: 24px;
+      }
+
+      .hud-progress-wrap {
+        min-width: 100%;
+        margin-top: 8px;
+      }
+
+      /* Results */
+      .results-grid {
+        gap: 12px;
+      }
+
+      .results-stat {
+        min-width: 45%;
+        flex: 1;
+        padding: 12px;
+      }
+
+      .results-ring {
+        margin-bottom: 20px;
+      }
+
+      /* Footer */
+      .footer {
+        padding: 24px 16px;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .quiz-dot-grid {
+        grid-template-columns: repeat(7, 1fr);
+      }
+
+      .hero h1 {
+        font-size: 36px;
+      }
+
+      .hero-meta {
+        gap: 16px;
+        flex-direction: column;
+      }
+
+      .hud-divider {
+        display: none;
+      }
+
+      .hud-item {
+        flex: 1 1 30%;
+      }
+
+      .case-card-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .case-status-dot {
+        margin-left: 0;
+        align-self: flex-end;
+        margin-top: -24px;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<div id="progress"></div>
+  <div id="progress"></div>
 
-<!-- SIDEBAR -->
-<nav class="sidebar">
-  <div class="sidebar-logo">
-    <div class="label">CNS Anatomy — MU</div>
-    <h2>Lesions &<br>Syndromes</h2>
-  </div>
-
-  <div class="nav-section-label">Contents</div>
-  <a href="#cerebellar" class="nav-link"><span class="num">01</span> Cerebellar Lesions</a>
-  <a href="#subthalamus" class="nav-link"><span class="num">02</span> Subthalamic Lesion</a>
-  <a href="#pineal" class="nav-link"><span class="num">03</span> Parinaud Syndrome</a>
-  <a href="#limbic" class="nav-link"><span class="num">04</span> Limbic System Lesions</a>
-  <a href="#corpus" class="nav-link"><span class="num">05</span> Corpus Callosum</a>
-  <a href="#basal" class="nav-link"><span class="num">06</span> Basal Ganglia Diseases</a>
-  <a href="#ic" class="nav-link"><span class="num">07</span> Internal Capsule</a>
-  <a href="#medulla" class="nav-link"><span class="num">08</span> Syndromes of Medulla</a>
-  <a href="#pons" class="nav-link"><span class="num">09</span> Syndromes of Pons</a>
-  <a href="#midbrain" class="nav-link"><span class="num">10</span> Syndromes of Midbrain</a>
-  <a href="#cn1" class="nav-link"><span class="num">11</span> CN I — Olfactory</a>
-  <a href="#cn2" class="nav-link"><span class="num">12</span> CN II — Optic</a>
-  <a href="#cn3456" class="nav-link"><span class="num">13</span> CN III / IV / VI</a>
-  <a href="#cn7" class="nav-link"><span class="num">14</span> CN VII — Facial</a>
-  <a href="#cn8" class="nav-link"><span class="num">15</span> CN VIII — Vestibulocochlear</a>
-  <a href="#cn9" class="nav-link"><span class="num">16</span> CN IX — Glossopharyngeal</a>
-  <a href="#cn10" class="nav-link"><span class="num">17</span> CN X — Vagus</a>
-  <a href="#cn11" class="nav-link"><span class="num">18</span> CN XI — Accessory</a>
-  <a href="#cn12" class="nav-link"><span class="num">19</span> CN XII — Hypoglossal</a>
-</nav>
-
-<!-- MAIN -->
-<div class="main">
-
-  <!-- HERO -->
-  <header class="hero">
-    <div class="hero-tag">CNS Anatomy · MU</div>
-    <h1>Lesions &amp; <em>Syndromes</em></h1>
-    <p class="hero-sub">Complete clinical signs reference — from CNS lecture notes.</p>
-    <div class="hero-meta">
-      <div class="hero-meta-item"><span class="val">19</span><span class="key">Topics</span></div>
-      <div class="hero-meta-item"><span class="val">7</span><span class="key">Brainstem Syndromes</span></div>
-      <div class="hero-meta-item"><span class="val">12</span><span class="key">Cranial Nerve Lesions</span></div>
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="label">CNS Anatomy — MU</div>
+      <h2>Lesions &<br>Syndromes</h2>
     </div>
-  </header>
 
-  <!-- CONTENT -->
-  <div class="content">
+    <div class="page-tabs"
+      style="flex-direction:column;gap:2px;border-bottom:1px solid var(--border);padding:0 0 16px;margin-bottom:16px;">
+      <button class="page-tab active" id="tab-ref" onclick="switchTab('ref')"><span class="tab-icon">📖</span>
+        Reference</button>
+      <button class="page-tab" id="tab-quiz" onclick="switchTab('quiz')"><span class="tab-icon">🧠</span> Case
+        Quiz</button>
+    </div>
 
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <!-- 01. CEREBELLAR LESIONS -->
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <section class="chapter" id="cerebellar">
-      <div class="chapter-header">
-        <span class="chapter-num">01</span>
-        <h2 class="chapter-title">Signs of Cerebellar Lesions</h2>
+    <div id="ref-nav">
+      <div class="nav-section-label">Contents</div>
+      <a href="#cerebellar" class="nav-link"><span class="num">01</span> Cerebellar Lesions</a>
+      <a href="#subthalamus" class="nav-link"><span class="num">02</span> Subthalamic Lesion</a>
+      <a href="#pineal" class="nav-link"><span class="num">03</span> Parinaud Syndrome</a>
+      <a href="#limbic" class="nav-link"><span class="num">04</span> Limbic System Lesions</a>
+      <a href="#corpus" class="nav-link"><span class="num">05</span> Corpus Callosum</a>
+      <a href="#basal" class="nav-link"><span class="num">06</span> Basal Ganglia Diseases</a>
+      <a href="#ic" class="nav-link"><span class="num">07</span> Internal Capsule</a>
+      <a href="#medulla" class="nav-link"><span class="num">08</span> Syndromes of Medulla</a>
+      <a href="#pons" class="nav-link"><span class="num">09</span> Syndromes of Pons</a>
+      <a href="#midbrain" class="nav-link"><span class="num">10</span> Syndromes of Midbrain</a>
+      <a href="#cn1" class="nav-link"><span class="num">11</span> CN I — Olfactory</a>
+      <a href="#cn2" class="nav-link"><span class="num">12</span> CN II — Optic</a>
+      <a href="#cn3456" class="nav-link"><span class="num">13</span> CN III / IV / VI</a>
+      <a href="#cn7" class="nav-link"><span class="num">14</span> CN VII — Facial</a>
+      <a href="#cn8" class="nav-link"><span class="num">15</span> CN VIII — Vestibulocochlear</a>
+      <a href="#cn9" class="nav-link"><span class="num">16</span> CN IX — Glossopharyngeal</a>
+      <a href="#cn10" class="nav-link"><span class="num">17</span> CN X — Vagus</a>
+      <a href="#cn11" class="nav-link"><span class="num">18</span> CN XI — Accessory</a>
+      <a href="#cn12" class="nav-link"><span class="num">19</span> CN XII — Hypoglossal</a>
+    </div>
+    <div id="quiz-nav" style="display:none;">
+      <div class="quiz-nav-header">
+        <span class="qnh-label">Cases</span>
+        <span class="qnh-count" id="qnh-count">0 / 27</span>
       </div>
+      <div class="quiz-dot-grid" id="quiz-nav-links"></div>
+      <div class="quiz-nav-legend">
+        <div class="legend-item"><span class="legend-dot unanswered"></span> Unanswered</div>
+        <div class="legend-item"><span class="legend-dot correct"></span> Correct</div>
+        <div class="legend-item"><span class="legend-dot wrong"></span> Wrong</div>
+      </div>
+    </div>
+  </nav>
 
-      <div class="card">
-        <div class="card-head">
-          <span class="icon icon-teal"></span>
-          <span class="card-head-title">Clinical Signs</span>
+  <div class="main">
+
+    <div id="ref-page">
+      <header class="hero">
+        <div class="hero-tag">CNS Anatomy · MU</div>
+        <h1>Lesions &amp; <em>Syndromes</em></h1>
+        <p class="hero-sub">Complete clinical signs reference — from CNS lecture notes.</p>
+        <div class="hero-meta">
+          <div class="hero-meta-item"><span class="val">19</span><span class="key">Topics</span></div>
+          <div class="hero-meta-item"><span class="val">7</span><span class="key">Brainstem Syndromes</span></div>
+          <div class="hero-meta-item"><span class="val">12</span><span class="key">Cranial Nerve Lesions</span></div>
         </div>
-        <div class="card-body">
-          <div class="signs-grid">
-            <div class="sign-row">
-              <div class="sign-label">Intention tremors</div>
-              <div class="sign-value">Appear when the patient moves his limbs &amp; disappear during rest.</div>
+      </header>
+
+      <div class="content">
+
+        <section class="chapter" id="cerebellar">
+          <div class="chapter-header">
+            <span class="chapter-num">01</span>
+            <h2 class="chapter-title">Signs of Cerebellar Lesions</h2>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <span class="icon icon-teal"></span>
+              <span class="card-head-title">Clinical Signs</span>
             </div>
-            <div class="sign-row">
-              <div class="sign-label">Ataxia</div>
-              <div class="sign-value">Incoordination of lower limb muscles.</div>
-            </div>
-            <div class="sign-row">
-              <div class="sign-label">Dysmetria</div>
-              <div class="sign-value">Inability to measure distance — inability to stop a movement at the desired point.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <div class="divider"></div>
-
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <!-- 02. SUBTHALAMIC NUCLEUS -->
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <section class="chapter" id="subthalamus">
-      <div class="chapter-header">
-        <span class="chapter-num">02</span>
-        <h2 class="chapter-title">Subthalamic Nucleus Lesion</h2>
-      </div>
-
-      <div class="card">
-        <div class="card-head">
-          <span class="icon icon-red"></span>
-          <span class="card-head-title">Hemiballismus</span>
-        </div>
-        <div class="card-body">
-          <p style="font-size:13.5px; color:var(--text); line-height:1.7;">Lesion of the subthalamic nucleus — an extrapyramidal motor nucleus regulating muscle movement — results in <strong style="color:var(--red);">hemiballismus: sudden violent involuntary movements.</strong></p>
-        </div>
-      </div>
-    </section>
-
-    <div class="divider"></div>
-
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <!-- 03. PARINAUD SYNDROME -->
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <section class="chapter" id="pineal">
-      <div class="chapter-header">
-        <span class="chapter-num">03</span>
-        <h2 class="chapter-title">Parinaud Syndrome</h2>
-      </div>
-      <p style="font-size:12.5px; color:var(--text2); margin-bottom:16px;">Dorsal midbrain syndrome</p>
-
-      <div class="card">
-        <div class="card-head">
-          <span class="icon icon-gold"></span>
-          <span class="card-head-title">Cause &amp; Signs</span>
-        </div>
-        <div class="card-body">
-          <div class="cause-box"><strong>Cause:</strong> Pineal gland tumors (pinealoma) usually damage the posterior commissure.</div>
-          <div class="signs-grid">
-            <div class="sign-row">
-              <div class="sign-label">Cause (expanded)</div>
-              <div class="sign-value">Posterior commissure compression — may be due to tumor (pineal gland), hemorrhage, or infection.</div>
-            </div>
-            <div class="sign-row">
-              <div class="sign-label">Sign</div>
-              <div class="sign-value" style="color:var(--gold); font-weight:600;">Paralysis of upward gaze.</div>
+            <div class="card-body">
+              <div class="signs-grid">
+                <div class="sign-row">
+                  <div class="sign-label">Intention tremors</div>
+                  <div class="sign-value">Appear when the patient moves his limbs &amp; disappear during rest.</div>
+                </div>
+                <div class="sign-row">
+                  <div class="sign-label">Ataxia</div>
+                  <div class="sign-value">Incoordination of lower limb muscles.</div>
+                </div>
+                <div class="sign-row">
+                  <div class="sign-label">Dysmetria</div>
+                  <div class="sign-value">Inability to measure distance — inability to stop a movement at the desired
+                    point.</div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
+        </section>
 
-    <div class="divider"></div>
+        <div class="divider"></div>
 
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <!-- 04. LIMBIC SYSTEM -->
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <section class="chapter" id="limbic">
-      <div class="chapter-header">
-        <span class="chapter-num">04</span>
-        <h2 class="chapter-title">Limbic System Lesions</h2>
-      </div>
-
-      <div class="section-title">Clinical Application</div>
-
-      <div class="card">
-        <div class="card-body">
-          <table class="styled-table">
-            <thead><tr><th>Structure / Lesion</th><th>Clinical Result</th></tr></thead>
-            <tbody>
-              <tr><td class="td-key">Lesion of the hippocampus</td><td>Cause loss of memory.</td></tr>
-              <tr><td class="td-key">Extensive degeneration in the hippocampus</td><td>Causes Alzheimer's disease.</td></tr>
-              <tr><td class="td-key">Lesion of the amygdaloid nucleus</td><td>Cause loss of aggressive behavior, fear and anger.</td></tr>
-              <tr><td class="td-key">Bilateral lesion of the amygdaloid and hippocampus</td><td>Cause increased appetite and abnormal hypersexual behavior.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <div class="divider"></div>
-
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <!-- 05. CORPUS CALLOSUM -->
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <section class="chapter" id="corpus">
-      <div class="chapter-header">
-        <span class="chapter-num">05</span>
-        <h2 class="chapter-title">Corpus Callosum Lesion</h2>
-      </div>
-
-      <div class="card">
-        <div class="card-head">
-          <span class="icon icon-blue"></span>
-          <span class="card-head-title">Callosal Apraxia / Split-Brain</span>
-        </div>
-        <div class="card-body">
-          <p style="font-size:13.5px; color:var(--text2); margin-bottom:14px;">The corpus callosum is important for the interhemispheric transfer of information (such as memory and language) between the dominant left and the nondominant (right) hemisphere.</p>
-          <div class="section-title">Signs</div>
-          <ul class="bullet-list">
-            <li>Severing the connection between the two cerebral hemispheres leads to a complete division of their functions — known as <strong style="color:var(--accent2);">split-brain.</strong></li>
-            <li>Memory and language functions become inaccessible to the non-dominant hemisphere, leading to disorders on the left side.</li>
-            <li>The patient cannot execute verbal commands with their left hand — e.g., being asked to salute with it. <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);">(Callosal apraxia)</span></li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <div class="divider"></div>
-
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <!-- 06. BASAL GANGLIA DISEASES -->
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <section class="chapter" id="basal">
-      <div class="chapter-header">
-        <span class="chapter-num">06</span>
-        <h2 class="chapter-title">Basal Ganglia Diseases</h2>
-      </div>
-
-      <!-- Parkinsonism -->
-      <div class="section-title">1 — Parkinsonism</div>
-      <div class="card">
-        <div class="card-head"><span class="icon icon-gold"></span><span class="card-head-title">Parkinsonism</span></div>
-        <div class="card-body">
-          <div class="cause-box"><strong>Pathology:</strong> Degeneration of dopamine-producing cells in substantia nigra → depletion of dopamine in striatum.</div>
-          <div class="signs-grid">
-            <div class="sign-row"><div class="sign-label">Tremor</div><div class="sign-value">Resting tremors (pill rolling).</div></div>
-            <div class="sign-row"><div class="sign-label">Tone</div><div class="sign-value">Rigidity.</div></div>
-            <div class="sign-row"><div class="sign-label">Movement</div><div class="sign-value">Bradykinesia — slowness of movement.</div></div>
-            <div class="sign-row"><div class="sign-label">Absent</div><div class="sign-value">No paralysis, sensory loss, ataxia.</div></div>
+        <section class="chapter" id="subthalamus">
+          <div class="chapter-header">
+            <span class="chapter-num">02</span>
+            <h2 class="chapter-title">Subthalamic Nucleus Lesion</h2>
           </div>
-        </div>
-      </div>
 
-      <!-- Chorea -->
-      <div class="section-title">2 — Chorea</div>
-      <div class="card">
-        <div class="card-head"><span class="icon icon-teal"></span><span class="card-head-title">Chorea</span></div>
-        <div class="card-body">
-          <p style="font-size:13.5px; color:var(--text); line-height:1.7;">A neurological disorder characterized by jerky involuntary movements affecting especially the <strong style="color:var(--teal);">shoulders, hips, and face.</strong></p>
-        </div>
-      </div>
-
-      <!-- Hemiballismus -->
-      <div class="section-title">3 — Hemiballismus</div>
-      <div class="card">
-        <div class="card-head"><span class="icon icon-red"></span><span class="card-head-title">Hemiballismus</span></div>
-        <div class="card-body">
-          <div class="cause-box"><strong>Cause:</strong> Damage to the sub-thalamic nucleus or its connection with lentiform nucleus, often by a stroke.</div>
-          <div class="signs-grid">
-            <div class="sign-row"><div class="sign-label">Laterality</div><div class="sign-value"><span class="tag tag-contra">Contralateral</span> side of the body.</div></div>
-            <div class="sign-row"><div class="sign-label">Character</div><div class="sign-value">Flailing movements of one arm and leg.</div></div>
+          <div class="card">
+            <div class="card-head">
+              <span class="icon icon-red"></span>
+              <span class="card-head-title">Hemiballismus</span>
+            </div>
+            <div class="card-body">
+              <p style="font-size:13.5px; color:var(--text); line-height:1.7;">Lesion of the subthalamic nucleus — an
+                extrapyramidal motor nucleus regulating muscle movement — results in <strong
+                  style="color:var(--red);">hemiballismus: sudden violent involuntary movements.</strong></p>
+            </div>
           </div>
-        </div>
-      </div>
-    </section>
+        </section>
 
-    <div class="divider"></div>
+        <div class="divider"></div>
 
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <!-- 07. INTERNAL CAPSULE -->
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <section class="chapter" id="ic">
-      <div class="chapter-header">
-        <span class="chapter-num">07</span>
-        <h2 class="chapter-title">Lesion in Posterior Limb — Internal Capsule</h2>
-      </div>
-
-      <div class="cause-box" style="margin-bottom:16px;"><strong>Context:</strong> Cerebrovascular accidents of the internal capsule (CVA) can lead to different neurological deficits (motor &amp; sensory).</div>
-
-      <div class="card">
-        <div class="card-body">
-          <table class="styled-table">
-            <thead><tr><th>#</th><th>Sign</th><th>Due to affection of</th><th>Side</th></tr></thead>
-            <tbody>
-              <tr>
-                <td class="td-key">1</td>
-                <td>Contralateral hemiplegia</td>
-                <td>Corticospinal tract</td>
-                <td><span class="tag tag-contra">Contralateral</span></td>
-              </tr>
-              <tr>
-                <td class="td-key">2</td>
-                <td>Contralateral hemianesthesia</td>
-                <td>Main sensory thalamic radiation</td>
-                <td><span class="tag tag-contra">Contralateral</span></td>
-              </tr>
-              <tr>
-                <td class="td-key">3</td>
-                <td>Contralateral homonymous hemianopia</td>
-                <td>Optic radiation</td>
-                <td><span class="tag tag-contra">Contralateral</span></td>
-              </tr>
-              <tr>
-                <td class="td-key">4</td>
-                <td>Bilateral diminution of hearing</td>
-                <td>Auditory radiation</td>
-                <td><span class="tag tag-bi">Bilateral</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <div class="divider"></div>
-
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <!-- 08. SYNDROMES OF MEDULLA -->
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <section class="chapter" id="medulla">
-      <div class="chapter-header">
-        <span class="chapter-num">08</span>
-        <h2 class="chapter-title">Syndromes of Medulla</h2>
-      </div>
-
-      <div class="compare-grid">
-
-        <!-- Medial -->
-        <div class="card">
-          <div class="card-head" style="background:rgba(79,142,247,0.12); border-bottom-color:rgba(79,142,247,0.2);">
-            <span class="icon icon-blue"></span>
-            <span class="card-head-title">Medial Medullary Syndrome</span>
+        <section class="chapter" id="pineal">
+          <div class="chapter-header">
+            <span class="chapter-num">03</span>
+            <h2 class="chapter-title">Parinaud Syndrome</h2>
           </div>
-          <div class="card-body">
-            <div class="cause-box"><strong>Cause:</strong> Occlusion of anterior spinal artery.</div>
-            <div class="section-title">Clinical Signs</div>
-            <p style="font-size:12px;color:var(--text3);margin-bottom:8px;font-family:'DM Mono',monospace;">HYPOGLOSSAL NERVE &amp; NUCLEUS</p>
-            <ul class="bullet-list" style="margin-bottom:12px;">
-              <li><span class="tag tag-lmn">LMN</span> paralysis of the same side of the tongue (hemiparalysis).</li>
-              <li>Deviation of the protruded tongue toward the affected side.</li>
-            </ul>
-            <p style="font-size:12px;color:var(--text3);margin-bottom:8px;font-family:'DM Mono',monospace;">MEDIAL LEMNISCUS</p>
-            <ul class="bullet-list" style="margin-bottom:12px;">
-              <li><span class="tag tag-contra">Contralateral</span> loss of kinaesthesia, discriminative touch and sense of vibration.</li>
-            </ul>
-            <p style="font-size:12px;color:var(--text3);margin-bottom:8px;font-family:'DM Mono',monospace;">CORTICOSPINAL TRACT</p>
-            <ul class="bullet-list">
-              <li><span class="tag tag-contra">Contralateral</span> hemiplegia.</li>
-            </ul>
-          </div>
-        </div>
+          <p style="font-size:12.5px; color:var(--text2); margin-bottom:16px;">Dorsal midbrain syndrome</p>
 
-        <!-- Lateral / Wallenberg -->
-        <div class="card">
-          <div class="card-head" style="background:rgba(224,92,92,0.1); border-bottom-color:rgba(224,92,92,0.2);">
-            <span class="icon icon-red"></span>
-            <span class="card-head-title">Lateral Medullary Syndrome (Wallenberg / PICA)</span>
+          <div class="card">
+            <div class="card-head">
+              <span class="icon icon-gold"></span>
+              <span class="card-head-title">Cause &amp; Signs</span>
+            </div>
+            <div class="card-body">
+              <div class="cause-box"><strong>Cause:</strong> Pineal gland tumors (pinealoma) usually damage the
+                posterior commissure.</div>
+              <div class="signs-grid">
+                <div class="sign-row">
+                  <div class="sign-label">Cause (expanded)</div>
+                  <div class="sign-value">Posterior commissure compression — may be due to tumor (pineal gland),
+                    hemorrhage, or infection.</div>
+                </div>
+                <div class="sign-row">
+                  <div class="sign-label">Sign</div>
+                  <div class="sign-value" style="color:var(--gold); font-weight:600;">Paralysis of upward gaze.</div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="card-body">
-            <div class="cause-box"><strong>Cause:</strong> Occlusion of the PICA.</div>
-            <div class="section-title">Clinical Signs</div>
-            <ul class="bullet-list">
-              <li><strong style="color:var(--text2);">1. Spinal trigeminal nucleus:</strong> Loss of pain &amp; temperature from the <span class="tag tag-ipsi">same side of face</span>.</li>
-              <li><strong style="color:var(--text2);">2. Lateral spinothalamic tract:</strong> Loss of pain &amp; temperature from the <span class="tag tag-contra">opposite side of body</span>.</li>
-              <li><strong style="color:var(--text2);">3. Nucleus ambiguus:</strong><hr> <span class="tag tag-ipsi" style="writing-mode: vertical-rl; text-align: center;">Ipsilateral</span> 
-              <span style="writing-mode: vertical-rl;">PARALYSIS of Muscles<hr></span>
-                <ul style="padding-left:16px; margin-top:4px; list-style:disc; font-size:13px; color:var(--text2);">
-                  <li>Larynx → hoarseness of voice.</li>
-                  <li>Pharynx → dysphagia &amp; loss of pharyngeal gag reflex.</li>
-                  <li>Palate → nasal regurgitation of food &amp; deviation of uvula to normal side.</li>
+        </section>
+
+        <div class="divider"></div>
+
+        <section class="chapter" id="limbic">
+          <div class="chapter-header">
+            <span class="chapter-num">04</span>
+            <h2 class="chapter-title">Limbic System Lesions</h2>
+          </div>
+
+          <div class="section-title">Clinical Application</div>
+
+          <div class="card">
+            <div class="card-body">
+              <table class="styled-table">
+                <thead>
+                  <tr>
+                    <th>Structure / Lesion</th>
+                    <th>Clinical Result</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="td-key">Lesion of the hippocampus</td>
+                    <td>Cause loss of memory.</td>
+                  </tr>
+                  <tr>
+                    <td class="td-key">Extensive degeneration in the hippocampus</td>
+                    <td>Causes Alzheimer's disease.</td>
+                  </tr>
+                  <tr>
+                    <td class="td-key">Lesion of the amygdaloid nucleus</td>
+                    <td>Cause loss of aggressive behavior, fear and anger.</td>
+                  </tr>
+                  <tr>
+                    <td class="td-key">Bilateral lesion of the amygdaloid and hippocampus</td>
+                    <td>Cause increased appetite and abnormal hypersexual behavior.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <section class="chapter" id="corpus">
+          <div class="chapter-header">
+            <span class="chapter-num">05</span>
+            <h2 class="chapter-title">Corpus Callosum Lesion</h2>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <span class="icon icon-blue"></span>
+              <span class="card-head-title">Callosal Apraxia / Split-Brain</span>
+            </div>
+            <div class="card-body">
+              <p style="font-size:13.5px; color:var(--text2); margin-bottom:14px;">The corpus callosum is important for
+                the interhemispheric transfer of information (such as memory and language) between the dominant left and
+                the nondominant (right) hemisphere.</p>
+              <div class="section-title">Signs</div>
+              <ul class="bullet-list">
+                <li>Severing the connection between the two cerebral hemispheres leads to a complete division of their
+                  functions — known as <strong style="color:var(--accent2);">split-brain.</strong></li>
+                <li>Memory and language functions become inaccessible to the non-dominant hemisphere, leading to
+                  disorders on the left side.</li>
+                <li>The patient cannot execute verbal commands with their left hand — e.g., being asked to salute with
+                  it. <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);">(Callosal
+                    apraxia)</span></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <section class="chapter" id="basal">
+          <div class="chapter-header">
+            <span class="chapter-num">06</span>
+            <h2 class="chapter-title">Basal Ganglia Diseases</h2>
+          </div>
+
+          <div class="section-title">1 — Parkinsonism</div>
+          <div class="card">
+            <div class="card-head"><span class="icon icon-gold"></span><span class="card-head-title">Parkinsonism</span>
+            </div>
+            <div class="card-body">
+              <div class="cause-box"><strong>Pathology:</strong> Degeneration of dopamine-producing cells in substantia
+                nigra → depletion of dopamine in striatum.</div>
+              <div class="signs-grid">
+                <div class="sign-row">
+                  <div class="sign-label">Tremor</div>
+                  <div class="sign-value">Resting tremors (pill rolling).</div>
+                </div>
+                <div class="sign-row">
+                  <div class="sign-label">Tone</div>
+                  <div class="sign-value">Rigidity.</div>
+                </div>
+                <div class="sign-row">
+                  <div class="sign-label">Movement</div>
+                  <div class="sign-value">Bradykinesia — slowness of movement.</div>
+                </div>
+                <div class="sign-row">
+                  <div class="sign-label">Absent</div>
+                  <div class="sign-value">No paralysis, sensory loss, ataxia.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-title">2 — Chorea</div>
+          <div class="card">
+            <div class="card-head"><span class="icon icon-teal"></span><span class="card-head-title">Chorea</span></div>
+            <div class="card-body">
+              <p style="font-size:13.5px; color:var(--text); line-height:1.7;">A neurological disorder characterized by
+                jerky involuntary movements affecting especially the <strong style="color:var(--teal);">shoulders, hips,
+                  and face.</strong></p>
+            </div>
+          </div>
+
+          <div class="section-title">3 — Hemiballismus</div>
+          <div class="card">
+            <div class="card-head"><span class="icon icon-red"></span><span class="card-head-title">Hemiballismus</span>
+            </div>
+            <div class="card-body">
+              <div class="cause-box"><strong>Cause:</strong> Damage to the sub-thalamic nucleus or its connection with
+                lentiform nucleus, often by a stroke.</div>
+              <div class="signs-grid">
+                <div class="sign-row">
+                  <div class="sign-label">Laterality</div>
+                  <div class="sign-value"><span class="tag tag-contra">Contralateral</span> side of the body.</div>
+                </div>
+                <div class="sign-row">
+                  <div class="sign-label">Character</div>
+                  <div class="sign-value">Flailing movements of one arm and leg.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <section class="chapter" id="ic">
+          <div class="chapter-header">
+            <span class="chapter-num">07</span>
+            <h2 class="chapter-title">Lesion in Posterior Limb — Internal Capsule</h2>
+          </div>
+
+          <div class="cause-box" style="margin-bottom:16px;"><strong>Context:</strong> Cerebrovascular accidents of the
+            internal capsule (CVA) can lead to different neurological deficits (motor &amp; sensory).</div>
+
+          <div class="card">
+            <div class="card-body">
+              <table class="styled-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Sign</th>
+                    <th>Due to affection of</th>
+                    <th>Side</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="td-key">1</td>
+                    <td>Contralateral hemiplegia</td>
+                    <td>Corticospinal tract</td>
+                    <td><span class="tag tag-contra">Contralateral</span></td>
+                  </tr>
+                  <tr>
+                    <td class="td-key">2</td>
+                    <td>Contralateral hemianesthesia</td>
+                    <td>Main sensory thalamic radiation</td>
+                    <td><span class="tag tag-contra">Contralateral</span></td>
+                  </tr>
+                  <tr>
+                    <td class="td-key">3</td>
+                    <td>Contralateral homonymous hemianopia</td>
+                    <td>Optic radiation</td>
+                    <td><span class="tag tag-contra">Contralateral</span></td>
+                  </tr>
+                  <tr>
+                    <td class="td-key">4</td>
+                    <td>Bilateral diminution of hearing</td>
+                    <td>Auditory radiation</td>
+                    <td><span class="tag tag-bi">Bilateral</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <section class="chapter" id="medulla">
+          <div class="chapter-header">
+            <span class="chapter-num">08</span>
+            <h2 class="chapter-title">Syndromes of Medulla</h2>
+          </div>
+
+          <div class="compare-grid">
+
+            <div class="card">
+              <div class="card-head"
+                style="background:rgba(79,142,247,0.12); border-bottom-color:rgba(79,142,247,0.2);">
+                <span class="icon icon-blue"></span>
+                <span class="card-head-title">Medial Medullary Syndrome</span>
+              </div>
+              <div class="card-body">
+                <div class="cause-box"><strong>Cause:</strong> Occlusion of anterior spinal artery.</div>
+                <div class="section-title">Clinical Signs</div>
+                <p style="font-size:12px;color:var(--text3);margin-bottom:8px;font-family:'DM Mono',monospace;">
+                  HYPOGLOSSAL NERVE &amp; NUCLEUS</p>
+                <ul class="bullet-list" style="margin-bottom:12px;">
+                  <li><span class="tag tag-lmn">LMN</span> paralysis of the same side of the tongue (hemiparalysis).
+                  </li>
+                  <li>Deviation of the protruded tongue toward the affected side.</li>
                 </ul>
-              </li>
-              <li><strong style="color:var(--text2);">4. Inferior cerebellar peduncle:</strong> Ataxia.</li>
-              <li><strong style="color:var(--text2);">5. Vestibular nuclei:</strong> Vertigo, nausea, vomiting and nystagmus.</li>
-              <li><strong style="color:var(--text2);">6. Descending sympathetic fibres:</strong> <span class="tag tag-ipsi">Ipsilateral</span> Horner's syndrome.</li>
-            </ul>
+                <p style="font-size:12px;color:var(--text3);margin-bottom:8px;font-family:'DM Mono',monospace;">MEDIAL
+                  LEMNISCUS</p>
+                <ul class="bullet-list" style="margin-bottom:12px;">
+                  <li><span class="tag tag-contra">Contralateral</span> loss of kinaesthesia, discriminative touch and
+                    sense of vibration.</li>
+                </ul>
+                <p style="font-size:12px;color:var(--text3);margin-bottom:8px;font-family:'DM Mono',monospace;">
+                  CORTICOSPINAL TRACT</p>
+                <ul class="bullet-list">
+                  <li><span class="tag tag-contra">Contralateral</span> hemiplegia.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head" style="background:rgba(224,92,92,0.1); border-bottom-color:rgba(224,92,92,0.2);">
+                <span class="icon icon-red"></span>
+                <span class="card-head-title">Lateral Medullary Syndrome (Wallenberg / PICA)</span>
+              </div>
+              <div class="card-body">
+                <div class="cause-box"><strong>Cause:</strong> Occlusion of the PICA.</div>
+                <div class="section-title">Clinical Signs</div>
+                <ul class="bullet-list">
+                  <li><strong style="color:var(--text2);">1. Spinal trigeminal nucleus:</strong> Loss of pain &amp;
+                    temperature from the <span class="tag tag-ipsi">same side of face</span>.</li>
+                  <li><strong style="color:var(--text2);">2. Lateral spinothalamic tract:</strong> Loss of pain &amp;
+                    temperature from the <span class="tag tag-contra">opposite side of body</span>.</li>
+                  <li><strong style="color:var(--text2);">3. Nucleus ambiguus:</strong>
+                    <hr> <span class="tag tag-ipsi"
+                      style="writing-mode: vertical-rl; text-align: center;">Ipsilateral</span>
+                    <span style="writing-mode: vertical-rl;">PARALYSIS of Muscles
+                      <hr>
+                    </span>
+                    <ul style="padding-left:16px; margin-top:4px; list-style:disc; font-size:13px; color:var(--text2);">
+                      <li>Larynx → hoarseness of voice.</li>
+                      <li>Pharynx → dysphagia &amp; loss of pharyngeal gag reflex.</li>
+                      <li>Palate → nasal regurgitation of food &amp; deviation of uvula to normal side.</li>
+                    </ul>
+                  </li>
+                  <li><strong style="color:var(--text2);">4. Inferior cerebellar peduncle:</strong> Ataxia.</li>
+                  <li><strong style="color:var(--text2);">5. Vestibular nuclei:</strong> Vertigo, nausea, vomiting and
+                    nystagmus.</li>
+                  <li><strong style="color:var(--text2);">6. Descending sympathetic fibres:</strong> <span
+                      class="tag tag-ipsi">Ipsilateral</span> Horner's syndrome.</li>
+                </ul>
+              </div>
+            </div>
+
           </div>
-        </div>
+        </section>
 
-      </div>
-    </section>
+        <div class="divider"></div>
 
-    <div class="divider"></div>
-
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <!-- 09. SYNDROMES OF PONS -->
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <section class="chapter" id="pons">
-      <div class="chapter-header">
-        <span class="chapter-num">09</span>
-        <h2 class="chapter-title">Syndromes of Pons</h2>
-      </div>
-
-      <div class="compare-grid">
-
-        <!-- Caudal -->
-        <div class="card">
-          <div class="card-head" style="background:rgba(79,142,247,0.12); border-bottom-color:rgba(79,142,247,0.2);">
-            <span class="icon icon-blue"></span>
-            <span class="card-head-title">Caudal Basal Pontine Syndrome</span>
+        <section class="chapter" id="pons">
+          <div class="chapter-header">
+            <span class="chapter-num">09</span>
+            <h2 class="chapter-title">Syndromes of Pons</h2>
           </div>
-          <div class="card-body">
-            <div class="cause-box"><strong>Cause:</strong> Occlusion of paramedian branches of basilar artery.</div>
-            <div class="section-title">Affected Structures</div>
-            <ul class="bullet-list" style="margin-bottom:12px;">
-              <li>Corticospinal tract</li>
-              <li>Facial nerve (CN VII)</li>
-              <li>Abducent nerve (CN VI)</li>
-            </ul>
-            <div class="section-title">Signs</div>
-            <ul class="bullet-list">
-              <li><span class="tag tag-contra">Contralateral</span> hemiplegia.</li>
-              <li><span class="tag tag-lmn">LMN</span> <span class="tag tag-ipsi">Ipsilateral</span> facial nerve palsy.</li>
-              <li><span class="tag tag-ipsi">Ipsilateral</span> paralysis of the lateral rectus → internal strabismus.</li>
-            </ul>
+
+          <div class="compare-grid">
+
+            <div class="card">
+              <div class="card-head"
+                style="background:rgba(79,142,247,0.12); border-bottom-color:rgba(79,142,247,0.2);">
+                <span class="icon icon-blue"></span>
+                <span class="card-head-title">Caudal Basal Pontine Syndrome</span>
+              </div>
+              <div class="card-body">
+                <div class="cause-box"><strong>Cause:</strong> Occlusion of paramedian branches of basilar artery.</div>
+                <div class="section-title">Affected Structures</div>
+                <ul class="bullet-list" style="margin-bottom:12px;">
+                  <li>Corticospinal tract</li>
+                  <li>Facial nerve (CN VII)</li>
+                  <li>Abducent nerve (CN VI)</li>
+                </ul>
+                <div class="section-title">Signs</div>
+                <ul class="bullet-list">
+                  <li><span class="tag tag-contra">Contralateral</span> hemiplegia.</li>
+                  <li><span class="tag tag-lmn">LMN</span> <span class="tag tag-ipsi">Ipsilateral</span> facial nerve
+                    palsy.</li>
+                  <li><span class="tag tag-ipsi">Ipsilateral</span> paralysis of the lateral rectus → internal
+                    strabismus.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head" style="background:rgba(56,196,196,0.1); border-bottom-color:rgba(56,196,196,0.2);">
+                <span class="icon icon-teal"></span>
+                <span class="card-head-title">Rostral Basal Pontine Syndrome</span>
+              </div>
+              <div class="card-body">
+                <div class="cause-box"><strong>Cause:</strong> Occlusion of short circumferential artery.</div>
+                <div class="section-title">Affected Structures</div>
+                <ul class="bullet-list" style="margin-bottom:12px;">
+                  <li>Corticospinal tract</li>
+                  <li>Trigeminal nerve (CN V)</li>
+                </ul>
+                <div class="section-title">Signs</div>
+                <ul class="bullet-list">
+                  <li><span class="tag tag-contra">Contralateral</span> <span class="tag tag-umn">UMNL</span>
+                    hemiplegia.</li>
+                  <li><span class="tag tag-ipsi">Ipsilateral</span> paralysis of muscles of mastication.</li>
+                  <li><span class="tag tag-ipsi">Ipsilateral</span> loss of sensation from the face.</li>
+                </ul>
+              </div>
+            </div>
+
           </div>
-        </div>
+        </section>
 
-        <!-- Rostral -->
-        <div class="card">
-          <div class="card-head" style="background:rgba(56,196,196,0.1); border-bottom-color:rgba(56,196,196,0.2);">
-            <span class="icon icon-teal"></span>
-            <span class="card-head-title">Rostral Basal Pontine Syndrome</span>
+        <div class="divider"></div>
+
+        <section class="chapter" id="midbrain">
+          <div class="chapter-header">
+            <span class="chapter-num">10</span>
+            <h2 class="chapter-title">Syndromes of Midbrain</h2>
           </div>
-          <div class="card-body">
-            <div class="cause-box"><strong>Cause:</strong> Occlusion of short circumferential artery.</div>
-            <div class="section-title">Affected Structures</div>
-            <ul class="bullet-list" style="margin-bottom:12px;">
-              <li>Corticospinal tract</li>
-              <li>Trigeminal nerve (CN V)</li>
-            </ul>
-            <div class="section-title">Signs</div>
-            <ul class="bullet-list">
-              <li><span class="tag tag-contra">Contralateral</span> <span class="tag tag-umn">UMNL</span> hemiplegia.</li>
-              <li><span class="tag tag-ipsi">Ipsilateral</span> paralysis of muscles of mastication.</li>
-              <li><span class="tag tag-ipsi">Ipsilateral</span> loss of sensation from the face.</li>
-            </ul>
+
+          <div class="compare-grid" style="margin-bottom:16px;">
+
+            <div class="card">
+              <div class="card-head" style="background:rgba(201,169,74,0.1); border-bottom-color:rgba(201,169,74,0.2);">
+                <span class="icon icon-gold"></span>
+                <span class="card-head-title">Weber's Syndrome</span>
+              </div>
+              <div class="card-body">
+                <div class="cause-box"><strong>Cause:</strong> Occlusion of a branch of posterior cerebral artery.</div>
+                <div class="section-title">Affected Structures</div>
+                <ul class="bullet-list" style="margin-bottom:12px;">
+                  <li>Oculomotor nerve (CN III)</li>
+                  <li>Crus cerebri (pyramidal tract)</li>
+                </ul>
+                <div class="section-title">Signs</div>
+                <ul class="bullet-list">
+                  <li><span class="tag tag-lmn">LMNL</span> of CN III on the <span class="tag tag-ipsi">same side</span>
+                    of the lesion.</li>
+                  <li><span class="tag tag-umn">UMNL</span> Hemiplegia on the <span class="tag tag-contra">opposite
+                      side</span> of the body.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head" style="background:rgba(75,191,143,0.1); border-bottom-color:rgba(75,191,143,0.2);">
+                <span class="icon icon-green"></span>
+                <span class="card-head-title">Benedikt Syndrome</span>
+              </div>
+              <div class="card-body">
+                <div class="cause-box"><strong>Cause:</strong> Lesion in tegmentum of the midbrain — occlusion of
+                  posterior cerebral artery.</div>
+                <div class="section-title">Affected Structures</div>
+                <ul class="bullet-list" style="margin-bottom:12px;">
+                  <li>Oculomotor nucleus or its emerging fibres</li>
+                  <li>Red nucleus</li>
+                </ul>
+                <div class="section-title">Signs</div>
+                <ul class="bullet-list">
+                  <li><span class="tag tag-lmn">LMNL</span> of CN III on the <span class="tag tag-ipsi">same side</span>
+                    of the lesion.</li>
+                  <li>Extrapyramidal manifestations — rigidity and tremors on the <span class="tag tag-contra">opposite
+                      side</span>.</li>
+                </ul>
+              </div>
+            </div>
+
           </div>
-        </div>
 
-      </div>
-    </section>
-
-    <div class="divider"></div>
-
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <!-- 10. SYNDROMES OF MIDBRAIN -->
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <section class="chapter" id="midbrain">
-      <div class="chapter-header">
-        <span class="chapter-num">10</span>
-        <h2 class="chapter-title">Syndromes of Midbrain</h2>
-      </div>
-
-      <div class="compare-grid" style="margin-bottom:16px;">
-
-        <!-- Weber -->
-        <div class="card">
-          <div class="card-head" style="background:rgba(201,169,74,0.1); border-bottom-color:rgba(201,169,74,0.2);">
-            <span class="icon icon-gold"></span>
-            <span class="card-head-title">Weber's Syndrome</span>
-          </div>
-          <div class="card-body">
-            <div class="cause-box"><strong>Cause:</strong> Occlusion of a branch of posterior cerebral artery.</div>
-            <div class="section-title">Affected Structures</div>
-            <ul class="bullet-list" style="margin-bottom:12px;">
-              <li>Oculomotor nerve (CN III)</li>
-              <li>Crus cerebri (pyramidal tract)</li>
-            </ul>
-            <div class="section-title">Signs</div>
-            <ul class="bullet-list">
-              <li><span class="tag tag-lmn">LMNL</span> of CN III on the <span class="tag tag-ipsi">same side</span> of the lesion.</li>
-              <li><span class="tag tag-umn">UMNL</span> Hemiplegia on the <span class="tag tag-contra">opposite side</span> of the body.</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Benedikt -->
-        <div class="card">
-          <div class="card-head" style="background:rgba(75,191,143,0.1); border-bottom-color:rgba(75,191,143,0.2);">
-            <span class="icon icon-green"></span>
-            <span class="card-head-title">Benedikt Syndrome</span>
-          </div>
-          <div class="card-body">
-            <div class="cause-box"><strong>Cause:</strong> Lesion in tegmentum of the midbrain — occlusion of posterior cerebral artery.</div>
-            <div class="section-title">Affected Structures</div>
-            <ul class="bullet-list" style="margin-bottom:12px;">
-              <li>Oculomotor nucleus or its emerging fibres</li>
-              <li>Red nucleus</li>
-            </ul>
-            <div class="section-title">Signs</div>
-            <ul class="bullet-list">
-              <li><span class="tag tag-lmn">LMNL</span> of CN III on the <span class="tag tag-ipsi">same side</span> of the lesion.</li>
-              <li>Extrapyramidal manifestations — rigidity and tremors on the <span class="tag tag-contra">opposite side</span>.</li>
-            </ul>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Parinaud (repeated here in midbrain context) -->
-      <div class="card">
-        <div class="card-head" style="background:rgba(224,92,92,0.08); border-bottom-color:rgba(224,92,92,0.2);">
-          <span class="icon icon-red"></span>
-          <span class="card-head-title">Parinaud Syndrome — Dorsal Midbrain</span>
-        </div>
-        <div class="card-body">
-          <div class="cause-box"><strong>Cause:</strong> Posterior commissure compression — tumor (pineal gland), hemorrhage, or infection.</div>
-          <div class="signs-grid">
-            <div class="sign-row">
-              <div class="sign-label">Sign</div>
-              <div class="sign-value" style="color:var(--red); font-weight:600; font-size:14px;">Paralysis of upward gaze.</div>
+          <div class="card">
+            <div class="card-head" style="background:rgba(224,92,92,0.08); border-bottom-color:rgba(224,92,92,0.2);">
+              <span class="icon icon-red"></span>
+              <span class="card-head-title">Parinaud Syndrome — Dorsal Midbrain</span>
+            </div>
+            <div class="card-body">
+              <div class="cause-box"><strong>Cause:</strong> Posterior commissure compression — tumor (pineal gland),
+                hemorrhage, or infection.</div>
+              <div class="signs-grid">
+                <div class="sign-row">
+                  <div class="sign-label">Sign</div>
+                  <div class="sign-value" style="color:var(--red); font-weight:600; font-size:14px;">Paralysis of upward
+                    gaze.</div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
+        </section>
 
-    <div class="divider"></div>
+        <div class="divider"></div>
 
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <!-- 11. CN I -->
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <section class="chapter" id="cn1">
-      <div class="chapter-header">
-        <span class="chapter-num">11</span>
-        <h2 class="chapter-title">CN I — Olfactory Nerve</h2>
-      </div>
-      <div class="card">
-        <div class="card-body">
-          <div class="signs-grid">
-            <div class="sign-row">
-              <div class="sign-label">Lesion</div>
-              <div class="sign-value"><strong style="color:var(--gold);">Anosmia</strong> — loss of smell.</div>
+        <section class="chapter" id="cn1">
+          <div class="chapter-header">
+            <span class="chapter-num">11</span>
+            <h2 class="chapter-title">CN I — Olfactory Nerve</h2>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="signs-grid">
+                <div class="sign-row">
+                  <div class="sign-label">Lesion</div>
+                  <div class="sign-value"><strong style="color:var(--gold);">Anosmia</strong> — loss of smell.</div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
+        </section>
 
-    <div class="divider"></div>
+        <div class="divider"></div>
 
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <!-- 12. CN II -->
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <section class="chapter" id="cn2">
-      <div class="chapter-header">
-        <span class="chapter-num">12</span>
-        <h2 class="chapter-title">CN II — Optic Nerve</h2>
-      </div>
-      <div class="card">
-        <div class="card-body">
-          <div class="signs-grid">
-            <div class="sign-row">
-              <div class="sign-label">Lesion</div>
-              <div class="sign-value">Total blindness (loss of vision) of the <span class="tag tag-ipsi">same side</span>.</div>
+        <section class="chapter" id="cn2">
+          <div class="chapter-header">
+            <span class="chapter-num">12</span>
+            <h2 class="chapter-title">CN II — Optic Nerve</h2>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="signs-grid">
+                <div class="sign-row">
+                  <div class="sign-label">Lesion</div>
+                  <div class="sign-value">Total blindness (loss of vision) of the <span class="tag tag-ipsi">same
+                      side</span>.</div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
+        </section>
 
-    <div class="divider"></div>
+        <div class="divider"></div>
 
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <!-- 13. CN III / IV / VI -->
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <section class="chapter" id="cn3456">
-      <div class="chapter-header">
-        <span class="chapter-num">13</span>
-        <h2 class="chapter-title">CN III / IV / VI — Oculomotor, Trochlear, Abducent</h2>
-      </div>
-
-      <!-- CN III -->
-      <div class="section-title">Oculomotor — CN III</div>
-      <div class="card">
-        <div class="card-body">
-          <div class="signs-grid">
-            <div class="sign-row"><div class="sign-label">Ptosis</div><div class="sign-value">Dropping of the upper eyelid due to paralysis of levator palpebrae.</div></div>
-            <div class="sign-row"><div class="sign-label">Mydriasis</div><div class="sign-value">Due to paralysis of constrictor pupillae muscle.</div></div>
-            <div class="sign-row"><div class="sign-label">Eye deviation</div><div class="sign-value">Deviation of the eye downward &amp; laterally — by unopposed action of lateral rectus &amp; superior oblique.</div></div>
+        <section class="chapter" id="cn3456">
+          <div class="chapter-header">
+            <span class="chapter-num">13</span>
+            <h2 class="chapter-title">CN III / IV / VI — Oculomotor, Trochlear, Abducent</h2>
           </div>
-        </div>
-      </div>
 
-      <!-- CN IV -->
-      <div class="section-title">Trochlear — CN IV</div>
-      <div class="card">
-        <div class="card-body">
-          <div class="signs-grid">
-            <div class="sign-row"><div class="sign-label">In the nucleus</div><div class="sign-value">Paralysis of <span class="tag tag-contra">contralateral</span> superior oblique.</div></div>
-            <div class="sign-row"><div class="sign-label">Nerve (outside brainstem)</div><div class="sign-value">Paralysis of <span class="tag tag-ipsi">ipsilateral</span> muscle.</div></div>
-            <div class="sign-row"><div class="sign-label">Sign 1</div><div class="sign-value">Inability to depress the adducted eye.</div></div>
-            <div class="sign-row"><div class="sign-label">Sign 2</div><div class="sign-value">Diplopia in looking downward — causing difficulty in walking downstairs.</div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- CN VI -->
-      <div class="section-title">Abducent — CN VI</div>
-      <div class="card">
-        <div class="card-body">
-          <div class="signs-grid">
-            <div class="sign-row">
-              <div class="sign-label">Lesion</div>
-              <div class="sign-value">Paralysis of the lateral rectus muscle → <strong style="color:var(--red);">internal strabismus (squint)</strong> by unopposed medial rectus muscle.</div>
+          <div class="section-title">Oculomotor — CN III</div>
+          <div class="card">
+            <div class="card-body">
+              <div class="signs-grid">
+                <div class="sign-row">
+                  <div class="sign-label">Ptosis</div>
+                  <div class="sign-value">Dropping of the upper eyelid due to paralysis of levator palpebrae.</div>
+                </div>
+                <div class="sign-row">
+                  <div class="sign-label">Mydriasis</div>
+                  <div class="sign-value">Due to paralysis of constrictor pupillae muscle.</div>
+                </div>
+                <div class="sign-row">
+                  <div class="sign-label">Eye deviation</div>
+                  <div class="sign-value">Deviation of the eye downward &amp; laterally — by unopposed action of lateral
+                    rectus &amp; superior oblique.</div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
 
-    <div class="divider"></div>
-
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <!-- 14. CN VII -->
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <section class="chapter" id="cn7">
-      <div class="chapter-header">
-        <span class="chapter-num">14</span>
-        <h2 class="chapter-title">CN VII — Facial Nerve Lesions</h2>
-      </div>
-
-      <div class="compare-grid">
-
-        <!-- UMN -->
-        <div class="card">
-          <div class="card-head" style="background:rgba(79,142,247,0.12); border-bottom-color:rgba(79,142,247,0.2);">
-            <span class="icon icon-blue"></span>
-            <span class="card-head-title">Upper Motor Neuron Lesion</span>
-          </div>
-          <div class="card-body">
-            <div class="cause-box"><strong>Cause:</strong> Lesion in corticobulbar tract above the level of facial nucleus, or lesion in the motor cortex.</div>
-            <div class="section-title">Result</div>
-            <p style="font-size:13.5px; color:var(--text); margin-bottom:12px;">Paralysis of facial muscles of the lower ½ of the <span class="tag tag-contra">opposite side</span> of the face.</p>
-            <div class="section-title">Signs of Lesion</div>
-            <ul class="bullet-list">
-              <li><span class="tag tag-lmn" style="background:rgba(79,142,247,0.15);color:var(--accent2);border-color:rgba(79,142,247,0.3);">1</span> Paralysis of buccinator muscle — accumulation of food in vestibule of mouth &amp; dribbling of saliva.</li>
-              <li><span class="tag tag-lmn" style="background:rgba(79,142,247,0.15);color:var(--accent2);border-color:rgba(79,142,247,0.3);">2</span> Paralysis of levators of mouth angle — dropping of the angle of the mouth &amp; loss of nasolabial fold.</li>
-              <li><span class="tag tag-lmn" style="background:rgba(79,142,247,0.15);color:var(--accent2);border-color:rgba(79,142,247,0.3);">3</span> Paralysis of orbicularis oris — patient can't whistle or blow.</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- LMN -->
-        <div class="card">
-          <div class="card-head" style="background:rgba(224,92,92,0.1); border-bottom-color:rgba(224,92,92,0.2);">
-            <span class="icon icon-red"></span>
-            <span class="card-head-title">Lower Motor Neuron Lesion</span>
-          </div>
-          <div class="card-body">
-            <div class="cause-box"><strong>Cause:</strong> Lesion of the facial nerve or in the facial nucleus — may be located at any level.</div>
-            <p style="font-size:12px;font-family:'DM Mono',monospace;color:var(--text3);margin-bottom:6px;">Levels:</p>
-            <ul class="bullet-list" style="margin-bottom:12px;font-size:12.5px;">
-              <li><strong>1. Facial colliculus:</strong> accompanied by abducent nucleus lesion.</li>
-              <li><strong>2. Cerebellopontine angle:</strong> accompanied by CN VIII lesion.</li>
-              <li><strong>3. Facial canal:</strong> may affect greater superficial petrosal nerve, chorda tympani &amp; nerve to stapedius.</li>
-              <li><strong>4. Stylomastoid foramen:</strong> ipsilateral paralysis of facial muscles only — without loss of lacrimation, salivation or taste.</li>
-            </ul>
-            <div class="section-title">Result</div>
-            <p style="font-size:13.5px; color:var(--text); margin-bottom:12px;">Paralysis of <strong>all</strong> muscles of facial expression on the <span class="tag tag-ipsi">same side</span> of the face.</p>
-            <div class="section-title">Signs</div>
-            <ul class="bullet-list">
-              <li><span class="tag tag-lmn">1</span> Paralysis of orbicularis oculi — patient cannot close eye → remains open → dryness of the eye.</li>
-              <li><span class="tag tag-lmn">2</span> Paralysis of frontal belly of occipitofrontalis — inability to raise the eyebrow &amp; loss of wrinkles of the forehead.</li>
-              <li><span class="tag tag-lmn">3</span> Paralysis of buccinator muscle — accumulation of food in the vestibule of mouth &amp; dribbling of saliva.</li>
-              <li><span class="tag tag-lmn">4</span> Paralysis of levators of mouth angle — dropping of the angle of the mouth &amp; loss of nasolabial fold.</li>
-              <li><span class="tag tag-lmn">5</span> Paralysis of orbicularis oris — patient can't whistle or blow.</li>
-              <li><span class="tag tag-lmn">6</span> Paralysis of stapedius — <strong style="color:var(--gold);">Hyperacusis</strong> (hypersensitivity to sounds; can't tolerate loud sounds).</li>
-              <li><span class="tag tag-lmn">7</span> Affection of chorda tympani — loss of taste of the anterior 2/3 of the tongue &amp; decreased salivation.</li>
-              <li><span class="tag tag-lmn">8</span> Affection of great superficial petrosal — loss of lacrimation.</li>
-            </ul>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <div class="divider"></div>
-
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <!-- 15. CN VIII -->
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <section class="chapter" id="cn8">
-      <div class="chapter-header">
-        <span class="chapter-num">15</span>
-        <h2 class="chapter-title">CN VIII — Vestibulocochlear Nerve Lesions</h2>
-      </div>
-
-      <div class="card">
-        <div class="card-head"><span class="icon icon-teal"></span><span class="card-head-title">Lesion of CN VIII produces</span></div>
-        <div class="card-body">
-          <div class="signs-grid">
-            <div class="sign-row">
-              <div class="sign-label">Deafness</div>
-              <div class="sign-value">Lesion in cochlear nerve.</div>
-            </div>
-            <div class="sign-row">
-              <div class="sign-label">Tinnitus, vertigo, dizziness, loss of balance, ataxia</div>
-              <div class="sign-value">Lesion in vestibular nerve.</div>
+          <div class="section-title">Trochlear — CN IV</div>
+          <div class="card">
+            <div class="card-body">
+              <div class="signs-grid">
+                <div class="sign-row">
+                  <div class="sign-label">In the nucleus</div>
+                  <div class="sign-value">Paralysis of <span class="tag tag-contra">contralateral</span> superior
+                    oblique.</div>
+                </div>
+                <div class="sign-row">
+                  <div class="sign-label">Nerve (outside brainstem)</div>
+                  <div class="sign-value">Paralysis of <span class="tag tag-ipsi">ipsilateral</span> muscle.</div>
+                </div>
+                <div class="sign-row">
+                  <div class="sign-label">Sign 1</div>
+                  <div class="sign-value">Inability to depress the adducted eye.</div>
+                </div>
+                <div class="sign-row">
+                  <div class="sign-label">Sign 2</div>
+                  <div class="sign-value">Diplopia in looking downward — causing difficulty in walking downstairs.</div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div class="section-title">Deafness — Laterality</div>
-      <div class="compare-grid">
-        <div class="card">
-          <div class="card-head"><span class="icon icon-red"></span><span class="card-head-title">Complete Ipsilateral Deafness</span></div>
-          <div class="card-body">
-            <p style="font-size:13px;color:var(--text2);margin-bottom:8px;">Caused by lesion in:</p>
-            <ul class="bullet-list">
-              <li>The cochlea</li>
-              <li>Cochlear nerve</li>
-              <li>Cochlear nuclei</li>
-            </ul>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-head"><span class="icon icon-blue"></span><span class="card-head-title">Bilateral Diminution (mainly contralateral)</span></div>
-          <div class="card-body">
-            <p style="font-size:13px;color:var(--text2);margin-bottom:8px;">Caused by lesion in:</p>
-            <ul class="bullet-list">
-              <li>Lateral lemniscus</li>
-              <li>Medial geniculate body (MGB)</li>
-              <li>Auditory area</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <div class="divider"></div>
-
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <!-- 16. CN IX -->
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <section class="chapter" id="cn9">
-      <div class="chapter-header">
-        <span class="chapter-num">16</span>
-        <h2 class="chapter-title">CN IX — Glossopharyngeal Nerve Lesion</h2>
-      </div>
-      <div class="card">
-        <div class="card-body">
-          <ul class="bullet-list">
-            <li>Loss of the gag reflex.</li>
-            <li>Loss of taste sensation from posterior third of the tongue.</li>
-            <li>Loss of carotid sinus reflex.</li>
-          </ul>
-          <div class="note-box">The gag reflex is tested by touching the back of the throat with a tongue depressor.</div>
-        </div>
-      </div>
-    </section>
-
-    <div class="divider"></div>
-
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <!-- 17. CN X -->
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <section class="chapter" id="cn10">
-      <div class="chapter-header">
-        <span class="chapter-num">17</span>
-        <h2 class="chapter-title">CN X — Vagus Nerve Lesion</h2>
-      </div>
-      <div class="card">
-        <div class="card-body">
-          <div class="section-title">1 — Paralysis of Muscles</div>
-          <table class="styled-table" style="margin-bottom:16px;">
-            <thead><tr><th>Structure</th><th>Clinical Result</th></tr></thead>
-            <tbody>
-              <tr><td class="td-key">Pharynx</td><td>Dysphagia &amp; loss of pharyngeal gag reflex.</td></tr>
-              <tr><td class="td-key">Larynx</td><td>Hoarseness of voice.</td></tr>
-              <tr><td class="td-key">Palate (lesion in nucleus ambiguus)</td><td>Regurgitation of food from the nose &amp; deviation of the uvula to the <strong style="color:var(--gold);">normal side</strong>.</td></tr>
-            </tbody>
-          </table>
-          <div class="section-title">2 — Anesthesia</div>
-          <ul class="bullet-list">
-            <li>Anesthesia of larynx → loss of the cough reflex.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <div class="divider"></div>
-
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <!-- 18. CN XI -->
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <section class="chapter" id="cn11">
-      <div class="chapter-header">
-        <span class="chapter-num">18</span>
-        <h2 class="chapter-title">CN XI — Accessory Nerve Lesion</h2>
-      </div>
-      <div class="card">
-        <div class="card-body">
-          <div class="signs-grid">
-            <div class="sign-row">
-              <div class="sign-label">Paralysis of Sternomastoid</div>
-              <div class="sign-value">Causes inability to rotate the face to the opposite side. Tested clinically by turning the face to the opposite side.</div>
-            </div>
-            <div class="sign-row">
-              <div class="sign-label">Paralysis of Trapezius</div>
-              <div class="sign-value">Causes inability to elevate the shoulder. Tested clinically by elevating shoulder against resistance.</div>
-            </div>
-            <div class="sign-row">
-              <div class="sign-label">Irritation of CN XI</div>
-              <div class="sign-value">May produce <strong style="color:var(--gold);">Torticollis.</strong></div>
+          <div class="section-title">Abducent — CN VI</div>
+          <div class="card">
+            <div class="card-body">
+              <div class="signs-grid">
+                <div class="sign-row">
+                  <div class="sign-label">Lesion</div>
+                  <div class="sign-value">Paralysis of the lateral rectus muscle → <strong
+                      style="color:var(--red);">internal strabismus (squint)</strong> by unopposed medial rectus muscle.
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <section class="chapter" id="cn7">
+          <div class="chapter-header">
+            <span class="chapter-num">14</span>
+            <h2 class="chapter-title">CN VII — Facial Nerve Lesions</h2>
+          </div>
+
+          <div class="compare-grid">
+
+            <div class="card">
+              <div class="card-head"
+                style="background:rgba(79,142,247,0.12); border-bottom-color:rgba(79,142,247,0.2);">
+                <span class="icon icon-blue"></span>
+                <span class="card-head-title">Upper Motor Neuron Lesion</span>
+              </div>
+              <div class="card-body">
+                <div class="cause-box"><strong>Cause:</strong> Lesion in corticobulbar tract above the level of facial
+                  nucleus, or lesion in the motor cortex.</div>
+                <div class="section-title">Result</div>
+                <p style="font-size:13.5px; color:var(--text); margin-bottom:12px;">Paralysis of facial muscles of the
+                  lower ½ of the <span class="tag tag-contra">opposite side</span> of the face.</p>
+                <div class="section-title">Signs of Lesion</div>
+                <ul class="bullet-list">
+                  <li><span class="tag tag-lmn"
+                      style="background:rgba(79,142,247,0.15);color:var(--accent2);border-color:rgba(79,142,247,0.3);">1</span>
+                    Paralysis of buccinator muscle — accumulation of food in vestibule of mouth &amp; dribbling of
+                    saliva.</li>
+                  <li><span class="tag tag-lmn"
+                      style="background:rgba(79,142,247,0.15);color:var(--accent2);border-color:rgba(79,142,247,0.3);">2</span>
+                    Paralysis of levators of mouth angle — dropping of the angle of the mouth &amp; loss of nasolabial
+                    fold.</li>
+                  <li><span class="tag tag-lmn"
+                      style="background:rgba(79,142,247,0.15);color:var(--accent2);border-color:rgba(79,142,247,0.3);">3</span>
+                    Paralysis of orbicularis oris — patient can't whistle or blow.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head" style="background:rgba(224,92,92,0.1); border-bottom-color:rgba(224,92,92,0.2);">
+                <span class="icon icon-red"></span>
+                <span class="card-head-title">Lower Motor Neuron Lesion</span>
+              </div>
+              <div class="card-body">
+                <div class="cause-box"><strong>Cause:</strong> Lesion of the facial nerve or in the facial nucleus — may
+                  be located at any level.</div>
+                <p style="font-size:12px;font-family:'DM Mono',monospace;color:var(--text3);margin-bottom:6px;">Levels:
+                </p>
+                <ul class="bullet-list" style="margin-bottom:12px;font-size:12.5px;">
+                  <li><strong>1. Facial colliculus:</strong> accompanied by abducent nucleus lesion.</li>
+                  <li><strong>2. Cerebellopontine angle:</strong> accompanied by CN VIII lesion.</li>
+                  <li><strong>3. Facial canal:</strong> may affect greater superficial petrosal nerve, chorda tympani
+                    &amp; nerve to stapedius.</li>
+                  <li><strong>4. Stylomastoid foramen:</strong> ipsilateral paralysis of facial muscles only — without
+                    loss of lacrimation, salivation or taste.</li>
+                </ul>
+                <div class="section-title">Result</div>
+                <p style="font-size:13.5px; color:var(--text); margin-bottom:12px;">Paralysis of <strong>all</strong>
+                  muscles of facial expression on the <span class="tag tag-ipsi">same side</span> of the face.</p>
+                <div class="section-title">Signs</div>
+                <ul class="bullet-list">
+                  <li><span class="tag tag-lmn">1</span> Paralysis of orbicularis oculi — patient cannot close eye →
+                    remains open → dryness of the eye.</li>
+                  <li><span class="tag tag-lmn">2</span> Paralysis of frontal belly of occipitofrontalis — inability to
+                    raise the eyebrow &amp; loss of wrinkles of the forehead.</li>
+                  <li><span class="tag tag-lmn">3</span> Paralysis of buccinator muscle — accumulation of food in the
+                    vestibule of mouth &amp; dribbling of saliva.</li>
+                  <li><span class="tag tag-lmn">4</span> Paralysis of levators of mouth angle — dropping of the angle of
+                    the mouth &amp; loss of nasolabial fold.</li>
+                  <li><span class="tag tag-lmn">5</span> Paralysis of orbicularis oris — patient can't whistle or blow.
+                  </li>
+                  <li><span class="tag tag-lmn">6</span> Paralysis of stapedius — <strong
+                      style="color:var(--gold);">Hyperacusis</strong> (hypersensitivity to sounds; can't tolerate loud
+                    sounds).</li>
+                  <li><span class="tag tag-lmn">7</span> Affection of chorda tympani — loss of taste of the anterior 2/3
+                    of the tongue &amp; decreased salivation.</li>
+                  <li><span class="tag tag-lmn">8</span> Affection of great superficial petrosal — loss of lacrimation.
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <section class="chapter" id="cn8">
+          <div class="chapter-header">
+            <span class="chapter-num">15</span>
+            <h2 class="chapter-title">CN VIII — Vestibulocochlear Nerve Lesions</h2>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><span class="icon icon-teal"></span><span class="card-head-title">Lesion of CN VIII
+                produces</span></div>
+            <div class="card-body">
+              <div class="signs-grid">
+                <div class="sign-row">
+                  <div class="sign-label">Deafness</div>
+                  <div class="sign-value">Lesion in cochlear nerve.</div>
+                </div>
+                <div class="sign-row">
+                  <div class="sign-label">Tinnitus, vertigo, dizziness, loss of balance, ataxia</div>
+                  <div class="sign-value">Lesion in vestibular nerve.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-title">Deafness — Laterality</div>
+          <div class="compare-grid">
+            <div class="card">
+              <div class="card-head"><span class="icon icon-red"></span><span class="card-head-title">Complete
+                  Ipsilateral Deafness</span></div>
+              <div class="card-body">
+                <p style="font-size:13px;color:var(--text2);margin-bottom:8px;">Caused by lesion in:</p>
+                <ul class="bullet-list">
+                  <li>The cochlea</li>
+                  <li>Cochlear nerve</li>
+                  <li>Cochlear nuclei</li>
+                </ul>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head"><span class="icon icon-blue"></span><span class="card-head-title">Bilateral
+                  Diminution (mainly contralateral)</span></div>
+              <div class="card-body">
+                <p style="font-size:13px;color:var(--text2);margin-bottom:8px;">Caused by lesion in:</p>
+                <ul class="bullet-list">
+                  <li>Lateral lemniscus</li>
+                  <li>Medial geniculate body (MGB)</li>
+                  <li>Auditory area</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <section class="chapter" id="cn9">
+          <div class="chapter-header">
+            <span class="chapter-num">16</span>
+            <h2 class="chapter-title">CN IX — Glossopharyngeal Nerve Lesion</h2>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <ul class="bullet-list">
+                <li>Loss of the gag reflex.</li>
+                <li>Loss of taste sensation from posterior third of the tongue.</li>
+                <li>Loss of carotid sinus reflex.</li>
+              </ul>
+              <div class="note-box">The gag reflex is tested by touching the back of the throat with a tongue depressor.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <section class="chapter" id="cn10">
+          <div class="chapter-header">
+            <span class="chapter-num">17</span>
+            <h2 class="chapter-title">CN X — Vagus Nerve Lesion</h2>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="section-title">1 — Paralysis of Muscles</div>
+              <table class="styled-table" style="margin-bottom:16px;">
+                <thead>
+                  <tr>
+                    <th>Structure</th>
+                    <th>Clinical Result</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="td-key">Pharynx</td>
+                    <td>Dysphagia &amp; loss of pharyngeal gag reflex.</td>
+                  </tr>
+                  <tr>
+                    <td class="td-key">Larynx</td>
+                    <td>Hoarseness of voice.</td>
+                  </tr>
+                  <tr>
+                    <td class="td-key">Palate (lesion in nucleus ambiguus)</td>
+                    <td>Regurgitation of food from the nose &amp; deviation of the uvula to the <strong
+                        style="color:var(--gold);">normal side</strong>.</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="section-title">2 — Anesthesia</div>
+              <ul class="bullet-list">
+                <li>Anesthesia of larynx → loss of the cough reflex.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <section class="chapter" id="cn11">
+          <div class="chapter-header">
+            <span class="chapter-num">18</span>
+            <h2 class="chapter-title">CN XI — Accessory Nerve Lesion</h2>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="signs-grid">
+                <div class="sign-row">
+                  <div class="sign-label">Paralysis of Sternomastoid</div>
+                  <div class="sign-value">Causes inability to rotate the face to the opposite side. Tested clinically by
+                    turning the face to the opposite side.</div>
+                </div>
+                <div class="sign-row">
+                  <div class="sign-label">Paralysis of Trapezius</div>
+                  <div class="sign-value">Causes inability to elevate the shoulder. Tested clinically by elevating
+                    shoulder against resistance.</div>
+                </div>
+                <div class="sign-row">
+                  <div class="sign-label">Irritation of CN XI</div>
+                  <div class="sign-value">May produce <strong style="color:var(--gold);">Torticollis.</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <section class="chapter" id="cn12">
+          <div class="chapter-header">
+            <span class="chapter-num">19</span>
+            <h2 class="chapter-title">CN XII — Hypoglossal Nerve Lesion</h2>
+          </div>
+          <div class="cause-box" style="margin-bottom:16px;"><strong>Clinical test:</strong> Ask the patient to protrude
+            the tongue outwards.</div>
+          <div class="card">
+            <div class="card-body">
+              <table class="styled-table">
+                <thead>
+                  <tr>
+                    <th>Type of Lesion</th>
+                    <th>Tongue Deviation</th>
+                    <th>Wasting?</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="td-key">LMNL</td>
+                    <td>Deviated to the <span class="tag tag-ipsi">same side</span> — by the effect of the unopposed
+                      contralateral genioglossus muscle.</td>
+                    <td style="color:var(--red);">Yes — wasting of the tongue.</td>
+                  </tr>
+                  <tr>
+                    <td class="td-key">UMNL of CN XII</td>
+                    <td>Deviated to the <span class="tag tag-contra">contralateral side</span>.</td>
+                    <td style="color:var(--green);">No wasting.</td>
+                  </tr>
+                  <tr>
+                    <td class="td-key">Bilateral CN XII lesion</td>
+                    <td>Tongue lies motionless.</td>
+                    <td>Slow articulation &amp; difficult swallowing.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+    <div id="quiz-page">
+      <div class="quiz-hero">
+        <div class="hero-tag" style="margin-bottom:14px;">27 Clinical Cases · MU</div>
+        <h2>Clinical <em>Case Quiz</em></h2>
+        <p>Real MCQ cases. Select your answer and see the full explanation instantly.</p>
+      </div>
+
+      <div class="quiz-hud">
+        <div class="hud-item">
+          <span class="hud-val correct-col" id="hud-correct">0</span>
+          <span class="hud-label">Correct</span>
+        </div>
+        <div class="hud-divider"></div>
+        <div class="hud-item">
+          <span class="hud-val wrong-col" id="hud-wrong">0</span>
+          <span class="hud-label">Wrong</span>
+        </div>
+        <div class="hud-divider"></div>
+        <div class="hud-item">
+          <span class="hud-val streak-col" id="hud-streak">0</span>
+          <span class="hud-label">🔥 Streak</span>
+        </div>
+        <div class="hud-divider"></div>
+        <div class="hud-progress-wrap">
+          <div class="hud-progress-label" id="hud-progress-label">0 / 27 answered</div>
+          <div class="hud-progress-bar">
+            <div class="hud-progress-fill" id="hud-fill" style="width:0%"></div>
+          </div>
         </div>
       </div>
-    </section>
 
-    <div class="divider"></div>
+      <div id="cases-container"></div>
 
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <!-- 19. CN XII -->
-    <!-- ══════════════════════════════════════════════════════════ -->
-    <section class="chapter" id="cn12">
-      <div class="chapter-header">
-        <span class="chapter-num">19</span>
-        <h2 class="chapter-title">CN XII — Hypoglossal Nerve Lesion</h2>
-      </div>
-      <div class="cause-box" style="margin-bottom:16px;"><strong>Clinical test:</strong> Ask the patient to protrude the tongue outwards.</div>
-      <div class="card">
-        <div class="card-body">
-          <table class="styled-table">
-            <thead><tr><th>Type of Lesion</th><th>Tongue Deviation</th><th>Wasting?</th></tr></thead>
-            <tbody>
-              <tr>
-                <td class="td-key">LMNL</td>
-                <td>Deviated to the <span class="tag tag-ipsi">same side</span> — by the effect of the unopposed contralateral genioglossus muscle.</td>
-                <td style="color:var(--red);">Yes — wasting of the tongue.</td>
-              </tr>
-              <tr>
-                <td class="td-key">UMNL of CN XII</td>
-                <td>Deviated to the <span class="tag tag-contra">contralateral side</span>.</td>
-                <td style="color:var(--green);">No wasting.</td>
-              </tr>
-              <tr>
-                <td class="td-key">Bilateral CN XII lesion</td>
-                <td>Tongue lies motionless.</td>
-                <td>Slow articulation &amp; difficult swallowing.</td>
-              </tr>
-            </tbody>
-          </table>
+      <div id="results-screen">
+        <div class="results-ring">
+          <svg viewBox="0 0 120 120" width="140" height="140">
+            <circle class="ring-bg" cx="60" cy="60" r="55" />
+            <circle class="ring-fill" id="ring-fill" cx="60" cy="60" r="55" />
+          </svg>
+          <div class="ring-pct">
+            <span class="ring-pct-val" id="ring-pct-val">0%</span>
+            <span class="ring-pct-label">Score</span>
+          </div>
         </div>
+        <div class="results-title" id="results-title">Quiz Complete!</div>
+        <div class="results-sub" id="results-sub"></div>
+        <div class="results-grid">
+          <div class="results-stat">
+            <div class="val" id="r-correct" style="color:var(--green)">0</div>
+            <div class="lbl">Correct</div>
+          </div>
+          <div class="results-stat">
+            <div class="val" id="r-wrong" style="color:var(--red)">0</div>
+            <div class="lbl">Wrong</div>
+          </div>
+          <div class="results-stat">
+            <div class="val" id="r-streak" style="color:var(--gold)">0</div>
+            <div class="lbl">Best Streak</div>
+          </div>
+          <div class="results-stat">
+            <div class="val" id="r-pct" style="color:var(--accent2)">0%</div>
+            <div class="lbl">Accuracy</div>
+          </div>
+        </div>
+        <button class="retry-btn" onclick="resetQuiz()">↺ &nbsp; Retake Quiz</button>
       </div>
-    </section>
+    </div>
 
-  </div><!-- /content -->
+  </div>
+  <div id="streak-toast">🔥 <span id="streak-toast-text"></span></div>
 
- 
+  <script>
+    // ════════════════════════════════════════════════════════════
+    // TAB SWITCHING
+    // ════════════════════════════════════════════════════════════
+    function switchTab(tab) {
+      const refPage = document.getElementById('ref-page');
+      const quizPage = document.getElementById('quiz-page');
+      const refNav = document.getElementById('ref-nav');
+      const quizNav = document.getElementById('quiz-nav');
+      const tabRef = document.getElementById('tab-ref');
+      const tabQuiz = document.getElementById('tab-quiz');
 
-</div><!-- /main -->
-
-<script>
-  // Progress bar
-  const prog = document.getElementById('progress');
-  window.addEventListener('scroll', () => {
-    const h = document.documentElement;
-    const pct = h.scrollTop / (h.scrollHeight - h.clientHeight);
-    prog.style.transform = `scaleX(${pct})`;
-  });
-
-  // Active nav highlight
-  const links = document.querySelectorAll('.nav-link');
-  const sections = document.querySelectorAll('.chapter');
-
-  const obs = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        const id = e.target.id;
-        links.forEach(l => {
-          l.classList.toggle('active', l.getAttribute('href') === '#' + id);
-        });
+      if (tab === 'ref') {
+        refPage.classList.remove('hidden');
+        quizPage.classList.remove('visible');
+        refNav.style.display = 'block';
+        quizNav.style.display = 'none';
+        tabRef.classList.add('active');
+        tabQuiz.classList.remove('active');
+      } else {
+        refPage.classList.add('hidden');
+        quizPage.classList.add('visible');
+        refNav.style.display = 'none';
+        quizNav.style.display = 'block';
+        tabRef.classList.remove('active');
+        tabQuiz.classList.add('active');
+        if (!quizBuilt) buildQuiz();
       }
-    });
-  }, { rootMargin: '-20% 0px -70% 0px' });
+    }
 
-  sections.forEach(s => obs.observe(s));
-</script>
+    // ════════════════════════════════════════════════════════════
+    // PROGRESS BAR (reference page)
+    // ════════════════════════════════════════════════════════════
+    const prog = document.getElementById('progress');
+    window.addEventListener('scroll', () => {
+      const h = document.documentElement;
+      const pct = h.scrollTop / (h.scrollHeight - h.clientHeight);
+      prog.style.transform = `scaleX(${pct})`;
+    });
+
+    // Active nav highlight
+    const links = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.chapter');
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const id = e.target.id;
+          links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    sections.forEach(s => obs.observe(s));
+
+    // ════════════════════════════════════════════════════════════
+    // QUIZ DATA — 27 cases from the PDF
+    // ════════════════════════════════════════════════════════════
+    const CASES = [
+      {
+        id: 1,
+        stem: `A <strong>66-year-old man</strong> with type 2 diabetes mellitus and hypertension is brought to the ED 30 minutes after sudden onset of left eyelid drooping, double vision, and mild weakness of the right hand and leg. BP is 159/99 mm Hg. Examination shows a substantially droopy left eyelid; in primary gaze, the left eye is exotropic and somewhat lower than the right. He has slowed finger movements on the right, a pronator drift with the right hand, and mild hyperreflexia on the right.`,
+        question: `Which of the following is the most likely site and diagnosis of this patient's lesion?`,
+        options: [
+          { letter: 'A', text: 'Angular gyrus (Gerstmann syndrome)' },
+          { letter: 'B', text: 'Dorsolateral thalamus (Dejerine-Roussy syndrome)' },
+          { letter: 'C', text: 'Lower medulla (Wallenberg syndrome)' },
+          { letter: 'D', text: 'Lower midbrain (Weber syndrome)' },
+          { letter: 'E', text: 'Upper spinal cord (Horner syndrome)' },
+        ],
+        correct: 'D',
+        explanation: `The patient has an <strong>ipsilateral LMNL of CN III on the left</strong> (ptosis, eye deviated downward and laterally) combined with <strong>contralateral UMNL hemiplegia on the right</strong> (weakness, pronator drift, hyperreflexia). This is the classic presentation of <strong>Weber's Syndrome</strong>, caused by a lesion in the midbrain affecting the oculomotor nerve and the crus cerebri.`,
+        tag: 'Weber\'s Syndrome',
+      },
+      {
+        id: 2,
+        stem: `A <strong>70-year-old man</strong> presents with sudden-onset weakness in his right arm and leg. He can speak but cannot pronounce words clearly. BP is 170/96 mm Hg. Neurologic exam shows 3/5 strength in both right upper and lower extremities. When asked to stick out his tongue, it deviates to the <strong>left</strong>. Sensory examination shows no abnormalities.`,
+        question: `Which of the following is the most likely location of this patient's brain injury?`,
+        options: [
+          { letter: 'A', text: 'Left lateral medulla' },
+          { letter: 'B', text: 'Left medial medulla' },
+          { letter: 'C', text: 'Left precentral gyrus' },
+          { letter: 'D', text: 'Right lateral medulla' },
+          { letter: 'E', text: 'Right medial medulla' },
+          { letter: 'F', text: 'Right precentral gyrus' },
+        ],
+        correct: 'B',
+        explanation: `Contralateral hemiplegia (right-sided weakness) from corticospinal tract affection + ipsilateral LMN tongue deviation to the <strong>left</strong> (tongue deviates to the affected side in LMNL of CN XII, by the unopposed contralateral genioglossus). This triad = <strong>Medial Medullary Syndrome</strong>, caused by occlusion of the anterior spinal artery.`,
+        tag: 'Medial Medullary Syndrome',
+      },
+      {
+        id: 3,
+        stem: `A <strong>76-year-old woman</strong> presents with sudden-onset vertigo and difficulty swallowing for an hour. BP is 160/90 mm Hg. She is alert and oriented. Exam shows decreased pain and temperature on the <strong>left side of the face</strong> and <strong>right side of the body</strong>. The gag reflex is absent on the left. Muscle strength is 5/5 in all 4 extremities.`,
+        question: `This patient's lesion is most likely located in which of the following areas?`,
+        options: [
+          { letter: 'A', text: 'Left lateral medulla' },
+          { letter: 'B', text: 'Left medial medulla' },
+          { letter: 'C', text: 'Left midbrain' },
+          { letter: 'D', text: 'Right lateral medulla' },
+          { letter: 'E', text: 'Right medial medulla' },
+          { letter: 'F', text: 'Right midbrain' },
+        ],
+        correct: 'A',
+        explanation: `<strong>Wallenberg Syndrome (PICA occlusion).</strong> Loss of pain & temperature on the <strong>same side of the face</strong> (spinal trigeminal nucleus) and <strong>opposite side of the body</strong> (lateral spinothalamic tract). Absent gag reflex + dysphagia = nucleus ambiguus affection. Vertigo = vestibular nuclei involvement. No hemiplegia (pyramids spared). Lesion is in the left lateral medulla.`,
+        tag: 'Wallenberg Syndrome',
+      },
+      {
+        id: 4,
+        stem: `A <strong>35-year-old woman</strong> with migraines has neuroimaging revealing a small aneurysm arising from the segment of the <strong>right internal carotid artery within the cavernous sinus</strong>. She currently has no focal neurological deficits.`,
+        question: `If this patient's aneurysm continues to expand, which of the following findings is most likely to be observed?`,
+        options: [
+          { letter: 'A', text: 'Deviation of the tongue to the right when protruded' },
+          { letter: 'B', text: 'Inability to contract the right orbicularis oculi' },
+          { letter: 'C', text: 'Loss of sensation from anterior two-thirds of the tongue' },
+          { letter: 'D', text: 'Vision defect affecting the left half of the visual field' },
+          { letter: 'E', text: 'Weakness of the right lateral rectus muscle' },
+        ],
+        correct: 'E',
+        explanation: `The cavernous sinus contains CN III, IV, VI, and branches of CN V. The <strong>abducens nerve (CN VI)</strong> sits freely within the sinus directly adjacent to the internal carotid artery and is compressed first by an expanding aneurysm. This causes paralysis of the lateral rectus → <strong>internal strabismus (squint)</strong> due to unopposed medial rectus.`,
+        tag: 'Cavernous Sinus / CN VI',
+      },
+      {
+        id: 5,
+        stem: `A <strong>34-year-old woman</strong> presents with progressive diplopia. Light in her right eye constricts the right pupil only. Light in her left eye constricts <strong>only her right pupil</strong>. The left pupil never constricts regardless of which eye is illuminated.`,
+        question: `Which of the following additional findings is likely to be found in this patient?`,
+        options: [
+          { letter: 'A', text: 'Absence of the left corneal reflex' },
+          { letter: 'B', text: 'Drooping of the left eyelid' },
+          { letter: 'C', text: 'Inability to close the left eye' },
+          { letter: 'D', text: 'Inward deviation of the left eye' },
+          { letter: 'E', text: 'Visual loss in the left eye' },
+        ],
+        correct: 'B',
+        explanation: `The afferent pathway is intact bilaterally, but the efferent limb is defective on the left side — the left pupil never constricts. The efferent limb of the pupillary reflex is mediated by <strong>CN III</strong>. A CN III lesion also paralyses the <strong>levator palpebrae</strong>, producing <strong>ptosis (drooping) of the left eyelid</strong>, and the constrictor pupillae (causing mydriasis).`,
+        tag: 'CN III Lesion',
+      },
+      {
+        id: 6,
+        stem: `A <strong>65-year-old man</strong> is resuscitated after cardiac arrest with ventricular fibrillation. After 72 hours post-rewarming, he remains comatose with <strong>fixed and dilated pupils</strong>. There is no direct or consensual pupillary response to light. MRI shows diffuse grey-white matter loss.`,
+        question: `Damage to which of the following areas is the most likely cause of this patient's pupillary findings?`,
+        options: [
+          { letter: 'A', text: 'Medulla' },
+          { letter: 'B', text: 'Midbrain' },
+          { letter: 'C', text: 'Occipital lobe' },
+          { letter: 'D', text: 'Parietal lobe' },
+          { letter: 'E', text: 'Pons' },
+          { letter: 'F', text: 'Temporal lobe' },
+          { letter: 'G', text: 'Thalamus' },
+        ],
+        correct: 'B',
+        explanation: `Fixed and dilated pupils = loss of parasympathetic innervation to the pupillary sphincter. <strong>CN III originates in the midbrain</strong> and is responsible for pupillary constriction via the constrictor pupillae muscle. Hypoxic-ischemic injury to the midbrain disrupts these reflex pathways.`,
+        tag: 'Midbrain / CN III',
+      },
+      {
+        id: 7,
+        stem: `A <strong>67-year-old woman</strong> with lung cancer presents with hoarseness and difficulty swallowing. On exam: loss of gag reflex on the left; uvula deviates to the <strong>right</strong> on saying "ah." Her left shoulder is drooped with reduced strength on shoulder shrug. Chest X-ray shows right lower lobe mass.`,
+        question: `A lesion involving which of the following anatomical structures is most likely responsible?`,
+        options: [
+          { letter: 'A', text: 'Cerebellopontine angle' },
+          { letter: 'B', text: 'Foramen magnum' },
+          { letter: 'C', text: 'Foramen ovale' },
+          { letter: 'D', text: 'Foramen rotundum' },
+          { letter: 'E', text: 'Hypoglossal canal' },
+          { letter: 'F', text: 'Jugular foramen' },
+        ],
+        correct: 'F',
+        explanation: `Multiple cranial nerve palsies: <strong>CN IX</strong> (absent gag reflex) + <strong>CN X</strong> (dysphagia, hoarseness, uvula to normal side) + <strong>CN XI</strong> (cannot elevate shoulder). These three nerves exit the skull together through the <strong>jugular foramen</strong>.`,
+        tag: 'Jugular Foramen (CN IX, X, XI)',
+      },
+      {
+        id: 8,
+        stem: `A <strong>48-year-old man</strong> with fever, purulent nasal drainage, and type 2 DM presents with ptosis, mydriasis, mild proptosis, and loss of the corneal reflex of the <strong>right eye</strong>. He cannot move the right eye in any direction. Decreased sensation in the right upper face.`,
+        question: `Which of the following structures is most likely involved?`,
+        options: [
+          { letter: 'A', text: 'Brainstem' },
+          { letter: 'B', text: 'Cavernous sinus' },
+          { letter: 'C', text: 'Frontal lobe of brain' },
+          { letter: 'D', text: 'Inferior orbital fissure' },
+          { letter: 'E', text: 'Jugular foramen' },
+          { letter: 'F', text: 'Optic chiasm' },
+        ],
+        correct: 'B',
+        explanation: `Total right-sided ophthalmoplegia (CN III, IV, VI all affected) + mydriasis/ptosis + loss of corneal reflex and facial sensation (CN V ophthalmic/maxillary branches) all point to the <strong>cavernous sinus</strong>. Infection from paranasal sinuses caused <strong>cavernous sinus thrombosis</strong>.`,
+        tag: 'Cavernous Sinus Thrombosis',
+      },
+      {
+        id: 9,
+        stem: `A <strong>24-year-old man</strong> presents with worsening headaches, nausea, and double vision over several weeks. Neurological exam reveals <strong>bilateral paralysis of upward gaze</strong>. Pupils accommodate to near vision but do not constrict to light.`,
+        question: `A mass lesion in which of the following locations is most likely responsible?`,
+        options: [
+          { letter: 'A', text: 'Cerebellopontine angle' },
+          { letter: 'B', text: 'Pineal gland' },
+          { letter: 'C', text: 'Subthalamic nucleus' },
+          { letter: 'D', text: 'Medial medulla' },
+          { letter: 'E', text: 'Anterior pituitary' },
+        ],
+        correct: 'B',
+        explanation: `<strong>Parinaud Syndrome (dorsal midbrain syndrome).</strong> Hallmark sign: <strong>paralysis of upward gaze</strong>. Most commonly caused by a <strong>pineal gland tumor (pinealoma)</strong> compressing the posterior commissure in the dorsal midbrain.`,
+        tag: 'Parinaud Syndrome',
+      },
+      {
+        id: 10,
+        stem: `A <strong>62-year-old woman</strong> with prior ischemic stroke and poorly controlled hypertension is brought to the ED with uncontrollable thrashing movements. On exam: sudden, violent, involuntary flailing movements localized entirely to her <strong>left arm and leg</strong>.`,
+        question: `An acute ischemic event affecting which of the following structures is the most likely cause?`,
+        options: [
+          { letter: 'A', text: 'Left substantia nigra' },
+          { letter: 'B', text: 'Right lentiform nucleus' },
+          { letter: 'C', text: 'Right subthalamic nucleus' },
+          { letter: 'D', text: 'Left internal capsule' },
+          { letter: 'E', text: 'Right cerebellum' },
+        ],
+        correct: 'C',
+        explanation: `<strong>Hemiballismus</strong> — sudden, violent, involuntary flailing movements of one arm and leg. Caused by damage to the <strong>subthalamic nucleus</strong> or its connections with the lentiform nucleus. Extrapyramidal pathways cross, so a lesion in the <strong>right</strong> subthalamic nucleus produces hemiballismus on the <strong>contralateral (left)</strong> side.`,
+        tag: 'Hemiballismus',
+      },
+      {
+        id: 11,
+        stem: `A <strong>58-year-old man</strong> arrives with sudden right-sided weakness. Exam shows right-sided hemiplegia. Cranial nerve assessment reveals <strong>complete paralysis of all muscles of facial expression on the left</strong> — he cannot close his left eye, raise his left eyebrow, or smile on the left. His left eye also displays an <strong>internal strabismus</strong>.`,
+        question: `Occlusion of which of the following arteries is most likely responsible?`,
+        options: [
+          { letter: 'A', text: 'Anterior spinal artery' },
+          { letter: 'B', text: 'Posterior cerebral artery' },
+          { letter: 'C', text: 'Paramedian branches of the basilar artery' },
+          { letter: 'D', text: 'Short circumferential artery' },
+          { letter: 'E', text: 'Posterior inferior cerebellar artery (PICA)' },
+        ],
+        correct: 'C',
+        explanation: `<strong>Caudal Basal Pontine Syndrome (Millard-Gubler)</strong>. Caused by <strong>occlusion of the paramedian branches of the basilar artery</strong>. Damages: corticospinal tract (contralateral hemiplegia) + CN VII (ipsilateral LMN facial palsy — all muscles) + CN VI (internal strabismus).`,
+        tag: 'Caudal Basal Pontine Syndrome',
+      },
+      {
+        id: 12,
+        stem: `A <strong>72-year-old man</strong> after a stroke exhibits profound left-sided weakness. He also has left-sided sensory loss affecting all modalities. Visual field testing shows left-sided homonymous hemianopia. Hearing is bilaterally diminished.`,
+        question: `A focal lesion in which of the following structures best accounts for this complete array of deficits?`,
+        options: [
+          { letter: 'A', text: 'Corpus callosum' },
+          { letter: 'B', text: 'Rostral pons' },
+          { letter: 'C', text: 'Internal capsule (posterior limb)' },
+          { letter: 'D', text: 'Midbrain tegmentum' },
+          { letter: 'E', text: 'Substantia nigra' },
+        ],
+        correct: 'C',
+        explanation: `The <strong>posterior limb of the internal capsule</strong> carries dense fiber tracts. CVA here causes: corticospinal tract → contralateral hemiplegia; main sensory thalamic radiation → contralateral hemianesthesia; optic radiation → contralateral homonymous hemianopia; auditory radiation → bilateral diminution of hearing.`,
+        tag: 'Internal Capsule CVA',
+      },
+      {
+        id: 13,
+        stem: `A <strong>61-year-old man</strong> with sudden-onset left-sided hemiplegia with hyperreflexia and upward Babinski. Cranial nerve assessment reveals loss of sensation to fine touch and pain on the <strong>right side of his face</strong>. When he clenches his jaw, there is weakness and deviation of the jaw to the <strong>right side</strong>. Neuroimaging shows brainstem ischemic stroke.`,
+        question: `Which of the following blood vessels is most likely occluded?`,
+        options: [
+          { letter: 'A', text: 'Paramedian branches of the basilar artery' },
+          { letter: 'B', text: 'Short circumferential artery' },
+          { letter: 'C', text: 'Posterior inferior cerebellar artery (PICA)' },
+          { letter: 'D', text: 'Anterior spinal artery' },
+          { letter: 'E', text: 'Posterior cerebral artery' },
+        ],
+        correct: 'B',
+        explanation: `<strong>Rostral Basal Pontine Syndrome.</strong> Caused by <strong>occlusion of the short circumferential artery</strong>. Damages: corticospinal tract (contralateral UMNL hemiplegia) + trigeminal nerve CN V (ipsilateral loss of facial sensation and ipsilateral paralysis of muscles of mastication — jaw deviates to the same ipsilateral side in LMN lesion).`,
+        tag: 'Rostral Basal Pontine Syndrome',
+      },
+      {
+        id: 14,
+        stem: `A <strong>69-year-old woman</strong> presents with double vision and unsteady gait. Her <strong>right pupil is dilated and fixed</strong> to light. Her right upper eyelid has significant ptosis. Her right eye rests downward and laterally. Neurological assessment shows <strong>no weakness</strong> but significant rigidity and coarse low-frequency <strong>resting tremors isolated to her left arm and leg</strong>.`,
+        question: `A localized lesion in which of the following anatomical regions best explains this patient's presentation?`,
+        options: [
+          { letter: 'A', text: 'Crus cerebri of the midbrain' },
+          { letter: 'B', text: 'Dorsal midbrain tectum' },
+          { letter: 'C', text: 'Tegmentum of the midbrain' },
+          { letter: 'D', text: 'Lateral medulla' },
+          { letter: 'E', text: 'Caudal basilar pons' },
+        ],
+        correct: 'C',
+        explanation: `<strong>Benedikt Syndrome</strong> — lesion in the <strong>tegmentum of the midbrain</strong>. Damages: oculomotor nucleus (ipsilateral LMNL of CN III: ptosis, mydriasis, eye down & out) + red nucleus (contralateral extrapyramidal signs: rigidity and tremors). Key distinction from Weber: Benedikt has extrapyramidal signs (not hemiplegia).`,
+        tag: 'Benedikt Syndrome',
+      },
+      {
+        id: 15,
+        stem: `A <strong>42-year-old right-handed man</strong> undergoes corpus callosum sectioning for intractable epilepsy. Post-operatively, he can execute complex verbal requests using his right hand. However, when given verbal commands to execute physical actions with his <strong>left hand</strong> (e.g., "salute," "wave goodbye"), he is entirely unable to perform them despite normal motor strength.`,
+        question: `This specific neurocognitive deficit is best classified as which of the following?`,
+        options: [
+          { letter: 'A', text: 'Dysmetria' },
+          { letter: 'B', text: 'Callosal apraxia' },
+          { letter: 'C', text: 'Hemiballismus' },
+          { letter: 'D', text: 'Ataxia' },
+          { letter: 'E', text: 'Torticollis' },
+        ],
+        correct: 'B',
+        explanation: `The corpus callosum enables interhemispheric transfer of information. When severed, <strong>verbal commands</strong> (processed in the dominant left hemisphere) cannot cross to reach the right motor cortex that controls the left hand. The patient experiences <strong>callosal apraxia</strong> — inability to execute verbal commands with the left hand.`,
+        tag: 'Callosal Apraxia',
+      },
+      {
+        id: 16,
+        stem: `A <strong>33-year-old woman</strong> following viral encephalitis shows: complete loss of fear, anger, and aggressive responses; severe anterograde memory deficits; markedly increased appetite (hyperphagia); and abnormal hypersexual behavior.`,
+        question: `Destruction of which pair of structures within the limbic system is most directly responsible for this presentation?`,
+        options: [
+          { letter: 'A', text: 'Bilateral subthalamic nuclei' },
+          { letter: 'B', text: 'Bilateral amygdaloid nuclei and hippocampi' },
+          { letter: 'C', text: 'Unilateral left internal capsule and thalamus' },
+          { letter: 'D', text: 'Bilateral substantia nigra and striatum' },
+          { letter: 'E', text: 'Bilateral facial colliculi' },
+        ],
+        correct: 'B',
+        explanation: `Lesion of the <strong>hippocampus</strong> → loss of memory. Lesion of the <strong>amygdaloid nucleus</strong> → loss of aggressive behavior, fear, and anger. <strong>Bilateral lesion of both</strong> → increased appetite and abnormal hypersexual behavior. Classic finding after HSV encephalitis affecting temporal lobes.`,
+        tag: 'Limbic System Lesion',
+      },
+      {
+        id: 17,
+        stem: `A <strong>55-year-old man</strong> complains of clumsiness and dropping objects. On finger-nose testing, his hand <strong>shakes violently as it approaches the target</strong>, but the shaking stops completely when his arm is at rest. He consistently overreaches or underreaches. His gait shows profound incoordination of lower limb muscles.`,
+        question: `Damage to which of the following areas is the most likely cause?`,
+        options: [
+          { letter: 'A', text: 'Basal ganglia' },
+          { letter: 'B', text: 'Cerebellum' },
+          { letter: 'C', text: 'Motor cortex' },
+          { letter: 'D', text: 'Subthalamic nucleus' },
+          { letter: 'E', text: 'Thalamus' },
+        ],
+        correct: 'B',
+        explanation: `Classic cerebellar lesion triad: <strong>Intention tremor</strong> (shaking that appears during movement and disappears at rest — opposite of Parkinsonian resting tremor) + <strong>Dysmetria</strong> (inability to measure distance/stop at desired point) + <strong>Ataxia</strong> (incoordination of lower limb muscles).`,
+        tag: 'Cerebellar Lesion',
+      },
+      {
+        id: 18,
+        stem: `A <strong>72-year-old man</strong> has been increasingly slow in daily activities. Exam shows a continuous "<strong>pill-rolling</strong>" movement in his fingers while his hands are resting. When asked to perform an action, the tremor ceases. He has significant resistance to passive movement in his arms and slow, shuffling steps. Sensation, coordination, and muscle strength are intact.`,
+        question: `Which of the following is the primary underlying pathology?`,
+        options: [
+          { letter: 'A', text: 'Degeneration of dopamine-producing cells in the substantia nigra' },
+          { letter: 'B', text: 'Degeneration of the subthalamic nucleus' },
+          { letter: 'C', text: 'Ischemic infarction of the internal capsule' },
+          { letter: 'D', text: 'Loss of motor neurons in the anterior horn of the spinal cord' },
+          { letter: 'E', text: 'Demyelination of the corticospinal tract' },
+        ],
+        correct: 'A',
+        explanation: `<strong>Parkinsonism.</strong> Classic triad: resting tremors (pill-rolling, disappears with movement) + rigidity + bradykinesia. Crucially, <strong>no paralysis, sensory loss, or ataxia</strong>. Underlying pathology: <strong>degeneration of dopamine-producing cells in the substantia nigra</strong> → depletion of dopamine in the striatum.`,
+        tag: 'Parkinsonism',
+      },
+      {
+        id: 19,
+        stem: `A <strong>41-year-old woman</strong> has had unpredictable, jerky, and rapid uncontrollable movements for 6 months. Her shoulders frequently shrug involuntarily, and she exhibits sudden, exaggerated grimacing and rapid movements of her hips.`,
+        question: `These clinical findings are most characteristic of which of the following movement disorders?`,
+        options: [
+          { letter: 'A', text: 'Ataxia' },
+          { letter: 'B', text: 'Chorea' },
+          { letter: 'C', text: 'Hemiballismus' },
+          { letter: 'D', text: 'Parkinsonism' },
+          { letter: 'E', text: 'Intention tremors' },
+        ],
+        correct: 'B',
+        explanation: `<strong>Chorea</strong> — a basal ganglia disorder characterized by sudden, jerky, involuntary movements, most classically affecting the <strong>shoulders, hips, and face</strong>. Unlike hemiballismus (violent flailing of one arm and leg), chorea is more rapid, dance-like, and widespread across axial and proximal muscles.`,
+        tag: 'Chorea',
+      },
+      {
+        id: 20,
+        stem: `A <strong>28-year-old man</strong> following a severe motorcycle collision has a CT showing a displaced fracture of the <strong>cribriform plate of the ethmoid bone</strong>. Following recovery, a detailed neurological assessment is performed.`,
+        question: `Based on the location of his fracture, which of the following primary deficits is this patient most likely to experience?`,
+        options: [
+          { letter: 'A', text: 'Anosmia' },
+          { letter: 'B', text: 'Diplopia' },
+          { letter: 'C', text: 'Hyperacusis' },
+          { letter: 'D', text: 'Loss of the corneal reflex' },
+          { letter: 'E', text: 'Visual field defects' },
+        ],
+        correct: 'A',
+        explanation: `The <strong>cribriform plate</strong> houses the olfactory nerve (CN I) filaments as they pass from the nasal cavity to the olfactory bulb. A fracture here typically shears these delicate nerve fibers. Lesions of <strong>CN I → Anosmia</strong> (total loss of the sense of smell).`,
+        tag: 'CN I — Anosmia',
+      },
+      {
+        id: 21,
+        stem: `A <strong>54-year-old woman</strong> presents with sudden, painless loss of vision in her left eye two hours ago. Visual acuity: no light perception in the left eye, 20/20 in the right. When a penlight is shined into her <strong>left eye, neither pupil constricts</strong>. When shined into her right eye, both pupils constrict briskly.`,
+        question: `A lesion completely severing which of the following structures best explains these findings?`,
+        options: [
+          { letter: 'A', text: 'Left optic nerve' },
+          { letter: 'B', text: 'Left optic radiation' },
+          { letter: 'C', text: 'Left optic tract' },
+          { letter: 'D', text: 'Optic chiasm' },
+          { letter: 'E', text: 'Right medial longitudinal fasciculus' },
+        ],
+        correct: 'A',
+        explanation: `Complete vision loss in the left eye with absent afferent pupillary reflex in the left eye (neither pupil constricts when light is shone into the blind eye). This points to the <strong>left optic nerve (CN II)</strong>, which causes total blindness of the same (ipsilateral) eye and destroys the afferent limb of the pupillary light reflex.`,
+        tag: 'CN II — Optic Nerve',
+      },
+      {
+        id: 22,
+        stem: `A <strong>45-year-old man</strong> complains of double vision that makes him afraid to use the stairs. The diplopia is worst when he looks <strong>downward and inward</strong>, such as when reading in his lap or walking downstairs. He compensates by tilting his head.`,
+        question: `Paralysis of which of the following muscles is the direct cause of this patient's symptoms?`,
+        options: [
+          { letter: 'A', text: 'Inferior rectus' },
+          { letter: 'B', text: 'Lateral rectus' },
+          { letter: 'C', text: 'Medial rectus' },
+          { letter: 'D', text: 'Superior oblique' },
+          { letter: 'E', text: 'Superior rectus' },
+        ],
+        correct: 'D',
+        explanation: `Classic <strong>Trochlear Nerve (CN IV) palsy</strong>. CN IV innervates only the <strong>superior oblique muscle</strong>. A lesion leads to inability to depress the adducted eye → diplopia when looking downward → difficulty walking downstairs or reading. Head tilt is the characteristic compensation.`,
+        tag: 'CN IV — Trochlear Palsy',
+      },
+      {
+        id: 23,
+        stem: `A <strong>68-year-old man</strong> has a drooping right angle of mouth, loss of right nasolabial fold, and dribbling of saliva from the right side. However, when asked to raise his eyebrows, he can wrinkle his entire forehead symmetrically. He can also shut both eyes tightly against resistance.`,
+        question: `A lesion in which of the following locations is most likely responsible for this facial weakness?`,
+        options: [
+          { letter: 'A', text: 'Left corticobulbar tract above the facial nucleus' },
+          { letter: 'B', text: 'Right facial nerve at the stylomastoid foramen' },
+          { letter: 'C', text: 'Right facial nucleus in the pons' },
+          { letter: 'D', text: 'Left facial nerve in the facial canal' },
+          { letter: 'E', text: 'Right trigeminal ganglion' },
+        ],
+        correct: 'A',
+        explanation: `The <strong>upper face is spared</strong> (can wrinkle forehead and close eye) — this is the hallmark of an <strong>UMNL of the facial nerve</strong>, caused by a lesion in the corticobulbar tract above the level of the facial nucleus or in the motor cortex. Results in paralysis of the lower ½ of the <strong>opposite (right)</strong> side of the face. The left corticobulbar tract crosses to control the right lower face.`,
+        tag: 'CN VII — UMNL',
+      },
+      {
+        id: 24,
+        stem: `A <strong>35-year-old woman</strong> has sudden paralysis of the entire right side of her face — cannot close her right eye, raise her right eyebrow, or smile on the right. She frequently winces because ambient noise and normal speaking voices sound <strong>painfully loud</strong> in her right ear.`,
+        question: `Which of the following muscles is paralyzed, resulting in her auditory symptoms?`,
+        options: [
+          { letter: 'A', text: 'Buccinator' },
+          { letter: 'B', text: 'Orbicularis oris' },
+          { letter: 'C', text: 'Stapedius' },
+          { letter: 'D', text: 'Tensor tympani' },
+          { letter: 'E', text: 'Posterior belly of the digastric' },
+        ],
+        correct: 'C',
+        explanation: `She has a <strong>LMNL of CN VII</strong> (all facial muscles on the same side). CN VII also innervates the <strong>stapedius muscle</strong> in the middle ear. Paralysis of stapedius → <strong>Hyperacusis</strong> (hypersensitivity to sounds; cannot tolerate loud noises).`,
+        tag: 'CN VII — LMNL / Hyperacusis',
+      },
+      {
+        id: 25,
+        stem: `A <strong>60-year-old man</strong> suffers an ischemic stroke selectively damaging the <strong>right medial geniculate body (MGB)</strong> and right auditory area of the cerebral cortex. An audiogram is ordered.`,
+        question: `Based on auditory pathway neuroanatomy, which of the following audiometric findings is expected?`,
+        options: [
+          { letter: 'A', text: 'Complete deafness in the left ear only' },
+          { letter: 'B', text: 'Complete deafness in the right ear only' },
+          { letter: 'C', text: 'Bilateral diminution of hearing, worse in the left ear' },
+          { letter: 'D', text: 'Bilateral diminution of hearing, worse in the right ear' },
+          { letter: 'E', text: 'Completely normal hearing bilaterally' },
+        ],
+        correct: 'C',
+        explanation: `Central auditory lesions (above cochlear nuclei) do not cause complete deafness because auditory pathways cross bilaterally. Lesions of the lateral lemniscus, <strong>MGB, or auditory cortex</strong> cause <strong>bilateral diminution of hearing, mainly on the contralateral side</strong>. Right-sided lesion → mainly affects the left ear. Complete ipsilateral deafness only occurs with peripheral lesions (cochlea, cochlear nerve, cochlear nuclei).`,
+        tag: 'CN VIII — Central Auditory',
+      },
+      {
+        id: 26,
+        stem: `A <strong>29-year-old man</strong> presents with severe, painful muscle spasms in his neck. His head is forcefully and involuntarily rotated to the left side with his chin pointing upward. Palpation reveals a rigidly contracted <strong>right sternocleidomastoid muscle</strong>. The physician suspects peripheral nerve irritation.`,
+        question: `Irritation of which of the following cranial nerves is most likely producing this clinical picture?`,
+        options: [
+          { letter: 'A', text: 'CN V (Trigeminal)' },
+          { letter: 'B', text: 'CN VII (Facial)' },
+          { letter: 'C', text: 'CN IX (Glossopharyngeal)' },
+          { letter: 'D', text: 'CN X (Vagus)' },
+          { letter: 'E', text: 'CN XI (Accessory)' },
+        ],
+        correct: 'E',
+        explanation: `<strong>Torticollis</strong> (wry neck) — painful spasms of the sternocleidomastoid. The sternomastoid rotates the face to the opposite side. While paralysis of CN XI causes inability to perform this action, <strong>irritation of CN XI</strong> produces involuntary contractions, resulting in torticollis.`,
+        tag: 'CN XI — Torticollis',
+      },
+      {
+        id: 27,
+        stem: `A <strong>64-year-old man</strong> with ALS has severe dysphagia and recurrent aspiration pneumonia. On exam: extremely slow, slurred articulation. When instructed to stick his tongue out, the tongue remains <strong>completely flat and motionless</strong> on the floor of the mouth, with severe bilateral wasting and fasciculations.`,
+        question: `These physical findings are characteristic of which of the following localized deficits?`,
+        options: [
+          { letter: 'A', text: 'Unilateral Left UMNL of CN XII' },
+          { letter: 'B', text: 'Unilateral Right UMNL of CN XII' },
+          { letter: 'C', text: 'Unilateral Left LMNL of CN XII' },
+          { letter: 'D', text: 'Bilateral CN XII lesion' },
+          { letter: 'E', text: 'Bilateral CN IX lesion' },
+        ],
+        correct: 'D',
+        explanation: `Unilateral CN XII lesions cause tongue deviation (toward the same side in LMNL, or contralateral in UMNL). A <strong>bilateral CN XII lesion</strong> results in a tongue that lies completely motionless — total loss of tongue motility, causing slow articulation and difficult swallowing.`,
+        tag: 'CN XII — Bilateral Lesion',
+      },
+    ];
+
+    // ════════════════════════════════════════════════════════════
+    // QUIZ STATE
+    // ════════════════════════════════════════════════════════════
+    let quizBuilt = false;
+    let state = {
+      answered: {},   // caseId -> { chosen, correct }
+      streak: 0,
+      bestStreak: 0,
+    };
+
+    function getStats() {
+      const vals = Object.values(state.answered);
+      const correct = vals.filter(v => v.correct).length;
+      const wrong = vals.length - correct;
+      return { correct, wrong, total: vals.length };
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // BUILD QUIZ DOM
+    // ════════════════════════════════════════════════════════════
+    function buildQuiz() {
+      quizBuilt = true;
+      const container = document.getElementById('cases-container');
+      const navLinks = document.getElementById('quiz-nav-links');
+      container.innerHTML = '';
+      navLinks.innerHTML = '';
+
+      CASES.forEach((c) => {
+        // sidebar dot
+        const dot = document.createElement('a');
+        dot.href = `#case-${c.id}`;
+        dot.className = 'quiz-dot';
+        dot.id = `nav-q-${c.id}`;
+        dot.textContent = String(c.id).padStart(2, '0');
+        dot.title = `Case ${c.id}`;
+        navLinks.appendChild(dot);
+
+        // card
+        const card = document.createElement('div');
+        card.className = 'case-card';
+        card.id = `case-${c.id}`;
+
+        const opts = c.options.map((o, i) => `
+      <button class="option-btn" id="opt-${c.id}-${o.letter}"
+        onclick="selectAnswer(${c.id}, '${o.letter}')">
+        <span class="opt-letter">${o.letter}</span>
+        <span>${o.text}</span>
+      </button>
+    `).join('');
+
+        card.innerHTML = `
+      <div class="case-card-head">
+        <span class="case-num-badge">CASE ${String(c.id).padStart(2, '0')}</span>
+
+        <span class="case-status-dot" id="dot-${c.id}"></span>
+      </div>
+      <div class="case-body">
+        <p class="case-stem">${c.stem}</p>
+        <p class="case-question">${c.question}</p>
+        <div class="options-grid" id="opts-${c.id}">${opts}</div>
+        <div class="feedback-box" id="fb-${c.id}"></div>
+      </div>
+    `;
+        container.appendChild(card);
+      });
+
+      updateHUD();
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // ANSWER LOGIC
+    // ════════════════════════════════════════════════════════════
+    function selectAnswer(caseId, chosen) {
+      if (state.answered[caseId]) return; // already answered
+
+      const c = CASES.find(x => x.id === caseId);
+      const isCorrect = chosen === c.correct;
+
+      state.answered[caseId] = { chosen, correct: isCorrect };
+
+      // Update streak
+      if (isCorrect) {
+        state.streak++;
+        if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+      } else {
+        state.streak = 0;
+      }
+
+      // Style options
+      c.options.forEach(o => {
+        const btn = document.getElementById(`opt-${caseId}-${o.letter}`);
+        btn.disabled = true;
+        if (o.letter === c.correct) {
+          btn.classList.add('correct');
+        } else if (o.letter === chosen && !isCorrect) {
+          btn.classList.add('wrong');
+        } else {
+          btn.classList.add('dimmed');
+        }
+      });
+
+      // Status dot
+      const dot = document.getElementById(`dot-${caseId}`);
+      dot.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+
+      // Sidebar dot
+      const nl = document.getElementById(`nav-q-${caseId}`);
+      nl.classList.remove('q-current');
+      nl.classList.add(isCorrect ? 'q-done-c' : 'q-done-w');
+
+      // Update count badge
+      const answered = Object.keys(state.answered).length;
+      const countEl = document.getElementById('qnh-count');
+      if (countEl) countEl.textContent = `${answered} / ${CASES.length}`;
+
+      // Feedback box
+      const fb = document.getElementById(`fb-${caseId}`);
+      fb.classList.add('visible');
+      if (isCorrect) {
+        fb.classList.add('correct-fb');
+        fb.innerHTML = `
+      <div class="feedback-head correct-head"><span class="emoji">✅</span> Correct!</div>
+      <div class="feedback-body">${c.explanation}</div>
+    `;
+      } else {
+        fb.classList.add('wrong-fb');
+        fb.innerHTML = `
+      <div class="feedback-head wrong-head"><span class="emoji">❌</span> Not quite.</div>
+      <div class="feedback-body">${c.explanation}</div>
+      <div class="correct-answer-label">✓ Correct answer: ${c.correct}) ${c.options.find(o => o.letter === c.correct).text}</div>
+    `;
+      }
+
+      updateHUD();
+      showStreakToast(isCorrect);
+      checkDone();
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // HUD UPDATE
+    // ════════════════════════════════════════════════════════════
+    function updateHUD() {
+      const { correct, wrong, total } = getStats();
+      document.getElementById('hud-correct').textContent = correct;
+      document.getElementById('hud-wrong').textContent = wrong;
+      document.getElementById('hud-streak').textContent = state.streak;
+      document.getElementById('hud-progress-label').textContent = `${total} / ${CASES.length} answered`;
+      document.getElementById('hud-fill').style.width = `${(total / CASES.length) * 100}%`;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // STREAK TOAST
+    // ════════════════════════════════════════════════════════════
+    function showStreakToast(isCorrect) {
+      const toast = document.getElementById('streak-toast');
+      const txt = document.getElementById('streak-toast-text');
+      if (!isCorrect && state.streak === 0) {
+        toast.style.background = 'linear-gradient(135deg, #1a0a0a, #200d0d)';
+        toast.style.borderColor = 'var(--red)';
+        toast.style.color = 'var(--red)';
+        txt.textContent = 'Streak broken. Review the explanation!';
+      } else if (state.streak >= 3) {
+        toast.style.background = 'linear-gradient(135deg, #1a2a0a, #0d1a10)';
+        toast.style.borderColor = 'var(--green)';
+        toast.style.color = 'var(--green)';
+        txt.textContent = `${state.streak} in a row! You're on fire 🔥`;
+      } else if (isCorrect) {
+        toast.style.background = 'linear-gradient(135deg, #0d1520, #0d1a2a)';
+        toast.style.borderColor = 'var(--accent)';
+        toast.style.color = 'var(--accent2)';
+        txt.textContent = 'Correct! Keep going 💪';
+      } else {
+        return;
+      }
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // CHECK DONE
+    // ════════════════════════════════════════════════════════════
+    function checkDone() {
+      if (Object.keys(state.answered).length < CASES.length) return;
+
+      const { correct, wrong } = getStats();
+      const pct = Math.round((correct / CASES.length) * 100);
+
+      setTimeout(() => {
+        document.getElementById('cases-container').style.display = 'none';
+        const rs = document.getElementById('results-screen');
+        rs.classList.add('visible');
+
+        // Ring
+        const circumference = 2 * Math.PI * 55;
+        const ringFill = document.getElementById('ring-fill');
+        ringFill.style.strokeDasharray = circumference;
+        ringFill.style.strokeDashoffset = circumference;
+        ringFill.className = 'ring-fill ' + (pct >= 80 ? 'green-ring' : pct >= 60 ? 'gold-ring' : 'red-ring');
+        setTimeout(() => {
+          ringFill.style.strokeDashoffset = circumference - (circumference * pct / 100);
+        }, 200);
+
+        document.getElementById('ring-pct-val').textContent = pct + '%';
+        document.getElementById('r-correct').textContent = correct;
+        document.getElementById('r-wrong').textContent = wrong;
+        document.getElementById('r-streak').textContent = state.bestStreak;
+        document.getElementById('r-pct').textContent = pct + '%';
+
+        let title, sub;
+        if (pct >= 90) { title = '🏆 Outstanding!'; sub = "You crushed it. Ready for the real exam."; }
+        else if (pct >= 75) { title = '🎯 Solid Performance'; sub = "Good work. Review the ones you missed."; }
+        else if (pct >= 60) { title = '📚 Getting There'; sub = "Some gaps to fill. Go back to the Reference tab!"; }
+        else { title = '💪 Keep Grinding'; sub = "Don't worry — review the reference and retake."; }
+
+        document.getElementById('results-title').textContent = title;
+        document.getElementById('results-sub').textContent = sub;
+      }, 600);
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // RESET
+    // ════════════════════════════════════════════════════════════
+    function resetQuiz() {
+      state = { answered: {}, streak: 0, bestStreak: 0 };
+      quizBuilt = false;
+      document.getElementById('results-screen').classList.remove('visible');
+      document.getElementById('cases-container').style.display = 'block';
+      const countEl = document.getElementById('qnh-count');
+      if (countEl) countEl.textContent = `0 / ${CASES.length}`;
+      buildQuiz();
+      updateHUD();
+    }
+  </script>
 
 </body>
+
 </html>
