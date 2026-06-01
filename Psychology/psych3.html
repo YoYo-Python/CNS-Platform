@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Basic Principles of Learning — High-Yield Study Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0a0a0a;
+  --bg2: #111111;
+  --card: #161616;
+  --card2: #1e1e1e;
+  --border: #2a2a2a;
+  --text: #f0f0f0;
+  --muted: #888;
+  --accent: #0ea5e9;
+  --accent2: #06b6d4;
+  --accent3: #3b82f6;
+  --red: #ef4444;
+  --orange: #f97316;
+  --yellow: #eab308;
+  --green: #22c55e;
+  --purple: #a855f7;
+  --font-head: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --radius: 14px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.5);
+}
+[data-theme="light"] {
+  --bg: #f4f6f9;
+  --bg2: #eaecf0;
+  --card: #ffffff;
+  --card2: #f0f4f8;
+  --border: #d1d8e0;
+  --text: #111827;
+  --muted: #6b7280;
+  --shadow: 0 4px 24px rgba(0,0,0,0.1);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.3s,color 0.3s;}
+h1,h2,h3,h4{font-family:var(--font-head);}
+
+/* LAYOUT */
+.app{display:flex;min-height:100vh;}
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);padding:20px 0;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;transition:transform 0.3s;}
+.sidebar-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);}
+.sidebar-logo h2{font-size:1rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.sidebar-logo p{font-size:0.7rem;color:var(--muted);margin-top:2px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;font-size:0.82rem;color:var(--muted);transition:all 0.2s;border-left:3px solid transparent;}
+.nav-item:hover,.nav-item.active{color:var(--text);background:var(--card);border-left-color:var(--accent);}
+.nav-item .icon{font-size:1.1rem;width:20px;text-align:center;}
+.main{margin-left:220px;flex:1;padding:24px;max-width:1100px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;gap:12px;flex-wrap:wrap;}
+.topbar h1{font-size:1.4rem;font-weight:800;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.theme-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:0.82rem;font-family:var(--font-body);}
+.search-box{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;font-family:var(--font-body);font-size:0.82rem;width:220px;outline:none;transition:border 0.2s;}
+.search-box:focus{border-color:var(--accent);}
+
+/* SECTIONS */
+.section{display:none;animation:fadeIn 0.3s ease;}
+.section.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;transition:border-color 0.2s;}
+.card:hover{border-color:var(--accent);}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:28px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;text-align:center;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));}
+.stat-num{font-family:var(--font-head);font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.stat-label{font-size:0.72rem;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:0.05em;}
+
+/* NOTES */
+.note-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;overflow:hidden;}
+.note-header{padding:16px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.note-header:hover{background:var(--card2);}
+.note-title{font-weight:700;font-size:0.95rem;display:flex;align-items:center;gap:8px;}
+.note-body{padding:0 20px 20px;display:none;border-top:1px solid var(--border);}
+.note-body.open{display:block;}
+.note-row{margin-top:12px;}
+.note-row label{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent2);font-weight:600;}
+.note-row p{font-size:0.88rem;color:var(--text);margin-top:4px;line-height:1.6;}
+.exam-box{background:linear-gradient(135deg,rgba(14,165,233,0.1),rgba(6,182,212,0.05));border:1px solid rgba(14,165,233,0.3);border-radius:8px;padding:12px 16px;margin-top:12px;}
+.exam-box .exam-label{font-size:0.72rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;}
+.exam-box p{font-size:0.85rem;margin-top:4px;line-height:1.6;}
+.source-tag{display:inline-block;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:0.7rem;color:var(--muted);margin-top:8px;}
+
+/* FACTS */
+.facts-grid{display:grid;gap:10px;}
+.fact-card{background:var(--card);border-left:4px solid;border-radius:var(--radius);padding:14px 18px;display:flex;align-items:flex-start;gap:12px;}
+.fact-card.red{border-color:var(--red);}
+.fact-card.orange{border-color:var(--orange);}
+.fact-card.yellow{border-color:var(--yellow);}
+.fact-num{font-family:var(--font-head);font-weight:800;font-size:1.1rem;min-width:32px;}
+.fact-card.red .fact-num{color:var(--red);}
+.fact-card.orange .fact-num{color:var(--orange);}
+.fact-card.yellow .fact-num{color:var(--yellow);}
+.fact-text{font-size:0.88rem;line-height:1.6;}
+.fact-text strong{color:var(--text);}
+
+/* FLASHCARDS */
+.fc-progress{margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+.fc-progress-bar{flex:1;height:6px;background:var(--card2);border-radius:99px;overflow:hidden;}
+.fc-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width 0.4s;}
+.fc-nav{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;}
+.fc-nav button{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 20px;border-radius:8px;cursor:pointer;font-family:var(--font-body);font-size:0.85rem;transition:all 0.2s;}
+.fc-nav button:hover,.fc-nav button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.flashcard-wrap{perspective:1000px;max-width:600px;margin:0 auto;height:260px;}
+.flashcard{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform 0.5s cubic-bezier(.4,0,.2,1);cursor:pointer;}
+.flashcard.flipped{transform:rotateY(180deg);}
+.fc-face{position:absolute;inset:0;backface-visibility:hidden;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;}
+.fc-back{transform:rotateY(180deg);}
+.fc-face .fc-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent);margin-bottom:12px;font-weight:700;}
+.fc-face .fc-q{font-size:1rem;font-weight:600;line-height:1.5;}
+.fc-face .fc-a{font-size:0.9rem;color:var(--text);line-height:1.6;}
+.fc-counter{text-align:center;color:var(--muted);font-size:0.82rem;margin-top:12px;}
+
+/* MCQ */
+.mcq-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:20px;}
+.mcq-stats{display:flex;gap:14px;flex-wrap:wrap;}
+.mcq-stat{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:0.82rem;text-align:center;}
+.mcq-stat span{display:block;font-family:var(--font-head);font-weight:800;font-size:1.3rem;color:var(--accent);}
+.prog-bar{height:8px;background:var(--card2);border-radius:99px;overflow:hidden;margin-bottom:20px;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));transition:width 0.4s;}
+.q-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:14px;}
+.q-top{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.q-num{font-size:0.75rem;color:var(--muted);}
+.hard-badge{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3);border-radius:6px;padding:2px 8px;font-size:0.7rem;font-weight:700;}
+.q-stem{font-size:0.92rem;font-weight:600;line-height:1.6;margin-bottom:16px;}
+.options{display:flex;flex-direction:column;gap:8px;}
+.opt{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;cursor:pointer;font-size:0.85rem;display:flex;align-items:flex-start;gap:10px;transition:all 0.2s;}
+.opt:hover:not(.disabled){border-color:var(--accent);background:rgba(14,165,233,0.06);}
+.opt.correct{background:rgba(34,197,94,0.1);border-color:var(--green);color:var(--green);}
+.opt.wrong{background:rgba(239,68,68,0.1);border-color:var(--red);color:var(--red);}
+.opt.disabled{cursor:default;}
+.opt-letter{font-weight:700;min-width:18px;}
+.explanation{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-top:12px;font-size:0.84rem;line-height:1.6;display:none;}
+.explanation.show{display:block;}
+.explanation .correct-tag{color:var(--green);font-weight:700;}
+.explanation .wrong-tag{color:var(--red);font-weight:600;}
+
+/* SCENARIOS */
+.scenario-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:14px;}
+.scenario-title{font-weight:700;font-size:0.9rem;margin-bottom:10px;color:var(--accent);}
+.scenario-body{font-size:0.88rem;line-height:1.7;padding:12px;background:var(--card2);border-radius:8px;margin-bottom:12px;border-left:3px solid var(--accent);}
+.scenario-qs{display:none;}
+.scenario-qs.open{display:block;}
+.scenario-q{margin-bottom:10px;}
+.scenario-q .sq-label{font-size:0.72rem;text-transform:uppercase;color:var(--accent2);font-weight:700;margin-bottom:4px;}
+.scenario-q p{font-size:0.86rem;line-height:1.6;}
+.reveal-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:9px 20px;border-radius:8px;cursor:pointer;font-family:var(--font-body);font-size:0.84rem;font-weight:600;}
+
+/* FLOWCHARTS */
+.flow-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:0;max-width:500px;}
+.flow-box{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px 20px;font-size:0.88rem;font-weight:600;text-align:center;width:100%;}
+.flow-box.accent{background:linear-gradient(135deg,rgba(14,165,233,0.15),rgba(6,182,212,0.08));border-color:var(--accent);}
+.flow-box.green{border-color:var(--green);background:rgba(34,197,94,0.07);}
+.flow-arrow{text-align:center;width:100%;color:var(--accent);font-size:1.2rem;padding:4px 0;}
+
+/* COMPARISONS */
+.compare-table{width:100%;border-collapse:collapse;font-size:0.84rem;}
+.compare-table th{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:10px 14px;text-align:left;font-family:var(--font-head);font-size:0.82rem;}
+.compare-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.5;}
+.compare-table tr:hover td{background:var(--card2);}
+.compare-table tr:nth-child(even) td{background:rgba(255,255,255,0.02);}
+
+/* MNEMONICS */
+.mnem-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:12px;cursor:pointer;}
+.mnem-top{display:flex;align-items:center;gap:12px;justify-content:space-between;}
+.mnem-word{font-family:var(--font-head);font-size:1.2rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.mnem-title{font-weight:600;font-size:0.88rem;color:var(--muted);}
+.mnem-body{display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
+.mnem-body.open{display:block;}
+.mnem-letter-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:8px;}
+.mnem-letter{font-family:var(--font-head);font-size:1.1rem;font-weight:800;color:var(--accent);min-width:24px;}
+.mnem-def{font-size:0.85rem;line-height:1.5;}
+
+/* REVISION */
+.rev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
+.rev-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
+.rev-card h4{font-size:0.82rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--accent);margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px;}
+.rev-card ul{list-style:none;}
+.rev-card ul li{font-size:0.83rem;padding:4px 0;border-bottom:1px solid var(--border);line-height:1.5;display:flex;gap:6px;}
+.rev-card ul li:last-child{border-bottom:none;}
+.rev-card ul li::before{content:'›';color:var(--accent);font-weight:700;}
+.exam-pill{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3);border-radius:4px;padding:1px 6px;font-size:0.65rem;font-weight:700;text-transform:uppercase;vertical-align:middle;margin-left:4px;}
+
+/* CONFETTI */
+.confetti-piece{position:fixed;width:10px;height:10px;top:-20px;animation:confettiFall linear forwards;z-index:9999;pointer-events:none;}
+@keyframes confettiFall{to{transform:translateY(110vh) rotate(720deg);opacity:0;}}
+
+/* MOBILE */
+.hamburger{display:none;background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:8px;cursor:pointer;font-size:1.1rem;}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;padding:16px;}
+  .hamburger{display:flex;}
+  .stat-grid{grid-template-columns:repeat(2,1fr);}
+  .compare-table{font-size:0.78rem;}
+  .flashcard-wrap{height:220px;}
+  .rev-grid{grid-template-columns:1fr;}
+}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99;}
+.overlay.open{display:block;}
+
+/* SEARCH RESULTS */
+.search-results{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:20px;display:none;}
+.search-results.show{display:block;}
+.search-result-item{padding:10px 0;border-bottom:1px solid var(--border);font-size:0.86rem;cursor:pointer;}
+.search-result-item:last-child{border-bottom:none;}
+.search-result-item:hover{color:var(--accent);}
+.search-result-item .s-type{font-size:0.7rem;color:var(--accent2);font-weight:700;text-transform:uppercase;margin-right:6px;}
+mark{background:rgba(14,165,233,0.25);color:var(--accent);border-radius:2px;padding:0 2px;}
+</style>
+</head>
+<body data-theme="dark">
+
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <h2>LEARNING PLATFORM</h2>
+    <p>Basic Principles of Learning</p>
+  </div>
+  <div class="nav-item active" onclick="showSection('dashboard')"><span class="icon">📊</span>Dashboard</div>
+  <div class="nav-item" onclick="showSection('notes')"><span class="icon">📚</span>Notes</div>
+  <div class="nav-item" onclick="showSection('facts')"><span class="icon">🎯</span>Top 20 Facts</div>
+  <div class="nav-item" onclick="showSection('flashcards')"><span class="icon">🃏</span>Flashcards</div>
+  <div class="nav-item" onclick="showSection('mcq')"><span class="icon">📝</span>MCQ Exam</div>
+  <div class="nav-item" onclick="showSection('scenarios')"><span class="icon">🔬</span>Scenarios</div>
+  <div class="nav-item" onclick="showSection('flowcharts')"><span class="icon">🔄</span>Flowcharts</div>
+  <div class="nav-item" onclick="showSection('comparisons')"><span class="icon">⚖️</span>Comparisons</div>
+  <div class="nav-item" onclick="showSection('mnemonics')"><span class="icon">🧠</span>Mnemonics</div>
+  <div class="nav-item" onclick="showSection('revision')"><span class="icon">🚨</span>Last Night Rev.</div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="hamburger" onclick="openSidebar()">☰</button>
+      <h1>Basic Principles of Learning</h1>
+    </div>
+    <div class="topbar-right">
+      <input class="search-box" id="searchBox" placeholder="🔍 Search topics, MCQs..." oninput="handleSearch(this.value)"/>
+      <button class="theme-btn" onclick="toggleTheme()">☀️/🌙</button>
+    </div>
+  </div>
+
+  <!-- SEARCH RESULTS -->
+  <div class="search-results" id="searchResults"></div>
+
+  <!-- DASHBOARD -->
+  <div class="section active" id="section-dashboard">
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num">9</div><div class="stat-label">📊 Total Topics</div></div>
+      <div class="stat-card"><div class="stat-num">20</div><div class="stat-label">🎯 High-Yield Facts</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-exam">18</div><div class="stat-label">🔥 Exam Points</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-mcq">0</div><div class="stat-label">📝 MCQs Done</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-score">—</div><div class="stat-label">🏆 Quiz Score</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-streak">0</div><div class="stat-label">⚡ Streak</div></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:14px;font-size:1rem;">📈 MCQ Progress</h3>
+      <div class="prog-bar"><div class="prog-fill" id="dash-prog" style="width:0%"></div></div>
+      <p style="font-size:0.82rem;color:var(--muted)" id="dash-prog-text">0 of 30 questions answered</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:10px;font-size:1rem;">⚠️ Top Exam Priorities</h3>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:7px;">
+        <li style="font-size:0.86rem;display:flex;align-items:flex-start;gap:8px;"><span style="color:var(--red);font-weight:700;">①</span>Classical vs. Operant Conditioning — written comparison + MCQs</li>
+        <li style="font-size:0.86rem;display:flex;align-items:flex-start;gap:8px;"><span style="color:var(--red);font-weight:700;">②</span>Positive/Negative Reinforcement vs. Punishment — very frequent MCQ topic</li>
+        <li style="font-size:0.86rem;display:flex;align-items:flex-start;gap:8px;"><span style="color:var(--orange);font-weight:700;">③</span>Schedules of Reinforcement — Fixed/Variable Ratio/Interval</li>
+        <li style="font-size:0.86rem;display:flex;align-items:flex-start;gap:8px;"><span style="color:var(--orange);font-weight:700;">④</span>Clinical Applications — Systematic Desensitization, Token Economy, Biofeedback</li>
+        <li style="font-size:0.86rem;display:flex;align-items:flex-start;gap:8px;"><span style="color:var(--yellow);font-weight:700;">⑤</span>Learned Helplessness → Depression model</li>
+      </ul>
+      <p style="font-size:0.73rem;color:var(--muted);margin-top:10px;">📖 Sources: VID_20260517_134516_734.mp4, learning PPT_7a883c714514c1bd416d633be812b164.pdf</p>
+    </div>
+  </div>
+
+  <!-- NOTES -->
+  <div class="section" id="section-notes">
+    <h2 style="margin-bottom:18px;font-size:1.1rem;">📚 High-Yield Notes</h2>
+
+    <!-- Classical Conditioning -->
+    <div class="note-card">
+      <div class="note-header" onclick="toggleNote(this)">
+        <div class="note-title">🔔 Classical Conditioning</div>
+        <span style="color:var(--muted);font-size:0.8rem;">▼</span>
+      </div>
+      <div class="note-body">
+        <div class="note-row"><label>Definition</label><p>Learning in which a neutral stimulus (CS) is paired with an unconditioned stimulus (UCS) to elicit a conditioned response (CR).</p></div>
+        <div class="note-row"><label>Mechanism</label><p><strong>Before:</strong> Neutral Stimulus → No Response.<br><strong>During:</strong> NS + UCS → Unconditioned Response (UCR).<br><strong>After:</strong> Conditioned Stimulus (CS) → Conditioned Response (CR).</p></div>
+        <div class="note-row"><label>Important Factors</label><p>Timing of pairings, stimulus generalization, stimulus discrimination. Responses are <strong>involuntary/autonomic</strong>. Developed by <strong>Ivan Pavlov</strong>.</p></div>
+        <div class="note-row"><label>Clinical Significance</label><p>Explains acquired fears (Little Albert), immune system suppression, and paraphilias.</p></div>
+        <div class="exam-box"><div class="exam-label">⚠️ EXAM</div><p>The slide differentiating between Classical and Operant Conditioning is very important; it was a question that always came in exams as written comparisons.</p></div>
+        <span class="source-tag">📖 VID_20260517_134516_734.mp4 | learning PPT</span>
+      </div>
+    </div>
+
+    <!-- Operant Conditioning -->
+    <div class="note-card">
+      <div class="note-header" onclick="toggleNote(this)">
+        <div class="note-title">⚙️ Operant Conditioning</div>
+        <span style="color:var(--muted);font-size:0.8rem;">▼</span>
+      </div>
+      <div class="note-body">
+        <div class="note-row"><label>Definition</label><p>Learning where the consequences of behavior lead to a change in the probability of its occurrence. Developed by <strong>B.F. Skinner</strong>.</p></div>
+        <div class="note-row"><label>Mechanism</label><p>Active Behavior (Operant) → Environmental Consequence → Reinforcement (increases behavior) OR Punishment (decreases behavior). Responses are <strong>voluntary/somatic</strong>.</p></div>
+        <div class="note-row"><label>Types of Responses</label><p>
+          <strong>Positive Reinforcement:</strong> Add favorable outcome → behavior ↑<br>
+          <strong>Negative Reinforcement:</strong> Remove unfavorable outcome → behavior ↑<br>
+          <strong>Positive Punishment:</strong> Add unfavorable outcome → behavior ↓<br>
+          <strong>Negative Punishment:</strong> Remove favorable outcome → behavior ↓
+        </p></div>
+        <div class="note-row"><label>Schedules of Reinforcement</label><p><strong>Continuous:</strong> Fastest learning, fastest extinction.<br><strong>Intermittent (Fixed/Variable Ratio/Interval):</strong> Slower learning, highly resistant to extinction.</p></div>
+        <div class="exam-box"><div class="exam-label">⚠️ EXAM</div><p>The slide regarding types of responses following behavior (Positive/Negative Reinforcement and Punishment) is very, very important. Comes as small written questions AND MCQs.</p></div>
+        <span class="source-tag">📖 VID_20260517_134516_734.mp4 | learning PPT</span>
+      </div>
+    </div>
+
+    <!-- Trial & Error -->
+    <div class="note-card">
+      <div class="note-header" onclick="toggleNote(this)">
+        <div class="note-title">🐱 Trial and Error Learning (Thorndike)</div>
+        <span style="color:var(--muted);font-size:0.8rem;">▼</span>
+      </div>
+      <div class="note-body">
+        <div class="note-row"><label>Definition</label><p>Learning through random responses until a satisfying outcome is achieved. Developed by <strong>Thorndike</strong> using cats in a puzzle box.</p></div>
+        <div class="note-row"><label>Mechanism</label><p>Hungry cat in a puzzle box with food outside. Scratches randomly until it hits the latch. Time to escape decreases over repeated trials (Law of Effect).</p></div>
+        <div class="note-row"><label>Key Factor</label><p>Association between the satisfying response and the stimulus. Without reward (food), latencies do not decrease.</p></div>
+        <span class="source-tag">📖 VID_20260517_134516_734.mp4 | learning PPT</span>
+      </div>
+    </div>
+
+    <!-- Extinction, Generalization, Discrimination -->
+    <div class="note-card">
+      <div class="note-header" onclick="toggleNote(this)">
+        <div class="note-title">🔁 Extinction, Generalization & Discrimination</div>
+        <span style="color:var(--muted);font-size:0.8rem;">▼</span>
+      </div>
+      <div class="note-body">
+        <div class="note-row"><label>Extinction</label><p>Disappearance of a conditioned response when the CS is no longer paired with the UCS.</p></div>
+        <div class="note-row"><label>Stimulus Generalization</label><p>Responding similarly to stimuli that resemble the conditioned stimulus (e.g., Little Albert feared all white fluffy objects).</p></div>
+        <div class="note-row"><label>Stimulus Discrimination</label><p>Learning to distinguish between various distinct stimuli; responding only to the CS and not to similar stimuli.</p></div>
+        <div class="note-row"><label>Shaping</label><p>Rewarding successive, closer approximations of the desired target behavior (Operant Conditioning).</p></div>
+        <span class="source-tag">📖 learning PPT</span>
+      </div>
+    </div>
+
+    <!-- Learned Helplessness -->
+    <div class="note-card">
+      <div class="note-header" onclick="toggleNote(this)">
+        <div class="note-title">😔 Learned Helplessness</div>
+        <span style="color:var(--muted);font-size:0.8rem;">▼</span>
+      </div>
+      <div class="note-body">
+        <div class="note-row"><label>Definition</label><p>An animal repeatedly subjected to inescapable aversive stimuli becomes apathetic and passive, even when escape becomes possible.</p></div>
+        <div class="note-row"><label>Clinical Significance</label><p>Serves as an animal model for <strong>depression</strong>. Treatment: antidepressants restore escape attempts.</p></div>
+        <span class="source-tag">📖 VID_20260517_134516_734.mp4 | learning PPT</span>
+      </div>
+    </div>
+
+    <!-- Behavioral Therapies -->
+    <div class="note-card">
+      <div class="note-header" onclick="toggleNote(this)">
+        <div class="note-title">💊 Behavioral Therapies (Clinical Applications)</div>
+        <span style="color:var(--muted);font-size:0.8rem;">▼</span>
+      </div>
+      <div class="note-body">
+        <div class="note-row"><label>Systematic Desensitization</label><p>Pairs relaxation with increasing doses of a fear-provoking stimulus (hierarchy of fears). Used for <strong>phobias</strong>.</p></div>
+        <div class="note-row"><label>Flooding</label><p>Immediate exposure to actual overwhelming fear stimulus. Habituation extinguishes fear.</p></div>
+        <div class="note-row"><label>Implosion</label><p>Imagined (not actual) exposure to an overwhelming fear stimulus.</p></div>
+        <div class="note-row"><label>Aversive Conditioning</label><p>Pairs maladaptive pleasurable behavior with painful stimuli (e.g., pedophilia + electric shocks). Classical conditioning basis.</p></div>
+        <div class="note-row"><label>Token Economy</label><p>Positive reinforcement using tokens for desirable behaviors in disorganized/psychotic/autistic patients. Tokens exchangeable for rewards.</p></div>
+        <div class="note-row"><label>Biofeedback</label><p>Using physiological information (e.g., blood pressure monitor) to teach voluntary control of visceral changes.</p></div>
+        <div class="note-row"><label>CBT</label><p>Cognitive Behavioral Therapy: replacing distorted negative thoughts with positive ones. Used in depression and anxiety.</p></div>
+        <span class="source-tag">📖 VID_20260517_134516_734.mp4 | learning PPT</span>
+      </div>
+    </div>
+
+    <!-- Phobia vs Fear -->
+    <div class="note-card">
+      <div class="note-header" onclick="toggleNote(this)">
+        <div class="note-title">😱 Fear vs. Phobia</div>
+        <span style="color:var(--muted);font-size:0.8rem;">▼</span>
+      </div>
+      <div class="note-body">
+        <div class="note-row"><label>Fear</label><p>Normal, proportionate emotional response to a perceived threat.</p></div>
+        <div class="note-row"><label>Phobia</label><p>Irrational, exaggerated fear that causes panic even upon imagining the object. Disrupts daily life. Treated via Systematic Desensitization, Flooding, or Implosion.</p></div>
+        <span class="source-tag">📖 learning PPT</span>
+      </div>
+    </div>
+
+    <!-- Punishment Dangers -->
+    <div class="note-card">
+      <div class="note-header" onclick="toggleNote(this)">
+        <div class="note-title">⚠️ Dangers of Physical Punishment</div>
+        <span style="color:var(--muted);font-size:0.8rem;">▼</span>
+      </div>
+      <div class="note-body">
+        <div class="note-row"><label>Risks</label><p>Aggression, emotional trauma, modeling of aggressive behavior, mistrust, physical harm. Can lead to learned helplessness if excessive.</p></div>
+        <div class="note-row"><label>Why punishment fails</label><p>May be inconsistent, may model the very behavior being punished, and does not teach alternative positive behavior.</p></div>
+        <span class="source-tag">📖 VID_20260517_134516_734.mp4</span>
+      </div>
+    </div>
+
+    <!-- Immune Conditioning -->
+    <div class="note-card">
+      <div class="note-header" onclick="toggleNote(this)">
+        <div class="note-title">🧬 Classical Conditioning of the Immune System</div>
+        <span style="color:var(--muted);font-size:0.8rem;">▼</span>
+      </div>
+      <div class="note-body">
+        <div class="note-row"><label>Mechanism</label><p>Rats drink sweet water (NS) paired with a drug (UCS) that suppresses immune cells (UCR). Sweet water alone eventually suppresses immunity → CS → CR.</p></div>
+        <div class="note-row"><label>Significance</label><p>Demonstrates that classical conditioning extends beyond behavioral responses to <strong>physical/immune system changes</strong>.</p></div>
+        <span class="source-tag">📖 VID_20260517_134516_734.mp4 | learning PPT</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP 20 FACTS -->
+  <div class="section" id="section-facts">
+    <h2 style="margin-bottom:8px;font-size:1.1rem;">🎯 Top 20 Must-Know Facts</h2>
+    <p style="font-size:0.8rem;color:var(--muted);margin-bottom:18px;"><span style="color:var(--red);">■</span> Very High Yield &nbsp; <span style="color:var(--orange);">■</span> High Yield &nbsp; <span style="color:var(--yellow);">■</span> Important</p>
+    <div class="facts-grid" id="factsGrid"></div>
+  </div>
+
+  <!-- FLASHCARDS -->
+  <div class="section" id="section-flashcards">
+    <h2 style="margin-bottom:16px;font-size:1.1rem;">🃏 Flashcards</h2>
+    <div class="fc-progress">
+      <div class="fc-progress-bar"><div class="fc-progress-fill" id="fcBar" style="width:0%"></div></div>
+      <span style="font-size:0.8rem;color:var(--muted)" id="fcProgressText">0 / 20</span>
+    </div>
+    <div class="fc-nav">
+      <button onclick="prevCard()">← Prev</button>
+      <button onclick="flipCard()">🔄 Flip</button>
+      <button onclick="nextCard()">Next →</button>
+      <button onclick="markSeen()">✓ Got it</button>
+      <button onclick="resetFC()">↺ Reset</button>
+    </div>
+    <div class="flashcard-wrap">
+      <div class="flashcard" id="flashcard" onclick="flipCard()">
+        <div class="fc-face fc-front">
+          <div class="fc-label">Question</div>
+          <div class="fc-q" id="fcQuestion"></div>
+        </div>
+        <div class="fc-face fc-back">
+          <div class="fc-label">Answer</div>
+          <div class="fc-a" id="fcAnswer"></div>
+          <div class="source-tag" id="fcSource" style="margin-top:12px;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="fc-counter" id="fcCounter"></div>
+  </div>
+
+  <!-- MCQ -->
+  <div class="section" id="section-mcq">
+    <div class="mcq-header">
+      <h2 style="font-size:1.1rem;">📝 MCQ Exam Mode</h2>
+      <div class="mcq-stats">
+        <div class="mcq-stat"><span id="mcqScore">0</span>Score</div>
+        <div class="mcq-stat"><span id="mcqStreak">0</span>Streak</div>
+        <div class="mcq-stat"><span id="mcqDone">0%</span>Done</div>
+      </div>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="mcqProg" style="width:0%"></div></div>
+    <div id="mcqContainer"></div>
+  </div>
+
+  <!-- SCENARIOS -->
+  <div class="section" id="section-scenarios">
+    <h2 style="margin-bottom:18px;font-size:1.1rem;">🔬 Application Scenarios</h2>
+    <div id="scenariosContainer"></div>
+  </div>
+
+  <!-- FLOWCHARTS -->
+  <div class="section" id="section-flowcharts">
+    <h2 style="margin-bottom:18px;font-size:1.1rem;">🔄 Process Flowcharts</h2>
+
+    <div class="card">
+      <h3 style="margin-bottom:16px;font-size:0.95rem;">Classical Conditioning Process</h3>
+      <div class="flow-wrap">
+        <div class="flow-box">Neutral Stimulus (NS)</div>
+        <div class="flow-arrow">↓ No Response</div>
+        <div class="flow-box">NS + Unconditioned Stimulus (UCS)</div>
+        <div class="flow-arrow">↓ Produces</div>
+        <div class="flow-box accent">Unconditioned Response (UCR)</div>
+        <div class="flow-arrow">↓ After repeated pairings</div>
+        <div class="flow-box accent">Conditioned Stimulus (CS) alone</div>
+        <div class="flow-arrow">↓ Elicits</div>
+        <div class="flow-box green">Conditioned Response (CR)</div>
+      </div>
+      <span class="source-tag" style="margin-top:14px;display:inline-block;">📖 learning PPT</span>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:16px;font-size:0.95rem;">Operant Conditioning Process</h3>
+      <div class="flow-wrap">
+        <div class="flow-box">Active Behavior (Operant)</div>
+        <div class="flow-arrow">↓ Acts on</div>
+        <div class="flow-box">Environment → Consequence</div>
+        <div class="flow-arrow">↓ Determines</div>
+        <div class="flow-box accent">Reinforcement (+/-) → Behavior INCREASES</div>
+        <div class="flow-arrow">OR</div>
+        <div class="flow-box" style="border-color:var(--red);background:rgba(239,68,68,0.07);">Punishment (+/-) → Behavior DECREASES</div>
+      </div>
+      <span class="source-tag" style="margin-top:14px;display:inline-block;">📖 learning PPT</span>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:16px;font-size:0.95rem;">Systematic Desensitization Process</h3>
+      <div class="flow-wrap">
+        <div class="flow-box accent">Step 1: Teach relaxation skills</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-box">Step 2: Construct hierarchy of fears (mild → intense)</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-box">Step 3: Imagine mildly anxiety-provoking scene while relaxed</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-box">Step 4: Progress through hierarchy</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-box green">Step 5: Confront fears in real life</div>
+      </div>
+      <span class="source-tag" style="margin-top:14px;display:inline-block;">📖 learning PPT</span>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:16px;font-size:0.95rem;">Learned Helplessness → Depression Model</h3>
+      <div class="flow-wrap">
+        <div class="flow-box">Animal subjected to inescapable aversive stimulus (shock)</div>
+        <div class="flow-arrow">↓ Repeated exposure</div>
+        <div class="flow-box accent">Learns: "I cannot escape"</div>
+        <div class="flow-arrow">↓ Even when escape is possible</div>
+        <div class="flow-box" style="border-color:var(--red);background:rgba(239,68,68,0.07);">Becomes apathetic and passive</div>
+        <div class="flow-arrow">↓ Maps to human</div>
+        <div class="flow-box green">Model for DEPRESSION → Treatment: Antidepressants</div>
+      </div>
+      <span class="source-tag" style="margin-top:14px;display:inline-block;">📖 VID_20260517_134516_734.mp4 | learning PPT</span>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:16px;font-size:0.95rem;">Immune System Classical Conditioning</h3>
+      <div class="flow-wrap">
+        <div class="flow-box">Sweet water (NS) + Immunosuppressant drug (UCS)</div>
+        <div class="flow-arrow">↓ Paired repeatedly</div>
+        <div class="flow-box accent">Immune suppression (UCR)</div>
+        <div class="flow-arrow">↓ After conditioning</div>
+        <div class="flow-box">Sweet water alone (now CS)</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-box green">Immune suppression (CR) — without the drug</div>
+      </div>
+      <span class="source-tag" style="margin-top:14px;display:inline-block;">📖 VID_20260517_134516_734.mp4 | learning PPT</span>
+    </div>
+  </div>
+
+  <!-- COMPARISONS -->
+  <div class="section" id="section-comparisons">
+    <h2 style="margin-bottom:18px;font-size:1.1rem;">⚖️ Comparison Tables</h2>
+
+    <div class="card">
+      <h3 style="margin-bottom:14px;font-size:0.95rem;">⚠️ EXAM — Classical vs. Operant Conditioning</h3>
+      <div style="overflow-x:auto;">
+      <table class="compare-table">
+        <tr><th>Feature</th><th>Classical</th><th>Operant</th></tr>
+        <tr><td>Pioneer</td><td>Pavlov</td><td>Skinner</td></tr>
+        <tr><td>Type of response</td><td>Involuntary / Autonomic</td><td>Voluntary / Somatic</td></tr>
+        <tr><td>Learning mechanism</td><td>Association of stimuli (NS + UCS)</td><td>Consequences of behavior</td></tr>
+        <tr><td>Role of organism</td><td>Passive (response elicited)</td><td>Active (response emitted)</td></tr>
+        <tr><td>Key element</td><td>Conditioned Stimulus (CS)</td><td>Reinforcement or Punishment</td></tr>
+        <tr><td>Example</td><td>Pavlov's dog salivating to a bell</td><td>Rat pressing lever for food</td></tr>
+        <tr><td>Clinical use</td><td>Aversive conditioning, phobia (immune)</td><td>Token economy, shaping</td></tr>
+      </table>
+      </div>
+      <span class="source-tag" style="margin-top:10px;display:inline-block;">📖 VID_20260517_134516_734.mp4 | learning PPT</span>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:14px;font-size:0.95rem;">⚠️ EXAM — Types of Reinforcement & Punishment</h3>
+      <div style="overflow-x:auto;">
+      <table class="compare-table">
+        <tr><th>Type</th><th>Action</th><th>Effect on Behavior</th><th>Example</th></tr>
+        <tr><td>Positive Reinforcement</td><td>Add favorable outcome</td><td>INCREASES</td><td>Praise after correct answer</td></tr>
+        <tr><td>Negative Reinforcement</td><td>Remove unfavorable outcome</td><td>INCREASES</td><td>Remove detention when homework done</td></tr>
+        <tr><td>Positive Punishment</td><td>Add unfavorable outcome</td><td>DECREASES</td><td>Yelling at misbehavior</td></tr>
+        <tr><td>Negative Punishment</td><td>Remove favorable outcome</td><td>DECREASES</td><td>Grounding a teenager</td></tr>
+      </table>
+      </div>
+      <span class="source-tag" style="margin-top:10px;display:inline-block;">📖 learning PPT</span>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:14px;font-size:0.95rem;">Schedules of Reinforcement</h3>
+      <div style="overflow-x:auto;">
+      <table class="compare-table">
+        <tr><th>Schedule</th><th>Definition</th><th>Learning Rate</th><th>Extinction Rate</th><th>Example</th></tr>
+        <tr><td>Continuous</td><td>Every response reinforced</td><td>Fast</td><td>Fast</td><td>Food for every lever press</td></tr>
+        <tr><td>Fixed Ratio (FR)</td><td>After fixed # of responses</td><td>High</td><td>Moderate</td><td>Praise every 5th letter written</td></tr>
+        <tr><td>Variable Ratio (VR)</td><td>After unpredictable # of responses</td><td>High</td><td>Very slow</td><td>Slot machines</td></tr>
+        <tr><td>Fixed Interval (FI)</td><td>After fixed time period</td><td>Moderate</td><td>Moderate</td><td>Salary every month</td></tr>
+        <tr><td>Variable Interval (VI)</td><td>After unpredictable time</td><td>Moderate</td><td>Slowest</td><td>Random pop quizzes</td></tr>
+      </table>
+      </div>
+      <span class="source-tag" style="margin-top:10px;display:inline-block;">📖 learning PPT</span>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:14px;font-size:0.95rem;">Exposure Therapies — Flooding vs. Implosion vs. Desensitization</h3>
+      <div style="overflow-x:auto;">
+      <table class="compare-table">
+        <tr><th>Therapy</th><th>Stimulus</th><th>Dose</th><th>Mechanism</th></tr>
+        <tr><td>Systematic Desensitization</td><td>Real OR imagined</td><td>Gradual (hierarchy)</td><td>Relaxation + gradual exposure</td></tr>
+        <tr><td>Flooding</td><td>Actual / real</td><td>Overwhelming — immediate</td><td>Habituation to overwhelming stimulus</td></tr>
+        <tr><td>Implosion</td><td>Imagined only</td><td>Overwhelming — immediate</td><td>Imagined habituation</td></tr>
+      </table>
+      </div>
+      <span class="source-tag" style="margin-top:10px;display:inline-block;">📖 learning PPT</span>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:14px;font-size:0.95rem;">Key Theorists Comparison</h3>
+      <div style="overflow-x:auto;">
+      <table class="compare-table">
+        <tr><th>Theorist</th><th>Theory</th><th>Method</th><th>Key Contribution</th></tr>
+        <tr><td>Pavlov</td><td>Classical Conditioning</td><td>Dogs + bell + food</td><td>CS → CR pairing</td></tr>
+        <tr><td>Skinner</td><td>Operant Conditioning</td><td>Skinner box — rats</td><td>Reinforcement/Punishment schedules</td></tr>
+        <tr><td>Thorndike</td><td>Trial and Error (Law of Effect)</td><td>Cats in puzzle box</td><td>Satisfying consequences strengthen responses</td></tr>
+        <tr><td>Watson</td><td>Behaviorism</td><td>Little Albert experiment</td><td>Classical conditioning of fear in humans</td></tr>
+      </table>
+      </div>
+      <span class="source-tag" style="margin-top:10px;display:inline-block;">📖 learning PPT</span>
+    </div>
+  </div>
+
+  <!-- MNEMONICS -->
+  <div class="section" id="section-mnemonics">
+    <h2 style="margin-bottom:18px;font-size:1.1rem;">🧠 Mnemonics</h2>
+    <div id="mnemonicsContainer"></div>
+  </div>
+
+  <!-- REVISION -->
+  <div class="section" id="section-revision">
+    <h2 style="margin-bottom:6px;font-size:1.1rem;">🚨 Last Night Revision</h2>
+    <p style="font-size:0.8rem;color:var(--muted);margin-bottom:18px;">Ultra high-yield only. Exam facts. No extras.</p>
+    <div class="rev-grid">
+
+      <div class="rev-card">
+        <h4>⚠️ Core Distinction</h4>
+        <ul>
+          <li>Classical = involuntary/autonomic, stimuli association (Pavlov) <span class="exam-pill">EXAM</span></li>
+          <li>Operant = voluntary/somatic, consequences of behavior (Skinner) <span class="exam-pill">EXAM</span></li>
+          <li>Thorndike = Trial & Error — cats in puzzle box</li>
+          <li>Watson = Little Albert — classical fear conditioning</li>
+        </ul>
+      </div>
+
+      <div class="rev-card">
+        <h4>⚠️ Reinforcement vs. Punishment</h4>
+        <ul>
+          <li>Positive Reinforcement: ADD reward → behavior ↑ <span class="exam-pill">EXAM</span></li>
+          <li>Negative Reinforcement: REMOVE bad → behavior ↑ <span class="exam-pill">EXAM</span></li>
+          <li>Positive Punishment: ADD bad → behavior ↓</li>
+          <li>Negative Punishment: REMOVE good → behavior ↓</li>
+          <li>BOTH reinforcements INCREASE behavior</li>
+          <li>BOTH punishments DECREASE behavior</li>
+        </ul>
+      </div>
+
+      <div class="rev-card">
+        <h4>Schedules of Reinforcement</h4>
+        <ul>
+          <li>Continuous: fast learning, fast extinction</li>
+          <li>Intermittent: slow learning, RESISTANT to extinction</li>
+          <li>Variable Ratio: most resistant to extinction (gambling)</li>
+          <li>Fixed Ratio: after set # of responses</li>
+        </ul>
+      </div>
+
+      <div class="rev-card">
+        <h4>Classical Conditioning Terms</h4>
+        <ul>
+          <li>UCS: evokes response automatically</li>
+          <li>UCR: automatic/unlearned response</li>
+          <li>CS: previously neutral, now elicits response</li>
+          <li>CR: learned response to CS</li>
+          <li>Extinction: CS without UCS → CR disappears</li>
+          <li>Generalization: respond to stimuli resembling CS</li>
+        </ul>
+      </div>
+
+      <div class="rev-card">
+        <h4>Behavioral Therapies</h4>
+        <ul>
+          <li>Systematic Desensitization: relaxation + gradual hierarchy</li>
+          <li>Flooding: actual overwhelming stimulus — immediate</li>
+          <li>Implosion: imagined overwhelming stimulus</li>
+          <li>Aversive Conditioning: pair bad behavior + pain</li>
+          <li>Token Economy: tokens for psychotic/autistic pts</li>
+          <li>Biofeedback: physiological data → visceral control</li>
+          <li>CBT: replace negative thoughts with positive</li>
+        </ul>
+      </div>
+
+      <div class="rev-card">
+        <h4>High-Yield Concepts</h4>
+        <ul>
+          <li>Learned Helplessness = model for DEPRESSION <span class="exam-pill">EXAM</span></li>
+          <li>Shaping: reward successive approximations</li>
+          <li>Phobia: irrational, exaggerated, causes panic on imagination</li>
+          <li>Punishment risks: aggression, trauma, modeling</li>
+          <li>Immune conditioning: CS can suppress immunity</li>
+        </ul>
+      </div>
+
+      <div class="rev-card">
+        <h4>Punishment Dangers</h4>
+        <ul>
+          <li>Models aggressive behavior <span class="exam-pill">EXAM</span></li>
+          <li>Emotional trauma and mistrust</li>
+          <li>Physical harm possible</li>
+          <li>Inconsistency reduces effectiveness</li>
+          <li>Does NOT teach alternative behaviors</li>
+        </ul>
+      </div>
+
+      <div class="rev-card">
+        <h4>Clinical Links</h4>
+        <ul>
+          <li>Paraphilias ← Classical conditioning</li>
+          <li>Acquired fears ← Little Albert</li>
+          <li>Depression ← Learned helplessness</li>
+          <li>Phobia Tx ← Systematic desensitization</li>
+          <li>Disorganized pts ← Token economy</li>
+          <li>Hypertension Tx ← Biofeedback</li>
+        </ul>
+      </div>
+
+    </div>
+    <p style="font-size:0.72rem;color:var(--muted);margin-top:16px;text-align:center;">📖 Sources: VID_20260517_134516_734.mp4 | learning PPT_7a883c714514c1bd416d633be812b164.pdf</p>
+  </div>
+
+</div>
+
+<script>
+// ===================== DATA =====================
+
+const FACTS = [
+  {rank:1,tier:'red',text:'<strong>Classical Conditioning</strong> involves <em>involuntary/autonomic</em> responses elicited by stimulus pairing — developed by Ivan Pavlov.',src:'VID_20260517_134516_734.mp4'},
+  {rank:2,tier:'red',text:'<strong>Operant Conditioning</strong> involves <em>voluntary/somatic</em> responses controlled by consequences (reinforcement/punishment) — developed by B.F. Skinner.',src:'VID_20260517_134516_734.mp4'},
+  {rank:3,tier:'red',text:'<strong>Negative Reinforcement</strong> INCREASES behavior by REMOVING an unfavorable stimulus — NOT the same as punishment.',src:'learning PPT'},
+  {rank:4,tier:'red',text:'<strong>Positive Punishment</strong> adds an unfavorable outcome to DECREASE behavior; <strong>Negative Punishment</strong> removes a favorable outcome to DECREASE behavior.',src:'learning PPT'},
+  {rank:5,tier:'red',text:'<strong>Learned Helplessness</strong>: repeated inescapable aversive stimuli → apathy/passivity → animal model for <strong>depression</strong>. Treatment: antidepressants.',src:'VID_20260517_134516_734.mp4'},
+  {rank:6,tier:'orange',text:'<strong>Systematic Desensitization</strong>: relaxation skills + gradual hierarchy of fears. Gold-standard behavioral therapy for phobias.',src:'learning PPT'},
+  {rank:7,tier:'orange',text:'<strong>Flooding</strong> = actual overwhelming stimulus (immediate). <strong>Implosion</strong> = imagined overwhelming stimulus (immediate). Key difference: real vs. imagined.',src:'learning PPT'},
+  {rank:8,tier:'orange',text:'<strong>Extinction</strong>: CR disappears when CS is no longer paired with UCS. Spontaneous recovery can still occur.',src:'learning PPT'},
+  {rank:9,tier:'orange',text:'<strong>Intermittent reinforcement</strong> is most resistant to extinction; <strong>Variable Ratio</strong> schedule is the hardest to extinguish (e.g., gambling).',src:'learning PPT'},
+  {rank:10,tier:'orange',text:'<strong>Token Economy</strong>: operant conditioning (positive reinforcement) using tokens for disorganized/psychotic/autistic patients to reinforce basic hygiene and positive behaviors.',src:'learning PPT'},
+  {rank:11,tier:'orange',text:'<strong>Aversive Conditioning</strong>: classical conditioning pairs a maladaptive pleasurable behavior with a painful stimulus (e.g., pedophilia + electric shocks).',src:'learning PPT'},
+  {rank:12,tier:'orange',text:'<strong>Biofeedback</strong>: physiological data (e.g., BP on a monitor) used as reinforcement to teach voluntary control of visceral/autonomic changes.',src:'learning PPT'},
+  {rank:13,tier:'yellow',text:'<strong>Shaping</strong>: rewarding successive, closer approximations to a desired behavior (operant conditioning). Example: teaching a child to write.',src:'learning PPT'},
+  {rank:14,tier:'yellow',text:'<strong>Stimulus Generalization</strong>: responding to stimuli that resemble the CS. Little Albert feared all white, fluffy objects after the experiment.',src:'learning PPT'},
+  {rank:15,tier:'yellow',text:'<strong>Stimulus Discrimination</strong>: learning to distinguish between distinct stimuli — responding only to the CS and not to similar stimuli.',src:'learning PPT'},
+  {rank:16,tier:'yellow',text:'<strong>Trial and Error (Thorndike)</strong>: cats in puzzle box — law of effect: satisfying responses strengthen stimulus-response connections.',src:'learning PPT'},
+  {rank:17,tier:'yellow',text:'<strong>CBT</strong> (Cognitive Behavioral Therapy): replaces distorted negative thoughts with positive ones. Used in depression and anxiety disorders.',src:'learning PPT'},
+  {rank:18,tier:'yellow',text:'<strong>Phobia</strong> vs. <strong>Fear</strong>: Fear is normal and proportionate. Phobia is irrational, exaggerated, and causes panic even upon imagination of the object.',src:'learning PPT'},
+  {rank:19,tier:'yellow',text:'<strong>Physical Punishment Risks</strong>: aggression, emotional trauma, physical harm, modeling of aggression, mistrust. Does not teach alternative positive behavior.',src:'VID_20260517_134516_734.mp4'},
+  {rank:20,tier:'yellow',text:'<strong>Immune System Classical Conditioning</strong>: CS (sweet water) can suppress immunity after conditioning — demonstrates CC extends to physical health.',src:'VID_20260517_134516_734.mp4'},
+];
+
+const FLASHCARDS = [
+  {q:'What is Classical Conditioning?',a:'Learning where a neutral stimulus (CS) is paired with an UCS until the CS alone elicits a conditioned response (CR). Responses are involuntary/autonomic.',src:'learning PPT'},
+  {q:'Who developed Classical Conditioning and what experiment made it famous?',a:'Ivan Pavlov — dogs salivating to a bell (previously neutral) that was paired with food (UCS).',src:'learning PPT'},
+  {q:'Define Negative Reinforcement.',a:'Removal of an unfavorable stimulus following a behavior — INCREASES the likelihood of that behavior repeating.',src:'learning PPT'},
+  {q:'What is the difference between Positive Punishment and Negative Punishment?',a:'Positive Punishment: adds an unfavorable consequence (e.g., yelling). Negative Punishment: removes a favorable consequence (e.g., grounding). Both DECREASE behavior.',src:'learning PPT'},
+  {q:'Define Learned Helplessness and its clinical significance.',a:'Animal subjected to inescapable shocks becomes apathetic, does not escape even when possible. It is an animal model for DEPRESSION. Treated with antidepressants.',src:'VID_20260517_134516_734.mp4'},
+  {q:'What is Systematic Desensitization and how does it work?',a:'Behavioral therapy for phobias: (1) Teach relaxation skills, (2) Build hierarchy of fears (mild to intense), (3) Gradually pair relaxation with each fear level until resolved.',src:'learning PPT'},
+  {q:'What is the difference between Flooding and Implosion?',a:'Flooding = immediate exposure to an ACTUAL overwhelming fear stimulus. Implosion = immediate exposure to an IMAGINED overwhelming fear stimulus.',src:'learning PPT'},
+  {q:'What is Extinction in Classical Conditioning?',a:'Disappearance of the conditioned response (CR) when the CS is repeatedly presented without the UCS.',src:'learning PPT'},
+  {q:'Which reinforcement schedule is most resistant to extinction?',a:'Variable Ratio schedule — reinforcement occurs after an unpredictable number of responses (e.g., gambling/slot machines).',src:'learning PPT'},
+  {q:'What is a Token Economy?',a:'Operant conditioning using positive reinforcement — patients receive tokens for desirable behaviors (e.g., combing hair) exchangeable for rewards. Used in psychotic/autistic/disorganized patients.',src:'learning PPT'},
+  {q:'What is Aversive Conditioning?',a:'Classical conditioning that pairs a maladaptive pleasurable behavior with a painful/aversive stimulus to eliminate the behavior. Example: pedophilia treated with electric shocks.',src:'learning PPT'},
+  {q:'What is Biofeedback?',a:'Using physiological information (e.g., blood pressure readings on a monitor) as reinforcement to teach voluntary control of visceral/autonomic body changes.',src:'learning PPT'},
+  {q:'Define Shaping in Operant Conditioning.',a:'Reinforcing successive, closer approximations to a target behavior until the full desired behavior is achieved.',src:'learning PPT'},
+  {q:'What is Stimulus Generalization?',a:'Responding similarly to stimuli that resemble the conditioned stimulus. After Little Albert, he feared all white fluffy objects, not just the rat.',src:'learning PPT'},
+  {q:'What are the dangers of Physical Punishment?',a:'Aggression, emotional trauma, physical harm, modeling of aggressive behavior, mistrust, inconsistency, and failure to teach positive alternatives.',src:'VID_20260517_134516_734.mp4'},
+  {q:'Who used cats in a puzzle box and what theory did this lead to?',a:'Edward Thorndike — developed Trial and Error learning (Law of Effect): satisfying consequences strengthen stimulus-response associations.',src:'learning PPT'},
+  {q:'What is CBT?',a:'Cognitive Behavioral Therapy: identifies and replaces distorted negative thoughts with positive, realistic ones. Used for depression and anxiety.',src:'learning PPT'},
+  {q:'What is the difference between Fear and Phobia?',a:'Fear: normal proportionate response to a real threat. Phobia: irrational, exaggerated fear causing panic even upon imagination of the object; disrupts daily life.',src:'learning PPT'},
+  {q:'How can the Immune System be classically conditioned?',a:'Rats: sweet water (NS) paired with immunosuppressant drug (UCS). After conditioning, sweet water (CS) alone suppresses the immune system (CR).',src:'VID_20260517_134516_734.mp4'},
+  {q:'What is Continuous vs. Intermittent reinforcement?',a:'Continuous: every response reinforced — fastest learning but fastest extinction. Intermittent: only some responses reinforced — slower learning but highly resistant to extinction.',src:'learning PPT'},
+];
+
+const MCQS = [
+  // Mechanisms (50%)
+  {stem:"What is the mechanism by which a dog salivates to a bell that was previously paired with food?",opts:["Positive Reinforcement","Classical Conditioning","Token Economy","Negative Punishment","Trial and Error"],ans:1,hard:false,exp:"A neutral stimulus (bell) was paired with an UCS (food) until the bell alone elicited a CR (salivation). This is the core mechanism of Classical Conditioning (Pavlov). Options A, C, D are Operant Conditioning. E is Thorndike's concept.",src:"VID_20260517_134516_734.mp4"},
+  {stem:"A rat presses a lever and receives food. The lever-pressing behavior increases. What mechanism drives this?",opts:["Classical Conditioning","Extinction","Positive Reinforcement","Negative Punishment","Implosion"],ans:2,hard:false,exp:"Adding a favorable outcome (food) following a voluntary behavior (lever pressing) increases that behavior — this is Positive Reinforcement. It is operant/voluntary (somatic) not classical (autonomic).",src:"learning PPT"},
+  {stem:"A student's detention is removed after they submit their homework. Their homework submission increases. This is:",opts:["Positive Reinforcement","Negative Reinforcement","Positive Punishment","Negative Punishment","Extinction"],ans:1,hard:false,exp:"Removing an unfavorable outcome (detention) following a behavior INCREASES the behavior — this is Negative Reinforcement. A adds reward. C adds punishment. D removes a good thing. E eliminates the pairing.",src:"learning PPT"},
+  {stem:"A child is grounded (phone taken away) after misbehaving in school. The misbehavior decreases. What type of consequence is this?",opts:["Positive Reinforcement","Negative Reinforcement","Positive Punishment","Negative Punishment","Aversive Conditioning"],ans:3,hard:false,exp:"Removing a favorable outcome (phone/freedom) to decrease behavior is Negative Punishment. Positive Punishment adds an unfavorable stimulus. Both reinforcements increase behavior.",src:"learning PPT"},
+  {stem:"Which mechanism explains why intermittent reinforcement produces behavior most resistant to extinction?",opts:["Each response is reinforced, maximizing learning","Unpredictable timing makes the organism uncertain, maintaining responding","It produces faster initial learning than continuous reinforcement","It is the same as flooding","It relies on the conditioned stimulus alone"],ans:1,hard:true,exp:"Intermittent reinforcement (especially variable ratio) maintains behavior because the organism cannot predict when reinforcement will come — uncertainty drives persistence. Continuous is faster initially but extinguishes quickly.",src:"learning PPT"},
+  {stem:"Rats repeatedly receive inescapable shocks. When an escape route is opened, they do not use it. The underlying mechanism is:",opts:["Classical Conditioning","Positive Punishment","Learned Helplessness","Negative Reinforcement","Biofeedback"],ans:2,hard:false,exp:"The animal has learned that its responses have no effect on outcomes — producing apathy and passivity. This is Learned Helplessness, which models depression in humans.",src:"VID_20260517_134516_734.mp4"},
+  {stem:"A paraphilia is treated by pairing the pleasurable maladaptive behavior with electric shocks. What conditioning mechanism is employed?",opts:["Operant Conditioning","Token Economy","Aversive Conditioning","Biofeedback","Implosion"],ans:2,hard:false,exp:"Pairing a pleasurable CS with a painful UCS (shocks) to produce aversive CR is Classical Conditioning applied clinically — specifically Aversive Conditioning.",src:"learning PPT"},
+  {stem:"Sweet water is paired with an immunosuppressant drug. After conditioning, sweet water alone suppresses immunity. The sweet water has become the:",opts:["UCS","UCR","CS","CR","NS"],ans:2,hard:true,exp:"The sweet water began as a neutral stimulus (NS). After pairing with the drug (UCS), it acquired the ability to elicit a conditioned response — making it the Conditioned Stimulus (CS). The immune suppression IT now causes is the CR.",src:"learning PPT"},
+  {stem:"🔥 HARD: In operant conditioning, why is shaping necessary for complex behaviors?",opts:["Complex behaviors cannot be reinforced directly because they never occur spontaneously","It pairs the behavior with a neutral stimulus","It relies on UCR rather than CR","Shaping is only used in classical conditioning","Shaping increases stimulus generalization"],ans:0,hard:true,exp:"Complex target behaviors (e.g., reading) may never naturally occur for reinforcement. Shaping rewards successive approximations, gradually guiding the organism toward the final desired behavior.",src:"learning PPT"},
+  {stem:"🔥 HARD: A phobic patient avoids bridges. Each avoidance reduces anxiety. The avoidance behavior is maintained by:",opts:["Positive Punishment","Classical Conditioning alone","Negative Reinforcement","Positive Reinforcement","Token Economy"],ans:2,hard:true,exp:"Avoidance reduces anxiety (removal of unfavorable stimulus) → behavior (avoidance) INCREASES. This is Negative Reinforcement. The phobia itself was classically conditioned, but its maintenance is operant (negative reinforcement).",src:"learning PPT"},
+  {stem:"Thorndike's cats learned to escape the puzzle box faster over trials. The law that explains this is:",opts:["Law of Conditioning","Law of Effect","Law of Extinction","Law of Generalization","Law of Discrimination"],ans:1,hard:false,exp:"Thorndike's Law of Effect: responses that produce satisfying outcomes in a situation are more likely to be repeated. This underlies Trial and Error learning.",src:"learning PPT"},
+  {stem:"🔥 HARD: Which statement correctly differentiates Classical from Operant conditioning?",opts:["Classical relies on consequences; Operant on stimulus association","Operant responses are involuntary; Classical are voluntary","Classical involves elicited involuntary autonomic responses","Operant requires an unconditioned stimulus","Both require no prior learning"],ans:2,hard:true,exp:"Classical conditioning operates through the autonomic nervous system producing involuntary responses. Operant conditioning involves voluntary somatic responses shaped by consequences. A, B, D reverse the definitions.",src:"VID_20260517_134516_734.mp4"},
+  {stem:"A child is praised every 5th time they write a letter correctly. This reinforcement schedule is:",opts:["Fixed Interval","Variable Interval","Fixed Ratio","Variable Ratio","Continuous"],ans:2,hard:false,exp:"Reinforcement after a specific, predetermined number of responses = Fixed Ratio. Interval schedules rely on time, not response count. Variable types are unpredictable. Continuous reinforces every response.",src:"learning PPT"},
+  {stem:"Removing a monitor during biofeedback training would most likely result in:",opts:["Improved control due to internalization of feedback","Loss of the reinforcement that shapes visceral control","Extinction of the classical conditioned response","Spontaneous recovery of hypertension","Token economy failure"],ans:1,hard:true,exp:"In biofeedback, the physiological feedback from the monitor acts as the reinforcer. Removing it removes the reinforcement, making visceral self-regulation harder to maintain.",src:"learning PPT"},
+  // Ecological Relationships (25%)
+  {stem:"Little Albert began fearing all white, fluffy objects after being conditioned to fear only a white rat. This demonstrates:",opts:["Stimulus Discrimination","Stimulus Generalization","Extinction","Negative Punishment","Shaping"],ans:1,hard:false,exp:"Stimulus Generalization: responding similarly to stimuli that resemble the original CS. Albert generalized from the white rat to all similar white/fluffy objects.",src:"learning PPT"},
+  {stem:"After therapy, a dog no longer salivates to a bell because the bell is presented repeatedly without food. This is:",opts:["Stimulus Discrimination","Shaping","Extinction","Negative Reinforcement","Implosion"],ans:2,hard:false,exp:"Extinction: the CR disappears when the CS (bell) is repeatedly presented without the UCS (food). The conditioning is not permanently erased — spontaneous recovery can occur.",src:"learning PPT"},
+  {stem:"A patient with blood pressure anxiety learns to relax to reduce their BP, aided by a monitor showing live readings. This is:",opts:["Systematic Desensitization","Token Economy","Biofeedback","CBT","Implosion"],ans:2,hard:false,exp:"Biofeedback uses physiological data (BP readings) to help a patient learn voluntary control of visceral responses. The monitor provides real-time reinforcement.",src:"learning PPT"},
+  {stem:"A phobic patient is taught deep breathing, then imagines being near a small spider while relaxed, then a larger one. This is:",opts:["Flooding","Implosion","Systematic Desensitization","Aversive Conditioning","Token Economy"],ans:2,hard:false,exp:"Systematic Desensitization: combines relaxation training with gradual exposure through a hierarchy of fears — starting mild and building to intense.",src:"learning PPT"},
+  {stem:"A schizophrenic patient receives a voucher every time they comb their hair. What therapy is this?",opts:["Aversive Conditioning","Biofeedback","Systematic Desensitization","Token Economy","CBT"],ans:3,hard:false,exp:"Token Economy uses operant conditioning (positive reinforcement) — tokens are given for desirable behaviors in disorganized/psychotic patients, exchangeable for rewards.",src:"learning PPT"},
+  {stem:"🔥 HARD: A child who was bitten by a dog now fears all large animals. The therapist wants to extinguish only the fear of horses (not dogs). The target is:",opts:["Shaping","Extinction","Stimulus Discrimination","Learned Helplessness","Aversive Conditioning"],ans:2,hard:true,exp:"The therapist aims to train Stimulus Discrimination — helping the patient distinguish between the CS (dog) and a similar but different stimulus (horse), responding only to the actual CS.",src:"learning PPT"},
+  {stem:"Which therapy would BEST treat a patient paralyzed by fear of open spaces (agoraphobia) using gradual real-life exposure?",opts:["Implosion","Biofeedback","Token Economy","Systematic Desensitization","CBT"],ans:3,hard:false,exp:"Systematic Desensitization uses a graduated real-life hierarchy paired with relaxation. Implosion uses imagined overwhelming stimuli. Flooding uses actual overwhelming stimuli without gradual steps.",src:"learning PPT"},
+  // Population & Community (15%) — mapped to group/clinical contexts
+  {stem:"In a psychiatric ward, tokens are given for appropriate behavior and taken away for disruptive behavior. Taking tokens away is an example of:",opts:["Negative Reinforcement","Extinction","Positive Punishment","Negative Punishment","Aversive Conditioning"],ans:3,hard:false,exp:"Removing a favorable stimulus (tokens = positive commodity) to decrease behavior is Negative Punishment.",src:"learning PPT"},
+  {stem:"A patient with depression believes 'nothing I do matters.' This closely parallels which learning principle?",opts:["Stimulus Generalization","Positive Punishment","Learned Helplessness","Extinction","Variable Ratio schedule"],ans:2,hard:false,exp:"Learned Helplessness: the belief that one's actions cannot affect outcomes. It is the animal model for depression and mirrors the depressive cognitive pattern.",src:"VID_20260517_134516_734.mp4"},
+  {stem:"A parent yells at a child for setting fires. The child continues. The MOST likely reason the punishment failed is:",opts:["Punishment always increases the target behavior","Yelling is a form of positive reinforcement of attention","Punishment requires a fixed ratio schedule","It was aversive conditioning","Token economy should have been used first"],ans:1,hard:true,exp:"If the child receives attention (even negative) from yelling, the yelling may function as positive reinforcement rather than punishment, especially if reinforcement is inconsistent. Punishment also models aggressive behavior.",src:"VID_20260517_134516_734.mp4"},
+  // Definitions (10%)
+  {stem:"Which researcher used cats in a puzzle box to develop the Trial and Error theory?",opts:["Pavlov","Skinner","Thorndike","Watson","Rayner"],ans:2,hard:false,exp:"Thorndike used cats in puzzle boxes to develop Trial and Error learning (Law of Effect). Pavlov used dogs. Skinner used rats in Skinner boxes. Watson conducted the Little Albert experiment.",src:"learning PPT"},
+  {stem:"'Irrational, exaggerated fear that causes panic even upon imagining the object and disrupts daily life' describes:",opts:["Normal fear","Learned Helplessness","Phobia","Aversive Conditioning","Stimulus Generalization"],ans:2,hard:false,exp:"This is the definition of a Phobia — distinguishable from normal Fear by its irrational, exaggerated nature and its ability to cause panic upon mere imagination of the object.",src:"learning PPT"},
+  {stem:"CBT primarily works by:",opts:["Pairing fears with relaxation responses","Rewarding positive behaviors with tokens","Replacing distorted negative thoughts with positive ones","Exposing patients to overwhelming fear stimuli","Using physiological feedback as reinforcement"],ans:2,hard:false,exp:"CBT = Cognitive Behavioral Therapy: identifies cognitive distortions (negative thoughts) and systematically replaces them with more realistic, positive cognitions.",src:"learning PPT"},
+  {stem:"🔥 HARD: A bell (CS) rings and a dog salivates (CR). The CS is then repeatedly presented without food. Initially salivation decreases. One week later, the bell rings and the dog salivates again briefly. This is:",opts:["Re-conditioning","Stimulus Generalization","Spontaneous Recovery","Extinction","Shaping"],ans:2,hard:true,exp:"After extinction, a period of rest followed by re-presentation of the CS (without UCS) can produce brief recurrence of the CR. This is Spontaneous Recovery — evidence that extinction suppresses rather than erases the conditioned response.",src:"learning PPT"},
+  {stem:"A patient locked in an elevator by a therapist to overcome elevator phobia — this is:",opts:["Systematic Desensitization","Implosion","Flooding","Token Economy","Biofeedback"],ans:2,hard:false,exp:"Flooding: immediate exposure to an ACTUAL overwhelming fear-inducing stimulus. If done via imagination instead, it would be Implosion.",src:"learning PPT"},
+];
+
+const SCENARIOS = [
+  {title:"Scenario 1 — Little Albert",body:"A 9-month-old infant (Little Albert) plays freely with a white rat. Each time he touches the rat, a loud iron bar is struck behind his head. After several pairings, he cries at the mere sight of the rat.",qs:[{l:"Mechanism?",a:"Classical Conditioning. The rat (NS) was paired with the loud noise (UCS → UCR: fear). The rat became a CS → CR (fear/crying)."},{l:"Key Factor?",a:"Temporal pairing of the neutral stimulus (rat) with the unconditioned stimulus (loud noise)."},{l:"If the rat is shown repeatedly without noise?",a:"Extinction — the CR (fear) would gradually disappear as the CS-UCS association weakens."},{l:"Predicted Outcome?",a:"Little Albert also generalized his fear to other white, fluffy objects (fur coat, Santa mask) — demonstrating Stimulus Generalization."}],src:"VID_20260517_134516_734.mp4"},
+  {title:"Scenario 2 — Learned Helplessness",body:"A rat is placed in a cage with an electric grid floor. Shocks are delivered at random intervals with no escape possible. After several sessions, an escape door is opened. The rat does not attempt to escape and remains passive.",qs:[{l:"Mechanism?",a:"Learned Helplessness — the rat has learned its responses do not affect outcomes, producing apathy and passive resignation."},{l:"Key Factor?",a:"The inescapability of the aversive stimulus during conditioning — not the shock itself, but the inability to control it."},{l:"Clinical Parallel?",a:"This is the animal model for DEPRESSION — humans develop similar apathy and hopelessness after repeated uncontrollable negative experiences."},{l:"If antidepressants are administered?",a:"The rat resumes escape attempts — supporting the use of antidepressants in treating depression."}],src:"VID_20260517_134516_734.mp4"},
+  {title:"Scenario 3 — Negative Reinforcement in School",body:"A student frequently misses class. A teacher tells the student: 'If you behave well this week, I will remove all your recorded absences from your file.' Behavior improves significantly.",qs:[{l:"Mechanism?",a:"Negative Reinforcement — removal of an unfavorable outcome (absences/record) increases the desired behavior (good behavior)."},{l:"Key Factor?",a:"The student perceives the absences as aversive and their removal as rewarding — driving behavioral change."},{l:"If replaced with a prize (sticker) instead?",a:"It becomes Positive Reinforcement — adding a favorable stimulus rather than removing an unfavorable one."},{l:"Which is more durable?",a:"Intermittent scheduling of either reinforcement type would make the behavior more resistant to extinction."}],src:"VID_20260517_134516_734.mp4"},
+  {title:"Scenario 4 — Trial and Error (Thorndike)",body:"A hungry cat is placed in a puzzle box with food visible outside. The cat scratches, bites, and moves randomly. Eventually it hits the release latch by accident and escapes. On repeated trials, escape time decreases.",qs:[{l:"Mechanism?",a:"Trial and Error learning (Law of Effect) — Thorndike. Satisfying responses (escape + food) strengthen the stimulus-response connection."},{l:"Key Factor?",a:"The reward (food outside) is essential — it reinforces the correct response. Without the reward, latencies do not decrease."},{l:"If food is removed?",a:"Without the reinforcing outcome, the cat has no motivation and the correct response is not reinforced — latency will not decrease."},{l:"Predicted Outcome?",a:"Without reward, Trial and Error learning does not occur — the Law of Effect requires a satisfying consequence to strengthen the association."}],src:"VID_20260517_134516_734.mp4"},
+  {title:"Scenario 5 — Immune System Conditioning",body:"Rats are given sweet-tasting saccharin water to drink, followed by an injection of cyclophosphamide (an immunosuppressant drug). After repeated pairings, saccharin water alone is given. Blood tests show suppressed immune function.",qs:[{l:"Mechanism?",a:"Classical Conditioning of the immune system. Saccharin water (NS→CS) was paired with cyclophosphamide (UCS) → immune suppression (UCR). After conditioning, water alone → immune suppression (CR)."},{l:"Key Factor?",a:"The repeated temporal pairing of the CS (saccharin water) with the UCS (immunosuppressant) during the conditioning phase."},{l:"If saccharin water is given repeatedly without the drug?",a:"Extinction — the immune suppression CR will gradually diminish as the CS-UCS association weakens."},{l:"Clinical Significance?",a:"Classical conditioning can affect physical health beyond behavior — the immune system can be conditioned, with implications for psychoneuroimmunology."}],src:"VID_20260517_134516_734.mp4"},
+  {title:"Scenario 6 — Aversive Conditioning",body:"A patient with pedophilia is shown images related to their maladaptive behavior while simultaneously receiving painful electric shocks. Over time, the patient no longer finds these stimuli pleasurable.",qs:[{l:"Mechanism?",a:"Aversive Conditioning (Classical Conditioning) — the maladaptive pleasurable stimulus (CS) is paired with a painful UCS (electric shocks) until the pleasure (UCR) becomes an aversion (CR)."},{l:"Key Factor?",a:"The consistent pairing of the maladaptive behavior stimulus with the aversive stimulus during each conditioning session."},{l:"Alternative approach?",a:"Positive Reinforcement of appropriate behaviors could complement aversive conditioning."},{l:"Limitation?",a:"The aversion may extinguish if the CS is later presented without the UCS (shocks) — maintenance and generalization of the conditioning must be considered."}],src:"learning PPT"},
+  {title:"Scenario 7 — Token Economy",body:"A psychiatric ward introduces a system where schizophrenic patients receive a plastic token each time they successfully perform basic hygiene (bathing, combing hair, brushing teeth). Tokens can be exchanged for privileges or snacks.",qs:[{l:"Mechanism?",a:"Token Economy — based on Operant Conditioning (Positive Reinforcement). Tokens serve as conditioned reinforcers exchangeable for primary reinforcers (privileges/food)."},{l:"Key Factor?",a:"The consistent delivery of tokens immediately after the desired behavior, and the value of the items tokens can be exchanged for."},{l:"If tokens are stopped?",a:"The positive behaviors would undergo extinction — decreasing in frequency without the reinforcing tokens."},{l:"Target population?",a:"Disorganized/psychotic patients (schizophrenia), autistic patients — those who may not respond to social reinforcement alone."}],src:"learning PPT"},
+  {title:"Scenario 8 — Biofeedback for Hypertension",body:"A hypertensive patient sits connected to a blood pressure monitor. Each time their BP drops (through relaxation), a green light on the monitor illuminates. Over weeks, the patient learns to lower their BP voluntarily.",qs:[{l:"Mechanism?",a:"Biofeedback — the physiological information (BP reading + green light) acts as reinforcement, enabling the patient to learn voluntary control of an ordinarily involuntary visceral process."},{l:"Key Factor?",a:"Real-time visual feedback serves as the reinforcing stimulus — without it, the patient cannot associate their relaxation effort with the physiological change."},{l:"If the monitor is removed?",a:"The patient loses the reinforcement signal. Behavior may be maintained if adequate internal feedback is established, but externally-dependent control would diminish."},{l:"What conditioning type governs the maintenance of the behavior?",a:"Operant Conditioning — the voluntary relaxation behavior is reinforced by the favorable feedback (BP drop + green light)."}],src:"learning PPT"},
+  {title:"Scenario 9 — Systematic Desensitization for Phobia",body:"A patient with severe spider phobia is first taught diaphragmatic breathing and progressive muscle relaxation. Then, while fully relaxed, they are asked to imagine a very small spider far away. Gradually, over weeks, they progress to holding a real spider.",qs:[{l:"Mechanism?",a:"Systematic Desensitization — relaxation responses are incompatible with anxiety. Pairing relaxation with increasingly fear-provoking stimuli (hierarchy) reduces the phobic response progressively."},{l:"Key Factor?",a:"The construction of a graduated anxiety hierarchy AND mastery of relaxation skills before exposure begins."},{l:"Difference from Flooding?",a:"Systematic Desensitization is gradual (hierarchy). Flooding is immediate exposure to the most overwhelming actual stimulus with no graded progression."},{l:"If the patient refuses relaxation training?",a:"Therapy would be compromised — relaxation is the incompatible response that counters anxiety during exposure."}],src:"learning PPT"},
+  {title:"Scenario 10 — Flooding vs. Implosion",body:"Patient A with elevator phobia is locked in a small elevator by the therapist for 45 minutes until anxiety subsides. Patient B with the same phobia is told to close their eyes and imagine being trapped in a tiny, broken elevator for 45 minutes.",qs:[{l:"Patient A — What therapy?",a:"Flooding — immediate exposure to an ACTUAL overwhelming fear stimulus (real elevator) until habituation occurs."},{l:"Patient B — What therapy?",a:"Implosion — immediate exposure to an IMAGINED overwhelming fear stimulus of the same intensity, without actual real-world confrontation."},{l:"Key Difference?",a:"Flooding uses the REAL stimulus; Implosion uses an IMAGINED stimulus. Both involve overwhelming, immediate (non-gradual) exposure unlike Systematic Desensitization."},{l:"Which is more ethically controversial?",a:"Flooding — involves real distress and potential for psychological harm if not properly managed. Implosion is considered safer but may be less effective."}],src:"learning PPT"},
+];
+
+const MNEMONICS = [
+  {word:"PERPS",title:"Types of Operant Consequences (Behavior Effects)",letters:[{l:"P",d:"Positive Reinforcement — add good → behavior UP"},{l:"E",d:"Extinction — remove pairing → behavior GONE"},{l:"R",d:"Remove bad → Negative Reinforcement → behavior UP"},{l:"P",d:"Positive Punishment — add bad → behavior DOWN"},{l:"S",d:"Strip away good → Negative Punishment → behavior DOWN"}],src:"learning PPT"},
+  {word:"CAFE",title:"Classical Conditioning Steps",letters:[{l:"C",d:"CS (Conditioned Stimulus) — the formerly neutral stimulus"},{l:"A",d:"Association — pairing CS with UCS repeatedly"},{l:"F",d:"Forms a new reflex — CS now elicits CR"},{l:"E",d:"Extinction — CR disappears if CS presented without UCS"}],src:"learning PPT"},
+  {word:"FIST",title:"Exposure Therapies",letters:[{l:"F",d:"Flooding — real overwhelming stimulus, immediate"},{l:"I",d:"Implosion — imagined overwhelming stimulus, immediate"},{l:"S",d:"Systematic Desensitization — gradual hierarchy + relaxation"},{l:"T",d:"Triggers are real in F, imaginary in I, gradual in S"}],src:"learning PPT"},
+  {word:"PAST",title:"Key Learning Theorists",letters:[{l:"P",d:"Pavlov — Classical Conditioning (dogs + bell)"},{l:"A",d:"(B.F.) Skinner — Operant Conditioning (rats in Skinner box)"},{l:"S",d:"Thorndike — Trial and Error, Law of Effect (cats in puzzle box)"},{l:"T",d:"Watson — Little Albert (fear conditioning in humans)"}],src:"learning PPT"},
+  {word:"HADES",title:"Learned Helplessness Consequences",letters:[{l:"H",d:"Helplessness — animal cannot escape even when able"},{l:"A",d:"Apathy — no motivation to try"},{l:"D",d:"Depression model — mirrors human depressive states"},{l:"E",d:"Escape attempts restored — by Antidepressants"},{l:"S",d:"Seligman — researcher who described learned helplessness"}],src:"VID_20260517_134516_734.mp4"},
+  {word:"BITS",title:"Schedules of Reinforcement — Intermittent",letters:[{l:"B",d:"Breaking unpredictably — Variable schedules: hardest to extinguish"},{l:"I",d:"Intervals: time-based (Fixed vs. Variable Interval)"},{l:"T",d:"Times response-based (Fixed vs. Variable Ratio)"},{l:"S",d:"Slowest extinction = Variable Ratio (slot machines)"}],src:"learning PPT"},
+];
+
+// ===================== STATE =====================
+let mcqAnswered = {};
+let mcqScore = 0;
+let mcqStreak = 0;
+let fcIdx = 0;
+let fcSeen = new Set();
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem('lp_state')||'{}');
+    mcqAnswered = s.mcqAnswered||{};
+    mcqScore = s.mcqScore||0;
+    mcqStreak = s.mcqStreak||0;
+    fcSeen = new Set(s.fcSeen||[]);
+    fcIdx = s.fcIdx||0;
+  } catch(e){}
+}
+function saveState() {
+  localStorage.setItem('lp_state', JSON.stringify({
+    mcqAnswered, mcqScore, mcqStreak, fcSeen:[...fcSeen], fcIdx
+  }));
+}
+
+// ===================== INIT =====================
+function init() {
+  loadState();
+  const theme = localStorage.getItem('lp_theme')||'dark';
+  document.body.dataset.theme = theme;
+  const tab = localStorage.getItem('lp_tab')||'dashboard';
+  showSection(tab);
+  buildFacts();
+  buildMCQ();
+  buildScenarios();
+  buildMnemonics();
+  updateFC();
+  updateDashboard();
+}
+
+// ===================== THEME =====================
+function toggleTheme() {
+  const t = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
+  document.body.dataset.theme = t;
+  localStorage.setItem('lp_theme', t);
+}
+
+// ===================== NAV =====================
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const sec = document.getElementById('section-'+id);
+  if(sec) sec.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.textContent.toLowerCase().includes(id.replace('-',' ').toLowerCase())||
+       (id==='dashboard'&&n.textContent.includes('Dashboard'))||
+       (id==='notes'&&n.textContent.includes('Notes'))||
+       (id==='facts'&&n.textContent.includes('Facts'))||
+       (id==='flashcards'&&n.textContent.includes('Flashcard'))||
+       (id==='mcq'&&n.textContent.includes('MCQ'))||
+       (id==='scenarios'&&n.textContent.includes('Scenario'))||
+       (id==='flowcharts'&&n.textContent.includes('Flowchart'))||
+       (id==='comparisons'&&n.textContent.includes('Comparison'))||
+       (id==='mnemonics'&&n.textContent.includes('Mnemonic'))||
+       (id==='revision'&&n.textContent.includes('Last'))
+    ) n.classList.add('active');
+  });
+  localStorage.setItem('lp_tab', id);
+  closeSidebar();
+  document.getElementById('searchResults').classList.remove('show');
+  document.getElementById('searchBox').value='';
+}
+
+function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('overlay').classList.add('open');}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('open');}
+
+// ===================== TOGGLE NOTES =====================
+function toggleNote(header) {
+  const body = header.nextElementSibling;
+  const arrow = header.querySelector('span');
+  body.classList.toggle('open');
+  arrow.textContent = body.classList.contains('open') ? '▲' : '▼';
+}
+
+// ===================== FACTS =====================
+function buildFacts() {
+  const g = document.getElementById('factsGrid');
+  g.innerHTML = FACTS.map(f=>`
+    <div class="fact-card ${f.tier}">
+      <div class="fact-num">#${f.rank}</div>
+      <div>
+        <div class="fact-text">${f.text}</div>
+        <span class="source-tag" style="margin-top:6px;">📖 ${f.src}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===================== FLASHCARDS =====================
+function updateFC() {
+  const card = FLASHCARDS[fcIdx];
+  document.getElementById('fcQuestion').textContent = card.q;
+  document.getElementById('fcAnswer').textContent = card.a;
+  document.getElementById('fcSource').textContent = '📖 '+card.src;
+  document.getElementById('flashcard').classList.remove('flipped');
+  document.getElementById('fcCounter').textContent = `Card ${fcIdx+1} of ${FLASHCARDS.length} — ${fcSeen.size} mastered`;
+  const pct = (fcSeen.size/FLASHCARDS.length)*100;
+  document.getElementById('fcBar').style.width = pct+'%';
+  document.getElementById('fcProgressText').textContent = `${fcSeen.size} / ${FLASHCARDS.length}`;
+}
+function flipCard(){document.getElementById('flashcard').classList.toggle('flipped');}
+function nextCard(){fcIdx=(fcIdx+1)%FLASHCARDS.length;updateFC();saveState();}
+function prevCard(){fcIdx=(fcIdx-1+FLASHCARDS.length)%FLASHCARDS.length;updateFC();saveState();}
+function markSeen(){fcSeen.add(fcIdx);nextCard();}
+function resetFC(){fcSeen=new Set();fcIdx=0;updateFC();saveState();}
+
+// ===================== MCQ =====================
+function buildMCQ() {
+  const c = document.getElementById('mcqContainer');
+  c.innerHTML = MCQS.map((q,i)=>{
+    const answered = mcqAnswered[i];
+    return `
+    <div class="q-card" id="qcard-${i}">
+      <div class="q-top">
+        <span class="q-num">Q${i+1} of ${MCQS.length}</span>
+        ${q.hard?'<span class="hard-badge">🔥 HARD</span>':''}
+      </div>
+      <div class="q-stem">${q.stem}</div>
+      <div class="options">
+        ${q.opts.map((o,j)=>`
+          <div class="opt ${answered!==undefined?(j===q.ans?'correct':(j===answered?'wrong':'')):''}
+               ${answered!==undefined?'disabled':''}"
+               onclick="answerMCQ(${i},${j})"
+               id="opt-${i}-${j}">
+            <span class="opt-letter">${'ABCDE'[j]}.</span>
+            <span>${o}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="explanation ${answered!==undefined?'show':''}" id="exp-${i}">
+        <span class="${answered===q.ans?'correct-tag':'wrong-tag'}">${answered===q.ans?'✓ Correct!':'✗ Incorrect.'}</span>
+        ${q.exp}<br><span class="source-tag" style="margin-top:6px;display:inline-block;">📖 ${q.src}</span>
+      </div>
+    </div>
+  `;}).join('');
+  updateMCQStats();
+}
+
+function answerMCQ(qi, optIdx) {
+  if(mcqAnswered[qi]!==undefined) return;
+  mcqAnswered[qi]=optIdx;
+  const correct = optIdx===MCQS[qi].ans;
+  if(correct){mcqScore++;mcqStreak++;}else{mcqStreak=0;}
+  document.getElementById('exp-'+qi).classList.add('show');
+  const opts = document.querySelectorAll(`[id^="opt-${qi}-"]`);
+  opts.forEach((o,j)=>{
+    o.classList.add('disabled');
+    if(j===MCQS[qi].ans) o.classList.add('correct');
+    else if(j===optIdx) o.classList.add('wrong');
+  });
+  updateMCQStats();
+  saveState();
+  if(Object.keys(mcqAnswered).length===MCQS.length && mcqScore/MCQS.length>=0.7) launchConfetti();
+}
+
+function updateMCQStats() {
+  const done = Object.keys(mcqAnswered).length;
+  const pct = Math.round((done/MCQS.length)*100);
+  document.getElementById('mcqScore').textContent = mcqScore;
+  document.getElementById('mcqStreak').textContent = mcqStreak;
+  document.getElementById('mcqDone').textContent = pct+'%';
+  document.getElementById('mcqProg').style.width = pct+'%';
+  document.getElementById('stat-mcq').textContent = done;
+  document.getElementById('stat-score').textContent = done>0?Math.round((mcqScore/done)*100)+'%':'—';
+  document.getElementById('stat-streak').textContent = mcqStreak;
+  const dp = document.getElementById('dash-prog');
+  if(dp){dp.style.width=pct+'%';}
+  const dpt = document.getElementById('dash-prog-text');
+  if(dpt){dpt.textContent=`${done} of ${MCQS.length} questions answered`;}
+}
+
+// ===================== SCENARIOS =====================
+function buildScenarios() {
+  const c = document.getElementById('scenariosContainer');
+  c.innerHTML = SCENARIOS.map((s,i)=>`
+    <div class="scenario-card">
+      <div class="scenario-title">${s.title}</div>
+      <div class="scenario-body">${s.body}</div>
+      <button class="reveal-btn" onclick="toggleScenario(${i},this)">▶ Reveal Answers</button>
+      <div class="scenario-qs" id="sq-${i}">
+        ${s.qs.map(q=>`
+          <div class="scenario-q">
+            <div class="sq-label">${q.l}</div>
+            <p>${q.a}</p>
+          </div>
+        `).join('')}
+        <span class="source-tag">📖 ${s.src}</span>
+      </div>
+    </div>
+  `).join('');
+}
+function toggleScenario(i,btn) {
+  const sq=document.getElementById('sq-'+i);
+  sq.classList.toggle('open');
+  btn.textContent=sq.classList.contains('open')?'▼ Hide Answers':'▶ Reveal Answers';
+}
+
+// ===================== MNEMONICS =====================
+function buildMnemonics() {
+  const c = document.getElementById('mnemonicsContainer');
+  c.innerHTML = MNEMONICS.map((m,i)=>`
+    <div class="mnem-card" onclick="toggleMnem(${i})">
+      <div class="mnem-top">
+        <div>
+          <div class="mnem-word">${m.word}</div>
+          <div class="mnem-title">${m.title}</div>
+        </div>
+        <span style="color:var(--muted);font-size:0.8rem;" id="mnem-arr-${i}">▼</span>
+      </div>
+      <div class="mnem-body" id="mnem-body-${i}">
+        ${m.letters.map(l=>`
+          <div class="mnem-letter-row">
+            <div class="mnem-letter">${l.l}</div>
+            <div class="mnem-def">${l.d}</div>
+          </div>
+        `).join('')}
+        <span class="source-tag" style="margin-top:8px;display:inline-block;">📖 ${m.src}</span>
+      </div>
+    </div>
+  `).join('');
+}
+function toggleMnem(i) {
+  const b=document.getElementById('mnem-body-'+i);
+  const a=document.getElementById('mnem-arr-'+i);
+  b.classList.toggle('open');
+  a.textContent=b.classList.contains('open')?'▲':'▼';
+}
+
+// ===================== DASHBOARD =====================
+function updateDashboard() {
+  updateMCQStats();
+}
+
+// ===================== SEARCH =====================
+const SEARCH_INDEX = [];
+function buildSearchIndex() {
+  FACTS.forEach(f=>SEARCH_INDEX.push({type:'Fact',text:f.text.replace(/<[^>]+>/g,''),section:'facts',label:`#${f.rank} — ${f.text.replace(/<[^>]+>/g,'').substring(0,60)}...`}));
+  FLASHCARDS.forEach(f=>SEARCH_INDEX.push({type:'Flashcard',text:f.q+' '+f.a,section:'flashcards',label:`FC: ${f.q.substring(0,60)}...`}));
+  MCQS.forEach((q,i)=>SEARCH_INDEX.push({type:'MCQ',text:q.stem+' '+q.opts.join(' '),section:'mcq',label:`Q${i+1}: ${q.stem.substring(0,60)}...`}));
+  SCENARIOS.forEach(s=>SEARCH_INDEX.push({type:'Scenario',text:s.title+' '+s.body,section:'scenarios',label:`${s.title}`}));
+  MNEMONICS.forEach(m=>SEARCH_INDEX.push({type:'Mnemonic',text:m.word+' '+m.title+' '+m.letters.map(l=>l.d).join(' '),section:'mnemonics',label:`${m.word} — ${m.title}`}));
+}
+function handleSearch(q) {
+  const res = document.getElementById('searchResults');
+  if(!q.trim()){res.classList.remove('show');return;}
+  const matches = SEARCH_INDEX.filter(item=>item.text.toLowerCase().includes(q.toLowerCase())).slice(0,10);
+  if(!matches.length){res.innerHTML='<p style="color:var(--muted);font-size:0.85rem;">No results found.</p>';res.classList.add('show');return;}
+  res.innerHTML = '<p style="font-size:0.75rem;color:var(--muted);margin-bottom:8px;">Search Results</p>'+
+    matches.map(m=>`<div class="search-result-item" onclick="showSection('${m.section}')"><span class="s-type">${m.type}</span>${m.label}</div>`).join('');
+  res.classList.add('show');
+}
+
+// ===================== CONFETTI =====================
+function launchConfetti(){
+  const colors=['#0ea5e9','#06b6d4','#22c55e','#a855f7','#f97316','#eab308'];
+  for(let i=0;i<80;i++){
+    const el=document.createElement('div');
+    el.className='confetti-piece';
+    el.style.cssText=`left:${Math.random()*100}vw;background:${colors[Math.floor(Math.random()*colors.length)]};
+      width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>0.5?'50%':'2px'};
+      animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*1}s;`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),6000);
+  }
+}
+
+buildSearchIndex();
+init();
+</script>
+</body>
+</html>

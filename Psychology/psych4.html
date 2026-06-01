@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dev Psych & Psychiatry — High-Yield Study Platform</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --bg: #060810;
+    --bg2: #0d1117;
+    --bg3: #131926;
+    --card: #111827;
+    --card2: #1a2235;
+    --border: #1e2d42;
+    --accent: #00c2ff;
+    --accent2: #0066ff;
+    --accent3: #00ffc8;
+    --red: #ff4d6d;
+    --orange: #ff8c42;
+    --yellow: #ffd166;
+    --green: #06d6a0;
+    --text: #e8edf5;
+    --text2: #8fa3bc;
+    --text3: #4a6080;
+    --exam: #ff4d6d;
+    --glow: 0 0 40px rgba(0,194,255,0.12);
+    --radius: 14px;
+    --transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+  [data-theme="light"] {
+    --bg: #f0f4fb;
+    --bg2: #e8edf7;
+    --bg3: #dde4f0;
+    --card: #ffffff;
+    --card2: #f5f8ff;
+    --border: #c8d4e8;
+    --text: #1a2340;
+    --text2: #4a5f7a;
+    --text3: #8a9bb5;
+    --glow: 0 4px 24px rgba(0,102,255,0.10);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: var(--transition);
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.4;
+  }
+
+  /* ── TOP NAV ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(6,8,16,0.85);
+    backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex; align-items: center; gap: 16px;
+    height: 60px;
+  }
+  [data-theme="light"] .topbar { background: rgba(240,244,251,0.9); }
+  .topbar-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; color: var(--accent); white-space: nowrap; }
+  .topbar-logo span { color: var(--text2); font-weight: 400; }
+  .search-wrap { flex: 1; max-width: 400px; position: relative; }
+  .search-wrap input {
+    width: 100%; background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 14px 8px 36px;
+    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px;
+    outline: none; transition: var(--transition);
+  }
+  .search-wrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,194,255,0.1); }
+  .search-wrap svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text3); }
+  .theme-btn {
+    margin-left: auto; background: var(--card2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 14px; color: var(--text2); cursor: pointer;
+    font-size: 13px; transition: var(--transition); white-space: nowrap;
+  }
+  .theme-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── TAB NAV ── */
+  .tab-nav {
+    display: flex; gap: 2px; padding: 12px 24px 0;
+    overflow-x: auto; background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    scrollbar-width: none;
+  }
+  .tab-nav::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    padding: 9px 18px; border: none; background: transparent;
+    color: var(--text2); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+    cursor: pointer; border-radius: 8px 8px 0 0; white-space: nowrap;
+    transition: var(--transition); position: relative;
+  }
+  .tab-btn.active { background: var(--card); color: var(--accent); }
+  .tab-btn.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--accent); border-radius: 2px 2px 0 0; }
+  .tab-btn:hover:not(.active) { background: var(--card2); color: var(--text); }
+
+  /* ── MAIN CONTENT ── */
+  .main { padding: 28px 24px; max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+  .tab-panel { display: none; animation: fadeIn 0.35s ease; }
+  .tab-panel.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
+
+  /* ── SECTION TITLE ── */
+  .sec-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 22px; margin-bottom: 20px; }
+  .sec-title span { color: var(--accent); }
+
+  /* ── DASHBOARD ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-bottom: 28px; }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 20px 16px; text-align: center;
+    transition: var(--transition); cursor: default;
+  }
+  .stat-card:hover { transform: translateY(-3px); box-shadow: var(--glow); border-color: var(--accent); }
+  .stat-icon { font-size: 26px; margin-bottom: 8px; }
+  .stat-val { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--accent); }
+  .stat-lbl { font-size: 12px; color: var(--text2); margin-top: 3px; }
+  .progress-bar-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; margin-top: 16px; }
+  .progress-bar-wrap h4 { font-size: 13px; color: var(--text2); margin-bottom: 10px; }
+  .pbar { background: var(--bg3); border-radius: 100px; height: 8px; overflow: hidden; }
+  .pbar-fill { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); border-radius: 100px; transition: width 1s ease; }
+
+  /* ── TOPIC CARDS ── */
+  .topic-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    margin-bottom: 14px; overflow: hidden; transition: var(--transition);
+  }
+  .topic-card:hover { border-color: var(--accent); }
+  .topic-header {
+    padding: 16px 20px; cursor: pointer; display: flex; align-items: center; gap: 12px;
+    user-select: none;
+  }
+  .topic-icon { font-size: 20px; }
+  .topic-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; flex: 1; }
+  .topic-badge { font-size: 11px; padding: 3px 9px; border-radius: 100px; background: rgba(0,194,255,0.12); color: var(--accent); }
+  .topic-chevron { color: var(--text3); transition: transform 0.3s; font-size: 18px; }
+  .topic-card.open .topic-chevron { transform: rotate(180deg); }
+  .topic-body { display: none; padding: 0 20px 20px; border-top: 1px solid var(--border); }
+  .topic-card.open .topic-body { display: block; animation: fadeIn 0.25s; }
+  .def-row { display: grid; grid-template-columns: 120px 1fr; gap: 8px; margin-bottom: 6px; }
+  .def-lbl { font-size: 12px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; padding-top: 2px; }
+  .def-val { font-size: 14px; color: var(--text); line-height: 1.6; }
+  .exam-box { background: rgba(255,77,109,0.08); border: 1px solid rgba(255,77,109,0.25); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .exam-box-title { font-size: 11px; font-weight: 700; color: var(--exam); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .exam-box li { font-size: 13px; color: var(--text); line-height: 1.7; margin-left: 14px; }
+  .source-tag { font-size: 11px; color: var(--text3); margin-top: 10px; }
+
+  /* ── FACTS ── */
+  .facts-grid { display: grid; gap: 10px; }
+  .fact-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 18px; display: flex; align-items: flex-start; gap: 12px;
+    transition: var(--transition);
+  }
+  .fact-card:hover { transform: translateX(4px); }
+  .fact-rank { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; width: 28px; flex-shrink: 0; }
+  .fact-text { font-size: 14px; line-height: 1.6; }
+  .fact-card.red { border-left: 3px solid var(--red); }
+  .fact-card.orange { border-left: 3px solid var(--orange); }
+  .fact-card.yellow { border-left: 3px solid var(--yellow); }
+  .fact-card.red .fact-rank { color: var(--red); }
+  .fact-card.orange .fact-rank { color: var(--orange); }
+  .fact-card.yellow .fact-rank { color: var(--yellow); }
+
+  /* ── FLASHCARDS ── */
+  .fc-controls { display: flex; gap: 12px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .fc-counter { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text2); }
+  .btn {
+    padding: 9px 20px; border-radius: 8px; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 14px;
+    transition: var(--transition);
+  }
+  .btn-primary { background: var(--accent2); color: #fff; }
+  .btn-primary:hover { background: var(--accent); }
+  .btn-ghost { background: var(--card2); color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .fc-scene { width: 100%; perspective: 1000px; margin-bottom: 20px; cursor: pointer; }
+  .fc-card {
+    width: 100%; max-width: 680px; height: 240px; margin: 0 auto;
+    position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4,0,0.2,1);
+  }
+  .fc-card.flipped { transform: rotateY(180deg); }
+  .fc-face {
+    position: absolute; inset: 0; backface-visibility: hidden;
+    border-radius: var(--radius); padding: 30px 36px;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center; gap: 10px;
+  }
+  .fc-front { background: var(--card); border: 1px solid var(--border); }
+  .fc-back { background: linear-gradient(135deg, var(--card2), var(--card)); border: 1px solid var(--accent2); transform: rotateY(180deg); }
+  .fc-label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: var(--text3); }
+  .fc-q { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; line-height: 1.5; }
+  .fc-a { font-size: 15px; color: var(--text); line-height: 1.6; }
+  .fc-src { font-size: 11px; color: var(--text3); }
+  .fc-nav { display: flex; justify-content: center; gap: 10px; }
+  .fc-dots { display: flex; gap: 6px; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
+  .fc-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: var(--transition); cursor: pointer; }
+  .fc-dot.done { background: var(--green); }
+  .fc-dot.active { background: var(--accent); width: 22px; border-radius: 4px; }
+
+  /* ── MCQ ── */
+  .mcq-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .score-badge {
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 6px 14px;
+  }
+  .streak-badge { color: var(--orange); border-color: rgba(255,140,66,0.3); background: rgba(255,140,66,0.08); }
+  .mcq-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px; margin-bottom: 16px; }
+  .mcq-q-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 16px; }
+  .mcq-num { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text3); padding-top: 2px; white-space: nowrap; }
+  .mcq-stem { font-size: 15px; line-height: 1.6; }
+  .hard-badge { display: inline-block; font-size: 10px; background: rgba(255,77,109,0.15); color: var(--red); border-radius: 4px; padding: 2px 7px; margin-bottom: 8px; }
+  .mcq-opts { display: flex; flex-direction: column; gap: 8px; }
+  .mcq-opt {
+    background: var(--card2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 11px 16px; cursor: pointer; font-size: 14px; display: flex; gap: 10px; align-items: flex-start;
+    transition: var(--transition);
+  }
+  .mcq-opt:hover:not(.disabled) { border-color: var(--accent); background: rgba(0,194,255,0.06); }
+  .mcq-opt.correct { border-color: var(--green); background: rgba(6,214,160,0.1); }
+  .mcq-opt.wrong { border-color: var(--red); background: rgba(255,77,109,0.08); }
+  .mcq-opt.disabled { cursor: default; }
+  .opt-letter { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: var(--text3); flex-shrink: 0; padding-top: 1px; }
+  .mcq-feedback { margin-top: 14px; padding: 14px 16px; border-radius: 10px; font-size: 13px; line-height: 1.7; display: none; }
+  .mcq-feedback.show { display: block; animation: fadeIn 0.3s; }
+  .mcq-feedback.correct { background: rgba(6,214,160,0.1); border: 1px solid rgba(6,214,160,0.25); }
+  .mcq-feedback.wrong { background: rgba(255,77,109,0.08); border: 1px solid rgba(255,77,109,0.2); }
+  .feedback-title { font-weight: 700; margin-bottom: 4px; }
+  .mcq-progress { background: var(--bg3); border-radius: 100px; height: 6px; margin-bottom: 20px; }
+  .mcq-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent3)); border-radius: 100px; transition: width 0.5s; }
+  .confetti-wrap { display: none; text-align: center; padding: 40px 20px; }
+  .confetti-wrap.show { display: block; animation: fadeIn 0.5s; }
+  .confetti-emoji { font-size: 60px; }
+  .confetti-score { font-family: 'Syne', sans-serif; font-size: 48px; font-weight: 800; color: var(--accent); }
+  .confetti-msg { font-size: 16px; color: var(--text2); margin-top: 8px; }
+
+  /* ── SCENARIOS ── */
+  .scenario-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 16px; overflow: hidden; }
+  .sc-header { padding: 18px 22px; cursor: pointer; display: flex; gap: 14px; align-items: flex-start; }
+  .sc-num { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); font-weight: 600; padding-top: 2px; }
+  .sc-scenario { font-size: 14px; line-height: 1.7; }
+  .sc-body { display: none; border-top: 1px solid var(--border); padding: 18px 22px; }
+  .scenario-card.open .sc-body { display: block; animation: fadeIn 0.3s; }
+  .sc-q { font-size: 13px; font-weight: 600; color: var(--accent); margin-top: 14px; margin-bottom: 4px; }
+  .sc-a { font-size: 14px; color: var(--text); line-height: 1.6; }
+  .sc-mech { background: rgba(0,194,255,0.07); border: 1px solid rgba(0,194,255,0.18); border-radius: 8px; padding: 10px 14px; margin-top: 12px; font-size: 13px; line-height: 1.7; }
+  .reveal-btn { margin-top: 14px; }
+
+  /* ── FLOWCHARTS ── */
+  .flow-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px; margin-bottom: 16px; }
+  .flow-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 18px; color: var(--accent); }
+  .flow-steps { display: flex; flex-direction: column; align-items: flex-start; gap: 0; }
+  .flow-step { background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 18px; font-size: 13px; position: relative; }
+  .flow-arrow { width: 2px; height: 22px; background: linear-gradient(to bottom, var(--accent2), var(--accent)); margin: 0 0 0 36px; position: relative; }
+  .flow-arrow::after { content: '▼'; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); font-size: 9px; color: var(--accent); }
+
+  /* ── COMPARISON TABLES ── */
+  .cmp-table-wrap { overflow-x: auto; margin-bottom: 20px; }
+  .cmp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .cmp-table th { background: var(--bg3); padding: 12px 16px; text-align: left; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent); border: 1px solid var(--border); }
+  .cmp-table td { padding: 11px 16px; border: 1px solid var(--border); color: var(--text); vertical-align: top; line-height: 1.5; }
+  .cmp-table tr:hover td { background: var(--card2); }
+
+  /* ── MNEMONICS ── */
+  .mnem-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 14px; overflow: hidden; }
+  .mnem-header { padding: 16px 20px; cursor: pointer; display: flex; align-items: center; gap: 14px; }
+  .mnem-letter { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--accent); width: 44px; height: 44px; background: rgba(0,194,255,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .mnem-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; }
+  .mnem-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .mnem-body { display: none; border-top: 1px solid var(--border); padding: 16px 20px; }
+  .mnem-card.open .mnem-body { display: block; animation: fadeIn 0.3s; }
+  .mnem-row { display: flex; gap: 14px; margin-bottom: 8px; align-items: flex-start; }
+  .mnem-char { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: var(--accent3); width: 28px; flex-shrink: 0; }
+  .mnem-def { font-size: 14px; line-height: 1.5; }
+
+  /* ── LAST NIGHT REVISION ── */
+  .lnr-section { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; margin-bottom: 16px; }
+  .lnr-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .lnr-list { list-style: none; }
+  .lnr-list li { font-size: 13px; line-height: 1.7; padding: 5px 0; border-bottom: 1px dashed var(--border); display: flex; gap: 8px; }
+  .lnr-list li::before { content: '→'; color: var(--accent); flex-shrink: 0; }
+  .lnr-exam { color: var(--red); font-weight: 600; }
+  .lnr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 640px) { .lnr-grid { grid-template-columns: 1fr; } .def-row { grid-template-columns: 1fr; } }
+
+  /* ── SEARCH RESULTS ── */
+  #search-results { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 20px; display: none; }
+  #search-results.show { display: block; }
+  .sr-item { padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .sr-item:last-child { border-bottom: none; }
+  .sr-tag { font-size: 10px; background: var(--bg3); border-radius: 4px; padding: 2px 7px; color: var(--text3); margin-right: 8px; }
+  .sr-highlight { color: var(--accent); font-weight: 600; }
+
+  /* ── SCROLL ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<nav class="topbar">
+  <div class="topbar-logo">DevPsych<span> · Mansoura</span></div>
+  <div class="search-wrap">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    <input type="text" id="globalSearch" placeholder="Search notes, MCQs, flashcards…" oninput="handleSearch(this.value)"/>
+  </div>
+  <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">☀️ Light</button>
+</nav>
+
+<!-- TAB NAVIGATION -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="openTab('dashboard',this)">📊 Dashboard</button>
+  <button class="tab-btn" onclick="openTab('notes',this)">📚 Notes</button>
+  <button class="tab-btn" onclick="openTab('facts',this)">🎯 Top 20 Facts</button>
+  <button class="tab-btn" onclick="openTab('flashcards',this)">🃏 Flashcards</button>
+  <button class="tab-btn" onclick="openTab('mcq',this)">✏️ MCQ Exam</button>
+  <button class="tab-btn" onclick="openTab('scenarios',this)">🔬 Scenarios</button>
+  <button class="tab-btn" onclick="openTab('flowcharts',this)">🔄 Flowcharts</button>
+  <button class="tab-btn" onclick="openTab('comparisons',this)">📊 Comparisons</button>
+  <button class="tab-btn" onclick="openTab('mnemonics',this)">🧠 Mnemonics</button>
+  <button class="tab-btn" onclick="openTab('revision',this)">🚨 Last Night</button>
+</div>
+
+<div class="main">
+
+<!-- SEARCH RESULTS -->
+<div id="search-results"></div>
+
+<!-- ══════════════════════════════════════
+     SECTION 1: DASHBOARD
+══════════════════════════════════════ -->
+<div class="tab-panel active" id="tab-dashboard">
+  <div class="sec-title"><span>Dashboard</span> — Developmental Psychology & Psychiatry</div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-val">5</div><div class="stat-lbl">Major Topics</div></div>
+    <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-val">20</div><div class="stat-lbl">High-Yield Facts</div></div>
+    <div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-val" id="examCount">14</div><div class="stat-lbl">⚠️ Exam Points</div></div>
+    <div class="stat-card"><div class="stat-icon">📝</div><div class="stat-val" id="mcqDone">0</div><div class="stat-lbl">MCQs Answered</div></div>
+    <div class="stat-card"><div class="stat-icon">🏆</div><div class="stat-val" id="quizScore">0%</div><div class="stat-lbl">Quiz Score</div></div>
+    <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-val" id="streakCount">0</div><div class="stat-lbl">Current Streak</div></div>
+  </div>
+  <div class="progress-bar-wrap">
+    <h4>Overall Progress (MCQ)</h4>
+    <div class="pbar"><div class="pbar-fill" id="dashProgress" style="width:0%"></div></div>
+  </div>
+  <div style="margin-top:20px; background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px;">
+    <div style="font-family:'Syne',sans-serif; font-weight:700; font-size:14px; color:var(--accent); margin-bottom:10px;">📌 Quick Reference</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:13px; color:var(--text2);">
+      <div>🍼 Infancy: <b style="color:var(--text)">0–15 months — Attachment</b></div>
+      <div>👦 Toddler: <b style="color:var(--text)">15–30 mo — Individuation</b></div>
+      <div>🎨 Preschool: <b style="color:var(--text)">3–6 yr — Superego / Conscience</b></div>
+      <div>🏫 School Age: <b style="color:var(--text)">7–11 yr — Industry</b></div>
+      <div>🧑 Adolescence: <b style="color:var(--text)">11–20 yr — Identity</b></div>
+      <div>🔖 Source: <b style="color:var(--text)">Mansoura Univ. Dev. Psych Lecture</b></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SECTION 2: HIGH-YIELD NOTES
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-notes">
+  <div class="sec-title"><span>High-Yield</span> Notes</div>
+
+  <!-- TOPIC 1 -->
+  <div class="topic-card" id="topic1">
+    <div class="topic-header" onclick="toggleTopic('topic1')">
+      <div class="topic-icon">🍼</div>
+      <div class="topic-title">1. Infancy (0–15 months)</div>
+      <div class="topic-badge">Erikson: Trust vs Mistrust</div>
+      <div class="topic-chevron">▾</div>
+    </div>
+    <div class="topic-body">
+      <div class="def-row"><div class="def-lbl">Definition</div><div class="def-val">Period from birth to 15 months; the foundation of all future social relationships.</div></div>
+      <div class="def-row"><div class="def-lbl">Core Task</div><div class="def-val">Formation of an intimate, secure attachment to the primary caregiver (usually the mother).</div></div>
+      <div class="def-row"><div class="def-lbl">Key Factor</div><div class="def-val">Physical and emotional presence of the mother is essential.</div></div>
+      <div class="def-row"><div class="def-lbl">Deprivation Effect</div><div class="def-val">Prolonged absence → Anaclitic depression, severe developmental retardation, higher death rates, and indiscriminate attachment to strangers.</div></div>
+      <div class="def-row"><div class="def-lbl">Significance</div><div class="def-val">Quality of primary attachment dictates the shape of ALL future social relationships.</div></div>
+      <div class="exam-box">
+        <div class="exam-box-title">⚠️ EXAM POINTS</div>
+        <ul>
+          <li>"The most important psychological task of a child between birth and 15 months is the development of an intimate attachment to the mother."</li>
+          <li>"Maternal deprivation leads to anaclitic depression and poor physical development."</li>
+          <li>Piaget: Sensorimotor stage ends with Object Permanence (understanding objects exist when out of sight).</li>
+        </ul>
+      </div>
+      <div class="source-tag">📖 Source: Mansoura University — Developmental Psychology & Psychiatry Lecture</div>
+    </div>
+  </div>
+
+  <!-- TOPIC 2 -->
+  <div class="topic-card" id="topic2">
+    <div class="topic-header" onclick="toggleTopic('topic2')">
+      <div class="topic-icon">👦</div>
+      <div class="topic-title">2. Toddler Years (15–30 months)</div>
+      <div class="topic-badge">Erikson: Autonomy vs Shame</div>
+      <div class="topic-chevron">▾</div>
+    </div>
+    <div class="topic-body">
+      <div class="def-row"><div class="def-lbl">Definition</div><div class="def-val">Developmental stage from 1 to 3 years old.</div></div>
+      <div class="def-row"><div class="def-lbl">Core Task</div><div class="def-val">Separation and individuation from the primary caregiver; completed by age 3.</div></div>
+      <div class="def-row"><div class="def-lbl">Key Mechanism</div><div class="def-val">The child must establish an independent identity without losing the secure base (the mother as anchor).</div></div>
+      <div class="def-row"><div class="def-lbl">Significance</div><div class="def-val">Allows the child to eventually attend day care without severe separation anxiety.</div></div>
+      <div class="exam-box">
+        <div class="exam-box-title">⚠️ EXAM POINTS</div>
+        <ul>
+          <li>"The toddler has no understanding of death and sees the death of a close family member as separation."</li>
+          <li>A child who CANNOT separate by age 3 → Separation Anxiety Disorder (not normal).</li>
+          <li>Toilet training typically occurs at age 3; it is often delayed by genetics or perfectionist parents.</li>
+        </ul>
+      </div>
+      <div class="source-tag">📖 Source: Mansoura University — Developmental Psychology & Psychiatry Lecture</div>
+    </div>
+  </div>
+
+  <!-- TOPIC 3 -->
+  <div class="topic-card" id="topic3">
+    <div class="topic-header" onclick="toggleTopic('topic3')">
+      <div class="topic-icon">🎨</div>
+      <div class="topic-title">3. Preschool Child (3–6 Years)</div>
+      <div class="topic-badge">Erikson: Initiative vs Guilt</div>
+      <div class="topic-chevron">▾</div>
+    </div>
+    <div class="topic-body">
+      <div class="def-row"><div class="def-lbl">Definition</div><div class="def-val">Children aged 3 to 6 years; Piaget's Pre-operational Stage.</div></div>
+      <div class="def-row"><div class="def-lbl">Core Task</div><div class="def-val">Development of superego (conscience), empathy, and theory of mind (realizing others exist and have independent thoughts).</div></div>
+      <div class="def-row"><div class="def-lbl">Cognitive Features</div><div class="def-val">Egocentric, animism (giving life to objects), magical thinking, and death is perceived as temporary and reversible.</div></div>
+      <div class="def-row"><div class="def-lbl">Stressor Response</div><div class="def-val">Life stressors (divorce, new sibling) can trigger regression (e.g., bed-wetting in a trained child).</div></div>
+      <div class="exam-box">
+        <div class="exam-box-title">⚠️ EXAM POINTS</div>
+        <ul>
+          <li>"A child whose pet died and thinks it will come back to life is typically 4 years old." (Under 5 → death is temporary/reversible.)</li>
+          <li>Toilet training at age 3; enuresis is ONLY diagnosed after age 5.</li>
+          <li>Regression is a defense mechanism: stress → revert to baby-like behaviors for comfort.</li>
+        </ul>
+      </div>
+      <div class="source-tag">📖 Source: Mansoura University — Developmental Psychology & Psychiatry Lecture</div>
+    </div>
+  </div>
+
+  <!-- TOPIC 4 -->
+  <div class="topic-card" id="topic4">
+    <div class="topic-header" onclick="toggleTopic('topic4')">
+      <div class="topic-icon">🏫</div>
+      <div class="topic-title">4. School Age (7–11 Years)</div>
+      <div class="topic-badge">Erikson: Industry vs Inferiority</div>
+      <div class="topic-chevron">▾</div>
+    </div>
+    <div class="topic-body">
+      <div class="def-row"><div class="def-lbl">Definition</div><div class="def-val">The period from 7 to 11 years old; Piaget's Concrete Operational Stage.</div></div>
+      <div class="def-row"><div class="def-lbl">Core Task</div><div class="def-val">Internalizing moral right/wrong; interacting predominantly with same-gender peers; identifying with same-gender parent.</div></div>
+      <div class="def-row"><div class="def-lbl">Cognitive Skills</div><div class="def-val">Conservation (quantity unchanged by container shape) and Seriation (arranging objects by size/quality).</div></div>
+      <div class="def-row"><div class="def-lbl">Death Concept</div><div class="def-val">After age 11 → child FINALLY understands death is universal, permanent, and inevitable.</div></div>
+      <div class="exam-box">
+        <div class="exam-box-title">⚠️ EXAM POINTS</div>
+        <ul>
+          <li>Conservation: Pour water from a short wide glass into a tall thin glass → quantity is the same (school-age child understands this).</li>
+          <li>Children ages 7–11 avoid the opposite sex and identify exclusively with same-sex peers and the same-gender parent.</li>
+        </ul>
+      </div>
+      <div class="source-tag">📖 Source: Mansoura University — Developmental Psychology & Psychiatry Lecture</div>
+    </div>
+  </div>
+
+  <!-- TOPIC 5 -->
+  <div class="topic-card" id="topic5">
+    <div class="topic-header" onclick="toggleTopic('topic5')">
+      <div class="topic-icon">🧑</div>
+      <div class="topic-title">5. Adolescence (11–20 Years)</div>
+      <div class="topic-badge">Erikson: Identity vs Role Confusion</div>
+      <div class="topic-chevron">▾</div>
+    </div>
+    <div class="topic-body">
+      <div class="def-row"><div class="def-lbl">Definition</div><div class="def-val">The transition period bridging childhood to adulthood; marked biologically by puberty.</div></div>
+      <div class="def-row"><div class="def-lbl">Core Task</div><div class="def-val">Developing a stable identity (Erikson's identity crisis) and cognitive maturation toward abstract reasoning.</div></div>
+      <div class="def-row"><div class="def-lbl">Sub-phases</div><div class="def-val">Early (obedient, peer-opinion sensitive), Middle (risk-taking, omnipotence), Late (abstract reasoning, identity consolidation).</div></div>
+      <div class="def-row"><div class="def-lbl">Brain Basis</div><div class="def-val">Prefrontal cortex (behavior/emotional regulation) matures; Limbic system (raw emotions) was already active — this mismatch drives impulsivity.</div></div>
+      <div class="def-row"><div class="def-lbl">Puberty Markers</div><div class="def-val">Females: Menarche (age 11–14). Males: First ejaculation.</div></div>
+      <div class="exam-box">
+        <div class="exam-box-title">⚠️ EXAM POINTS</div>
+        <ul>
+          <li>"Education about obvious SHORT-TERM benefits is more effective than long-term consequences to stop teenage risk-taking."</li>
+          <li>Unresolved identity crisis → Role confusion → societal displacement, criminality.</li>
+          <li>Some individuals remain concrete thinkers for life; abstract reasoning is NOT universal.</li>
+        </ul>
+      </div>
+      <div class="source-tag">📖 Source: Mansoura University — Developmental Psychology & Psychiatry Lecture</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SECTION 3: TOP 20 FACTS
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-facts">
+  <div class="sec-title">🎯 Top <span>20</span> Must-Know Facts</div>
+  <div style="display:flex;gap:12px;margin-bottom:14px;font-size:12px;flex-wrap:wrap;">
+    <span style="color:var(--red)">● Very High Yield</span>
+    <span style="color:var(--orange)">● High Yield</span>
+    <span style="color:var(--yellow)">● Important</span>
+  </div>
+  <div class="facts-grid" id="factsGrid"></div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SECTION 4: FLASHCARDS
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-flashcards">
+  <div class="sec-title">🃏 <span>Flashcards</span></div>
+  <div class="fc-controls">
+    <span class="fc-counter" id="fcCounter">Card 1 / 20</span>
+    <button class="btn btn-ghost" onclick="prevCard()">← Prev</button>
+    <button class="btn btn-primary" onclick="flipCard()">Flip Card</button>
+    <button class="btn btn-ghost" onclick="nextCard()">Next →</button>
+    <button class="btn btn-ghost" onclick="shuffleCards()">🔀 Shuffle</button>
+  </div>
+  <div class="fc-scene" onclick="flipCard()">
+    <div class="fc-card" id="fcCard">
+      <div class="fc-face fc-front">
+        <div class="fc-label">Question</div>
+        <div class="fc-q" id="fcQ"></div>
+      </div>
+      <div class="fc-face fc-back">
+        <div class="fc-label">Answer</div>
+        <div class="fc-a" id="fcA"></div>
+        <div class="fc-src" id="fcSrc"></div>
+      </div>
+    </div>
+  </div>
+  <div class="fc-nav">
+    <button class="btn btn-ghost" onclick="markDone()">✓ Got it</button>
+  </div>
+  <div class="fc-dots" id="fcDots"></div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SECTION 5: MCQ EXAM MODE
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-mcq">
+  <div class="sec-title">✏️ MCQ <span>Exam Mode</span></div>
+  <div class="mcq-header">
+    <div class="score-badge">Score: <span id="mcqScoreDisp">0</span> / <span id="mcqTotalDisp">0</span></div>
+    <div class="score-badge streak-badge">⚡ Streak: <span id="mcqStreakDisp">0</span></div>
+    <div class="score-badge" id="mcqPct">0% Complete</div>
+    <button class="btn btn-ghost" onclick="resetMCQ()" style="margin-left:auto">↺ Reset</button>
+  </div>
+  <div class="mcq-progress"><div class="mcq-progress-fill" id="mcqProgressFill" style="width:0%"></div></div>
+  <div id="mcqContainer"></div>
+  <div class="confetti-wrap" id="confettiWrap">
+    <div class="confetti-emoji">🎉</div>
+    <div class="confetti-score" id="finalScore"></div>
+    <div class="confetti-msg" id="finalMsg"></div>
+    <button class="btn btn-primary" onclick="resetMCQ()" style="margin-top:20px">Retake Quiz</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SECTION 6: SCENARIOS
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-scenarios">
+  <div class="sec-title">🔬 Applied <span>Scenarios</span></div>
+  <div id="scenariosContainer"></div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SECTION 7: FLOWCHARTS
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-flowcharts">
+  <div class="sec-title">🔄 Developmental <span>Flowcharts</span></div>
+
+  <div class="flow-card">
+    <div class="flow-title">Attachment & Separation Process</div>
+    <div class="flow-steps" id="flow1"></div>
+    <div class="source-tag" style="margin-top:14px">📖 Source: Mansoura University — Developmental Psychology Lecture</div>
+  </div>
+
+  <div class="flow-card">
+    <div class="flow-title">Piaget's Cognitive Development Stages</div>
+    <div class="flow-steps" id="flow2"></div>
+    <div class="source-tag" style="margin-top:14px">📖 Source: Mansoura University — Developmental Psychology Lecture</div>
+  </div>
+
+  <div class="flow-card">
+    <div class="flow-title">Erikson's Psychosocial Development</div>
+    <div class="flow-steps" id="flow3"></div>
+    <div class="source-tag" style="margin-top:14px">📖 Source: Mansoura University — Developmental Psychology Lecture</div>
+  </div>
+
+  <div class="flow-card">
+    <div class="flow-title">Kohlberg's Moral Development</div>
+    <div class="flow-steps" id="flow4"></div>
+    <div class="source-tag" style="margin-top:14px">📖 Source: Mansoura University — Developmental Psychology Lecture</div>
+  </div>
+
+  <div class="flow-card">
+    <div class="flow-title">Consequence of Maternal Deprivation</div>
+    <div class="flow-steps" id="flow5"></div>
+    <div class="source-tag" style="margin-top:14px">📖 Source: Mansoura University — Developmental Psychology Lecture</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SECTION 8: COMPARISON TABLES
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-comparisons">
+  <div class="sec-title">📊 <span>Comparison</span> Tables</div>
+
+  <div style="margin-bottom:10px; font-family:'Syne',sans-serif; font-weight:700; color:var(--accent);">Frequently Confused Concepts</div>
+  <div class="cmp-table-wrap">
+    <table class="cmp-table">
+      <tr><th>Concept A</th><th>Concept B</th><th>Key Difference</th></tr>
+      <tr><td><b>Growth</b></td><td><b>Development</b></td><td>Growth = physical increase in size. Development = maturation in function.</td></tr>
+      <tr><td><b>Psychology</b></td><td><b>Psychiatry</b></td><td>Psychology studies normal mental processes/behavior. Psychiatry diagnoses and treats mental diseases.</td></tr>
+      <tr><td><b>Fear</b></td><td><b>Anxiety</b></td><td>Fear = specific, known trigger (e.g., a lion). Anxiety = apprehension about an unknown/undefined threat.</td></tr>
+      <tr><td><b>Empathy</b></td><td><b>Sympathy</b></td><td>Empathy = understanding and validating suffering while maintaining healthy boundaries. Sympathy = merely feeling pity (can be harmful).</td></tr>
+      <tr><td><b>Sex</b></td><td><b>Gender</b></td><td>Sex = biological/chromosomal (XX, XY). Gender = psychological/social self-identity.</td></tr>
+      <tr><td><b>Concrete Thinking</b></td><td><b>Abstract Thinking</b></td><td>Concrete = literal/physical interpretation. Abstract = understands symbolism, metaphors, and underlying logic.</td></tr>
+      <tr><td><b>Shame</b></td><td><b>Guilt</b></td><td>Shame = seeing yourself negatively through others' eyes (social). Guilt = internal feeling of personal remorse.</td></tr>
+    </table>
+  </div>
+
+  <div style="margin:20px 0 10px; font-family:'Syne',sans-serif; font-weight:700; color:var(--accent);">Death Concept Across Developmental Stages</div>
+  <div class="cmp-table-wrap">
+    <table class="cmp-table">
+      <tr><th>Age Group</th><th>Understanding of Death</th><th>Key Point</th></tr>
+      <tr><td><b>Toddler (1–3 yr)</b></td><td>No understanding; sees death as separation</td><td>Equivalent to a parent leaving the room</td></tr>
+      <tr><td><b>Preschool (3–6 yr)</b></td><td>Temporary, reversible, magical, often a punishment</td><td>"The pet will come back tomorrow"</td></tr>
+      <tr><td><b>School Age (7–11 yr)</b></td><td>Permanent but not yet universal</td><td>Understands it won't come back, but not that it happens to everyone</td></tr>
+      <tr><td><b>Post-11 yr</b></td><td>Universal, permanent, inevitable</td><td>Full mature understanding; adult-level grief</td></tr>
+    </table>
+  </div>
+
+  <div style="margin:20px 0 10px; font-family:'Syne',sans-serif; font-weight:700; color:var(--accent);">Piaget's Cognitive Stages — Key Features</div>
+  <div class="cmp-table-wrap">
+    <table class="cmp-table">
+      <tr><th>Stage</th><th>Age</th><th>Key Feature</th><th>Milestone</th></tr>
+      <tr><td><b>Sensorimotor</b></td><td>0–2 yr</td><td>Learning through senses and actions</td><td>Object Permanence</td></tr>
+      <tr><td><b>Pre-operational</b></td><td>2–7 yr</td><td>Egocentric, animism, magical thinking</td><td>Symbolic/language-based thought</td></tr>
+      <tr><td><b>Concrete Operational</b></td><td>7–11 yr</td><td>Logical reasoning about physical objects</td><td>Conservation & Seriation</td></tr>
+      <tr><td><b>Formal Operational</b></td><td>11+ yr</td><td>Abstract reasoning, hypothetical thought</td><td>Understands proverbs symbolically</td></tr>
+    </table>
+  </div>
+
+  <div style="margin:20px 0 10px; font-family:'Syne',sans-serif; font-weight:700; color:var(--accent);">Adolescence Sub-phases</div>
+  <div class="cmp-table-wrap">
+    <table class="cmp-table">
+      <tr><th>Phase</th><th>Age</th><th>Dominant Behavior</th><th>Relation to Authority</th></tr>
+      <tr><td><b>Early</b></td><td>11–13</td><td>Peer-opinion sensitive, body-image concerns</td><td>Mostly obedient to parents</td></tr>
+      <tr><td><b>Middle</b></td><td>14–17</td><td>Risk-taking, omnipotence, identity searching</td><td>Conflict with parents, peer focus</td></tr>
+      <tr><td><b>Late</b></td><td>17–20</td><td>Abstract reasoning, identity consolidation</td><td>Return to adult-like relationship with parents</td></tr>
+    </table>
+  </div>
+
+  <div class="source-tag" style="margin-top:10px">📖 Source: Mansoura University — Developmental Psychology & Psychiatry Lecture</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SECTION 9: MNEMONICS
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-mnemonics">
+  <div class="sec-title">🧠 <span>Mnemonics</span></div>
+  <div id="mnemonicsContainer"></div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SECTION 10: LAST NIGHT REVISION
+══════════════════════════════════════ -->
+<div class="tab-panel" id="tab-revision">
+  <div style="background:rgba(255,77,109,0.08);border:1px solid rgba(255,77,109,0.25);border-radius:var(--radius);padding:14px 18px;margin-bottom:20px;font-size:13px;color:var(--red);font-weight:700;letter-spacing:0.5px;">
+    🚨 ULTRA HIGH-YIELD — LAST NIGHT REVISION SHEET
+  </div>
+  <div class="lnr-grid">
+    <div>
+      <div class="lnr-section">
+        <div class="lnr-title">Stage Milestones</div>
+        <ul class="lnr-list">
+          <li><span class="lnr-exam">0–15 mo: Attachment to mother</span></li>
+          <li>15–30 mo: Separation &amp; individuation</li>
+          <li>3 yr: Toilet training; superego develops</li>
+          <li><span class="lnr-exam">After 5 yr: Only then diagnose enuresis</span></li>
+          <li>3–6 yr: Death = temporary/reversible</li>
+          <li>After 11 yr: Death = universal &amp; inevitable</li>
+          <li>11–20 yr: Identity formation (Erikson)</li>
+        </ul>
+      </div>
+      <div class="lnr-section">
+        <div class="lnr-title">⚠️ Exam Favorites</div>
+        <ul class="lnr-list">
+          <li><span class="lnr-exam">Most important task 0–15 mo = Attachment</span></li>
+          <li><span class="lnr-exam">Maternal deprivation → Anaclitic depression</span></li>
+          <li><span class="lnr-exam">4 yr old thinks dead pet will return (normal)</span></li>
+          <li><span class="lnr-exam">Regression: stressed child reverts to baby behaviors</span></li>
+          <li><span class="lnr-exam">Short-term benefits more effective than long-term for teens</span></li>
+          <li><span class="lnr-exam">Separation anxiety disorder: can't separate by age 3</span></li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="lnr-section">
+        <div class="lnr-title">Erikson's Crisis (1 line each)</div>
+        <ul class="lnr-list">
+          <li>Infancy → Trust vs Mistrust</li>
+          <li>Toddler → Autonomy vs Shame</li>
+          <li>Preschool → Initiative vs Guilt</li>
+          <li>School Age → Industry vs Inferiority</li>
+          <li>Adolescence → Identity vs Role Confusion</li>
+          <li>Young Adult → Intimacy vs Isolation</li>
+          <li>Middle Age → Generativity vs Stagnation</li>
+          <li>Old Age → Integrity vs Despair</li>
+        </ul>
+      </div>
+      <div class="lnr-section">
+        <div class="lnr-title">Key Distinctions</div>
+        <ul class="lnr-list">
+          <li>Sex = biological (XX/XY); Gender = social identity</li>
+          <li>Fear = known trigger; Anxiety = unknown</li>
+          <li>Empathy ≠ Sympathy (empathy = healthy boundaries)</li>
+          <li>Conservation = quantity unchanged by shape</li>
+          <li>Seriation = arrange by size/quality</li>
+          <li>Concrete thinker interprets proverbs literally</li>
+          <li>Prefrontal cortex = behavior/regulation; Limbic = raw emotion</li>
+          <li>Kohlberg: Pre → Conventional → Post-conventional</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div style="font-size:11px;color:var(--text3);margin-top:8px;">📖 Source: Mansoura University — Developmental Psychology & Psychiatry Lecture</div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+// ════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════
+
+const facts = [
+  { rank:1, text:"The principal psychological task of infancy (0–15 months) is the formation of intimate attachment to the mother/primary caregiver.", tier:"red" },
+  { rank:2, text:"The primary task of toddlerhood (1–3 yr) is separation and individuation from the mother, completed by age 3.", tier:"red" },
+  { rank:3, text:"Infant maternal deprivation leads to anaclitic depression, developmental retardation, indiscriminate attachment to strangers, and higher death rates.", tier:"red" },
+  { rank:4, text:"Children unable to separate for day care after age 3 suffer from Separation Anxiety Disorder (pathological, not normal).", tier:"red" },
+  { rank:5, text:"Regression is a defense mechanism: a stressed child (e.g., parents' divorce) reverts to baby-like behaviors such as bed-wetting.", tier:"red" },
+  { rank:6, text:"Preschoolers (under 5) believe death is temporary, reversible, and often a punishment — 'the pet will come back tomorrow.'", tier:"red" },
+  { rank:7, text:"Children fully understand death is universal and inevitable only after age 11.", tier:"orange" },
+  { rank:8, text:"Toilet training occurs at age 3; delayed training is often genetic or caused by perfectionist parents.", tier:"orange" },
+  { rank:9, text:"Nocturnal enuresis is only formally diagnosed after 5 years of age.", tier:"orange" },
+  { rank:10, text:"Empathy, sharing, and conscience (Freud's superego) begin developing around age 6.", tier:"orange" },
+  { rank:11, text:"School-aged children (7–11) identify with the same-gender parent and avoid the opposite sex.", tier:"orange" },
+  { rank:12, text:"Conservation: understanding quantity remains the same regardless of container shape (Piaget — Concrete Operational Stage).", tier:"orange" },
+  { rank:13, text:"Seriation: the ability to arrange objects in order by size or quality (Piaget — Concrete Operational Stage).", tier:"yellow" },
+  { rank:14, text:"Early adolescents are highly sensitive to peer opinions but remain mostly obedient to parents.", tier:"yellow" },
+  { rank:15, text:"Middle adolescents exhibit risk-taking behaviors due to a feeling of personal omnipotence.", tier:"yellow" },
+  { rank:16, text:"Unresolved adolescent identity crisis (Erikson) results in role confusion and can lead to criminality.", tier:"yellow" },
+  { rank:17, text:"The prefrontal cortex manages cognition and emotional regulation; the limbic system produces raw emotions. Their mismatch drives adolescent impulsivity.", tier:"yellow" },
+  { rank:18, text:"Empathy involves validating suffering with healthy boundaries; sympathy is merely feeling pity (and can be harmful).", tier:"yellow" },
+  { rank:19, text:"Sex is a biological identity (XX/XY); Gender is how a person psychologically/socially identifies themselves.", tier:"yellow" },
+  { rank:20, text:"Abstract reasoning develops in late adolescence, but some individuals remain concrete thinkers for life — it is NOT universal.", tier:"yellow" },
+];
+
+const flashcards = [
+  { q:"What is the most important psychological task between birth and 15 months?", a:"Formation of an intimate attachment to the primary caregiver (mother). This dictates the shape of all future social relationships.", src:"Mansoura Univ. Dev. Psych Lecture" },
+  { q:"What happens to an infant who experiences prolonged maternal deprivation?", a:"Anaclitic depression, severe developmental retardation, higher mortality, and indiscriminate attachment to strangers.", src:"Mansoura Univ. Dev. Psych Lecture" },
+  { q:"What is the core developmental task of the toddler period (15–30 months)?", a:"Separation and individuation from the mother — establishing an independent identity while maintaining a secure base.", src:"Mansoura Univ. Dev. Psych Lecture" },
+  { q:"How does a toddler (1–3 yr) understand the death of a family member?", a:"As separation — not as biological cessation. The toddler has no concept of death.", src:"Mansoura Univ. Dev. Psych Lecture" },
+  { q:"A 5-year-old begins wetting the bed after her parents divorce. What mechanism explains this?", a:"Regression — a defense mechanism where stress causes a child to revert to earlier, baby-like behaviors for psychological comfort.", src:"Mansoura Univ. Dev. Psych Lecture" },
+  { q:"At what age should toilet training typically be completed?", a:"Age 3. Enuresis is only formally diagnosed after age 5.", src:"Mansoura Univ. Dev. Psych Lecture" },
+  { q:"A 4-year-old leaves food out for a dead dog, believing it will return. Is this normal?", a:"Yes. Preschoolers (under 5) understand death as temporary, reversible, and often a punishment.", src:"Mansoura Univ. Dev. Psych Lecture" },
+  { q:"After what age does a child understand that death is universal and inevitable?", a:"After age 11 (late school age / early adolescence).", src:"Mansoura Univ. Dev. Psych Lecture" },
+  { q:"What is Conservation (Piaget)?", a:"Understanding that quantity remains the same regardless of the shape or container it is in (e.g., same water in a wide vs. tall glass).", src:"Mansoura Univ. Dev. Psych Lecture" },
+  { q:"What is Seriation (Piaget)?", a:"The ability to arrange objects in a logical order based on size, weight, or other quality.", src:"Mansoura Univ. Dev. Psych Lecture" },
+  { q:"What is Erikson's psychosocial crisis during adolescence?", a:"Identity vs. Role Confusion. Successful resolution → stable ego identity. Failure → role confusion, behavioral problems.", src:"Mansoura Univ. Dev. Psych Lecture" },
+  { q:"What is the most effective educational approach to stop teenage risk-taking?", a:"Emphasizing obvious SHORT-TERM consequences/benefits is more effective than warning about long-term outcomes.", src:"Mansoura Univ. Dev. Psych Lecture" },
+  { q:"What is the difference between Sex and Gender?", a:"Sex = biological identity (XX/XY chromosomes). Gender = how a person psychologically and socially identifies themselves.", src:"Mansoura Univ. Dev. Psych Lecture" },
+  { q:"What is the difference between Empathy and Sympathy?", a:"Empathy = understanding and validating someone's suffering while maintaining healthy personal boundaries. Sympathy = simply feeling pity, which can be harmful.", src:"Mansoura Univ. Dev. Psych Lecture" },
+  { q:"A patient interprets the proverb 'glass houses' literally. What does this indicate?", a:"Concrete thinking (absence of Abstract/Formal Operational reasoning). They cannot extract the symbolic/philosophical meaning.", src:"Mansoura Univ. Dev. Psych Lecture" },
+  { q:"What brain regions are involved in adolescent emotional regulation?", a:"Prefrontal cortex (behavior & emotional regulation, matures late) vs. Limbic system (generates raw emotions, already active). Their mismatch drives impulsivity.", src:"Mansoura Univ. Dev. Psych Lecture" },
+  { q:"What is the difference between Fear and Anxiety?", a:"Fear = triggered by a specific, known threat. Anxiety = generalized apprehension about an unknown or undefined threat.", src:"Mansoura Univ. Dev. Psych Lecture" },
+  { q:"What are Kohlberg's three levels of moral development?", a:"Pre-conventional (reward/punishment) → Conventional (social conformity) → Post-conventional (internal conscience and principles).", src:"Mansoura Univ. Dev. Psych Lecture" },
+  { q:"What marks the biological onset of puberty in females?", a:"Menarche (first menstruation), typically occurring between ages 11–14.", src:"Mansoura Univ. Dev. Psych Lecture" },
+  { q:"What is Object Permanence (Piaget)?", a:"Understanding that objects continue to exist even when they are out of sight. Achieved at the end of the Sensorimotor stage (around 2 years).", src:"Mansoura Univ. Dev. Psych Lecture" },
+];
+
+const mcqs = [
+  { stem:"Which of the following is the most important psychological task for a child between birth and 15 months?", opts:["Development of abstract reasoning","Internalization of a moral conscience","Formation of an intimate attachment to a primary caregiver","Separation and individuation from the mother","Development of object permanence"], ans:2, hard:false, exp:"Attachment to the mother or primary caregiver is the principal task of infancy. A is late adolescence; B is school age; D is the toddler stage; E is a Piagetian cognitive milestone." },
+  { stem:"A 5-year-old girl, previously toilet trained, begins wetting the bed every night after her parents' divorce. She continues to perform well academically. This behavior is best described as:", opts:["Separation anxiety disorder","Attention deficit hyperactivity disorder","Delayed development","Typical behavior with regression","Failure to develop basic trust"], ans:3, hard:false, exp:"Divorce stress induces regression — a defense mechanism reverting to earlier baby-like behavior. A requires extreme separation panic; B is unrelated; C implies she never achieved training; E is an infancy failure." },
+  { stem:"A child believes their recently deceased pet will soon wake up and come back to life. The child is most likely:", opts:["4 years old","7 years old","9 years old","11 years old","15 years old"], ans:0, hard:false, exp:"Preschool children (3–6 yr) perceive death as temporary and reversible. All other ages listed indicate a child who already understands death is permanent and universal." },
+  { stem:"According to Erikson, the primary psychosocial task of the school-age period (7–11 years) is:", opts:["Trust vs. Mistrust","Autonomy vs. Shame","Industry vs. Inferiority","Identity vs. Role Confusion","Generativity vs. Stagnation"], ans:2, hard:false, exp:"Industry vs. Inferiority — school-aged children focus on competence, achievement, and learning rules. A is infancy; B is toddler; D is adolescence; E is middle adulthood." },
+  { stem:"The inability of a 4-year-old to spend a few hours away from their mother at day care without severe distress is most indicative of:", opts:["Separation anxiety disorder","Normal symbiotic attachment","Autistic phase behavior","Role confusion","Post-conventional morality"], ans:0, hard:false, exp:"A child who cannot separate by age 3 meets criteria for Separation Anxiety Disorder. B is normal at 3 months; C is normal at birth–3 months; D is an adolescent crisis; E is an adult moral concept." },
+  { stem:"Which part of the brain is primarily responsible for emotional regulation and behavioral control?", opts:["Lateral prefrontal cortex","Limbic structures","Medial orbital prefrontal cortex","Occipital lobe","Temporal lobe"], ans:2, hard:true, exp:"The medial orbital part of the prefrontal cortex regulates emotions and controls behavior. The lateral prefrontal cortex handles higher cognition; the limbic system generates raw emotions but does not regulate them; occipital/temporal lobes are sensory." },
+  { stem:"A patient who views themselves as female despite being born with XY chromosomes is demonstrating a divergence between their biological sex and their:", opts:["Sexual orientation","Gender identity","Anxious attachment style","Superego","Object permanence"], ans:1, hard:true, exp:"Gender is how one identifies socially and psychologically, while sex is biological (XX/XY). Sexual orientation refers to attraction; anxious attachment and object permanence are entirely unrelated constructs." },
+  { stem:"The cognitive concept that a quantity of water remains the same whether it is in a wide bowl or a tall glass is called:", opts:["Seriation","Conservation","Abstract reasoning","Animism","Reversibility"], ans:1, hard:false, exp:"Conservation (Piaget's Concrete Operational Stage) is the understanding that quantity is unaffected by container shape. Seriation is arranging by size; abstract reasoning involves symbolism; animism is giving life to objects." },
+  { stem:"An infant who experiences prolonged physical and emotional absence of the mother is at high risk of developing:", opts:["Schizophrenia","Anaclitic depression","Perfectionism","Concrete thinking","Omnipotence"], ans:1, hard:false, exp:"Maternal deprivation causes anaclitic depression — characterized by withdrawal, developmental retardation, and elevated mortality. Schizophrenia has a different etiology; perfectionism is a personality trait; concrete thinking is normal in childhood; omnipotence is an adolescent feeling." },
+  { stem:"The biological onset of puberty in females is classically marked by:", opts:["First ejaculation","Abstract reasoning","Identity crisis","Menarche","Achieving autonomy"], ans:3, hard:false, exp:"Menarche (first menstruation) marks female puberty, typically between ages 11–14. First ejaculation marks male puberty; abstract reasoning and identity crisis are psychological milestones; autonomy is a toddler stage task." },
+  { stem:"According to Kohlberg, moral behavior driven entirely by the desire to avoid punishment or gain a reward is categorized as:", opts:["Post-conventional","Conventional","Pre-conventional","Superego-driven","Empathic"], ans:2, hard:false, exp:"Pre-conventional morality is based purely on immediate consequences — reward or punishment. Conventional is based on social norms; post-conventional is driven by internal conscience and principles." },
+  { stem:"What distinguishes Anxiety from Fear?", opts:["Fear is chronic; anxiety is acute","Anxiety is triggered by a specific known threat; fear is not","Fear is triggered by a specific known threat; anxiety is generalized apprehension","Anxiety only occurs in children","Fear is pathological; anxiety is normal"], ans:2, hard:false, exp:"Fear has a specific, identifiable trigger. Anxiety is a generalized apprehension about an unknown or undefined threat. Neither is inherently more pathological than the other." },
+  { stem:"🔥 A 9-year-old boy arranges a set of sticks from longest to shortest to play a game. This demonstrates which Piagetian concept?", opts:["Conservation","Object permanence","Animism","Seriation","Abstract reasoning"], ans:3, hard:true, exp:"Seriation — the ability to arrange objects by size, weight, or quality — is a Concrete Operational Stage milestone. Conservation involves quantity; object permanence is sensorimotor; animism is preschool; abstract reasoning is formal operational." },
+  { stem:"Which of the following best explains why adolescent health campaigns should focus on short-term rather than long-term consequences?", opts:["Adolescents have no abstract reasoning","Adolescents have a fully mature prefrontal cortex","Feelings of omnipotence make long-term risk feel irrelevant","Conventional morality makes them obedient","Post-conventional morality is already established"], ans:2, hard:true, exp:"Middle adolescents feel omnipotent — they believe negative outcomes won't happen to them — making distant long-term consequences ineffective. Short-term consequences feel concrete and personally relevant." },
+  { stem:"A 2-year-old orphan adopted from a care facility hugs and clings to every adult they meet. This behavior most likely reflects:", opts:["Healthy secure attachment","Insecure avoidant attachment","Disinhibited Social Engagement Disorder from maternal deprivation","Normal separation individuation","Post-conventional empathy"], ans:2, hard:true, exp:"Prolonged absence of a primary caregiver prevents the normal neurobiological development of selective attachment, causing indiscriminate affection toward strangers — a hallmark of Disinhibited Social Engagement Disorder." },
+  { stem:"According to the lecture, the toddler (1–3 yr) who cannot separate from the mother for day care after age 3 most likely has:", opts:["Normal autistic phase behavior","Separation anxiety disorder","Anaclitic depression","Role confusion","Industry deficiency"], ans:1, hard:false, exp:"By age 3, separation and individuation should be complete. Failure to separate beyond this age is pathological and meets criteria for Separation Anxiety Disorder." },
+  { stem:"A school-age boy insists on only playing with other boys and refuses to interact with girls at recess. According to developmental principles, this is:", opts:["A sign of gender identity disorder","Normal school-age same-sex peer preference","Indicative of role confusion","A symptom of separation anxiety","A feature of pre-conventional morality"], ans:1, hard:false, exp:"During the school-age period (7–11 yr), children naturally identify with the same-gender parent and prefer same-sex peers, avoiding the opposite sex — a normal developmental pattern." },
+  { stem:"🔥 A patient asked to interpret the proverb 'People in glass houses shouldn't throw stones' responds: 'Because the stones will break the glass.' This best demonstrates:", opts:["Formal operational thought","Post-conventional morality","Concrete thinking with absent abstract reasoning","Industry vs. Inferiority","Animism"], ans:2, hard:true, exp:"The patient interprets the metaphor literally — a hallmark of concrete thinking. Abstract (Formal Operational) reasoning would extract the underlying principle: do not criticize others when you have similar flaws." },
+  { stem:"Empathy, sharing, and the early superego (conscience) in Freud's model begin developing around which age?", opts:["Age 1","Age 3","Age 6","Age 9","Age 12"], ans:2, hard:false, exp:"Empathy, sharing, and conscience development begin around age 6, aligning with the preschool-to-school-age transition and Freud's superego formation." },
+  { stem:"🔥 According to Erikson, failure to successfully resolve the adolescent identity crisis leads to:", opts:["Anaclitic depression","Separation anxiety disorder","Role confusion and potential criminality","Industry vs. inferiority failure","Concrete thinking"], ans:2, hard:true, exp:"Erikson's Identity vs. Role Confusion stage: successful resolution → cohesive ego identity; failure → role confusion, societal displacement, and behavioral problems including criminality." },
+  { stem:"What cognitive milestone does a child achieve at the end of Piaget's Sensorimotor stage (around age 2)?", opts:["Conservation","Seriation","Object Permanence","Abstract reasoning","Theory of Mind"], ans:2, hard:false, exp:"Object Permanence — understanding that objects continue to exist when out of sight — is the hallmark achievement at the end of the Sensorimotor stage." },
+  { stem:"Which Eriksonian crisis is associated with the preschool period (3–6 years)?", opts:["Trust vs. Mistrust","Autonomy vs. Shame","Initiative vs. Guilt","Industry vs. Inferiority","Identity vs. Role Confusion"], ans:2, hard:false, exp:"Initiative vs. Guilt is the preschool crisis. Children learn to plan and carry out activities; excessive criticism leads to guilt. Trust is infancy; Autonomy is toddler; Industry is school age; Identity is adolescence." },
+  { stem:"🔥 A researcher finds that some adults who grew up in wealthy households with all physical needs met still struggle to form secure relationships. The MOST likely explanation based on the lecture is:", opts:["Lack of formal operational development","Unresolved pre-conventional morality","Impaired maternal attachment in infancy despite physical provision","Late menarche","Insufficient seriation development"], ans:2, hard:true, exp:"Physical provision is insufficient; emotional and physical PRESENCE of the mother is required for secure attachment. The quality of primary attachment dictates all future social relationships — even when material needs are met." },
+  { stem:"The sub-phase of adolescence most characterized by risk-taking behaviors and a sense of personal invincibility is:", opts:["Early adolescence (11–13)","Middle adolescence (14–17)","Late adolescence (17–20)","Pre-adolescence (9–11)","Post-adolescence (20+)"], ans:1, hard:false, exp:"Middle adolescence (14–17) is marked by omnipotence (sense of invincibility) and risk-taking behaviors. Early adolescence is peer-sensitive but still obedient; late adolescence shows more mature, abstract reasoning." },
+  { stem:"🔥 According to the lecture, which of the following is TRUE about abstract reasoning?", opts:["All adolescents achieve it by age 15","It develops in late adolescence but is NOT universal — some individuals remain concrete thinkers for life","It is achieved in the Concrete Operational Stage","It develops before conservation and seriation","It is exclusively linked to the limbic system"], ans:1, hard:true, exp:"Abstract reasoning develops in late adolescence (Formal Operational Stage) but is NOT universally achieved. Some individuals remain concrete thinkers throughout adulthood, which is an important clinical distinction." },
+  { stem:"What is the main distinction between Shame and Guilt?", opts:["Shame is internal; guilt is social","Shame involves seeing yourself negatively through others' eyes; guilt is internal personal remorse","Guilt develops before shame","Shame is only experienced in adolescence","Guilt is a preschool milestone; shame is a school-age one"], ans:1, hard:false, exp:"Shame = social evaluation (being seen negatively by others). Guilt = internal, personal feeling of remorse or wrongdoing. This distinction is important in both developmental and clinical psychiatry." },
+  { stem:"Which phase of Kohlberg's moral development is driven by social conformity and peer pressure?", opts:["Pre-conventional","Conventional","Post-conventional","Superego morality","Empathic reasoning"], ans:1, hard:false, exp:"Conventional morality is driven by the desire to conform to social norms, maintain relationships, and follow societal rules. Pre-conventional is reward/punishment; post-conventional is internal principles." },
+  { stem:"🔥 A 3-year-old is dropped off at day care. She cries for 10 minutes then calms and plays happily. When her mother returns, she runs to her happily. This represents:", opts:["Separation anxiety disorder","Anaclitic depression","Secure attachment with normal developmental separation","Disinhibited social engagement","Insecure avoidant attachment"], ans:2, hard:true, exp:"This is textbook secure attachment: temporary distress on separation, successful self-regulation, and happy reunion. This is developmentally normal and expected — complete separation individuation occurs by age 3." },
+  { stem:"According to the lecture, what happens when a child's primary attachment fails because of inconsistent, unpredictable caregiving?", opts:["The child develops abstract reasoning later","The child develops Conservation before age 5","The child may develop anxious attachment — constantly fearing abandonment as an adult","The child advances to post-conventional morality early","The child achieves separation individuation faster"], ans:2, hard:false, exp:"Inconsistent caregiving creates anxious attachment: the child cannot trust the caregiver to reliably meet emotional needs, causing ambivalence on reunion — which can persist as fear of abandonment in adult relationships." },
+  { stem:"A teenager successfully forms close friendships, commits to a career path, and feels a stable sense of self. According to Erikson, they are transitioning to which crisis?", opts:["Industry vs. Inferiority","Generativity vs. Stagnation","Identity vs. Role Confusion","Intimacy vs. Isolation","Trust vs. Mistrust"], ans:3, hard:false, exp:"Successfully resolving the Identity vs. Role Confusion stage of adolescence leads directly to the next Eriksonian crisis: Intimacy vs. Isolation (young adulthood) — the capacity to form deep, committed relationships." },
+];
+
+const scenarios = [
+  { num:"01", scenario:"A 5-year-old girl, previously toilet-trained and sleeping independently, begins begging to sleep in her mother's bed and wets the bed following her parents' divorce.", q1:"Which principle explains this?", a1:"Defense Mechanisms — specifically Regression.", q2:"What factor is responsible?", a2:"Regression due to severe life stress (divorce). The psyche retreats to an earlier, safer developmental stage for comfort.", q3:"What would happen if the factor changes?", a3:"She will likely resume her age-appropriate milestones as stability is restored.", q4:"Predict the outcome.", a4:"Typical behavior with regression; she will eventually adapt as the family situation stabilizes.", mech:"Stress forces the child's psyche to retreat to an earlier, safer developmental stage — baby-like behavior — to seek comfort. This is a normal defense mechanism, not a pathological disorder." },
+  { num:"02", scenario:"A 4-year-old boy's dog dies. The boy leaves food in the bowl and waits by the door for the dog to return the next day.", q1:"Which principle explains this?", a1:"Pre-operational cognitive development — the Preschool Death Concept.", q2:"What factor is responsible?", a2:"Lack of cognitive maturity: preschoolers view death as temporary, reversible, and akin to sleeping or traveling.", q3:"What would happen if the factor changes?", a3:"After age 5, he will begin to understand death is permanent; after 11, he will understand it is universal and inevitable.", q4:"Predict the outcome.", a4:"He will eventually grieve normally as his cognition matures through the developmental stages.", mech:"Preschool children (3–6 yr) conceptualize death as temporary and reversible. This is developmentally normal and not a pathological denial." },
+  { num:"03", scenario:"A 2-year-old orphan is adopted. The child shows indiscriminate affection toward strangers, hugging anyone they meet, and displays poor physical growth despite adequate nutrition.", q1:"Which principle explains this?", a1:"Attachment Theory — specifically the effects of Maternal Deprivation.", q2:"What factor is responsible?", a2:"Prolonged absence of a primary caregiver in infancy disrupted neurobiological and emotional development.", q3:"What would happen if the factor changes?", a3:"Intense, consistent foster care and attachment therapy may slowly rebuild trust and selective attachment.", q4:"Predict the outcome.", a4:"Risk of Disinhibited Social Engagement Disorder and developmental retardation without intervention.", mech:"Lack of a secure base prevents normal emotional development, causing inappropriate social boundaries (indiscriminate affection) and physical failure to thrive — even with adequate nutrition." },
+  { num:"04", scenario:"A 3-year-old cries hysterically when dropped off at day care. After 4 weeks, the child still cannot spend any time away from the mother without extreme panic attacks.", q1:"Which principle explains this?", a1:"Pathological failure of Individuation — Separation Anxiety Disorder.", q2:"What factor is responsible?", a2:"Failure to achieve the normal separation and individuation from the primary caregiver by age 3.", q3:"What would happen if the factor changes?", a3:"Building a consistent, secure attachment base could alleviate the pathological anxiety over time.", q4:"Predict the outcome.", a4:"This meets diagnostic criteria for Separation Anxiety Disorder — clinical intervention is warranted.", mech:"By age 3, a child should have internalized the mother's presence enough to tolerate separation. Failure to achieve this milestone indicates clinical-level anxiety, not normal development." },
+  { num:"05", scenario:"A 16-year-old boy begins smoking marijuana, driving at dangerous speeds, and frequently argues with his parents about his clothing choices and curfew.", q1:"Which principle explains this?", a1:"Adolescent Psychosocial Development — Middle Adolescence (14–17 yr).", q2:"What factor is responsible?", a2:"Feelings of omnipotence and the drive to establish an independent identity away from parental values.", q3:"What would happen if the factor changes?", a3:"If presented with compelling short-term consequences, he may modify risk-taking behavior. Long-term warnings are largely ineffective.", q4:"Predict the outcome.", a4:"Conflict with parents is expected; eventual prefrontal cortex maturation will improve impulse control.", mech:"The identity crisis requires separating from parental expectations. Combined with an immature prefrontal cortex (behavioral regulation), this manifests as impulsive risk-taking and defiance." },
+  { num:"06", scenario:"A patient is asked the meaning of the proverb 'People in glass houses shouldn't throw stones' and replies: 'Because the stones will break the glass and they will get hurt.'", q1:"Which principle explains this?", a1:"Concrete vs. Abstract Thinking (Piaget's Formal Operational Stage).", q2:"What factor is responsible?", a2:"Absence of Formal Operational stage mastery — the patient remains a concrete thinker.", q3:"What would happen if the factor changes?", a3:"With abstract reasoning, they would understand the symbolic meaning: do not criticize others when you share the same flaws.", q4:"Predict the outcome.", a4:"The patient relies entirely on literal, concrete interpretations and cannot extract symbolic meaning.", mech:"Abstract reasoning (Formal Operational Stage) allows symbolic/metaphorical thinking. Its absence means the patient can only process the physical, literal meaning of language." },
+  { num:"07", scenario:"A 9-year-old boy refuses to play with girls during recess, builds forts exclusively with other boys, and tries to act exactly like his father.", q1:"Which principle explains this?", a1:"School-Age Social Development — Same-Sex Peer Preference and Same-Gender Identification.", q2:"What factor is responsible?", a2:"The school-age child identifies with the same-gender parent and consolidates gender roles by mimicking same-sex adults.", q3:"What would happen if the factor changes?", a3:"Upon reaching puberty, interest in the opposite sex will naturally emerge.", q4:"Predict the outcome.", a4:"Normal, healthy development — socialization through peer rules and moral learning.", mech:"From ages 7–11, children consolidate their gender roles, identify strongly with the same-sex parent, and naturally avoid opposite-sex peers. This is a normal developmental phase." },
+  { num:"08", scenario:"An infant becomes highly distressed when their mother leaves the room; when she returns, the infant is angry, resists being comforted, and continues crying despite the mother's attempts.", q1:"Which principle explains this?", a1:"Insecure (Anxious) Attachment Style.", q2:"What factor is responsible?", a2:"Inconsistent, unpredictable caregiving — the child cannot trust that emotional needs will be reliably met.", q3:"What would happen if the factor changes?", a3:"Consistent, warm, reliable comforting would gradually build secure attachment over time.", q4:"Predict the outcome.", a4:"Risk of growing into an adult who constantly fears abandonment in close relationships.", mech:"Anxious attachment forms when a child cannot predict the caregiver's reliability, causing ambivalence on reunion: they want comfort but resist it because they cannot trust it will last." },
+  { num:"09", scenario:"A 6-year-old watches water poured from a short, wide glass into a tall, thin glass and correctly states that the amount of water is exactly the same.", q1:"Which principle explains this?", a1:"Piaget's Concept of Conservation — Concrete Operational Stage.", q2:"What factor is responsible?", a2:"Successful transition to Concrete Operational thought — the child overcomes visual egocentrism.", q3:"What would happen if younger?", a3:"A 4-year-old would claim the tall glass has more water, relying on visual appearance rather than logic.", q4:"Predict the outcome.", a4:"Increased capacity for logical reasoning in mathematics and science at school.", mech:"The child has developed Conservation: quantity is understood to be independent of the physical shape or container, representing a major Piagetian cognitive advancement." },
+  { num:"10", scenario:"A teenager successfully forms a close friend group, commits to pursuing a career in medicine, and expresses confidence and clarity about their future direction in life.", q1:"Which principle explains this?", a1:"Erikson's Identity vs. Role Confusion — successful resolution.", q2:"What factor is responsible?", a2:"Exploring available options and committing to social and professional roles synthesizes a coherent ego identity.", q3:"What would happen if unsuccessful?", a3:"Role confusion → societal displacement, lack of direction, and potential behavioral problems including criminality.", q4:"Predict the outcome.", a4:"Smooth transition to the next Eriksonian stage: Intimacy vs. Isolation (young adulthood).", mech:"By exploring identities and committing to chosen roles, the adolescent ego synthesizes a stable, coherent self-concept — the foundation for healthy adult relationships and functioning." },
+];
+
+const flowData = {
+  flow1: ["Normal Autism / Undifferentiated Phase (0–3 months)", "Symbiosis with Caregiver (3 months+)", "Separation Individuation Begins (15 months)", "Independent Identity Formation (by 30 months)", "Secure Base for Day Care & Social Exploration (by age 3)"],
+  flow2: ["Sensorimotor Stage (0–2 yr) → Object Permanence", "Pre-operational Stage (2–7 yr) → Egocentric, Animism, Magical Thinking", "Concrete Operational Stage (7–11 yr) → Conservation, Seriation", "Formal Operational Stage (11+ yr) → Abstract Reasoning, Hypothetical Thought"],
+  flow3: ["Trust vs. Mistrust (Infancy)", "Autonomy vs. Shame/Doubt (Toddler)", "Initiative vs. Guilt (Preschool)", "Industry vs. Inferiority (School Age)", "Identity vs. Role Confusion (Adolescence)", "Intimacy vs. Isolation (Young Adulthood)", "Generativity vs. Stagnation (Middle Age)", "Integrity vs. Despair (Old Age)"],
+  flow4: ["Pre-conventional: Reward & Punishment (egocentric)", "Conventional: Social Conformity & Peer Pressure", "Post-conventional: Internal Conscience & Principles"],
+  flow5: ["Prolonged Maternal Absence / Deprivation", "Failure to Form Secure Attachment", "Anaclitic Depression & Developmental Retardation", "Indiscriminate Attachment to Strangers", "Disinhibited Social Engagement Disorder / Higher Mortality"],
+};
+
+const mnemonics = [
+  { letter:"A", title:"Ages & Tasks — ATTIS", sub:"Attachment → Toddler → Three yr toilet → Industry → Superego", rows:[{c:"A",d:"Attachment (0–15 mo) — bond with mother"},{c:"T",d:"Toddler separation (15–30 mo)"},{c:"T",d:"Toilet training age 3 (Enuresis only after 5)"},{c:"I",d:"Industry vs. Inferiority (school age 7–11)"},{c:"S",d:"Superego / Conscience develops ~age 6"}] },
+  { letter:"E", title:"Erikson's 8 Stages — TAISIIGG", sub:"Trust, Autonomy, Initiative, Industry, Identity, Intimacy, Generativity, Integrity", rows:[{c:"T",d:"Trust vs. Mistrust (Infancy)"},{c:"A",d:"Autonomy vs. Shame (Toddler)"},{c:"I",d:"Initiative vs. Guilt (Preschool)"},{c:"I",d:"Industry vs. Inferiority (School Age)"},{c:"I",d:"Identity vs. Role Confusion (Adolescence)"},{c:"I",d:"Intimacy vs. Isolation (Young Adult)"},{c:"G",d:"Generativity vs. Stagnation (Middle Age)"},{c:"G",d:"Integrity vs. Despair (Old Age)"}] },
+  { letter:"D", title:"Death Concept Ages — D-P-S-U", sub:"Don't know → Probably returns → Sometimes universal → Universally inevitable", rows:[{c:"D",d:"Don't understand death: Toddler (sees it as separation)"},{c:"P",d:"Probably returns: Preschooler under 5 (temporary, reversible)"},{c:"S",d:"Sometimes: School age 7–11 (permanent but not yet universal)"},{c:"U",d:"Universally permanent: After age 11 (inevitable for all)"}] },
+  { letter:"P", title:"Piaget's Stages — SPCF", sub:"Sensorimotor → Pre-op → Concrete → Formal", rows:[{c:"S",d:"Sensorimotor (0–2 yr) → Object Permanence"},{c:"P",d:"Pre-operational (2–7 yr) → Magical thinking, animism"},{c:"C",d:"Concrete Operational (7–11 yr) → Conservation, Seriation"},{c:"F",d:"Formal Operational (11+) → Abstract reasoning"}] },
+  { letter:"K", title:"Kohlberg — PCO", sub:"Punishment → Conformity → Own principles", rows:[{c:"P",d:"Pre-conventional: reward/punishment (child-like)"},{c:"C",d:"Conventional: social norms, peer conformity"},{c:"O",d:"Own principles: internal conscience (post-conventional)"}] },
+  { letter:"R", title:"Regression Triggers — SDNS", sub:"Stress → Defense → New baby → Sibling / Separation", rows:[{c:"S",d:"Stress (divorce, loss)"},{c:"D",d:"Defense mechanism activated"},{c:"N",d:"New sibling (common trigger)"},{c:"S",d:"Separation anxiety or major life change"}] },
+];
+
+// ════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════
+let mcqScore = 0, mcqAnswered = 0, mcqStreak = 0;
+let currentCard = 0, cardsDone = new Set();
+let fcOrder = [...Array(flashcards.length).keys()];
+
+// ════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  loadState();
+  renderFacts();
+  renderFlashcard();
+  renderFCDots();
+  renderMCQs();
+  renderScenarios();
+  renderFlowcharts();
+  renderMnemonics();
+  updateDashboard();
+});
+
+// ════════════════════════════════════════════════
+// THEME
+// ════════════════════════════════════════════════
+function toggleTheme() {
+  const t = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : null);
+  document.getElementById('themeBtn').textContent = t === 'light' ? '🌙 Dark' : '☀️ Light';
+  localStorage.setItem('theme', t);
+}
+function loadState() {
+  const t = localStorage.getItem('theme');
+  if (t === 'light') { document.documentElement.setAttribute('data-theme','light'); document.getElementById('themeBtn').textContent = '🌙 Dark'; }
+  const tab = localStorage.getItem('activeTab');
+  if (tab) { const btn = document.querySelector(`.tab-btn[onclick*="${tab}"]`); if (btn) openTab(tab, btn); }
+  const s = localStorage.getItem('mcqState');
+  if (s) { const d = JSON.parse(s); mcqScore=d.score||0; mcqAnswered=d.answered||0; mcqStreak=d.streak||0; }
+  const cd = localStorage.getItem('cardsDone');
+  if (cd) { cardsDone = new Set(JSON.parse(cd)); }
+}
+
+// ════════════════════════════════════════════════
+// TABS
+// ════════════════════════════════════════════════
+function openTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  localStorage.setItem('activeTab', id);
+}
+
+// ════════════════════════════════════════════════
+// TOPICS
+// ════════════════════════════════════════════════
+function toggleTopic(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+// ════════════════════════════════════════════════
+// FACTS
+// ════════════════════════════════════════════════
+function renderFacts() {
+  const grid = document.getElementById('factsGrid');
+  grid.innerHTML = facts.map(f => `
+    <div class="fact-card ${f.tier}">
+      <div class="fact-rank">#${f.rank}</div>
+      <div class="fact-text">${f.text}</div>
+    </div>
+  `).join('');
+}
+
+// ════════════════════════════════════════════════
+// FLASHCARDS
+// ════════════════════════════════════════════════
+function renderFlashcard() {
+  const idx = fcOrder[currentCard];
+  const card = flashcards[idx];
+  document.getElementById('fcQ').textContent = card.q;
+  document.getElementById('fcA').textContent = card.a;
+  document.getElementById('fcSrc').textContent = '📖 ' + card.src;
+  document.getElementById('fcCard').classList.remove('flipped');
+  document.getElementById('fcCounter').textContent = `Card ${currentCard+1} / ${flashcards.length}`;
+  renderFCDots();
+}
+function renderFCDots() {
+  const d = document.getElementById('fcDots');
+  d.innerHTML = fcOrder.map((idx,i) => `<div class="fc-dot ${cardsDone.has(idx)?'done':''} ${i===currentCard?'active':''}" onclick="jumpCard(${i})"></div>`).join('');
+}
+function flipCard() { document.getElementById('fcCard').classList.toggle('flipped'); }
+function prevCard() { currentCard = (currentCard-1+flashcards.length)%flashcards.length; renderFlashcard(); }
+function nextCard() { currentCard = (currentCard+1)%flashcards.length; renderFlashcard(); }
+function jumpCard(i) { currentCard=i; renderFlashcard(); }
+function markDone() {
+  cardsDone.add(fcOrder[currentCard]);
+  localStorage.setItem('cardsDone', JSON.stringify([...cardsDone]));
+  renderFCDots();
+  nextCard();
+}
+function shuffleCards() {
+  for (let i=fcOrder.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [fcOrder[i],fcOrder[j]]=[fcOrder[j],fcOrder[i]]; }
+  currentCard=0; renderFlashcard();
+}
+
+// ════════════════════════════════════════════════
+// MCQ
+// ════════════════════════════════════════════════
+let answeredArr = {};
+function renderMCQs() {
+  const c = document.getElementById('mcqContainer');
+  c.innerHTML = mcqs.map((q,qi) => `
+    <div class="mcq-card" id="mcqCard${qi}">
+      ${q.hard?'<div class="hard-badge">🔥 HARD</div>':''}
+      <div class="mcq-q-top">
+        <div class="mcq-num">Q${qi+1}.</div>
+        <div class="mcq-stem">${q.stem}</div>
+      </div>
+      <div class="mcq-opts">
+        ${q.opts.map((o,oi)=>`<div class="mcq-opt" id="opt${qi}_${oi}" onclick="answerMCQ(${qi},${oi})">
+          <div class="opt-letter">${String.fromCharCode(65+oi)}.</div>
+          <div>${o}</div>
+        </div>`).join('')}
+      </div>
+      <div class="mcq-feedback" id="mcqFB${qi}">
+        <div class="feedback-title" id="mcqFBTitle${qi}"></div>
+        <div id="mcqFBExp${qi}"></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:6px">📖 Mansoura University — Dev. Psych & Psychiatry Lecture</div>
+      </div>
+    </div>
+  `).join('');
+  updateMCQDisplay();
+}
+function answerMCQ(qi, oi) {
+  if (answeredArr[qi] !== undefined) return;
+  answeredArr[qi] = oi;
+  const q = mcqs[qi];
+  const correct = oi === q.ans;
+  if (correct) { mcqScore++; mcqStreak++; } else { mcqStreak=0; }
+  mcqAnswered++;
+  // style opts
+  q.opts.forEach((_,i) => {
+    const el = document.getElementById(`opt${qi}_${i}`);
+    el.classList.add('disabled');
+    if (i === q.ans) el.classList.add('correct');
+    else if (i === oi && !correct) el.classList.add('wrong');
+  });
+  // feedback
+  const fb = document.getElementById(`mcqFB${qi}`);
+  fb.classList.add('show', correct?'correct':'wrong');
+  document.getElementById(`mcqFBTitle${qi}`).textContent = correct ? '✓ Correct!' : '✗ Incorrect — Correct answer: ' + String.fromCharCode(65+q.ans);
+  document.getElementById(`mcqFBExp${qi}`).textContent = q.exp;
+  saveState();
+  updateMCQDisplay();
+  if (mcqAnswered === mcqs.length) showConfetti();
+}
+function updateMCQDisplay() {
+  const pct = mcqs.length > 0 ? Math.round(mcqAnswered/mcqs.length*100) : 0;
+  document.getElementById('mcqScoreDisp').textContent = mcqScore;
+  document.getElementById('mcqTotalDisp').textContent = mcqAnswered;
+  document.getElementById('mcqStreakDisp').textContent = mcqStreak;
+  document.getElementById('mcqPct').textContent = pct+'% Complete';
+  document.getElementById('mcqProgressFill').style.width = pct+'%';
+  updateDashboard();
+}
+function resetMCQ() {
+  answeredArr={}; mcqScore=0; mcqAnswered=0; mcqStreak=0;
+  document.getElementById('confettiWrap').classList.remove('show');
+  saveState(); renderMCQs();
+}
+function showConfetti() {
+  const pct = Math.round(mcqScore/mcqs.length*100);
+  document.getElementById('finalScore').textContent = pct + '%';
+  document.getElementById('finalMsg').textContent = pct>=80 ? '🏆 Outstanding! You are exam-ready.' : pct>=60 ? '👍 Good work — review your mistakes.' : '📚 Keep studying — you\'ve got this!';
+  document.getElementById('confettiWrap').classList.add('show');
+}
+function saveState() {
+  localStorage.setItem('mcqState', JSON.stringify({score:mcqScore,answered:mcqAnswered,streak:mcqStreak}));
+}
+
+// ════════════════════════════════════════════════
+// DASHBOARD UPDATE
+// ════════════════════════════════════════════════
+function updateDashboard() {
+  const pct = mcqs.length > 0 ? Math.round(mcqAnswered/mcqs.length*100) : 0;
+  const el = document.getElementById('mcqDone'); if(el) el.textContent = mcqAnswered;
+  const qs = document.getElementById('quizScore'); if(qs) qs.textContent = (mcqAnswered>0?Math.round(mcqScore/mcqAnswered*100):0)+'%';
+  const sc = document.getElementById('streakCount'); if(sc) sc.textContent = mcqStreak;
+  const dp = document.getElementById('dashProgress'); if(dp) dp.style.width = pct+'%';
+}
+
+// ════════════════════════════════════════════════
+// SCENARIOS
+// ════════════════════════════════════════════════
+function renderScenarios() {
+  const c = document.getElementById('scenariosContainer');
+  c.innerHTML = scenarios.map((s,i) => `
+    <div class="scenario-card" id="sc${i}">
+      <div class="sc-header" onclick="toggleSc(${i})">
+        <div class="sc-num">Scenario ${s.num}</div>
+        <div class="sc-scenario">${s.scenario}</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-q">1. ${s.q1}</div><div class="sc-a">${s.a1}</div>
+        <div class="sc-q">2. ${s.q2}</div><div class="sc-a">${s.a2}</div>
+        <div class="sc-q">3. ${s.q3}</div><div class="sc-a">${s.a3}</div>
+        <div class="sc-q">4. ${s.q4}</div><div class="sc-a">${s.a4}</div>
+        <div class="sc-mech"><b style="color:var(--accent)">⚙️ Mechanism:</b> ${s.mech}</div>
+        <div class="source-tag" style="margin-top:10px">📖 Source: Mansoura University — Dev. Psych & Psychiatry Lecture</div>
+      </div>
+    </div>
+  `).join('');
+}
+function toggleSc(i) { document.getElementById('sc'+i).classList.toggle('open'); }
+
+// ════════════════════════════════════════════════
+// FLOWCHARTS
+// ════════════════════════════════════════════════
+function renderFlowcharts() {
+  Object.keys(flowData).forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const steps = flowData[id];
+    el.innerHTML = steps.map((s,i) => `
+      <div class="flow-step">${s}</div>
+      ${i < steps.length-1 ? '<div class="flow-arrow"></div>' : ''}
+    `).join('');
+  });
+}
+
+// ════════════════════════════════════════════════
+// MNEMONICS
+// ════════════════════════════════════════════════
+function renderMnemonics() {
+  const c = document.getElementById('mnemonicsContainer');
+  c.innerHTML = mnemonics.map((m,i) => `
+    <div class="mnem-card" id="mn${i}">
+      <div class="mnem-header" onclick="toggleMn(${i})">
+        <div class="mnem-letter">${m.letter}</div>
+        <div>
+          <div class="mnem-title">${m.title}</div>
+          <div class="mnem-sub">${m.sub}</div>
+        </div>
+      </div>
+      <div class="mnem-body">
+        ${m.rows.map(r=>`<div class="mnem-row"><div class="mnem-char">${r.c}</div><div class="mnem-def">${r.d}</div></div>`).join('')}
+        <div class="source-tag" style="margin-top:10px">📖 Source: Mansoura University — Dev. Psych & Psychiatry Lecture</div>
+      </div>
+    </div>
+  `).join('');
+}
+function toggleMn(i) { document.getElementById('mn'+i).classList.toggle('open'); }
+
+// ════════════════════════════════════════════════
+// SEARCH
+// ════════════════════════════════════════════════
+const searchData = [
+  ...facts.map(f => ({type:'Fact', text:f.text})),
+  ...flashcards.map(f => ({type:'Flashcard', text:f.q+' '+f.a})),
+  ...mcqs.map(q => ({type:'MCQ', text:q.stem+' '+q.opts.join(' ')})),
+  ...scenarios.map(s => ({type:'Scenario', text:s.scenario+' '+s.a1+' '+s.a2})),
+];
+function handleSearch(val) {
+  const r = document.getElementById('search-results');
+  if (!val || val.length < 2) { r.classList.remove('show'); return; }
+  const v = val.toLowerCase();
+  const hits = searchData.filter(d => d.text.toLowerCase().includes(v)).slice(0,8);
+  if (!hits.length) { r.innerHTML='<div style="color:var(--text2);font-size:13px;">No results found.</div>'; r.classList.add('show'); return; }
+  r.innerHTML = `<div style="font-size:12px;color:var(--text3);margin-bottom:10px;">Showing ${hits.length} results for "${val}"</div>` +
+    hits.map(h => {
+      const snippet = h.text.length > 120 ? h.text.substring(0,120)+'…' : h.text;
+      const hi = snippet.replace(new RegExp(val,'gi'), m=>`<span class="sr-highlight">${m}</span>`);
+      return `<div class="sr-item"><span class="sr-tag">${h.type}</span>${hi}</div>`;
+    }).join('');
+  r.classList.add('show');
+}
+</script>
+</body>
+</html>
