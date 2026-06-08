@@ -1,0 +1,3882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KME – Knowledge Medical Exam</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-light: #dbeafe;
+  --success: #16a34a;
+  --success-light: #dcfce7;
+  --success-bg: #f0fdf4;
+  --danger: #dc2626;
+  --danger-light: #fecaca;
+  --danger-bg: #fef2f2;
+  --warning: #f59e0b;
+  --warning-light: #fef3c7;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+  --transition: 0.2s ease;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--gray-50);
+  color: var(--gray-800);
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==================== SETUP SCREEN ==================== */
+.setup-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #eff6ff 0%, #f9fafb 50%, #ecfdf5 100%);
+  padding: 20px;
+}
+
+.setup-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: var(--shadow-xl);
+  padding: 48px;
+  max-width: 520px;
+  width: 100%;
+  text-align: center;
+  animation: fadeInUp 0.6s ease;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.setup-logo {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -1.5px;
+  margin-bottom: 4px;
+}
+
+.setup-logo span {
+  color: var(--gray-400);
+  font-weight: 400;
+  font-size: 16px;
+  letter-spacing: 2px;
+  display: block;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.setup-divider {
+  height: 3px;
+  width: 50px;
+  background: var(--primary);
+  border-radius: 2px;
+  margin: 24px auto;
+}
+
+.setup-subtitle {
+  font-size: 15px;
+  color: var(--gray-500);
+  margin-bottom: 36px;
+}
+
+.mode-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  background: white;
+  cursor: pointer;
+  transition: all var(--transition);
+  text-align: left;
+}
+
+.mode-btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.mode-btn.selected {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.mode-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.mode-btn:nth-child(1) .mode-icon {
+  background: #dbeafe;
+}
+
+.mode-btn:nth-child(2) .mode-icon {
+  background: #fce7f3;
+}
+
+.mode-info h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gray-800);
+  margin-bottom: 2px;
+}
+
+.mode-info p {
+  font-size: 13px;
+  color: var(--gray-500);
+  line-height: 1.4;
+}
+
+.timer-config {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  padding: 16px;
+  background: var(--gray-50);
+  border-radius: var(--radius);
+}
+
+.timer-config label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-600);
+}
+
+.timer-config select {
+  padding: 8px 14px;
+  border: 1.5px solid var(--gray-300);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 14px;
+  background: white;
+  color: var(--gray-700);
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.timer-config select:focus {
+  border-color: var(--primary);
+}
+
+.start-btn {
+  width: 100%;
+  padding: 16px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  letter-spacing: 0.3px;
+}
+
+.start-btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+.start-btn:disabled {
+  background: var(--gray-300);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ==================== EXAM SCREEN ==================== */
+.exam-screen {
+  display: none;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+/* Header */
+.exam-header {
+  background: white;
+  border-bottom: 1px solid var(--gray-200);
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-logo {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -1px;
+}
+
+.header-mode-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.header-mode-badge.tutor {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.header-mode-badge.exam {
+  background: #fce7f3;
+  color: #be185d;
+}
+
+.header-center {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.stat-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--gray-600);
+  font-weight: 500;
+}
+
+.stat-pill .stat-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.stat-dot.total { background: var(--primary); }
+.stat-dot.answered { background: var(--success); }
+.stat-dot.unanswered { background: var(--gray-400); }
+.stat-dot.flagged { background: var(--warning); }
+
+.stat-pill strong {
+  font-weight: 700;
+  color: var(--gray-800);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.timer-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--gray-50);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-size: 18px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--gray-800);
+  letter-spacing: 1px;
+}
+
+.timer-display.warning {
+  border-color: var(--warning);
+  background: var(--warning-light);
+  color: #92400e;
+}
+
+.timer-display.danger {
+  border-color: var(--danger);
+  background: var(--danger-light);
+  color: var(--danger);
+  animation: pulse 1s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.timer-icon {
+  font-size: 16px;
+}
+
+.btn-icon {
+  width: 38px;
+  height: 38px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-size: 16px;
+  color: var(--gray-600);
+}
+
+.btn-icon:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.btn-icon.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.end-exam-btn {
+  padding: 8px 18px;
+  background: var(--danger);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.end-exam-btn:hover {
+  background: #b91c1c;
+}
+
+/* Main Layout */
+.exam-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 280px;
+  background: white;
+  border-right: 1px solid var(--gray-200);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform 0.3s ease, width 0.3s ease;
+}
+
+.sidebar.collapsed {
+  width: 0;
+  transform: translateX(-100%);
+  border-right: none;
+}
+
+.sidebar-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--gray-100);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-header h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-700);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: var(--gray-400);
+  cursor: pointer;
+  padding: 4px;
+  display: none;
+}
+
+.sidebar-legend {
+  padding: 12px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--gray-500);
+}
+
+.legend-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+}
+
+.legend-swatch.gray { background: var(--gray-200); border: 1px solid var(--gray-300); }
+.legend-swatch.blue { background: var(--primary); }
+.legend-swatch.yellow { background: white; border: 2px solid var(--warning); }
+.legend-swatch.green { background: var(--success); }
+
+.question-grid {
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.q-grid-btn {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  background: var(--gray-100);
+  color: var(--gray-600);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.q-grid-btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--primary);
+  transform: scale(1.05);
+}
+
+.q-grid-btn.current {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.q-grid-btn.answered {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.q-grid-btn.flagged {
+  border-color: var(--warning);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+}
+
+.q-grid-btn.flagged::after {
+  content: '⚑';
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  font-size: 10px;
+  background: var(--warning);
+  color: white;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.q-grid-btn.correct-review {
+  background: var(--success);
+  border-color: var(--success);
+  color: white;
+}
+
+.q-grid-btn.incorrect-review {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: white;
+}
+
+/* Question Content Area */
+.question-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px;
+  position: relative;
+}
+
+.question-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Blur Overlay for Pause */
+.pause-overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  background: rgba(255, 255, 255, 0.5);
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pause-overlay.active {
+  display: flex;
+}
+
+.pause-message {
+  text-align: center;
+}
+
+.pause-message .pause-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.pause-message h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 8px;
+}
+
+.pause-message p {
+  font-size: 14px;
+  color: var(--gray-500);
+}
+
+.resume-btn {
+  padding: 12px 32px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.resume-btn:hover {
+  background: var(--primary-dark);
+}
+
+/* Question Header */
+.question-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.question-number {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.question-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tool-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  background: white;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.tool-btn:hover {
+  border-color: var(--gray-400);
+  background: var(--gray-50);
+}
+
+.tool-btn.flagged {
+  border-color: var(--warning);
+  background: var(--warning-light);
+  color: #92400e;
+}
+
+.tool-btn.highlight-active {
+  border-color: #fbbf24;
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+/* Question Stem */
+.question-stem {
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--gray-800);
+  margin-bottom: 28px;
+  padding: 24px;
+  background: white;
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-200);
+  box-shadow: var(--shadow-sm);
+}
+
+.question-stem ::selection {
+  background: #fef08a;
+}
+
+.question-stem .highlight {
+  background: #fef08a;
+  padding: 1px 2px;
+  border-radius: 2px;
+}
+
+/* Options */
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.option-btn {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 20px;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius);
+  background: white;
+  cursor: pointer;
+  transition: all var(--transition);
+  text-align: left;
+  font-family: inherit;
+  width: 100%;
+}
+
+.option-btn:hover:not(.disabled) {
+  border-color: var(--primary);
+  background: #f0f5ff;
+}
+
+.option-btn.selected {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.option-btn.correct {
+  border-color: var(--success);
+  background: var(--success-bg);
+}
+
+.option-btn.incorrect {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+}
+
+.option-btn.disabled {
+  cursor: default;
+}
+
+.option-btn.show-correct {
+  border-color: var(--success);
+  background: var(--success-bg);
+}
+
+.option-letter {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--gray-300);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all var(--transition);
+  color: var(--gray-500);
+}
+
+.option-btn.selected .option-letter {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: white;
+}
+
+.option-btn.correct .option-letter {
+  border-color: var(--success);
+  background: var(--success);
+  color: white;
+}
+
+.option-btn.incorrect .option-letter {
+  border-color: var(--danger);
+  background: var(--danger);
+  color: white;
+}
+
+.option-btn.show-correct .option-letter {
+  border-color: var(--success);
+  background: var(--success);
+  color: white;
+}
+
+.option-text {
+  font-size: 15px;
+  color: var(--gray-700);
+  padding-top: 4px;
+  line-height: 1.6;
+}
+
+.option-feedback-icon {
+  margin-left: auto;
+  font-size: 18px;
+  flex-shrink: 0;
+  padding-top: 5px;
+}
+
+/* Explanation */
+.explanation-box {
+  display: none;
+  padding: 20px 24px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: var(--radius);
+  margin-bottom: 28px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.explanation-box.visible {
+  display: block;
+}
+
+.explanation-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0369a1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.explanation-text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #0c4a6e;
+}
+
+/* Navigation Toolbar */
+.nav-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 20px;
+  border-top: 1px solid var(--gray-200);
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  background: white;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.nav-btn:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.nav-btn.primary {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.nav-btn.primary:hover:not(:disabled) {
+  background: var(--primary-dark);
+  border-color: var(--primary-dark);
+  color: white;
+}
+
+.nav-btn.submit {
+  background: var(--success);
+  color: white;
+  border-color: var(--success);
+}
+
+.nav-btn.submit:hover {
+  background: #15803d;
+  border-color: #15803d;
+  color: white;
+}
+
+/* ==================== RESULT SCREEN ==================== */
+.result-screen {
+  display: none;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #eff6ff 0%, #f9fafb 50%, #ecfdf5 100%);
+  padding: 40px 20px;
+}
+
+.result-container {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.result-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: var(--shadow-xl);
+  padding: 48px;
+  text-align: center;
+  margin-bottom: 24px;
+  animation: fadeInUp 0.6s ease;
+}
+
+.result-card h1 {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--gray-800);
+  margin-bottom: 8px;
+}
+
+.result-subtitle {
+  font-size: 14px;
+  color: var(--gray-500);
+  margin-bottom: 32px;
+}
+
+.score-circle {
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 32px;
+  position: relative;
+}
+
+.score-circle svg {
+  transform: rotate(-90deg);
+}
+
+.score-circle-bg {
+  fill: none;
+  stroke: var(--gray-200);
+  stroke-width: 10;
+}
+
+.score-circle-progress {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.5s ease;
+}
+
+.score-circle-progress.high { stroke: var(--success); }
+.score-circle-progress.mid { stroke: var(--warning); }
+.score-circle-progress.low { stroke: var(--danger); }
+
+.score-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.score-percentage {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--gray-800);
+  line-height: 1;
+}
+
+.score-label {
+  font-size: 13px;
+  color: var(--gray-500);
+  margin-top: 4px;
+}
+
+.result-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.result-stat {
+  padding: 16px;
+  background: var(--gray-50);
+  border-radius: var(--radius);
+}
+
+.result-stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--gray-800);
+}
+
+.result-stat-value.correct { color: var(--success); }
+.result-stat-value.incorrect { color: var(--danger); }
+.result-stat-value.skipped { color: var(--gray-400); }
+
+.result-stat-label {
+  font-size: 12px;
+  color: var(--gray-500);
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.result-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.result-btn {
+  padding: 12px 28px;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  border: 2px solid transparent;
+}
+
+.result-btn.primary {
+  background: var(--primary);
+  color: white;
+}
+
+.result-btn.primary:hover {
+  background: var(--primary-dark);
+}
+
+.result-btn.outline {
+  background: white;
+  color: var(--gray-700);
+  border-color: var(--gray-300);
+}
+
+.result-btn.outline:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* Review Section */
+.review-section {
+  background: white;
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  padding: 32px;
+  animation: fadeInUp 0.6s ease 0.2s both;
+}
+
+.review-section h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 20px;
+}
+
+.review-item {
+  padding: 20px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+}
+
+.review-item.correct {
+  border-left: 4px solid var(--success);
+}
+
+.review-item.incorrect {
+  border-left: 4px solid var(--danger);
+}
+
+.review-item.unanswered {
+  border-left: 4px solid var(--gray-400);
+}
+
+.review-q-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.review-q-number {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-500);
+}
+
+.review-badge {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.review-badge.correct {
+  background: var(--success-light);
+  color: var(--success);
+}
+
+.review-badge.incorrect {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+.review-badge.unanswered {
+  background: var(--gray-100);
+  color: var(--gray-500);
+}
+
+.review-q-text {
+  font-size: 14px;
+  color: var(--gray-700);
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.review-answer-line {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.review-answer-line span {
+  font-weight: 600;
+}
+
+.review-explanation {
+  margin-top: 10px;
+  padding: 12px;
+  background: #f0f9ff;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: #0c4a6e;
+  line-height: 1.6;
+}
+
+/* ==================== MODALS ==================== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 440px;
+  width: 100%;
+  box-shadow: var(--shadow-xl);
+  animation: fadeInUp 0.3s ease;
+}
+
+.modal h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 12px;
+}
+
+.modal p {
+  font-size: 14px;
+  color: var(--gray-600);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.modal-summary {
+  padding: 16px;
+  background: var(--gray-50);
+  border-radius: var(--radius-sm);
+  margin-bottom: 24px;
+}
+
+.modal-summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 14px;
+  color: var(--gray-600);
+}
+
+.modal-summary-row strong {
+  color: var(--gray-800);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.modal-btn {
+  padding: 10px 22px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  border: 1.5px solid transparent;
+}
+
+.modal-btn.cancel {
+  background: var(--gray-100);
+  color: var(--gray-700);
+  border-color: var(--gray-200);
+}
+
+.modal-btn.cancel:hover {
+  background: var(--gray-200);
+}
+
+.modal-btn.confirm {
+  background: var(--danger);
+  color: white;
+}
+
+.modal-btn.confirm:hover {
+  background: #b91c1c;
+}
+
+/* Mobile Sidebar Toggle Button */
+.mobile-sidebar-toggle {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 90;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  border: none;
+  box-shadow: var(--shadow-lg);
+  font-size: 20px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1024px) {
+  .header-center {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .setup-card {
+    padding: 32px 24px;
+  }
+
+  .exam-header {
+    padding: 0 16px;
+    height: 56px;
+  }
+
+  .header-logo {
+    font-size: 18px;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 56px;
+    bottom: 0;
+    z-index: 80;
+    width: 280px;
+    transform: translateX(-100%);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar.collapsed {
+    width: 280px;
+  }
+
+  .sidebar-close {
+    display: block;
+  }
+
+  .mobile-sidebar-toggle {
+    display: flex;
+  }
+
+  .question-area {
+    padding: 20px 16px;
+  }
+
+  .question-stem {
+    padding: 16px;
+    font-size: 15px;
+  }
+
+  .option-btn {
+    padding: 14px 16px;
+  }
+
+  .nav-toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .nav-btn {
+    flex: 1;
+    min-width: 0;
+    justify-content: center;
+    font-size: 13px;
+    padding: 10px 14px;
+  }
+
+  .timer-display {
+    font-size: 15px;
+    padding: 6px 12px;
+  }
+
+  .result-card {
+    padding: 32px 24px;
+  }
+
+  .result-stats {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .review-section {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-right {
+    gap: 6px;
+  }
+
+  .end-exam-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .btn-icon {
+    width: 34px;
+    height: 34px;
+    font-size: 14px;
+  }
+
+  .question-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .question-tools {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .score-circle {
+    width: 140px;
+    height: 140px;
+  }
+
+  .score-percentage {
+    font-size: 32px;
+  }
+}
+
+/* Mobile stats bar */
+.mobile-stats-bar {
+  display: none;
+  background: white;
+  border-bottom: 1px solid var(--gray-200);
+  padding: 8px 16px;
+  overflow-x: auto;
+  gap: 16px;
+}
+
+@media (max-width: 1024px) {
+  .mobile-stats-bar {
+    display: flex;
+  }
+}
+
+/* Mobile sidebar overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 79;
+}
+
+.sidebar-overlay.active {
+  display: block;
+}
+
+/* Scrollbar styles */
+.question-grid::-webkit-scrollbar,
+.question-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.question-grid::-webkit-scrollbar-track,
+.question-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.question-grid::-webkit-scrollbar-thumb,
+.question-area::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+  border-radius: 3px;
+}
+
+.question-grid::-webkit-scrollbar-thumb:hover,
+.question-area::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-400);
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== SETUP SCREEN ==================== -->
+<div id="setupScreen" class="setup-screen">
+  <div class="setup-card">
+    <div class="setup-logo">
+      KME
+      <span>Quiz on Continous CNS</span>
+    </div>
+    <div class="setup-divider"></div>
+    <p class="setup-subtitle">اختر وضع المعلم أو وضع الامتحان</p>
+
+    <div class="mode-selection">
+      <button class="mode-btn" data-mode="tutor" onclick="selectMode('tutor')">
+        <div class="mode-icon">📖</div>
+        <div class="mode-info">
+          <h3>Tutor Mode</h3>
+          <p>هيعطيك الإجابة مباشرة بعد الحل بتفسيرها</p>
+        </div>
+      </button>
+      <button class="mode-btn" data-mode="exam" onclick="selectMode('exam')">
+        <div class="mode-icon">🎯</div>
+        <div class="mode-info">
+          <h3>Exam Mode</h3>
+          <p>هيسيبك تحل للآخر بعدها يصحح كل الامتحان</p>
+        </div>
+      </button>
+    </div>
+
+    <div class="timer-config">
+      <label for="timerSelect">⏱ Timer:</label>
+      <select id="timerSelect">
+        <option value="0">No Timer</option>
+        <option value="30">30 Minutes</option>
+        <option value="60" selected>60 Minutes</option>
+        <option value="90">90 Minutes</option>
+        <option value="120">120 Minutes</option>
+        <option value="150">150 Minutes</option>
+        <option value="180">180 Minutes</option>
+      </select>
+    </div>
+
+    <button id="startBtn" class="start-btn" disabled onclick="startExam()">
+      Select a Mode to Begin
+    </button>
+  </div>
+</div>
+
+<!-- ==================== EXAM SCREEN ==================== -->
+<div id="examScreen" class="exam-screen">
+  <!-- Header -->
+  <header class="exam-header">
+    <div class="header-left">
+      <div class="header-logo">KME</div>
+      <span id="modeBadge" class="header-mode-badge">TUTOR</span>
+    </div>
+    <div class="header-center">
+      <div class="stat-pill"><span class="stat-dot total"></span> Total: <strong id="statTotal">0</strong></div>
+      <div class="stat-pill"><span class="stat-dot answered"></span> Answered: <strong id="statAnswered">0</strong></div>
+      <div class="stat-pill"><span class="stat-dot unanswered"></span> Unanswered: <strong id="statUnanswered">0</strong></div>
+      <div class="stat-pill"><span class="stat-dot flagged"></span> Flagged: <strong id="statFlagged">0</strong></div>
+    </div>
+    <div class="header-right">
+      <div id="timerDisplay" class="timer-display">
+        <span class="timer-icon">⏱</span>
+        <span id="timerText">60:00</span>
+      </div>
+      <button id="pauseBtn" class="btn-icon" title="Pause Timer" onclick="togglePause()">⏸</button>
+      <button id="sidebarToggle" class="btn-icon" title="Toggle Question Map" onclick="toggleSidebar()">☰</button>
+      <button class="end-exam-btn" onclick="showEndModal()">End Exam</button>
+    </div>
+  </header>
+
+  <!-- Mobile Stats Bar -->
+  <div class="mobile-stats-bar">
+    <div class="stat-pill"><span class="stat-dot total"></span> Total: <strong id="mStatTotal">0</strong></div>
+    <div class="stat-pill"><span class="stat-dot answered"></span> Answered: <strong id="mStatAnswered">0</strong></div>
+    <div class="stat-pill"><span class="stat-dot unanswered"></span> Unanswered: <strong id="mStatUnanswered">0</strong></div>
+    <div class="stat-pill"><span class="stat-dot flagged"></span> Flagged: <strong id="mStatFlagged">0</strong></div>
+  </div>
+
+  <!-- Body -->
+  <div class="exam-body">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <h3>Question Map</h3>
+        <button class="sidebar-close" onclick="closeSidebar()">✕</button>
+      </div>
+      <div class="sidebar-legend">
+        <div class="legend-item"><div class="legend-swatch gray"></div> Unanswered</div>
+        <div class="legend-item"><div class="legend-swatch blue"></div> Answered</div>
+        <div class="legend-item"><div class="legend-swatch yellow"></div> Flagged</div>
+      </div>
+      <div id="questionGrid" class="question-grid">
+        <!-- Dynamically populated -->
+      </div>
+    </aside>
+
+    <!-- Sidebar Overlay (Mobile) -->
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- Question Area -->
+    <main class="question-area">
+      <!-- Pause Overlay -->
+      <div id="pauseOverlay" class="pause-overlay">
+        <div class="pause-message">
+          <div class="pause-icon">⏸️</div>
+          <h2>Exam Paused</h2>
+          <p>The timer is paused. Content is hidden to ensure integrity.</p>
+        </div>
+        <button class="resume-btn" onclick="togglePause()">▶ Resume Exam</button>
+      </div>
+
+      <div id="questionContent" class="question-content">
+        <div class="question-header">
+          <span id="questionNumber" class="question-number">Question 1 of 10</span>
+          <div class="question-tools">
+            <button id="flagBtn" class="tool-btn" onclick="toggleFlag()">
+              <span>⚑</span> Flag
+            </button>
+            <button id="highlightBtn" class="tool-btn" onclick="toggleHighlightMode()">
+              <span>🖍</span> Highlight
+            </button>
+          </div>
+        </div>
+
+        <div id="questionStem" class="question-stem">
+          <!-- Question text rendered here -->
+        </div>
+
+        <div id="optionsList" class="options-list">
+          <!-- Options rendered here -->
+        </div>
+
+        <div id="explanationBox" class="explanation-box">
+          <div class="explanation-label">💡 Explanation</div>
+          <div id="explanationText" class="explanation-text"></div>
+        </div>
+
+        <div class="nav-toolbar">
+          <button id="prevBtn" class="nav-btn" onclick="navigateQuestion(-1)">
+            ← Previous
+          </button>
+          <button id="flagNavBtn" class="nav-btn" onclick="toggleFlag()">
+            ⚑ Flag
+          </button>
+          <button id="nextBtn" class="nav-btn primary" onclick="navigateQuestion(1)">
+            Next →
+          </button>
+          <button id="submitBtn" class="nav-btn submit" style="display:none" onclick="showEndModal()">
+            Submit Exam ✓
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile Sidebar Toggle -->
+  <button class="mobile-sidebar-toggle" onclick="toggleSidebar()">☰</button>
+</div>
+
+<!-- ==================== RESULT SCREEN ==================== -->
+<div id="resultScreen" class="result-screen">
+  <div class="result-container">
+    <div class="result-card">
+      <h1>Exam Complete!</h1>
+      <p class="result-subtitle" id="resultMode">Exam Mode Results</p>
+
+      <div class="score-circle">
+        <svg viewBox="0 0 180 180" width="100%" height="100%">
+          <circle class="score-circle-bg" cx="90" cy="90" r="80"/>
+          <circle id="scoreProgress" class="score-circle-progress" cx="90" cy="90" r="80"
+            stroke-dasharray="502.65"
+            stroke-dashoffset="502.65"/>
+        </svg>
+        <div class="score-text">
+          <div id="scorePercent" class="score-percentage">0%</div>
+          <div class="score-label">Score</div>
+        </div>
+      </div>
+
+      <div class="result-stats">
+        <div class="result-stat">
+          <div id="resultCorrect" class="result-stat-value correct">0</div>
+          <div class="result-stat-label">Correct</div>
+        </div>
+        <div class="result-stat">
+          <div id="resultIncorrect" class="result-stat-value incorrect">0</div>
+          <div class="result-stat-label">Incorrect</div>
+        </div>
+        <div class="result-stat">
+          <div id="resultSkipped" class="result-stat-value skipped">0</div>
+          <div class="result-stat-label">Skipped</div>
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button class="result-btn primary" onclick="reviewAnswers()">📋 Review Answers</button>
+        <button class="result-btn outline" onclick="restartExam()">🔄 Restart</button>
+      </div>
+    </div>
+
+    <div id="reviewSection" class="review-section" style="display:none">
+      <h2>📝 Answer Review</h2>
+      <div id="reviewList">
+        <!-- Dynamically populated -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== END EXAM MODAL ==================== -->
+<div id="endModal" class="modal-overlay">
+  <div class="modal">
+    <h2>⚠️ End Exam?</h2>
+    <p>Are you sure you want to submit your exam? This action cannot be undone.</p>
+    <div id="endModalSummary" class="modal-summary">
+      <!-- Summary populated dynamically -->
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="hideEndModal()">Continue Exam</button>
+      <button class="modal-btn confirm" onclick="submitExam()">Submit Now</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =====================================================================
+// ==================== QUESTION DATA ==================================
+// =====================================================================
+// INSTRUCTIONS: Replace or extend this array with your full question bank.
+// Each question object must follow this structure:
+// {
+//   id: <number>,
+//   question: "<string>",
+//   options: ["A", "B", "C", "D", "E"],  // 2-5 options supported
+//   correctIndex: <number>,              // 0-based index of correct option
+//   explanation: "<string>"
+// }
+//
+// >>> PASTE YOUR QUESTIONS BELOW THIS LINE, INSIDE THE ARRAY <<<
+// =====================================================================
+
+// =====================================================================
+// ==================== QUESTION DATA ==================================
+// =====================================================================
+
+const allQuizData = [
+  {
+    id: 1,
+    question: "Which of the following electrical events can be recorded from a Pacinian corpuscle despite the presence of a local anesthetic?",
+    options: [
+      "A. A full action potential propagating down the first node of Ranvier.",
+      "B. A massive hyperpolarization of the cell membrane.",
+      "C. A graded, partial depolarization with an amplitude proportional to the stimulus.",
+      "D. An absolute cessation of all electrical activity due to sodium channel blockade.",
+      "E. An action potential with a remarkably short duration of 1 millisecond."
+    ],
+    correctIndex: 2,
+    explanation: "Receptor potentials are graded partial depolarizations not blocked by local anesthetics, unlike action potentials generated at the first node of Ranvier."
+  },
+  {
+    id: 2,
+    question: "According to the Weber-Fechner Law, increasing a mechanical stimulus intensity by a factor of 100 will change the rate of impulse discharge by what factor?",
+    options: [
+      "A. Increase by a factor of 100.",
+      "B. Increase by a factor of 10.",
+      "C. Increase by a factor of 3.",
+      "D. Increase by a factor of 2.",
+      "E. Decrease to zero due to rapid adaptation."
+    ],
+    correctIndex: 3,
+    explanation: "The rate of impulse discharge is proportional to the logarithm of the stimulus intensity (log 100 = 2)."
+  },
+  {
+    id: 3,
+    question: "Based on their speed of adaptation, which of the following best describes the physiological properties of arterial baroreceptors?",
+    options: [
+      "A. Rapidly adapting (phasic) receptors signaling only onset and termination.",
+      "B. Slowly adapting (tonic) receptors continuing to discharge for as long as the stimulus is applied.",
+      "C. Function to prevent unnecessary sensory information from reaching the CNS.",
+      "D. Convert stimuli by hyperpolarizing their membranes.",
+      "E. Accommodate rapidly due to swift inactivation of sodium channels."
+    ],
+    correctIndex: 1,
+    explanation: "Arterial baroreceptors are slowly adapting (tonic) receptors, continuously discharging to regulate blood pressure."
+  },
+  {
+    id: 4,
+    question: "Damage to which ascending tract causes loss of conscious proprioception (inability to identify toe position) while crude touch remains intact?",
+    options: [
+      "A. Ventral spinothalamic tract",
+      "B. Ventral spinocerebellar tract",
+      "C. Gracile tract",
+      "D. Dorsal spinocerebellar tract",
+      "E. Spinal lemniscus"
+    ],
+    correctIndex: 2,
+    explanation: "The Gracile tract carries conscious proprioception from the lower body. Crude touch is preserved via the intact ventral spinothalamic tract."
+  },
+  {
+    id: 5,
+    question: "Where are the cell bodies of the second-order neurons located in the pathway responsible for transmitting highly localized fine touch?",
+    options: [
+      "A. Dorsal horn of the spinal cord",
+      "B. Posteroventral nucleus of the thalamus (PVNT)",
+      "C. Primary somatosensory area of the cerebral cortex",
+      "D. Gracile and cuneate nuclei of the medulla",
+      "E. Main sensory nucleus of the pons"
+    ],
+    correctIndex: 3,
+    explanation: "First-order neurons ascend without synapsing until they reach the second-order neurons in the Gracile and Cuneate nuclei of the medulla."
+  },
+  {
+    id: 6,
+    question: "What is the normal physiological destination and function of the dorsal and ventral spinocerebellar tracts?",
+    options: [
+      "A. Primary sensory area to provide conscious awareness of joint movement.",
+      "B. Cerebellar cortex to subconsciously regulate body equilibrium.",
+      "C. Posteroventral nucleus of the thalamus to relay vibration sense.",
+      "D. Cross anterior commissure to transmit gross touch.",
+      "E. Medial lemniscus to facilitate tactile discrimination."
+    ],
+    correctIndex: 1,
+    explanation: "They carry subconscious proprioceptive information to the cerebellar cortex to regulate body equilibrium and voluntary movements."
+  },
+  {
+    id: 7,
+    question: "A localized central lesion specifically destroying the anterior white commissure in the cervical spinal cord interrupts which of the following pathways?",
+    options: [
+      "A. First-order neurons of the dorsal column-medial lemniscal pathway",
+      "B. Second-order neurons of the lateral spinothalamic tract",
+      "C. Third-order neurons projecting from the VPLN",
+      "D. First-order neurons residing in the dorsal root ganglia",
+      "E. Second-order neurons originating in the Gracile and Cuneate nuclei"
+    ],
+    correctIndex: 1,
+    explanation: "Second-order neurons of the lateral spinothalamic tract (pain & temp) decussate via the anterior white commissure, making them vulnerable to central lesions."
+  },
+  {
+    id: 8,
+    question: "An ischemic infarction in which cortical region causes contralateral 'parietal lobe neglect' and severely uncoordinated movements when eyes are closed?",
+    options: [
+      "A. Primary somatic sensory cortex (Brodmann areas 3, 1, 2)",
+      "B. Primary motor cortex (Brodmann area 4)",
+      "C. Secondary somatic sensory cortex (Brodmann area 40)",
+      "D. Somatic sensory association cortex (Brodmann areas 5 and 7)",
+      "E. Ventral posterolateral nucleus of the thalamus"
+    ],
+    correctIndex: 3,
+    explanation: "Lesions in the somatic sensory association cortex (areas 5 & 7) abolish essential sensory feedback for motor activity and cause parietal lobe neglect."
+  },
+  {
+    id: 9,
+    question: "In which specific thalamic structure must the trigeminal sensory pathway (from head and face) relay before projecting to the primary somatosensory cortex?",
+    options: [
+      "A. Ventral posterolateral nucleus (VPLN)",
+      "B. Gracile and cuneate nuclei",
+      "C. Ventral posteromedial nucleus (PMVN)",
+      "D. Dorsal horn of the spinal cord",
+      "E. Anterior white commissure"
+    ],
+    correctIndex: 2,
+    explanation: "Sensations from the head/face synapse specifically in the PMVN, whereas spinal pathways relay in the VPLN."
+  },
+  {
+    id: 10,
+    question: "According to the Convergence-Projection theory, which mechanism best explains referred pain from the heart to the left arm?",
+    options: [
+      "A. Divergence of visceral A-delta fibers.",
+      "B. Sensitization of peripheral somatic nociceptors by inflammatory mediators.",
+      "C. Convergence of visceral and somatic pain fibers on the same Substantia Gelatinosa of Rolandi (SGR) cells.",
+      "D. Direct compression of the brachial plexus nerves.",
+      "E. Sudden vasodilation of cerebral arteries."
+    ],
+    correctIndex: 2,
+    explanation: "Fibers from the diseased viscus and the somatic structure converge on the same SGR 'Dorsal horn' cell, tricking the sensory cortex."
+  },
+  {
+    id: 11,
+    question: "In the descending Pain Control System, which neurotransmitter is directly released by the periaqueductal gray (PAG) neurons to activate the analgesic pathway?",
+    options: [
+      "A. Serotonin",
+      "B. Noradrenaline",
+      "C. Glutamate",
+      "D. Enkephalin",
+      "E. Substance P"
+    ],
+    correctIndex: 3,
+    explanation: "PAG neurons release enkephalins to inhibit local GABA-ergic neurons, ultimately suppressing pain."
+  },
+  {
+    id: 12,
+    question: "What is the most likely pathological mechanism underlying a severe, posture-dependent headache following the removal of cerebrospinal fluid (CSF)?",
+    options: [
+      "A. Over-distension of cerebral arteries.",
+      "B. Sudden vasodilation of the middle meningeal artery.",
+      "C. Traction on the meninges as the brain attempts to descend due to loss of CSF buoyancy.",
+      "D. Excessive contraction of scalp musculature.",
+      "E. Irritation of the dura by toxic substances."
+    ],
+    correctIndex: 2,
+    explanation: "Decreased CSF pressure removes the brain's supportive cushion, causing painful mechanical traction on the meninges when standing."
+  },
+  {
+    id: 13,
+    question: "Which neurotransmitter is released by Renshaw cells to mediate negative feedback (recurrent inhibition) on active alpha-motor neurons?",
+    options: [
+      "A) Acetylcholine",
+      "B) Glutamate",
+      "C) Substance P",
+      "D) Glycine",
+      "E) Gamma-aminobutyric acid (GABA)"
+    ],
+    correctIndex: 3,
+    explanation: "Renshaw cells use glycine to inhibit the originally stimulated alpha-motor neuron and its neighbors."
+  },
+  {
+    id: 14,
+    question: "Based on the anatomical organization of the spinal cord motor neuron pools, medially situated anterior horn cells (AHCs) primarily supply which structures?",
+    options: [
+      "A) Distal hand muscles",
+      "B) Peripheral stretch receptors",
+      "C) Autonomic blood vessels",
+      "D) Axial (trunk/proximal) muscles",
+      "E) Intrafusal muscle fibers"
+    ],
+    correctIndex: 3,
+    explanation: "Medially situated AHCs supply axial muscles, whereas laterally situated AHCs supply distal muscles."
+  },
+  {
+    id: 15,
+    question: "The prolonged wakefulness maintained by the reticular activating system (RAS) following a single intense sensory stimulus is primarily driven by which neural mechanism?",
+    options: [
+      "A) Lateral inhibitory circuits",
+      "B) Closed chain (reverberating) interneuronal circuits",
+      "C) Open chain (parallel) circuits",
+      "D) Widespread divergence",
+      "E) Spatial summation"
+    ],
+    correctIndex: 1,
+    explanation: "The RAS utilizes closed chain (reverberating) circuits where the signal recirculates to maintain continuous efferent discharge."
+  },
+  {
+    id: 16,
+    question: "Which physiological principle explains the widespread recruitment of multiple ipsilateral joints and the contralateral limb during a strong, painful withdrawal reflex?",
+    options: [
+      "A) Synaptic fatigue",
+      "B) Local sign",
+      "C) Recruitment",
+      "D) Irradiation",
+      "E) After-discharge"
+    ],
+    correctIndex: 3,
+    explanation: "Irradiation occurs because a stronger stimulus sends impulses to a wider area of the spinal cord (divergence), recruiting more muscle groups."
+  },
+  {
+    id: 17,
+    question: "What is the specific nerve innervation pattern of an isolated intrafusal nuclear chain fiber?",
+    options: [
+      "A) Solely innervated by Type A-α (Type Ia) primary fibers.",
+      "B) Efferent motor supply exclusively from gamma-dynamic fibers.",
+      "C) Serves as the exclusive origin point for Type A-β (Type II) secondary flower-spray endings.",
+      "D) Central receptor area lacks sensory connections.",
+      "E) Primarily innervated by alpha-motor neurons."
+    ],
+    correctIndex: 2,
+    explanation: "Secondary (Type II) flower spray afferents arise ONLY from the central receptor parts of nuclear chain fibers."
+  },
+  {
+    id: 18,
+    question: "The 'Positive supporting reaction' (simultaneous reflex contraction of lower limb flexors and extensors against gravity) is the single exception to which reflex property?",
+    options: [
+      "A) One-way conduction",
+      "B) Central delay",
+      "C) Synaptic fatigue",
+      "D) Reciprocal inhibition",
+      "E) Post-tetanic potentiation"
+    ],
+    correctIndex: 3,
+    explanation: "It is the only exception to reciprocal inhibition, as it requires contracting antagonistic muscles together to form rigid pillars."
+  },
+  {
+    id: 19,
+    question: "What is the physiological basis of 'Clasp Knife Rigidity' (sudden muscle relaxation during severe passive stretching)?",
+    options: [
+      "A) Monosynaptic excitation via Type Ia fibers.",
+      "B) Activation of nuclear chain muscle fibers.",
+      "C) Di-synaptic inhibition of alpha-motor neurons triggered by Golgi tendon organs and A-α (Ib) fibers.",
+      "D) Co-activation of alpha and gamma motor neurons.",
+      "E) Stoppage of discharge from muscle spindles."
+    ],
+    correctIndex: 2,
+    explanation: "Excessive tension stimulates Golgi tendon organs, sending impulses via A-α (Ib) fibers to inhibit anterior horn cells, causing sudden relaxation."
+  },
+  {
+    id: 20,
+    question: "Decerebrate rigidity occurs primarily due to the loss of net descending inhibitory input from which of the following structures?",
+    options: [
+      "A) Area 4 (primary motor cortex) and Area 6 (premotor cortex)",
+      "B) Neocerebellum and Vestibular nucleus",
+      "C) Paleocerebellum and Basal ganglia",
+      "D) Facilitatory reticular formation",
+      "E) Inhibitory spinal interneurons"
+    ],
+    correctIndex: 0,
+    explanation: "Decortication removes the net inhibitory effect of Area 4 and Area 6, leaving lower facilitatory centers uninhibited."
+  },
+  {
+    id: 21,
+    question: "Which mechanism is directly responsible for the Load Reflex (servo-assist function) when a heavy load is suddenly added to a contracting muscle?",
+    options: [
+      "A) Golgi tendon organs causing protective relaxation.",
+      "B) Decreased gamma motor neuron discharge.",
+      "C) Sudden stretch of nuclear bag fibers.",
+      "D) Muscle elongation stretching sensitized spindles, leading to reflex muscle contraction.",
+      "E) Discharge of supraspinal inhibitory impulses."
+    ],
+    correctIndex: 3,
+    explanation: "Elongating a contracting muscle stretches the co-activated muscle spindles, causing a reflex contraction that maintains limb position."
+  },
+  {
+    id: 22,
+    question: "How does botulinum neurotoxin type A directly disrupt chemical synaptic transmission leading to flaccid paralysis?",
+    options: [
+      "A) Prevents action potential generation at the axon hillock.",
+      "B) Blocks active reuptake of neurotransmitters.",
+      "C) Prevents binding of transmitter vesicles with the presynaptic membrane for exocytosis.",
+      "D) Replaces GDP with GTP on postsynaptic receptors.",
+      "E) Opens ligand-gated anion channels."
+    ],
+    correctIndex: 2,
+    explanation: "Botulinum toxin destroys the docking proteins required for presynaptic vesicle exocytosis."
+  },
+  {
+    id: 23,
+    question: "What is the ultimate defining characteristic of cellular changes induced by the activation of a postsynaptic metabotropic (G-protein coupled) receptor?",
+    options: [
+      "A) Fast electrical depolarization via sodium influx.",
+      "B) Long-term structural changes via regulation of gene transcription and protein synthesis.",
+      "C) Immediate hyperpolarization.",
+      "D) Depletion of neurotransmitters.",
+      "E) Short-term post-tetanic facilitation."
+    ],
+    correctIndex: 1,
+    explanation: "G-protein coupled receptors activate cascades that alter gene expression, leading to long-term structural changes."
+  },
+  {
+    id: 24,
+    question: "How does severe metabolic acidosis (blood pH ~7.0) typically affect chemical synaptic transmission and consciousness?",
+    options: [
+      "A) Profoundly decreases neuronal excitability leading to coma.",
+      "B) Causes over-excitation leading to seizures.",
+      "C) Halts all active reuptake mechanisms.",
+      "D) Exhausts connexon proteins.",
+      "E) Causes excessive intracellular calcium accumulation."
+    ],
+    correctIndex: 0,
+    explanation: "Acidosis decreases neuronal excitability, depressing synaptic transmission and leading to coma."
+  },
+  {
+    id: 25,
+    question: "The slow C fibers responsible for secondary, dull, aching pain (paleospinothalamic tract) primarily synapse in which area of the spinal cord?",
+    options: [
+      "A) Lamina I and IV",
+      "B) Ventrobasal nuclei of the thalamus",
+      "C) Laminae II and III (Substantia Gelatinosa of Rolandi)",
+      "D) Intralaminar nuclei",
+      "E) Ventroposterolateral (VPL) nucleus"
+    ],
+    correctIndex: 2,
+    explanation: "First-order neurons of the paleospinothalamic tract terminate in the SGR (Laminae II and III)."
+  },
+  {
+    id: 26,
+    question: "Which of the following substances released during tissue damage acts primarily by sensitizing pain receptors (lowering their threshold) rather than directly stimulating them?",
+    options: [
+      "A) Potassium (K+)",
+      "B) Histamine",
+      "C) Bradykinin",
+      "D) Prostaglandin E (PGE)",
+      "E) Serotonin"
+    ],
+    correctIndex: 3,
+    explanation: "PGE and Substance-P sensitize the receptor membrane by lowering its threshold."
+  },
+  {
+    id: 27,
+    question: "Which mechanism best explains the presentation of primary hyperalgesia (allodynia) in the reddened flare surrounding a localized skin injury?",
+    options: [
+      "A) Convergence-facilitation on dorsal horn cells.",
+      "B) Antidromic release of substance-P via a local axon reflex.",
+      "C) Rapid transmission via A-delta fibers.",
+      "D) Ischemic accumulation of lactic acid.",
+      "E) Activation of the reticular activating system."
+    ],
+    correctIndex: 1,
+    explanation: "Primary hyperalgesia is caused by a local axon reflex releasing substance-P in the opposite (antidromic) direction."
+  },
+  {
+    id: 28,
+    question: "An expanding central fluid-filled cavity in the cervical spinal cord (syringomyelia) first compresses which structure, leading to bilateral loss of pain and temperature?",
+    options: [
+      "A) Dorsal columns",
+      "B) Anterior horn cells",
+      "C) Anterior white commissure",
+      "D) Lateral corticospinal tract",
+      "E) Ventral spinothalamic tract"
+    ],
+    correctIndex: 2,
+    explanation: "The central syrinx first compresses the decussating fibers in the anterior white commissure."
+  },
+  {
+    id: 29,
+    question: "Why do fine touch and proprioception remain intact in a patient with a central cervical syrinx (dissociated sensory loss)?",
+    options: [
+      "A) The dorsal columns are located posteriorly and are anatomically spared from the central syrinx.",
+      "B) Fine touch fibers decussate anteriorly avoiding the cavity.",
+      "C) The lateral spinothalamic tract regenerates faster.",
+      "D) The cavity only destroys lower motor neurons.",
+      "E) Proprioception is carried by the ventral corticospinal tract."
+    ],
+    correctIndex: 0,
+    explanation: "Dorsal columns (carrying fine touch/proprioception) are located posteriorly and are unaffected by central expansion."
+  },
+  {
+    id: 30,
+    question: "Expansion of a cervical syrinx into which specific spinal cord region causes symmetrical, flaccid weakness and wasting in the intrinsic hand muscles?",
+    options: [
+      "A) Posterior (dorsal) horns",
+      "B) Anterior (ventral) horns",
+      "C) Lateral funiculus",
+      "D) Dorsal root ganglion",
+      "E) Fasciculus cuneatus"
+    ],
+    correctIndex: 1,
+    explanation: "Compression of the anterior horns destroys lower motor neurons, causing flaccid paralysis."
+  },
+  {
+    id: 31,
+    question: "During a lumbar puncture between L3-L4, which structure is normally found floating safely within the accessed subarachnoid space (lumbar cistern)?",
+    options: [
+      "A. The conus medullaris",
+      "B. The internal vertebral venous plexus",
+      "C. The filum terminale interna",
+      "D. The denticulate ligaments",
+      "E. Sympathetic nerve cell bodies"
+    ],
+    correctIndex: 2,
+    explanation: "The lumbar cistern safely contains CSF, the cauda equina, and the filum terminale interna."
+  },
+  {
+    id: 32,
+    question: "Bilateral destruction of the lateral horns of the spinal cord's grey matter strictly at the S2, S3, and S4 levels specifically destroys which type of neurons?",
+    options: [
+      "A. Somatic motor neurons",
+      "B. Primary sensory neurons",
+      "C. Sympathetic autonomic neurons",
+      "D. Parasympathetic autonomic neurons",
+      "E. Pseudounipolar neurons"
+    ],
+    correctIndex: 3,
+    explanation: "Parasympathetic neurons are specifically located in the lateral horns of S2, S3, and S4."
+  },
+  {
+    id: 33,
+    question: "Upon histological examination of the dorsal horn, which specific nucleus occupies both Lamina III and Lamina IV of Rexed's classification?",
+    options: [
+      "A. Posteromarginal nucleus",
+      "B. Substantia Gelatinosa of Rolandi",
+      "C. Nucleus proprius",
+      "D. Clarke's nucleus",
+      "E. Spinal border cell"
+    ],
+    correctIndex: 2,
+    explanation: "Laminae III and IV collectively contain the Nucleus proprius."
+  },
+  {
+    id: 34,
+    question: "Which of the following vascular structures is a normal anatomical content of the cerebellopontine angle and is at risk of compression by masses in this space?",
+    options: [
+      "A. Posterior cerebral artery (PCA)",
+      "B. Superior cerebellar artery (SCA)",
+      "C. Anterior inferior cerebellar artery (AICA)",
+      "D. Basilar artery",
+      "E. Anterior spinal artery"
+    ],
+    correctIndex: 2,
+    explanation: "The AICA, along with CN VII and VIII, is located in the cerebellopontine angle."
+  },
+  {
+    id: 35,
+    question: "The facial colliculus, an elevation on the dorsal surface of the pons, is mechanistically formed by which underlying structures?",
+    options: [
+      "A. Facial motor nucleus bulging outward.",
+      "B. Superior and lateral vestibular nuclei.",
+      "C. Abducens nucleus encircled by projecting facial nerve fibers.",
+      "D. Crossing fibers of the superior cerebellar peduncle.",
+      "E. Noradrenaline-secreting cluster of pigmented cells."
+    ],
+    correctIndex: 2,
+    explanation: "It is formed by the underlying abducens nucleus encircled by facial nerve motor fibers."
+  },
+  {
+    id: 36,
+    question: "Embryologically, the cerebral aqueduct of Sylvius (the narrowest CSF channel) is a direct derivative of which primary brain vesicle?",
+    options: [
+      "A. Telencephalon",
+      "B. Diencephalon",
+      "C. Mesencephalon",
+      "D. Metencephalon",
+      "E. Myelencephalon"
+    ],
+    correctIndex: 2,
+    explanation: "The cerebral aqueduct develops directly within the mesencephalon (midbrain)."
+  },
+  {
+    id: 37,
+    question: "A localized ischemic lesion involving the facial colliculus in the floor of the fourth ventricle most likely directly damages which cranial nerve nucleus?",
+    options: [
+      "A. Facial nucleus",
+      "B. Abducent nucleus",
+      "C. Hypoglossal nucleus",
+      "D. Dorsal motor nucleus of vagus",
+      "E. Vestibular nucleus"
+    ],
+    correctIndex: 1,
+    explanation: "Despite its name, the facial colliculus overlies the abducent nucleus; damage causes an abducent deficit."
+  },
+  {
+    id: 38,
+    question: "According to the longitudinal divisions of the cerebellum, the lateral zone (cerebellar hemisphere) projects its efferent fibers primarily to which deep nucleus?",
+    options: [
+      "A. Fastigial nucleus",
+      "B. Globose nucleus",
+      "C. Emboliform nucleus",
+      "D. Dentate nucleus",
+      "E. Vestibular nucleus"
+    ],
+    correctIndex: 3,
+    explanation: "The lateral zone projects to the dentate nucleus, while the vermis projects to the fastigial nucleus."
+  },
+  {
+    id: 39,
+    question: "The flocculonodular lobe of the cerebellum, corresponding to the Archicerebellum, is primarily responsible for which physiological function?",
+    options: [
+      "A. Planning and automatic control of movement",
+      "B. Maintenance of equilibrium",
+      "C. Regulation of muscle tone",
+      "D. Secretion of cerebrospinal fluid",
+      "E. Coordination of lower limb muscles"
+    ],
+    correctIndex: 1,
+    explanation: "Connected to vestibular nuclei, the Archicerebellum is responsible for maintaining equilibrium."
+  },
+  {
+    id: 40,
+    question: "Damage to which extrapyramidal motor structure is the most likely cause of hemiballismus (sudden violent, involuntary flailing movements)?",
+    options: [
+      "A) Habenular nucleus",
+      "B) Subthalamic nucleus",
+      "C) Posterior commissure",
+      "D) Pulvinar of the thalamus",
+      "E) Anterior commissure"
+    ],
+    correctIndex: 1,
+    explanation: "Hemiballismus is classically caused by a lesion to the subthalamic nucleus."
+  },
+  {
+    id: 41,
+    question: "A midline tumor compressing the posterior commissure (causing Parinaud's syndrome) is affecting a structure classified as part of which diencephalic division?",
+    options: [
+      "A) Thalamus",
+      "B) Hypothalamus",
+      "C) Epithalamus",
+      "D) Subthalamus",
+      "E) Metathalamus"
+    ],
+    correctIndex: 2,
+    explanation: "The posterior commissure is an anatomical component of the epithalamus."
+  },
+  {
+    id: 42,
+    question: "Obstruction of the interventricular foramen (of Monro) will most likely directly result in which neuroimaging finding?",
+    options: [
+      "A) Isolated hydrocephalus of the lateral ventricle",
+      "B) Isolated hydrocephalus of the third ventricle",
+      "C) Enlargement of both the lateral and third ventricles",
+      "D) Dilation of the cerebral aqueduct of Sylvius",
+      "E) Symmetrical dilation of the entire ventricular system"
+    ],
+    correctIndex: 0,
+    explanation: "The foramen of Monro connects the lateral ventricle to the third; obstruction causes isolated lateral ventricle hydrocephalus."
+  },
+  {
+    id: 43,
+    question: "A localized stroke causing alexia (inability to read) and agraphia (inability to write) with preserved spoken language understanding most likely affects which cortical area?",
+    options: [
+      "A) Posterior part of the superior temporal gyrus",
+      "B) Supramarginal gyrus",
+      "C) Angular gyrus (Area 39)",
+      "D) Opercular and triangular gyri",
+      "E) Postcentral gyrus"
+    ],
+    correctIndex: 2,
+    explanation: "A lesion in the dominant angular gyrus (Area 39) causes alexia and agraphia."
+  },
+  {
+    id: 44,
+    question: "The insula, a region of the cerebral cortex with gustatory functions, is located directly at the bottom of which anatomical structure?",
+    options: [
+      "A) Parieto-occipital sulcus",
+      "B) Calcarine sulcus",
+      "C) Intraparietal sulcus",
+      "D) Central sulcus",
+      "E) Posterior ramus of the lateral sulcus"
+    ],
+    correctIndex: 4,
+    explanation: "The insula is buried inside the posterior ramus of the lateral sulcus."
+  },
+  {
+    id: 45,
+    question: "Paralysis and hemianesthesia strictly limited to the contralateral leg, foot, and perineum indicate a lesion in which cortical structure?",
+    options: [
+      "A) Left precentral gyrus (superolateral surface)",
+      "B) Paracentral lobule",
+      "C) Right postcentral gyrus",
+      "D) Right superior parietal lobule",
+      "E) Left cuneus"
+    ],
+    correctIndex: 1,
+    explanation: "The lower limbs are topographically represented on the medial surface within the paracentral lobule."
+  },
+  {
+    id: 46,
+    question: "Surgical sectioning of the corpus callosum prevents the interhemispheric transfer of verbal commands, rendering a right-handed patient unable to voluntarily move which side?",
+    options: [
+      "A) Right side of the face",
+      "B) Right hand",
+      "C) Left hand",
+      "D) Both lower limbs",
+      "E) Eyes"
+    ],
+    correctIndex: 2,
+    explanation: "Callosal apraxia prevents the left (dominant) hemisphere from sending verbal commands to the right motor cortex, affecting the left hand."
+  },
+  {
+    id: 47,
+    question: "Disruption of the posterior commissure would most likely directly impair which of the following functions?",
+    options: [
+      "A) Upward gaze and the bilateral light reflex",
+      "B) Interhemispheric transfer of language",
+      "C) Short-term to long-term memory consolidation",
+      "D) Olfactory processing",
+      "E) Emotional feeling"
+    ],
+    correctIndex: 0,
+    explanation: "It connects the superior colliculi and pretectal/oculomotor nuclei, essential for upward gaze and light reflex."
+  },
+  {
+    id: 48,
+    question: "Extensive bilateral damage to the amygdaloid nucleus and hippocampus most commonly results in which behavioral changes?",
+    options: [
+      "A) Apathy and memory loss",
+      "B) Increased appetite and abnormal hypersexual behavior",
+      "C) Severe depression and anorexia",
+      "D) Uncontrolled aggression and rage",
+      "E) Loss of fear conditioning"
+    ],
+    correctIndex: 1,
+    explanation: "Bilateral lesions here cause Klüver-Bucy syndrome traits, notably increased appetite and hypersexuality."
+  },
+  {
+    id: 49,
+    question: "An infarction affecting the posterior limb of the internal capsule most likely causes which combination of deficits?",
+    options: [
+      "A) Pure motor hemiplegia only",
+      "B) Contralateral cranial nerve palsies",
+      "C) Contralateral hemiplegia, hemianesthesia, homonymous hemianopia, and bilateral hearing decrease",
+      "D) Ipsilateral ataxia and intention tremor",
+      "E) Global aphasia"
+    ],
+    correctIndex: 2,
+    explanation: "The posterior limb contains descending motor, main sensory, optic, and auditory radiations."
+  },
+  {
+    id: 50,
+    question: "Which specific fiber tract is exclusively located within the genu of the internal capsule?",
+    options: [
+      "A) Corticospinal tract",
+      "B) Corticobulbar fibers",
+      "C) Anterior thalamic radiation",
+      "D) Optic radiation",
+      "E) Frontopontine fibers"
+    ],
+    correctIndex: 1,
+    explanation: "The genu exclusively contains corticobulbar fibers descending to cranial nerve motor nuclei."
+  },
+  {
+    id: 51,
+    question: "Damage to the right subthalamic nucleus will result in involuntary, flailing movements (hemiballismus) affecting which side of the body?",
+    options: [
+      "A) Right side",
+      "B) Left side",
+      "C) Both upper limbs",
+      "D) Both lower limbs",
+      "E) Axial trunk muscles"
+    ],
+    correctIndex: 1,
+    explanation: "Hemiballismus manifests on the contralateral side of the subthalamic nucleus lesion."
+  },
+  {
+    id: 52,
+    question: "Which structure is obstructed if an infant presents with marked dilation of the lateral and third ventricles, while the fourth ventricle remains normal in size?",
+    options: [
+      "A) Interventricular foramen of Monro",
+      "B) Median foramen of Magendie",
+      "C) Cerebral aqueduct of Sylvius",
+      "D) Lateral foramina of Luschka",
+      "E) Arachnoid granulations"
+    ],
+    correctIndex: 2,
+    explanation: "Obstruction of the aqueduct causes dilation upstream (lateral and 3rd ventricles) while the 4th remains normal."
+  },
+  {
+    id: 53,
+    question: "Based on the anatomical boundaries of the posterior horn of the lateral ventricle, an infarction immediately lateral to it damages which white matter tract?",
+    options: [
+      "A) Tapetum of the corpus callosum",
+      "B) Bulb of the posterior horn",
+      "C) Calcar avis",
+      "D) Collateral trigone",
+      "E) Head of the caudate nucleus"
+    ],
+    correctIndex: 0,
+    explanation: "The lateral wall of the posterior horn is formed by the tapetum of the corpus callosum, optic radiation, and inferior longitudinal fasciculus."
+  },
+  {
+    id: 54,
+    question: "Hydrocephalus caused by inadequate drainage of cerebrospinal fluid (CSF) into the dural venous sinuses is most likely due to thrombosis of which structure?",
+    options: [
+      "A) Thalamostriate vein",
+      "B) Superior sagittal sinus",
+      "C) Interventricular foramen of Monro",
+      "D) Choroid plexus of the lateral ventricle",
+      "E) Central canal of the spinal cord"
+    ],
+    correctIndex: 1,
+    explanation: "Arachnoid granulations primarily drain CSF into the superior sagittal sinus; its thrombosis prevents absorption."
+  },
+  {
+    id: 55,
+    question: "Damage to the middle third of which medullary nucleus directly causes paralysis of the pharyngeal and palatal muscles (loss of gag reflex)?",
+    options: [
+      "A) Nucleus solitarius",
+      "B) Hypoglossal nucleus",
+      "C) Nucleus ambiguus",
+      "D) Dorsal motor nucleus of vagus",
+      "E) Spinal trigeminal nucleus"
+    ],
+    correctIndex: 2,
+    explanation: "The middle 1/3 of the nucleus ambiguus supplies motor fibers to the vagus nerve for pharyngeal/palatal muscles."
+  },
+  {
+    id: 56,
+    question: "Which of the following accurately describes the composition of the facial colliculus in the tegmentum of the pons?",
+    options: [
+      "A) Facial nerve nucleus surrounded by emerging abducent fibers.",
+      "B) Abducent nucleus surrounded by motor fibers of the facial nerve.",
+      "C) Pontine nuclei and transverse pontine fibers.",
+      "D) Lateral lemniscus pathway.",
+      "E) Sensory and motor nuclei of the trigeminal nerve."
+    ],
+    correctIndex: 1,
+    explanation: "It is formed by the abducent nucleus encircled by looping motor fibers of the facial nerve."
+  },
+  {
+    id: 57,
+    question: "Which medullary nucleus serves as the relay station for unconscious proprioception from the upper limb before entering the cerebellum?",
+    options: [
+      "A) Gracile nucleus",
+      "B) Arcuate nucleus",
+      "C) Inferior olivary nucleus",
+      "D) Spinal trigeminal nucleus",
+      "E) Accessory cuneate nucleus"
+    ],
+    correctIndex: 4,
+    explanation: "The accessory cuneate nucleus relays this information via the cuneocerebellar tract."
+  },
+  {
+    id: 58,
+    question: "An infant presenting with tense fontanelles and marked dilation of the lateral and third ventricles, but a normal fourth ventricle, has an obstruction at which site?",
+    options: [
+      "A) Interventricular foramen of Monro",
+      "B) Foramen of Magendie",
+      "C) Cerebral aqueduct of Sylvius",
+      "D) Foramina of Luschka",
+      "E) Superior sagittal sinus"
+    ],
+    correctIndex: 2,
+    explanation: "Obstruction exactly between the 3rd and 4th ventricles occurs at the cerebral aqueduct."
+  },
+  {
+    id: 59,
+    question: "Which specific structures form the posterior boundary of the third ventricle?",
+    options: [
+      "A) Anterior commissure and lamina terminalis",
+      "B) Pineal gland and habenular commissure",
+      "C) Optic chiasm and mammillary bodies",
+      "D) Tela choroidea and body of the fornix",
+      "E) Septum pellucidum"
+    ],
+    correctIndex: 1,
+    explanation: "The posterior boundary includes the posterior commissure, pineal gland, and habenular commissure."
+  },
+  {
+    id: 60,
+    question: "An obstruction isolated exclusively to the outflow tracts of the fourth ventricle involves which of the following structures?",
+    options: [
+      "A) Cerebral aqueduct of Sylvius",
+      "B) Interventricular foramen of Monro",
+      "C) Foramina of Luschka and Magendie",
+      "D) Arachnoid granulations",
+      "E) Central canal"
+    ],
+    correctIndex: 2,
+    explanation: "CSF exits the fourth ventricle into the subarachnoid space via the two lateral foramina of Luschka and median foramen of Magendie."
+  },
+  {
+    id: 61,
+    question: "Why does intravenous morphine administration cause a dangerous increase in intracranial pressure in patients with a closed head injury?",
+    options: [
+      "A) Direct stimulation of central mu-receptors causing vasodilation.",
+      "B) Respiratory depression leading to CO₂ retention and secondary cerebral vasodilation.",
+      "C) Histamine-induced systemic vasodilation.",
+      "D) Increased potassium efflux from cortical neurons.",
+      "E) Increased brain oxygen demand via kappa receptors."
+    ],
+    correctIndex: 1,
+    explanation: "Morphine depresses respiration, retaining CO₂, which acts as a potent cerebral vasodilator, raising intracranial tension."
+  },
+  {
+    id: 62,
+    question: "Which specific ionic event occurs when an opioid binds to its postsynaptic mu-receptor on a spinal pain-transmission neuron?",
+    options: [
+      "A) Closure of voltage-gated calcium channels.",
+      "B) Opening of voltage-gated sodium channels.",
+      "C) Inhibition of adenylate cyclase.",
+      "D) Increased potassium conductance leading to hyperpolarization.",
+      "E) Direct inhibition of COX-3."
+    ],
+    correctIndex: 3,
+    explanation: "Postsynaptic mu-receptor binding increases K+ efflux, causing hyperpolarization (IPSP)."
+  },
+  {
+    id: 63,
+    question: "Why does administering pentazocine precipitate a severe acute withdrawal reaction in a heroin-dependent patient?",
+    options: [
+      "A) Rapid first-pass toxic metabolism.",
+      "B) It is a pure opioid antagonist.",
+      "C) It exhibits weak mu-receptor antagonist activity.",
+      "D) Synergistic respiratory depression.",
+      "E) Massive histamine release."
+    ],
+    correctIndex: 2,
+    explanation: "Pentazocine is a mixed agonist-antagonist; its weak antagonist properties displace full agonists (heroin), causing withdrawal."
+  },
+  {
+    id: 64,
+    question: "Carbamazepine causes dilutional hyponatremia as an adverse effect through which underlying mechanism?",
+    options: [
+      "A) Inhibition of cytochrome P450 enzymes",
+      "B) Blockade of T-type calcium channels",
+      "C) Increased secretion of antidiuretic hormone (ADH)",
+      "D) Enhancement of GABA-A chloride influx",
+      "E) Blockade of SV2A"
+    ],
+    correctIndex: 2,
+    explanation: "Carbamazepine uniquely increases ADH secretion, leading to water retention and dilutional hyponatremia."
+  },
+  {
+    id: 65,
+    question: "Ethosuximide, the first-choice drug for absence (petit-mal) seizures, works primarily through which mechanism of action?",
+    options: [
+      "A) Blockade of T-type Ca++ channels in thalamo-cortical neurons",
+      "B) Prolongation of inactivated Na+ channels",
+      "C) Inhibition of presynaptic L-type Ca++ channels",
+      "D) Allosteric modulation of GABA-A receptors",
+      "E) Inhibition of SV2A"
+    ],
+    correctIndex: 0,
+    explanation: "Ethosuximide specifically targets T-type calcium channels responsible for the 3-Hz spike-and-wave rhythm."
+  },
+  {
+    id: 66,
+    question: "In addition to teratogenicity (spina bifida), which adverse effects are classically associated with valproic acid?",
+    options: [
+      "A) Dilutional hyponatremia",
+      "B) Hepatotoxicity and alopecia",
+      "C) Aplastic anemia",
+      "D) Steven-Johnson syndrome (SJS)",
+      "E) Cognitive decline and weight loss"
+    ],
+    correctIndex: 1,
+    explanation: "Key side effects of valproic acid include severe hepatotoxicity, alopecia, and pancreatitis."
+  },
+  {
+    id: 67,
+    question: "To prevent toxic accumulation of active metabolites in elderly or cirrhotic patients, which pharmacokinetic property is preferred when choosing a benzodiazepine?",
+    options: [
+      "A) Long-acting, metabolized by hepatic oxidation.",
+      "B) Short-acting, metabolized by conjugation into inactive metabolites.",
+      "C) Ultra-short-acting barbiturates.",
+      "D) Bypassing hepatic metabolism entirely.",
+      "E) Hepatic CYP450 inducers."
+    ],
+    correctIndex: 1,
+    explanation: "Conjugation mechanisms remain intact in the elderly/cirrhotics, so drugs like Oxazepam or Lorazepam are safer."
+  },
+  {
+    id: 68,
+    question: "What is the primary mechanism of action of buspirone, an anxiolytic preferred in the elderly because it does not cause amnesia, ataxia, or additive CNS depression?",
+    options: [
+      "A) Allosteric modulation of GABA at GABAA receptors.",
+      "B) Selective agonism at melatonin receptors.",
+      "C) Partial agonism at 5-HT1A receptors in the midbrain.",
+      "D) Direct opening of chloride channels.",
+      "E) Competitive antagonism at benzodiazepine receptors."
+    ],
+    correctIndex: 2,
+    explanation: "Buspirone treats anxiety via 5-HT1A partial agonism, lacking typical benzodiazepine side effects."
+  },
+  {
+    id: 69,
+    question: "Which sedative-hypnotic agent is strictly contraindicated in patients with acute intermittent porphyria because it potently induces hepatic microsomal enzymes?",
+    options: [
+      "A) Midazolam",
+      "B) Phenobarbital",
+      "C) Ramelteon",
+      "D) Zolpidem",
+      "E) Chloral hydrate"
+    ],
+    correctIndex: 1,
+    explanation: "Phenobarbital induces enzymes that increase porphyrin synthesis, precipitating porphyria attacks."
+  },
+  {
+    id: 70,
+    question: "Which mechanism allows ethosuximide to treat absence seizures effectively while preserving cognitive function and avoiding excessive sedation?",
+    options: [
+      "A) Blockade of voltage-gated sodium channels.",
+      "B) Enhancement of GABAergic inhibition.",
+      "C) Blockade of T-type calcium channels in thalamocortical neurons.",
+      "D) Induction of cytochrome P450.",
+      "E) Reuptake inhibition of monoamines."
+    ],
+    correctIndex: 2,
+    explanation: "Its selective blockade of T-type calcium channels in the thalamus stops absence seizures without broad CNS depression."
+  },
+  {
+    id: 71,
+    question: "What is the most likely physiological explanation for new breakthrough seizures in a pregnant woman previously well-controlled on lamotrigine?",
+    options: [
+      "A) Decreased lamotrigine serum concentrations due to altered maternal pharmacokinetics.",
+      "B) Inherent worsening of juvenile myoclonic epilepsy.",
+      "C) Increased lamotrigine concentrations causing paradoxical excitotoxicity.",
+      "D) Receptor desensitization during the first trimester.",
+      "E) Fetal neural tube defects."
+    ],
+    correctIndex: 0,
+    explanation: "Pregnancy increases the clearance of lamotrigine, lowering its serum concentration and requiring dosage increases."
+  },
+  {
+    id: 72,
+    question: "What is the most appropriate alternative route for the acute pharmacological management of status epilepticus when intravenous (IV) access cannot be established?",
+    options: [
+      "A) Intravenous fosphenytoin",
+      "B) Intravenous propofol",
+      "C) Oral valproate",
+      "D) Buccal midazolam or rectal diazepam",
+      "E) Intramuscular levetiracetam"
+    ],
+    correctIndex: 3,
+    explanation: "If IV access is delayed, buccal midazolam or rectal diazepam are the first-line alternatives to terminate the seizure quickly."
+  },
+  {
+    id: 73,
+    question: "Which cerebrospinal fluid (CSF) findings and Gram stain results are characteristic of a Neisseria meningitidis infection (meningococcemia)?",
+    options: [
+      "A) Normal glucose, increased lymphocytes; Gram-positive diplococci",
+      "B) Decreased glucose, high protein, increased PMNs; Gram-negative kidney-shaped diplococci",
+      "C) Decreased glucose, increased lymphocytes; Gram-negative coccobacilli",
+      "D) Normal glucose, high protein, increased PMNs; Gram-positive bacilli",
+      "E) Decreased glucose, increased PMNs; Gram-positive cocci"
+    ],
+    correctIndex: 1,
+    explanation: "Acute bacterial meningitis causes low glucose, high protein, and high PMNs. N. meningitidis is a Gram-negative kidney-shaped diplococcus."
+  },
+  {
+    id: 74,
+    question: "What is the primary mechanistic reason for the poor immunogenicity of the Group B capsular polysaccharide of Neisseria meningitidis in vaccines?",
+    options: [
+      "A) Secretes large amounts of IgA protease.",
+      "B) Outer membrane proteins block IgG binding.",
+      "C) Its sialic acid polymer structurally mimics human brain antigens.",
+      "D) Releases potent endotoxin suppressing T-cells.",
+      "E) Highly unstable pili in the bloodstream."
+    ],
+    correctIndex: 2,
+    explanation: "Molecular mimicry to human brain antigens makes it weakly antigenic and risks autoimmune reactions."
+  },
+  {
+    id: 75,
+    question: "Based on typical neonatal susceptibility, which group of organisms represents the most common bacterial causes of meningitis in infants less than 1 month old?",
+    options: [
+      "A) Streptococcus pneumoniae and Neisseria meningitidis",
+      "B) Haemophilus influenzae type b and Streptococcus pneumoniae",
+      "C) Echovirus, Coxsackievirus, and Herpes simplex",
+      "D) Streptococcus agalactiae, Escherichia coli strain K1, and Listeria monocytogenes",
+      "E) Cryptococcus neoformans and Mycobacterium tuberculosis"
+    ],
+    correctIndex: 3,
+    explanation: "Group B strep, E. coli K1, and Listeria are the classic triad for neonatal bacterial meningitis."
+  },
+  {
+    id: 76,
+    question: "Which virulence factor of Neisseria meningitidis is directly responsible for causing toxic damage to the host's ciliated and mucosal cells?",
+    options: [
+      "A) Polysaccharide capsule",
+      "B) IgA protease",
+      "C) Lipooligosaccharide (LOS)",
+      "D) Pili",
+      "E) Outer membrane proteins"
+    ],
+    correctIndex: 2,
+    explanation: "The LOS endotoxin causes direct damage to mucosal cells and mediates systemic toxicity."
+  },
+  {
+    id: 77,
+    question: "What is the appropriate protocol for collecting and distributing a CSF specimen when acute bacterial meningitis is suspected?",
+    options: [
+      "A) Administer antibiotics before collecting CSF.",
+      "B) Collect in a single tube and refrigerate.",
+      "C) Collect into three screw-capped tubes for microbiology, biochemistry, and hematology before starting antibiotics.",
+      "D) Perform puncture at T12-L1.",
+      "E) Delay viral transport media."
+    ],
+    correctIndex: 2,
+    explanation: "CSF must be collected before antibiotics and split into three specific tubes for comprehensive analysis."
+  },
+  {
+    id: 78,
+    question: "Why is penicillin specifically avoided as a chemoprophylactic agent for close contacts of a patient with Neisseria meningitidis?",
+    options: [
+      "A) It fails to completely eradicate the asymptomatic nasopharyngeal carrier state.",
+      "B) It induces capsular mutations.",
+      "C) It targets endotoxin without killing bacteria.",
+      "D) Cross-reacts with vaccines.",
+      "E) Ineffective against gram-positives."
+    ],
+    correctIndex: 0,
+    explanation: "While it treats active infection, penicillin fails to clear the nasopharyngeal carrier state; rifampicin is used instead."
+  },
+  {
+    id: 79,
+    question: "Waterhouse-Friderichsen syndrome (bilateral suprarenal gland failure and profound shock) complicating acute pyogenic meningitis is most commonly caused by which organism?",
+    options: [
+      "A) Haemophilus influenzae",
+      "B) Listeria monocytogenes",
+      "C) Neisseria meningitidis",
+      "D) Streptococcus pneumoniae",
+      "E) Escherichia coli"
+    ],
+    correctIndex: 2,
+    explanation: "Meningococcal septicaemia (N. meningitidis) classically causes adrenal hemorrhage."
+  },
+  {
+    id: 80,
+    question: "Which cerebrospinal fluid (CSF) profile is most consistent with a localized brain abscess (liquefactive necrosis with a vascularized rim)?",
+    options: [
+      "A) Markedly low glucose and excess neutrophils",
+      "B) Normal glucose and excess neutrophils",
+      "C) Normal glucose and predominantly lymphocytosis",
+      "D) Markedly low glucose and negative culture",
+      "E) Normal pressure and mildly increased protein"
+    ],
+    correctIndex: 1,
+    explanation: "Because bacteria are confined to the brain tissue and not in the subarachnoid space, CSF glucose remains normal despite increased neutrophils."
+  },
+  {
+    id: 81,
+    question: "Progressive Multifocal Leukoencephalopathy (PML) is driven by the JC polyomavirus selectively infecting and destroying which cell type?",
+    options: [
+      "A) Pyramidal cells",
+      "B) Anterior horn cells",
+      "C) Oligodendrocytes",
+      "D) Purkinje cells",
+      "E) Microglia"
+    ],
+    correctIndex: 2,
+    explanation: "JC virus targets oligodendrocytes, causing extensive demyelination in immunocompromised patients."
+  },
+  {
+    id: 82,
+    question: "In adults, obstruction of the ventricular system due to scarring at the brain base (e.g., post-tuberculous meningitis) typically presents with which triad of symptoms?",
+    options: [
+      "A) Compensatory dilation secondary to brain atrophy.",
+      "B) Overproduction of CSF.",
+      "C) Progressive dementia, wide-based gait, and urinary incontinence.",
+      "D) Failure of prosencephalon division.",
+      "E) Downward displacement of the cerebellar vermis."
+    ],
+    correctIndex: 2,
+    explanation: "Non-communicating hydrocephalus in adults (fused sutures) presents with this classic triad due to increased pressure."
+  },
+  {
+    id: 83,
+    question: "The core features of Dandy-Walker malformation (massive cyst-like dilation of the fourth ventricle) are directly caused by which embryological failure?",
+    options: [
+      "A) Failure of neural tube closure.",
+      "B) Partial or complete absence of the cerebellar vermis.",
+      "C) Stricture of the aqueduct of Sylvius.",
+      "D) Abnormal folding creating small gyri.",
+      "E) Herniation through lumbar defect."
+    ],
+    correctIndex: 1,
+    explanation: "Absence of the cerebellar vermis leaves a space leading to massive 4th ventricle dilation."
+  },
+  {
+    id: 84,
+    question: "A rare congenital malformation exclusively affecting females, characterized by severe mental retardation, seizures, and striking eye abnormalities, involves the absence of which structure?",
+    options: [
+      "A) Arachnoid granulations",
+      "B) Cerebellar vermis",
+      "C) Prosencephalon",
+      "D) Corpus callosum",
+      "E) Neural plate"
+    ],
+    correctIndex: 3,
+    explanation: "Agenesis of the corpus callosum with this specific symptom triad exclusively affects females."
+  },
+  {
+    id: 85,
+    question: "Compared to a mid-cervical segment, histological examination of a thoracic spinal cord segment uniquely reveals which feature?",
+    options: [
+      "A) Oval outline with thick ventral horns.",
+      "B) Presence of a lateral horn containing preganglionic autonomic nerve cells.",
+      "C) Anterior white commissure.",
+      "D) Absence of astrocytes.",
+      "E) Dorsal white columns."
+    ],
+    correctIndex: 1,
+    explanation: "Lateral horns containing autonomic neurons are present only in T1-L2/L3 and S2-S4 segments."
+  },
+  {
+    id: 86,
+    question: "Which normal histological feature of the Blood-Brain Barrier (BBB) directly restricts paracellular diffusion?",
+    options: [
+      "A) Fenestrated capillary endothelium.",
+      "B) Fine basal processes of ependymal cells.",
+      "C) Continuous type capillary endothelium lacking fenestrations.",
+      "D) Oligodendrocyte processes.",
+      "E) Beating apical cilia."
+    ],
+    correctIndex: 2,
+    explanation: "The continuous endothelium with tight junctions forms the structural basis of the BBB."
+  },
+  {
+    id: 87,
+    question: "In the light microscopic structure of anterior horn cells, which specific cytoskeletal network maintaining neuronal shape is visualized exclusively using a silver stain?",
+    options: [
+      "A) Nissl granules",
+      "B) Golgi apparatus",
+      "C) Euchromatic nuclei",
+      "D) Neurofibrils",
+      "E) Ependymal microvilli"
+    ],
+    correctIndex: 3,
+    explanation: "Neurofibrils maintain cell integrity and are only visible with specialized silver stains."
+  },
+  {
+    id: 88,
+    question: "Massive localized loss of giant pyramidal (Betz) neurons primarily affects which histological layer of the motor cerebral cortex?",
+    options: [
+      "A) External granular layer (Layer II)",
+      "B) External pyramidal layer (Layer III)",
+      "C) Internal granular layer (Layer IV)",
+      "D) Internal pyramidal layer (Layer V)",
+      "E) Multiform layer (Layer VI)"
+    ],
+    correctIndex: 3,
+    explanation: "Layer V (Ganglionic layer) houses the giant Betz cells that give rise to descending motor tracts."
+  },
+  {
+    id: 89,
+    question: "Which cellular components form the 'rosette-like' synaptic terminals (cerebellar glomeruli) in the deepest layer of the cerebellar cortex?",
+    options: [
+      "A) Climbing fibers, Purkinje dendrites, and basket axons.",
+      "B) Mossy fiber terminals, granule cell dendrites, and Golgi cell axons.",
+      "C) Climbing fibers, granule axons, and stellate dendrites.",
+      "D) Mossy fibers, Purkinje dendrites, and Golgi axons.",
+      "E) Parallel fibers, Purkinje dendrites, and basket axons."
+    ],
+    correctIndex: 1,
+    explanation: "Cerebellar glomeruli consist of mossy fibers synapsing with granule cell dendrites and Golgi cell axons."
+  },
+  {
+    id: 90,
+    question: "Which specific polygonal interneurons have long axons that uniquely ascend toward the pial surface to terminate in the molecular layer (Layer I)?",
+    options: [
+      "A) Fusiform cells",
+      "B) Pyramidal cells",
+      "C) Stellate cells",
+      "D) Horizontal cells of Cajal",
+      "E) Martinotti cells"
+    ],
+    correctIndex: 4,
+    explanation: "Martinotti cells are 'inverted' cells whose axons ascend to the outermost cortical layer."
+  },
+  {
+    id: 91,
+    question: "The belief that success will never happen, leading a person to completely stop trying after repeated failures (e.g., failed diets), is a direct clinical example of which psychological concept?",
+    options: [
+      "A) Convergent thinking",
+      "B) Unconscious psychic conflict",
+      "C) Learned helplessness",
+      "D) Evolutionary adaptation",
+      "E) Divergent thinking"
+    ],
+    correctIndex: 2,
+    explanation: "Learned helplessness occurs when repeated inability to escape an outcome leads to apathy and surrender."
+  },
+  {
+    id: 92,
+    question: "Which medical subfield of psychology specifically explores how long-term psychological stressors (e.g., job stress) affect physical diseases (e.g., hypertension, ulcers)?",
+    options: [
+      "A) Clinical neuropsychology",
+      "B) Behavioral genetics",
+      "C) Social psychology",
+      "D) Health psychology",
+      "E) Cross-cultural psychology"
+    ],
+    correctIndex: 3,
+    explanation: "Health psychology studies the interaction between psychological states and physical health."
+  },
+  {
+    id: 93,
+    question: "Proposing unconventional, loosely organized, and completely novel approaches that break out of standard mental sets utilizes which cognitive operation?",
+    options: [
+      "A) Divergent thinking",
+      "B) Convergent thinking",
+      "C) Classical conditioning",
+      "D) Psychodynamic processing",
+      "E) Humanistic projection"
+    ],
+    correctIndex: 0,
+    explanation: "Divergent thinking is creative, out-of-the-box thinking, unlike logic-based convergent thinking."
+  },
+  {
+    id: 94,
+    question: "Adopting opposite outward attitudes to avoid experiencing personally unacceptable emotions (e.g., a mother showering a resented child with excessive gifts) is an example of which defense mechanism?",
+    options: [
+      "A) Denial",
+      "B) Displacement",
+      "C) Projection",
+      "D) Reaction formation",
+      "E) Altruism"
+    ],
+    correctIndex: 3,
+    explanation: "Reaction formation masks an unacceptable impulse by exaggerating the opposite behavior."
+  },
+  {
+    id: 95,
+    question: "According to Freud’s structural theory, which statement accurately describes the location and development of the 'Superego'?",
+    options: [
+      "A) Present at birth, restricted to the unconscious.",
+      "B) Uses primary process thinking.",
+      "C) Develops around age 6 and exists across the unconscious, preconscious, and conscious levels.",
+      "D) Controls instinctual drives right after birth.",
+      "E) Operates strictly in the conscious mind."
+    ],
+    correctIndex: 2,
+    explanation: "The Superego (moral conscience) develops around age 6 and spans all three levels of consciousness."
+  },
+  {
+    id: 96,
+    question: "When a physician unconsciously transfers feelings about a relative from their own past onto a patient, leading to unfair judgment, this phenomenon is called:",
+    options: [
+      "A) Positive transference",
+      "B) Identification",
+      "C) Negative transference",
+      "D) Displacement",
+      "E) Countertransference"
+    ],
+    correctIndex: 4,
+    explanation: "Countertransference is the therapist's unconscious emotional reaction directed toward the patient."
+  },
+  {
+    id: 97,
+    question: "Systematic desensitization manages phobias by pairing a fear-provoking stimulus with a relaxing stimulus based on which underlying principle?",
+    options: [
+      "A) Immediate, overwhelming exposure.",
+      "B) Pairing pleasurable with painful stimuli.",
+      "C) A person cannot simultaneously be fearful and relaxed (reciprocal inhibition).",
+      "D) Providing physiologic feedback.",
+      "E) Conscious thought replacement."
+    ],
+    correctIndex: 2,
+    explanation: "Reciprocal inhibition prevents two opposite physiological states (anxiety and relaxation) from occurring together."
+  },
+  {
+    id: 98,
+    question: "The 'learned helplessness' animal model (where an animal learns it cannot escape an aversive stimulus and becomes apathetic) is most commonly used to study which human psychiatric condition?",
+    options: [
+      "A) Schizophrenia",
+      "B) Autism Spectrum Disorder",
+      "C) Specific Phobia",
+      "D) Depression",
+      "E) Antisocial Personality Disorder"
+    ],
+    correctIndex: 3,
+    explanation: "It serves as a primary behavioral model for human depression."
+  },
+  {
+    id: 99,
+    question: "Removing an unfavorable event or outcome (e.g., a disliked chore) after the display of a desired behavior to increase its frequency is an example of:",
+    options: [
+      "A) Positive reinforcement",
+      "B) Negative reinforcement",
+      "C) Positive punishment",
+      "D) Negative punishment",
+      "E) Classical conditioning"
+    ],
+    correctIndex: 1,
+    explanation: "Negative reinforcement strengthens a behavior by removing an unpleasant stimulus."
+  },
+  {
+    id: 100,
+    question: "A previously toilet-trained child returning to bed-wetting and sleeping in their parent's bed following a major family stressor is exhibiting which defense mechanism?",
+    options: [
+      "A) Separation anxiety disorder",
+      "B) Typical behavior with regression",
+      "C) Delayed physiological development",
+      "D) Lack of basic trust",
+      "E) Early-onset role confusion"
+    ],
+    correctIndex: 1,
+    explanation: "Regression involves reverting to earlier developmental stages during stress."
+  },
+  {
+    id: 101,
+    question: "The cognitive capacity to understand that the quantity of a substance remains the same regardless of the container's shape is called:",
+    options: [
+      "A) Abstract reasoning",
+      "B) Object permanence",
+      "C) Seriation",
+      "D) Conservation",
+      "E) Pre-conventional morality"
+    ],
+    correctIndex: 3,
+    explanation: "Conservation develops during the concrete operational stage (7-11 years)."
+  },
+  {
+    id: 102,
+    question: "Based on adolescent developmental principles, which approach is most effective for decreasing unwanted risk-taking behaviors (e.g., reckless driving) in teenagers?",
+    options: [
+      "A) Educating about obvious short-term benefits of changing behavior.",
+      "B) Emphasizing long-term consequences (e.g., cancer).",
+      "C) Initiating therapy for anxiety.",
+      "D) Total isolation from peers.",
+      "E) Explaining universal mortality."
+    ],
+    correctIndex: 0,
+    explanation: "Adolescents respond poorly to distant consequences; focusing on immediate, short-term benefits is more effective."
+  },
+  {
+    id: 103,
+    question: "In the psychiatric evaluation of the mental apparatus, which function specifically allows a patient to understand and acknowledge that they are ill?",
+    options: [
+      "A) Sensation",
+      "B) Consciousness",
+      "C) Insight",
+      "D) Attention",
+      "E) Memory"
+    ],
+    correctIndex: 2,
+    explanation: "Insight is the crucial component distinguishing between neurotic and severe psychotic disorders where awareness of illness is lost."
+  },
+  {
+    id: 104,
+    question: "Which principle of medical professionalism is considered the 'key factor' to safeguard patient information and build a strong therapeutic bond?",
+    options: [
+      "A) Empathy",
+      "B) Positive attitude towards learning",
+      "C) Leadership",
+      "D) Confidentiality",
+      "E) Working in a team"
+    ],
+    correctIndex: 3,
+    explanation: "Confidentiality ensures trust, which is the foundation of the doctor-patient relationship."
+  },
+  {
+    id: 105,
+    question: "Relying heavily on eye contact, smiling, and hand gestures to communicate with an elderly patient suffering from severe hearing loss is an example of:",
+    options: [
+      "A) Verbal communication",
+      "B) Non-verbal communication",
+      "C) Active listening",
+      "D) Integrity",
+      "E) Emotional perception"
+    ],
+    correctIndex: 1,
+    explanation: "Non-verbal communication is highly recommended for patients with language or hearing barriers."
+  },
+  {
+    id: 106,
+    question: "Weight loss >5%, intense guilt, worthlessness, and failure to resume social activities lasting several months after the death of a spouse is classified as:",
+    options: [
+      "A) Normal bereavement.",
+      "B) Normal aging presentation.",
+      "C) Normal 'bargaining' stage.",
+      "D) Abnormal grief reaction (a variety of depressive illness).",
+      "E) Pseudo-dementia."
+    ],
+    correctIndex: 3,
+    explanation: "These severe, persistent symptoms indicate abnormal grief requiring psychiatric management."
+  },
+  {
+    id: 107,
+    question: "Which combination of findings is characteristic of normal physiological and neurological changes associated with aging?",
+    options: [
+      "A) Significant decline in overall intelligence.",
+      "B) Increased cerebral blood flow.",
+      "C) Complete absence of amyloid plaques.",
+      "D) Severe cognitive deficits causing loss of independence.",
+      "E) Decreased learning speed and decreased availability of neurotransmitters."
+    ],
+    correctIndex: 4,
+    explanation: "Normal aging involves slower learning and minor memory issues that do not impair independence."
+  },
+  {
+    id: 108,
+    question: "According to Erikson, sudden lifestyle changes (career shift, divorce) triggered by an awareness of aging during middle adulthood (40-65 years) is a failure to successfully navigate which conflict?",
+    options: [
+      "A) Intimacy versus isolation",
+      "B) Generativity versus stagnation",
+      "C) Ego integrity versus despair",
+      "D) Denial versus acceptance",
+      "E) Productivity versus emptiness"
+    ],
+    correctIndex: 1,
+    explanation: "Middle adulthood involves 'generativity vs. stagnation'; failure often manifests as a midlife crisis."
+  },
+  {
+    id: 109,
+    question: "Respiratory failure following a high cervical spinal cord injury (C2-C3) is primarily due to the disruption of descending motor input to which structure?",
+    options: [
+      "A) Intercostal nerves (T1–T11)",
+      "B) Brainstem reticular formation",
+      "C) Vagus nerve (CN X)",
+      "D) Phrenic nerve roots (C3–C5)",
+      "E) Cervical sympathetic trunk"
+    ],
+    correctIndex: 3,
+    explanation: "The phrenic nerve (C3-C5) innervates the diaphragm; lesions above C3 cause respiratory arrest."
+  },
+  {
+    id: 110,
+    question: "Tearing of the bridging veins between the cerebral cortex and dural sinuses is the most common anatomical source of which type of hemorrhage?",
+    options: [
+      "A) Rupture of a Berry aneurysm",
+      "B) Subdural hemorrhage",
+      "C) Hypertensive intracerebral hemorrhage",
+      "D) Epidural hemorrhage",
+      "E) Subarachnoid hemorrhage"
+    ],
+    correctIndex: 1,
+    explanation: "Bridging veins are the typical source of bleeding in a subdural hematoma."
+  },
+  {
+    id: 111,
+    question: "An intact anal wink reflex indicates preserved sensory and motor pathways mediated by which spinal cord segments and nerve?",
+    options: [
+      "A) Pudendal nerve at S2–S4",
+      "B) Lumbar plexus at L3–L5",
+      "C) Conus medullaris at L1–L2",
+      "D) T12–L2 segments",
+      "E) Thoracic cord at T1–T11"
+    ],
+    correctIndex: 0,
+    explanation: "Both the sensory and motor limbs of the anal wink reflex are mediated by S2-S4 via the pudendal nerve."
+  }
+];
+
+// Shuffle array and randomly select 50 questions
+const quizData = [...allQuizData].sort(() => 0.5 - Math.random()).slice(0, 50);
+
+// =====================================================================
+// ==================== APPLICATION STATE ==============================
+// =====================================================================
+
+
+// =====================================================================
+// ==================== APPLICATION STATE ==============================
+// =====================================================================
+
+const state = {
+  mode: null,           // 'tutor' or 'exam'
+  currentIndex: 0,
+  answers: [],          // user's selected index per question (-1 = unanswered)
+  flagged: [],          // boolean array
+  revealed: [],         // for tutor mode: whether answer was revealed
+  timerMinutes: 60,
+  timerSeconds: 0,
+  timerInterval: null,
+  isPaused: false,
+  isHighlightMode: false,
+  isSubmitted: false,
+  highlights: []        // store highlight data per question
+};
+
+// =====================================================================
+// ==================== SETUP LOGIC ====================================
+// =====================================================================
+
+function selectMode(mode) {
+  state.mode = mode;
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.classList.toggle('selected', btn.dataset.mode === mode);
+  });
+  const startBtn = document.getElementById('startBtn');
+  startBtn.disabled = false;
+  startBtn.textContent = `Start ${mode === 'tutor' ? 'Tutor' : 'Exam'} Mode →`;
+}
+
+function startExam() {
+  if (!state.mode) return;
+
+  // Initialize state arrays
+  const total = quizData.length;
+  state.answers = new Array(total).fill(-1);
+  state.flagged = new Array(total).fill(false);
+  state.revealed = new Array(total).fill(false);
+  state.highlights = new Array(total).fill('');
+  state.currentIndex = 0;
+  state.isSubmitted = false;
+
+  // Timer
+  const timerVal = parseInt(document.getElementById('timerSelect').value);
+  state.timerMinutes = timerVal;
+  state.timerSeconds = 0;
+
+  // Switch screens
+  document.getElementById('setupScreen').style.display = 'none';
+  document.getElementById('examScreen').style.display = 'flex';
+  document.getElementById('resultScreen').style.display = 'none';
+
+  // Set mode badge
+  const badge = document.getElementById('modeBadge');
+  badge.textContent = state.mode === 'tutor' ? 'TUTOR' : 'EXAM';
+  badge.className = `header-mode-badge ${state.mode}`;
+
+  // Timer display
+  if (timerVal === 0) {
+    document.getElementById('timerDisplay').style.display = 'none';
+    document.getElementById('pauseBtn').style.display = 'none';
+  } else {
+    document.getElementById('timerDisplay').style.display = 'flex';
+    document.getElementById('pauseBtn').style.display = 'flex';
+    startTimer();
+  }
+
+  // Build question grid
+  buildQuestionGrid();
+
+  // Render first question
+  renderQuestion();
+  updateStats();
+}
+
+// =====================================================================
+// ==================== TIMER ==========================================
+// =====================================================================
+
+function startTimer() {
+  clearInterval(state.timerInterval);
+  updateTimerDisplay();
+  state.timerInterval = setInterval(() => {
+    if (state.isPaused) return;
+
+    if (state.timerMinutes === 0 && state.timerSeconds === 0) {
+      clearInterval(state.timerInterval);
+      alert('⏰ Time is up! Your exam will be submitted automatically.');
+      submitExam();
+      return;
+    }
+
+    if (state.timerSeconds === 0) {
+      state.timerMinutes--;
+      state.timerSeconds = 59;
+    } else {
+      state.timerSeconds--;
+    }
+
+    updateTimerDisplay();
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = String(state.timerMinutes).padStart(2, '0');
+  const s = String(state.timerSeconds).padStart(2, '0');
+  const el = document.getElementById('timerText');
+  el.textContent = `${m}:${s}`;
+
+  const container = document.getElementById('timerDisplay');
+  container.classList.remove('warning', 'danger');
+
+  const totalSec = state.timerMinutes * 60 + state.timerSeconds;
+  if (totalSec <= 60) {
+    container.classList.add('danger');
+  } else if (totalSec <= 300) {
+    container.classList.add('warning');
+  }
+}
+
+function togglePause() {
+  state.isPaused = !state.isPaused;
+  const pauseBtn = document.getElementById('pauseBtn');
+  const overlay = document.getElementById('pauseOverlay');
+
+  if (state.isPaused) {
+    pauseBtn.textContent = '▶';
+    pauseBtn.classList.add('active');
+    overlay.classList.add('active');
+  } else {
+    pauseBtn.textContent = '⏸';
+    pauseBtn.classList.remove('active');
+    overlay.classList.remove('active');
+  }
+}
+
+// =====================================================================
+// ==================== QUESTION GRID ==================================
+// =====================================================================
+
+function buildQuestionGrid() {
+  const grid = document.getElementById('questionGrid');
+  grid.innerHTML = '';
+  quizData.forEach((q, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'q-grid-btn';
+    btn.textContent = i + 1;
+    btn.title = `Question ${i + 1}`;
+    btn.onclick = () => goToQuestion(i);
+    btn.id = `gridBtn${i}`;
+    grid.appendChild(btn);
+  });
+}
+
+function updateQuestionGrid() {
+  quizData.forEach((q, i) => {
+    const btn = document.getElementById(`gridBtn${i}`);
+    if (!btn) return;
+
+    btn.className = 'q-grid-btn';
+
+    if (i === state.currentIndex) btn.classList.add('current');
+
+    if (state.isSubmitted) {
+      if (state.answers[i] === -1) {
+        // unanswered in review
+      } else if (state.answers[i] === quizData[i].correctIndex) {
+        btn.classList.add('correct-review');
+      } else {
+        btn.classList.add('incorrect-review');
+      }
+    } else {
+      if (state.answers[i] !== -1) btn.classList.add('answered');
+    }
+
+    if (state.flagged[i]) btn.classList.add('flagged');
+  });
+}
+
+// =====================================================================
+// ==================== RENDER QUESTION ================================
+// =====================================================================
+
+function renderQuestion() {
+  const i = state.currentIndex;
+  const q = quizData[i];
+  const total = quizData.length;
+
+  // Question number
+  document.getElementById('questionNumber').textContent = `Question ${i + 1} of ${total}`;
+
+  // Question stem with highlight restoration
+  const stemEl = document.getElementById('questionStem');
+  if (state.highlights[i] && state.highlights[i].length > 0) {
+    stemEl.innerHTML = state.highlights[i];
+  } else {
+    stemEl.innerHTML = q.question;
+  }
+
+  // Options
+  const optionsList = document.getElementById('optionsList');
+  optionsList.innerHTML = '';
+
+  const letters = ['A', 'B', 'C', 'D', 'E'];
+  const isRevealed = state.revealed[i];
+
+  q.options.forEach((opt, oi) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.onclick = () => selectOption(oi);
+
+    const letterDiv = document.createElement('div');
+    letterDiv.className = 'option-letter';
+    letterDiv.textContent = letters[oi];
+
+    const textDiv = document.createElement('div');
+    textDiv.className = 'option-text';
+    textDiv.textContent = opt;
+
+    btn.appendChild(letterDiv);
+    btn.appendChild(textDiv);
+
+    // Apply states
+    if (state.answers[i] === oi) {
+      btn.classList.add('selected');
+    }
+
+    // Tutor mode revealed
+    if (state.mode === 'tutor' && isRevealed) {
+      btn.classList.add('disabled');
+      if (oi === q.correctIndex) {
+        btn.classList.remove('selected');
+        btn.classList.add('correct');
+        const icon = document.createElement('span');
+        icon.className = 'option-feedback-icon';
+        icon.textContent = '✓';
+        btn.appendChild(icon);
+      } else if (state.answers[i] === oi) {
+        btn.classList.remove('selected');
+        btn.classList.add('incorrect');
+        const icon = document.createElement('span');
+        icon.className = 'option-feedback-icon';
+        icon.textContent = '✗';
+        btn.appendChild(icon);
+      }
+    }
+
+    optionsList.appendChild(btn);
+  });
+
+  // Explanation
+  const expBox = document.getElementById('explanationBox');
+  const expText = document.getElementById('explanationText');
+  expText.textContent = q.explanation;
+
+  if (state.mode === 'tutor' && isRevealed) {
+    expBox.classList.add('visible');
+  } else {
+    expBox.classList.remove('visible');
+  }
+
+  // Flag button
+  updateFlagButton();
+
+  // Nav buttons
+  document.getElementById('prevBtn').disabled = (i === 0);
+
+  if (i === total - 1) {
+    document.getElementById('nextBtn').style.display = 'none';
+    document.getElementById('submitBtn').style.display = 'flex';
+  } else {
+    document.getElementById('nextBtn').style.display = 'flex';
+    document.getElementById('submitBtn').style.display = 'none';
+  }
+
+  // Update grid & stats
+  updateQuestionGrid();
+  updateStats();
+
+  // Reset highlight mode visual
+  updateHighlightButton();
+}
+
+// =====================================================================
+// ==================== SELECT OPTION ==================================
+// =====================================================================
+
+function selectOption(optionIndex) {
+  const i = state.currentIndex;
+
+  // If already revealed in tutor mode, do nothing
+  if (state.mode === 'tutor' && state.revealed[i]) return;
+
+  // If already submitted
+  if (state.isSubmitted) return;
+
+  // Record answer
+  state.answers[i] = optionIndex;
+
+  // In tutor mode, reveal immediately
+  if (state.mode === 'tutor') {
+    state.revealed[i] = true;
+  }
+
+  renderQuestion();
+}
+
+// =====================================================================
+// ==================== NAVIGATION =====================================
+// =====================================================================
+
+function navigateQuestion(direction) {
+  // Save current highlights before navigating
+  saveHighlights();
+
+  const newIndex = state.currentIndex + direction;
+  if (newIndex < 0 || newIndex >= quizData.length) return;
+  state.currentIndex = newIndex;
+  renderQuestion();
+
+  // Scroll to top of question area
+  document.querySelector('.question-area').scrollTop = 0;
+}
+
+function goToQuestion(index) {
+  saveHighlights();
+  state.currentIndex = index;
+  renderQuestion();
+  document.querySelector('.question-area').scrollTop = 0;
+  closeSidebar();
+}
+
+// =====================================================================
+// ==================== FLAG FOR REVIEW ================================
+// =====================================================================
+
+function toggleFlag() {
+  const i = state.currentIndex;
+  state.flagged[i] = !state.flagged[i];
+  updateFlagButton();
+  updateQuestionGrid();
+  updateStats();
+}
+
+function updateFlagButton() {
+  const i = state.currentIndex;
+  const flagBtn = document.getElementById('flagBtn');
+  const flagNavBtn = document.getElementById('flagNavBtn');
+
+  if (state.flagged[i]) {
+    flagBtn.classList.add('flagged');
+    flagBtn.innerHTML = '<span>⚑</span> Unflag';
+    flagNavBtn.classList.add('flagged');
+    flagNavBtn.innerHTML = '⚑ Unflag';
+  } else {
+    flagBtn.classList.remove('flagged');
+    flagBtn.innerHTML = '<span>⚑</span> Flag';
+    flagNavBtn.classList.remove('flagged');
+    flagNavBtn.innerHTML = '⚑ Flag';
+  }
+}
+
+// =====================================================================
+// ==================== STATS ==========================================
+// =====================================================================
+
+function updateStats() {
+  const total = quizData.length;
+  const answered = state.answers.filter(a => a !== -1).length;
+  const unanswered = total - answered;
+  const flagged = state.flagged.filter(f => f).length;
+
+  // Desktop stats
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statAnswered').textContent = answered;
+  document.getElementById('statUnanswered').textContent = unanswered;
+  document.getElementById('statFlagged').textContent = flagged;
+
+  // Mobile stats
+  document.getElementById('mStatTotal').textContent = total;
+  document.getElementById('mStatAnswered').textContent = answered;
+  document.getElementById('mStatUnanswered').textContent = unanswered;
+  document.getElementById('mStatFlagged').textContent = flagged;
+}
+
+// =====================================================================
+// ==================== HIGHLIGHT ======================================
+// =====================================================================
+
+function toggleHighlightMode() {
+  state.isHighlightMode = !state.isHighlightMode;
+  updateHighlightButton();
+
+  const stemEl = document.getElementById('questionStem');
+
+  if (state.isHighlightMode) {
+    stemEl.addEventListener('mouseup', applyHighlight);
+    stemEl.addEventListener('touchend', applyHighlight);
+    stemEl.style.cursor = 'text';
+  } else {
+    stemEl.removeEventListener('mouseup', applyHighlight);
+    stemEl.removeEventListener('touchend', applyHighlight);
+    stemEl.style.cursor = 'default';
+  }
+}
+
+function updateHighlightButton() {
+  const btn = document.getElementById('highlightBtn');
+  if (state.isHighlightMode) {
+    btn.classList.add('highlight-active');
+  } else {
+    btn.classList.remove('highlight-active');
+  }
+}
+
+function applyHighlight() {
+  const selection = window.getSelection();
+  if (!selection || selection.isCollapsed) return;
+
+  const stemEl = document.getElementById('questionStem');
+  if (!stemEl.contains(selection.anchorNode)) return;
+
+  try {
+    const range = selection.getRangeAt(0);
+    const span = document.createElement('span');
+    span.className = 'highlight';
+    range.surroundContents(span);
+    selection.removeAllRanges();
+    saveHighlights();
+  } catch (e) {
+    // If surroundContents fails (crossing element boundaries), silently handle
+    console.warn('Highlight could not be applied across elements.');
+  }
+}
+
+function saveHighlights() {
+  const stemEl = document.getElementById('questionStem');
+  if (stemEl) {
+    state.highlights[state.currentIndex] = stemEl.innerHTML;
+  }
+}
+
+// =====================================================================
+// ==================== SIDEBAR ========================================
+// =====================================================================
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+
+  if (window.innerWidth <= 768) {
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('active', sidebar.classList.contains('open'));
+  } else {
+    sidebar.classList.toggle('collapsed');
+  }
+}
+
+function closeSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+
+  if (window.innerWidth <= 768) {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+  }
+}
+
+// =====================================================================
+// ==================== END / SUBMIT EXAM ==============================
+// =====================================================================
+
+function showEndModal() {
+  const total = quizData.length;
+  const answered = state.answers.filter(a => a !== -1).length;
+  const flagged = state.flagged.filter(f => f).length;
+
+  const summary = document.getElementById('endModalSummary');
+  summary.innerHTML = `
+    <div class="modal-summary-row"><span>Total Questions</span><strong>${total}</strong></div>
+    <div class="modal-summary-row"><span>Answered</span><strong>${answered}</strong></div>
+    <div class="modal-summary-row"><span>Unanswered</span><strong>${total - answered}</strong></div>
+    <div class="modal-summary-row"><span>Flagged for Review</span><strong>${flagged}</strong></div>
+  `;
+
+  document.getElementById('endModal').classList.add('active');
+}
+
+function hideEndModal() {
+  document.getElementById('endModal').classList.remove('active');
+}
+
+function submitExam() {
+  hideEndModal();
+  clearInterval(state.timerInterval);
+  state.isSubmitted = true;
+
+  // Calculate results
+  let correct = 0, incorrect = 0, skipped = 0;
+
+  quizData.forEach((q, i) => {
+    if (state.answers[i] === -1) {
+      skipped++;
+    } else if (state.answers[i] === q.correctIndex) {
+      correct++;
+    } else {
+      incorrect++;
+    }
+  });
+
+  const total = quizData.length;
+  const percent = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+  // Switch to result screen
+  document.getElementById('examScreen').style.display = 'none';
+  document.getElementById('resultScreen').style.display = 'block';
+
+  // Populate results
+  document.getElementById('resultMode').textContent = `${state.mode === 'tutor' ? 'Tutor' : 'Exam'} Mode Results`;
+  document.getElementById('resultCorrect').textContent = correct;
+  document.getElementById('resultIncorrect').textContent = incorrect;
+  document.getElementById('resultSkipped').textContent = skipped;
+  document.getElementById('scorePercent').textContent = `${percent}%`;
+
+  // Animate score circle
+  const circumference = 2 * Math.PI * 80; // r=80
+  const offset = circumference - (percent / 100) * circumference;
+  const progressEl = document.getElementById('scoreProgress');
+  progressEl.style.strokeDasharray = circumference;
+  progressEl.style.strokeDashoffset = circumference;
+
+  progressEl.classList.remove('high', 'mid', 'low');
+  if (percent >= 70) progressEl.classList.add('high');
+  else if (percent >= 40) progressEl.classList.add('mid');
+  else progressEl.classList.add('low');
+
+  // Trigger animation
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      progressEl.style.strokeDashoffset = offset;
+    });
+  });
+
+  // Hide review section initially
+  document.getElementById('reviewSection').style.display = 'none';
+}
+
+// =====================================================================
+// ==================== REVIEW ANSWERS =================================
+// =====================================================================
+
+function reviewAnswers() {
+  const section = document.getElementById('reviewSection');
+  const list = document.getElementById('reviewList');
+  list.innerHTML = '';
+
+  const letters = ['A', 'B', 'C', 'D', 'E'];
+
+  quizData.forEach((q, i) => {
+    const userAnswer = state.answers[i];
+    let status, badgeClass;
+
+    if (userAnswer === -1) {
+      status = 'Unanswered';
+      badgeClass = 'unanswered';
+    } else if (userAnswer === q.correctIndex) {
+      status = 'Correct';
+      badgeClass = 'correct';
+    } else {
+      status = 'Incorrect';
+      badgeClass = 'incorrect';
+    }
+
+    const item = document.createElement('div');
+    item.className = `review-item ${badgeClass}`;
+
+    let answerLines = '';
+    if (userAnswer !== -1) {
+      answerLines += `<p class="review-answer-line">Your answer: <span style="color:${userAnswer === q.correctIndex ? 'var(--success)' : 'var(--danger)'}">${letters[userAnswer]}. ${q.options[userAnswer]}</span></p>`;
+    }
+    if (userAnswer !== q.correctIndex) {
+      answerLines += `<p class="review-answer-line">Correct answer: <span style="color:var(--success)">${letters[q.correctIndex]}. ${q.options[q.correctIndex]}</span></p>`;
+    }
+
+    item.innerHTML = `
+      <div class="review-q-header">
+        <span class="review-q-number">Question ${i + 1}</span>
+        <span class="review-badge ${badgeClass}">${status}</span>
+      </div>
+      <p class="review-q-text">${q.question}</p>
+      ${answerLines}
+      <div class="review-explanation">${q.explanation}</div>
+    `;
+
+    list.appendChild(item);
+  });
+
+  section.style.display = 'block';
+  section.scrollIntoView({ behavior: 'smooth' });
+}
+
+// =====================================================================
+// ==================== RESTART ========================================
+// =====================================================================
+
+function restartExam() {
+  clearInterval(state.timerInterval);
+
+  state.mode = null;
+  state.currentIndex = 0;
+  state.answers = [];
+  state.flagged = [];
+  state.revealed = [];
+  state.highlights = [];
+  state.isPaused = false;
+  state.isHighlightMode = false;
+  state.isSubmitted = false;
+  state.timerMinutes = 60;
+  state.timerSeconds = 0;
+
+  // Reset UI
+  document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('selected'));
+  const startBtn = document.getElementById('startBtn');
+  startBtn.disabled = true;
+  startBtn.textContent = 'Select a Mode to Begin';
+
+  // Show setup
+  document.getElementById('setupScreen').style.display = 'flex';
+  document.getElementById('examScreen').style.display = 'none';
+  document.getElementById('resultScreen').style.display = 'none';
+
+  // Reset pause state
+  document.getElementById('pauseOverlay').classList.remove('active');
+  const pauseBtn = document.getElementById('pauseBtn');
+  pauseBtn.textContent = '⏸';
+  pauseBtn.classList.remove('active');
+
+  // Reset sidebar
+  document.getElementById('sidebar').classList.remove('collapsed', 'open');
+  document.getElementById('sidebarOverlay').classList.remove('active');
+}
+
+// =====================================================================
+// ==================== KEYBOARD SHORTCUTS =============================
+// =====================================================================
+
+document.addEventListener('keydown', (e) => {
+  if (document.getElementById('examScreen').style.display !== 'flex') return;
+  if (state.isPaused) return;
+  if (document.getElementById('endModal').classList.contains('active')) return;
+
+  switch (e.key) {
+    case 'ArrowRight':
+    case 'ArrowDown':
+      e.preventDefault();
+      navigateQuestion(1);
+      break;
+    case 'ArrowLeft':
+    case 'ArrowUp':
+      e.preventDefault();
+      navigateQuestion(-1);
+      break;
+    case '1': case '2': case '3': case '4': case '5':
+      const optIndex = parseInt(e.key) - 1;
+      if (optIndex < quizData[state.currentIndex].options.length) {
+        selectOption(optIndex);
+      }
+      break;
+    case 'a': case 'A':
+      selectOption(0);
+      break;
+    case 'b': case 'B':
+      selectOption(1);
+      break;
+    case 'c': case 'C':
+      selectOption(2);
+      break;
+    case 'd': case 'D':
+      if (quizData[state.currentIndex].options.length > 3) selectOption(3);
+      break;
+    case 'e': case 'E':
+      if (quizData[state.currentIndex].options.length > 4) selectOption(4);
+      break;
+    case 'f': case 'F':
+      toggleFlag();
+      break;
+  }
+});
+
+// =====================================================================
+// ==================== INITIALIZATION =================================
+// =====================================================================
+
+// Validate quiz data on load
+(function validateData() {
+  if (!quizData || quizData.length === 0) {
+    console.warn('KME: No questions found in quizData array. Please add your questions.');
+    return;
+  }
+  console.log(`KME: Loaded ${quizData.length} question(s). Ready to start.`);
+})();
+</script>
+
+</body>
+</html>
