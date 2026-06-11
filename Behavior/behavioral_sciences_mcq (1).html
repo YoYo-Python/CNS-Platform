@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Behavioral Sciences — MCQ Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0B1020;
+    --bg2: #0f1628;
+    --bg3: #141c35;
+    --primary: #4F46E5;
+    --primary-light: #6366f1;
+    --secondary: #06B6D4;
+    --accent: #8B5CF6;
+    --success: #10B981;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+    --border: rgba(255,255,255,0.07);
+    --glass: rgba(255,255,255,0.04);
+    --glass-hover: rgba(255,255,255,0.07);
+    --radius: 14px;
+    --radius-sm: 8px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); } 50% { box-shadow: 0 0 0 12px rgba(16,185,129,0); } }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 20%,60% { transform: translateX(-6px); } 40%,80% { transform: translateX(6px); } }
+  @keyframes progressBar { from { width: 0; } to { width: var(--target-width); } }
+  @keyframes glow { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+  .fade-in { animation: fadeIn 0.4s ease both; }
+  .slide-up { animation: slideUp 0.4s ease both; }
+  .pulse-anim { animation: pulse 0.6s ease; }
+  .shake-anim { animation: shake 0.4s ease; }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, #0d1530 0%, #111827 50%, #0d1530 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 24px 32px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(20px);
+  }
+
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .header-title-block h1 {
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #e2e8f0 30%, #8B5CF6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+  }
+
+  .header-title-block .subtitle {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  .level-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: 1px solid;
+    transition: all 0.3s ease;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .level-intern    { background: rgba(100,116,139,0.15); border-color: rgba(100,116,139,0.4); color: #94a3b8; }
+  .level-resident  { background: rgba(6,182,212,0.1);   border-color: rgba(6,182,212,0.4);   color: #06B6D4; }
+  .level-specialist{ background: rgba(139,92,246,0.1);  border-color: rgba(139,92,246,0.4);  color: #8B5CF6; }
+  .level-consultant{ background: rgba(79,70,229,0.1);   border-color: rgba(79,70,229,0.4);   color: #818cf8; }
+  .level-professor { background: rgba(245,158,11,0.1);  border-color: rgba(245,158,11,0.4);  color: #F59E0B; }
+
+  /* ── STATS ROW ── */
+  .stats-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .stat-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 6px 12px;
+    font-size: 0.78rem;
+  }
+
+  .stat-chip .label { color: var(--text-muted); }
+  .stat-chip .value { font-weight: 700; color: var(--text); font-family: 'JetBrains Mono', monospace; }
+  .stat-chip.accent-cyan .value { color: var(--secondary); }
+  .stat-chip.accent-green .value { color: var(--success); }
+  .stat-chip.accent-red .value { color: var(--danger); }
+  .stat-chip.accent-orange .value { color: var(--warning); }
+  .stat-chip.accent-purple .value { color: var(--accent); }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap {
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 5px;
+    background: var(--glass);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 999px;
+    transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .progress-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    min-width: 40px;
+    text-align: right;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .main { max-width: 780px; margin: 0 auto; padding: 28px 20px 80px; }
+
+  /* ── SEARCH ── */
+  .search-wrap {
+    position: relative;
+    margin-bottom: 24px;
+  }
+
+  .search-wrap svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  #searchInput {
+    width: 100%;
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px 12px 42px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  #searchInput:focus {
+    border-color: rgba(79,70,229,0.5);
+    background: var(--glass-hover);
+  }
+
+  #searchInput::placeholder { color: var(--text-muted); }
+
+  .search-count {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── FILTER TABS ── */
+  .filter-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .filter-tab {
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--glass);
+    color: var(--text-muted);
+    transition: all 0.2s;
+  }
+
+  .filter-tab:hover { background: var(--glass-hover); color: var(--text); }
+  .filter-tab.active { background: rgba(79,70,229,0.2); border-color: rgba(79,70,229,0.5); color: #818cf8; }
+
+  /* ── QUESTION CARD ── */
+  .q-card {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    animation: slideUp 0.3s ease both;
+  }
+
+  .q-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.12); }
+  .q-card.correct-card { border-color: rgba(16,185,129,0.4); box-shadow: 0 0 24px rgba(16,185,129,0.1); }
+  .q-card.wrong-card   { border-color: rgba(239,68,68,0.4);   box-shadow: 0 0 24px rgba(239,68,68,0.1); }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .q-number {
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+  }
+
+  .q-tags { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+  .tag {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .tag-easy     { background: rgba(16,185,129,0.12); color: #34d399; }
+  .tag-moderate { background: rgba(245,158,11,0.12); color: #fbbf24; }
+  .tag-hard     { background: rgba(239,68,68,0.12);  color: #f87171; }
+  .tag-exam     { background: rgba(239,68,68,0.15);  color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); }
+
+  .hook {
+    font-size: 0.78rem;
+    color: var(--secondary);
+    margin-bottom: 10px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .q-text {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 16px;
+    line-height: 1.65;
+  }
+
+  /* ── OPTIONS ── */
+  .options { display: flex; flex-direction: column; gap: 8px; }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: left;
+    width: 100%;
+    color: var(--text);
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  .option:hover:not(:disabled) {
+    background: var(--glass-hover);
+    border-color: rgba(79,70,229,0.35);
+    transform: translateX(3px);
+  }
+
+  .option:disabled { cursor: default; }
+
+  .opt-letter {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--glass);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.68rem;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all 0.18s;
+  }
+
+  .option.selected-correct { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.5); }
+  .option.selected-correct .opt-letter { background: var(--success); border-color: var(--success); color: #fff; }
+  .option.selected-wrong   { background: rgba(239,68,68,0.1);   border-color: rgba(239,68,68,0.5); }
+  .option.selected-wrong .opt-letter   { background: var(--danger);  border-color: var(--danger);  color: #fff; }
+  .option.reveal-correct   { background: rgba(16,185,129,0.07); border-color: rgba(16,185,129,0.3); }
+  .option.reveal-correct .opt-letter   { border-color: var(--success); color: var(--success); }
+
+  /* ── RESULT REVEAL ── */
+  .result-reveal {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    border-left: 3px solid;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .result-reveal.correct-reveal { background: rgba(16,185,129,0.07); border-color: var(--success); }
+  .result-reveal.wrong-reveal   { background: rgba(239,68,68,0.07);   border-color: var(--danger); }
+
+  .result-reveal .result-header {
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .correct-reveal .result-header { color: var(--success); }
+  .wrong-reveal .result-header   { color: var(--danger); }
+
+  .result-reveal .explanation {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .exam-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    padding: 3px 8px;
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #fca5a5;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── STATS PANEL ── */
+  .stats-panel {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 16px;
+  }
+
+  .stat-item { text-align: center; }
+  .stat-item .s-icon { font-size: 1.4rem; margin-bottom: 4px; }
+  .stat-item .s-val  { font-size: 1.35rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+  .stat-item .s-lab  { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  .stat-item.s-completion .s-val { color: var(--secondary); }
+  .stat-item.s-accuracy .s-val   { color: var(--accent); }
+  .stat-item.s-correct .s-val    { color: var(--success); }
+  .stat-item.s-wrong .s-val      { color: var(--danger); }
+  .stat-item.s-streak .s-val     { color: var(--warning); }
+  .stat-item.s-best .s-val       { color: var(--warning); }
+  .stat-item.s-level .s-val      { color: var(--primary-light); font-size: 0.85rem; }
+
+  /* ── SECTION DIVIDER ── */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 28px 0 14px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+  }
+
+  .section-label::before, .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── RESET BUTTON ── */
+  .reset-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 auto 24px;
+    padding: 10px 24px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(239,68,68,0.3);
+    background: rgba(239,68,68,0.07);
+    color: #f87171;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .reset-btn:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.5); }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state .e-icon { font-size: 2.5rem; margin-bottom: 12px; }
+  .empty-state p { font-size: 0.9rem; }
+
+  /* ── FLOATING TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 12px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 0.82rem;
+    font-weight: 600;
+    display: none;
+    z-index: 999;
+    animation: slideUp 0.3s ease;
+    border: 1px solid;
+    max-width: 280px;
+  }
+
+  #toast.correct-toast { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.4); color: #34d399; }
+  #toast.wrong-toast   { background: rgba(239,68,68,0.15);   border-color: rgba(239,68,68,0.4);   color: #f87171; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .header { padding: 16px; }
+    .header-top { gap: 10px; }
+    .header-title-block h1 { font-size: 1.1rem; }
+    .main { padding: 16px 12px 60px; }
+    .q-card { padding: 16px; }
+    .stats-panel { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  }
+
+  /* ── NO RESULTS ── */
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-top">
+    <div class="header-title-block">
+      <h1>Behavioral Sciences — Final Review</h1>
+      <div class="subtitle">MU · Semester 4 · 60 Questions · CBL Prep</div>
+    </div>
+    <div id="levelBadge" class="level-badge level-intern">🩺 Intern</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-chip accent-cyan">
+      <span class="label">Answered</span>
+      <span class="value" id="hdrAnswered">0</span><span class="label">/60</span>
+    </div>
+    <div class="stat-chip accent-green">
+      <span class="label">Score</span>
+      <span class="value" id="hdrScore">0</span>
+    </div>
+    <div class="stat-chip accent-purple">
+      <span class="label">Accuracy</span>
+      <span class="value" id="hdrAccuracy">0%</span>
+    </div>
+    <div class="stat-chip accent-orange">
+      <span class="label">🔥 Streak</span>
+      <span class="value" id="hdrStreak">0</span>
+    </div>
+    <div class="stat-chip">
+      <span class="label">🏆 Best</span>
+      <span class="value" id="hdrBest">0</span>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <div class="progress-label" id="progressLabel">0%</div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- STATS DASHBOARD -->
+  <div class="stats-panel slide-up" id="statsPanel">
+    <div class="stat-item s-completion">
+      <div class="s-icon">📊</div>
+      <div class="s-val" id="stCompletion">0%</div>
+      <div class="s-lab">Completion</div>
+    </div>
+    <div class="stat-item s-accuracy">
+      <div class="s-icon">🎯</div>
+      <div class="s-val" id="stAccuracy">—</div>
+      <div class="s-lab">Accuracy</div>
+    </div>
+    <div class="stat-item s-correct">
+      <div class="s-icon">✅</div>
+      <div class="s-val" id="stCorrect">0</div>
+      <div class="s-lab">Correct</div>
+    </div>
+    <div class="stat-item s-wrong">
+      <div class="s-icon">❌</div>
+      <div class="s-val" id="stWrong">0</div>
+      <div class="s-lab">Wrong</div>
+    </div>
+    <div class="stat-item s-streak">
+      <div class="s-icon">🔥</div>
+      <div class="s-val" id="stStreak">0</div>
+      <div class="s-lab">Streak</div>
+    </div>
+    <div class="stat-item s-best">
+      <div class="s-icon">🏆</div>
+      <div class="s-val" id="stBest">0</div>
+      <div class="s-lab">Best Streak</div>
+    </div>
+    <div class="stat-item s-level">
+      <div class="s-icon">🎓</div>
+      <div class="s-val" id="stLevel">Intern</div>
+      <div class="s-lab">Level</div>
+    </div>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search-wrap slide-up">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="searchInput" placeholder="Search questions, hooks, explanations…" autocomplete="off">
+    <span class="search-count" id="searchCount">60 / 60</span>
+  </div>
+
+  <!-- FILTER TABS -->
+  <div class="filter-tabs slide-up">
+    <button class="filter-tab active" onclick="setFilter('all',this)">All (60)</button>
+    <button class="filter-tab" onclick="setFilter('easy',this)">Easy (20)</button>
+    <button class="filter-tab" onclick="setFilter('moderate',this)">Moderate (25)</button>
+    <button class="filter-tab" onclick="setFilter('hard',this)">Hard (15)</button>
+    <button class="filter-tab" onclick="setFilter('exam',this)">⚠️ EXAM</button>
+    <button class="filter-tab" onclick="setFilter('unanswered',this)">Unanswered</button>
+  </div>
+
+  <!-- RESET -->
+  <button class="reset-btn" onclick="confirmReset()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
+    Reset All Progress
+  </button>
+
+  <!-- QUESTIONS -->
+  <div id="questionsContainer"></div>
+
+  <div class="empty-state hidden" id="emptyState">
+    <div class="e-icon">🔍</div>
+    <p>No questions match your search.</p>
+  </div>
+
+</main>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'bs_mcq_v2';
+
+const questions = [
+  { id:1,  diff:'easy',     hook:"Defining the mind's global capacity",  exam:false,
+    q:"Intelligence is best defined as:",
+    opts:["The ability to speak multiple languages fluently","The ability to create and understand sounds","The ability to reason, plan, solve problems, think abstractly, comprehend complex ideas, and learn quickly","The ability to control bodily motions skillfully","A localized disorder appearing only in adulthood"],
+    ans:2, exp:"Intelligence is defined as the ability to reason, plan, solve problems, think abstractly, comprehend complex ideas, learn quickly, and learn from experiences." },
+
+  { id:2,  diff:'easy',     hook:"Average IQ benchmarks",  exam:false,
+    q:"What is the IQ range for an average intelligent person?",
+    opts:["50–70","70–85","90–110","110–120","120–140"],
+    ans:2, exp:"An average intelligent person has an IQ range of 90–110." },
+
+  { id:3,  diff:'easy',     hook:"Standard deviation of the mind",  exam:false,
+    q:"What is the mean and standard deviation for IQ scores?",
+    opts:["Mean=100, SD=10","Mean=110, SD=15","Mean=100, SD=15","Mean=90, SD=20","Mean=120, SD=10"],
+    ans:2, exp:"IQ is derived from standardized tests with a mean of 100 and a standard deviation of 15." },
+
+  { id:4,  diff:'easy',     hook:"The fear center",  exam:false,
+    q:"What brain structure plays a crucial role in fear?",
+    opts:["Hippocampus","Reticular formation","Amygdala","Occipital lobe","Frontal lobe"],
+    ans:2, exp:"The amygdala is the brain structure that plays a crucial role in fear." },
+
+  { id:5,  diff:'easy',     hook:"Memory formation hub",  exam:false,
+    q:"Which brain area plays an important role in memory formation?",
+    opts:["Amygdala","Hypothalamus","Hippocampus","Locus ceruleus","Raphe nucleus"],
+    ans:2, exp:"The hippocampus is explicitly noted as playing an important role in memory formation." },
+
+  { id:6,  diff:'easy',     hook:"The body's inner strain",  exam:false,
+    q:"Internal components of stress include:",
+    opts:["Environmental circumstances","Strain","Losing a job","Facing an exam","Chronic conditions such as crowding and poverty"],
+    ans:1, exp:"The internal component of stress refers to the emotional and physical response of the body to stressors, known as strain." },
+
+  { id:7,  diff:'easy',     hook:"Mood regulation neurotransmitter",  exam:false,
+    q:"Which neurochemical is secreted by the Raphe nucleus and plays an important role in mood regulation?",
+    opts:["Corticotropin-releasing hormone","Adrenocorticotropic hormone","Cortisol","Serotonin","Norepinephrine"],
+    ans:3, exp:"Serotonin is secreted by the Raphe nucleus and regulates mood." },
+
+  { id:8,  diff:'easy',     hook:"Fight-or-flight chemical",  exam:false,
+    q:"Which neurochemical prepares the body for the fight-or-flight response?",
+    opts:["Serotonin","Norepinephrine","Cortisol","Neuropeptide Y","Corticotropin-releasing hormone"],
+    ans:1, exp:"Norepinephrine is the specific neurochemical that prepares the body for the fight-or-flight response." },
+
+  { id:9,  diff:'easy',     hook:"Norepinephrine factory",  exam:false,
+    q:"Which brain area is the principal site of synthesis of norepinephrine?",
+    opts:["Amygdala","Hypothalamus","Hippocampus","Locus ceruleus","Raphe nucleus"],
+    ans:3, exp:"The Locus ceruleus is the principal site for the synthesis of norepinephrine during stress perception." },
+
+  { id:10, diff:'easy',     hook:"Pituitary stimulation under stress",  exam:false,
+    q:"Which neurochemical is secreted during stress to stimulate the anterior lobe of the pituitary gland?",
+    opts:["Corticotropin-releasing hormone","Adrenocorticotropic hormone","Cortisol","Serotonin","Norepinephrine"],
+    ans:0, exp:"Corticotropin-releasing hormone (CRH) is secreted during stress to stimulate the anterior lobe of the pituitary gland." },
+
+  { id:11, diff:'easy',     hook:"Maslow's foundation",  exam:false,
+    q:"According to Maslow's theory, which of the following needs would have to be fulfilled first?",
+    opts:["Self-actualization","Shelter","Self-esteem","Secure income as an adult","Belongingness"],
+    ans:1, exp:"Shelter falls under the basic physiological needs that must be met first according to Maslow's hierarchy." },
+
+  { id:12, diff:'easy',     hook:"Reducing inner tension",  exam:false,
+    q:"The tendency to take actions to reduce internal tension caused by unmet needs represents which theory?",
+    opts:["Instinct theory of motivation","Incentive theory of motivation","Drive reduction theory of motivation","Arousal theory of motivation","Humanistic theory of motivation"],
+    ans:2, exp:"Drive reduction theory states behavior is motivated by the need to reduce internal tension caused by unmet biological needs." },
+
+  { id:13, diff:'easy',     hook:"Mental images of words",  exam:false,
+    q:"The development of the mental image of words is called:",
+    opts:["Vocalization","Symbolization","Object permanence","Bilingualism","Implicit memory"],
+    ans:1, exp:"Symbolization is defined as the development of the mental image of words." },
+
+  { id:14, diff:'easy',     hook:"Below 70 IQ",  exam:false,
+    q:"Mental retardation is characterized by all of the following EXCEPT:",
+    opts:["Significant impaired cognitive functioning","Deficits in two or more areas of adaptive behaviors","IQ score below 70","Affected children learn as average intelligence children","It is not a generalized disorder appearing only in adulthood"],
+    ans:3, exp:"Mental retardation is characterized by an IQ below 70 and impaired cognitive functioning; affected children do NOT learn as average intelligence children." },
+
+  { id:15, diff:'easy',     hook:"Incidence of mental delay",  exam:false,
+    q:"What is the incidence of mental retardation as mentioned in the text?",
+    opts:["1%","3%","5%","10%","20%"],
+    ans:1, exp:"The text states that the incidence of mental retardation is 3%." },
+
+  { id:16, diff:'easy',     hook:"Extrinsic motives",  exam:false,
+    q:"Which of the following is considered an Extrinsic motive?",
+    opts:["Exploration","Escape","Threat of punishment","Thirst","Manipulation"],
+    ans:2, exp:"Extrinsic motivation relies on external factors, such as the threat of punishment or earning rewards." },
+
+  { id:17, diff:'easy',     hook:"Type A drive",  exam:false,
+    q:"Type A personality is characterized by being:",
+    opts:["Competitive","Patient","Having little anger","Enjoying the process as much as the goal","Having little hostility"],
+    ans:0, exp:"Type A personalities are characterized by intense competitiveness, impatience, and hostility." },
+
+  { id:18, diff:'easy',     hook:"Secondary emotional responses",  exam:false,
+    q:"Secondary emotions include:",
+    opts:["Anger","Fear","Joy","Love","Sadness"],
+    ans:3, exp:"Love is classified as a secondary emotion in the source material." },
+
+  { id:19, diff:'easy',     hook:"What is NOT an emotion",  exam:false,
+    q:"Which of the following is NOT an emotion?",
+    opts:["Surprise","Acceptance","Submission","Joy","Anger"],
+    ans:2, exp:"Submission is identified as not being an emotion compared to the other options." },
+
+  { id:20, diff:'easy',     hook:"Defining motivation",  exam:false,
+    q:"The process that initiates, guides, and maintains goal-directed behaviors is called:",
+    opts:["Intelligence","Perception","Motivation","Emotion","Arousal"],
+    ans:2, exp:"Motivation is exactly defined as the process that initiates, guides, and maintains behaviors aimed toward a goal." },
+
+  // ── MODERATE (25) ──
+  { id:21, diff:'moderate', hook:"Grandfather's war memories",  exam:false,
+    q:"Your grandfather remembers his feelings of glory and pride when President Sadat gave a speech in 1973. Which type of memory does this correspond to?",
+    opts:["Episodic","Non-declarative","Procedural","Implicit","Working"],
+    ans:0, exp:"Personal memories of specific events and how one felt during them are classified as Episodic memory." },
+
+  { id:22, diff:'moderate', hook:"Geographic facts memory",  exam:false,
+    q:"Knowing that the Palestinian name for Jerusalem is Al-Quds and knowing it is an Arabic land corresponds to which type of memory?",
+    opts:["Episodic","Non-declarative","Procedural","Implicit","Semantic"],
+    ans:4, exp:"Semantic memory stores facts, general knowledge, and information about the world." },
+
+  { id:23, diff:'moderate', hook:"Hard military training memory",  exam:false,
+    q:"The incredible performance by the Egyptian army achieved by prior hard and intensive training corresponds to which type of memory?",
+    opts:["Episodic","Declarative","Procedural","Explicit","Semantic"],
+    ans:2, exp:"Procedural memory is the implicit (non-declarative) memory of skills and how to perform tasks, such as military operations through hard training." },
+
+  { id:24, diff:'moderate', hook:"Surgery vs Family conflict",  exam:true,
+    q:"A 24-year-old physician wants to join a Surgery Residency while simultaneously wanting to start a family. This constitutes which type of conflict?",
+    opts:["Approach-avoidance conflict","Avoidance-avoidance conflict","Multiple approach-avoidance conflict","Complex conflict","Approach-approach conflict"],
+    ans:2, exp:"Choosing between two major life paths, both having their own unique positives and negatives, creates a multiple approach-avoidance conflict. ⚠️ Conflict types are marked 'مهم مهم مهم'." },
+
+  { id:25, diff:'moderate', hook:"Studying for the full mark",  exam:false,
+    q:'"Salma is studying while keeping in mind that she has to get the full mark in the next examination." What is the source of stress here?',
+    opts:["Frustration","Approach-avoidance conflict","Approach-approach conflict","Pressure","Multiple approach-avoidance conflict"],
+    ans:3, exp:"The internal demand or expectation to achieve a specific high standard (getting the full mark) is an example of Pressure." },
+
+  { id:26, diff:'moderate', hook:"Thanksgiving school memory",  exam:false,
+    q:"A 14-year-old girl remembers that school closes early on the Wednesday before Thanksgiving every year. This is an example of which type of memory?",
+    opts:["Semantic","Episodic","Procedural","Working","Explicit"],
+    ans:1, exp:"Remembering specific recurring events linked to personal time and place is categorized as Episodic memory." },
+
+  { id:27, diff:'moderate', hook:"Information entry",  exam:false,
+    q:"What is the process of putting information into memory known as?",
+    opts:["Retrieval","Storage","Encoding","Repression","Forgetting"],
+    ans:2, exp:"Encoding is the formal term for putting or entering information into memory." },
+
+  { id:28, diff:'moderate', hook:"Sound and rhythm intelligence",  exam:false,
+    q:"Which component of intelligence involves the use of pitch, rhythm, and the ability to create and understand sounds?",
+    opts:["Logical-mathematical","Spatial","Musical","Interpersonal","Intrapersonal"],
+    ans:2, exp:"Musical intelligence governs the ability to comprehend and create sounds, pitch, and rhythm." },
+
+  { id:29, diff:'moderate', hook:"Biopsychosocial stress",  exam:false,
+    q:"The biopsychosocial model of stress primarily refers to:",
+    opts:["Personal response to stressors","Coping resources alone","Physiological responses to stress","Interaction between external events and coping resources","Lack of internal emotional regulation"],
+    ans:3, exp:"The biopsychosocial model emphasizes that stress results from the interaction between external environmental events and an individual's personal coping resources." },
+
+  { id:30, diff:'moderate', hook:"Adrenal gland hormone",  exam:false,
+    q:"What is the major stress hormone released by the adrenal gland?",
+    opts:["Norepinephrine","Serotonin","Corticotropin-releasing hormone","Adrenocorticotropic hormone","Cortisol"],
+    ans:4, exp:"Cortisol is explicitly identified as the major stress hormone released by the adrenal gland." },
+
+  { id:31, diff:'moderate', hook:"Unique enduring traits",  exam:false,
+    q:"When psychologists refer to the unique pattern of enduring psychological and behavioral characteristics by which people are compared, they mean:",
+    opts:["Ego","Perception","Cognition","Personality","Intelligence"],
+    ans:3, exp:"Personality is defined as the unique pattern of enduring psychological and behavioral characteristics distinguishing an individual." },
+
+  { id:32, diff:'moderate', hook:"Psychodynamic testing",  exam:false,
+    q:"Which technique would a psychodynamic psychologist most likely use to assess personality?",
+    opts:["Observations","Interview","Objective tests","Measurements of physiological activity","Projective personality tests"],
+    ans:4, exp:"Psychodynamic psychologists prefer projective personality tests to uncover unconscious motives and conflicts." },
+
+  { id:33, diff:'moderate', hook:"Neuroticism risks",  exam:false,
+    q:"Research shows that individuals with high neuroticism are more likely to develop:",
+    opts:["Extroversion","Heart diseases","Poverty","High intelligence","Creativity"],
+    ans:1, exp:"High levels of neuroticism are linked to a higher likelihood of developing heart diseases." },
+
+  { id:34, diff:'moderate', hook:"Choosing between two evils",  exam:true,
+    q:"Which conflict is associated with choosing between two or more negative outcomes?",
+    opts:["Complex conflict","Approach-approach conflict","Approach-avoidance conflict","Avoidance-avoidance conflict","Simple conflict"],
+    ans:3, exp:"Avoidance-avoidance conflict happens when an individual is forced to choose between two negative or undesirable outcomes. ⚠️ Conflict types are 'مهم مهم مهم'." },
+
+  { id:35, diff:'moderate', hook:"PUBG stress relief",  exam:false,
+    q:'Spending most of your time playing "PUBG" as a way to avoid the stress of studying is considered to be:',
+    opts:["Cognitive reappraisal","Stress management","Withdrawal","Removing stress","Reducing stress"],
+    ans:2, exp:"Avoiding a stressor completely by distracting oneself with gaming is classified as a withdrawal behavior." },
+
+  { id:36, diff:'moderate', hook:"Predictability and control",  exam:false,
+    q:"In general, stressful events are perceived as __________ when they are predictable and controllable than when they are not.",
+    opts:["More stressful","Not stressful at all","Less stressful","Slightly stressful","Totally stressful"],
+    ans:2, exp:"Having predictability and control over a stressful event makes it less stressful for the individual." },
+
+  { id:37, diff:'moderate', hook:"Assigning meaning to experience",  exam:false,
+    q:"The process in which input data from the sense organs are analyzed, organized and interpreted in a meaningful way is defined as:",
+    opts:["Sensation","Cognition","Memory","Perception","Intimation"],
+    ans:3, exp:"Perception is the psychological process by which sensory input is organized and interpreted to assign meaning to experiences." },
+
+  { id:38, diff:'moderate', hook:"Gestalt continuous flow",  exam:true,
+    q:"Which Gestalt rule implies that there is a natural resistance to break the continuous flow of a line, pattern, or design?",
+    opts:["Proximity","Similarity","Closure","Continuity","Texture gradient"],
+    ans:3, exp:"Continuity is the Gestalt organizational rule where brains prefer to see continuous, unbroken flows. ⚠️ Gestalt rules are marked 'مهم'." },
+
+  { id:39, diff:'moderate', hook:"Gestalt forming a unit",  exam:true,
+    q:"Perceiving things near to each other as if forming a unit or belonging together refers to:",
+    opts:["Proximity","Similarity","Closure","Continuity","Figure-ground"],
+    ans:0, exp:"The Gestalt principle of Proximity dictates that items grouped close together are perceived as a single unit. ⚠️ Gestalt rules are marked 'مهم'." },
+
+  { id:40, diff:'moderate', hook:"Filling missing gaps",  exam:true,
+    q:"The Gestalt principle where missing sensory information is automatically filled in to create complete wholes is:",
+    opts:["Proximity","Continuity","Closure","Superposition","Figure-ground"],
+    ans:2, exp:"Closure is the tendency to fill in gaps in incomplete figures to perceive a complete whole. ⚠️ Gestalt rules are marked 'مهم'." },
+
+  { id:41, diff:'moderate', hook:"Object versus background",  exam:true,
+    q:"When organizing stimuli, automatically distinguishing the object being perceived from the background is known as:",
+    opts:["Shadowing","Figure-ground","Superposition","Continuity","Linear perspective"],
+    ans:1, exp:"Figure-ground refers to the automatic tendency to separate the focal object (figure) from its background (ground). ⚠️ Gestalt rules are marked 'مهم'." },
+
+  { id:42, diff:'moderate', hook:"Implicit memory function",  exam:false,
+    q:"Which of the following best defines implicit (non-declarative) memory?",
+    opts:["The memory of facts and events","The conscious recall of information","The unconscious memory of skills and how to do things","Remembering something that is not present","The memory of spatial locations"],
+    ans:2, exp:"Implicit memory is defined as the unconscious memory of skills, procedural tasks, and how to perform actions." },
+
+  { id:43, diff:'moderate', hook:"Recall in exams",  exam:false,
+    q:"Remembering something that is not present, such as retrieving information during a written examination, is defined as:",
+    opts:["Recognition","Relearning","Incubation","Recall","Repression"],
+    ans:3, exp:"Recall is the retrieval process of remembering information without it being physically present in front of you." },
+
+  { id:44, diff:'moderate', hook:"Healthcare workload balance",  exam:false,
+    q:"Ensuring reasonable workloads for healthcare professionals to prevent burnout is a strategy known as:",
+    opts:["Outcome Measurement","Workload Management","Benchmarking","Team-Based Decision Making","Process Mapping"],
+    ans:1, exp:"Workload management is an essential mitigation strategy to maintain cognitive function and minimize stress and fatigue in healthcare." },
+
+  { id:45, diff:'moderate', hook:"Components of drive",  exam:false,
+    q:"The three components of motivation include Activation, Persistence, and:",
+    opts:["Arousal","Intensity","Intuition","Insight","Instinct"],
+    ans:1, exp:"The three recognized components of motivation are Activation, Persistence, and Intensity." },
+
+  // ── HARD (15) ──
+  { id:46, diff:'hard',     hook:"Parallel tracks merging",  exam:false,
+    q:"The monocular cue where parallel lines, such as railroad tracks, appear closer together when they are far from us is called:",
+    opts:["Texture gradient","Shadowing","Superposition","Multisensory integration","Linear perspective"],
+    ans:4, exp:"Linear perspective is a depth cue where distant objects appear smaller and parallel lines converge in the distance." },
+
+  { id:47, diff:'hard',     hook:"Covering distant objects",  exam:false,
+    q:"The monocular cue where closer objects tend to partially cover up more distant objects is:",
+    opts:["Linear perspective","Texture gradient","Shadowing","Superposition","Closure"],
+    ans:3, exp:"Superposition occurs when one object overlaps another, causing the overlapping object to be perceived as closer." },
+
+  { id:48, diff:'hard',     hook:"Attractive equals smart",  exam:false,
+    q:"Perceiving attractive personnel as smart, happy, rich, and honest is an example of:",
+    opts:["Devil effect","Halo effect","Multisensory integration","Figure-ground","Closure"],
+    ans:1, exp:"The Halo effect involves drawing a generally positive impression of someone based on a single positive characteristic, like attractiveness." },
+
+  { id:49, diff:'hard',     hook:"Unattractive equals dumb",  exam:false,
+    q:"Perceiving unattractive personnel as dumb, poor, and dishonest describes:",
+    opts:["Halo effect","Devil effect","Interference theory","Repression","Cognitive redefinition"],
+    ans:1, exp:"The Devil effect is the negative counterpart to the halo effect, where a single negative physical trait biases overall perception negatively." },
+
+  { id:50, diff:'hard',     hook:"Integrating senses",  exam:false,
+    q:"The concept stating that we do not perceive the world using one sense at a time but interpret information from multiple organs simultaneously is called:",
+    opts:["Superposition","Halo effect","Multisensory integration","Perception mapping","Sensory decay"],
+    ans:2, exp:"Multisensory integration explains that the brain combines inputs from different sensory organs simultaneously to interpret the world." },
+
+  { id:51, diff:'hard',     hook:"Amnesia for the past",  exam:false,
+    q:"A memory disorder characterized by an inability to retrieve old long-term memories is known as:",
+    opts:["Retrograde amnesia","Anterograde amnesia","Decay theory","Schema theory","Repression"],
+    ans:0, exp:"Retrograde amnesia is the specific memory disorder where a person loses the ability to access pre-existing, old long-term memories." },
+
+  { id:52, diff:'hard',     hook:"Amnesia for the future",  exam:false,
+    q:"A memory disorder characterized by an inability to store or retrieve NEW information in long-term memory is:",
+    opts:["Retrograde amnesia","Anterograde amnesia","Proactive interference","Motivated forgetting","Relearning deficit"],
+    ans:1, exp:"Anterograde amnesia prevents the formation of new memories after the onset of the amnesia." },
+
+  { id:53, diff:'hard',     hook:"Scientific fact verification",  exam:true,
+    q:"In the stages of creativity, the phase where the null hypothesis becomes a scientific fact is:",
+    opts:["Preparation","Incubation","Intimation","Illumination","Verification"],
+    ans:4, exp:"Verification is the final stage of creativity where ideas are tested and proven, turning a hypothesis into scientific fact. ⚠️ Stages of creativity are marked 'مهم'." },
+
+  { id:54, diff:'hard',     hook:"Evaluating peer institutions",  exam:false,
+    q:"Comparing clinical outcomes with peer institutions to identify areas of strength and weakness is known as:",
+    opts:["Outcome Measurement","Process Mapping","Benchmarking","Data-Driven Medicine","Structured Decision-Making"],
+    ans:2, exp:"Benchmarking is an evaluation strategy that relies on comparing an institution's performance metrics against peers." },
+
+  { id:55, diff:'hard',     hook:"Stress curve stages",  exam:false,
+    q:"Stress passes through three stages on the Stress Curve. They are Alarm, Resistance, and:",
+    opts:["Coping","Relaxation","Exhaustion","Appraisal","Withdrawal"],
+    ans:2, exp:"The three stages of the physiological stress curve are Alarm, Resistance, and Exhaustion." },
+
+  { id:56, diff:'hard',     hook:"Stress buffers",  exam:false,
+    q:"Factors capable of increasing or decreasing the effects of stress through direct or indirect mechanisms are called:",
+    opts:["Stress initiators","Coping resources","Stress Mediators","Strain components","Environmental circumstances"],
+    ans:2, exp:"Stress mediators (buffers) are factors like social support and humor that increase or decrease the severity of a stress response." },
+
+  { id:57, diff:'hard',     hook:"Adaptive stress reduction",  exam:false,
+    q:"Distracting oneself from a stressful situation, such as by reading, is an example of:",
+    opts:["Emotion-focused coping","Problem-focused coping","Maladaptive withdrawal","Adaptive stress management","Biofeedback"],
+    ans:3, exp:"The source lists distracting oneself, exercise, and biofeedback as adaptive (healthy) ways to manage stress and arousal." },
+
+  { id:58, diff:'hard',     hook:"Intrinsic vs Extrinsic",  exam:false,
+    q:"Intrinsic motivation occurs when:",
+    opts:["Obligations or approval are primary factors.","There is no obvious external reward for one's behavior.","There are obvious external factors controlling behavior.","Extrinsic motivation is also high.","Motivation is driven by threat of punishment."],
+    ans:1, exp:"Intrinsic motivation (primary motives) occurs purely out of internal interest without obvious external rewards controlling the behavior." },
+
+  { id:59, diff:'hard',     hook:"Central traits exclusion",  exam:false,
+    q:"Which of the following is NOT among the characteristics of central traits?",
+    opts:["More common","Influence much of one's behavior","Organize much of one's behavior","Aimed to obtain power","Dominates one's life"],
+    ans:3, exp:"'Aimed to obtain power' is not a characteristic of central traits; central traits are common traits that organize and influence behavior." },
+
+  { id:60, diff:'hard',     hook:"Type B personality",  exam:false,
+    q:"Which of the following is a characteristic of Type B behavior?",
+    opts:["Intense competitiveness","High reactivity","Enjoys the process","Extreme impatience","Prone to heart disease"],
+    ans:2, exp:"Type B personalities are defined as non-competitive, patient, having little anger, and enjoying the process." },
+];
+
+// ── STATE ──
+let state = {
+  answers: {}, // id -> { chosen, correct }
+  score: 0,
+  streak: 0,
+  best: 0
+};
+
+const LEVELS = [
+  { max:20,  name:'Intern',     cls:'level-intern',     icon:'🩺' },
+  { max:35,  name:'Resident',   cls:'level-resident',   icon:'🏥' },
+  { max:45,  name:'Specialist', cls:'level-specialist', icon:'⚕️' },
+  { max:55,  name:'Consultant', cls:'level-consultant', icon:'🎖️' },
+  { max:60,  name:'Professor',  cls:'level-professor',  icon:'🏆' },
+];
+
+function getLevel(score) {
+  return LEVELS.find(l => score <= l.max) || LEVELS[LEVELS.length - 1];
+}
+
+// ── PERSISTENCE ──
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function loadState() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    try { state = JSON.parse(raw); } catch(e) {}
+  }
+}
+
+// ── FILTER STATE ──
+let activeFilter = 'all';
+let searchQuery = '';
+
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function applyFilters() {
+  const q = searchQuery.toLowerCase();
+  let visible = 0;
+  questions.forEach(item => {
+    const card = document.getElementById('card-' + item.id);
+    if (!card) return;
+
+    let show = true;
+    if (activeFilter === 'easy'       && item.diff !== 'easy')       show = false;
+    if (activeFilter === 'moderate'   && item.diff !== 'moderate')   show = false;
+    if (activeFilter === 'hard'       && item.diff !== 'hard')       show = false;
+    if (activeFilter === 'exam'       && !item.exam)                 show = false;
+    if (activeFilter === 'unanswered' && state.answers[item.id])     show = false;
+
+    if (show && q) {
+      const combined = (item.hook + ' ' + item.q + ' ' + item.exp + ' ' + item.opts.join(' ')).toLowerCase();
+      if (!combined.includes(q)) show = false;
+    }
+
+    card.classList.toggle('hidden', !show);
+    if (show) visible++;
+  });
+
+  document.getElementById('searchCount').textContent = visible + ' / 60';
+  document.getElementById('emptyState').classList.toggle('hidden', visible > 0);
+}
+
+// ── RENDER ──
+function renderQuestions() {
+  const container = document.getElementById('questionsContainer');
+  container.innerHTML = '';
+
+  const diffLabels = { easy:'Easy', moderate:'Moderate', hard:'Hard' };
+  const diffDelays = [0, 3000, 6000];
+  let delays = { easy:0, moderate:0, hard:0 };
+
+  // Section labels
+  const sections = [
+    { key:'easy',     label:'Easy — Definitions & Core Concepts',    color:'#34d399' },
+    { key:'moderate', label:'Moderate — Applications & Comparisons', color:'#fbbf24' },
+    { key:'hard',     label:'Hard — Scenarios & Mechanisms',         color:'#f87171' },
+  ];
+
+  sections.forEach((sec, si) => {
+    const div = document.createElement('div');
+    div.className = 'section-label';
+    div.style.color = sec.color;
+    div.innerHTML = sec.label;
+    container.appendChild(div);
+
+    questions.filter(q => q.diff === sec.key).forEach((item, idx) => {
+      const card = buildCard(item, idx * 50);
+      container.appendChild(card);
+    });
+  });
+}
+
+function buildCard(item, delay) {
+  const answered = state.answers[item.id];
+
+  const card = document.createElement('div');
+  card.className = 'q-card';
+  card.id = 'card-' + item.id;
+  card.style.animationDelay = delay + 'ms';
+
+  if (answered) {
+    card.classList.add(answered.correct ? 'correct-card' : 'wrong-card');
+  }
+
+  const diffLabel = { easy:'Easy', moderate:'Moderate', hard:'Hard' }[item.diff];
+
+  let tagsHtml = `<span class="tag tag-${item.diff}">${diffLabel}</span>`;
+  if (item.exam) tagsHtml += `<span class="tag tag-exam">⚠️ EXAM</span>`;
+
+  let optionsHtml = item.opts.map((opt, i) => {
+    let cls = 'option';
+    if (answered) {
+      if (i === item.ans)           cls += ' reveal-correct';
+      if (i === answered.chosen) {
+        cls += answered.correct ? ' selected-correct' : ' selected-wrong';
+      }
+    }
+    return `<button class="${cls}" ${answered ? 'disabled' : ''} onclick="answer(${item.id}, ${i})">
+      <span class="opt-letter">${['A','B','C','D','E'][i]}</span>
+      <span>${opt}</span>
+    </button>`;
+  }).join('');
+
+  let revealHtml = '';
+  if (answered) {
+    const correctLetter = ['A','B','C','D','E'][item.ans];
+    const cls = answered.correct ? 'correct-reveal' : 'wrong-reveal';
+    const icon = answered.correct ? '✅' : '❌';
+    const msg  = answered.correct ? 'Correct!' : `Wrong — Correct Answer: ${correctLetter}`;
+    revealHtml = `<div class="result-reveal ${cls}">
+      <div class="result-header">${icon} ${msg}</div>
+      <div class="explanation">📖 ${item.exp}</div>
+      ${item.exam ? '<div class="exam-badge">⚠️ HIGH-YIELD EXAM TOPIC</div>' : ''}
+    </div>`;
+  }
+
+  card.innerHTML = `
+    <div class="q-meta">
+      <span class="q-number">Q${item.id} / 60</span>
+      <div class="q-tags">${tagsHtml}</div>
+    </div>
+    <div class="hook">🎯 ${item.hook}</div>
+    <div class="q-text">${item.q}</div>
+    <div class="options" id="opts-${item.id}">${optionsHtml}</div>
+    ${revealHtml}
+  `;
+
+  return card;
+}
+
+// ── ANSWER ──
+function answer(id, chosen) {
+  if (state.answers[id]) return;
+
+  const item = questions.find(q => q.id === id);
+  const correct = chosen === item.ans;
+
+  state.answers[id] = { chosen, correct };
+
+  if (correct) {
+    state.score++;
+    state.streak++;
+    if (state.streak > state.best) state.best = state.streak;
+  } else {
+    state.streak = 0;
+  }
+
+  saveState();
+  updateHUD();
+  updateCard(item, chosen, correct);
+  showToast(correct, item.opts[item.ans]);
+}
+
+function updateCard(item, chosen, correct) {
+  const optsContainer = document.getElementById('opts-' + item.id);
+  if (!optsContainer) return;
+
+  const btns = optsContainer.querySelectorAll('.option');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === item.ans)  btn.classList.add('reveal-correct');
+    if (i === chosen) {
+      btn.classList.add(correct ? 'selected-correct' : 'selected-wrong');
+    }
+  });
+
+  const card = document.getElementById('card-' + item.id);
+  if (card) {
+    card.classList.add(correct ? 'correct-card' : 'wrong-card');
+    card.classList.add(correct ? 'pulse-anim' : 'shake-anim');
+    setTimeout(() => card.classList.remove('pulse-anim', 'shake-anim'), 600);
+
+    const correctLetter = ['A','B','C','D','E'][item.ans];
+    const cls = correct ? 'correct-reveal' : 'wrong-reveal';
+    const icon = correct ? '✅' : '❌';
+    const msg  = correct ? 'Correct!' : `Wrong — Correct Answer: ${correctLetter}`;
+
+    const reveal = document.createElement('div');
+    reveal.className = 'result-reveal ' + cls;
+    reveal.innerHTML = `<div class="result-header">${icon} ${msg}</div>
+      <div class="explanation">📖 ${item.exp}</div>
+      ${item.exam ? '<div class="exam-badge">⚠️ HIGH-YIELD EXAM TOPIC</div>' : ''}`;
+    card.appendChild(reveal);
+  }
+}
+
+// ── HUD ──
+function updateHUD() {
+  const answered  = Object.keys(state.answers).length;
+  const correct   = Object.values(state.answers).filter(a => a.correct).length;
+  const wrong     = answered - correct;
+  const pct       = Math.round((answered / 60) * 100);
+  const accuracy  = answered > 0 ? Math.round((correct / answered) * 100) : 0;
+  const level     = getLevel(state.score);
+
+  // Header
+  document.getElementById('hdrAnswered').textContent = answered;
+  document.getElementById('hdrScore').textContent    = state.score;
+  document.getElementById('hdrAccuracy').textContent = answered > 0 ? accuracy + '%' : '—';
+  document.getElementById('hdrStreak').textContent   = state.streak;
+  document.getElementById('hdrBest').textContent     = state.best;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = pct + '%';
+
+  // Level badge
+  const badge = document.getElementById('levelBadge');
+  badge.className = 'level-badge ' + level.cls;
+  badge.textContent = level.icon + ' ' + level.name;
+
+  // Stats panel
+  document.getElementById('stCompletion').textContent = pct + '%';
+  document.getElementById('stAccuracy').textContent   = answered > 0 ? accuracy + '%' : '—';
+  document.getElementById('stCorrect').textContent    = correct;
+  document.getElementById('stWrong').textContent      = wrong;
+  document.getElementById('stStreak').textContent     = state.streak;
+  document.getElementById('stBest').textContent       = state.best;
+  document.getElementById('stLevel').textContent      = level.name;
+}
+
+// ── TOAST ──
+let toastTimer;
+function showToast(correct, correctAnswer) {
+  clearTimeout(toastTimer);
+  const toast = document.getElementById('toast');
+  toast.className = correct ? 'correct-toast' : 'wrong-toast';
+  toast.textContent = correct ? '✅ Correct! Keep it up 🔥' : `❌ Wrong — ${correctAnswer}`;
+  toast.style.display = 'block';
+  toastTimer = setTimeout(() => { toast.style.display = 'none'; }, 2800);
+}
+
+// ── RESET ──
+function confirmReset() {
+  if (confirm('Reset all progress? This cannot be undone.')) {
+    state = { answers: {}, score: 0, streak: 0, best: 0 };
+    saveState();
+    location.reload();
+  }
+}
+
+// ── INIT ──
+loadState();
+renderQuestions();
+updateHUD();
+applyFilters();
+
+document.getElementById('searchInput').addEventListener('input', function() {
+  searchQuery = this.value;
+  applyFilters();
+});
+</script>
+</body>
+</html>
